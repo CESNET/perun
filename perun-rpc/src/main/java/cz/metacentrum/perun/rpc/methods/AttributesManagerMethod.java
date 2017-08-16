@@ -413,6 +413,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param group in Group <code>id</code>
+	 * @param attributes List<Attribute> List of attributes
+	 */
+	/*#
+	 * Sets the attributes.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -523,7 +533,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 			if (parms.contains("facility")) {
 				if (parms.contains("user")) {
-					if (parms.contains("member") && parms.contains("resource")) {
+					if (parms.contains("member") && parms.contains("resource") && parms.contains("group")) {
+						ac.getAttributesManager().setAttributes(ac.getSession(),
+								ac.getFacilityById(parms.readInt("facility")),
+								ac.getResourceById(parms.readInt("resource")),
+								ac.getGroupById(parms.readInt("group")),
+								ac.getUserById(parms.readInt("user")),
+								ac.getMemberById(parms.readInt("member")),
+								parms.readList("attributes", Attribute.class));
+					} else if (parms.contains("member") && parms.contains("resource")) {
 						ac.getAttributesManager().setAttributes(ac.getSession(),
 								ac.getFacilityById(parms.readInt("facility")),
 								ac.getResourceById(parms.readInt("resource")),
@@ -1268,7 +1286,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns required attributes.
+	 * Returns member and member-resource attributes required by the specified service.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param service int Service <code>id</code>
@@ -1276,7 +1294,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns member and member-resource attributes required by the specified service.
+	 * If workWithUserAttributes == TRUE, then returns also user attributes.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param service int Service <code>id</code>
@@ -1285,7 +1304,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns group-resource attributes required by specified service.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param service int Service <code>id</code>
@@ -1293,14 +1312,35 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns resource attributes required by specified service.
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param resource int Resource <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns member, member-group and member-resource attributes required by specified service.
+	 * If workWithUserAttributes == TRUE, then returns also user and user-facility attributes.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param workWithUserAttributes boolean If <code>true</code>, return also User and User-facility attributes. <code>False</code> is default.
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
+	 * Returns member, member-group and member-resource attributes required by specified service.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
+	 * Returns member-group attributes required by specified service.
+	 * If workWithUserAttributes == TRUE, then returns also member and user attributes.
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param member int Member <code>id</code>
@@ -1309,7 +1349,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns member-group attributes required by specified service.
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param member int Member <code>id</code>
@@ -1317,35 +1357,36 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns facility attributes required by specified service.
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param service int Service <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns facility attributes required by specified list of services.
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param services List<int> list of Service IDs
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns required host attributes.
 	 *
 	 * @param host int Host <code>id</code>
 	 * @param service int Service <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns required member and member-resource attributes.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param resource int Resource <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns required member and member-resource attributes.
+	 * If workWithUserAttributes == TRUE, then returns also user attributes.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param resource int Resource <code>id</code>
@@ -1353,39 +1394,56 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns required resource attributes.
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns required user-facility attributes.
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns required facility attributes.
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns required member attributes.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns required member attributes.
+	 * If workWithUserAttributes == TRUE, then returns also user attributes.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
-	 * Returns required attributes.
+	 * Returns member and member-group required attributes.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
+	 * Returns member and member-group required attributes.
+	 * If workWithUserAttributes == TRUE, then returns also user attributes.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
+	 * Returns required user attributes.
 	 *
 	 * @param user int User <code>id</code>
 	 * @return List<Attribute> Required Attributes
@@ -1396,7 +1454,23 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		public List<Attribute> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("service")) {
 				if (parms.contains("resource")) {
-					if (parms.contains("member")) {
+					if (parms.contains("member") && parms.contains("group")) {
+						if (parms.contains("workWithUserAttributes")) {
+							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+									ac.getServiceById(parms.readInt("service")),
+									ac.getResourceById(parms.readInt("resource")),
+									ac.getGroupById(parms.readInt("group")),
+									ac.getMemberById(parms.readInt("member")),
+									parms.readBoolean("workWithUserAttributes"));
+						} else {
+							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+									ac.getServiceById(parms.readInt("service")),
+									ac.getResourceById(parms.readInt("resource")),
+									ac.getGroupById(parms.readInt("group")),
+									ac.getMemberById(parms.readInt("member")),
+									false);
+						}
+					} else if (parms.contains("member")) {
 						if (parms.contains("workWithUserAttributes")) {
 							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 									ac.getServiceById(parms.readInt("service")),
@@ -1495,12 +1569,26 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getFacilityById(parms.readInt("facility")));
 				}
 			} else if (parms.contains("member")) {
-				if (parms.contains("workWithUserAttributes")) {
-					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-							ac.getMemberById(parms.readInt("member")), parms.readBoolean("workWithUserAttributes"));
+				if (parms.contains("group")) {
+					if (parms.contains("workWithUserAttributes")) {
+						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								ac.getGroupById(parms.readInt("group")),
+								parms.readBoolean("workWithUserAttributes"));
+					} else {
+						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								ac.getGroupById(parms.readInt("group")),
+								false);
+					}
 				} else {
-					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-							ac.getMemberById(parms.readInt("member")), false);
+					if (parms.contains("workWithUserAttributes")) {
+						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")), parms.readBoolean("workWithUserAttributes"));
+					} else {
+						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")), false);
+					}
 				}
 			} else if (parms.contains("user")) {
 				return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
@@ -1620,6 +1708,28 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Group-resource attributes
 	 */
 	/*#
+	 * Gets member-group and member-resource attributes.
+	 * If workWithUserAttributes == TRUE then return also member, user, user-facility attributes.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param workWithUserAttributes boolean Work with member, user, user-facility attributes. False is default value.
+	 * @return List<Attribute> Member-group and member-resource attributes, if workWithUserAttributes == TRUE, member, user and user-facility attributes are returned too.
+	 */
+	/*#
+	 * Gets member-group and member-resource attributes.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @return List<Attribute> Member-group and member-resource attributes
+	 */
+	/*#
 	 * Gets group attributes.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
@@ -1649,6 +1759,22 @@ public enum AttributesManagerMethod implements ManagerMethod {
 									ac.getResourceById(parms.readInt("resource")),
 									ac.getUserById(parms.readInt("user")),
 									ac.getMemberById(parms.readInt("member")));
+						} else if (parms.contains("group")) {
+							if (parms.contains("workWithUserAttributes")) {
+								return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
+										ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
+										ac.getResourceById(parms.readInt("resource")),
+										ac.getGroupById(parms.readInt("group")),
+										ac.getMemberById(parms.readInt("member")),
+										parms.readBoolean("workWithUserAttributes"));
+							} else {
+								return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
+										ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
+										ac.getResourceById(parms.readInt("resource")),
+										ac.getGroupById(parms.readInt("group")),
+										ac.getMemberById(parms.readInt("member")),
+										false);
+							}
 						} else if (parms.contains("workWithUserAttributes")) {
 							return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
 									ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
@@ -2388,6 +2514,18 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove attributes of namespace:
 	 *
+	 * user, user-facility, member, member-resource, member-group
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Integer> List of attributes IDs to remove
+	 */
+	/*#
+	 * Remove attributes of namespace:
+	 *
 	 * user-facility
 	 *
 	 * @param facility int Facility <code>id</code>
@@ -2517,7 +2655,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 
 			if (parms.contains("facility")) {
-				if (parms.contains("resource") && parms.contains("user") && parms.contains("member")) {
+				if (parms.contains("resource") && parms.contains("group") && parms.contains("user") && parms.contains("member")) {
+					ac.getAttributesManager().removeAttributes(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							ac.getResourceById(parms.readInt("resource")),
+							ac.getGroupById(parms.readInt("group")),
+							ac.getUserById(parms.readInt("user")),
+							ac.getMemberById(parms.readInt("member")),
+							attributes);
+				} else if (parms.contains("resource") && parms.contains("user") && parms.contains("member")) {
 					ac.getAttributesManager().removeAttributes(ac.getSession(),
 							ac.getFacilityById(parms.readInt("facility")),
 							ac.getResourceById(parms.readInt("resource")),

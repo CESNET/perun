@@ -267,6 +267,20 @@ public interface GroupsManagerBl {
 	 */
 	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
 
+	/**
+	 * Return list of assigned groups on the resource (without subgroups unless they are assigned too),
+	 * which contain specific member
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @param member
+	 *
+	 * @return list of groups, which are assigned on the resource and contain specific member
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member) throws InternalErrorException;
+
 	/** Return list of assigned groups on the resource.
 	 *
 	 * @param perunSession
