@@ -259,8 +259,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				memberResourceAttributeNames.add(attributeName);
 			} else if(attributeName.startsWith(AttributesManager.NS_USER_FACILITY_ATTR)) {
 				userFacilityAttirbuteNames.add(attributeName);
-			} else if(attributeName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
-
 			} else {
 				log.error("Attribute defined by " + attributeName + " is not in supported namespace. Skip it there!");
 			}
@@ -289,13 +287,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		List<String> memberGroupAttributeNames = new ArrayList<>();
 
-		//possible inefficiency - additional iteration over attrNames
 		for(String attributeName: attrNames) {
 			if(attributeName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
 				memberGroupAttributeNames.add(attributeName);
-			} else if (!(attributeName.startsWith(AttributesManager.NS_USER_ATTR) || attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR) || attributeName.startsWith (AttributesManager.NS_MEMBER_RESOURCE_ATTR) || attributeName.startsWith(AttributesManager.NS_USER_FACILITY_ATTR)))
-			{
-				log.error("Attribute defined by " + attributeName + " is not in supported namespace. Skip it there!");
 			}
 		}
 		if(!memberGroupAttributeNames.isEmpty()){
