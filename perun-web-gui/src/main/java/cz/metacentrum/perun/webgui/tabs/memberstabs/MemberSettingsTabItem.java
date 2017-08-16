@@ -103,6 +103,7 @@ public class MemberSettingsTabItem implements TabItem {
 		final Map<String, Integer> ids = new HashMap<String, Integer>();
 		ids.put("member", member.getId());
 		ids.put("workWithUserAttributes", 1); // work with user
+		if (groupId != 0) ids.put("group", groupId);
 		final GetResourceRequiredAttributesV2 resourceRequired = new GetResourceRequiredAttributesV2(ids, JsonCallbackEvents.passDataToAnotherCallback(callback));
 		final GetRequiredAttributes required = new GetRequiredAttributes(ids, JsonCallbackEvents.passDataToAnotherCallback(callback));
 
@@ -133,6 +134,10 @@ public class MemberSettingsTabItem implements TabItem {
 						callback.retrieveData();
 						callback.getUserFacilityAttributes(listbox.getSelectedObject().getFacilityId(), member.getUser().getId());
 						callback.retrieveData();
+						if (groupId != 0) {
+							callback.getMemberGroupAttributes(member.getId(), groupId);
+							callback.retrieveData();
+						}
 						// if required attributes
 					} else if (filter.getSelectedIndex() == 1) {
 						callback.clearTable();
@@ -142,6 +147,7 @@ public class MemberSettingsTabItem implements TabItem {
 						lastSelectedFilterIndex = 2;
 						ids.put("member", member.getId());
 						ids.put("resource", listbox.getSelectedObject().getId());
+						if (groupId != 0) ids.put("group", groupId);
 						ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
 						ids.put("workWithUserAttributes",1);
 						resourceRequired.retrieveData();
@@ -151,6 +157,7 @@ public class MemberSettingsTabItem implements TabItem {
 						ids.clear();
 						ids.put("member", member.getId());
 						ids.put("resource", listbox.getSelectedObject().getId());
+						if (groupId != 0) ids.put("group", groupId);
 						ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
 						ids.put("workWithUserAttributes",1);
 						resourceRequired.retrieveData();
@@ -162,12 +169,17 @@ public class MemberSettingsTabItem implements TabItem {
 						callback.clearTable();
 						callback.getMemberAttributes(member.getId(), 1);
 						callback.retrieveData();
+						if (groupId != 0) {
+							callback.getMemberGroupAttributes(member.getId(), groupId);
+							callback.retrieveData();
+						}
 						// if required attributes
 					} else if (filter.getSelectedIndex() == 1) {
 						callback.clearTable();
 						ids.clear();
 						ids.put("member", member.getId());
 						ids.put("workWithUserAttributes", 1);
+						if (groupId != 0) ids.put("group", groupId);
 						required.retrieveData();
 						// if resource required
 					} else if (filter.getSelectedIndex() == 2) {
@@ -283,6 +295,10 @@ public class MemberSettingsTabItem implements TabItem {
 									callback.retrieveData();
 									callback.getUserFacilityAttributes(listbox.getSelectedObject().getFacilityId(), member.getUser().getId());
 									callback.retrieveData();
+									if (groupId != 0) {
+										callback.getMemberGroupAttributes(member.getId(), groupId);
+										callback.retrieveData();
+									}
 								}
 							}));
 						} else {
@@ -293,6 +309,7 @@ public class MemberSettingsTabItem implements TabItem {
 									ids.clear();
 									ids.put("member", member.getId());
 									ids.put("resource", listbox.getSelectedObject().getId());
+									if (groupId != 0) ids.put("group", groupId);
 									ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
 									ids.put("workWithUserAttributes", 1);
 									resourceRequired.retrieveData();
@@ -305,6 +322,7 @@ public class MemberSettingsTabItem implements TabItem {
 						ids.put("resource", listbox.getSelectedObject().getId());
 						ids.put("facility", listbox.getSelectedObject().getFacilityId());
 						ids.put("user", member.getUserId());
+						if (groupId != 0) ids.put("group", groupId);
 						request.setAttributes(ids, callback.getTableSelectedList());
 					} else {
 						// if resource not selected
@@ -321,13 +339,19 @@ public class MemberSettingsTabItem implements TabItem {
 							request = new SetAttributes(JsonCallbackEvents.disableButtonEvents(saveChangesButton, new JsonCallbackEvents() {
 								public void onFinished(JavaScriptObject jso) {
 									callback.clearTable();
+									callback.getMemberAttributes(memberId, 1);
 									callback.retrieveData();
+									if (groupId != 0) {
+										callback.getMemberGroupAttributes(memberId, groupId);
+										callback.retrieveData();
+									}
 								}
 							}));
 						}
 						// make setAttributes call
 						ids.clear();
 						ids.put("member", member.getId());
+						if (groupId != 0) ids.put("group", groupId);
 						ids.put("workWithUserAttributes", 1);
 						request.setAttributes(ids, callback.getTableSelectedList());
 					}
@@ -344,6 +368,7 @@ public class MemberSettingsTabItem implements TabItem {
 				Map<String, Integer> ids = new HashMap<String,Integer>();
 				ids.put("member", member.getId());
 				ids.put("user", member.getUser().getId());
+				if (groupId != 0) ids.put("group", groupId);
 				if (listbox.getSelectedIndex() > 0) {
 					ids.put("resource", listbox.getSelectedObject().getId());
 					ids.put("facility", listbox.getSelectedObject().getFacilityId());
@@ -376,6 +401,10 @@ public class MemberSettingsTabItem implements TabItem {
 									callback.retrieveData();
 									callback.getUserFacilityAttributes(listbox.getSelectedObject().getFacilityId(), member.getUser().getId());
 									callback.retrieveData();
+									if (groupId != 0) {
+										callback.getMemberGroupAttributes(member.getId(), groupId);
+										callback.retrieveData();
+									}
 								}
 							}));
 						} else {
@@ -386,6 +415,7 @@ public class MemberSettingsTabItem implements TabItem {
 									ids.clear();
 									ids.put("member", member.getId());
 									ids.put("resource", listbox.getSelectedObject().getId());
+									if (groupId != 0) ids.put("group", groupId);
 									ids.put("resourceToGetServicesFrom", listbox.getSelectedObject().getId());
 									ids.put("workWithUserAttributes",1);
 									resourceRequired.retrieveData();
@@ -398,6 +428,7 @@ public class MemberSettingsTabItem implements TabItem {
 						ids.put("resource", listbox.getSelectedObject().getId());
 						ids.put("facility",listbox.getSelectedObject().getFacilityId());
 						ids.put("user", member.getUserId());
+						if (groupId != 0) ids.put("group", groupId);
 						request.removeAttributes(ids, callback.getTableSelectedList());
 					} else {
 						// if resource not selected
@@ -414,13 +445,19 @@ public class MemberSettingsTabItem implements TabItem {
 							request = new RemoveAttributes(JsonCallbackEvents.disableButtonEvents(removeButton, new JsonCallbackEvents(){
 								public void onFinished(JavaScriptObject jso) {
 									callback.clearTable();
+									callback.getMemberAttributes(memberId, 1);
 									callback.retrieveData();
+									if (groupId != 0) {
+										callback.getMemberGroupAttributes(memberId, groupId);
+										callback.retrieveData();
+									}
 								}
 							}));
 						}
 						// make removeAttributes call
 						ids.clear();
 						ids.put("member", member.getId());
+						if (groupId != 0) ids.put("group", groupId);
 						ids.put("workWithUserAttributes", 1);
 						request.removeAttributes(ids, callback.getTableSelectedList());
 					}

@@ -211,7 +211,19 @@ public class SetNewAttributeTabItem implements TabItem {
 
 					SetAttributes request = new SetAttributes(events);
 
-					if (ids.size() == 4 && ids.containsKey("facility") && ids.containsKey("user") && ids.containsKey("member") && ids.containsKey("resource")) {
+					if (ids.size() == 5 && ids.containsKey("facility") && ids.containsKey("user") && ids.containsKey("member") && ids.containsKey("resource") && ids.containsKey("group")) {
+
+						ArrayList sendList = new ArrayList();
+						sendList.addAll(memberList);
+						sendList.addAll(userList);
+						sendList.addAll(memberResourceList);
+						sendList.addAll(userFacilityList);
+						sendList.addAll(memberGroupList);
+
+						request.setAttributes(ids, sendList);
+
+
+					} else if (ids.size() == 4 && ids.containsKey("facility") && ids.containsKey("user") && ids.containsKey("member") && ids.containsKey("resource")) {
 
 						ArrayList sendList = new ArrayList();
 						sendList.addAll(memberList);
@@ -221,6 +233,17 @@ public class SetNewAttributeTabItem implements TabItem {
 
 						request.setAttributes(ids, sendList);
 
+
+					} else if (ids.size() == 3 && ids.containsKey("member") && ids.containsKey("user") && ids.containsKey("group")) {
+
+						ArrayList sendList = new ArrayList();
+						sendList.addAll(memberList);
+						sendList.addAll(userList);
+						sendList.addAll(memberGroupList);
+						// call proper method in RPC
+						ids.put("workWithUserAttributes", 1);
+						request.setAttributes(ids, sendList);
+						ids.remove("workWithUserAttributes");
 
 					} else if (ids.size() == 2 &&ids.containsKey("facility") && ids.containsKey("user")) {
 
@@ -393,8 +416,14 @@ public class SetNewAttributeTabItem implements TabItem {
 		// resource relative
 		if (ids.contains("resource")) {
 			if (ids.contains("member")) {
-				namespaces.add("member");
-				namespaces.add("member_resource");
+				if (ids.contains("group")) {
+					namespaces.add("member");
+					namespaces.add("member_resource");
+					namespaces.add("member_group");
+				} else {
+					namespaces.add("member");
+					namespaces.add("member_resource");
+				}
 			} else if (ids.contains("group")) {
 				namespaces.add("group");
 				namespaces.add("group_resource");
@@ -416,6 +445,7 @@ public class SetNewAttributeTabItem implements TabItem {
 		}
 		if (ids.contains("member")) {
 			if (ids.contains("group")) {
+				namespaces.add("member");
 				namespaces.add("member_group");
 			} else {
 				namespaces.add("member");
@@ -430,7 +460,8 @@ public class SetNewAttributeTabItem implements TabItem {
 		if (ids.contains("vo")) {
 			namespaces.add("vo");
 		}
-		if (ids.contains("group")) {
+		// we never set member-group and group attributes together !!
+		if (ids.contains("group") && !ids.contains("member")) {
 			namespaces.add("group");
 		}
 

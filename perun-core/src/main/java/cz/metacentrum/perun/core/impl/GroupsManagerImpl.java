@@ -349,6 +349,19 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
+							" groups_resources on groups.id=groups_resources.group_id and groups_resources.resource_id=?" +
+							" join groups_members on groups_members.group_id=groups.id and groups_members.member_id=?",
+					GROUP_MAPPER, resource.getId(), member.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Group>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) throws InternalErrorException {
 		try {
 			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups join " +
@@ -719,7 +732,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
-	
+
 	public boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException {
 		try {
 			return 1 > jdbc.queryForInt("SELECT parent_flag"+Compatibility.castToInteger()+" FROM groups_groups WHERE result_gid=? AND operand_gid=?",

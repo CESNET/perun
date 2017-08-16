@@ -798,6 +798,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return getAssignedGroupsToResource(sess, resource, false);
 	}
 
+	public List<Group> getAssignedGroupsToResource(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
+		return getGroupsManagerImpl().getAssignedGroupsToResource(sess, resource, member);
+	}
+
 	public List<Group> getAssignedGroupsToResource(PerunSession sess, Resource resource, boolean withSubGroups) throws InternalErrorException {
 		List<Group> assignedGroups = getGroupsManagerImpl().getAssignedGroupsToResource(sess, resource);
 		if(!withSubGroups) return assignedGroups;

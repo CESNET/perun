@@ -277,6 +277,21 @@ public interface ResourcesManager {
 	List<Group> getAssignedGroups(PerunSession perunSession, Resource resource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException;
 
 	/**
+	 * List all groups associated with the resource and member
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @param member
+	 *
+	 * @return list of assigned groups
+	 *
+	 * @throws InternalErrorException
+	 * @throws ResourceNotExistsException
+	 * @throws PrivilegeException
+	 */
+	List<Group> getAssignedGroups(PerunSession perunSession, Resource resource, Member member) throws InternalErrorException, PrivilegeException, ResourceNotExistsException;
+
+	/**
 	 * List all resources associated with the group.
 	 *
 	 * @param perunSession
@@ -444,7 +459,7 @@ public interface ResourcesManager {
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * 
+	 *
 	 * @return count of all resources
 	 */
 	int getResourcesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException;

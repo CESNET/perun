@@ -173,7 +173,8 @@ public interface GroupsManagerImplApi {
 	 */
 	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException;
 
-	/** Return groups by theirs id.
+	/**
+	 * Return groups by theirs id.
 	 *
 	 * @param perunSession
 	 * @param groupsIds list of group ids
@@ -184,7 +185,8 @@ public interface GroupsManagerImplApi {
 	 */
 	List<Group> getGroupsByIds(PerunSession perunSession, List<Integer> groupsIds) throws InternalErrorException;
 
-	/** Return list of assigned groups on the resource.
+	/**
+	 * Return list of assigned groups on the resource.
 	 *
 	 * @param perunSession
 	 * @param resource
@@ -195,7 +197,21 @@ public interface GroupsManagerImplApi {
 	 */
 	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
 
-	/** Return list of assigned groups from all facility resources
+	/**
+	 * Return list of assigned groups on the resource with specified member.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @param member
+	 *
+	 * @return list of groups, which are assigned on the resource with specified member
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member) throws InternalErrorException;
+
+	/**
+	 * Return list of assigned groups from all facility resources
 	 *
 	 * @param perunSession
 	 * @param facility
@@ -206,7 +222,8 @@ public interface GroupsManagerImplApi {
 	 */
 	List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
-	/** Return group users sorted by name.
+	/**
+	 * Return group users sorted by name.
 	 *
 	 * @param sess
 	 * @param group
