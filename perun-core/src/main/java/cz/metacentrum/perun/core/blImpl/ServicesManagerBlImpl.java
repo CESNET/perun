@@ -243,9 +243,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
 		for(Member member : members) {
 			// append also member_group attributes for each member in a group
-			// rest of member/user attributes was passed in a param
+			// rest of member/user attributes was passed in a param if present
 			ServiceAttributes tempAttrs = new ServiceAttributes();
-			tempAttrs.addAttributes(memberAttributes.get(member).getAttributes());
+			if (memberAttributes.get(member) != null) {
+				tempAttrs.addAttributes(memberAttributes.get(member).getAttributes());
+			}
 			tempAttrs.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, member, group));
 			groupsMembersElement.addChildElement(tempAttrs);
 		}
