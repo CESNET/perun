@@ -200,6 +200,29 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+		if(attrNames.isEmpty()) return this.getAttributes(sess, member, group, workWithUserAttributes);
+
+		//differentiate between user+member and member-group namespace
+		List<String> userAndMemberAttributeNames = new ArrayList<>();
+		List<String> memberGroupAttributeNames = new ArrayList<>();
+		for(String attrName : attrNames) {
+			if(attrName.startsWith(AttributesManager.NS_USER_ATTR) || attrName.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
+				userAndMemberAttributeNames.add(attrName);
+			} else if(attrName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+				memberGroupAttributeNames.add(attrName);
+			} else {
+				log.error("Attribute defined by " + attrName + " is not in supported namespace. Skip it there!");
+			}
+		}
+
+		List<Attribute> attributes = new ArrayList<>();
+		if(!userAndMemberAttributeNames.isEmpty()) attributes.addAll(this.getAttributes(sess, member, userAndMemberAttributeNames, workWithUserAttributes));
+		if(!memberGroupAttributeNames.isEmpty()) attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, group, memberGroupAttributeNames));
+
+		return attributes;
+	}
+
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		// get virtual attributes
