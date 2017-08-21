@@ -132,8 +132,9 @@ public class PerunNotifRegexDaoImpl extends JdbcDaoSupport implements
 	public boolean isRegexRelation(int templateId, Integer regexId) {
 
 		logger.debug("Trying to load relation between template: {}, and regex: {}", Arrays.asList(templateId, regexId));
-		SqlRowSet rowSet = this.getJdbcTemplate().queryForRowSet("select * from pn_template_regex where template_id = ? AND regex_id = ?", templateId, regexId);
-		return rowSet.next();
+		int countOfRelations = this.getJdbcTemplate().queryForObject(
+				"select count (*) from pn_template_regex where template_id = ? AND regex_id = ?", Integer.class, templateId, regexId);
+		return countOfRelations > 0;
 	}
 
 	@Override
