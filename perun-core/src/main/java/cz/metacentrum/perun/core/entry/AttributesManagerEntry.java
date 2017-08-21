@@ -228,7 +228,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
-		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, member, group, workWithUserAttributes);
+		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, member, group, attrNames, workWithUserAttributes);
 		Iterator<Attribute> attrIter = attributes.iterator();
 		// Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
