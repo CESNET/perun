@@ -3762,21 +3762,4 @@ public interface AttributesManagerBl {
 	 * @throws ModuleNotExistsException
 	 */
 	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException;
-
-	/**
-	* Method returns attribute with null value if attribute has empty string;
-	*
-	* @param attributeToConvert
-	* @return Attribute with original value or null value for empty string
-	*/
-	Attribute convertEmptyStringIntoNullInAttrValue(Attribute attributeToConvert);
-
-	/**
-	 * Method returns attribute with null value if attribute value is boolean == false
-	 *
-	 * @param attributeToConvert
-	 * @return Attribute with original value or null value for boolean == false
-	 */
-	Attribute convertBooleanFalseIntoNullInAttrValue(Attribute attributeToConvert);
-
 }
