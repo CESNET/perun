@@ -216,17 +216,14 @@ public interface AttributesManagerBl {
 	List<Attribute> getAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
-	 * Get all attributes associated with the member in the group which have name in list attrNames.
-	 * If workWithUserAttributes is true, get also all <b>non-empty</b> user and member attributes
-	 * which have name in list attrNames.
-	 *
-	 * If list attrNames is empty, return all possible <b>non-empty</b> attributes.
+	 * Get all attributes associated with the member in the group which have name in list attrNames (empty too).
+	 * If workWithUserAttribute is true, return also all user attributes in list of attrNames (with virtual attributes too).
 	 *
 	 * @param sess perun session
 	 * @param member to get the attributes from
 	 * @param group group to get the attributes from
 	 * @param attrNames list of attributes' names
-	 * @param workWithUserAttributes if true returns user and member attributes (user is automatically get from member)
+	 * @param workWithUserAttributes if true returns also user and member attributes (user is automatically get from member)
 	 * @return list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
