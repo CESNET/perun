@@ -16,10 +16,10 @@ sub help {
 	--groupName       | -G group name
 	--voId            | -v vo id
 	--voShortName     | -V vo short name
-        --authGroupId     | -a authorized groupId
-        --authGroupName   | -A authorized group Name
-        --authGroupVoId   | -o authorized group VO Id
-        --authGroupVoName | -O authorized group VO Name
+	--authGroupId     | -a authorized groupId
+	--authGroupName   | -A authorized group Name
+	--authGroupVoId   | -o authorized group VO Id
+	--authGroupVoName | -O authorized group VO Name
 	--batch           | -b batch
 	--help            | -h prints this help
 
@@ -62,22 +62,22 @@ if (!defined($groupId)) {
 }
 
 if (defined $userId) {
-    $groupsAgent->removeAdmin( group => $groupId, user => $userId );
+	$groupsAgent->removeAdmin( group => $groupId, user => $userId );
 
-    printMessage("Group Manager (user) Id:$userId successfully removed from the group Id:$groupId", $batch);
+	printMessage("Group Manager (user) Id:$userId successfully removed from the group Id:$groupId", $batch);
 } else {
-    unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
-    unless (defined $authGroupId) {
-        unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";}
+	unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
+	unless (defined $authGroupId) {
+		unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";}
 
-        unless (defined $authGroupVoId) {
-             my $vo = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName );
-             $authGroupVoId = $vo->getId;
-        }
-        my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
-        $authGroupId = $group->getId;
-    }
-    $groupsAgent->removeAdmin( group => $groupId, authorizedGroup => $authGroupId );
-    printMessage("Manager Group Id:$authGroupId successfully removed from Group :$groupId", $batch);
+		unless (defined $authGroupVoId) {
+			my $vo = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName );
+			$authGroupVoId = $vo->getId;
+		}
+		my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
+		$authGroupId = $group->getId;
+	}
+	$groupsAgent->removeAdmin( group => $groupId, authorizedGroup => $authGroupId );
+	printMessage("Manager Group Id:$authGroupId successfully removed from Group :$groupId", $batch);
 }
 

@@ -12,10 +12,10 @@ sub help {
 	------------------------------------
 	Available options:
 	--resourceId      | -r resource id
-        --authGroupId     | -a authorized groupId
-        --authGroupName   | -A authorized group Name
-        --authGroupVoId   | -o authorized group VO Id
-        --authGroupVoName | -O authorized group VO Name
+	--authGroupId     | -a authorized groupId
+	--authGroupName   | -A authorized group Name
+	--authGroupVoId   | -o authorized group VO Id
+	--authGroupVoName | -O authorized group VO Name
 	--userId          | -u user id
 	--batch           | -b batch
 	--help            | -h prints this help
@@ -45,24 +45,24 @@ my $resourcesAgent = $agent->getResourcesAgent;
 
 #add user
 if (defined $userId) {
-    $resourcesAgent->addAdmin( resource => $resourceId, user => $userId );
+	$resourcesAgent->addAdmin( resource => $resourceId, user => $userId );
 
-    printMessage("User Id:$userId successfully added as a Resource Id:$resourceId manager", $batch);
+	printMessage("User Id:$userId successfully added as a Resource Id:$resourceId manager", $batch);
 
 } else {
 #add group
-    unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
-    unless (defined $authGroupId) {
-        unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";} 
+	unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
+	unless (defined $authGroupId) {
+		unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";} 
 
-        my $groupsAgent = $agent->getGroupsAgent;
-        unless (defined $authGroupVoId) {
-             my $vo = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName ); 
-             $authGroupVoId = $vo->getId;
-        }
-        my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
-        $authGroupId = $group->getId;
-    }
-    $resourcesAgent->addAdmin( resource => $resourceId, authorizedGroup => $authGroupId);
-    printMessage("Group Id:$authGroupId successfully added as a Resource Id:$resourceId manager", $batch);
+		my $groupsAgent = $agent->getGroupsAgent;
+		unless (defined $authGroupVoId) {
+			my $vo = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName ); 
+			$authGroupVoId = $vo->getId;
+		}
+		my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
+		$authGroupId = $group->getId;
+	}
+	$resourcesAgent->addAdmin( resource => $resourceId, authorizedGroup => $authGroupId);
+	printMessage("Group Id:$authGroupId successfully added as a Resource Id:$resourceId manager", $batch);
 }

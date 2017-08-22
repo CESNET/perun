@@ -16,10 +16,10 @@ sub help {
 	--voId            | -v vo id
 	--voShortName     | -V vo short name
 	--userId          | -u user id
-        --authGroupId     | -a authorized groupId
-        --authGroupName   | -A authorized group Name
-        --authGroupVoId   | -o authorized group VO Id
-        --authGroupVoName | -O authorized group VO Name
+	--authGroupId     | -a authorized groupId
+	--authGroupName   | -A authorized group Name
+	--authGroupVoId   | -o authorized group VO Id
+	--authGroupVoName | -O authorized group VO Name
 	--batch           | -b batch
 	--help            | -h prints this help
 
@@ -60,22 +60,22 @@ if (!defined($groupId)) {
 }
 
 if (defined $userId) {
-    $groupsAgent->addAdmin( group => $groupId, user => $userId );
+	$groupsAgent->addAdmin( group => $groupId, user => $userId );
 
-    printMessage("User Id:$userId successfully added as a manager of the group Id:$groupId", $batch);
+	printMessage("User Id:$userId successfully added as a manager of the group Id:$groupId", $batch);
 } else {
-    unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
-    unless (defined $authGroupId) {
-        unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";}
+	unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
+	unless (defined $authGroupId) {
+		unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";}
 
-        unless (defined $authGroupVoId) {
-             my $vo = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName );
-             $authGroupVoId = $vo->getId;
-        }
-        my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
-        $authGroupId = $group->getId;
-    }
-    $groupsAgent->addAdmin( group => $groupId, authorizedGroup => $authGroupId );
-    printMessage("Group Id:$authGroupId successfully added as a manager of Group :$groupId", $batch);
+		unless (defined $authGroupVoId) {
+			my $vo = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName );
+			$authGroupVoId = $vo->getId;
+		}
+		my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
+		$authGroupId = $group->getId;
+	}
+	$groupsAgent->addAdmin( group => $groupId, authorizedGroup => $authGroupId );
+	printMessage("Group Id:$authGroupId successfully added as a manager of Group :$groupId", $batch);
 }
 

@@ -118,6 +118,12 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	 * @param securityTeam int Security team <code>id</code>
 	 * @return List<User> List of Users who are managers (members) of specified SecurityTeam.
 	 */
+	/*#
+	 * Get managers of SecurityTeam by its <code>id</code>.
+	 * @param securityTeam int Security team <code>id</code>
+	 * @param onlyDirectAdmins boolean if true, get only direct SecurityTeam administrators (if false, get both direct and indirect)
+	 * @return List<User> List of Users who are managers (members) of specified SecurityTeam.
+	 */
 	getAdmins {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -132,38 +138,21 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
         	}             
 	},
 
- /*#
-         * Get all SecurityTeam direct admins.
-         *
-         * @deprecated
-         * @param securityTeam int SecurityTeam  <code>id</code>
-         * @return List<User> list of admins of the SecurityTeam. 
-         */
-        getDirectAdmins {
+	/*#
+	 * Get all SecurityTeam groups of admins.
+	 *
+	 * @param  securityTeam int SecurityTeam <code>id</code>
+	 * @return List<Group> admins
+	 */
+	getAdminGroups {
 
-                @Override
-                public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-                        return ac.getSecurityTeamsManager().getDirectAdmins(ac.getSession(),
-                        ac.getSecurityTeamById(parms.readInt("securityTeam")));
-                }
-        },
-
-        /*#
-         * Get all SecurityTeam groups of admins.
-         *
-         * @param  securityTeam int SecurityTeam <code>id</code>
-         * @return List<Group> admins
-         */
-        getAdminGroups {
-
-                @Override
-                public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-                        return ac.getSecurityTeamsManager().getAdminGroups(ac.getSession(),
-                        ac.getSecurityTeamById(parms.readInt("securityTeam")));
-                }
-        },
+			return ac.getSecurityTeamsManager().getAdminGroups(ac.getSession(),
+			ac.getSecurityTeamById(parms.readInt("securityTeam")));
+		}
+	},
 
 	/*#
 	 * Add User as a manager to SecurityTeam

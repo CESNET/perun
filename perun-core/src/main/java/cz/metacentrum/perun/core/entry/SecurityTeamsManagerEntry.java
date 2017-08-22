@@ -211,32 +211,18 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		return getSecurityTeamsManagerBl().getAdmins(sess, securityTeam, onlyDirectAdmins);
 	}
 
-        @Deprecated
-        @Override
-        public List<User> getDirectAdmins(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException, PrivilegeException {
-                Utils.checkPerunSession(sess);
+	@Override
+	public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
 
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
-                // Authorization
+		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
-                        throw new PrivilegeException(sess, "getDirectAdmins");
-                }
+			throw new PrivilegeException(sess, "getAdminGroups");
+		}
 
-                return getSecurityTeamsManagerBl().getDirectAdmins(sess, securityTeam);
-        }
-
-        @Override
-        public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException, PrivilegeException {
-                Utils.checkPerunSession(sess);
-
-		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
-                // Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
-                        throw new PrivilegeException(sess, "getAdminGroups");
-                }
-
-                return getSecurityTeamsManagerBl().getAdminGroups(sess, securityTeam);
-        }
+		return getSecurityTeamsManagerBl().getAdminGroups(sess, securityTeam);
+	}
 
 	@Override
 	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyAdminException {

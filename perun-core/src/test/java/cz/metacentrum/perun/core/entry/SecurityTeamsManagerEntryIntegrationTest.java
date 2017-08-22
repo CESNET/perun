@@ -340,6 +340,21 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 	}
 
 	@Test
+	public void testGetDirectAdmins() throws Exception {
+		System.out.println(CLASS_NAME + "testGetDirectAdmins");
+
+		setUpSecurityTeams();
+		setUpUsers();
+		List<User> expected = setUpAdmins(u1, u2, setUpGroup(u3, u4));
+                expected.remove(u3);
+                expected.remove(u4);
+		List<User> actual = securityTeamsManagerEntry.getAdmins(sess, st0, true);
+		Collections.sort(expected);
+		Collections.sort(actual);
+		assertEquals(expected, actual);
+	}
+
+	@Test
 	public void testGetAdminsEmpty() throws Exception {
 		System.out.println(CLASS_NAME + "testGetAdminsEmpty");
 
@@ -353,30 +368,18 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		assertEquals(expected, actual);
 	}
 
-        @Test
-        public void testGetDirectAdmins() throws Exception {
-                System.out.println(CLASS_NAME + "testGetDirectAdmins");
-
+	@Test
+	public void testGetAdminGroups() throws Exception {
+		System.out.println(CLASS_NAME + "testGetAdminGroups");
 		setUpSecurityTeams();
-                setUpUsers();
-
-                securityTeamsManagerEntry.addAdmin(sess, st0, u0);
-                assertTrue(securityTeamsManagerEntry.getDirectAdmins(sess, st0).contains(u0));
-
-        }
-
-        @Test
-        public void testGetAdminGroups() throws Exception {
-                System.out.println(CLASS_NAME + "testGetAdminGroups");
-                setUpSecurityTeams();
-                setUpUsers();
+		setUpUsers();
 		Group group = setUpGroup(u1, u2);
 		setUpAdmins(u0, u1, group);
 
-                //securityTeamsManagerEntry.addAdmin(sess, st0, group);
+		//securityTeamsManagerEntry.addAdmin(sess, st0, group);
 
-                assertTrue(securityTeamsManagerEntry.getAdminGroups(sess, st0).contains(group));
-        }
+		assertTrue(securityTeamsManagerEntry.getAdminGroups(sess, st0).contains(group));
+	}
 
 	@Test(expected = InternalErrorException.class)
 	public void testGetAdminsWithNullSecurityTeam() throws Exception {

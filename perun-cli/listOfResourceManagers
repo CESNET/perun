@@ -12,21 +12,19 @@ sub help {
 	Tool prints list of Resource Manager. Resource is required field.
 	------------------------------
 	Available options:
-	--resourceId   | -f resource id
-	--orderById    | -i order by Manager's identifier
-	--orderByName  | -n  order by Manager's name
+	--resourceId   | -r resource id
+	--orderByName  | -n  order by Manager's name (default by Id)
 	--batch        | -b batch
 	--help         | -h prints this help
 	};
 }
 
-my ($resourceId, $userId, $sortingFunction, $sortingFunction2, $byId, $byName, $batch);
+my ($resourceId, $userId, $sortingFunction, $sortingFunction2, $byName, $batch);
 GetOptions("help|h"    => sub {
 		print help;
 		exit 0;
 	},
-	"resourceId|f=i"   => \$resourceId,
-	"orderById|i"      => \$byId,
+	"resourceId|r=i"   => \$resourceId,
 	"orderByName|n"    => \$byName,
 	"batch|b"          => \$batch) || die help;
 
@@ -37,11 +35,11 @@ my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
 
 #options check
 if (defined $byName) {
-    $sortingFunction = getSortingFunction("getLastName",1);
-    $sortingFunction2 = getSortingFunction("getLastName",1);
+	$sortingFunction = getSortingFunction("getLastName",1);
+	$sortingFunction2 = getSortingFunction("getLastName",1);
 } else {
-    $sortingFunction = getSortingFunction("getId");
-    $sortingFunction2 = getSortingFunction("getUserId");
+	$sortingFunction = getSortingFunction("getId");
+	$sortingFunction2 = getSortingFunction("getUserId");
 }
 
 unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
@@ -51,7 +49,7 @@ my @richUsers = $resourcesAgent->getAdmins( resource => $resourceId, onlyDirectA
 my @groups = $resourcesAgent->getAdminGroups ( resource => $resourceId );
 
 unless (@richUsers or @groups ) {
-   printMessage "No Managers found", $batch;
+	printMessage "No Managers found", $batch;
 }
 
 $table->setCols('Managers group', 'User Id', 'Name');
@@ -59,25 +57,25 @@ $table->setCols('Managers group', 'User Id', 'Name');
 # direct managers
 my $ii=0;
 foreach my $richUser (sort $sortingFunction @richUsers) {
-    if ($ii++ == 0) {
-        $table->addRow ('Direct Managers',$richUser->getId, $richUser->getDisplayName);
-    } else {
-        $table->addRow ('',$richUser->getId, $richUser->getDisplayName);
-    }
+	if ($ii++ == 0) {
+		$table->addRow ('Direct Managers',$richUser->getId, $richUser->getDisplayName);
+	} else {
+		$table->addRow ('',$richUser->getId, $richUser->getDisplayName);
+	}
 }
 
 # groups of managers
 while (@groups) {
-    $table->addRow (' ',' ',' ') if $ii;
-    my $group=shift (@groups);
-    my @members = $groupsAgent->getGroupRichMembers ( group => $group->getId);
-    $ii=0;
-    foreach my $member (sort $sortingFunction2 @members) {
-        if ($ii++ == 0) {
-            $table->addRow ($group->getName,$member->getUserId, $member->getDisplayName);
-        } else {
-            $table->addRow ('',$member->getUserId, $member->getDisplayName);
-        }
-    }
+	$table->addRow (' ',' ',' ') if $ii;
+	my $group=shift (@groups);
+	my @members = $groupsAgent->getGroupRichMembers ( group => $group->getId);
+	$ii=0;
+	foreach my $member (sort $sortingFunction2 @members) {
+		if ($ii++ == 0) {
+			$table->addRow ($group->getName,$member->getUserId, $member->getDisplayName);
+		} else {
+			$table->addRow ('',$member->getUserId, $member->getDisplayName);
+		}
+	}
 }
 print tableToPrint($table, $batch);

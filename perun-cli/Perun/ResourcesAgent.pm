@@ -143,11 +143,6 @@ sub getRichAdminsWithAttributes
         return Perun::Common::callManagerMethod('getRichAdminsWithAttributes', '[]RichUser', @_);
 }
 
-sub getDirectAdmins
-{
-        return Perun::Common::callManagerMethod('getDirectAdmins', '[]RichUser', @_);
-}
-
 sub getAdminGroups
 {
         return Perun::Common::callManagerMethod('getAdminGroups', '[]Group', @_);
