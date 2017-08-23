@@ -50,7 +50,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_cesnet_eduroam ext
 		}
 
 		// Set login of user in namespace cesnet-eduroam with value of counter
-		filledAttribute.setValue(counterValue);
+		filledAttribute.setValue(counterValue.toString());
 
 		// Increment value of counter
 		counterValue++;
