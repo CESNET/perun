@@ -14,7 +14,7 @@ import java.util.TreeMap;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.api.exceptions.rt.WrongAttributeAssignmentRuntimeException;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -43,7 +44,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	private final GroupsManagerImplApi groupsManagerImpl;
 	private PerunBl perunBl;
-
+	private Integer maxConcurentGroupsToSynchronize;
+	private ConcurrentLinkedDeque<Group> queueOfGroupsToBeSynchronized;
 	private Map<Integer, GroupSynchronizerThread> groupSynchronizerThreads;
 	private static final String A_G_D_AUTHORITATIVE_GROUP = AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup";
 
@@ -53,7 +55,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 */
 	public GroupsManagerBlImpl(GroupsManagerImplApi groupsManagerImpl) {
 		this.groupsManagerImpl = groupsManagerImpl;
-		this.groupSynchronizerThreads = new HashMap<Integer, GroupSynchronizerThread>();
+		this.groupSynchronizerThreads = new HashMap<>();
+		this.queueOfGroupsToBeSynchronized = new ConcurrentLinkedDeque<>();
+		//set maximum concurent groups to synchronize by property or if any problem, then use default
+		this.maxConcurentGroupsToSynchronize = BeansUtils.getCoreConfig().getGroupMaxConcurentGroupsToSynchronize();
 	}
 
 	public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException, InternalErrorException {
@@ -1083,8 +1088,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * Adds the group synchronization process in the groupSynchronizerThreads.
 	 *
 	 * @param group
+	 * @throws InternalErrorException when object group is null
 	 */
-	public void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException {
+	public void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException, InternalErrorException {
+		Utils.notNull(group, "group");
 		// First check if the group is not currently in synchronization process
 		if (groupSynchronizerThreads.containsKey(group.getId()) && groupSynchronizerThreads.get(group.getId()).getState() != Thread.State.TERMINATED) {
 			throw new GroupSynchronizationAlreadyRunningException(group);
@@ -1093,12 +1100,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			if (groupSynchronizerThreads.containsKey(group.getId())) {
 				groupSynchronizerThreads.remove(group.getId());
 			}
-			// Start and run the new thread
-			GroupSynchronizerThread thread = new GroupSynchronizerThread(sess, group);
-			thread.start();
-			log.info("Group synchronization thread started for group {}.", group);
-
-			groupSynchronizerThreads.put(group.getId(), thread);
+			// Add this group as first to the queue (similar to LIFO)
+			putGroupToQueueToBeSynchronized(group, true);
+			log.info("Scheduling synchronization for the group {} by force!", group);
 		}
 	}
 
@@ -1111,32 +1115,36 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		Random rand = new Random();
 
 		// Firstly remove all terminated threads
-		List<Integer> threadsToRemove = new ArrayList<Integer>();
 		for (Integer groupId: groupSynchronizerThreads.keySet()) {
 			if (groupSynchronizerThreads.get(groupId).getState() == Thread.State.TERMINATED) {
-				threadsToRemove.add(groupId);
+				groupSynchronizerThreads.remove(groupId);
+				log.debug("Removing terminated group synchronization thread for group id={}", groupId);
 			}
 		}
-		for (Integer groupId: threadsToRemove) {
-			groupSynchronizerThreads.remove(groupId);
-			log.debug("Removing terminated group synchronization thread for group id={}", groupId);
+
+		// Check if there is enough place to put new groups
+		int sizeOfRunningSynchronizations = groupSynchronizerThreads.size();
+		if(groupSynchronizerThreads.size() >= maxConcurentGroupsToSynchronize) {
+			log.debug("Queue of concurent groups is actually full, need to wait more time. Actuall:" + sizeOfRunningSynchronizations +
+					", Maximum:" + maxConcurentGroupsToSynchronize );
+			return;
 		}
 
 		// Get the default synchronization interval and synchronization timeout from the configuration file
 		int intervalMultiplier = BeansUtils.getCoreConfig().getGroupSynchronizationInterval();
 		int timeout = BeansUtils.getCoreConfig().getGroupSynchronizationTimeout();
-
 		// Get the number of seconds from the epoch, so we can divide it by the synchronization interval value
 		long minutesFromEpoch = System.currentTimeMillis()/1000/60;
 
 		// Get the groups with synchronization enabled
 		List<Group> groups = groupsManagerImpl.getGroupsToSynchronize(sess);
 
+		int numberOfGroupsNewlyAddedToTheQueue = 0;
 		int numberOfNewSynchronizations = 0;
 		int numberOfActiveSynchronizations = 0;
 		int numberOfTerminatedSynchronizations = 0;
 		for (Group group: groups) {
-			// Get the synchronization interval
+			// Get the synchronization interval for the group
 			try {
 				Attribute intervalAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
 				if (intervalAttribute.getValue() != null) {
@@ -1170,32 +1178,31 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						log.warn("Timeout {} minutes of the synchronization thread for the group {} reached.", timeout, group);
 						groupSynchronizerThreads.get(group.getId()).interrupt();
 						groupSynchronizerThreads.remove(group.getId());
+						//Add group again to the queue of groups
+						if(putGroupToQueueToBeSynchronized(group, false)) numberOfGroupsNewlyAddedToTheQueue++;
 						numberOfTerminatedSynchronizations++;
 					} else {
 						numberOfActiveSynchronizations++;
 					}
 				} else {
-					// Start and run the new thread
-					try {
-						// Do not overload externalSource, run each synchronization in 0-30s steps
-						Thread.sleep(rand.nextInt(30000));
-					} catch (InterruptedException e) {
-						// Do nothing
-					}
-					GroupSynchronizerThread thread = new GroupSynchronizerThread(sess, group);
-					thread.start();
-					log.info("Group synchronization thread started for group {}.", group);
-
-					groupSynchronizerThreads.put(group.getId(), thread);
-					numberOfNewSynchronizations++;
+					//Add this group to the queue of groups to be synchronized
+					if(putGroupToQueueToBeSynchronized(group, false)) numberOfGroupsNewlyAddedToTheQueue++;
 				}
 			}
 		}
 
-		if (groups.size() > 0) {
-			log.info("Synchronizing {} groups, active {}, new {}, terminated {}.",
-					new Object[] {groups.size(), numberOfActiveSynchronizations, numberOfNewSynchronizations, numberOfTerminatedSynchronizations});
+		// Start and run the new threads if there is place for them
+		while(groupSynchronizerThreads.size() < maxConcurentGroupsToSynchronize) {
+			Group group = takeAnotherGroupFromQueueToBeSynchronized();
+			GroupSynchronizerThread thread = new GroupSynchronizerThread(sess, group);
+			thread.start();
+			log.info("Group synchronization thread started for group {}.", group);
+			groupSynchronizerThreads.put(group.getId(), thread);
+			numberOfNewSynchronizations++;
 		}
+
+		log.info("This numbers of actions with groups was proceed: terminated {}, still active {}, started {}, newly added to the queue {}.",
+				new Object[] {groups.size(), numberOfTerminatedSynchronizations, numberOfActiveSynchronizations, numberOfNewSynchronizations, numberOfGroupsNewlyAddedToTheQueue});
 	}
 
 	private static class GroupSynchronizerThread extends Thread {
@@ -2577,5 +2584,65 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Put Group to the queue defined as groups to be synchronized as soon as possible (FIFO)
+	 * One exception, if putAsFirst is set to true, this group will skip the order and will be added as first to
+	 * process (LIFO).
+	 *
+	 * WARNING:
+	 * - using putAsFirst set to true can in specific situation (group is already on first place in queue)
+	 * delayed processing of group
+	 * - method is synchronized so only one thread should add group to the queue at one time (this prevents
+	 * creating duplicities of groups in queue), but it also lasts more time if call at bulk
+	 *
+	 * @param group group to add to the queue
+	 * @param putAsFirst group will be put to the first place in queue (LIFO)
+	 * @return true if group was added, false if group was already in queue on any place, it always return true for synchronizeAsFirst
+	 * @throws InternalErrorException if group is null
+	 */
+	private synchronized boolean putGroupToQueueToBeSynchronized(Group group, boolean putAsFirst) throws InternalErrorException {
+		Utils.notNull(group, "group");
+		if(putAsFirst) {
+			//remove existence of group
+			queueOfGroupsToBeSynchronized.remove(group);
+			queueOfGroupsToBeSynchronized.addFirst(group);
+		} else {
+			if(!queueOfGroupsToBeSynchronized.contains(group)) {
+				queueOfGroupsToBeSynchronized.addLast(group);
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Put list of groups to queue defined as groups to be synchronized as soon as possible (FIFO)
+	 *
+	 * @param groups list of groups to put to the queue
+	 * @return true if there is at least one group which was added to the queue (was not already in)
+	 * @throws InternalErrorException if one of the group is null
+	 */
+	private boolean putGroupsToQueueToBeSynchronized(List<Group> groups) throws InternalErrorException {
+		boolean wasAnyGroupAdded = false;
+		//Process them only if there is anything to proceed
+		if(groups != null && !groups.isEmpty()) {
+			for(Group group: groups) {
+				if(putGroupToQueueToBeSynchronized(group, false)) wasAnyGroupAdded = true;
+			}
+		}
+		return wasAnyGroupAdded;
+	}
+
+	/**
+	 * Retrieve and remove first group from the queue.
+	 *
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	private Group takeAnotherGroupFromQueueToBeSynchronized() throws InternalErrorException {
+		return queueOfGroupsToBeSynchronized.pollFirst();
 	}
 }
