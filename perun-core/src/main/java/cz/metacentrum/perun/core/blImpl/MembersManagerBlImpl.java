@@ -1093,6 +1093,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getMembersManagerImpl().checkMemberExists(sess, member);
 	}
 
+	public boolean isMemberAllowed(PerunSession sess, Member member) throws InternalErrorException {
+		if(member == null) throw new InternalErrorException("Member can't be null.");
+		if(this.haveStatus(sess, member, Status.INVALID)) return false;
+		else if (this.haveStatus(sess, member, Status.DISABLED)) return false;
+		else return true;
+	}
+
 	public Member setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
 		switch(status) {
 			case VALID:

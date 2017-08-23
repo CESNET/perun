@@ -3679,11 +3679,12 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
 	 * @throws VoNotExistsException
+	 * @throws UserNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, VoNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Get All user_facility attributes for any existing user
