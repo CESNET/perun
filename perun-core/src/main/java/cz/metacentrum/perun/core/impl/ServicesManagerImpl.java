@@ -131,8 +131,11 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			destination.setModifiedAt(rs.getString("destinations_modified_at"));
 			destination.setModifiedBy(rs.getString("destinations_modified_by"));
 			try { // do not mind if the column is not in the results
-				if(rs.getString("f_s_des_propagation_type").equals(Destination.PROPAGATIONTYPE_SERIAL)) {
-					destination.setPropagationType(Destination.PROPAGATIONTYPE_SERIAL);
+				String ptype = rs.getString("f_s_des_propagation_type");
+				if(ptype.equals(Destination.PROPAGATIONTYPE_SERIAL) ||
+				   ptype.equals(Destination.PROPAGATIONTYPE_PARALLEL) ||
+				   ptype.equals(Destination.PROPAGATIONTYPE_DUMMY)) {
+					destination.setPropagationType(ptype);
 				} else {
 					destination.setPropagationType(Destination.PROPAGATIONTYPE_PARALLEL);
 				}

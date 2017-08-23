@@ -46,6 +46,28 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 	@Override
 	public void run() {
 
+		if(destination.getPropagationType().equals(Destination.PROPAGATIONTYPE_DUMMY)) {
+			log.info("EXECUTING(worker:" + this.hashCode() + "): Task ID:"
+					+ task.getId() + ", Facility ID:" + task.getFacilityId()
+					+ ", ExecService ID:" + task.getExecServiceId()
+					+ ", ExecServiceType:" + execService.getExecServiceType());
+
+
+			TaskResult taskResult = new TaskResult();
+			taskResult.setTaskId(task.getId());
+			taskResult.setDestinationId(destination.getId());
+			taskResult.setErrorMessage("");
+			taskResult.setStandardMessage("");
+			taskResult.setReturnCode(0);
+			taskResult.setStatus(TaskResultStatus.DONE);
+			taskResult.setTimestamp(new Date(System.currentTimeMillis()));
+			taskResult.setService(execService.getService());
+				
+			resultListener.onTaskDestinationDone(task, destination,	taskResult);
+			log.info("SEND task for dummy destination done. Task: " + task.getId());
+			return;
+		}
+		
 		log.info("EXECUTING(worker:" + this.hashCode() + "): Task ID:"
 				+ task.getId() + ", Facility ID:" + task.getFacilityId()
 				+ ", ExecService ID:" + task.getExecServiceId()
