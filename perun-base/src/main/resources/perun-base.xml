@@ -18,6 +18,7 @@
 		<property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
 		<property name="groupSynchronizationInterval" value="${perun.group.synchronization.interval}"/>
 		<property name="groupSynchronizationTimeout" value="${perun.group.synchronization.timeout}"/>
+		<property name="groupMaxConcurentGroupsToSynchronize" value="${perun.group.maxConcurentGroupsToSynchronize}"/>
 		<property name="instanceId" value="${perun.instanceId}"/>
 		<property name="instanceName" value="${perun.instanceName}"/>
 		<property name="mailchangeBackupFrom" value="${perun.mailchange.backupFrom}"/>
@@ -71,6 +72,7 @@
 				<prop key="perun.db.type">hsqldb</prop>
 				<prop key="perun.group.synchronization.interval">1</prop>
 				<prop key="perun.group.synchronization.timeout">10</prop>
+				<prop key="perun.group.maxConcurentGroupsToSynchronize">10</prop>
 				<prop key="perun.rpc.powerusers"/>
 				<prop key="perun.perun.db.name">perun</prop>
 				<prop key="perun.rt.url">https://rt3.cesnet.cz/rt/REST/1.0/ticket/new</prop>
