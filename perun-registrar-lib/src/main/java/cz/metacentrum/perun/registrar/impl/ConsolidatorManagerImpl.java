@@ -514,7 +514,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 				}
 
-				List<ExtSource> es = new ArrayList<ExtSource>();
+				Set<ExtSource> es = new HashSet<>();
 				for (UserExtSource ues : u.getUserExtSources()) {
 					if (ues.getExtSource().getType().equals(ExtSourcesManagerEntry.EXTSOURCE_X509)) {
 						es.add(ues.getExtSource());
@@ -523,17 +523,22 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 							// FIXME - hack Social IdP to let us know proper identity source
 							String type = ues.getLogin().split("@")[1].split("\\.")[0];
 							ues.getExtSource().setName("https://extidp.cesnet.cz/idp/shibboleth&authnContextClassRef=urn:cesnet:extidp:authn:"+type);
-						} else if (ues.getExtSource().getName().equals("https://login.elixir-czech.org/idp/")) {
+						}
+
+						/* WE NO LONGER WANT TO SPECIFY source IdPs for ELIXIR, just reference the proxy itself
+						else if (ues.getExtSource().getName().equals("https://login.elixir-czech.org/idp/")) {
 							// FIXME - hack Elixir proxy IdP to let us know proper identity source
 							String type = ues.getLogin().split("@")[1];
 							ues.getExtSource().setName("https://login.elixir-czech.org/idp/@"+type);
 						}
+						*/
+
 						es.add(ues.getExtSource());
 					} else if (ues.getExtSource().getType().equals(ExtSourcesManagerEntry.EXTSOURCE_KERBEROS)) {
 						es.add(ues.getExtSource());
 					}
 				}
-				identity.setIdentities(es);
+				identity.setIdentities(new ArrayList<>(es));
 
 				result.add(identity);
 
