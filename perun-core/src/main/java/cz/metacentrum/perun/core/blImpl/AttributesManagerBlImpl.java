@@ -2277,10 +2277,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
-		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
+
+		List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
+		List<Resource> groupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+		// get intersection of resources to determine correct set of services
+		memberResources.retainAll(groupResources);
+
 		Set<Attribute> attributes = new HashSet<Attribute>();
 
-		for(Resource resource : resources) {
+		for(Resource resource : memberResources) {
 			attributes.addAll(this.getResourceRequiredAttributes(sess, resource, member, group));
 		}
 
@@ -2372,23 +2377,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 
-		if(!workWithUserAttributes) {
-			List<Attribute> attributes = new ArrayList<Attribute>();
-			attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member));
-			attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member, group));
-			attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, member));
-			return attributes;
+		List<Attribute> attributes = new ArrayList<Attribute>();
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member));
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member, group));
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, member));
+
+		if (workWithUserAttributes) {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+			attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, user));
+			attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, user));
 		}
 
-		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-
-		List<Attribute> attributes = new ArrayList<Attribute>();
-		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, member));
-		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member, group));
-		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member));
-		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, user));
-		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, user));
 		return attributes;
 	}
 

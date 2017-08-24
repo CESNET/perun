@@ -1705,7 +1705,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		List<Attribute> attributes = getAttributesManagerBl().getRequiredAttributes(sess, member, workWithUserAttributes);
 		Iterator<Attribute> attrIter = attributes.iterator();
-		User u = null;
+		User user = null;
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
@@ -1713,9 +1713,9 @@ public class AttributesManagerEntry implements AttributesManager {
 				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, member, null)) attrIter.remove();
 				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member, null));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-				if (u == null) u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, u, null)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, u, null));
+				if (user == null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, null)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, null));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -1730,7 +1730,7 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		List<Attribute> attributes = getAttributesManagerBl().getRequiredAttributes(sess, member, group, workWithUserAttributes);
 		Iterator<Attribute> attrIter = attributes.iterator();
-		User u = null;
+		User user = null;
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
@@ -1738,9 +1738,9 @@ public class AttributesManagerEntry implements AttributesManager {
 				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, member, null)) attrIter.remove();
 				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member, null));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-				if (u == null) u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, u, null)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, u, null));
+				if (user == null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, null)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, null));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_GROUP_ATTR)) {
 				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, member, group)) attrIter.remove();
 				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member, group));
@@ -1906,8 +1906,8 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		List<Attribute> attributes = getAttributesManagerBl().getRequiredAttributes(sess, service, resource, member, workWithUserAttributes);
 		Iterator<Attribute> attrIter = attributes.iterator();
-		User u = null;
-		Facility f = null;
+		User user = null;
+		Facility facility = null;
 		//Choose to which attributes has the principal access
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
@@ -1918,14 +1918,14 @@ public class AttributesManagerEntry implements AttributesManager {
 				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, member, null)) attrIter.remove();
 				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member, null));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-				if (u==null) u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, u, null)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, u, null));
+				if (user==null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, null)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, null));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)){
-				if (u==null) u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if (f==null) f = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, u, f)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, u, f));
+				if (user==null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				if (facility==null) facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, facility)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, facility));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}
@@ -1942,8 +1942,8 @@ public class AttributesManagerEntry implements AttributesManager {
 
 		List<Attribute> attributes = getAttributesManagerBl().getRequiredAttributes(sess, service, resource, group, member, workWithUserAttributes);
 
-		User u = null;
-		Facility f = null;
+		User user = null;
+		Facility facility = null;
 
 		Iterator<Attribute> attrIter = attributes.iterator();
 		//Choose to which attributes has the principal access
@@ -1959,14 +1959,14 @@ public class AttributesManagerEntry implements AttributesManager {
 				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, member, group)) attrIter.remove();
 				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member, group));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-				if (u==null) u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, u, null)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, u, null));
+				if (user==null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, null)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, null));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)){
-				if (u==null) u = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				if (f==null) f = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, u, f)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, u, f));
+				if (user==null) user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				if (facility==null) facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, facility)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, facility));
 			} else {
 				throw new ConsistencyErrorException("There is some attribute which is not type of any possible choice.");
 			}

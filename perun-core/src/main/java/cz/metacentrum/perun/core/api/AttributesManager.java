@@ -847,9 +847,12 @@ public interface AttributesManager {
 	void setAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
 
 	/**
-	 * Store the member, user, member-group, member-resource and user-facility attributes. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+	 * Store the member, user, member-group, member-resource and user-facility attributes.
+	 * If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
 	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
+	 *
+	 * Group and group-resource attributes are not supported in this context.
 	 *
 	 * @param sess perun session
 	 * @param facility facility to set on
@@ -858,13 +861,13 @@ public interface AttributesManager {
 	 * @param user user to set on
 	 * @param member member to set on
 	 * @param attributes Attributes to be stored
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws InternalErrorException if an exception raise in concrete implementation
 	 * @throws PrivilegeException if privileges are not given
 	 * @throws ResourceNotExistsException if the resource doesn't exists in the underlying data source
 	 * @throws MemberNotExistsException if the member doesn't exists in the underlying data source
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
 	 * @throws WrongAttributeValueException if the attribute value is illegal
-	 * @throws WrongAttributeAssignmentException if attribute is not member-resource attribute
+	 * @throws WrongAttributeAssignmentException if attribute is not one of user, member, user-facility, member-group, member-resource
 	 * @throws UserNotExistsException
 	 * @throws FacilityNotExistsException
 	 * @throws GroupNotExistsException
@@ -2107,22 +2110,23 @@ public interface AttributesManager {
 	 * @throws GroupNotExistsException
 	 * @throws GroupResourceMismatchException
 	 * @throws WrongAttributeAssignmentException
-	 *
 	 */
 	List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws WrongAttributeAssignmentException, PrivilegeException, InternalErrorException, ConsistencyErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException;
 
 	/**
 	 * Get member-group and member-resource attributes required by the services specified on resource
-	 * Get user, member, user-facility attributes, if workWithUserAttributes is true.
+	 * Get also user, member, user-facility attributes, if workWithUserAttributes is true.
 	 *
 	 * PRIVILEGE: Get only those required attributes principal has access to.
+	 *
+	 * Group and group-resource attributes are not supported in this context !!
 	 *
 	 * @param sess
 	 * @param resourceToGetServicesFrom getRequired attributes from services which are assigned on this resource
 	 * @param resource
 	 * @param group
 	 * @param member
-	 * @param workWithUserAttributes if true, get also user required attributes
+	 * @param workWithUserAttributes if true, get also user, member and user-facility required attributes
 	 *
 	 * @return List of required attributes (member-group, member-resource). Return also user, member, user-facility attributes, if workWithUserAttributes is true.
 	 *
@@ -2220,8 +2224,9 @@ public interface AttributesManager {
 	 *
 	 * @param sess perun session
 	 * @param member you get attributes for this member
-	 * @param workWithUserAttributes if TRUE, return also member and user attributes
-	 * @return list of member, member-group and user attributes which are required by services which are related to this member
+	 * @param group you get attributes for this group
+	 * @param workWithUserAttributes if TRUE, return also user attributes
+	 * @return list of member, member-group and optionally user attributes which are required by services which are related to this member
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws PrivilegeException if privileges are not given
@@ -2398,11 +2403,13 @@ public interface AttributesManager {
 	 *
 	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 *
+	 * Group and group-resource attributes are not supported in this context !!
+	 *
 	 * @param sess perun session
 	 * @param resource you get attributes for this resource and the member and group
 	 * @param group you get attributes for this group and resource and member
 	 * @param member you get attributes for this member and the resource and group
-	 * @param service attributes required by this services you'll get
+	 * @param service you'll get attributes required by this service
 	 * @param workWithUserAttributes if TRUE return also user and user-facility attributes
 	 * @return list of attributes which are required by the service.
 	 *
@@ -3552,9 +3559,12 @@ public interface AttributesManager {
 	void removeAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<? extends AttributeDefinition> attributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
 
 	/**
-	 * Unset the member, user, member-group, member-resource and user-facility attributes. If an attribute is core attribute then the attribute isn't unset (It's skipped without any notification).
+	 * Unset the member, user, member-group, member-resource and user-facility attributes.
+	 * If an attribute is core attribute then the attribute isn't unset (It's skipped without any notification).
 	 *
-	 * PRIVILEGE: Remove attributes only when principal has access to write on them.
+	 * PRIVILEGE: Remove attributes only when principal has write access on all of them.
+	 *
+	 * Group and group-resource attributes are not supported in this context !!
 	 *
 	 * @param sess perun session
 	 * @param facility
