@@ -681,10 +681,6 @@ public class JsonErrorHandler {
 
 			return "Can't remove user from group. User already isn't group member.";
 
-		} else if ("NotMemberOfParentGroupException".equalsIgnoreCase(errorName)) {
-
-			return "Can't add user to this group. User must be member of parent group first.";
-
 		} else if ("NotSpecificUserExpectedException".equalsIgnoreCase(errorName)) {
 
 			return "Operation can't be done. Expected person type of user, but service type was provided instead.";
