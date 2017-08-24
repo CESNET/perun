@@ -199,8 +199,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			for(Group group: groups) {
 				try {
 					perunBl.getGroupsManagerBl().addMember(sess, group, member);
-				} catch (NotMemberOfParentGroupException ex) {
-					throw new InternalErrorException("Member " + member + " can't be add to the group " + group + " because he is not member of it's parent group.", ex);
 				} catch (GroupNotExistsException e) {
 					throw new ConsistencyErrorException(e);
 				}
@@ -479,8 +477,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			for(Group group: groups) {
 				try {
 					perunBl.getGroupsManagerBl().addMember(sess, group, member);
-				} catch (NotMemberOfParentGroupException ex) {
-					throw new InternalErrorException("Member " + member + " can't be add to the group " + group + " because he is not member of it's parent group.", ex);
 				} catch (GroupNotExistsException e) {
 					throw new ConsistencyErrorException(e);
 				}
@@ -1219,9 +1215,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 			Group g = getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
 			getPerunBl().getGroupsManagerBl().addMemberToMembersGroup(sess, g, member);
-		} catch (NotMemberOfParentGroupException ex) {
-			//members group is top level -> this should not happen
-			throw new ConsistencyErrorException(ex);
 		} catch (GroupNotExistsException e) {
 			throw new InternalErrorException(e);
 		} catch (VoNotExistsException e) {

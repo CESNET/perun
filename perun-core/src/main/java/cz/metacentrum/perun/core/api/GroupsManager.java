@@ -228,13 +228,12 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorRuntimeException
 	 * @throws WrongAttributeValueException if any member attribute value, required by resource (on which the group is assigned), is wrong
-	 * @throws NotMemberOfParentGroupException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws AttributeNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws ExternallyManagedException
 	 */
-	void addMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException, GroupOperationsException;
+	void addMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException, GroupOperationsException;
 
 	/**
 	 * Removes member form the group.

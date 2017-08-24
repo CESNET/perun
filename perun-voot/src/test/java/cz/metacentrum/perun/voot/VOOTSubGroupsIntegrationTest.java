@@ -21,7 +21,7 @@ public class VOOTSubGroupsIntegrationTest extends AbstractVOOTTest {
 	private Member member2;
 
 	@Test
-	public void isMemberOfSubGroupTest() throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, VOOTException, GroupNotExistsException {
+	public void isMemberOfSubGroupTest() throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, VOOTException, GroupNotExistsException {
 		System.out.println("VootManager.IsMemberOfSubGroupTest");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "groups/@me", "");
@@ -39,7 +39,7 @@ public class VOOTSubGroupsIntegrationTest extends AbstractVOOTTest {
 	}
 
 	@Override
-	public void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException, GroupOperationsException, GroupNotExistsException, GroupRelationNotAllowed, GroupRelationAlreadyExists {
+	public void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException, GroupOperationsException, GroupNotExistsException, GroupRelationNotAllowed, GroupRelationAlreadyExists {
 		vo1 = perun.getVosManagerBl().createVo(session, new Vo(0, "vo1", "vo1"));
 
 		group1 = perun.getGroupsManagerBl().createGroup(session, vo1, new Group("group1", "group1 in vo1"));
