@@ -349,12 +349,10 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 
-		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
-				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
 			throw new PrivilegeException(sess, "getAssignedGroups");
 				}
 

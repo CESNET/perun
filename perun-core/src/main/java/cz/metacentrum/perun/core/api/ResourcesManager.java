@@ -283,7 +283,7 @@ public interface ResourcesManager {
 	 * @param resource
 	 * @param member
 	 *
-	 * @return list of assigned groups
+	 * @return list of assigned groups associated with the resource and member
 	 *
 	 * @throws InternalErrorException
 	 * @throws ResourceNotExistsException
