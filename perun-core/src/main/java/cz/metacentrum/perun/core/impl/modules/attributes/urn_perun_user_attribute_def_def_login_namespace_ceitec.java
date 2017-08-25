@@ -158,6 +158,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 		 *
 		 * Ceitec proxy UserExtSourceLogin has form: {login-namespace:ceitec}@ceitec.cz
 		 */
+		String newLogin = "";
+
 		try {
 			ExtSource ceitecProxyIdp = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, entityId);
 
@@ -173,7 +175,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 				}
 
 			} else {
-				String newLogin = attribute.getValue() + "@" + scope;
+				newLogin = attribute.getValue() + "@" + scope;
 				if (ceitecUes == null) {
 					// Creating UES
 					ceitecUes = new UserExtSource(ceitecProxyIdp, 0, newLogin);
@@ -197,8 +199,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 							"extSource with name (entityId): "+entityId+". User: "+user, e);
 		} catch (UserExtSourceExistsException e) {
 			throw new InternalErrorException(
-					"This module should check if ceitec login already exists " +
-							"and call update method.", e);
+					"Login: '" + newLogin + "' of user: " + user + " is already taken by another user in namespace ceitec. Cannot add UserExtSource to the user. Different login must be used", e);
 		}
 
 	}
