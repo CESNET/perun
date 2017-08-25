@@ -1016,10 +1016,12 @@ public interface UsersManager {
 	 * @throws AttributeNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
+	 * @throws GroupResourceMismatchException
+	 * @throws MemberResourceMismatchException
 	 *
 	 * @return String return new preferred email
 	 */
-	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException;
 
 	/**
 	 * Return list of email addresses of user, which are

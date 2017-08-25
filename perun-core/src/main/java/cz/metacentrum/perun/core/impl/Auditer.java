@@ -40,6 +40,8 @@ import org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtracto
 
 import cz.metacentrum.perun.core.implApi.AuditerListener;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
@@ -422,6 +424,8 @@ public class Auditer {
 				} catch (WrongReferenceAttributeValueException ex) {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
 				} catch (AttributeNotExistsException ex) {
+					log.error("Error when auditer trying to resolve messages in modules.", ex);
+				} catch (MemberResourceMismatchException ex) {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
 				}
 

@@ -7,7 +7,9 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -40,6 +42,10 @@ public class urn_perun_member_attribute_def_def_address extends MemberAttributes
 				throw new ConsistencyErrorException(ex);
 			} catch (WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException(attribute, userAddress, "Mismatch in checking of member address and user address (different checking rules)", ex);
+			} catch (MemberResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
+			} catch (GroupResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 	}

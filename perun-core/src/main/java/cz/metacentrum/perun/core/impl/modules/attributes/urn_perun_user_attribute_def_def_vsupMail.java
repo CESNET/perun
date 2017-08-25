@@ -6,7 +6,9 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -177,7 +179,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 			// always set value to attribute, since we might start with null in attribute and empty map in variable !!
 			reservedMailsAttribute.setValue(reservedMailsAttributeValue);
 			session.getPerunBl().getAttributesManagerBl().setAttribute(session, usedMailsKeyVsup, reservedMailsAttribute);
-		} catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | GroupResourceMismatchException | MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -186,7 +188,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 			vsupPreferredMailAttribute.setValue(attribute.getValue());
 			try {
 				session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, vsupPreferredMailAttribute);
-			} catch (WrongAttributeValueException | WrongAttributeAssignmentException e) {
+			} catch (WrongAttributeValueException | WrongAttributeAssignmentException | GroupResourceMismatchException | MemberResourceMismatchException e) {
 				throw new InternalErrorException("Unable to store generated vsupMail to vsupPreferredMail.", e);
 			}
 		}

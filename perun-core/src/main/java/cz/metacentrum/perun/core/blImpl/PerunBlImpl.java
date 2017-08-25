@@ -103,7 +103,7 @@ public class PerunBlImpl implements PerunBl {
 							attributeWithValue.setValue(attrValue);
 							log.debug("storing attribute {}='{}' for user {}",attributeWithValue.getFriendlyName(),attrValue,principal.getActor());
 							attributesManagerBl.setAttribute(perunSession, ues, attributeWithValue);
-						} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+						} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | MemberResourceMismatchException | GroupResourceMismatchException e) {
 							log.error("Attribute " + attr.getName() + " with value '" + attrValue + "' cannot be saved", e);
 						}
 					}

@@ -410,6 +410,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		} catch(WrongReferenceAttributeValueException ex) {
 			//All members are deleted => there are no required attribute => all atributes can be removed
 			throw new ConsistencyErrorException(ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
 		}
 
 		//Remove user authz
@@ -509,7 +513,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		//First remove all user extSource attributes before removing userExtSource
 		try {
 			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, userExtSource);
-		} catch (WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
+		} catch (WrongReferenceAttributeValueException | WrongAttributeValueException | GroupResourceMismatchException | MemberResourceMismatchException ex) {
 			throw new InternalErrorException("Can't remove userExtSource because there is problem with removing all it's attributes.", ex);
 		}
 		getUsersManagerImpl().removeUserExtSource(sess, user, userExtSource);
@@ -548,7 +552,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		//set all attributes back to this UserExtSource when it is already assigned to the targetUser
 		try {
 			getPerunBl().getAttributesManagerBl().setAttributes(sess, userExtSource, userExtSourceAttributes);
-		} catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
+		} catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException | WrongAttributeValueException | GroupResourceMismatchException | MemberResourceMismatchException ex) {
 			throw new InternalErrorException("Moving " + userExtSource + " from " + sourceUser + " to " + targetUser +
 					" failed because of problem with setting removed attributes back to the UserExtSource.", ex);
 		}
@@ -1295,6 +1299,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new InternalErrorException(ex);
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
 		}
 
 		validatePassword(sess, user, loginNamespace);
@@ -1627,7 +1635,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				userAlternativePassword.setValue(altPassValue);
 				//set new attribute with value to perun
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userAlternativePassword);
-			} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | GroupResourceMismatchException | MemberResourceMismatchException ex) {
 				throw new InternalErrorException(ex);
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
@@ -1662,6 +1670,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			} catch (WrongAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			} catch (WrongReferenceAttributeValueException ex) {
+				throw new InternalErrorException(ex);
+			} catch (MemberResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
+			} catch (GroupResourceMismatchException ex) {
 				throw new InternalErrorException(ex);
 			}
 		} else {
@@ -1860,6 +1872,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new InternalErrorException(e);
 		} catch (WrongAttributeValueException e) {
 			throw new InternalErrorException(e);
+		} catch (MemberResourceMismatchException e) {
+			throw new InternalErrorException(e);
+		} catch (GroupResourceMismatchException e) {
+			throw new InternalErrorException(e);
 		}
 
 	}
@@ -1871,7 +1887,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
-	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException {
 
 		String email = getUsersManagerImpl().getPreferredEmailChangeRequest(sess, user, i, m);
 

@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
@@ -36,6 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -825,8 +827,11 @@ public interface GroupsManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupOperationsException
 	 * @throws GroupNotExistsException
+	 * @throws GroupResourceMismatchException
+	 * @throws MemberResourceMismatchException
 	 */
-	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupOperationsException, GroupNotExistsException;
+
+	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupOperationsException, GroupNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException;
 
 	/**
 	 * Synchronize the group with external group. It checks if the synchronization of the same group is already in progress.
@@ -1027,9 +1032,10 @@ public interface GroupsManagerBl {
 	 * @param groups list of groups
 	 * @return list of RichGroups with attributes
 	 * @throws InternalErrorException
+	 * @throws GroupResourceMismatchException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException;
 
 	/**
 	 * This method takes list of groups and creates list of RichGroups containing selected attributes
@@ -1053,9 +1059,10 @@ public interface GroupsManagerBl {
 	 * @param attrNames list of selected attributes (even with empty values), if it is empty, return all possible non-empty attributes
 	 * @return list of RichGroups with selected attributes
 	 * @throws InternalErrorException
+	 * @throws GroupResourceMismatchException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException;
 
 	/**
 	 * Get all RichGroups with selected attributes assigned to the resource.
@@ -1065,9 +1072,10 @@ public interface GroupsManagerBl {
 	 * @param attrNames list of selected attributes (even with empty values), if it is empty, return all possible non-empty attributes
 	 * @return list of RichGroups with selected attributes assigned to the resource
 	 * @throws InternalErrorException
+	 * @throws GroupResourceMismatchException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException;
 
 	/**
 	 * Returns all RichGroups containing selected attributes
@@ -1132,11 +1140,13 @@ public interface GroupsManagerBl {
 	 * @param exceptionMessage message of an exception, ok if everything is ok
 	 * @throws AttributeNotExistsException
 	 * @throws InternalErrorException
+	 * @throws GroupResourceMismatchException
+	 * @throws MemberResourceMismatchException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 */
-	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException;
 
 	/**
 	 * Get all groups in specific vo with assigned extSource

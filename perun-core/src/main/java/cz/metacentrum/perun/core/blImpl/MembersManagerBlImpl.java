@@ -108,7 +108,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		} catch(AttributeValueException ex) {
 			throw new ConsistencyErrorException("Member is removed from all groups. There are no required attribute for this member. Member's attributes can be removed without problem.", ex);
-		} catch(WrongAttributeAssignmentException ex) {
+		} catch (MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -120,7 +120,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			//remove attributes which are no longer required
 			try {
 				getPerunBl().getAttributesManagerBl().removeAttributes(sess, facility, user, requiredAttributes);
-			} catch(AttributeValueException | WrongAttributeAssignmentException ex) {
+			} catch(AttributeValueException | WrongAttributeAssignmentException | GroupResourceMismatchException | MemberResourceMismatchException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -154,7 +154,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getPerunBl().getAuditer().log(sess, "{} deleted.", member);
 	}
 
-	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException {
+	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException, MemberResourceMismatchException {
 		for (Member m: this.getMembers(sess, vo)) {
 			this.deleteMember(sess, m);
 		}
@@ -336,7 +336,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return createMember(sess, vo, SpecificUserType.NORMAL, candidate, groups, null);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException, GroupResourceMismatchException, MemberResourceMismatchException {
 			return this.createMember(sess, vo, specificUserType, candidate, null, new ArrayList<String>());
 	}
 
@@ -448,6 +448,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			if(!usersAttributesToMerge.isEmpty()) getPerunBl().getAttributesManagerBl().mergeAttributesValues(sess, user, usersAttributesToMerge);
 			if(!usersAttributesToModify.isEmpty()) getPerunBl().getAttributesManagerBl().setAttributes(sess, user, usersAttributesToModify);
 		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		} catch (MemberResourceMismatchException e) {
+			throw new InternalErrorException(e);
+		} catch (GroupResourceMismatchException e) {
 			throw new InternalErrorException(e);
 		}
 
@@ -562,7 +566,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return this.createMember(sess, vo, candidate, groups);
 	}
 
-	public Member updateMember(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public Member updateMember(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		Member storedMember;
 		try {
 			storedMember = getMemberById(sess, member.getId());
@@ -677,11 +681,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.getCompleteRichMembers(sess, vo, attrsNames), allowedStatuses);
 	}
 
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.getRichMembersWithAttributesByNames(sess, group, resource, attrsNames), allowedStatuses);
 	}
 
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
 		if(lookingInParentGroup) group = getPerunBl().getGroupsManagerBl().getParentGroup(sess, group);
 
 		if(attrsNames == null || attrsNames.isEmpty()) {
@@ -691,7 +695,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 	}
 
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), allowedStatuses);
 	}
 
@@ -781,7 +785,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 
-	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException {
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
@@ -794,7 +798,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return richMembersWithAttributes;
 	}
 
-	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
@@ -807,7 +811,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return richMembersWithAttributes;
 	}
 
-	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException {
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
@@ -904,9 +908,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * @param attrsDef
 	 * @return list of rich members with userAttributes and memberAttributes filled
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
 	 */
-	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef)  throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef) throws InternalErrorException, MemberResourceMismatchException {
 		List<String> attrNames = new ArrayList<>();
 		for(AttributeDefinition attributeDefinition: attrsDef) {
 			attrNames.add(attributeDefinition.getName());
@@ -948,9 +952,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * @param attrsDef
 	 * @return list of rich members with userAttributes and memberAttributes filled
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, Resource resource, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, Resource resource, List<RichMember> richMembers, List<AttributeDefinition> attrsDef) throws InternalErrorException, GroupResourceMismatchException, MemberResourceMismatchException {
 		List<String> attrNames = new ArrayList<>();
 		for(AttributeDefinition attributeDefinition: attrsDef) {
 			attrNames.add(attributeDefinition.getName());
@@ -1037,7 +1040,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * @return list of rich members with userAttributes and memberAttributes filled
 	 * @throws InternalErrorException
 	 */
-	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {
 		List<AttributeDefinition> usersAttributesDef = new ArrayList<AttributeDefinition>();
 		List<AttributeDefinition> membersAttributesDef = new ArrayList<AttributeDefinition>();
 		List<AttributeDefinition> memberGroupAttributesDef = new ArrayList<AttributeDefinition>();
@@ -1233,7 +1236,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getMembersManagerImpl().checkMemberExists(sess, member);
 	}
 
-	public Member setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
+	public Member setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException, MemberResourceMismatchException {
 		switch(status) {
 			case VALID:
 				return validateMember(sess, member);
@@ -1270,6 +1273,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
 			} catch (WrongAttributeAssignmentException ex) {
 				throw new InternalErrorException(ex);
+			} catch (GroupResourceMismatchException e) {
+				throw new InternalErrorException(e);
+			} catch (MemberResourceMismatchException e) {
+				throw new InternalErrorException(e);
 			}
 		}
 
@@ -2099,6 +2106,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					throw new InternalErrorException(e);
 				} catch (WrongAttributeAssignmentException e) {
 					throw new InternalErrorException(e);
+				} catch (GroupResourceMismatchException e) {
+					throw new InternalErrorException(e);
+				} catch (MemberResourceMismatchException e) {
+					throw new InternalErrorException(e);
 				}
 			}
 		}
@@ -2234,6 +2245,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredUser,a);
 		} catch (WrongAttributeAssignmentException | AttributeNotExistsException |WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException("cannot set attribute "+loginAttributeName+" for user "+sponsoredUser.getId(),e);
+		} catch (GroupResourceMismatchException e) {
+			throw new InternalErrorException(e);
+		} catch (MemberResourceMismatchException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 
@@ -2286,6 +2301,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredMember,expiration);
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException| WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 				throw new InternalErrorException("cannot set expiration date to today for sponsored member "+sponsoredMember.getId(),e);
+			} catch (GroupResourceMismatchException e) {
+				throw new InternalErrorException(e);
+			} catch (MemberResourceMismatchException e) {
+				throw new InternalErrorException(e);
 			}
 			try {
 				expireMember(sess, sponsoredMember);
@@ -2296,7 +2315,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws InternalErrorException {
+	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws InternalErrorException, GroupResourceMismatchException, MemberResourceMismatchException {
 		List<User> sponsors = getPerunBl().getUsersManagerBl().getSponsors(sess, sponsoredMember);
 		if(!sponsors.contains(sponsorUser)) {
 			throw new IllegalArgumentException("user "+sponsorUser.getId()+" is not sponsor of member "+sponsoredMember.getId());

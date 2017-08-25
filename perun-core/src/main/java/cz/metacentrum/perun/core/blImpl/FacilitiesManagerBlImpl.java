@@ -52,6 +52,8 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
@@ -293,6 +295,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			throw new InternalErrorException(e);
 		} catch (WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
+		} catch (MemberResourceMismatchException e) {
+			throw new InternalErrorException(e);
+		} catch (GroupResourceMismatchException e) {
+			throw new InternalErrorException(e);
 		}
 
 		//Remove all facility bans
@@ -487,6 +493,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			} catch (WrongAttributeValueException e) {
 				throw new InternalErrorException(e);
 			} catch (WrongReferenceAttributeValueException e) {
+				throw new InternalErrorException(e);
+			} catch (MemberResourceMismatchException e) {
+				throw new InternalErrorException(e);
+			} catch (GroupResourceMismatchException e) {
 				throw new InternalErrorException(e);
 			}
 
@@ -724,7 +734,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		}
 	}
 
-	public void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		List<Attribute> sourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, sourceFacility);
 		List<Attribute> destinationAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, destinationFacility);
 

@@ -5,7 +5,9 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -48,6 +50,10 @@ public class urn_perun_user_attribute_def_virt_login_namespace_einfraid_persiste
 		} catch (WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
 		} catch (WrongAttributeValueException e) {
+			throw new InternalErrorException(e);
+		} catch (MemberResourceMismatchException e) {
+			throw new InternalErrorException(e);
+		} catch (GroupResourceMismatchException e) {
 			throw new InternalErrorException(e);
 		}
 	}

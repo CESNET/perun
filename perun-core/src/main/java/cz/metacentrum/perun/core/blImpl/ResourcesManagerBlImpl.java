@@ -79,6 +79,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			perunBl.getAttributesManagerBl().removeAllAttributes(sess, resource);
 		} catch(AttributeValueException ex) {
 			throw new ConsistencyErrorException("All services are removed from this resource. There is no required attribute. So all attribtes for this resource can be removed withou problem.", ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
 		}
 
 		// Remove group-resource attr values for all group and resource
@@ -89,6 +93,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		} catch (WrongReferenceAttributeValueException ex) {
+			throw new InternalErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 		//Remove all resources tags
@@ -234,6 +240,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+        } catch (MemberResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
 		}
 
 		//fill and check required attributes' values for each member
@@ -247,6 +257,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			} catch(WrongAttributeAssignmentException ex) {
 				throw new ConsistencyErrorException(ex);
 			} catch(AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch (MemberResourceMismatchException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch (GroupResourceMismatchException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -290,7 +304,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new InternalErrorException(e);
 		} catch (WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
-		} catch (WrongAttributeAssignmentException e) {
+		} catch (GroupResourceMismatchException e) {
 			throw new InternalErrorException(e);
 		}
 
@@ -338,6 +352,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 					//TODO jeste o tom popremyslet
 					//That's unresolveable problem
 					throw new InternalErrorException("Can't set attributes for user-facility correctly. User=" + user + " Facility=" + facility + ".", ex);
+				} catch (MemberResourceMismatchException ex) {
+					throw new InternalErrorException(ex);
+				} catch (GroupResourceMismatchException ex) {
+					throw new InternalErrorException(ex);
 				}
 			}
 		}
@@ -397,6 +415,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch(AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
@@ -600,6 +622,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new InternalErrorException("Copying of attributes failed, wrong assignment.", ex);
 		} catch (WrongAttributeValueException ex) {
 			throw new ConsistencyErrorException("Copying of attributes failed.", ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
 		}
 
 	}

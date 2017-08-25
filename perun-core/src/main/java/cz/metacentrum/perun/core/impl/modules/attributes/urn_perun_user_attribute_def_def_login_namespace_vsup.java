@@ -8,8 +8,10 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -185,6 +187,10 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 				throw new ConsistencyErrorException(ex);
 			} catch (WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException(attribute, eduroamLogin, "Mismatch in checking of users VŠUP login and eduroam login.", ex);
+			} catch (MemberResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
+			} catch (GroupResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
 			}
 
 			// set všup school mail
@@ -201,6 +207,10 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 				throw new ConsistencyErrorException(ex);
 			} catch (WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException(attribute, schoolMail, "Mismatch in checking of users VŠUP login and schoolMail.", ex);
+			} catch (MemberResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
+			} catch (GroupResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
 			}
 
 		}

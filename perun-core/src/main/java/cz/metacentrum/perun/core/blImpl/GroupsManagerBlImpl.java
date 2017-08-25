@@ -362,7 +362,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				throw new ConsistencyErrorException(ex);
 			} catch(AttributeValueException ex) {
 				throw new ConsistencyErrorException("All resources was removed from this group. So all attributes values can be removed.", ex);
-			} catch (WrongAttributeAssignmentException ex) {
+			} catch (GroupResourceMismatchException ex) {
 				throw new InternalErrorException(ex);
 			}
 
@@ -534,7 +534,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			// check members attributes
 			try {
 				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
-			} catch(WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+			} catch(WrongAttributeAssignmentException | AttributeNotExistsException | MemberResourceMismatchException | GroupResourceMismatchException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -1018,7 +1018,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * This method run in separate transaction.
 	 */
-	public List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupOperationsException, GroupNotExistsException {
+	public List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupOperationsException, GroupNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException {
 		//needed variables for whole method
 		List<String> skippedMembers = new ArrayList<>();
 		ExtSource source = null;
@@ -1250,7 +1250,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
 			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | InternalErrorException |
 					WrongAttributeAssignmentException | MemberAlreadyRemovedException | GroupNotExistsException |
-					GroupOperationsException | AttributeNotExistsException | ExtSourceNotExistsException e) {
+					GroupOperationsException | AttributeNotExistsException | ExtSourceNotExistsException | GroupResourceMismatchException | MemberResourceMismatchException e) {
 				failedDueToException = true;
 				exceptionMessage = "Cannot synchronize group ";
 				log.error(exceptionMessage + group, e);
@@ -1536,7 +1536,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
-	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, GroupResourceMismatchException {
 		List<RichGroup> richGroups = new ArrayList<>();
 		for(Group group: groups) {
 			richGroups.add(new RichGroup(group, getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group, true)));
@@ -1553,7 +1553,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
-	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException {
 		if (attrNames == null) return convertGroupsToRichGroupsWithAttributes(sess, resource, groups);
 		List<RichGroup> richGroups = new ArrayList<>();
 		for(Group group: groups) {
@@ -1562,7 +1562,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
-	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException {
 		List<Group> assignedGroups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		return this.convertGroupsToRichGroupsWithAttributes(sess, resource, assignedGroups, attrNames);
 	}
@@ -1583,7 +1583,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return convertGroupToRichGroupWithAttributesByName(sess, this.getGroupById(sess, groupId), attrNames);
 	}
 
-	public void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		//get current timestamp of this synchronization
 		Date currentTimestamp = new Date();
 		String originalExceptionMessage = exceptionMessage;
@@ -2010,7 +2010,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws AttributeNotExistsException if some attributes not exists and for this reason can't be updated
 	 * @throws WrongAttributeAssignmentException if some attribute is updated in bad way (bad assignment)
 	 */
-	private void updateExistingMembersWhileSynchronization(PerunSession sess, Group group, Map<Candidate, RichMember> membersToUpdate, List<String> overwriteUserAttributesList) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private void updateExistingMembersWhileSynchronization(PerunSession sess, Group group, Map<Candidate, RichMember> membersToUpdate, List<String> overwriteUserAttributesList) throws InternalErrorException, AttributeNotExistsException, MemberResourceMismatchException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<AttributeDefinition> attrDefs = new ArrayList<>();
 		//Iterate through all subject attributes
 		for(Candidate candidate: membersToUpdate.keySet()) {
@@ -2091,6 +2091,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 									getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
 								} catch	(WrongAttributeAssignmentException e) {
 									throw new ConsistencyErrorException(e);
+								} catch (MemberResourceMismatchException e) {
+									throw new ConsistencyErrorException(e);
+								} catch (GroupResourceMismatchException e) {
+									throw new ConsistencyErrorException(e);
 								}
 							}
 							//we found it, but there is no change;
@@ -2136,7 +2140,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 									getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
 								} catch (WrongAttributeAssignmentException e) {
 									throw new ConsistencyErrorException(e);
-								}
+								} catch (MemberResourceMismatchException e) {
+									throw new ConsistencyErrorException(e);
+								} catch (GroupResourceMismatchException e) {
+									throw new ConsistencyErrorException(e);
+							}
 							}
 							//we found it, but there is no change
 							break;
@@ -2265,7 +2273,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				memberMap.put(candidate, getPerunBl().getMembersManagerBl().getRichMember(sess, member));
 				try {
 					updateExistingMembersWhileSynchronization(sess, group, memberMap, overwriteUserAttributesList);
-				} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+				} catch (WrongAttributeAssignmentException | AttributeNotExistsException | GroupResourceMismatchException | MemberResourceMismatchException e) {
 					// if update fails, skip him
 					log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
 					skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when updating member from candidate: Exception: " + e.getName() + " => '" + e.getMessage() + "'");
@@ -2287,7 +2295,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						memberMap.put(candidate, getPerunBl().getMembersManagerBl().getRichMember(sess, member));
 						try {
 							updateExistingMembersWhileSynchronization(sess, group, memberMap, overwriteUserAttributesList);
-						} catch (WrongAttributeAssignmentException | AttributeNotExistsException e2) {
+						} catch (WrongAttributeAssignmentException | AttributeNotExistsException | GroupResourceMismatchException | MemberResourceMismatchException e2) {
 							// if update fails, skip him
 							log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
 							skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when updating member from candidate: Exception: " + e.getName() + " => '" + e2.getMessage() + "'");

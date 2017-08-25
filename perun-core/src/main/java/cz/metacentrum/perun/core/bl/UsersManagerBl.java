@@ -1059,8 +1059,10 @@ public interface UsersManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws AttributeNotExistsException           If user:preferredEmail attribute doesn't exists.
 	 * @throws WrongReferenceAttributeValueException
+	 * @throws GroupResourceMismatchException
+	 * @throws MemberResourceMismatchException
 	 */
-	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
+	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException;
 
 	/**
 	 * Return list of email addresses of user, which are
