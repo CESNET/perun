@@ -3616,6 +3616,23 @@ public interface AttributesManagerBl {
 	 * If the type is list, new values are added to the current stored list.
 	 * It the type is map, new values are added and existing are overwritten with new values, but only if there is some change.
 	 *
+	 * @param sess
+	 * @param member
+	 * @param attribute
+	 * @return attribute with updated value
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	public Attribute mergeAttributeValue(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
+			WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Merges attribute value if the attribute type is list or map. In other cases it only stores new value.
+	 * If the type is list, new values are added to the current stored list.
+	 * It the type is map, new values are added and existing are overwritten with new values, but only if there is some change.
+	 *
 	 * This method creates nested transaction to prevent storing value to DB if it throws any exception.
 	 *
 	 * @param sess
@@ -3628,6 +3645,25 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 */
 	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
+			WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Merges attribute value if the attribute type is list or map. In other cases it only stores new value.
+	 * If the type is list, new values are added to the current stored list.
+	 * It the type is map, new values are added and existing are overwritten with new values, but only if there is some change.
+	 *
+	 * This method creates nested transaction to prevent storing value to DB if it throws any exception.
+	 *
+	 * @param sess
+	 * @param member
+	 * @param attribute
+	 * @return attribute with updated value
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
 			WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
@@ -3645,6 +3681,22 @@ public interface AttributesManagerBl {
 	 */
 	public void mergeAttributesValues(PerunSession sess, User user, List<Attribute> attributes)  throws InternalErrorException, WrongAttributeValueException,
 				 WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Merges attributes values if the attribute type is list or map. In other cases it only stores new value.
+	 * If the type is list, new values are added to the current stored list.
+	 * It the type is map, new values are added and existing are overwritten with new values, but only if there is some change.
+	 *
+	 * @param sess
+	 * @param member
+	 * @param attributes
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	public void mergeAttributesValues(PerunSession sess, Member member, List<Attribute> attributes)  throws InternalErrorException, WrongAttributeValueException,
+			WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method checkValue on all possible dependent attributes for richAttr.
