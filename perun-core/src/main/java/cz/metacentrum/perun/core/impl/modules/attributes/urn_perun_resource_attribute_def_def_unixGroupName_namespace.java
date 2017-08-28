@@ -13,7 +13,9 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -111,7 +113,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		//Need to know if this is remove or set, if value is null, its remove, otherway it is set
 		String groupNameNamespace = attribute.getFriendlyNameParameter();
 

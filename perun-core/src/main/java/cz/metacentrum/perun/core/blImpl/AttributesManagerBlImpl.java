@@ -46,6 +46,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
+
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -55,11 +56,11 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsExcepti
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -159,12 +160,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getVirtualAttributes(sess, resource, member);
 	}
 
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		return getAttributes(sess, resource, member, false);
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
 		// get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, member, group);
 		// filter out virtual attributes with null value
@@ -176,14 +177,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException {
 		if (attrNames.isEmpty()) return new ArrayList<>();
 		// adds all attributes which names are in attrNames list (virtual and empty too)
 		return  getAttributesManagerImpl().getAttributes(sess, member, group, attrNames);
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException {
 		// get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, member, group);
 		// filter out virtual attributes with null value
@@ -200,7 +201,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException {
 		if(attrNames.isEmpty()) return this.getAttributes(sess, member, group, workWithUserAttributes);
 
 		//differentiate between user+member and member-group namespace
@@ -223,7 +224,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		// get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, resource, member);
@@ -245,7 +246,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if(attrNames.isEmpty()) return this.getAttributes(sess, resource, member, workWithUserAttributes);
 
@@ -274,6 +275,27 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attributes.addAll(getAttributesManagerImpl().getAttributes(sess, user, facility, userFacilityAttirbuteNames));
 		}
 
+		return attributes;
+	}
+
+	public List<Attribute> getAttributes(PerunSession sess, Group group, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
+		List<Attribute> attributes = getAttributes(sess, resource, member, attrNames, workWithUserAttributes);
+
+		if(attrNames.isEmpty()) {
+			attributes.addAll(getAttributes(sess, member, group));
+			return attributes;
+		}
+
+		List<String> memberGroupAttributeNames = new ArrayList<>();
+
+		for(String attributeName: attrNames) {
+			if(attributeName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+				memberGroupAttributeNames.add(attributeName);
+			}
+		}
+		if(!memberGroupAttributeNames.isEmpty()){
+			attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, group, memberGroupAttributeNames));
+		}
 		return attributes;
 	}
 
@@ -456,11 +478,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException {
 		return getAttributesManagerImpl().getAttributes(sess, resource, group);
 	}
 
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		List<Attribute> attributes = new ArrayList<Attribute>();
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, resource, group));
@@ -470,7 +492,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames, boolean workWithGroupAttributes) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if(attrNames.isEmpty()) return this.getAttributes(sess, resource, group, workWithGroupAttributes);
 
@@ -495,7 +517,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public List<Attribute> getAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<Attribute>();
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, resource, member));
@@ -516,7 +538,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public void setAttributes(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -549,7 +571,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		log.debug("IMPORTANT: EXITING CHECK ATTRIBUTES DEPENDENCIES");
 	}
 
-	public void setAttributes(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -580,7 +602,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, vo, null, attributesToSet);
 	}
 
-	public void setAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -610,7 +632,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, group, null, attributesToSet);
 	}
 
-	public void setAttributes(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -635,17 +657,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, null, attributesToSet);
 	}
 
-	public void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		setAttributes(sess, resource, member, attributes, false);
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserNotExistsException {
+	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserNotExistsException, MemberResourceMismatchException, GroupResourceMismatchException {
 		setAttributes(sess, member, group, attributes, false);
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserNotExistsException {
+	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserNotExistsException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -683,7 +705,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, member, group, attributesToSet, workWithUserAttributes);
 	}
 
-	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -737,7 +759,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 
-	public void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -807,7 +829,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, attributesToSet, workWithUserAttributes);
 	}
 
-	public void setAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -843,7 +865,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributesToSet);
 	}
 
-	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -874,7 +896,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, member, null, attributesToSet);
 	}
 
-	public void setAttributes(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -900,7 +922,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, facility, user, attributesToSet);
 	}
 
-	public void setAttributes(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -931,7 +953,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, user, null, attributesToSet);
 	}
 
-	public void setAttributes(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -960,7 +982,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, host, null, attributesToSet);
 	}
 
-	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -982,7 +1004,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, group, attributesToSet);
 	}
 
-	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -996,7 +1018,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		removeAttributes(sess, resource, group, attributesToRemove, workWithGroupAttributes);
 		if (!workWithGroupAttributes) {
-			setAttributes(sess, resource, group, attributes);
+				setAttributes(sess, resource, group, attributes);
 		} else {
 			for (Attribute attribute : attributesToSet) {
 				//skip core attributes
@@ -1016,7 +1038,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void setAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
@@ -1047,7 +1069,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, ues, null, attributesToSet);
 	}
 
-	public void setCoreAttributeWithoutCheck(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void setCoreAttributeWithoutCheck(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 
 		if(!attribute.getName().equals("urn:perun:member:attribute-def:core:status")) {
 			throw new InternalErrorException("We can set only urn:perun:member:attribute-def:core:status from member's core attributes. Others are not permitted.");
@@ -1120,7 +1142,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, resource, attributeName);
 	}
 
-	public Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		//check namespace
 		if(!attributeName.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR)) throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
@@ -1136,7 +1158,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, member, group, attributeName);
 	}
 
-	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		//check namespace
 		if(!attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR)) throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
 
@@ -1165,7 +1187,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
-	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if(!attributeName.startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) throw new WrongAttributeAssignmentException("Attribute name= " + attributeName);
 		return getAttributesManagerImpl().getAttribute(sess, resource, group, attributeName);
@@ -1343,7 +1365,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		AttributeDefinition attributeDefinition = getAttributeDefinitionById(sess, id);
 
@@ -1411,7 +1433,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, AttributeNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, resource, group, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
@@ -1430,7 +1452,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attribute;
 	}
 
-	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException {
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		//fill attributes and get back only those which were really filled with new value
 		List<Attribute> filledAttributes = this.fillAttributes(sess, facility, resource, user, member, attributes, true);
 
@@ -1491,21 +1513,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributes);
 	}
 
-	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException {
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException, GroupResourceMismatchException {
 		//get all attributes (for member, resource, facility and user) with values
 		List<Attribute> attributes = this.getResourceRequiredAttributes(sess, resource, facility, resource, user, member);
 
 		this.setRequiredAttributes(sess, facility, resource, user, member, attributes);
 	}
 
-	public void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException {
+	public void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		//get all attributes (for member, resource, facility, user and service) with values
 		List<Attribute> attributes = this.getRequiredAttributes(sess, service, facility, resource, user, member);
 
 		this.setRequiredAttributes(sess, facility, resource, user, member, attributes);
 	}
 
-	public void setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, facility, attribute);
@@ -1536,7 +1558,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void setAttribute(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, vo, attribute);
@@ -1566,7 +1588,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void setAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, group, attribute);
@@ -1578,7 +1600,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void setAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, resource, attribute);
@@ -1632,7 +1654,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, resource, member, attribute);
@@ -1645,7 +1667,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, member, group, attribute);
@@ -1657,7 +1679,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, resource, member, attribute);
@@ -1704,7 +1726,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public boolean setAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean setAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
 
@@ -1756,7 +1778,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public boolean setAttributeWithoutCheck(PerunSession sess, Member member, Group group, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean setAttributeWithoutCheck(PerunSession sess, Member member, Group group, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
 
 		boolean changed = true;
@@ -1793,7 +1815,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void setAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, member, attribute);
@@ -1805,11 +1827,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void setAttributeInNestedTransaction(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributeInNestedTransaction(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		setAttribute(sess, member, attribute);
 	}
 
-	public boolean setAttributeWithoutCheck(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean setAttributeWithoutCheck(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR);
 
 		boolean changed = true;
@@ -1843,7 +1865,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void setAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, facility, user, attribute);
@@ -1855,7 +1877,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void setAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, user, attribute);
@@ -1867,7 +1889,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void setAttributeInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttributeInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		setAttribute(sess, user, attribute);
 	}
 
@@ -1890,7 +1912,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void setAttribute(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, host, attribute);
@@ -1922,7 +1944,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void setAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, resource, group, attribute);
@@ -1934,7 +1956,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public boolean setAttributeWithoutCheck(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean setAttributeWithoutCheck(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, WrongAttributeAssignmentException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
@@ -2011,7 +2033,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void setAttribute(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, key, attribute);
@@ -2023,7 +2045,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void setAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, ues, attribute);
@@ -2103,11 +2125,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, resource);
 	}
 
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		return getResourceRequiredAttributes(sess, resourceToGetServicesFrom, resource, member, false);
 	}
 
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<Attribute>();
 
@@ -2133,12 +2155,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException {
 		return getResourceRequiredAttributes(sess, resourceToGetServicesFrom, member, group, false);
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException {
 		List<Attribute> attributes = new ArrayList<>();
 
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, member, group));
@@ -2172,11 +2194,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return this.getResourceRequiredAttributes(sess, resource, resource);
 	}
 
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		return this.getResourceRequiredAttributes(sess, resource, resource, member);
 	}
 
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		return this.getResourceRequiredAttributes(sess, resource, resource, member, workWithUserAttributes);
 	}
 
@@ -2213,7 +2235,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return new ArrayList<Attribute>(attributes);
 	}
 
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<Attribute>();
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, resource, member));
@@ -2235,7 +2257,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, group);
 	}
 
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		List<Attribute> attributes = new ArrayList<Attribute>();
 
@@ -2273,11 +2295,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource);
 	}
 
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		return getRequiredAttributes(sess, service, resource, member, false);
 	}
 
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if(!workWithUserAttributes) return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, member);
 
@@ -2292,7 +2314,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, List<Member> members, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, List<Member> members, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		// check if members are from the same VO as resource
 		if (members.isEmpty()) {
 			return new HashMap<>();
@@ -2428,7 +2450,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<Attribute>();
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, member));
@@ -2438,7 +2460,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, boolean withGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, boolean withGroupAttributes) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if(!withGroupAttributes) return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, group);
 
@@ -2453,7 +2475,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, member);
 	}
 
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, group);
 	}
@@ -2495,18 +2517,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
-	public Attribute fillAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
 
 		return getAttributesManagerImpl().fillAttribute(sess, resource, member, attribute);
 	}
 
-	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, MemberResourceMismatchException, WrongAttributeAssignmentException {
 		return fillAttributes(sess, resource, member, attributes, false);
 	}
 
-	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException, WrongAttributeAssignmentException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if(!workWithUserAttributes) {
 			List<Attribute> filledAttributes = new ArrayList<Attribute>();
@@ -2598,7 +2620,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
-	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> filledAttributes = new ArrayList<Attribute>();
 		for(Attribute attribute : attributes) {
@@ -2624,7 +2646,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
-	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean returnOnlyAttributesWithChangedValue) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean returnOnlyAttributesWithChangedValue) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		if(!returnOnlyAttributesWithChangedValue) {
 			return this.fillAttributes(sess, facility, resource, user, member, attributes);
 		} else {
@@ -2739,13 +2761,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
-	public Attribute fillAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 		return getAttributesManagerImpl().fillAttribute(sess, resource, group, attribute);
 	}
 
-	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 		List<Attribute> filledAttributes = new ArrayList<Attribute>();
@@ -2762,7 +2784,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
-	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if(!workWithGroupAttributes) {
 			return this.fillAttributes(sess, resource, group, attributes);
@@ -2867,7 +2889,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void checkAttributeValue(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
 
@@ -2875,7 +2897,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, resource, member, attribute);
 	}
 
-	public void checkAttributesValue(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesValue(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		checkAttributesValue(sess, resource, member, attributes, false);
 	}
 
@@ -2939,7 +2961,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void checkAttributesValue(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesValue(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if(!workWithUserAttributes) {
 			for(Attribute attribute : attributes) {
@@ -2976,7 +2998,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 
-	public void checkAttributesValue(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesValue(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		for(Attribute attribute : attributes) {
 			if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
@@ -3029,7 +3051,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void checkAttributeValue(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException,WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 
@@ -3037,7 +3059,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, resource, group, attribute);
 	}
 
-	public void checkAttributesValue(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributesValue(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 
 		for(Attribute attribute : attributes) {
@@ -3045,7 +3067,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void checkAttributesValue(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributesValue(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if(!workWithGroupAttribute) {
 			this.checkAttributesValue(sess, resource, group, attributes);
@@ -3145,7 +3167,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.getPerunBl().getAuditer().log(sess, "All non-virtual member-resource attributes removed for all members and {}", resource);
 	}
 
-	public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		List<Group> groups = this.getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		for (Group group : groups) {
 			this.getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, group);
@@ -3154,7 +3176,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.getPerunBl().getAuditer().log(sess, "All non-virtual group-resource attributes removed for all groups and {}", resource);
 	}
 
-	public void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, key, attribute)) {
 			this.checkAttributeValue(sess, key, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(key, null, new Attribute(attribute)));
@@ -3180,14 +3202,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, facility, attribute)) {
 			this.checkAttributeValue(sess, facility, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(facility, null, new Attribute(attribute)));
 		}
 	}
 
-	public void removeAttributes(PerunSession sess, Member member, boolean workWithUserAttributes, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Member member, boolean workWithUserAttributes, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if(!workWithUserAttributes){
 			getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_ATTR);
 			List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
@@ -3219,7 +3241,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttributes(PerunSession sess, Facility facility, List<? extends AttributeDefinition> attributesDefinition) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+	public void removeAttributes(PerunSession sess, Facility facility, List<? extends AttributeDefinition> attributesDefinition) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributesDefinition, NS_FACILITY_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributesDefinition) {
@@ -3232,7 +3254,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, facility, null, attributesFromDefinitions(attributesToCheck));
 	}
 
-	public void removeAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException{
+	public void removeAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
@@ -3256,7 +3278,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributesFromDefinitions(attributesToCheck));
 	}
 
-	public void removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		List<Attribute> attributes = getAttributes(sess, facility);
 		getAttributesManagerImpl().removeAllAttributes(sess, facility);
 		getPerunBl().getAuditer().log(sess, "All attributes removed for {}", facility);
@@ -3281,14 +3303,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAllAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void removeAllAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
 		removeAllAttributes(sess, resource, group);
 		if (workWithGroupAttributes) {
 			removeAllAttributes(sess, group);
 		}
 	}
 
-	public void removeAllAttributes(PerunSession sess, Facility facility, boolean removeAlsoUserFacilityAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Facility facility, boolean removeAlsoUserFacilityAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		removeAllAttributes(sess, facility);
 		if(removeAlsoUserFacilityAttributes) {
 			List<Attribute> userFacilityAttributes = getUserFacilityAttributesForAnyUser(sess, facility);
@@ -3319,7 +3341,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, host, attribute)) {
 			checkAttributeValue(sess, host, new Attribute(attribute));
 			try {
@@ -3351,7 +3373,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributesDefinition) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributesDefinition) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributesDefinition, AttributesManager.NS_HOST_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributesDefinition) {
@@ -3368,7 +3390,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException, WrongAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException, WrongAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		List<Attribute> attributes = getAttributes(sess, host);
 		getAttributesManagerImpl().removeAllAttributes(sess, host);
 		getPerunBl().getAuditer().log(sess, "All attributes removed for {}", host);
@@ -3398,7 +3420,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}*/
 	}
 
-	public void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, vo, attribute)) {
 			checkAttributeValue(sess, vo, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(vo, null, new Attribute(attribute)));
@@ -3425,7 +3447,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void removeAttributes(PerunSession sess, Vo vo, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Vo vo, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_VO_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
@@ -3438,7 +3460,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, vo, null, attributesFromDefinitions(attributesToCheck));
 	}
 
-	public void removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		List<Attribute> attributes = getAttributes(sess, vo);
 		getAttributesManagerImpl().removeAllAttributes(sess, vo);
 		getPerunBl().getAuditer().log(sess, "All attributes removed for {}", vo);
@@ -3464,7 +3486,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, group, attribute)) {
 			checkAttributeValue(sess, group, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(group, null, new Attribute(attribute)));
@@ -3491,7 +3513,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void removeAttributes(PerunSession sess, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_GROUP_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
@@ -3514,6 +3536,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			this.checkAttributesDependencies(sess, group, null, attributes);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
 		}
 
 		for(Attribute attribute: attributes) {
@@ -3529,7 +3555,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public boolean removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		boolean changed = removeAttributeWithoutCheck(sess, resource, attribute);
 		if (changed) {
 			checkAttributeValue(sess, resource, new Attribute(attribute));
@@ -3562,7 +3588,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void removeAttributes(PerunSession sess, Resource resource, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Resource resource, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_RESOURCE_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
@@ -3575,7 +3601,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, null, attributesFromDefinitions(attributesToCheck));
 	}
 
-	public void removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		List<Attribute> attributes = getAttributes(sess, resource);
 		getAttributesManagerImpl().removeAllAttributes(sess, resource);
 
@@ -3607,14 +3633,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, resource, member, attribute)) {
 			checkAttributeValue(sess, resource, member, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(resource, member, new Attribute(attribute)));
 		}
 	}
 
-	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
@@ -3636,7 +3662,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_RESOURCE_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
@@ -3648,7 +3674,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributesToCheck));
 	}
 
-	public void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (!(workWithUserAttributes)) {
 			removeAttributes(sess, resource, member, attributes);
 		} else {
@@ -3675,8 +3701,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAllAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void removeAllAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
+
 		List<Attribute> attributes = getAttributes(sess, resource, member);
 		getAttributesManagerImpl().removeAllAttributes(sess, resource, member);
 		getPerunBl().getAuditer().log(sess, "All attributes removed for {} and {}", resource, member);
@@ -3703,7 +3731,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, member, group, attribute)) {
 			checkAttributeValue(sess, member, group, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(member, group, new Attribute(attribute)));
@@ -3732,12 +3760,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		removeAttributes(sess, member, group, attributes, false);
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		if (!workWithUserAttributes) {
 			getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_GROUP_ATTR);
 			List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
@@ -3795,7 +3823,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, member, attribute)) {
 			checkAttributeValue(sess, member, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(member, null, new Attribute(attribute)));
@@ -3826,7 +3854,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
-	public void removeAttributes(PerunSession sess, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
@@ -3849,6 +3877,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			this.checkAttributesDependencies(sess, member, null, attributes);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
 		}
 
 		for(Attribute attribute: attributes) {
@@ -3864,7 +3896,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, facility, user, attribute)) {
 			checkAttributeValue(sess, facility, user, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(facility, user, new Attribute(attribute)));
@@ -3898,7 +3930,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void removeAttributes(PerunSession sess, Facility facility, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Facility facility, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_FACILITY_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
@@ -3914,7 +3946,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, facility, user, attributesFromDefinitions(attributesToCheck));
 	}
 
-	public void removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		List<Attribute> attributes = getAttributes(sess, facility, user);
 		//remove all non-virtual attributes
 		getAttributesManagerImpl().removeAllAttributes(sess, facility, user);
@@ -3949,7 +3981,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAllUserFacilityAttributes(PerunSession sess, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllUserFacilityAttributes(PerunSession sess, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 
 		List<RichAttribute<User, Facility>> userFacilitiesAttributes = getAttributesManagerImpl().getAllUserFacilityRichAttributes(sess, user);
 
@@ -3978,7 +4010,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, user, attribute)) {
 			checkAttributeValue(sess, user, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(user, null, new Attribute(attribute)));
@@ -4006,7 +4038,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void removeAttributes(PerunSession sess, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
@@ -4018,7 +4050,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, user, null, attributesFromDefinitions(attributesToCheck));
 	}
 
-	public void removeAllAttributes(PerunSession sess, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		List<Attribute> attributes = getAttributes(sess, user);
 		getAttributesManagerImpl().removeAllAttributes(sess, user);
 		getPerunBl().getAuditer().log(sess, "All attributes removed for {}", user);
@@ -4044,14 +4076,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, resource, group, attribute)) {
 			checkAttributeValue(sess, resource, group, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(resource, group, new Attribute(attribute)));
 		}
 	}
 
-	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 		boolean changed = false;
@@ -4074,7 +4106,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
 		//getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
@@ -4084,7 +4116,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, group, attributesFromDefinitions(attributesToCheck));
 	}
 
-	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (!workWithGroupAttributes) {
 			removeAttributes(sess, resource, group, attributes);
 		} else {
@@ -4109,7 +4141,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		List<Attribute> attributes = getAttributes(sess, resource, group);
 		getAttributesManagerImpl().removeAllAttributes(sess, resource, group);
@@ -4126,6 +4158,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			this.checkAttributesDependencies(sess, resource, group, attributes);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
 		}
 
 		for(Attribute attribute: attributes) {
@@ -4141,7 +4177,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, ues, attribute)) {
 			checkAttributeValue(sess, ues, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute(ues, null, new Attribute(attribute)));
@@ -4169,7 +4205,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
-	public void removeAttributes(PerunSession sess, UserExtSource ues, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAttributes(PerunSession sess, UserExtSource ues, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_UES_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
@@ -4181,7 +4217,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, ues, null, attributesFromDefinitions(attributesToCheck));
 	}
 
-	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		List<Attribute> attributes = getAttributes(sess, ues);
 		getAttributesManagerImpl().removeAllAttributes(sess, ues);
 		getPerunBl().getAuditer().log(sess, "All attributes removed for {}", ues);
@@ -4341,7 +4377,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
-	public boolean isTrulyRequiredAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean isTrulyRequiredAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		this.checkNamespace(sess, attributeDefinition, NS_MEMBER_RESOURCE_ATTR);
 		List<Member> allowedMembers = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
@@ -4361,7 +4397,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return false;
 	}
 
-	public boolean isTrulyRequiredAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean isTrulyRequiredAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		this.checkNamespace(sess, attributeDefinition, NS_GROUP_RESOURCE_ATTR);
 		List<Group> assignedGroups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
@@ -4390,11 +4426,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return AttributesManagerImpl.escapeMapAttributeValue(value);
 	}
 
-	public void doTheMagic(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void doTheMagic(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
 		doTheMagic(sess, member, false);
 	}
 
-	public void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
 		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
 		for(Resource resource : resources) {
@@ -4435,15 +4471,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void mergeAttributesValues(PerunSession sess, User user, List<Attribute> attributes)  throws InternalErrorException, WrongAttributeValueException,
-				 WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void mergeAttributesValues(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
 					 for (Attribute attribute: attributes) {
 						 this.mergeAttributeValue(sess, user, attribute);
 					 }
 	}
 
 	public Attribute mergeAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
-				 WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+            WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
 					 // Check type ArrayList
 					 if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
 						 Attribute storedAttribute = null;
@@ -4508,7 +4543,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					 return attribute;
 	}
 
-	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
 		return mergeAttributeValue(sess, user, attribute);
 	}
 
@@ -4527,7 +4562,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().updateAttributeDefinition(perunSession, attributeDefinition);
 	}
 
-	private void checkAttributesDependencies(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		if(workWithGroupAttributes) {
 			List<Attribute> groupAttributes = new ArrayList<Attribute>();
 			List<Attribute> groupResourceAttributes = new ArrayList<Attribute>();
@@ -4547,7 +4582,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	private void checkAttributesDependencies(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		if(workWithUserAttributes) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			List<Attribute> userAttributes = new ArrayList<Attribute>();
@@ -4568,7 +4603,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	private void checkAttributesDependencies(PerunSession sess, Resource resource, Member member, User user, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Resource resource, Member member, User user, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		List<Attribute> userAttributes = new ArrayList<Attribute>();
 		List<Attribute> memberAttributes = new ArrayList<Attribute>();
 		List<Attribute> memberResourceAttributes = new ArrayList<Attribute>();
@@ -4592,7 +4627,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributesDependencies(sess, resource, member, memberResourceAttributes);
 	}
 
-	private void checkAttributesDependencies(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		if(workWithUserAttributes) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
@@ -4622,7 +4657,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	private void checkAttributesDependencies(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if(workWithUserAttributes) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			List<Attribute> userAttributes = new ArrayList<Attribute>();
@@ -4647,7 +4682,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	private void checkAttributesDependencies(PerunSession sess, Object primaryHolder, Object secondaryHolder, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	private void checkAttributesDependencies(PerunSession sess, Object primaryHolder, Object secondaryHolder, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		if(attributes != null && !attributes.isEmpty()) {
 			for(Attribute attr: attributes) {
 				checkAttributeDependencies(sess, new RichAttribute(primaryHolder, secondaryHolder, attr));
@@ -4655,7 +4690,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void checkAttributeDependencies(PerunSession sess, RichAttribute richAttr) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeDependencies(PerunSession sess, RichAttribute richAttr) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		if(getAllDependencies() == null || getAllDependencies().isEmpty()) log.error("Map of all dependencies is empty. If this is not test, its an error probably.");
 		if(richAttr == null || richAttr.getAttribute() == null) throw new InternalErrorException("RichAttribute or Attribute in it can't be null!");
 		else {
@@ -4825,7 +4860,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException, GroupResourceMismatchException {
 		//Filling objects from aidingAttr
 		if(aidingAttr == null) throw new InternalErrorException("Aiding attribute cant be null.");
 		if(attrDef == null) throw new InternalErrorException("attrDef cant be null.");
@@ -6461,17 +6496,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param sess
 	 * @param member
 	 * @param resource
-	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
 	 * @throws InternalErrorException
-	 * @throws MemberNotExistsException
-	 * @throws ResourceNotExistsException
 	 */
-	private void checkMemberIsFromTheSameVoLikeResource(PerunSession sess, Member member, Resource resource) throws WrongAttributeAssignmentException, InternalErrorException {
+	private void checkMemberIsFromTheSameVoLikeResource(PerunSession sess, Member member, Resource resource) throws InternalErrorException, MemberResourceMismatchException {
 		Utils.notNull(sess, "sess");
 		Utils.notNull(member, "member");
 		Utils.notNull(resource, "resource");
 
-		if(member.getVoId() != resource.getVoId()) throw new WrongAttributeAssignmentException("Member is not from the same vo like Resource: " + member + " " + resource);
+		if(member.getVoId() != resource.getVoId()) throw new MemberResourceMismatchException("Member is not from the same vo like Resource: " + member + " " + resource);
 	}
 
 	/**
@@ -6480,17 +6513,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param sess
 	 * @param group
 	 * @param resource
-	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
 	 * @throws InternalErrorException
-	 * @throws GroupNotExistsException
-	 * @throws ResourceNotExistsException
 	 */
-	private void checkGroupIsFromTheSameVoLikeResource(PerunSession sess, Group group, Resource resource) throws WrongAttributeAssignmentException, InternalErrorException {
+	private void checkGroupIsFromTheSameVoLikeResource(PerunSession sess, Group group, Resource resource) throws GroupResourceMismatchException, InternalErrorException {
 		Utils.notNull(sess, "sess");
 		Utils.notNull(group, "group");
 		Utils.notNull(resource, "resource");
 
-		if(group.getVoId() != resource.getVoId()) throw new WrongAttributeAssignmentException("Group is not from the same vo like Resource: " + group + " " + resource);
+		if(group.getVoId() != resource.getVoId()) throw new GroupResourceMismatchException("Group is not from the same vo like Resource: " + group + " " + resource);
 	}
 
 	public Map<AttributeDefinition, Set<AttributeDefinition>> getAllDependencies() {

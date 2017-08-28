@@ -4,7 +4,9 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -55,6 +57,8 @@ public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi
 	 * @param session session
 	 * @param resource resource
 	 * @param attribute the attribute
+	 *
+	 * @throws MemberResourceMismatchException
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, GroupResourceMismatchException, MemberResourceMismatchException;
 }

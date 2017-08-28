@@ -32,7 +32,9 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
@@ -125,7 +127,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		try {
 			attributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, null, resource, members, true);
-		} catch(WrongAttributeAssignmentException ex) {
+		} catch (MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -148,7 +150,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		try {
 			attributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, members, true);
-		} catch(WrongAttributeAssignmentException ex) {
+		} catch (MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -184,7 +186,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		try {
 			// append all member/member_resource/user/user_facility attributes
 			attributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, members, true);
-		} catch(WrongAttributeAssignmentException ex) {
+		} catch (MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -226,7 +228,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		try {
 			// add group and group_resource attributes
 			groupServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource, group, true));
-		} catch (WrongAttributeAssignmentException ex) {
+		} catch (GroupResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 		ServiceAttributes groupsSubGroupsElement = new ServiceAttributes();
@@ -261,7 +263,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		ServiceAttributes memberServiceAttributes = new ServiceAttributes();
 		try {
 			memberServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource, member, true));
-		} catch(WrongAttributeAssignmentException ex) {
+		} catch (MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 		return memberServiceAttributes;
@@ -276,7 +278,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			memberServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, user, member));
 		} catch (UserNotExistsException e) {
 			throw new ConsistencyErrorException("Member has assigned non-existing user.", e);
-		} catch (WrongAttributeAssignmentException ex) {
+		} catch (MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 

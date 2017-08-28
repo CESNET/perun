@@ -45,7 +45,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().deleteMember(sess, member);
 	}
 
-	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, GroupOperationsException {
+	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, GroupOperationsException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -58,11 +58,11 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().deleteAllMembers(sess, vo);
 	}
 
-	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException, GroupOperationsException {
+	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException, GroupOperationsException, GroupResourceMismatchException, MemberResourceMismatchException {
 		return this.createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, null);
 	}
 
-	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException, GroupOperationsException {
+	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException, GroupOperationsException, GroupResourceMismatchException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(specificUserType, "specificUserType");
 
@@ -117,11 +117,11 @@ public class MembersManagerEntry implements MembersManager {
 		}
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException, GroupOperationsException, GroupResourceMismatchException, MemberResourceMismatchException {
 		return this.createMember(sess, vo, candidate, new ArrayList<>());
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException, GroupOperationsException, GroupResourceMismatchException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 
 		// if any group is not from the vo, throw an exception
@@ -504,7 +504,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException, GroupResourceMismatchException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
@@ -899,7 +899,7 @@ public class MembersManagerEntry implements MembersManager {
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInVo(sess, vo, searchString), true);
 	}
 
-	public Member setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
+	public Member setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1095,7 +1095,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws InternalErrorException, PrivilegeException, VoNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(sponsoredMember, "sponsoredMember");
 		Utils.notNull(sponsorUser, "sponsorUser");

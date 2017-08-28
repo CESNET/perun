@@ -1096,7 +1096,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
-	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);

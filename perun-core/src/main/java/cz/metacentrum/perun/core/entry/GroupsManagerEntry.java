@@ -896,7 +896,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().getAllMemberGroups(sess, member);
 	}
 
-	public List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, ResourceNotExistsException, PrivilegeException {
+	public List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, ResourceNotExistsException, PrivilegeException, GroupResourceMismatchException {
 		Utils.checkPerunSession(sess);
 		this.getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 

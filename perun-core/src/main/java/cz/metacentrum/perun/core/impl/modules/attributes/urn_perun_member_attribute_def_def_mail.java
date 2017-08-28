@@ -7,8 +7,9 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -55,6 +56,10 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 				throw new ConsistencyErrorException(ex);
 			} catch (WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException(attribute, userPreferredMail, "Mismatch in checking of member mail and user preferredMail (different checking rules).", ex);
+			} catch (MemberResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
+			} catch (GroupResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 

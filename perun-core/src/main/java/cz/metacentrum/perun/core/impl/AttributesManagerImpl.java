@@ -75,8 +75,10 @@ import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -2761,6 +2763,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			groupModule.changedAttributeHook((PerunSessionImpl) sess, group, attribute);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
@@ -2804,6 +2810,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			resourceModule.changedAttributeHook((PerunSessionImpl) sess, resource, attribute);
 		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -2911,6 +2921,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			resourceMemberGroupModule.checkAttributeValue((PerunSessionImpl) sess, resource, member, attribute);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
@@ -2976,6 +2988,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			attributeModule.checkAttributeValue((PerunSessionImpl) sess, resource,group, attribute);
 		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}

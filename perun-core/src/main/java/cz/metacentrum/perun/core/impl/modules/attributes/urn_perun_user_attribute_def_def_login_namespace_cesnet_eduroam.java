@@ -59,7 +59,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_cesnet_eduroam ext
 		try {
 			idsCounter.setValue(counterValue);
 			perunSession.getPerunBl().getAttributesManagerBl().setAttribute(perunSession, cesnet_eduroam_key, idsCounter);
-		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
+		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException | GroupResourceMismatchException | MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 

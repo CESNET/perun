@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -24,7 +25,7 @@ import java.util.List;
  */
 public abstract class ResourceGroupAttributesModuleAbstract extends AttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi{
 
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 
 	}
 

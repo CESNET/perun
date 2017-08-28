@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -30,9 +31,10 @@ public interface ResourceGroupAttributesModuleImplApi extends AttributesModuleIm
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
 	 */
 
-	void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * This method MAY fill an attribute at the specified resource.

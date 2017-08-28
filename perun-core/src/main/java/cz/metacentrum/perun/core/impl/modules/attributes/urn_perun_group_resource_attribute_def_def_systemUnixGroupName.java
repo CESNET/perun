@@ -28,7 +28,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 		return new Attribute(attributeDefinition);
 	}
 
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 
 		String groupName = (String) attribute.getValue();
 		Attribute isSystemGroup = new Attribute();

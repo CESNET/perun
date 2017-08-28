@@ -540,8 +540,9 @@ public interface GroupsManager {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
+	 * @throws GroupResourceMismatchException
 	 */
-	List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, ResourceNotExistsException, PrivilegeException;
+	List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, ResourceNotExistsException, PrivilegeException, GroupResourceMismatchException;
 
 	/**
 	 * Gets list of all user administrators of this group.

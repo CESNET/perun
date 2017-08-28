@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -24,7 +25,7 @@ import java.util.List;
  */
 public abstract class ResourceMemberAttributesModuleAbstract extends AttributesModuleAbstract implements ResourceMemberAttributesModuleImplApi {
 
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 
 	}
 
