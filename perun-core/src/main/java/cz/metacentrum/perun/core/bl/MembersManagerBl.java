@@ -883,7 +883,6 @@ public interface MembersManagerBl {
 	 */
 	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef)  throws InternalErrorException, WrongAttributeAssignmentException;
 
-
 	/**
 	 * Get the VO members count.
 	 *

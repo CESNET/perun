@@ -164,7 +164,7 @@ public interface AttributesManagerBl {
 	 * @param sess perun session
 	 * @param resource to get the attributes from
 	 * @param member to get the attributes from
-	 * @param workWithUserAttributes if true returns also user and user-facility attributes (user is automatically get from member a facility is get from resource)
+	 * @param workWithUserAttributes if true returns also user and user-facility attributes (user is automatically get from member and facility is get from resource)
 	 * @return list of selected attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
@@ -184,7 +184,7 @@ public interface AttributesManagerBl {
 	 * @param group group to get the attributes from
 	 * @param resource to get the attributes from
 	 * @param member to get the attributes from
-	 * @param workWithUserAttributes if true returns also user and user-facility attributes (user is automatically get from member a facility is get from resource)
+	 * @param workWithUserAttributes if true returns also user and user-facility attributes (user is automatically get from member and facility is get from resource)
 	 * @return list of selected attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
