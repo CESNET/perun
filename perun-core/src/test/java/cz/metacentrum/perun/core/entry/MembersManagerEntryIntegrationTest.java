@@ -182,6 +182,53 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getRichMembersWithAttributesByNames() throws Exception {
+		System.out.println(CLASS_NAME + "getRichMembersWithAttributesByNames");
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		Facility facility = new Facility(0, "TESTING Facility", "TESTING Facility");
+		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
+		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
+		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource);
+		perun.getGroupsManagerBl().addMember(sess, createdGroup, createdMember);
+
+		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
+		Attribute userAttribute2 = setUpAttribute(String.class.getName(), "testUserAttribute2", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
+		perun.getAttributesManagerBl().setAttributes(sess, user, new ArrayList<>(Arrays.asList(userAttribute1, userAttribute1)));
+		Attribute memberAttribute1 = setUpAttribute(Integer.class.getName(), "testMemberAttribute1", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, new ArrayList<>(Arrays.asList(memberAttribute1)));
+		Attribute userFacilityAttribute1 = setUpAttribute(ArrayList.class.getName(), "testUserFacilityAttribute1", AttributesManager.NS_USER_FACILITY_ATTR_DEF, new ArrayList<>(Arrays.asList("A", "B")));
+		perun.getAttributesManagerBl().setAttributes(sess, facility, user, new ArrayList<>(Arrays.asList(userFacilityAttribute1)));
+		Map<String, String> map = new LinkedHashMap<>();
+		map.put("A", "B");
+		map.put("C", "D");
+		Attribute memberResourceAttribute1 = setUpAttribute(LinkedHashMap.class.getName(), "testMemberResourceAttribute1", AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, map);
+		//test of member-group attributes
+		perun.getAttributesManagerBl().setAttributes(sess, resource, createdMember, new ArrayList<>(Arrays.asList(memberResourceAttribute1)));
+		Map<String, String> groupMap = new LinkedHashMap<>();
+		groupMap.put("E", "F");
+		groupMap.put("G", "H");
+		Attribute memberGroupAttribute1 = setUpAttribute(LinkedHashMap.class.getName(), "testMemberGroupAttribute1", AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, groupMap);
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, createdGroup, new ArrayList<>(Arrays.asList(memberGroupAttribute1)));
+
+		List<String> attrNames = new ArrayList<>(Arrays.asList(userAttribute1.getName(), memberAttribute1.getName(), userFacilityAttribute1.getName(), memberResourceAttribute1.getName(), memberGroupAttribute1.getName()));
+		List<RichMember> richMembers = perun.getMembersManagerBl().getRichMembersWithAttributesByNames(sess, createdGroup, resource, attrNames);
+
+		List<Attribute> userAttributes = richMembers.get(0).getUserAttributes();
+		List<Attribute> memberAttributes = richMembers.get(0).getMemberAttributes();
+
+		assertTrue(richMembers.size() == 1);
+		assertTrue(userAttributes.size() == 2);
+		assertTrue(memberAttributes.size() == 3);
+		assertTrue(userAttributes.contains(userAttribute1));
+		assertTrue(userAttributes.contains(userFacilityAttribute1));
+		assertTrue(memberAttributes.contains(memberAttribute1));
+		assertTrue(memberAttributes.contains(memberResourceAttribute1));
+		assertTrue(memberAttributes.contains(memberGroupAttribute1));
+	}
+
+	@Test
 	public void findCompleteRichMembers() throws Exception {
 		System.out.println(CLASS_NAME + "findCompleteRichMembers");
 

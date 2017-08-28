@@ -944,7 +944,7 @@ public interface AttributesManager {
 	 * @param group group to set on
 	 * @param resource resource to set on
 	 * @param attributes attribute to set
-	 * @param workWithUserAttributes true/false If true, we can use group attributes too
+	 * @param workWithGroupAttributes true/false If true, we can use group attributes too
 	 *
 	 * @throws PrivilegeException if privileges are not given
 	 * @throws GroupNotExistsException if the group doesn't exists in the underlying data source
