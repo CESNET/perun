@@ -277,6 +277,27 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, Group group, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+		List<Attribute> attributes = getAttributes(sess, resource, member, attrNames, workWithUserAttributes);
+
+		if(attrNames.isEmpty()) {
+			attributes.addAll(getAttributes(sess, member, group));
+			return attributes;
+		}
+
+		List<String> memberGroupAttributeNames = new ArrayList<>();
+
+		for(String attributeName: attrNames) {
+			if(attributeName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+				memberGroupAttributeNames.add(attributeName);
+			}
+		}
+		if(!memberGroupAttributeNames.isEmpty()){
+			attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, group, memberGroupAttributeNames));
+		}
+		return attributes;
+	}
+
 	public List<Attribute> getAttributes(PerunSession sess, Member member, boolean workWithUserAttributes) throws InternalErrorException {
 		List<Attribute> attributes = new ArrayList<Attribute>();
 		attributes.addAll(this.getAttributes(sess, member));
