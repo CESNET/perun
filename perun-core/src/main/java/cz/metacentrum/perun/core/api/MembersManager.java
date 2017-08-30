@@ -1169,4 +1169,9 @@ public interface MembersManager {
 	 */
 	String extendExpirationForSponsoredMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
+	/**
+	 * Removes the sponsor.
+	 */
+	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws InternalErrorException, PrivilegeException;
+
 }
