@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -422,6 +423,8 @@ public class Auditer {
 				} catch (WrongReferenceAttributeValueException ex) {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
 				} catch (AttributeNotExistsException ex) {
+					log.error("Error when auditer trying to resolve messages in modules.", ex);
+				} catch (MemberResourceMismatchException ex) {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
 				}
 

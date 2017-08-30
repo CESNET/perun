@@ -617,9 +617,9 @@ public interface MembersManagerBl {
 	 * @return list of richMembers with specific attributes
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
-	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, MemberResourceMismatchException;
 
 	/**
 	 * Return list of richMembers for specific vo by the searchString with attributes specific for list of attrsNames.
@@ -747,9 +747,9 @@ public interface MembersManagerBl {
 	 * @return list of RichMembers
 	 * @throws AttributeNotExistsException
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
 	 */
-	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, MemberResourceMismatchException;
 
 
 	/**
@@ -879,9 +879,9 @@ public interface MembersManagerBl {
 	 * @param attrsDef
 	 * @return
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
 	 */
-	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef)  throws InternalErrorException, WrongAttributeAssignmentException;
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef) throws InternalErrorException, MemberResourceMismatchException;
 
 	/**
 	 * Get the VO members count.
