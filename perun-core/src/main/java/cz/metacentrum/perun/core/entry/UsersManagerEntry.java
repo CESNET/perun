@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
@@ -11,6 +7,10 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * UsersManager entry logic
@@ -1176,14 +1176,20 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
-	public List<RichUser> getSponsors(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException {
+	public List<RichUser> getSponsors(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(member, "member");
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
-			throw new PrivilegeException(sess, "getSponsors can be caled only by REGISTAR");
+			throw new PrivilegeException(sess, "getSponsors can be called only by REGISTAR");
 		}
-		return usersManagerBl.convertUsersToRichUsers(sess, usersManagerBl.getSponsors(sess, member));
+		List<User> sponsors = usersManagerBl.getSponsors(sess, member);
+		if (attrNames == null || attrNames.isEmpty()) {
+			//adds all existing atributes
+			return usersManagerBl.convertRichUsersToRichUsersWithAttributes(sess, usersManagerBl.convertUsersToRichUsers(sess, sponsors));
+		} else {
+			//adds only selected atributes (if the list would be empty, it will return no attributes)
+			return usersManagerBl.convertUsersToRichUsersWithAttributesByNames(sess, sponsors, attrNames);
+		}
 	}
-
 }

@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public enum MembersManagerMethod implements ManagerMethod {
 
 	/*#
@@ -91,6 +92,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 */
 	@Deprecated
 	createSponsoredAccount {
+		@SuppressWarnings("unchecked")
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
@@ -229,6 +231,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Can be called by user in role REGISTRAR.
 	 *
 	 * @param member int member id
+	 * @param attrNames List<String> names of attributes to return, empty to return all attributes
 	 * @return List<RichMember> sponsors
 	 */
 	/*#
@@ -239,6 +242,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param vo int VO ID
 	 * @param extSourceName String external source name, usually SAML IdP entityID
 	 * @param extLogin String external source login, usually eduPersonPrincipalName
+	 * @param attrNames List<String> names of attributes to return, empty to return all attributes
 	 * @return List<RichMember> sponsors
 	 */
 	getSponsors {
@@ -252,7 +256,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 				User user = ac.getUsersManager().getUserByExtSourceNameAndExtLogin(ac.getSession(), params.readString("extSourceName"), params.readString("extLogin"));
 				member = ac.getMembersManager().getMemberByUser(ac.getSession(), vo, user);
 			}
-			return ac.getUsersManager().getSponsors(ac.getSession(), member);
+			List<String> attrNames = params.contains("attrNames") ? params.readList("attrNames",String.class) : null;
+			return ac.getUsersManager().getSponsors(ac.getSession(), member, attrNames);
 		}
 	},
 
@@ -1199,6 +1204,6 @@ public enum MembersManagerMethod implements ManagerMethod {
 			return null;
 
 		}
-	};
+	}
 
 }
