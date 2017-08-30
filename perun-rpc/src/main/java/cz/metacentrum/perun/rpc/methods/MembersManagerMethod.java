@@ -228,7 +228,6 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * Can be called by user in role REGISTRAR.
 	 *
-	 * @param vo int VO ID
 	 * @param member int member id
 	 * @return List<RichMember> sponsors
 	 */
