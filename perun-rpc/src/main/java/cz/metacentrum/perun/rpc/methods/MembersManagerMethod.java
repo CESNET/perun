@@ -155,6 +155,25 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Removes sponsor of existing member.
+	 *
+	 * Can be called only by VO admin.
+	 *
+	 * @param member int id of sponsored member, optional
+	 * @param sponsor int id of sponsoring user that is to be removed, optional
+	 */
+	removeSponsor {
+		@Override
+		public Void call(ApiCaller ac, Deserializer params) throws PerunException {
+			ac.stateChangingCheck();
+			Member sponsoredMember = ac.getMemberById(params.readInt("member"));
+			User sponsorToRemove = ac.getUserById(params.readInt("sponsor"));
+			ac.getMembersManager().removeSponsor(ac.getSession(), sponsoredMember, sponsorToRemove);
+			return null;
+		}
+	},
+
+	/*#
 	 * Changes expiration date for a sponsored member acording to VO rules.
 	 *
 	 * Can be called only by REGISTRAR or VOADMIN.

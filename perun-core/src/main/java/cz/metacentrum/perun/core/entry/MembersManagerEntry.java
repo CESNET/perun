@@ -1105,6 +1105,28 @@ public class MembersManagerEntry implements MembersManager {
 		return membersManagerBl.extendExpirationForSponsoredMember(sess,sponsoredMember,sponsorUser);
 	}
 
+	@Override
+	public void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(sponsoredMember, "sponsoredMember");
+		Utils.notNull(sponsorToRemove, "sponsorToRemove");
+		log.debug("removeSponsor(sponsoredMember={},sponsorToRemove={}", sponsoredMember.getId(), sponsorToRemove.getId());
+
+		//Get the VO to which sponsoredMember belongs
+		Vo vo = membersManagerBl.getMemberVo(sess, sponsoredMember);
+
+		//Check if the caller is authorised to remove sponsor
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+			throw new PrivilegeException(sess, "removeSponsor must be called by VOADMIN");
+		}
+		//Check that sponsoring user has a role SPONSOR for the VO
+		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, sponsorToRemove, Role.SPONSOR, vo, true)) {
+			throw new PrivilegeException(sess, "user " + sponsorToRemove.getId() + " is not in role SPONSOR for VO " + vo.getId());
+		}
+		//remove sponsor
+		membersManagerBl.removeSponsor(sess,sponsoredMember, sponsorToRemove);
+	}
+
 	/**
 	 * Gets the membersManagerBl for this instance.
 	 *
