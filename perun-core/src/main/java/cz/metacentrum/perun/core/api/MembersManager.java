@@ -1140,14 +1140,13 @@ public interface MembersManager {
 	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotExistsException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, GroupOperationsException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Assigns a new sponsor to an existing user.
+	 * Assigns a new sponsor to an existing member.
 	 * @param session actor
-	 * @param vo virtual organization  for the member
-	 * @param sponsored existing user that needs sponsoring
+	 * @param sponsored existing member that needs sponsoring
 	 * @param sponsor sponsoring user or null for the caller
 	 * @return existing Member
 	 */
-	RichMember sponsorMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotExistsException, AlreadyMemberException, MemberNotSponsoredException;
+	RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotSponsoredException;
 
 	/**
 	 * Gets list of members of a VO sponsored by the given user.

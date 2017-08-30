@@ -1055,14 +1055,17 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public RichMember sponsorMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotExistsException, AlreadyMemberException, MemberNotSponsoredException {
+	public RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotSponsoredException {
 		Utils.checkPerunSession(session);
-		Utils.notNull(vo, "vo");
 		Utils.notNull(sponsored, "sponsored");
 		Utils.notNull(sponsor, "sponsor");
-		log.debug("sponsorMember(vo={},sponsored={},sponsor={}", vo.getShortName(), sponsored.getId(), sponsor.getId());
+		log.debug("sponsorMember(sponsored={},sponsor={}", sponsored.getId(), sponsor.getId());
 
-		if (!AuthzResolver.isAuthorized(session, Role.VOADMIN, vo)) {
+		//Get the VO to which the member belongs
+		Vo vo = membersManagerBl.getMemberVo(session, sponsored);
+
+		//Check if the caller is authorised to add sponsor
+		if (!AuthzResolver.isAuthorized(session, Role.VOADMIN)) {
 			throw new PrivilegeException(session, "sponsorMember must be called by VOADMIN");
 		}
 		//check that sponsoring user has role SPONSOR for the VO
@@ -1070,7 +1073,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(session, "user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
 		}
 		//create the link between sponsored and sponsoring users
-		return membersManagerBl.getRichMember(session, membersManagerBl.sponsorMember(session, vo, sponsored, sponsor));
+		return membersManagerBl.getRichMember(session, membersManagerBl.sponsorMember(session, sponsored, sponsor));
 	}
 
 	@Override
