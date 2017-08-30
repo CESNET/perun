@@ -361,7 +361,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							parms.readList("attrNames", String.class));
 				} else {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
-						ac.getGroupById(parms.readInt("group")));
+							ac.getGroupById(parms.readInt("group")));
 				}
 			} else if (parms.contains("host")) {
 				return ac.getAttributesManager().getAttributes(ac.getSession(),
@@ -1456,8 +1456,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		public List<Attribute> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("service")) {
 				if (parms.contains("resource")) {
-					if (parms.contains("member")) {
-						if (parms.contains("group")) {
+					if (parms.contains("group")) {
+						if (parms.contains("member")) {
 							if (parms.contains("workWithUserAttributes")) {
 								return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 										ac.getServiceById(parms.readInt("service")),
@@ -1474,24 +1474,24 @@ public enum AttributesManagerMethod implements ManagerMethod {
 										false);
 							}
 						} else {
-							if (parms.contains("workWithUserAttributes")) {
-								return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-										ac.getServiceById(parms.readInt("service")),
-										ac.getResourceById(parms.readInt("resource")),
-										ac.getMemberById(parms.readInt("member")),
-										parms.readBoolean("workWithUserAttributes"));
-							} else {
-								return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-										ac.getServiceById(parms.readInt("service")),
-										ac.getResourceById(parms.readInt("resource")),
-										ac.getMemberById(parms.readInt("member")));
-							}
+							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+									ac.getServiceById(parms.readInt("service")),
+									ac.getResourceById(parms.readInt("resource")),
+									ac.getGroupById(parms.readInt("group")));
 						}
-					} else if (parms.contains("group")) {
-						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-								ac.getServiceById(parms.readInt("service")),
-								ac.getResourceById(parms.readInt("resource")),
-								ac.getGroupById(parms.readInt("group")));
+					} else if (parms.contains("member")) {
+						if (parms.contains("workWithUserAttributes")) {
+							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+									ac.getServiceById(parms.readInt("service")),
+									ac.getResourceById(parms.readInt("resource")),
+									ac.getMemberById(parms.readInt("member")),
+									parms.readBoolean("workWithUserAttributes"));
+						} else {
+							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+									ac.getServiceById(parms.readInt("service")),
+									ac.getResourceById(parms.readInt("resource")),
+									ac.getMemberById(parms.readInt("member")));
+						}
 					} else {
 						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 								ac.getServiceById(parms.readInt("service")),
@@ -1976,10 +1976,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getAttributeById(member, parms.readInt("attribute")));
 				}
 			} else if (parms.contains("group")) {
-					Group group = ac.getGroupById(parms.readInt("group"));
-					return ac.getAttributesManager().fillAttribute(ac.getSession(),
-							group,
-							ac.getAttributeById(group, parms.readInt("attribute")));
+				Group group = ac.getGroupById(parms.readInt("group"));
+				return ac.getAttributesManager().fillAttribute(ac.getSession(),
+						group,
+						ac.getAttributeById(group, parms.readInt("attribute")));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "host, resource, user, member or group");
 			}
@@ -2500,7 +2500,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, host, user or userExtSource");
 			}
-		return null;
+			return null;
 		}
 	},
 
@@ -2658,26 +2658,22 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				attributes.add(ac.getAttributeDefinitionById(i));
 			}
 			if (parms.contains("facility")) {
-				if (parms.contains("resource")) {
-					if (parms.contains("member")) {
-						if (parms.contains("user")) {
-							if (parms.contains("group")) {
-								ac.getAttributesManager().removeAttributes(ac.getSession(),
-										ac.getFacilityById(parms.readInt("facility")),
-										ac.getResourceById(parms.readInt("resource")),
-										ac.getGroupById(parms.readInt("group")),
-										ac.getUserById(parms.readInt("user")),
-										ac.getMemberById(parms.readInt("member")),
-										attributes);
-							} else {
-								ac.getAttributesManager().removeAttributes(ac.getSession(),
-										ac.getFacilityById(parms.readInt("facility")),
-										ac.getResourceById(parms.readInt("resource")),
-										ac.getUserById(parms.readInt("user")),
-										ac.getMemberById(parms.readInt("member")),
-										attributes);
-							}
-						}
+				if (parms.contains("resource") && parms.contains("member") && parms.contains("user")) {
+					if (parms.contains("group")) {
+						ac.getAttributesManager().removeAttributes(ac.getSession(),
+								ac.getFacilityById(parms.readInt("facility")),
+								ac.getResourceById(parms.readInt("resource")),
+								ac.getGroupById(parms.readInt("group")),
+								ac.getUserById(parms.readInt("user")),
+								ac.getMemberById(parms.readInt("member")),
+								attributes);
+					} else {
+						ac.getAttributesManager().removeAttributes(ac.getSession(),
+								ac.getFacilityById(parms.readInt("facility")),
+								ac.getResourceById(parms.readInt("resource")),
+								ac.getUserById(parms.readInt("user")),
+								ac.getMemberById(parms.readInt("member")),
+								attributes);
 					}
 				} else if (parms.contains("user")) {
 					ac.getAttributesManager().removeAttributes(ac.getSession(),
@@ -2924,7 +2920,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, group, resource, member, host, user or userExtSource");
 			}
-		return null;
+			return null;
 		}
 	},
 
