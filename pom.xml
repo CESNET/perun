@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>io.spring.platform</groupId>
 		<artifactId>platform-bom</artifactId>
-		<version>Brussels-SR3</version>
+		<version>Brussels-SR4</version>
 		<relativePath/>
 	</parent>
 
