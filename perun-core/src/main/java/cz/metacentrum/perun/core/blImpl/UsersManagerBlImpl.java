@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.*;
 
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.rt.*;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1733,9 +1734,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// TODO - optimzization needed - at least there should be single select on RichUser object in impl !!
 		List<RichUser> result = new ArrayList<RichUser>();
+		AttributesManagerBl attributesManagerBl = this.getPerunBl().getAttributesManagerBl();
 		for (User u : users) {
 			RichUser ru = new RichUser(u, getUserExtSources(sess, u));
-			ru.setUserAttributes(this.getPerunBl().getAttributesManagerBl().getAttributes(sess, u, attrNames));
+			ru.setUserAttributes(attributesManagerBl.getAttributes(sess, u, attrNames));
 			result.add(ru);
 		}
 		return result;

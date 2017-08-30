@@ -1087,7 +1087,8 @@ public interface UsersManager {
 	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException, PrivilegeException;
 
 	/**
-	 * Gets list of users that sponsor the member.
+	 * Gets list of users that sponsor the member, with attributes. If the list is null or empty, returns all attributes.
 	 */
-	List<RichUser> getSponsors(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException;
+	List<RichUser> getSponsors(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+
 }
