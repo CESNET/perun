@@ -12,46 +12,46 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Group vomGroupName attribute.
+ * Group vomsRoles attribute.
  *
- * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
+ * @author Vojtech Sassmann &lt;vojtech.sassmann@gmail.com&gt;
  */
-public class urn_perun_group_attribute_def_def_vomsGroupName extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
+public class urn_perun_group_attribute_def_def_vomsRoles extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("^[^<>&=]*$");
+	private final Pattern pattern = Pattern.compile("^[^<>&]*$");
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		String vomsGroupName;
-
 		if(attribute.getValue() == null) {
 			return;
 		}
-
-		if(!(attribute.getValue() instanceof String)) {
-			throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
-		}
-
-		vomsGroupName = (String) attribute.getValue();
-
-		Matcher matcher = pattern.matcher(vomsGroupName);
-
-		if(!matcher.matches()) {
-			throw new WrongAttributeValueException(attribute, "Bad format of attribute vomsGroupName. It should not contain '<>&=' characters.");
+		try {
+			List<String> vomRoles = (List<String>) attribute.getValue();
+			for (String vomRole : vomRoles) {
+				Matcher matcher = pattern.matcher(vomRole);
+				if(!matcher.matches()) {
+					throw new WrongAttributeValueException(attribute, "Bad group vomsRoles value. It should not contain '<>&' characters.");
+				}
+			}
+		} catch (ClassCastException e) {
+			throw new WrongAttributeValueException(attribute, "Value should be a list of Strings.");
 		}
 	}
 
 	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
-		attr.setFriendlyName("vomsGroupName");
-		attr.setDisplayName("Voms group name");
-		attr.setDescription("Name of voms group, if defined.");
-		attr.setType(String.class.getName());
+		attr.setFriendlyName("vomsRoles");
+		attr.setDisplayName("Voms roles");
+		attr.setDescription("Voms roles");
+		attr.setType(ArrayList.class.getName());
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		return attr;
 	}
