@@ -2249,20 +2249,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member sponsorMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, MemberNotSponsoredException {
-		Member sponsoredMember;
-		try {
-			sponsoredMember = getMemberByUser(session, vo, sponsored);
-			if(!sponsoredMember.isSponsored()) {
-				throw new MemberNotSponsoredException("member "+sponsoredMember.getId()+" is not marked as sponsored");
-			}
-			getMembersManagerImpl().addSponsor(session, sponsoredMember,sponsor);
-			getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
-		} catch (MemberNotExistsException ex) {
-			sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, sponsored, sponsor);
-			getPerunBl().getAuditer().log(session, "{} created.", sponsoredMember);
-			getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
+	public Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotSponsoredException {
+		if(!sponsoredMember.isSponsored()) {
+			throw new MemberNotSponsoredException("member "+sponsoredMember.getId()+" is not marked as sponsored");
 		}
+		getMembersManagerImpl().addSponsor(session, sponsoredMember, sponsor);
+		getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
+
 		return sponsoredMember;
 	}
 

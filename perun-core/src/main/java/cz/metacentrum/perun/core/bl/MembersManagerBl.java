@@ -1301,14 +1301,13 @@ public interface MembersManagerBl {
 	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor, boolean asyncValidation) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, ExtendMembershipException, GroupOperationsException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Links sponsored and sponsoring users in a given VO.
+	 * Links sponsored member and sponsoring user.
 	 * @param session session
-	 * @param vo vo
-	 * @param sponsored sponsored
+	 * @param sponsoredMember
 	 * @param sponsor sponsor
 	 * @return member
 	 */
-	Member sponsorMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, MemberNotSponsoredException;
+	Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotSponsoredException;
 
 	/**
 	 * Gets list of members that are sponsored by the user in the vo.

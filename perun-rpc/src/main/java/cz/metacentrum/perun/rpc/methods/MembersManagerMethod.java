@@ -136,12 +136,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * For an existing user, assigns a new sponsor.
+	 * For an existing member, assigns a new sponsor.
 	 *
 	 * Can be called only by VO admin.
 	 *
-	 * @param vo int VO ID, optional
-	 * @param sponsored int id of sponsored user, optional
+	 * @param member int id of sponsored member, optional
 	 * @param sponsor int id of sponsoring user, optional
 	 * @return RichMember sponsored member
 	 */
@@ -149,10 +148,9 @@ public enum MembersManagerMethod implements ManagerMethod {
 		@Override
 		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
 			ac.stateChangingCheck();
-			Vo vo = ac.getVoById(params.readInt("vo_id"));
-			User sponsored = ac.getUserById(params.readInt("sponsored"));
+			Member sponsored = ac.getMemberById(params.readInt("member"));
 			User sponsor = ac.getUserById(params.readInt("sponsor"));
-			return ac.getMembersManager().sponsorMember(ac.getSession(), vo, sponsored, sponsor);
+			return ac.getMembersManager().sponsorMember(ac.getSession(), sponsored, sponsor);
 		}
 	},
 
