@@ -696,8 +696,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException, AttributeNotExistsException {
-		List<RichMember> richMembersWithAttributesFromVo = this.findRichMembersWithAttributesInVo(sess, vo, searchString);
-		return this.getRichMembersOnlyWithSpecificAttrNames(sess, richMembersWithAttributesFromVo, attrsNames);
+		return this.findRichMembersWithAttributesInVo(sess, vo, searchString, attrsNames);
 	}
 
 
@@ -1213,6 +1212,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		return this.convertMembersToRichMembers(sess, this.setAllMembersSameType(members, MembershipType.DIRECT));
+	}
+
+	public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString, List<String> attrsNames) throws InternalErrorException {
+		List<RichMember> list = findRichMembersInVo(sess, vo, searchString);
+		List<AttributeDefinition> attrsDefs = new ArrayList<>();
+		for (String attrsName : attrsNames) {
+			try {
+				attrsDefs.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrsName));
+			} catch (AttributeNotExistsException e) {
+				//pass
+			}
+		}
+		return convertMembersToRichMembersWithAttributes(sess, list, attrsDefs);
 	}
 
 	public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
