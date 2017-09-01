@@ -197,6 +197,11 @@ public class Api extends HttpServlet {
 				// Remove scope from the eppn attribute
 				additionalInformations.put("eppnwoscope", StringUtils.substringBefore(eppn, "@"));
 			}
+
+			// Store IdP used by user to session, since for IdentityConsolidator and Registrar we need to know,
+			// if user logged in through proxy or not - we provide different links etc.
+			additionalInformations.put("originIdentityProvider", shibIdentityProvider);
+
 			if (isNotEmpty(remoteUser)) {
 				extLogin = remoteUser;
 			}
