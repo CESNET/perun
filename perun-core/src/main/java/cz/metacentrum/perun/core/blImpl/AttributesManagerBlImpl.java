@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Objects;
 
 import cz.metacentrum.perun.core.api.PerunClient;
 import org.slf4j.Logger;
@@ -4457,80 +4458,116 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void mergeAttributesValues(PerunSession sess, User user, List<Attribute> attributes)  throws InternalErrorException, WrongAttributeValueException,
-				 WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-					 for (Attribute attribute: attributes) {
-						 this.mergeAttributeValue(sess, user, attribute);
-					 }
+			WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		for (Attribute attribute: attributes) {
+			this.mergeAttributeValue(sess, user, attribute);
+		}
+	}
+
+	public void mergeAttributesValues(PerunSession sess, Member member, List<Attribute> attributes)  throws InternalErrorException, WrongAttributeValueException,
+			WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		for (Attribute attribute: attributes) {
+			this.mergeAttributeValue(sess, member, attribute);
+		}
+	}
+
+	/**
+	 * Merges attribute value for supported attribute's namespaces if the attribute type is list or map. In other cases it only stores new value.
+	 *
+	 * If attribute has null value or it's value is same as value of attribute already stored in Perun, return stored attribute instead.
+	 * If the type is list, new values are added to the current stored list.
+	 * It the type is map, new values are added and existing are overwritten with new values, but only if there is any change.
+	 *
+	 * Supported namespaces
+	 *  - user attributes
+	 *  - member attributes
+	 *
+	 * @param sess
+	 * @param attribute attribute to merge it's value if possible
+	 * @param primaryHolder holder defines object for which is attribute stored in Perun
+	 *
+	 * @return attribute after merging his value
+	 *
+	 * @throws InternalErrorException if one of mandatory objects is null or some internal problem has occured
+	 * @throws WrongAttributeValueException attribute value of set attribute is not correct
+	 * @throws WrongReferenceAttributeValueException any reference attribute value is not correct
+	 * @throws WrongAttributeAssignmentException if attribute is not from the same namespace defined by primaryHolder
+	 */
+	private Attribute mergeAttributeValue(PerunSession sess, Attribute attribute, PerunBean primaryHolder) throws InternalErrorException, WrongAttributeValueException,
+			WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		//If attribute is null, throw an exception
+		if(attribute == null) throw new InternalErrorException("Can't merge null attribute with anything!");
+		if(primaryHolder == null) throw new InternalErrorException("Can't merge attribute value without notNull primaryHolder!");
+
+		//Get stored attribute in Perun
+		Attribute storedAttribute = null;
+		try {
+			if(primaryHolder instanceof User) {
+				storedAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, (User) primaryHolder, attribute.getName());
+			} else if(primaryHolder instanceof Member) {
+				storedAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, (Member) primaryHolder, attribute.getName());
+			} else {
+				throw new InternalErrorException("Primary holder for attribute is not supported: " + primaryHolder);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
+
+		//if attribute to merge has null value or it's value is same as stored attribute's value, return the stored attribute
+		convertEmptyAttrValueToNull(attribute);
+		if(attribute.getValue() == null || Objects.equals(attribute.getValue(), storedAttribute.getValue())) return storedAttribute;
+
+		// Check type ArrayList
+		if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
+			ArrayList<String> updatedList = (ArrayList<String>) storedAttribute.getValue();
+			// If there were someting then find values which haven't been already stored
+			if (updatedList != null) {
+				for (String value : ((ArrayList<String>) attribute.getValue())) {
+					if (!updatedList.contains(value)) {
+						updatedList.add(value);
+					}
+				}
+				attribute.setValue(updatedList);
+			}
+		// Check type LinkedHashMap
+		} else if (attribute.getType().equals(LinkedHashMap.class.getName())) {
+			//Find values which haven't been already stored
+			LinkedHashMap<String, String> updatedMap = (LinkedHashMap<String, String>) storedAttribute.getValue();
+			if (updatedMap != null) {
+				LinkedHashMap<String, String> receivedMap = (LinkedHashMap<String, String>) attribute.getValue();
+				updatedMap.putAll(receivedMap);
+				attribute.setValue(updatedMap);
+			}
+		}
+
+		//Other types as String, Integer, Boolean etc. will be replaced by new value (no way how to merge them properly)
+		if(primaryHolder instanceof User) {
+			getPerunBl().getAttributesManagerBl().setAttribute(sess, (User) primaryHolder, attribute);
+		} else if(primaryHolder instanceof Member) {
+			getPerunBl().getAttributesManagerBl().setAttribute(sess, (Member) primaryHolder, attribute);
+		}  else {
+			throw new InternalErrorException("Primary holder for attribute is not supported: " + primaryHolder);
+		}
+
+		return attribute;
 	}
 
 	public Attribute mergeAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
 				 WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-					 // Check type ArrayList
-					 if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
-						 Attribute storedAttribute = null;
-						 try {
-							 // Get current values
-							 storedAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attribute.getName());
-						 } catch (AttributeNotExistsException e) {
-							 throw new ConsistencyErrorException(e);
-						 }
+		return this.mergeAttributeValue(sess, attribute, user);
+	}
 
-						 //if attribute to merge has null value, return the stored attribute
-						 convertEmptyAttrValueToNull(attribute);
-						 if(attribute.getValue() == null) return storedAttribute;
-
-						 if (storedAttribute != null) {
-							 ArrayList<String> updatedList = (ArrayList<String>) storedAttribute.getValue();
-							 // If there were someting then find values which haven't been already stored
-							 if (updatedList != null) {
-								 for (String value : ((ArrayList<String>) attribute.getValue())) {
-									 if (!updatedList.contains(value)) {
-										 updatedList.add(value);
-									 }
-								 }
-								 attribute.setValue(updatedList);
-							 } else {
-								 attribute.setValue(attribute.getValue());
-							 }
-						 }
-
-						 getPerunBl().getAttributesManagerBl().setAttribute(sess, user, attribute);
-					 } else if (attribute.getType().equals(LinkedHashMap.class.getName())) {
-						 Attribute storedAttribute = null;
-						 try {
-							 // Get current values
-							 storedAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attribute.getName());
-						 } catch (AttributeNotExistsException e) {
-							 throw new ConsistencyErrorException(e);
-						 }
-
-						 //if attribute to merge has null value, return the stored attribute
-						 if(attribute.getValue() == null) return storedAttribute;
-
-						 // If there were someting then find values which haven't been already stored
-						 if (storedAttribute != null) {
-							 LinkedHashMap<String, String> updatedMap = (LinkedHashMap<String, String>) storedAttribute.getValue();
-							 LinkedHashMap<String, String> receivedMap = (LinkedHashMap<String, String>) attribute.getValue();
-
-							 if (updatedMap != null) {
-								 if (receivedMap != null) {
-									 updatedMap.putAll(receivedMap);
-									 attribute.setValue(updatedMap);
-								 }
-							 } else {
-								 attribute.setValue(receivedMap);
-							 }
-						 }
-						 getPerunBl().getAttributesManagerBl().setAttribute(sess, user, attribute);
-					 } else {
-						 getPerunBl().getAttributesManagerBl().setAttribute(sess, user, attribute);
-					 }
-
-					 return attribute;
+	public Attribute mergeAttributeValue(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
+			WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		return this.mergeAttributeValue(sess, attribute, member);
 	}
 
 	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		return mergeAttributeValue(sess, user, attribute);
+	}
+
+	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		return mergeAttributeValue(sess, member, attribute);
 	}
 
 	private boolean findAndSetValueInList(List<Attribute> attributes, AttributeDefinition attributeDefinition, Object value) {

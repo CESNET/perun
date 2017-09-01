@@ -1033,8 +1033,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//Initialization of groupMembers extSource (if it is set), in other case set membersSource = source
 			membersSource = getGroupMembersExtSourceForSynchronization(sess, group, source);
 
-			//Prepare info about userAttributes which need to be overwrite (not just updated)
+			//Prepare info about userAttributes which need to be overwrite (not just updated) and memberAttributes which need to be merged )not overwrite
 			List<String> overwriteUserAttributesList = getOverwriteUserAttributesListFromExtSource(membersSource);
+			List<String> mergeMemberAttributesList = getMemberAttributesListToBeMergedFromExtSource(membersSource);
 
 			//Get info about type of synchronization (with or without update)
 			boolean lightweightSynchronization = isThisLightweightSynchronization(sess, group);
@@ -1061,10 +1062,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			//Update members already presented in group
-			updateExistingMembersWhileSynchronization(sess, group, membersToUpdate, overwriteUserAttributesList);
+			updateExistingMembersWhileSynchronization(sess, group, membersToUpdate, overwriteUserAttributesList, mergeMemberAttributesList);
 
 			//Add not presented candidates to group
-			addMissingMembersWhileSynchronization(sess, group, candidatesToAdd, overwriteUserAttributesList, skippedMembers);
+			addMissingMembersWhileSynchronization(sess, group, candidatesToAdd, overwriteUserAttributesList, mergeMemberAttributesList, skippedMembers);
 
 			//Remove presented members in group who are not presented in synchronized ExtSource
 			removeFormerMembersWhileSynchronization(sess, group, membersToRemove);
@@ -1865,6 +1866,32 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
+	 * From membersSource extSource get attribute mergeMemberAttributes and prepare
+	 * list of attributes names to be overwrite for synchronized users.
+	 *
+	 * Attribute has value (if set) in format "name,name2,name3..."
+	 * Method parse these names to list of names.
+	 * Return empty array if attribute is not set for extSource or if it is empty.
+	 *
+	 * @param membersSource to get attributes from
+	 *
+	 * @return list of attribute names to be overwrite
+	 *
+	 * @throws InternalErrorException if something happens in getting attributes from membersSource
+	 */
+	private List<String> getMemberAttributesListToBeMergedFromExtSource(ExtSource membersSource) throws InternalErrorException {
+		Map<String, String> membersSourceAttributes = getPerunBl().getExtSourcesManagerBl().getAttributes(membersSource);
+		List<String> mergeMemberAttributesList = new ArrayList<>();
+		String mergeMemberAttributes = membersSourceAttributes.get("mergeMemberAttributes");
+		if(mergeMemberAttributes != null && !mergeMemberAttributes.isEmpty()) {
+			//remove all white spaces and invisible characters
+			mergeMemberAttributes = mergeMemberAttributes.replaceAll("\\s", "");
+			mergeMemberAttributesList = Arrays.asList(mergeMemberAttributes.split(","));
+		}
+		return mergeMemberAttributesList;
+	}
+
+	/**
 	 * Return true if attribute group:lightweightSynchronization is set to true.
 	 * False if not.
 	 *
@@ -2005,12 +2032,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param group to be synchronized
 	 * @param membersToUpdate list of members for updating in Perun by information from extSource
 	 * @param overwriteUserAttributesList list of user attributes to be updated instead of merged
+	 * @param mergeMemberAttributesList list of member attributes to be merged instead of updated
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 * @throws AttributeNotExistsException if some attributes not exists and for this reason can't be updated
 	 * @throws WrongAttributeAssignmentException if some attribute is updated in bad way (bad assignment)
 	 */
-	private void updateExistingMembersWhileSynchronization(PerunSession sess, Group group, Map<Candidate, RichMember> membersToUpdate, List<String> overwriteUserAttributesList) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private void updateExistingMembersWhileSynchronization(PerunSession sess, Group group, Map<Candidate, RichMember> membersToUpdate, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<AttributeDefinition> attrDefs = new ArrayList<>();
 		//Iterate through all subject attributes
 		for(Candidate candidate: membersToUpdate.keySet()) {
@@ -2085,7 +2113,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 										new Object[] {group, memberAttribute, richMember.getId(), memberAttribute.getValue(), subjectAttributeValue});
 								memberAttribute.setValue(subjectAttributeValue);
 								try {
-									getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember, memberAttribute);
+									if(mergeMemberAttributesList.contains(memberAttribute.getName())) {
+										getPerunBl().getAttributesManagerBl().mergeAttributeValueInNestedTransaction(sess, richMember, memberAttribute);
+									} else {
+										getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember, memberAttribute);
+									}
 								} catch (AttributeValueException e) {
 									// There is a problem with attribute value, so set INVALID status for the member
 									getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
@@ -2248,11 +2280,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param group to be synchronized
 	 * @param candidatesToAdd list of new members (candidates)
 	 * @param overwriteUserAttributesList list of attributes to be updated for user if found
+	 * @param mergeMemberAttributesList list of attributes to be merged for member if found
 	 * @param skippedMembers list of not successfully synchronized members
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private void addMissingMembersWhileSynchronization(PerunSession sess, Group group, List<Candidate> candidatesToAdd, List<String> overwriteUserAttributesList, List<String> skippedMembers) throws InternalErrorException, GroupOperationsException {
+	private void addMissingMembersWhileSynchronization(PerunSession sess, Group group, List<Candidate> candidatesToAdd, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<String> skippedMembers) throws InternalErrorException, GroupOperationsException {
 		// Now add missing members
 		for (Candidate candidate: candidatesToAdd) {
 			Member member = null;
@@ -2264,7 +2297,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				Map<Candidate,RichMember> memberMap = new HashMap<>();
 				memberMap.put(candidate, getPerunBl().getMembersManagerBl().getRichMember(sess, member));
 				try {
-					updateExistingMembersWhileSynchronization(sess, group, memberMap, overwriteUserAttributesList);
+					updateExistingMembersWhileSynchronization(sess, group, memberMap, overwriteUserAttributesList, mergeMemberAttributesList);
 				} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 					// if update fails, skip him
 					log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
@@ -2286,7 +2319,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						Map<Candidate,RichMember> memberMap = new HashMap<>();
 						memberMap.put(candidate, getPerunBl().getMembersManagerBl().getRichMember(sess, member));
 						try {
-							updateExistingMembersWhileSynchronization(sess, group, memberMap, overwriteUserAttributesList);
+							updateExistingMembersWhileSynchronization(sess, group, memberMap, overwriteUserAttributesList, mergeMemberAttributesList);
 						} catch (WrongAttributeAssignmentException | AttributeNotExistsException e2) {
 							// if update fails, skip him
 							log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
