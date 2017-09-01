@@ -1563,9 +1563,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
-	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException {
+	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException {
 		List<Group> assignedGroups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-		return this.convertGroupsToRichGroupsWithAttributes(sess, resource, assignedGroups, attrNames);
+		try {
+			return this.convertGroupsToRichGroupsWithAttributes(sess, resource, assignedGroups, attrNames);
+		} catch (GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+		}
 	}
 
 	public List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames)throws InternalErrorException{

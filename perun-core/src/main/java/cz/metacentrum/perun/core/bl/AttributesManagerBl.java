@@ -26,11 +26,13 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -192,10 +194,11 @@ public interface AttributesManagerBl {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws MemberResourceMismatchException
+	 * @throws GroupResourceMismatchException
 	 *
 	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Group group, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException;
+	List<Attribute> getAttributes(PerunSession sess, Group group, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException, GroupResourceMismatchException;
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the member in the group.
@@ -219,9 +222,8 @@ public interface AttributesManagerBl {
 	 * @return list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException;
 
 	/**
 	 * Get all attributes associated with the member in the group and if workWithUserAttributes is true, gets also all <b>non-empty</b> user and member attributes.
@@ -233,9 +235,8 @@ public interface AttributesManagerBl {
 	 * @return list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Attribute> getAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException;
 
 	/**
 	 * Get all attributes associated with the member in the group which have name in list attrNames (empty too).
@@ -249,9 +250,8 @@ public interface AttributesManagerBl {
 	 * @return list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException;
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the member and if workWithUserAttributes is
@@ -3868,4 +3868,17 @@ public interface AttributesManagerBl {
 	 * @throws ModuleNotExistsException
 	 */
 	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException;
+
+	/**
+	 * Check if group is assigned on resource. If not, throw GroupResourceMismatch Exception
+	 *
+	 * @param sess
+	 * @param group
+	 * @param resource
+	 * @throws InternalErrorException
+	 * @throws GroupResourceMismatchException
+
+	 */
+	void checkGroupIsFromTheSameVoLikeResource(PerunSession sess, Group group, Resource resource) throws GroupResourceMismatchException, InternalErrorException;
 }
+

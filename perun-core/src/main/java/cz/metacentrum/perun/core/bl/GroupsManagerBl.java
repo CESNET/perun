@@ -1066,9 +1066,8 @@ public interface GroupsManagerBl {
 	 * @param attrNames list of selected attributes (even with empty values), if it is empty, return all possible non-empty attributes
 	 * @return list of RichGroups with selected attributes assigned to the resource
 	 * @throws InternalErrorException
-	 * @throws GroupResourceMismatchException
 	 */
-	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException;
+	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException;
 
 	/**
 	 * Returns all RichGroups containing selected attributes

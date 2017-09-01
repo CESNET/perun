@@ -636,9 +636,9 @@ public interface MembersManager {
 	 * @throws ResourceNotExistsException
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
-	 * @throws MemberResourceMismatchException
+	 * @throws GroupResourceMismatchException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException, MemberResourceMismatchException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException, GroupResourceMismatchException;
 
 	/**
 	 * Return list of richMembers for specific vo by the searchString with attrs specific for list of attrsNames.

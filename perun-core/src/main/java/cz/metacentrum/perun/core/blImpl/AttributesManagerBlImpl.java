@@ -179,14 +179,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException {
 		if (attrNames.isEmpty()) return new ArrayList<>();
 		// adds all attributes which names are in attrNames list (virtual and empty too)
 		return  getAttributesManagerImpl().getAttributes(sess, member, group, attrNames);
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException {
 		// get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, member, group);
 		// filter out virtual attributes with null value
@@ -203,7 +203,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException {
 		if(attrNames.isEmpty()) return this.getAttributes(sess, member, group, workWithUserAttributes);
 
 		//differentiate between user+member and member-group namespace
@@ -280,7 +280,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
-	public List<Attribute> getAttributes(PerunSession sess, Group group, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Group group, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException, GroupResourceMismatchException {
+		checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		List<Attribute> attributes = getAttributes(sess, resource, member, attrNames, workWithUserAttributes);
 
 		if(attrNames.isEmpty()) {
@@ -6543,15 +6544,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	/**
-	 * Check if member is assigned on resource. If not, throw WrongAttributeAssignment Exception
+	 * Check if member is assigned on resource. If not, throw MemberResourceMismatchException Exception
 	 *
 	 * @param sess
 	 * @param member
 	 * @param resource
-	 * @throws WrongAttributeAssignmentException
 	 * @throws InternalErrorException
-	 * @throws MemberNotExistsException
-	 * @throws ResourceNotExistsException
+	 * @throws MemberResourceMismatchException
 	 */
 	private void checkMemberIsFromTheSameVoLikeResource(PerunSession sess, Member member, Resource resource) throws MemberResourceMismatchException, InternalErrorException {
 		Utils.notNull(sess, "sess");
@@ -6561,18 +6560,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if(member.getVoId() != resource.getVoId()) throw new MemberResourceMismatchException("Member is not from the same vo like Resource: " + member + " " + resource);
 	}
 
-	/**
-	 * Check if group is assigned on resource. If not, throw WrongAttributeAssignment Exception
-	 *
-	 * @param sess
-	 * @param group
-	 * @param resource
-	 * @throws WrongAttributeAssignmentException
-	 * @throws InternalErrorException
-	 * @throws GroupNotExistsException
-	 * @throws ResourceNotExistsException
-	 */
-	private void checkGroupIsFromTheSameVoLikeResource(PerunSession sess, Group group, Resource resource) throws GroupResourceMismatchException, InternalErrorException {
+	public void checkGroupIsFromTheSameVoLikeResource(PerunSession sess, Group group, Resource resource) throws GroupResourceMismatchException, InternalErrorException {
 		Utils.notNull(sess, "sess");
 		Utils.notNull(group, "group");
 		Utils.notNull(resource, "resource");
