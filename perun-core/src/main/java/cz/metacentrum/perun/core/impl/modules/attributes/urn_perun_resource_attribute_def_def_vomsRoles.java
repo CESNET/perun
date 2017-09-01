@@ -9,8 +9,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  *
  * @author Vojtech Sassmann &lt;vojtech.sassmann@gmail.com&gt;
  */
-public class urn_perun_resource_attribute_def_def_vomsRoles extends ResourceVirtualAttributesModuleAbstract implements ResourceVirtualAttributesModuleImplApi {
+public class urn_perun_resource_attribute_def_def_vomsRoles extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	private final Pattern pattern = Pattern.compile("^[^<>&]*$");
 
