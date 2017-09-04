@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace_einfraid_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_einfraid_persistent_shadow.class);
-	private final static String extSourceNameEinfraid = "https://login.cesnet.cz/proxy/";
+	private final static String extSourceNameEinfraid = "https://login.cesnet.cz/idp/";
 	private final static String domainNameEinfraid = "@einfra.cesnet.cz";
 	private final static String attrNameEinfraid = "login-namespace:einfraid-persistent-shadow";
 
