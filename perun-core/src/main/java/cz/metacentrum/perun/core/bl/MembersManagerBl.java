@@ -956,6 +956,17 @@ public interface MembersManagerBl {
 	List<Member> findMembersInParentGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException, ParentGroupNotExistsException;
 
 	/**
+	 * Return list of rich members with certain attributes by the searchString under defined Group. Search is done in name, email and login.
+	 * @param sess session
+	 * @param group group
+	 * @param searchString search string
+	 * @param attrsNames list of attributes that should be found
+	 * @return list of rich members with certain attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> findRichMembersWithAttributesInGroup(PerunSession sess, Group group, String searchString, List<String> attrsNames) throws InternalErrorException;
+
+	/**
 	 * Return list of rich members with attributes by the searchString under defined Group. Search is done in name, email and login.
 	 *
 	 * @param sess
@@ -1008,6 +1019,17 @@ public interface MembersManagerBl {
 	List<RichMember> findRichMembers(PerunSession sess, String searchString) throws InternalErrorException;
 
 	/**
+	 * Return list of rich members with certain attributes by theirs name or login or email defined VO.
+	 * @param sess session
+	 * @param vo vo
+	 * @param searchString search string
+	 * @param attrsNames list of attribute names that should be found
+	 * @return list of rich members with certain attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString, List<String> attrsNames) throws InternalErrorException;
+
+	/**
 	 * Return list of rich members with attributes by theirs name or login or email under defined VO.
 	 * @param sess
 	 * @param searchString
@@ -1016,6 +1038,16 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException;
+
+	/**
+	 * Return list of rich members with certain attributes by theirs name or login or email.
+	 * @param sess session
+	 * @param searchString search string
+	 * @param attrsNames list of attribute names that should be found
+	 * @return list of rich members with certain attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> findRichMembersWithAttributes(PerunSession sess, String searchString, List<String> attrsNames) throws InternalErrorException;
 
 	/**
 	 * Return list of rich members with attributes by theirs name or login or email
