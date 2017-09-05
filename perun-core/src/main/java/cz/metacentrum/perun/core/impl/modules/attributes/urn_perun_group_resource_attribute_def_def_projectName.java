@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_group_resource_attribute_def_def_projectName extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
 
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String name = (String) attribute.getValue();
 		if (name == null) return;
 
@@ -95,6 +95,8 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 					groupProjectName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, r, g, AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectName");
 				} catch (AttributeNotExistsException ex) {
 					throw new ConsistencyErrorException("Attribute projectName not exists!", ex);
+				} catch (GroupResourceMismatchException ex) {
+					throw new InternalErrorException(ex);
 				}
 
 				String groupProjectNameValue = null;

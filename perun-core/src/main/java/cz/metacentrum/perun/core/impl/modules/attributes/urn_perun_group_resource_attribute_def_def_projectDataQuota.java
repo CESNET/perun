@@ -40,7 +40,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDataQuota extends
 	long E = P * 1024;
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Attribute attrProjectDataLimit = null;
 		String projectDataQuota = null;
 		String projectDataLimit = null;
@@ -61,6 +61,8 @@ public class urn_perun_group_resource_attribute_def_def_projectDataQuota extends
 			attrProjectDataLimit = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, group, A_GR_projectDataLimit);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute with projectDataLimit from resource " + resource.getId() + " and group " + group.getId() + " could not obtain.", ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
 		}
 
 		//Get ProjectDataQuota value

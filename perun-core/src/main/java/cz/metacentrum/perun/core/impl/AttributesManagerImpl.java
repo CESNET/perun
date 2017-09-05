@@ -2913,8 +2913,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			resourceMemberGroupModule.checkAttributeValue((PerunSessionImpl) sess, resource, member, attribute);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch (MemberResourceMismatchException ex) {
-			throw new InternalErrorException(ex);
 		}
 	}
 
@@ -2980,8 +2978,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			attributeModule.checkAttributeValue((PerunSessionImpl) sess, resource,group, attribute);
 		} catch(WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (GroupResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}

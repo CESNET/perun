@@ -29,7 +29,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Reso
 	private static final String A_MR_filesQuota = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":filesQuota";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Attribute attrFilesQuota = null;
 		Integer filesQuota = null;
 		Integer filesLimit = null;
@@ -39,6 +39,8 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Reso
 			attrFilesQuota = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, member, A_MR_filesQuota);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute with filesQuota from member " + member.getId() + " and resource " + resource.getId() + " could not obtained.", ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
 		}
 
 		//Get FilesLimit value

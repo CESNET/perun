@@ -73,7 +73,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
     }
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<String> resolvingMessages = new ArrayList<>();
 		if(message == null) return resolvingMessages;
 		
@@ -122,6 +122,8 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 				//This means that attribute isBanned not exists at all so we can skip this process
 				log.info("Virtual attribute {} not exists.", this.getClass().getSimpleName());
 				break;
+			} catch (MemberResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 

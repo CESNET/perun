@@ -35,7 +35,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Re
 		return new Attribute(attributeDefinition);
 	}
 
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		Integer gid = (Integer) attribute.getValue();
 
 		//Gid should not be null if is system unix group or if less than 1
@@ -46,6 +46,8 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Re
 				isSystemGroup = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemIsUnixGroup);
 			} catch(AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException("Not exist Attribute " + A_GR_systemIsUnixGroup +  " for group " + group,ex);
+			} catch (GroupResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
 			}
 
 			if(isSystemGroup.getValue() != null && (Integer) isSystemGroup.getValue() == 1) {
@@ -74,12 +76,16 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Re
 					group1GroupName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemUnixGroupName);
 				} catch (AttributeNotExistsException ex) {
 					throw new ConsistencyErrorException("Attribute " + A_GR_systemUnixGroupName + " not exists for group " + group,ex);
+				} catch (GroupResourceMismatchException ex) {
+					throw new InternalErrorException(ex);
 				}
 
 				try {
 					group2GroupName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, p.getRight(), p.getLeft(), A_GR_systemUnixGroupName);
 				} catch (AttributeNotExistsException ex) {
 					throw new ConsistencyErrorException("Attribute " + A_GR_systemUnixGroupName + " not exists for group " + p.getLeft(),ex);
+				} catch (GroupResourceMismatchException ex) {
+					throw new InternalErrorException(ex);
 				}
 
 				if(facilityForTest.equals(facility) && !(group1GroupName.getValue().equals(group2GroupName.getValue()))) throw new WrongAttributeValueException(attribute, "Gid " + gid + "is allready used by another group-resource.  " + p.getLeft() + " " + p.getRight());
