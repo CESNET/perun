@@ -20,7 +20,6 @@ public class CoreConfig {
 	private boolean readOnlyPerun;
 	private int groupSynchronizationInterval;
 	private int groupSynchronizationTimeout;
-	private int groupMaxConcurentGroupsToSynchronize;
 	private int mailchangeValidationWindow;
 	private int pwdresetValidationWindow;
 	private List<String> admins;
@@ -49,15 +48,6 @@ public class CoreConfig {
 	private String rtUrl;
 	private String smsProgram;
 	private String userExtSourcesPersistent;
-
-	public int getGroupMaxConcurentGroupsToSynchronize() {
-		return groupMaxConcurentGroupsToSynchronize;
-	}
-
-	public void setGroupMaxConcurentGroupsToSynchronize(int groupMaxConcurentGroupsToSynchronize) {
-		this.groupMaxConcurentGroupsToSynchronize = groupMaxConcurentGroupsToSynchronize;
-	}
-
 	private Map<String, List<AttributeDefinition>> attributesForUpdate = new HashMap<>();
 
 
