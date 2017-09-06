@@ -11,35 +11,63 @@ sub help {
 	Adds a Vo manager. User id and vo id or vo short name are required fields.
 	------------------------------------
 	Available options:
-	--voId        | -v vo id
-	--voShortName | -V vo short name
-	--userId      | -u user id
-	--batch       | -b batch
-	--help        | -h prints this help
+	--voId            | -v vo id
+	--voShortName     | -V vo short name
+	--userId          | -u user id
+	--authGroupId     | -a authorized groupId
+	--authGroupName   | -A authorized group Name
+	--authGroupVoId   | -o authorized group VO Id
+	--authGroupVoName | -O authorized group VO Name
+	--batch           | -b batch
+	--help            | -h prints this help
 
 	};
 }
 
-my ($voId, $userId, $voShortName, $batch);
+my ($voId, $userId, $voShortName, $authGroupId, $authGroupName, $authGroupVoId, $authGroupVoName, $batch);
 GetOptions ("help|h" => sub {
 		print help();
 		exit 0;
-	}, "batch|b"     => \$batch,
+	}, 
+	"batch|b"     => \$batch,
 	"voId|v=i"       => \$voId, "voShortName|V=s" => \$voShortName,
-	"userId|u=i"     => \$userId) || die help();
+	"userId|u=i"     => \$userId,
+	"authGroupId|a=i"  => \$authGroupId,
+	"authGroupName|A=s"  => \$authGroupName,
+	"authGroupVoId|o=i"  => \$authGroupVoId,
+	"authGroupVoName|O=s"  => \$authGroupVoName
+) || die help();
 
 # Check options
 unless (defined($voShortName) or defined($voId)) {die "ERROR: voId or voShortName is required\n";}
-unless (defined($userId)) {die "ERROR: userId is required\n";}
 
 my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
 
 if (!defined($voId)) {
 	my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 	$voId = $vo->getId;
 }
 
-$vosAgent->addAdmin( vo => $voId, user => $userId );
+if (defined $userId) {
+	$vosAgent->addAdmin( vo => $voId, user => $userId );
 
-printMessage("User Id:$userId successfully added as a Vo Id:$voId manager", $batch);
+	printMessage("User Id:$userId successfully added as a Vo Id:$voId manager", $batch);
+} else {
+	unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
+	unless (defined $authGroupId) {
+		unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";}
+
+		my $groupsAgent = $agent->getGroupsAgent;
+		unless (defined $authGroupVoId) {
+			my $voa = $vosAgent->getVoByShortName( shortName => $authGroupVoName );
+			$authGroupVoId = $voa->getId;
+		}
+		my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
+		$authGroupId = $group->getId;
+	}
+	$vosAgent->addAdmin( vo => $voId, authorizedGroup => $authGroupId );
+	printMessage("Group Id:$authGroupId successfully added as a manager of VO :$voId", $batch);
+}
+

@@ -99,8 +99,19 @@ public interface SecurityTeamsManagerBl {
 	 * @param securityTeam
 	 * @return list of users which are security admins in security team
 	 * @throws InternalErrorException
+	 * @throws SecurityTeamNotExistsException
 	 */
-	List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+	List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws InternalErrorException, SecurityTeamNotExistsException;
+
+	/**
+	 * Gets list of all group administrators of the SecurityTeam.
+	 *
+	 * @param sess
+	 * @param securityTeam
+	 * @return list of Groups that are admins in the security team
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
 
 	/**
 	 * create security admin from given user and add him as security admin of given security team

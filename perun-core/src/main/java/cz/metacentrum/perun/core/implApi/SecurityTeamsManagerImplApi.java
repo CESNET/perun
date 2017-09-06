@@ -93,6 +93,27 @@ public interface SecurityTeamsManagerImplApi {
 	List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
 
 	/**
+	 * Gets list of direct user administrators of the securityTeam.
+	 * 'Direct' means, there aren't included users, who are members of group administrators, in the returned list.
+	 *
+	 * @param perunSession
+	 * @param securityTeam
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<User> getDirectAdmins(PerunSession perunSession, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
+	 * Gets list of all group administrators of the SecurityTeam.
+	 *
+	 * @param sess
+	 * @param SecurityTeam
+	 * @return list of groups who are admins in the SecurityTeam
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
 	 * Blacklist user by given security team with optional reason in description.
 	 *
 	 * Description can be null.

@@ -118,4 +118,34 @@ sub getAssignedServices
 	return Perun::Common::callManagerMethod('getAssignedServices', '[]Service', @_);
 }
 
+sub addAdmin
+{
+        return Perun::Common::callManagerMethod('addAdmin', 'null', @_);
+}
+
+sub removeAdmin
+{
+        return Perun::Common::callManagerMethod('removeAdmin', 'null', @_);
+}
+
+sub getAdmins
+{
+        return Perun::Common::callManagerMethod('getAdmins', '[]User', @_);
+}
+
+sub getRichAdmins
+{
+        return Perun::Common::callManagerMethod('getRichAdmins', '[]RichUser', @_);
+}
+
+sub getRichAdminsWithAttributes
+{
+        return Perun::Common::callManagerMethod('getRichAdminsWithAttributes', '[]RichUser', @_);
+}
+
+sub getAdminGroups
+{
+        return Perun::Common::callManagerMethod('getAdminGroups', '[]Group', @_);
+}
+
 1;

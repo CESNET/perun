@@ -8,10 +8,10 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Removes user or group from SecurityTeam admins. User id or group id and SecurityTeam are required fields.
+	Removes selected manager from resource.  Resource id or name and manager's id are required fields.
 	------------------------------------
 	Available options:
-	--securityTeamId  | -s SecurityTeam id
+	--resourceId      | -r resource id
 	--userId          | -u user id
 	--authGroupId     | -a authorized groupId
 	--authGroupName   | -A authorized group Name
@@ -19,19 +19,17 @@ sub help {
 	--authGroupVoName | -O authorized group VO Name
 	--batch           | -b batch
 	--help            | -h prints this help
+
 	};
 }
 
-my ($securityTeamId, $userId, $authGroupId, $authGroupName, $authGroupVoId, $authGroupVoName, $batch);
-GetOptions ("help|h"     => sub {
+my ($resourceId, $userId, $authGroupId, $authGroupName, $authGroupVoId, $authGroupVoName,$batch);
+GetOptions ("help|h"   => sub {
 		print help();
 		exit 0;
-	}, 
-	"batch|b"         => \$batch,
-	"securityTeamId|s=i" => \$securityTeamId,
-	"userId|u=i"         => \$userId,
-	"securityTeamId|s=i" => \$securityTeamId,
-	"userId|u=i"         => \$userId,
+	}, "batch|b"       => \$batch,
+	"resourceId|r=i"   => \$resourceId,
+	"userId|u=i"       => \$userId,
 	"authGroupId|a=i"  => \$authGroupId,
 	"authGroupName|A=s"  => \$authGroupName,
 	"authGroupVoId|o=i"  => \$authGroupVoId,
@@ -39,14 +37,15 @@ GetOptions ("help|h"     => sub {
 ) || die help();
 
 # Check options
-unless (defined($securityTeamId)) {die "ERROR: securityTeamId is required\n";}
+unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
 
 my $agent = Perun::Agent->new();
-my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
+my $resourcesAgent = $agent->getResourcesAgent;
 
-if (defined($userId)) {
-	$securityTeamsAgent->removeAdmin( securityTeam => $securityTeamId, user => $userId );
-	printMessage("User Id:$userId successfully removed as SecurityTeam $securityTeamId admin", $batch);
+if (defined $userId) {
+	$resourcesAgent->removeAdmin( resource => $resourceId, user => $userId );
+
+	printMessage("Manager user Id:$userId successfully removed from the Resource Id:$resourceId", $batch);
 } else {
 	unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
 	unless (defined $authGroupId) {
@@ -54,13 +53,12 @@ if (defined($userId)) {
 
 		my $groupsAgent = $agent->getGroupsAgent;
 		unless (defined $authGroupVoId) {
-			my $voa = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName );
-			$authGroupVoId = $voa->getId;
+			my $vo = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName );
+			$authGroupVoId = $vo->getId;
 		}
 		my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
 		$authGroupId = $group->getId;
 	}
-	$securityTeamsAgent->removeAdmin( securityTeam => $securityTeamId, group => $authGroupId );
-	printMessage("Manager Group Id:$authGroupId successfully removed from SecurityTeam $securityTeamId", $batch);
+	$resourcesAgent->removeAdmin( resource => $resourceId, authorizedGroup => $authGroupId);
+	printMessage("Manager Group Id:$authGroupId successfully removed from the Resource Id:$resourceId", $batch);
 }
-

@@ -125,12 +125,24 @@ public interface SecurityTeamsManager {
 	 *
 	 * @param perunSession
 	 * @param securityTeam
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
 	 * @return list of users which are admis of given security team
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 * @throws SecurityTeamNotExistsException
 	 */
-	List<User> getAdmins(PerunSession perunSession, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+	List<User> getAdmins(PerunSession perunSession, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+
+	/**
+	 * Gets list of all group administrators of the SecurityTeam.
+	 *
+	 * @param sess
+	 * @param SecurityTeam
+	 * @return list of Group that are admins in the SecurityTeam.
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
 
 	/**
 	 * create security admin from given user and add him as security admin of given security team

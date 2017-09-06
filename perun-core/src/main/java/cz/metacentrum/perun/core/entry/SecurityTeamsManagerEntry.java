@@ -200,7 +200,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 	}
 
 	@Override
-	public List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException {
+	public List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException {
 		Utils.checkPerunSession(sess);
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
@@ -208,7 +208,20 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 			throw new PrivilegeException(sess, "getAdmins");
 		}
 
-		return getSecurityTeamsManagerBl().getAdmins(sess, securityTeam);
+		return getSecurityTeamsManagerBl().getAdmins(sess, securityTeam, onlyDirectAdmins);
+	}
+
+	@Override
+	public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
+			throw new PrivilegeException(sess, "getAdminGroups");
+		}
+
+		return getSecurityTeamsManagerBl().getAdminGroups(sess, securityTeam);
 	}
 
 	@Override

@@ -9,34 +9,27 @@ use Perun::Common qw(printMessage getSortingFunction printTable tableToPrint);
 
 sub help {
 	return qq{
-	Prints list of group Managers. Group is required field. Group can by specified by it's ID or by both it's name and VO.
-	---------------------------------
+	Tool prints list of Resource Manager. Resource is required field.
+	------------------------------
 	Available options:
-	--groupId     | -g   Group identifier
-	--groupName   | -G   Group name
-	--voId        | -v   VO idetifier
-	--voShortName | -V   VO short name
-	--orderByName | -n   order by Manager's Name (default by Id)
-	--batch       | -b  batch
-	--help        | -h  prints this help
-
+	--resourceId   | -r resource id
+	--orderByName  | -n  order by Manager's name (default by Id)
+	--batch        | -b batch
+	--help         | -h prints this help
 	};
 }
 
-our $batch;
-my ($groupId, $groupName, $voId, $voShortName, $sortingFunction, $sortingFunction2, $byName);
-GetOptions("help|h"   => sub {
+my ($resourceId, $userId, $sortingFunction, $sortingFunction2, $byName, $batch);
+GetOptions("help|h"    => sub {
 		print help;
 		exit 0;
 	},
-	"groupId|g=i"     => \$groupId,
-	"groupName|G=s"   => \$groupName,
-	"voId|v=i"        => \$voId,
-	"voShortName|V=s" => \$voShortName,
-	"orderByName|n"   => \$byName,
-	"batch|b"         => \$batch) || die help;
+	"resourceId|r=i"   => \$resourceId,
+	"orderByName|n"    => \$byName,
+	"batch|b"          => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
+my $resourcesAgent = $agent->getResourcesAgent;
 my $groupsAgent = $agent->getGroupsAgent;
 my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
 
@@ -49,20 +42,11 @@ if (defined $byName) {
 	$sortingFunction2 = getSortingFunction("getUserId");
 }
 
-unless (defined $groupId) {
-	unless (defined $groupName) { die "ERROR: Group specification required.\n"; }
-	unless (defined $voId) {
-		unless (defined $voShortName) { die "ERROR: VO specification required.\n"; }
-		my $vo = $agent->getVosAgent->getVoByShortName( shortName => $voShortName );
-		$voId = $vo->getId;
-	}
-	my $group = $groupsAgent->getGroupByName( vo => $voId, name => $groupName );
-	$groupId = $group->getId;
-}
+unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
 
-my @richUsers = $groupsAgent->getAdmins( group => $groupId, onlyDirectAdmins => 1, pageSize => 0, pageNum => 0 );
+my @richUsers = $resourcesAgent->getAdmins( resource => $resourceId, onlyDirectAdmins => 1 , pageSize => 0, pageNum => 0 );
 
-my @groups = $groupsAgent->getAdminGroups ( group => $groupId);
+my @groups = $resourcesAgent->getAdminGroups ( resource => $resourceId );
 
 unless (@richUsers or @groups ) {
 	printMessage "No Managers found", $batch;

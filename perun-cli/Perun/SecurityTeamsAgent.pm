@@ -59,6 +59,11 @@ sub getAdmins
 	return Perun::Common::callManagerMethod('getAdmins', '[]User', @_);
 }
 
+sub getAdminGroups
+{
+        return Perun::Common::callManagerMethod('getAdminGroups', '[]Group', @_);
+}
+
 sub addUserToBlacklist
 {
 	return Perun::Common::callManagerMethod('addUserToBlacklist', 'null', @_);

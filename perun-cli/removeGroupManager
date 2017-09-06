@@ -11,30 +11,41 @@ sub help {
 	Removes group Manager. User id and group id or group name and Vo id or vo short name are required fields.
 	------------------------------------
 	Available options:
-	--userId      | -u user id
-	--groupId     | -g group id
-	--groupName   | -G group name
-	--voId        | -v vo id
-	--voShortName | -V vo short name
-	--batch       | -b batch
-	--help        | -h prints this help
+	--userId          | -u user id
+	--groupId         | -g group id
+	--groupName       | -G group name
+	--voId            | -v vo id
+	--voShortName     | -V vo short name
+	--authGroupId     | -a authorized groupId
+	--authGroupName   | -A authorized group Name
+	--authGroupVoId   | -o authorized group VO Id
+	--authGroupVoName | -O authorized group VO Name
+	--batch           | -b batch
+	--help            | -h prints this help
 
 	};
 }
 
 our $batch;
-my ($groupId, $groupName, $voId, $voShortName, $userId);
+my ($groupId, $groupName, $voId, $voShortName, $userId, $authGroupId, $authGroupName, $authGroupVoId, $authGroupVoName);
 GetOptions ("help|h" => sub {
 		print help();
 		exit 0;
-	}, "batch|b"     => \$batch,
-	"groupId|g=i"    => \$groupId, "groupName|G=s" => \$groupName,
-	"voId|v=i"       => \$voId, "voShortName|V=s" => \$voShortName,
-	"userId|u=i"     => \$userId) || die help();
+	}, 
+	"batch|b"     => \$batch,
+	"groupId|g=i"    => \$groupId, 
+	"groupName|G=s" => \$groupName,
+	"voId|v=i"       => \$voId, 
+	"voShortName|V=s" => \$voShortName,
+	"userId|u=i"     => \$userId,
+	"authGroupId|a=i"  => \$authGroupId,
+	"authGroupName|A=s"  => \$authGroupName,
+	"authGroupVoId|o=i"  => \$authGroupVoId,
+	"authGroupVoName|O=s"  => \$authGroupVoName
+) || die help();
 
 # Check options
 unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
-unless (defined($userId)) {die "ERROR: userId is required\n";}
 
 my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
@@ -50,7 +61,23 @@ if (!defined($groupId)) {
 	$groupId = $group->getId;
 }
 
-$groupsAgent->removeAdmin( group => $groupId, user => $userId );
+if (defined $userId) {
+	$groupsAgent->removeAdmin( group => $groupId, user => $userId );
 
-printMessage("Group Manager (user) Id:$userId successfully removed from the group Id:$groupId", $batch);
+	printMessage("Group Manager (user) Id:$userId successfully removed from the group Id:$groupId", $batch);
+} else {
+	unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
+	unless (defined $authGroupId) {
+		unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";}
+
+		unless (defined $authGroupVoId) {
+			my $vo = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName );
+			$authGroupVoId = $vo->getId;
+		}
+		my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
+		$authGroupId = $group->getId;
+	}
+	$groupsAgent->removeAdmin( group => $groupId, authorizedGroup => $authGroupId );
+	printMessage("Manager Group Id:$authGroupId successfully removed from Group :$groupId", $batch);
+}
 

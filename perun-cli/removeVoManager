@@ -11,23 +11,33 @@ sub help {
 	Removes VO Manager. User id and VO id or VO short name are required fields.
 	------------------------------------
 	Available options:
-	--userId      | -u user id
-	--voId        | -v vo id
-	--voShortName | -V vo short name
-	--batch       | -b batch
-	--help        | -h prints this help
+	--userId          | -u user id
+	--voId            | -v vo id
+	--voShortName     | -V vo short name
+	--authGroupId     | -a authorized groupId
+	--authGroupName   | -A authorized group Name
+	--authGroupVoId   | -o authorized group VO Id
+	--authGroupVoName | -O authorized group VO Name
+	--batch           | -b batch
+	--help            | -h prints this help
 
 	};
 }
 
 our $batch;
-my ($voId, $voShortName, $userId);
+my ($voId, $voShortName, $userId, $authGroupId, $authGroupName, $authGroupVoId, $authGroupVoName);
 GetOptions ("help|h" => sub {
 		print help();
 		exit 0;
-	}, "batch|b"     => \$batch,
+	}, 
+	"batch|b"     => \$batch,
 	"voId|v=i"       => \$voId, "voShortName|V=s" => \$voShortName,
-	"userId|u=i"     => \$userId) || die help();
+	"userId|u=i"     => \$userId,
+	"authGroupId|a=i"  => \$authGroupId,
+	"authGroupName|A=s"  => \$authGroupName,
+	"authGroupVoId|o=i"  => \$authGroupVoId,
+	"authGroupVoName|O=s"  => \$authGroupVoName
+) || die help();
 
 # Check options
 unless (defined($voShortName) or defined($voId)) {die "ERROR: voId or voShortName is required\n";}
@@ -40,6 +50,23 @@ if (!defined($voId)) {
 	$voId = $vo->getId;
 }
 
-$vosAgent->removeAdmin( vo => $voId, user => $userId );
+if (defined $userId) {
+	$vosAgent->removeAdmin( vo => $voId, user => $userId );
 
-printMessage("Manager (user) Id:$userId successfully removed from the Vo Id:$voId", $batch);
+	printMessage("Manager (user) Id:$userId successfully removed from the Vo Id:$voId", $batch);
+} else {
+	unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
+	unless (defined $authGroupId) {
+		unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";}
+
+		my $groupsAgent = $agent->getGroupsAgent;
+		unless (defined $authGroupVoId) {
+			my $voa = $vosAgent->getVoByShortName( shortName => $authGroupVoName );
+			$authGroupVoId = $voa->getId;
+		}
+		my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
+		$authGroupId = $group->getId;
+	}
+	$vosAgent->removeAdmin( vo => $voId, authorizedGroup => $authGroupId );
+	printMessage("Manager Group Id:$authGroupId successfully removed from VO :$voId", $batch);
+}
