@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -52,18 +53,24 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 			} catch (AttributeNotExistsException ex) {
 				//if any of these attributes not exist, its wrong
 				throw new ConsistencyErrorException("Attributes sysUnixGroupName or sysUnixGID not exist.",ex);
+			} catch (GroupResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
 			}
 
 			try {
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, resource, group, sysUnixGroupName);
 			} catch(WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException("Bad value in sysUnixGroupName attribute.",ex);
+			} catch (GroupResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
 			}
 
 			try {
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, resource, group, sysUnixGID);
 			} catch(WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException("Bad value in sysUnixGID.",ex);
+			} catch (GroupResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 	}

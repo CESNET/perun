@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -60,6 +61,8 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 			attrProjectDataQuota = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, group, A_GR_projectDataQuota);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute with projectDataQuota from resource " + resource.getId() + " and group + " + group.getId() + " could not obtain.", ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
 		}
 
 		//Get ProjectDataLimit value

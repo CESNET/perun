@@ -362,7 +362,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				throw new ConsistencyErrorException(ex);
 			} catch(AttributeValueException ex) {
 				throw new ConsistencyErrorException("All resources was removed from this group. So all attributes values can be removed.", ex);
-			} catch (WrongAttributeAssignmentException ex) {
+			} catch (GroupResourceMismatchException ex) {
 				throw new InternalErrorException(ex);
 			}
 
@@ -534,7 +534,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			// check members attributes
 			try {
 				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
-			} catch(WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+			} catch(WrongAttributeAssignmentException | AttributeNotExistsException | MemberResourceMismatchException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -1537,7 +1537,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
-	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, GroupResourceMismatchException {
 		List<RichGroup> richGroups = new ArrayList<>();
 		for(Group group: groups) {
 			richGroups.add(new RichGroup(group, getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group, true)));
@@ -1554,7 +1554,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
-	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException {
 		if (attrNames == null) return convertGroupsToRichGroupsWithAttributes(sess, resource, groups);
 		List<RichGroup> richGroups = new ArrayList<>();
 		for(Group group: groups) {
@@ -1563,9 +1563,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
-	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException {
 		List<Group> assignedGroups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-		return this.convertGroupsToRichGroupsWithAttributes(sess, resource, assignedGroups, attrNames);
+		try {
+			return this.convertGroupsToRichGroupsWithAttributes(sess, resource, assignedGroups, attrNames);
+		} catch (GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+		}
 	}
 
 	public List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames)throws InternalErrorException{

@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -38,6 +39,8 @@ public class urn_perun_member_resource_attribute_def_def_filesQuota extends Reso
 			attrFilesLimit = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, member, A_MR_filesLimit);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(attribute + " from member " + member.getId() + " and resource " + resource.getId() + " could not obtained.", ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
 		}
 
 		//Get FilesQuota value

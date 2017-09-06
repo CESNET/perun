@@ -537,11 +537,10 @@ public interface GroupsManager {
 	 * @param attrNames If empty, return all non-empty attributes. If not empty, return all selected attributes in allowed namespaces.
 	 * @return
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 */
-	List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, ResourceNotExistsException, PrivilegeException;
+	List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
 
 	/**
 	 * Gets list of all user administrators of this group.

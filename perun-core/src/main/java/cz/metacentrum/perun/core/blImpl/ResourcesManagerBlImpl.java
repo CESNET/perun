@@ -90,6 +90,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new InternalErrorException(ex);
 		} catch (WrongReferenceAttributeValueException ex) {
 			throw new InternalErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
 		}
 		//Remove all resources tags
 		this.removeAllResourcesTagFromResource(sess, resource);
@@ -234,6 +236,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
 		}
 
 		//fill and check required attributes' values for each member
@@ -247,6 +251,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			} catch(WrongAttributeAssignmentException ex) {
 				throw new ConsistencyErrorException(ex);
 			} catch(AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch (MemberResourceMismatchException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -290,8 +296,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new InternalErrorException(e);
 		} catch (WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
+		} catch (GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
 		}
 
 		//check attributes and set new correct values if necessary
@@ -397,6 +403,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch(AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch (MemberResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch (GroupResourceMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}

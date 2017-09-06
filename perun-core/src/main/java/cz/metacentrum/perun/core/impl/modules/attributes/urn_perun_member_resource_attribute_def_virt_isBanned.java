@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -121,6 +122,8 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 				//This means that attribute isBanned not exists at all so we can skip this process
 				log.info("Virtual attribute {} not exists.", this.getClass().getSimpleName());
 				break;
+			} catch (MemberResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 

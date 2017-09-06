@@ -33,6 +33,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
@@ -1027,9 +1028,9 @@ public interface GroupsManagerBl {
 	 * @param groups list of groups
 	 * @return list of RichGroups with attributes
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
 	 */
-	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, GroupResourceMismatchException;
 
 	/**
 	 * This method takes list of groups and creates list of RichGroups containing selected attributes
@@ -1053,9 +1054,9 @@ public interface GroupsManagerBl {
 	 * @param attrNames list of selected attributes (even with empty values), if it is empty, return all possible non-empty attributes
 	 * @return list of RichGroups with selected attributes
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
 	 */
-	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException;
 
 	/**
 	 * Get all RichGroups with selected attributes assigned to the resource.
@@ -1065,9 +1066,8 @@ public interface GroupsManagerBl {
 	 * @param attrNames list of selected attributes (even with empty values), if it is empty, return all possible non-empty attributes
 	 * @return list of RichGroups with selected attributes assigned to the resource
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException;
 
 	/**
 	 * Returns all RichGroups containing selected attributes
