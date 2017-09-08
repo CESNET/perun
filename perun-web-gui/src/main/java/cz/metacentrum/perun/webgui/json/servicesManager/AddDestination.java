@@ -33,6 +33,7 @@ public class AddDestination {
 	private ArrayList<Service> services = new ArrayList<Service>();
 	private String destination = "";
 	private String type = "";
+	private String propagationType = "PARALLEL";
 
 	/**
 	 * Creates a new request
@@ -84,6 +85,11 @@ public class AddDestination {
 			result = false;
 		}
 
+		if (propagationType.length() == 0 || (!propagationType.equals("PARALLEL") && !propagationType.equals("DUMMY"))) {
+			errorMsg += "Wrong parameter <strong>Propagation</strong>.";
+			result = false;
+		}
+
 		if (errorMsg.length() > 0) {
 			UiElements.generateAlert("Parameter Error", errorMsg);
 		}
@@ -102,7 +108,22 @@ public class AddDestination {
 	public void addDestination(final String destination, final String type, final Service service) {
 		ArrayList<Service> servs = new ArrayList<Service>();
 		servs.add(service);
-		addDestination(destination, type, servs);
+		addDestination(destination, type, servs, "PARALLEL");
+	}
+
+	/**
+	 * Attempts to add new Destination to service and facility, it first tests the values and then
+	 * submits them.
+	 *
+	 * @param destination destination string
+	 * @param type        type of destination
+	 * @param service     service to add destination to
+	 * @param propagationType type of propagation PARALLEL or DUMMY
+	 */
+	public void addDestination(final String destination, final String type, final Service service, final String propagationType) {
+		ArrayList<Service> servs = new ArrayList<Service>();
+		servs.add(service);
+		addDestination(destination, type, servs, propagationType);
 	}
 
 	/**
@@ -113,12 +134,15 @@ public class AddDestination {
 	 * @param type        type of destination
 	 * @param services    services to add destination to
 	 */
-	public void addDestination(final String destination, final String type, final ArrayList<Service> services) {
+	public void addDestination(final String destination, final String type, final ArrayList<Service> services, final String propagationType) {
 
 		this.destination = destination;
 		this.type = type;
 		if (services != null && !services.isEmpty()) {
 			this.services = services;
+		}
+		if (propagationType != null && !propagationType.isEmpty()) {
+			this.propagationType = propagationType;
 		}
 
 		// test arguments
@@ -161,6 +185,7 @@ public class AddDestination {
 		jsonQuery.put("destination", new JSONString(destination));
 		jsonQuery.put("type", new JSONString(type));
 		jsonQuery.put("facility", new JSONNumber(facility.getId()));
+		jsonQuery.put("propagationType", new JSONString(propagationType));
 
 		JSONArray servs = new JSONArray();
 		for (int i = 0; i < services.size(); i++) {
