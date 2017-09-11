@@ -24,6 +24,19 @@ public class Compatibility {
 		return "hsqldb".equals(getDbType());
 	}
 
+	public static String getTrue() throws InternalErrorException {
+		switch (getDbType()) {
+			case "oracle":
+				return "'1'";
+			case "postgresql":
+				return "TRUE";
+			case "hsqldb":
+				return "TRUE";
+			default:
+				throw new InternalErrorException("unknown DB type");
+		}
+	}
+
 	public static String getSysdate() throws InternalErrorException {
 		switch (getDbType()) {
 			case "oracle":

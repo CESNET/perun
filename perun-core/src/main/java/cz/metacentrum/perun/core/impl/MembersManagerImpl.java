@@ -252,7 +252,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		Member sponsoredMember = this.createMember(session, vo, sponsored);
 		sponsoredMember.setSponsored(true);
 		try {
-			jdbc.update("UPDATE members SET sponsored=TRUE WHERE id=?", sponsoredMember.getId());
+			jdbc.update("UPDATE members SET sponsored="+Compatibility.getTrue()+" WHERE id=?", sponsoredMember.getId());
 			this.addSponsor(session, sponsoredMember, sponsor);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
