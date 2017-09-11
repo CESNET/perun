@@ -1271,6 +1271,58 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
+			} else if (loginNamespace.equals("elixir")) {
+
+				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "ELIXIR-EUROPE.ORG");
+				UserExtSource ues = new UserExtSource(extSource, userLogin + "@ELIXIR-EUROPE.ORG");
+				ues.setLoa(0);
+
+				try {
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch(UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
+				List<String> kerberosLogins = new ArrayList<String>();
+
+				// Store also Kerberos logins
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+				}
+
+				if (!kerberosLogins.contains(userLogin + "@ELIXIR-EUROPE.ORG")) {
+					kerberosLogins.add(userLogin + "@ELIXIR-EUROPE.ORG");
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+
+			} else if (loginNamespace.equals("einfra-services")) {
+
+				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EINFRA-SERVICES");
+				UserExtSource ues = new UserExtSource(extSource, userLogin + "@EINFRA-SERVICES");
+				ues.setLoa(0);
+
+				try {
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch(UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
+				List<String> kerberosLogins = new ArrayList<String>();
+
+				// Store also Kerberos logins
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+				}
+
+				if (!kerberosLogins.contains(userLogin + "@EINFRA-SERVICES")) {
+					kerberosLogins.add(userLogin + "@EINFRA-SERVICES");
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+
 			} else if (loginNamespace.equals("dummy")) {
 				//dummy namespace for testing, it has accompanying DummyPasswordModule that just generates random numbers
 				ExtSource extSource;
