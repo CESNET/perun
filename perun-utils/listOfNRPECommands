@@ -49,7 +49,9 @@ for my $facility (@facilities) {
 		my @destinations = $servicesAgent->getDestinations( facility => $facilityId, service => $serviceId );
 		for my $destination (@destinations) {
 			my $destinationName = $destination->getDestination;
-			print "command[$serviceName+$destinationName]=$CHECK_COMMAND -S \"$serviceName\" -D \"$destinationName\"\n";
+			my $destinationNameWithoutSpecialCharacters = $destinationName;
+			$destinationNameWithoutSpecialCharacters =~ s/[^a-zA-Z0-9._-]//g;
+			print "command[$serviceName+$destinationNameWithoutSpecialCharacters]=$CHECK_COMMAND -S \"$serviceName\" -D \"$destinationName\"\n";
 		}
 	}
 }
