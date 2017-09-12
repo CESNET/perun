@@ -485,6 +485,9 @@ public class TableSorter<T> {
 		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("RichDestination")) {
 			Destination dest = (Destination)value;
 			return dest.getService().getName();
+		} if (((GeneralObject)value).getObjectType().equalsIgnoreCase("Destination")) {
+			Destination dest = (Destination)value;
+			return dest.getService().getName();
 		} else if (((GeneralObject)value).getObjectType().equalsIgnoreCase("ExecService")) {
 			ExecService exec = (ExecService)value;
 			return exec.getService().getName();

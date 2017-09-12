@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs.servicestabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -144,13 +143,17 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 					((AjaxLoaderImage)table.getEmptyTableWidget()).loadingStart();
 					// fills table with destinations of selected facility
 					JsonCallbackEvents localEvents = new JsonCallbackEvents(){
+						@Override
 						public void onFinished(JavaScriptObject jso){
-							JsArray<Destination> dst = JsonUtils.jsoAsArray(jso);
-							for (int i = 0; i<dst.length(); i++) {
-								callback.addToTable(dst.get(i));
+							ArrayList<Destination> dest = JsonUtils.jsoAsList(jso);
+							for (Destination d : dest) {
+								d.setFacility(ls.getSelectedObject());
+								d.setService(service);
+								callback.addToTable(d);
 							}
 							((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
 						}
+						@Override
 						public void onError(PerunError error){
 							((AjaxLoaderImage)table.getEmptyTableWidget()).loadingError(error);
 						}

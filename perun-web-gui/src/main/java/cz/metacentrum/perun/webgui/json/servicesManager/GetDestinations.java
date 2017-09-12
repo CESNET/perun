@@ -165,6 +165,13 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 			}
 		}, tableFieldUpdater);
 
+		// PROPAGATION TYPE
+		Column<Destination, String> propColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Destination, String>() {
+			public String getValue(Destination dest) {
+				return dest.getPropagationType();
+			}
+		}, tableFieldUpdater);
+
 		destinationColumn.setSortable(true);
 		columnSortHandler.setComparator(destinationColumn, new Comparator<Destination>() {
 			public int compare(Destination o1, Destination o2) {
@@ -193,6 +200,13 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 			}
 		});
 
+		propColumn.setSortable(true);
+		columnSortHandler.setComparator(propColumn, new Comparator<Destination>() {
+			public int compare(Destination o1, Destination o2) {
+				return o1.getPropagationType().compareToIgnoreCase(o2.getPropagationType());
+			}
+		});
+
 
 		// updates the columns size
 		table.setColumnWidth(serviceColumn, 200.0, Unit.PX);
@@ -210,6 +224,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 
 		table.addColumn(destinationColumn, "Destination");
 		table.addColumn(typeColumn, "Type");
+		table.addColumn(propColumn, "Propagation type");
 
 		return table;
 

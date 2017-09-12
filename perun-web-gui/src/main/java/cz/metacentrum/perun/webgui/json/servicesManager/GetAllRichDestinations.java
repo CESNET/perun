@@ -151,6 +151,13 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 			}
 		};
 
+		// PROPAGATION TYPE
+		TextColumn<Destination> propTypeColumn = new TextColumn<Destination>(){
+			public String getValue(Destination object) {
+				return object.getPropagationType();
+			}
+		};
+
 		destinationColumn.setSortable(true);
 		columnSortHandler.setComparator(destinationColumn, new Comparator<Destination>() {
 			public int compare(Destination o1, Destination o2) {
@@ -179,6 +186,12 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 			}
 		});
 
+		propTypeColumn.setSortable(true);
+		columnSortHandler.setComparator(propTypeColumn, new Comparator<Destination>() {
+			public int compare(Destination o1, Destination o2) {
+				return o1.getPropagationType().compareToIgnoreCase(o2.getPropagationType());
+			}
+		});
 
 		// updates the columns size
 		table.setColumnWidth(serviceColumn, 250.0, Unit.PX);
@@ -195,6 +208,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 
 		table.addColumn(destinationColumn, "Destination");
 		table.addColumn(typeColumn, "Type");
+		table.addColumn(propTypeColumn, "Propagation type");
 
 		return table;
 
