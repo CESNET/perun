@@ -621,6 +621,13 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		}
 		log.debug("Fetched destinations: " + ( (destinations == null) ?  "[]" : destinations.toString()));
 		task.setDestinations(destinations);
+		if(task.getExecService().getExecServiceType().equals(ExecServiceType.SEND) && 
+		   (destinations == null || destinations.isEmpty())) {
+			log.info("Task [] has no destination, setting to error.");
+			task.setEndTime(new Date(System.currentTimeMillis()));
+			schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+			return;
+		}
 		StringBuilder destinations_s = new StringBuilder("Destinations [");
 		if (destinations != null) {
 			for (Destination destination : destinations) {

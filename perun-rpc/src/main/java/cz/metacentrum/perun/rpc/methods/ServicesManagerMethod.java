@@ -739,7 +739,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
-	 * @param type String Type
+	 * @param type String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
 	 * @return Destination Created destination.
 	 */
 	/*#
@@ -748,7 +748,27 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param services List<Service> Services
 	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
-	 * @param type String Type
+	 * @param type String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @return Destination Created destination.
+	 */
+	/*#
+	 * Adds an destination for a facility and service. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>
+	 * @param destination String Destination
+	 * @param type String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
+	 * @return Destination Created destination.
+	 */
+	/*#
+	 * Adds an destination for a facility and list of services. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
+	 *
+	 * @param services List<Service> Services
+	 * @param facility int Facility <code>id</code>
+	 * @param destination String Destination
+	 * @param type String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
 	 * @return Destination Created destination.
 	 */
 	addDestination {
@@ -757,16 +777,24 @@ public enum ServicesManagerMethod implements ManagerMethod {
 		public Destination call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
+			Destination destination;
+
+			if(parms.contains("propagationType")) {
+				destination = ac.getDestination(parms.readString("destination"), parms.readString("type"),
+						parms.readString("propagationType"));
+			} else {
+				destination = ac.getDestination(parms.readString("destination"), parms.readString("type"));
+			}
 			if(parms.contains("services")) {
 				return ac.getServicesManager().addDestination(ac.getSession(),
 						parms.readList("services", Service.class),
 						ac.getFacilityById(parms.readInt("facility")),
-						ac.getDestination(parms.readString("destination"), parms.readString("type")));
+						destination);
 			} else {
 				return ac.getServicesManager().addDestination(ac.getSession(),
 						ac.getServiceById(parms.readInt("service")),
 						ac.getFacilityById(parms.readInt("facility")),
-						ac.getDestination(parms.readString("destination"), parms.readString("type")));
+						destination);
 			}
 
 
@@ -778,7 +806,16 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
-	 * @param type String Type
+	 * @param type String String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @return List<Destinations> Added destinations
+	 */
+	/*#
+	 * Adds destination for all services defined on the facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param destination String Destination
+	 * @param type String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
 	 * @return List<Destinations> Added destinations
 	 */
 	addDestinationsForAllServicesOnFacility {
@@ -787,9 +824,17 @@ public enum ServicesManagerMethod implements ManagerMethod {
 		public List<Destination> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
+			Destination destination;
+
+			if(parms.contains("propagationType")) {
+				destination = ac.getDestination(parms.readString("destination"), parms.readString("type"),
+						parms.readString("propagationType"));
+			} else {
+				destination = ac.getDestination(parms.readString("destination"), parms.readString("type"));
+			}
 			return ac.getServicesManager().addDestinationsForAllServicesOnFacility(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")),
-					ac.getDestination(parms.readString("destination"), parms.readString("type")));
+					destination);
 		}
 	},
 

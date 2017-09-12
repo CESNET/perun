@@ -19,6 +19,7 @@ public class Destination extends Auditable implements Comparable<PerunBean> {
 
 	public static final String PROPAGATIONTYPE_PARALLEL = "PARALLEL";
 	public static final String PROPAGATIONTYPE_SERIAL = "SERIAL";
+	public static final String PROPAGATIONTYPE_DUMMY = "DUMMY";
 
 	private String destination;
 	private String type;
@@ -79,7 +80,7 @@ public class Destination extends Auditable implements Comparable<PerunBean> {
 	/**
 	 * 	Gets the propagation type for this instance.
 	 * 
-	 *  @return The propagation type, either "PARALLEL" or "SERIAL"
+	 *  @return The propagation type, either "PARALLEL", "SERIAL" or "DUMMY"
 	 */
 	public String getPropagationType() {
 		return this.propagationType;

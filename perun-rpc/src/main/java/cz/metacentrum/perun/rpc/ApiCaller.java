@@ -387,6 +387,14 @@ public class ApiCaller {
 		return d;
 	}
 
+	public Destination getDestination(String destination, String type, String propagationType) throws PerunException {
+		Destination d = new Destination();
+		d.setDestination(destination);
+		d.setType(type);
+		d.setPropagationType(propagationType);
+		return d;
+	}
+
 	public List<Object> convertGroupsWithHierarchy(Group group, Map<Group, Object> groups) {
 		if (group != null) {
 			List<Object> groupHierarchy = new ArrayList<Object>();

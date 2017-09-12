@@ -62,7 +62,7 @@ public class TaskStatusImpl implements TaskStatus {
 				if (destination.getPropagationType().equals("PARALLEL")) {
 					allDestinations.put(destination,
 							TaskDestinationStatus.WAITING);
-				} else {
+				} else { // propagation type SERIAL or DUMMY
 					oneOfAllDestinations.put(destination,
 							TaskDestinationStatus.WAITING);
 				}
