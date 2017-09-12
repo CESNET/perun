@@ -510,7 +510,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 
 		List<Group> groups = resourcesManager.getAssignedGroups(sess, resource, member);
-		groups.forEach(System.out::println);
 		assertTrue("only one group should be assigned",groups.size() == 1);
 		assertTrue("our group should be assigned",groups.contains(group));
 

@@ -6334,7 +6334,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource, member, true);
 		assertNotNull("unable to get required resource-member attributes for one service",reqAttr);
-		assertTrue("should have at least 4 req attribute",reqAttr.size() >= 4);
+		assertTrue("should have at least 4 req attributes",reqAttr.size() >= 4);
 
 	}
 
@@ -6352,8 +6352,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource, group, member, true);
-		assertNotNull("unable to get required resource-member attributes for one service",reqAttr);
-		assertTrue("should have at least 5 req attribute",reqAttr.size() >= 5);
+		assertNotNull("unable to get required attributes for one service",reqAttr);
+		assertTrue("should have at least 5 req attributes",reqAttr.size() >= 5);
 
 	}
 
@@ -6458,7 +6458,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, member, true);
 		assertNotNull("unable to get required member attributes for one service",reqAttr);
-		assertEquals("getRequiredAtributes(sess, member, true) returns wrong count of attributes", 2, reqAttr.size());
+		assertEquals("getRequiredAttributes(sess, member, true) returns wrong count of attributes", 2, reqAttr.size());
 
 
 	}
@@ -6480,8 +6480,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, member, group, true);
-		assertNotNull("unable to get required member / member-group attributes for one service", reqAttr);
-		assertEquals("getRequiredAtributes(sess, member, group, true) returns wrong count of attributes", 3, reqAttr.size());
+		assertNotNull("unable to get required user / member / member-group attributes for one service", reqAttr);
+		assertEquals("getRequiredAttributes(sess, member, group, true) returns wrong count of attributes", 3, reqAttr.size());
 
 	}
 
