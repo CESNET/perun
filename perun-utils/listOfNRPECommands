@@ -13,8 +13,7 @@ my $servicesAgent = $agent->getServicesAgent;
 my $resourcesAgent = $agent->getResourcesAgent;
 
 # CONSTANTS
-my $PERUN_CLI_PATH = '/opt/perun-cli/bin';
-my $CHECK_COMMAND = 'checkLastTaskResult';
+my $CHECK_COMMAND = '/opt/perun-utils/checkLastTaskResult.sh';
 
 # HELP
 sub help {
@@ -50,7 +49,7 @@ for my $facility (@facilities) {
 		my @destinations = $servicesAgent->getDestinations( facility => $facilityId, service => $serviceId );
 		for my $destination (@destinations) {
 			my $destinationName = $destination->getDestination;
-			print "command[$serviceName+$destinationName]=$PERUN_CLI_PATH/$CHECK_COMMAND -S \"$serviceName\" -D \"$destinationName\"\n";
+			print "command[$serviceName+$destinationName]=$CHECK_COMMAND -S \"$serviceName\" -D \"$destinationName\"\n";
 		}
 	}
 }
