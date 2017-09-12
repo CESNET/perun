@@ -19,6 +19,7 @@ public class RichDestination extends Destination implements Comparable<PerunBean
 		super(destination.getId(), destination.getDestination(), destination.getType(), destination.getCreatedAt(),
 				destination.getCreatedBy(), destination.getModifiedAt(), destination.getModifiedBy(),
 				destination.getCreatedByUid(), destination.getModifiedByUid());
+		setPropagationType(destination.getPropagationType());
 		this.service = service;
 		this.facility = facility;
 	}
