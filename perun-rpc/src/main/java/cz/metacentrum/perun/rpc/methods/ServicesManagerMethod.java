@@ -757,16 +757,24 @@ public enum ServicesManagerMethod implements ManagerMethod {
 		public Destination call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
+			Destination destination;
+			
+			if(parms.contains("propagationType")) {
+				destination = ac.getDestination(parms.readString("destination"), parms.readString("type"), 
+						parms.readString("propagationType"));
+			} else {
+				destination = ac.getDestination(parms.readString("destination"), parms.readString("type")); 
+			}
 			if(parms.contains("services")) {
 				return ac.getServicesManager().addDestination(ac.getSession(),
 						parms.readList("services", Service.class),
 						ac.getFacilityById(parms.readInt("facility")),
-						ac.getDestination(parms.readString("destination"), parms.readString("type")));
+						destination);
 			} else {
 				return ac.getServicesManager().addDestination(ac.getSession(),
 						ac.getServiceById(parms.readInt("service")),
 						ac.getFacilityById(parms.readInt("facility")),
-						ac.getDestination(parms.readString("destination"), parms.readString("type")));
+						destination);
 			}
 
 
@@ -787,9 +795,17 @@ public enum ServicesManagerMethod implements ManagerMethod {
 		public List<Destination> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
+			Destination destination;
+			
+			if(parms.contains("propagationType")) {
+				destination = ac.getDestination(parms.readString("destination"), parms.readString("type"), 
+						parms.readString("propagationType"));
+			} else {
+				destination = ac.getDestination(parms.readString("destination"), parms.readString("type")); 
+			}
 			return ac.getServicesManager().addDestinationsForAllServicesOnFacility(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")),
-					ac.getDestination(parms.readString("destination"), parms.readString("type")));
+					destination);
 		}
 	},
 

@@ -49,9 +49,9 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		List<Destination> destinations = task.getDestinations();
 		if (task.getExecService().getExecServiceType().equals(ExecServiceType.SEND)
 				&& (destinations == null || destinations.isEmpty())) {
-			log.info("No destinations found for SEND task {}, marking as DONE",
+			log.info("No destinations found for SEND task {}, marking as ERROR",
 					task.getId());
-			schedulingPool.setTaskStatus(task, TaskStatus.DONE);
+			schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
 		} else {
 			if(task.getStatus() == TaskStatus.PROCESSING) {
 				log.warn("Attempt to schedule already processing task {}, ignoring this.", task.getId());
