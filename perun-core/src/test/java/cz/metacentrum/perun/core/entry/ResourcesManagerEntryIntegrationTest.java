@@ -497,6 +497,24 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
+	@Test
+	public void getAssignedGroupsResourceMember() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedGroupsResourceMember");
+
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.assignGroupToResource(sess, group, resource);
+
+		List<Group> groups = resourcesManager.getAssignedGroups(sess, resource, member);
+		assertTrue("only one group should be assigned",groups.size() == 1);
+		assertTrue("our group should be assigned",groups.contains(group));
+
+	}
+
 	@Test (expected=ResourceNotExistsException.class)
 	public void getAssignedGroupsWhenResourceNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getAssignedGroupsWhenResourceNotExists");

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 
 /**
  * Ajax query to get assigned groups for specified resource
+ * or specified resource and member
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -37,6 +38,7 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// resource id
 	private int resourceId;
+	private int memberId = 0;
 	// JSON URL
 	static private final String JSON_URL = "resourcesManager/getAssignedGroups";
 	// Selection model
@@ -73,11 +75,35 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 	/**
 	 * Creates a new callback instance
 	 *
+	 * @param resourceId resource ID
+	 * @param memberId member ID
+	 */
+	public GetAssignedGroups(int resourceId, int memberId) {
+		this.resourceId = resourceId;
+		this.memberId = memberId;
+	}
+
+	/**
+	 * Creates a new callback instance
+	 *
 	 * @param id resource ID
 	 * @param events Custom events
 	 */
 	public GetAssignedGroups(int id, JsonCallbackEvents events) {
 		this.resourceId = id;
+		this.events = events;
+	}
+
+	/**
+	 * Creates a new callback instance
+	 *
+	 * @param id resource ID
+	 * @param memberId member ID
+	 * @param events Custom events
+	 */
+	public GetAssignedGroups(int id, int memberId, JsonCallbackEvents events) {
+		this.resourceId = id;
+		this.memberId = memberId;
 		this.events = events;
 	}
 
@@ -189,7 +215,10 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 	 * Retrieve data from RPC
 	 */
 	public void retrieveData() {
-		final String param = "resource=" + this.resourceId;
+		String param = "resource=" + this.resourceId;
+		if (memberId != 0) {
+			param = param+"&member=" + this.memberId;
+		}
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
@@ -380,6 +409,10 @@ public class GetAssignedGroups implements JsonCallback, JsonCallbackTable<Group>
 
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
+	}
+
+	public void setMemberId(int memberId) {
+		this.memberId = memberId;
 	}
 
 }

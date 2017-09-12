@@ -16,6 +16,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.*;
+import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedGroups;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedRichMembers;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedServices;
 import cz.metacentrum.perun.webgui.model.*;
@@ -61,9 +62,11 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 
 	private int lastSelectedService = 0;
 	private int lastSelectedMember = 0;
+	private int lastSelectedGroup = 0;
 
 	private boolean memberCallDone = false;
 	private boolean servCallDone = false;
+	private boolean groupsCallDone = false;
 
 	/**
 	 * @param resourceId ID of resource to get attributes for
@@ -105,6 +108,7 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 
 		final ListBoxWithObjects<RichMember> memberListBox = new ListBoxWithObjects<>();
 		final ListBoxWithObjects<Service> serviceListBox = new ListBoxWithObjects<>();
+		final ListBoxWithObjects<Group> groupListBox = new ListBoxWithObjects<>();
 
 		// load
 		final Map<String,Integer> ids = new HashMap<String,Integer>();
@@ -115,6 +119,70 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 
 		// puts first table
 		final CellTable<Attribute> table = resReqAttrs.getEmptyTable();
+
+		// get groups of member assigned to resource - MEMBER IS SET BEFORE EVERY CALL !
+		final GetAssignedGroups groups = new GetAssignedGroups(resourceId, new JsonCallbackEvents(){
+			@Override
+			public  void onFinished(JavaScriptObject jso) {
+				groupListBox.removeNotSelectedOption();
+				groupListBox.clear();
+				ArrayList<Group> grp = JsonUtils.jsoAsList(jso);
+				grp = new TableSorter<Group>().sortByName(grp);
+				groupListBox.addNotSelectedOption();
+				groupListBox.addAllItems(grp);
+				for (Group g : groupListBox.getAllObjects()) {
+					if (lastSelectedGroup != 0 && g.getId() == lastSelectedGroup) groupListBox.setSelected(g, true);
+				}
+				groupsCallDone = true;
+
+				if (lastSelectedService == 0) {
+					// load resource-required
+					if (servCallDone && memberCallDone) {
+						Map<String, Integer> ids = new HashMap<String, Integer>();
+						ids.put("resource", resourceId);
+						ids.put("resourceToGetServicesFrom", resourceId);
+						ids.put("member", memberListBox.getSelectedObject().getId());
+						if (groupListBox.getSelectedIndex() != 0) {
+							// group is selected
+							ids.put("group", groupListBox.getSelectedObject().getId());
+						}
+						ids.put("workWithUserAttributes", 1);
+						resReqAttrs.setIds(ids);
+						resReqAttrs.retrieveData();
+					}
+				} else {
+					// load resource-service-member
+					if (servCallDone && memberCallDone) {
+						Map<String, Integer> ids = new HashMap<String, Integer>();
+						ids.put("resource", resourceId);
+						ids.put("service", lastSelectedService);
+						ids.put("member", memberListBox.getSelectedObject().getId());
+						if (groupListBox.getSelectedIndex() != 0) {
+							// group is selected
+							ids.put("group", groupListBox.getSelectedObject().getId());
+						}
+						ids.put("workWithUserAttributes", 1);
+						reqAttrs.setIds(ids);
+						reqAttrs.retrieveData();
+					}
+				}
+
+			}
+			@Override
+			public void onError(PerunError error){
+				groupListBox.removeNotSelectedOption();
+				groupListBox.clear();
+				groupListBox.addItem("Error while loading");
+				groupsCallDone = true;
+			}
+			@Override
+			public void onLoadingStart(){
+				groupListBox.removeNotSelectedOption();
+				groupListBox.clear();
+				groupListBox.addItem("Loading...");
+				groupsCallDone = false;
+			}
+		});
 
 		// get assigned members
 		final GetAssignedRichMembers members = new GetAssignedRichMembers(resourceId, new JsonCallbackEvents(){
@@ -137,24 +205,38 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 				}
 				memberCallDone = true;
 
+				if (memberListBox.getSelectedObject() != null) {
+					// if resource has members -> they are there throught groups
+					groups.setMemberId(memberListBox.getSelectedObject().getId());
+					groups.retrieveData();
+				}
+
 				if (lastSelectedService == 0) {
 					// load resource-required
-					if (servCallDone) {
+					if (servCallDone && groupsCallDone) {
 						Map<String, Integer> ids = new HashMap<String, Integer>();
 						ids.put("resource", resourceId);
 						ids.put("resourceToGetServicesFrom", resourceId);
 						ids.put("member", memberListBox.getSelectedObject().getId());
+						if (groupListBox.getSelectedIndex() != 0) {
+							// group is selected
+							ids.put("group", groupListBox.getSelectedObject().getId());
+						}
 						ids.put("workWithUserAttributes", 1);
 						resReqAttrs.setIds(ids);
 						resReqAttrs.retrieveData();
 					}
 				} else {
 					// load resource-service-member
-					if (servCallDone) {
+					if (servCallDone && groupsCallDone) {
 						Map<String, Integer> ids = new HashMap<String, Integer>();
 						ids.put("resource", resourceId);
 						ids.put("service", lastSelectedService);
 						ids.put("member", memberListBox.getSelectedObject().getId());
+						if (groupListBox.getSelectedIndex() != 0) {
+							// group is selected
+							ids.put("group", groupListBox.getSelectedObject().getId());
+						}
 						ids.put("workWithUserAttributes", 1);
 						reqAttrs.setIds(ids);
 						reqAttrs.retrieveData();
@@ -203,23 +285,31 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 				servCallDone = true;
 
 				if (lastSelectedService == 0) {
-					if (memberCallDone) {
+					if (memberCallDone && groupsCallDone) {
 						// load resource-required
 						Map<String, Integer> ids = new HashMap<String, Integer>();
 						ids.put("resource", resourceId);
 						ids.put("resourceToGetServicesFrom", resourceId);
 						ids.put("member", memberListBox.getSelectedObject().getId());
+						if (groupListBox.getSelectedIndex() != 0) {
+							// group is selected
+							ids.put("group", groupListBox.getSelectedObject().getId());
+						}
 						ids.put("workWithUserAttributes", 1);
 						resReqAttrs.setIds(ids);
 						resReqAttrs.retrieveData();
 					}
 				} else {
-					if (memberCallDone) {
+					if (memberCallDone && groupsCallDone) {
 						// load resource-service-member
 						Map<String, Integer> ids = new HashMap<String, Integer>();
 						ids.put("resource", resourceId);
 						ids.put("service", lastSelectedService);
 						ids.put("member", memberListBox.getSelectedObject().getId());
+						if (groupListBox.getSelectedIndex() != 0) {
+							// group is selected
+							ids.put("group", groupListBox.getSelectedObject().getId());
+						}
 						ids.put("workWithUserAttributes", 1);
 						reqAttrs.setIds(ids);
 						reqAttrs.retrieveData();
@@ -251,7 +341,7 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 			@Override
 			public void onChange(ChangeEvent event) {
 
-				if (memberCallDone && servCallDone) {
+				if (memberCallDone && servCallDone && groupsCallDone) {
 
 					if (memberListBox.getSelectedObject() != null) {
 						lastSelectedMember = memberListBox.getSelectedObject().getId();
@@ -265,12 +355,22 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 						lastSelectedService = 0;
 					}
 
+					if (groupListBox.getSelectedIndex() > 0) {
+						lastSelectedGroup = groupListBox.getSelectedObject().getId();
+					} else {
+						lastSelectedGroup = 0;
+					}
+
 					if (lastSelectedService == 0) {
 						// load resource-required
 						Map<String, Integer> ids = new HashMap<String, Integer>();
 						ids.put("resource", resourceId);
 						ids.put("resourceToGetServicesFrom", resourceId);
 						ids.put("member", memberListBox.getSelectedObject().getId());
+						if (groupListBox.getSelectedIndex() != 0) {
+							// group is selected
+							ids.put("group", groupListBox.getSelectedObject().getId());
+						}
 						ids.put("workWithUserAttributes", 1);
 						resReqAttrs.setIds(ids);
 						resReqAttrs.retrieveData();
@@ -280,6 +380,10 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 						ids.put("resource", resourceId);
 						ids.put("service", lastSelectedService);
 						ids.put("member", memberListBox.getSelectedObject().getId());
+						if (groupListBox.getSelectedIndex() != 0) {
+							// group is selected
+							ids.put("group", groupListBox.getSelectedObject().getId());
+						}
 						ids.put("workWithUserAttributes", 1);
 						reqAttrs.setIds(ids);
 						reqAttrs.retrieveData();
@@ -289,10 +393,46 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 
 			}
 		};
-		memberListBox.addChangeHandler(changeHandler);
-		serviceListBox.addChangeHandler(changeHandler);
 
-		final JsonCallbackEvents refreshTable = JsonCallbackEvents.refreshTableEvents(resReqAttrs);
+		serviceListBox.addChangeHandler(changeHandler);
+		groupListBox.addChangeHandler(changeHandler);
+
+		memberListBox.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent changeEvent) {
+
+				if (memberCallDone && servCallDone && groupsCallDone) {
+
+					if (memberListBox.getSelectedObject() != null) {
+						// selected member - get groups
+						lastSelectedMember = memberListBox.getSelectedObject().getId();
+						groups.setMemberId(lastSelectedMember);
+						groups.retrieveData();
+					} else {
+						// no member in a box -> no group
+						lastSelectedMember = 0;
+						lastSelectedGroup = 0;
+						groupListBox.removeNotSelectedOption();
+						groupListBox.clear();
+						groupListBox.addNotSelectedOption();
+					}
+				}
+
+			}
+		});
+
+		// refresh proper table based on selection
+		final JsonCallbackEvents refreshTable = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso) {
+				if (lastSelectedService == 0) {
+					resReqAttrs.clearTable();
+					resReqAttrs.retrieveData();
+				} else {
+					resReqAttrs.clearTable();
+					reqAttrs.retrieveData();
+				}
+			}
+		};
 
 		if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) resReqAttrs.setCheckable(false);
 
@@ -302,6 +442,7 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 
 		// set button disable event
 		final JsonCallbackEvents saveChangesButtonEvent = JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshTable);
+
 		if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) saveChangesButton.setEnabled(false);
 		saveChangesButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -310,8 +451,13 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
 					Map<String, Integer> ids = new HashMap<String,Integer>();
 					ids.put("resource", resourceId);
+					ids.put("facility", resource.getFacilityId());
 					ids.put("member", memberListBox.getSelectedObject().getId());
-					ids.put("workWithUserAttributes", 1);
+					if (groupListBox.getSelectedIndex() != 0) {
+						// group is selected
+						ids.put("group", groupListBox.getSelectedObject().getId());
+					}
+					ids.put("user", memberListBox.getSelectedObject().getUserId());
 					SetAttributes request = new SetAttributes(saveChangesButtonEvent);
 					request.setAttributes(ids, list);
 				}
@@ -325,6 +471,7 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 				ids.put("resource", resourceId);
 				ids.put("member", memberListBox.getSelectedObject().getId());
 				ids.put("user", memberListBox.getSelectedObject().getUserId());
+				ids.put("group", groupListBox.getSelectedObject().getId());
 				ids.put("facility", resource.getFacilityId());
 				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, resReqAttrs.getList()), true);
 			}
@@ -348,6 +495,7 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 					ids.put("member", memberListBox.getSelectedObject().getId());
 					ids.put("facility", resource.getFacilityId());
 					ids.put("user", memberListBox.getSelectedObject().getUserId());
+					ids.put("group", groupListBox.getSelectedObject().getId());
 					RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
 					request.removeAttributes(ids, list);
 				}
@@ -360,6 +508,10 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 		// add member selection to menu
 		menu.addWidget(new HTML("<strong>Selected&nbsp;member: </strong>"));
 		menu.addWidget(memberListBox);
+
+		// add group selection to menu
+		menu.addWidget(new HTML("<strong>Selected&nbsp;group: </strong>"));
+		menu.addWidget(groupListBox);
 
 		// add service selection to menu
 		menu.addWidget(new HTML("<strong>Selected&nbsp;service: </strong>"));

@@ -868,6 +868,44 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributesToSet);
 	}
 
+	public void setAttributes(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
+		// clasification of attributes to attributes to remove and attributes to set
+		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
+		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
+		for(Attribute attribute : attributes) {
+			if (attribute.getValue() == null) {
+				attributesToRemove.add(attribute);
+			} else {
+				attributesToSet.add(attribute);
+			}
+		}
+		removeAttributes(sess, facility, resource, group, user, member, attributesToRemove);
+		for(Attribute attribute : attributesToSet) {
+			//skip core attributes
+			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
+
+				if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+					setAttributeWithoutCheck(sess, resource, member, attribute, false);
+				} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
+					setAttributeWithoutCheck(sess, facility, user, attribute);
+				} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR)) {
+					setAttributeWithoutCheck(sess, user, attribute);
+				} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR)) {
+					setAttributeWithoutCheck(sess, member, attribute);
+				} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+					setAttributeWithoutCheck(sess, member, group, attribute, false);
+				} else {
+					throw new WrongAttributeAssignmentException(attribute);
+				}
+			}
+		}
+
+		//if checkAttributesValue fails it causes rollback so no attribute will be stored
+		checkAttributesValue(sess, facility, resource, group, user, member, attributesToSet);
+		this.checkAttributesDependencies(sess, resource, group, member, user, facility, attributesToSet);
+	}
+
 	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
@@ -2238,6 +2276,24 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return new ArrayList<Attribute>(attributes);
 	}
 
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+
+		List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
+		List<Resource> groupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+		// get intersection of resources to determine correct set of services
+		memberResources.retainAll(groupResources);
+
+		Set<Attribute> attributes = new HashSet<Attribute>();
+
+		for(Resource resource : memberResources) {
+			attributes.addAll(this.getResourceRequiredAttributes(sess, resource, member, group));
+		}
+
+		attributes.addAll(this.getRequiredAttributes(sess, member, workWithUserAttributes));
+
+		return new ArrayList<Attribute>(attributes);
+	}
+
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<Attribute>();
@@ -2314,6 +2370,25 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, user));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, user));
+		return attributes;
+	}
+
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
+		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
+		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
+
+		List<Attribute> attributes = new ArrayList<Attribute>();
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member));
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member, group));
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, member));
+
+		if (workWithUserAttributes) {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+			attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, user));
+			attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, user));
+		}
+
 		return attributes;
 	}
 
@@ -3022,6 +3097,31 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	public void checkAttributesValue(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
+		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
+		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
+		for(Attribute attribute : attributes) {
+			if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+				if(attribute.getValue() == null && !isTrulyRequiredAttribute(sess, resource, member, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeValue(sess, resource, member, attribute);
+			} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
+				if(attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, user, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeValue(sess, facility, user, attribute);
+			} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR)) {
+				if(attribute.getValue() == null && !isTrulyRequiredAttribute(sess, user, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeValue(sess, user, attribute);
+			} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR)) {
+				if(attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeValue(sess, member, attribute);
+			} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+				if(attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, group, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeValue(sess, member, group, attribute);
+			} else {
+				throw new WrongAttributeAssignmentException(attribute);
+			}
+		}
+	}
+
 	public void checkAttributeValue(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_ATTR);
 
@@ -3279,6 +3379,33 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		this.checkAttributesValue(sess, facility, resource, user, member, attributesFromDefinitions(attributesToCheck));
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributesFromDefinitions(attributesToCheck));
+	}
+
+	public void removeAttributes(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
+		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
+		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
+		for(AttributeDefinition attribute : attributes) {
+			//skip core attributes
+			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
+
+				if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR)) {
+					if (removeAttributeWithoutCheck(sess, member, attribute)) attributesToCheck.add(attribute);
+				} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR)) {
+					if (removeAttributeWithoutCheck(sess, user, attribute)) attributesToCheck.add(attribute);
+				} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)){
+					if (removeAttributeWithoutCheck(sess, resource, member, attribute)) attributesToCheck.add(attribute);
+				} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_FACILITY_ATTR)){
+					if (removeAttributeWithoutCheck(sess, facility, user, attribute)) attributesToCheck.add(attribute);
+				} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_GROUP_ATTR)){
+					if (removeAttributeWithoutCheck(sess, member, group, attribute)) attributesToCheck.add(attribute);
+				} else {
+					throw new WrongAttributeAssignmentException(attribute);
+				}
+			}
+		}
+		this.checkAttributesValue(sess, facility, resource, group, user, member, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, resource, group, member, user, facility, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -4658,6 +4785,34 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributesDependencies(sess, user, null, userAttributes);
 		checkAttributesDependencies(sess, facility, user, userFacilityAttributes);
 		checkAttributesDependencies(sess, resource, member, memberResourceAttributes);
+	}
+
+	private void checkAttributesDependencies(PerunSession sess, Resource resource, Group group, Member member, User user, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		List<Attribute> userAttributes = new ArrayList<Attribute>();
+		List<Attribute> memberAttributes = new ArrayList<Attribute>();
+		List<Attribute> memberResourceAttributes = new ArrayList<Attribute>();
+		List<Attribute> userFacilityAttributes = new ArrayList<Attribute>();
+		List<Attribute> memberGroupAttributes = new ArrayList<Attribute>();
+		for(Attribute attr: attributes) {
+			if(getAttributesManagerImpl().isFromNamespace(sess, attr, NS_USER_ATTR)) {
+				userAttributes.add(attr);
+			} else if(getAttributesManagerImpl().isFromNamespace(sess, attr, NS_MEMBER_ATTR)) {
+				memberAttributes.add(attr);
+			} else if(getAttributesManagerImpl().isFromNamespace(sess, attr, NS_MEMBER_RESOURCE_ATTR)) {
+				memberResourceAttributes.add(attr);
+			} else if(getAttributesManagerImpl().isFromNamespace(sess, attr, NS_USER_FACILITY_ATTR)) {
+				userFacilityAttributes.add(attr);
+			} else if(getAttributesManagerImpl().isFromNamespace(sess, attr, NS_MEMBER_GROUP_ATTR)) {
+				memberGroupAttributes.add(attr);
+			} else {
+				throw new WrongAttributeAssignmentException(attr);
+			}
+		}
+		checkAttributesDependencies(sess, member, null, memberAttributes);
+		checkAttributesDependencies(sess, user, null, userAttributes);
+		checkAttributesDependencies(sess, facility, user, userFacilityAttributes);
+		checkAttributesDependencies(sess, resource, member, memberResourceAttributes);
+		checkAttributesDependencies(sess, member, group, memberGroupAttributes);
 	}
 
 	private void checkAttributesDependencies(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
@@ -6560,6 +6715,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if(member.getVoId() != resource.getVoId()) throw new MemberResourceMismatchException("Member is not from the same vo like Resource: " + member + " " + resource);
 	}
 
+	/**
+	 * Check if group is assigned on resource. If not, throw WrongAttributeAssignment Exception
+	 *
+	 * @param sess
+	 * @param group
+	 * @param resource
+	 * @throws WrongAttributeAssignmentException
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 * @throws ResourceNotExistsException
+	 */
 	public void checkGroupIsFromTheSameVoLikeResource(PerunSession sess, Group group, Resource resource) throws GroupResourceMismatchException, InternalErrorException {
 		Utils.notNull(sess, "sess");
 		Utils.notNull(group, "group");

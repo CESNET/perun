@@ -2549,6 +2549,29 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't set wrong attribute
 	}
 
+	@Test
+	public void setMemberGroupAttributesFacilityResourceUser() throws Exception {
+		System.out.println(CLASS_NAME + "setMemberGroupAttributesFacilityResourceUser");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember();
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		attributes = setUpMemberGroupAttribute();
+
+		attributesManager.setAttributes(sess, facility, resource, group, user, member,  attributes);
+
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group);
+		assertNotNull("unable to get member-group attributes", retAttr);
+
+		for(Attribute a: attributes) {
+			assertTrue("returned member-group attributes are not same as stored", retAttr.contains(a));
+		}
+	}
+
+
 
 // ==============  3.  GET ATTRIBUTE (by name) ================================
 //
@@ -6087,6 +6110,25 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test
+	public void getResourceRequiredMemberGroupResourceAttributesWorkWithUserAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getRequiredMemberResourceGroupAttributesWorkWithUserAttributes");
+
+		vo = setUpVo();
+		member = setUpMember();
+		group = setUpGroup();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		attributes = setUpRequiredAttributes();
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, resource, group, member, true);
+		assertNotNull("unable to get required (work with user) member resource / member group attributes for its services", reqAttr);
+		assertTrue("should have more than 2 req attributes",reqAttr.size() >= 2);
+
+	}
+
 // TODO - doplnit testy na:
 /*
  * v API chybí varinata group_resource work with group attributes:
@@ -6292,7 +6334,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource, member, true);
 		assertNotNull("unable to get required resource-member attributes for one service",reqAttr);
-		assertTrue("should have at least 4 req attribute",reqAttr.size() >= 4);
+		assertTrue("should have at least 4 req attributes",reqAttr.size() >= 4);
+
+	}
+
+	@Test
+	public void getRequiredMemberResourceGroupAttributesFromOneServiceWorkWithUser() throws Exception {
+		System.out.println(CLASS_NAME + "getRequiredMemberResourceGroupAttributesFromOneServiceWorkWithUser");
+
+		vo = setUpVo();
+		member = setUpMember();
+		group = setUpGroup();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		attributes = setUpRequiredAttributes();
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource, group, member, true);
+		assertNotNull("unable to get required attributes for one service",reqAttr);
+		assertTrue("should have at least 5 req attributes",reqAttr.size() >= 5);
 
 	}
 
@@ -6397,8 +6458,30 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, member, true);
 		assertNotNull("unable to get required member attributes for one service",reqAttr);
-		assertEquals("getRequiredAtributes(sess, member, true) returns wrong count of attributes", 2, reqAttr.size());
+		assertEquals("getRequiredAttributes(sess, member, true) returns wrong count of attributes", 2, reqAttr.size());
 
+
+	}
+
+	@Test
+	public void getRequiredMemberGroupAndUserAttributesFromOneService() throws Exception {
+		System.out.println(CLASS_NAME + "getRequiredMemberGroupAndUserAttributesFromOneService");
+
+		vo = setUpVo();
+		member = setUpMember();
+		group = setUpGroup();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		this.setUpMemberToResource();
+
+		service = setUpService();
+		attributes = setUpRequiredAttributes();
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, member, group, true);
+		assertNotNull("unable to get required user / member / member-group attributes for one service", reqAttr);
+		assertEquals("getRequiredAttributes(sess, member, group, true) returns wrong count of attributes", 3, reqAttr.size());
 
 	}
 
@@ -6674,6 +6757,43 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		retAttr.retainAll(attributes);
 		assertEquals("Excepted empty array list of Attributes.", new ArrayList<Attribute>(), retAttr);
+
+	}
+
+	@Test
+	public void removeUserMemberResourceMemberGroupAndUserFacilityAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserMemberResourceMemberGroupAndUserFacilityAttributes");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup();
+		member = setUpMember();
+		User user = perun.getUsersManager().getUserByMember(sess, member);
+
+		attributes = setUpUserAttribute();
+		attributes.addAll(setUpMemberGroupAttribute());
+		attributes.addAll(setUpMemberResourceAttribute());
+		attributes.addAll(setUpFacilityUserAttribute());
+
+		attributesManager.setAttributes(sess, facility, resource, group, user, member, attributes);
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, facility, resource, user, member);
+		retAttr.addAll(attributesManager.getAttributes(sess, member, group));
+
+		for(Attribute a : attributes) {
+			assertTrue("our member or user does have this attribute set: " + a, retAttr.contains(a));
+		}
+
+		//remove all new attributes
+		attributesManager.removeAttributes(sess, facility, resource, group, user, member, attributes);
+
+		//check if all are removed
+		retAttr = attributesManager.getAttributes(sess, facility, resource, user, member);
+		retAttr.addAll(attributesManager.getAttributes(sess, member, group));
+
+		for(Attribute a : attributes) {
+			assertFalse("our member or user does not have this attribute set: " + a, retAttr.contains(a));
+		}
 
 	}
 

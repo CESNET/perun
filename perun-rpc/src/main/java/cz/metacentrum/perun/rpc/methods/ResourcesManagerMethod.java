@@ -335,12 +335,24 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * @param resource int Resource <code>id</code>
 	 * @return List<Group> Resource groups
 	 */
+	/*#
+	 * List all groups associated with the resource and member
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @return List<Group> Resource groups with specified member
+	 */
 	getAssignedGroups {
 
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getResourcesManager().getAssignedGroups(ac.getSession(),
-					ac.getResourceById(parms.readInt("resource")));
+			if (parms.contains("member")) {
+				return ac.getResourcesManager().getAssignedGroups(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")), ac.getMemberById(parms.readInt("member")));
+			} else {
+				return ac.getResourcesManager().getAssignedGroups(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")));
+			}
 		}
 	},
 
@@ -998,7 +1010,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		@Override
 		public BanOnResource call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-			
+
 			return ac.getResourcesManager().updateBan(ac.getSession(),
 					parms.read("banOnResource", BanOnResource.class));
 

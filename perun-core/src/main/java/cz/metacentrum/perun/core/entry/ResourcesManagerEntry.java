@@ -349,6 +349,20 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException(sess, "getAssignedGroups");
+				}
+
+		return getResourcesManagerBl().getAssignedGroups(sess, resource);
+	}
+
+	public List<Group> getAssignedGroups(PerunSession sess, Resource resource, Member member) throws InternalErrorException, PrivilegeException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+
 		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 
 		// Authorization
@@ -356,9 +370,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
 				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "getAssignedGroups");
-				}
+		}
 
-		return getResourcesManagerBl().getAssignedGroups(sess, resource);
+		return getResourcesManagerBl().getAssignedGroups(sess, resource, member);
 	}
 
 	public List<Resource> getAssignedResources(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
