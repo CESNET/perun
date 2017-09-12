@@ -365,6 +365,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		return getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resource);
 	}
 
+	public List<Group> getAssignedGroups(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
+		return getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resource, member);
+	}
+
 	public List<Resource> getAssignedResources(PerunSession sess, Group group) throws InternalErrorException {
 		Vo vo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
 		return getResourcesManagerImpl().getAssignedResources(sess, vo, group);
