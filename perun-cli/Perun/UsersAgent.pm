@@ -147,4 +147,10 @@ sub getRichUsersFromListOfUsersWithAttributes
 {
 	return Perun::Common::callManagerMethod('getRichUsersFromListOfUsersWithAttributes', '[]RichUser', @_);
 }
+
+sub changePassword
+{
+	return Perun::Common::callManagerMethod('changePassword', 'null', @_);
+}
+
 1;
