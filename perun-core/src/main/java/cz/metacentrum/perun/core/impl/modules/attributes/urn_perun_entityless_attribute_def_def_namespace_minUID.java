@@ -25,12 +25,12 @@ public class  urn_perun_entityless_attribute_def_def_namespace_minUID extends En
 			if(minUID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
 			try {
 				Attribute maxUIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID");
+				Integer maxUID = (Integer) maxUIDAttr.getValue();
+				if(maxUID != null) {
+					if(minUID > maxUID) throw new WrongAttributeValueException(attribute, "Attribute value must be less than maxUID. MaxUID = " + maxUID + ", and minUID try to set = " + minUID);
+				}
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute namespace-maxUID is supposed to exist.",ex);
-			}
-			Integer maxUID = (Integer) attribute.getValue();
-			if(maxUID != null) {
-				if(minUID > maxUID) throw new WrongAttributeValueException(attribute, "Attribute value must be less than maxUID. MaxUID = " + maxUID + ", and minUID try to set = " + minUID);
 			}
 		}
 	}

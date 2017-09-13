@@ -25,12 +25,12 @@ public class urn_perun_entityless_attribute_def_def_namespace_maxGID extends Ent
 			if(maxGID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
 			try {
 				Attribute minGIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
+				Integer minGID = (Integer) minGIDAttr.getValue();
+				if(minGID != null) {
+					if(maxGID < minGID) throw new WrongAttributeValueException(attribute, "Attribute value must be more than minGID. MinGID = " + minGID + ", and maxGID try to set = " + maxGID);
+				}
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute namespace-minGID is supposed to exist.",ex);
-			}
-			Integer minGID = (Integer) attribute.getValue();
-			if(minGID != null) {
-				if(maxGID < minGID) throw new WrongAttributeValueException(attribute, "Attribute value must be more than minGID. MinGID = " + minGID + ", and maxGID try to set = " + maxGID);
 			}
 		}
 	}

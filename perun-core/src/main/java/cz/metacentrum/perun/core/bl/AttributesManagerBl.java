@@ -2762,13 +2762,13 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException if the attribute isn't host attribute
 	 */
-	void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException,WrongAttributeValueException,WrongAttributeAssignmentException;
+	void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Batch version of checkAttributeValue
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Host,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException,WrongAttributeAssignmentException;
+	void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if the value of this entityless attribute is valid
