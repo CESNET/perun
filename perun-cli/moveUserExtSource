@@ -14,7 +14,7 @@ sub help {
 	Available options:
 	--sourcetUserId   | -s source user id
 	--targetUserId    | -t target user id
-	--userExtSourceId | -e external source id
+	--userExtSourceId | -e user external source id
 	--batch           | -b batch
 	--help            | -h prints this help
 	};
@@ -27,7 +27,7 @@ GetOptions ("help|h"     => sub {
 	},
 	"sourceUserId|s=i"       => \$sourceUserId,
 	"targetUserId|t=i"       => \$targetUserId,
-	"userExtSourceId|e=i"    => \$extSourceId,
+	"userExtSourceId|e=i"    => \$userExtSourceId,
 	"batch|b"                => \$batch) || die help();
 
 # Check options

@@ -17,7 +17,7 @@ sub help {
 	};
 }
 
-my ($userId, $extSourceId, $extSourceName, $extSourceLogin, $batch);
+my ($userId, $batch);
 GetOptions ("help|h" => sub {
 		print help();
 		exit 0;

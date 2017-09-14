@@ -153,4 +153,9 @@ sub changePassword
 	return Perun::Common::callManagerMethod('changePassword', 'null', @_);
 }
 
+sub moveUserExtSource
+{
+	return Perun::Common::callManagerMethod('moveUserExtSource', 'null', @_);
+}
+
 1;
