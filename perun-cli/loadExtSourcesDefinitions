@@ -8,8 +8,9 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Loads external source definitions. Tool can be used only by PERUNADMIN.
-        It is target for updating of external sources from perun configuration.
+	Loads external sources definitions from perun's 
+	configuration file and updates entries stored in the DB. 
+	Tool can be used only by PERUNADMIN.
 	------------------------------------
 	Available options:
 	--help        | -h prints this help
@@ -17,7 +18,6 @@ sub help {
 	};
 }
 
-my ($groupId, $groupName, $voId, $voShortName, $batch);
 GetOptions ("help|h" => sub {
 		print help();
 		exit 0;
@@ -28,4 +28,4 @@ my $extSourcesAgent = $agent->getExtSourcesAgent;
 
 $extSourcesAgent->loadExtSourcesDefinitions();
 
-printMessage("External sources definitions have been successfully updated", $batch);
+print "External sources definitions have been successfully loaded\n";
