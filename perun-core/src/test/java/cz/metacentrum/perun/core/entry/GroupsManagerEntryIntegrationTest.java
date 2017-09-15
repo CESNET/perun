@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
@@ -70,6 +71,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	final Group group5 = new Group("GroupsManagerTestGroup5","testovaci5");
 	final Group group6 = new Group("GroupsManagerTestGroup6","testovaci6");
 	final Group group7 = new Group("GroupsManagerTestGroup7","testovaci7");
+	final Group group8 = new Group("GroupsManagerTestGroup8","testovaci8");
 
 	private Vo vo;
 	private List<Attribute> attributesList = new ArrayList<>();
@@ -2085,6 +2087,299 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue(!oldGroups.contains(group22));
 
 		assertEquals(new HashSet<>(groups), new HashSet<>(oldGroups));
+
+	}
+
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveGroupToDiffVo() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupToDiffVo");
+
+		vo = setUpVo();
+		Vo newVo = new Vo(0, "GroupManagerTestVo2", "GMTestVo2");
+		Vo vo2 = perun.getVosManager().createVo(sess, newVo);
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo2, group2);
+
+		groupsManagerBl.moveGroup(sess , group, group2);
+
+	}
+
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveGroupAlreadyInDestination() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupAlreadyInDestination");
+
+		vo = setUpVo();
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+
+		groupsManagerBl.moveGroup(sess , group, group2);
+
+	}
+
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveGroupAlreadyTopLevel() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupAlreadyTopLevel");
+
+		vo = setUpVo();
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+
+		groupsManagerBl.moveGroup(sess , null, group);
+
+	}
+
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveGroupSameGroups() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupSameGroups");
+
+		vo = setUpVo();
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+
+		groupsManagerBl.moveGroup(sess , group2, group2);
+
+	}
+
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveGroupNullMoving() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupNullMoving");
+
+		vo = setUpVo();
+		perun.getGroupsManager().createGroup(sess, vo, group);
+
+		groupsManagerBl.moveGroup(sess , group, null);
+
+	}
+
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveGroupToSubGroup() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupToSubGroup");
+
+		vo = setUpVo();
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+
+		groupsManagerBl.moveGroup(sess , group2, group);
+
+	}
+
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveGroupCreateCycle() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupCreateCycle");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+
+		perun.getGroupsManager().createGroupUnion(sess, group2, group);
+		perun.getGroupsManager().createGroupUnion(sess, group3, group2);
+
+		groupsManagerBl.moveGroup(sess , group, group3);
+	}
+
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveGroupToMembersGroup() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupToMembersGroup");
+
+		vo = setUpVo();
+		perun.getGroupsManager().createGroup(sess, vo, group);
+
+		groupsManagerBl.moveGroup(sess , perun.getGroupsManager().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP), group);
+	}
+
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveMembersGroup() throws Exception {
+		System.out.println(CLASS_NAME + "moveMembersGroup");
+
+		vo = setUpVo();
+		perun.getGroupsManager().createGroup(sess, vo, group);
+
+		groupsManagerBl.moveGroup(sess, group, perun.getGroupsManager().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP));
+	}
+
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveGroupUniqueName() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupUniqueName");
+
+		vo = setUpVo();
+
+		Group groupSameNameAs4 = new Group("GroupsManagerTestGroup4", "testovaci4");
+		perun.getGroupsManager().createGroup(sess, vo, groupSameNameAs4);
+
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+
+		perun.getGroupsManager().createGroup(sess, group3, group4);
+		perun.getGroupsManager().createGroup(sess, group4, group5);
+
+		groupsManagerBl.moveGroup(sess, null, group4);
+	}
+
+	@Test
+	public void moveGroup() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroup");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+		perun.getGroupsManager().createGroup(sess, group3, group4);
+		perun.getGroupsManager().createGroup(sess, group4, group5);
+		perun.getGroupsManager().createGroup(sess, group4, group6);
+		perun.getGroupsManager().createGroup(sess, group5, group7);
+		perun.getGroupsManager().createGroup(sess, group6, group8);
+
+		groupsManagerBl.moveGroup(sess, group2, group4);
+
+		assertTrue("group4 has different parent id than group2 id", group2.getId() == groupsManager.getGroupById(sess, group4.getId()).getParentGroupId());
+
+		assertEquals("Group4 has wrong name after moving", "GroupsManagerTestGroup1:GroupsManagerTestGroup2:GroupsManagerTestGroup4", groupsManager.getGroupById(sess, group4.getId()).getName());
+		assertEquals("Group5 has wrong name after moving", "GroupsManagerTestGroup1:GroupsManagerTestGroup2:GroupsManagerTestGroup4:GroupsManagerTestGroup5", groupsManager.getGroupById(sess, group5.getId()).getName());
+		assertEquals("Group6 has wrong name after moving", "GroupsManagerTestGroup1:GroupsManagerTestGroup2:GroupsManagerTestGroup4:GroupsManagerTestGroup6", groupsManager.getGroupById(sess, group6.getId()).getName());
+		assertEquals("Group7 has wrong name after moving", "GroupsManagerTestGroup1:GroupsManagerTestGroup2:GroupsManagerTestGroup4:GroupsManagerTestGroup5:GroupsManagerTestGroup7", groupsManager.getGroupById(sess, group7.getId()).getName());
+		assertEquals("Group8 has wrong name after moving", "GroupsManagerTestGroup1:GroupsManagerTestGroup2:GroupsManagerTestGroup4:GroupsManagerTestGroup6:GroupsManagerTestGroup8", groupsManager.getGroupById(sess, group8.getId()).getName());
+
+		List<Group> subGroups = groupsManager.getAllSubGroups(sess, group3);
+		assertEquals("Group3 cannot has subGroups after moving group4 structure", 0, subGroups.size());
+
+		subGroups = groupsManager.getAllSubGroups(sess, group2);
+		assertEquals("Group2 subGroups size has to be 5", 5, subGroups.size());
+	}
+
+	@Test
+	public void moveGroupNullDestination() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupNullDestination");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+		perun.getGroupsManager().createGroup(sess, group3, group4);
+		perun.getGroupsManager().createGroup(sess, group4, group5);
+		perun.getGroupsManager().createGroup(sess, group4, group6);
+		perun.getGroupsManager().createGroup(sess, group5, group7);
+		perun.getGroupsManager().createGroup(sess, group6, group8);
+
+		groupsManagerBl.moveGroup(sess, null, group4);
+
+		assertTrue("group4 doesn't have null parent id ", groupsManager.getGroupById(sess, group4.getId()).getParentGroupId() == null);
+
+		assertEquals("Group4 has wrong name after moving", "GroupsManagerTestGroup4", groupsManager.getGroupById(sess, group4.getId()).getName());
+		assertEquals("Group5 has wrong name after moving", "GroupsManagerTestGroup4:GroupsManagerTestGroup5", groupsManager.getGroupById(sess, group5.getId()).getName());
+		assertEquals("Group6 has wrong name after moving", "GroupsManagerTestGroup4:GroupsManagerTestGroup6", groupsManager.getGroupById(sess, group6.getId()).getName());
+		assertEquals("Group7 has wrong name after moving", "GroupsManagerTestGroup4:GroupsManagerTestGroup5:GroupsManagerTestGroup7", groupsManager.getGroupById(sess, group7.getId()).getName());
+		assertEquals("Group8 has wrong name after moving", "GroupsManagerTestGroup4:GroupsManagerTestGroup6:GroupsManagerTestGroup8", groupsManager.getGroupById(sess, group8.getId()).getName());
+
+		List<Group> subGroups = groupsManager.getAllSubGroups(sess, group3);
+		assertEquals("Group3 cannot has subGroups after moving group4 structure", 0, subGroups.size());
+	}
+
+	@Test
+	public void moveTopLevelGroup() throws Exception {
+		System.out.println(CLASS_NAME + "moveTopLevelGroup");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+		perun.getGroupsManager().createGroup(sess, group3, group4);
+		perun.getGroupsManager().createGroup(sess, vo, group5);
+
+		groupsManagerBl.moveGroup(sess, group5, group3);
+
+		assertEquals("Group4 has wrong name after moving", "GroupsManagerTestGroup5:GroupsManagerTestGroup3:GroupsManagerTestGroup4", groupsManager.getGroupById(sess, group4.getId()).getName());
+	}
+
+	@Test
+	public void moveGroupIndirectMembers() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupIndirectMembers");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+		perun.getGroupsManager().createGroup(sess, group3, group4);
+		perun.getGroupsManager().createGroup(sess, group4, group5);
+		perun.getGroupsManager().createGroup(sess, group4, group6);
+		perun.getGroupsManager().createGroup(sess, group5, group7);
+		perun.getGroupsManager().createGroup(sess, group6, group8);
+
+		Member member1 = setUpMember(vo);
+		Member member2 = setUpMember(vo);
+		Member member3 = setUpMember(vo);
+		Member member4 = setUpMember(vo);
+		Member member5 = setUpMember(vo);
+
+		groupsManagerBl.addMember(sess, group2, member1);
+		groupsManagerBl.addMember(sess, group3, member2);
+		groupsManagerBl.addMember(sess, group4, member3);
+		groupsManagerBl.addMember(sess, group5, member4);
+		groupsManagerBl.addMember(sess, group6, member5);
+
+		groupsManagerBl.moveGroup(sess, group2, group4);
+
+		List<Member> members = groupsManagerBl.getGroupMembers(sess, group3);
+		assertEquals("Indirect members have to be moved from group3", 1, members.size());
+
+		members = groupsManagerBl.getGroupMembers(sess, group2);
+		assertEquals("Indirect members have to be moved to group2", 4, members.size());
+
+		members = groupsManagerBl.getGroupMembers(sess, group);
+		assertEquals("Indirect members have to be moved to group", 4, members.size());
+
+	}
+
+	@Test
+	public void moveTopLevelGroupIndirectMembers() throws Exception {
+		System.out.println(CLASS_NAME + "moveTopLevelGroupIndirectMembers");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+		perun.getGroupsManager().createGroup(sess, group3, group4);
+
+		Member member1 = setUpMember(vo);
+		Member member2 = setUpMember(vo);
+		Member member3 = setUpMember(vo);
+
+		groupsManagerBl.addMember(sess, group2, member1);
+		groupsManagerBl.addMember(sess, group3, member2);
+		groupsManagerBl.addMember(sess, group4, member3);
+
+		groupsManagerBl.moveGroup(sess, group2, group3);
+
+		List<Member> members = groupsManagerBl.getGroupMembers(sess, group);
+		assertEquals("Indirect members have to be moved to group", 3, members.size());
+
+	}
+
+	@Test
+	public void moveGroupIndirectMembersNullDestination() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupIndirectMembersNullDestination");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+		perun.getGroupsManager().createGroup(sess, group3, group4);
+
+		Member member1 = setUpMember(vo);
+		Member member2 = setUpMember(vo);
+		Member member3 = setUpMember(vo);
+
+		groupsManagerBl.addMember(sess, group3, member1);
+		groupsManagerBl.addMember(sess, group4, member2);
+		groupsManagerBl.addMember(sess, group4, member3);
+
+		groupsManagerBl.moveGroup(sess, null, group4);
+
+		List<Member> members = groupsManagerBl.getGroupMembers(sess, group3);
+		assertEquals("Indirect members have to be removed from group3", 1, members.size());
 
 	}
 

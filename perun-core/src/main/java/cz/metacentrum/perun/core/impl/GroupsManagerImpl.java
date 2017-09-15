@@ -232,6 +232,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			}
 			dbGroup.setDescription(group.getDescription());
 		}
+
 		return dbGroup;
 	}
 
@@ -255,6 +256,32 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 				throw new InternalErrorException(e);
 			}
 		}
+		return dbGroup;
+	}
+
+	public Group updateParentGroupId(PerunSession sess, Group group) throws InternalErrorException {
+		Utils.notNull(group, "group");
+
+		// Get the group stored in the DB
+		Group dbGroup;
+		try {
+			dbGroup = this.getGroupById(sess, group.getId());
+		} catch (GroupNotExistsException e) {
+			throw new InternalErrorException("Group existence was checked at the higher level",e);
+		}
+
+		//check if group parent id was changed to another id or to null
+		if ((group.getParentGroupId() != null && !group.getParentGroupId().equals(dbGroup.getParentGroupId())) ||
+				(group.getParentGroupId() == null && dbGroup.getParentGroupId() != null)) {
+			dbGroup.setParentGroupId(group.getParentGroupId());
+			try {
+				jdbc.update("update groups set parent_group_id=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", dbGroup.getParentGroupId(),
+						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), dbGroup.getId());
+			} catch (RuntimeException e) {
+				throw new InternalErrorException(e);
+			}
+		}
+
 		return dbGroup;
 	}
 

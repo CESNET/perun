@@ -154,6 +154,29 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().updateGroup(sess, group);
 	}
 
+	public void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException{
+		Utils.checkPerunSession(sess);
+
+		getGroupsManagerBl().checkGroupExists(sess, movingGroup);
+		//if destination group is null, moving group will be moved as top level group
+		if(destinationGroup != null){
+			getGroupsManagerBl().checkGroupExists(sess, destinationGroup);
+
+			// Authorization (destination group is not null)
+			if ((!AuthzResolver.isAuthorized(sess, Role.VOADMIN, movingGroup) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, movingGroup)) ||
+					(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, destinationGroup) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, destinationGroup))) {
+				throw new PrivilegeException(sess, "moveGroup");
+			}
+		} else {
+			// Authorization (destination group is null)
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, movingGroup)) {
+				throw new PrivilegeException(sess, "moveGroup");
+			}
+		}
+
+		getGroupsManagerBl().moveGroup(sess, destinationGroup, movingGroup);
+	}
+
 	public Group getGroupById(PerunSession sess, int id) throws GroupNotExistsException, InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
