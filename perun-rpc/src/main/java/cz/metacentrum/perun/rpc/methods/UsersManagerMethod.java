@@ -263,18 +263,18 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		 * Get All richUsers with or without specificuSers with selected attributes.
-		 *
-		 * @param attrsNames List<String> list of attributes name
-		 * @param includedSpecificUsers boolean if you want to or don't want to get specificUsers too
-		 * @return List<RichUser> list of RichUsers
-		 */
+	 * Get All richUsers with or without specificUsers with selected attributes.
+	 *
+	 * @param attrsNames List<String> list of attributes name
+	 * @param includedSpecificUsers boolean if you want to or don't want to get specificUsers too
+	 * @return List<RichUser> list of RichUsers
+	 */
 	/*#
-		 * Get All richUsers with or without specificUsers with all included attributes.
-		 *
-		 * @param includedSpecificUsers boolean if you want to or don't want to get specificUsers too
-		 * @return List<RichUser> list of RichUsers
-		 */
+	 * Get All richUsers with or without specificUsers with all included attributes.
+	 *
+	 * @param includedSpecificUsers boolean if you want to or don't want to get specificUsers too
+	 * @return List<RichUser> list of RichUsers
+	 */
 	getRichUsersWithAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -291,12 +291,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		 * Returns list of RichUsers with attributes who matches the searchString
-		 *
-		 * @param searchString String searched string
-		 * @param attrNames List<String> list of attributes name
-		 * @return List<RichUser> list of RichUsers
-		 */
+	 * Returns list of RichUsers with attributes who matches the searchString
+	 *
+	 * @param searchString String searched string
+	 * @param attrsNames List<String> list of attributes name
+	 * @return List<RichUser> list of RichUsers
+	 */
 	findRichUsersWithAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -314,11 +314,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		 * Returns list of RichUsers which are not members of any VO and with selected attributes
-		 *
-		 * @param attrNames List<String> list of attributes name
-		 * @return List<RichUser> list of RichUsers
-		 */
+	 * Returns list of RichUsers which are not members of any VO and with selected attributes
+	 *
+	 * @param attrsNames List<String> list of attributes name
+	 * @return List<RichUser> list of RichUsers
+	 */
 	getRichUsersWithoutVoWithAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -333,12 +333,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		 * Return list of RichUsers who matches the searchString and are not member in specific VO and with selected attributes.
-		 *
-		 * @param vo VO virtual organization
-		 * @param searchString String searched string
-		 * @param attrsName List<String> list of attributes name
-		 * @return List<RichUser> list of RichUsers
+	 * Return list of RichUsers who matches the searchString and are not member in specific VO and with selected attributes.
+	 *
+	 * @param vo VO virtual organization
+	 * @param searchString String searched string
+	 * @param attrsName List<String> list of attributes name
+	 * @return List<RichUser> list of RichUsers
 	 */
 	findRichUsersWithoutSpecificVoWithAttributes {
 		@Override
@@ -575,10 +575,10 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
-		 *
-		 * @param searchString String searched string
-		 * @return List<RichUser> list of RichUsers
+	 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
+	 *
+	 * @param searchString String searched string
+	 * @return List<RichUser> list of RichUsers
 	 */
 	findRichUsers {
 

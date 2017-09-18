@@ -15,9 +15,9 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.cabinetManager.CreateAuthorship;
-import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
+import cz.metacentrum.perun.webgui.json.cabinetManager.FindNewAuthors;
+import cz.metacentrum.perun.webgui.model.Author;
 import cz.metacentrum.perun.webgui.model.Publication;
-import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.CabinetTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
@@ -51,7 +51,7 @@ public class AddAuthorTabItem implements TabItem, TabItemWithUrl {
 	 */
 	private Label titleWidget = new Label("Add author");
 	private String searchString = "";
-	private FindCompleteRichUsers users;
+	private FindNewAuthors users;
 	private Publication publication;
 	private JsonCallbackEvents events;
 	private int publicationId;
@@ -101,9 +101,10 @@ public class AddAuthorTabItem implements TabItem, TabItemWithUrl {
 
 	public Widget draw() {
 
+
 		titleWidget.setText("Add author");
 
-		this.users = new FindCompleteRichUsers("", null);
+		this.users = new FindNewAuthors("");
 
 		// MAIN TAB PANEL
 		VerticalPanel firstTabPanel = new VerticalPanel();
@@ -118,15 +119,15 @@ public class AddAuthorTabItem implements TabItem, TabItemWithUrl {
 		TabMenu tabMenu = new TabMenu();
 
 		// get the table
-		final CellTable<User> table;
+		final CellTable<Author> table;
 		if (session.isPerunAdmin()) {
-			table = users.getTable(new FieldUpdater<User, String>() {
-				public void update(int index, User object, String value) {
-					session.getTabManager().addTab(new UserDetailTabItem(object));
+			table = users.getEmptyTable(new FieldUpdater<Author, String>() {
+				public void update(int index, Author object, String value) {
+					session.getTabManager().addTab(new UserDetailTabItem(object.getId()));
 				}
 			});
 		} else {
-			table = users.getTable();
+			table = users.getEmptyTable();
 		}
 
 		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add selected user(s) as author(s) of publication: " + publication.getTitle());
@@ -140,11 +141,11 @@ public class AddAuthorTabItem implements TabItem, TabItemWithUrl {
 		addButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				ArrayList<User> list = users.getTableSelectedList();
+				ArrayList<Author> list = users.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
 					// proceed
 					for (int i=0; i<list.size(); i++ ) {
-						final String name = list.get(i).getFullNameWithTitles();
+						final String name = list.get(i).getDisplayName();
 						// add name events
 						JsonCallbackEvents authorshipEvents = new JsonCallbackEvents(){
 							public void onFinished(JavaScriptObject jso){

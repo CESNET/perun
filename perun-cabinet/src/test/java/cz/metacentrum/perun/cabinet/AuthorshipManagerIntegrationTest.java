@@ -157,7 +157,7 @@ public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest
 	public void getAuthorsByPublicationIdTest() throws Exception {
 		System.out.println("AuthorshipManagerIntegrationTest.getAuthorsByPublicationIdTest");
 
-		List<Author> list = getCabinetManager().getAuthorsByPublicationId(publicationOne.getId());
+		List<Author> list = getCabinetManager().getAuthorsByPublicationId(sess, publicationOne.getId());
 		assertTrue("Returned authorships shouldn't be null.", list != null);
 		assertTrue("There should be exactly 2 authors for publicationOne.", list.size() == 2);
 

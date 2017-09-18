@@ -184,7 +184,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	findAuthorsByPublicationId {
 		public List<Author> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getCabinetManager().getAuthorsByPublicationId(parms.readInt("id"));
+			return ac.getCabinetManager().getAuthorsByPublicationId(ac.getSession(), parms.readInt("id"));
 		}
 	},
 
@@ -195,7 +195,20 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	findAllAuthors {
 		public List<Author> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getCabinetManager().getAllAuthors();
+			return ac.getCabinetManager().getAllAuthors(ac.getSession());
+		}
+	},
+
+	/*#
+	 * Find new Authors for Publication. Empty list of none found. Used by users to search for colleagues
+	 * to add them as co-authors.
+	 *
+	 * @param searchString String Search string to find new Authors by
+	 * @return List<Author> List of new possible Authors for Publication. Empty list of none found.
+	 */
+	findNewAuthors {
+		public List<Author> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getCabinetManager().findNewAuthors(ac.getSession(), parms.readString("searchString"));
 		}
 	},
 

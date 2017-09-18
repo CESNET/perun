@@ -538,7 +538,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * @return List<RichMember> List of richMembers with specific attributes from Group
  	 */
 	/*#
-	 * Get all RichMembers with attributes specific for list of attrNames.
+	 * Get all RichMembers with attributes specific for list of attrsNames.
 	 * Attributes are defined by member (user) and resource (facility) objects.
 	 * It returns also user-facility (in userAttributes of RichMember) and
 	 * member-resource (in memberAttributes of RichMember) attributes.
@@ -629,7 +629,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for vo.
  	 *
  	 * @param vo int Vo <code>id</code>
- 	 * @param attrsNames List<String> List of attrNames for selected attributes
+ 	 * @param attrsNames List<String> List of attrsNames for selected attributes
  	 * @return List<RichMember> List of RichMembers in Vo
  	 */
 	/*#
@@ -637,7 +637,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 *
  	 * @exampleParam attrsNames [ "urn:perun:user:attribute-def:def:preferredMail" , "urn:perun:member:attribute-def:def:mail" ]
  	 * @param group int Group <code>id</code>
- 	 * @param attrsNames List<String> List of attrNames for selected attributes
+ 	 * @param attrsNames List<String> List of attrsNames for selected attributes
  	 * @return List<RichMember> List of RichMembers in Group
  	 */
 	getRichMembersWithAttributesByNames {
