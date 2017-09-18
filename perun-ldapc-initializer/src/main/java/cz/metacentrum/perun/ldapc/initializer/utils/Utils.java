@@ -333,6 +333,8 @@ public class Utils {
 			Attribute attrPreferredMail = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
 			Attribute attrOrganization = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":organization");
 			Attribute attrVirtCertDNs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
+			Attribute attrSchacHomeOrganizations = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":schacHomeOrganizations");
+			Attribute attrEduPersonScopedAffiliations = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonScopedAffiliations");
 			Attribute attrLibraryIDs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs");
 			Attribute attrPhone = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":phone");
 			perunUserId+= String.valueOf(user.getId());
@@ -389,6 +391,24 @@ public class Utils {
 			if(certSubjectsWithoutPrefix != null && !certSubjectsWithoutPrefix.isEmpty()) {
 				for(String s: certSubjectsWithoutPrefix) {
 					writer.write("userCertificateSubject: " + s + '\n');
+				}
+			}
+			List<String> schacHomeOrganizations = new ArrayList<>();
+			if(attrSchacHomeOrganizations.getValue() != null) {
+				schacHomeOrganizations = (ArrayList) attrSchacHomeOrganizations.getValue();
+			}
+			if(schacHomeOrganizations != null && !schacHomeOrganizations.isEmpty()) {
+				for(String organization : schacHomeOrganizations) {
+					writer.write("schacHomeOrganizations: " + organization + '\n');
+				}
+			}
+			List<String> eduPersonScopedAffiliations = new ArrayList<>();
+			if(attrEduPersonScopedAffiliations.getValue() != null) {
+				eduPersonScopedAffiliations = (ArrayList) attrEduPersonScopedAffiliations.getValue();
+			}
+			if(eduPersonScopedAffiliations != null && !eduPersonScopedAffiliations.isEmpty()) {
+				for(String affiliation : eduPersonScopedAffiliations) {
+					writer.write("eduPersonScopedAffiliations: " + affiliation + '\n');
 				}
 			}
 			List<String> libraryIDs = new ArrayList<>();

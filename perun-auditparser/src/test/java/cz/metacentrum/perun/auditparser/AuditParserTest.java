@@ -30,7 +30,7 @@ public class AuditParserTest {
 	private final User user = new User(5, textMismatch,textMismatch, textMismatch, textMismatch, textMismatch, false, false);
 	private final ExtSource extSource = new ExtSource(9, textMismatch, textMismatch);
 	private final UserExtSource userExtSource1 = new UserExtSource(12, extSource, textMismatch, user.getId(), 133);
-	private final UserExtSource userExtSource2 = new UserExtSource(15, extSource, textMismatch, user.getId(), 156);
+	private final UserExtSource userExtSource2 = new UserExtSource(15, extSource, textMismatch, -1, 156);
 	private final Vo vo = new Vo(15, textMismatch, textMismatch);
 	private final Facility facility = new Facility(13, textMismatch);
 	private final Resource resource = new Resource(19, textMismatch, textMismatch, facility.getId(), vo.getId());
@@ -147,7 +147,7 @@ public class AuditParserTest {
 
 		String log2 = "RichMember:[id=<12521>, userId=<9181>, voId=<21>, status=<DISABLED>, sourceGroupId=<\\0>, sponsored=<true>, "
 			+ "user=<User:[id=<9181>,titleBefore=<null>,firstName=<Gracian>,lastName=<Tejral>,middleName=<null>,titleAfter=<null>]>, "
-			+ "userExtSources=<[UserExtSource:[id=<13621>, login=<8087>, source=<ExtSource:[id=<2>, name=<PERUNPEOPLE>, type=<cz.metacentrum.perun.core.impl.ExtSourceSql>]>, loa=<0>]]>, "
+			+ "userExtSources=<[UserExtSource:[id=<13621>, login=<8087>, source=<ExtSource:[id=<2>, name=<PERUNPEOPLE>, type=<cz.metacentrum.perun.core.impl.ExtSourceSql>]>, userId=<-1> loa=<0>]]>, "
 			+ "userAttributes=<[Attribute:[id=<800>, friendlyName=<kerberosLogins>, namespace=<urn:perun:user:attribute-def:def>, type=<java.util.ArrayList>, value=<[tejral@META, tejral@EINFRA]>], "
 			+ "Attribute:[id=<49>, friendlyName=<id>, namespace=<urn:perun:user:attribute-def:core>, type=<java.lang.Integer>, value=<9181>], "
 			+ "Attribute:[id=<50>, friendlyName=<firstName>, namespace=<urn:perun:user:attribute-def:core>, type=<java.lang.String>, value=<Gracian>], "

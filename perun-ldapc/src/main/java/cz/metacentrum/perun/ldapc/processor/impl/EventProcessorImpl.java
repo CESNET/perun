@@ -480,29 +480,49 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 					}
 					//USER CERT DNS WILL BE SET (special method for updating)
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
-					Map<String, String> certDNsMap = new HashMap<String, String>();
-					if(this.attribute.getValue() != null) certDNsMap = (Map) this.attribute.getValue();
-					else certDNsMap = null;
+					Map<String, String> certDNsMap = (this.attribute.getValue() != null) ? (Map) this.attribute.getValue() : null;
 
-					if(certDNsMap == null || certDNsMap.isEmpty()) {
-						if(ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
+					if (certDNsMap == null || certDNsMap.isEmpty()) {
+						if (ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
 							updateUserAttribute("userCertificateSubject", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					} else {
-						Set<String> certSubjectsWithPrefixes =((Map) this.attribute.getValue()).keySet();
+						Set<String> certSubjectsWithPrefixes = ((Map) this.attribute.getValue()).keySet();
 						Set<String> certSubjectsWithoutPrefixes = new HashSet<>();
 						//remove prefixes from certificates
-						for(String key: certSubjectsWithPrefixes) {
+						for (String key : certSubjectsWithPrefixes) {
 							certSubjectsWithoutPrefixes.add(key.replaceFirst("^[0-9]+[:]", ""));
 						}
 						String[] subjectsArray = Arrays.copyOf(certSubjectsWithoutPrefixes.toArray(), certSubjectsWithoutPrefixes.toArray().length, String[].class);
 						ldapConnector.updateUsersCertSubjects(String.valueOf(this.user.getId()), subjectsArray);
 					}
+				//USER SCHAC HOME ORGANIZATIONS WILL BE SET (special method for updating)
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":schacHomeOrganizations")) {
+					List<String> shacHomeOrganizationsList = (this.attribute.getValue() != null) ? (ArrayList) this.attribute.getValue() : null;
+
+					if(shacHomeOrganizationsList == null || shacHomeOrganizationsList.isEmpty()) {
+						if(ldapConnector.userAttributeExist(this.user, "shacHomeOrganizations")) {
+							updateUserAttribute("shacHomeOrganizations", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						}
+					} else {
+						String[] subjectsArray = Arrays.copyOf(shacHomeOrganizationsList.toArray(), shacHomeOrganizationsList.toArray().length, String[].class);
+						ldapConnector.updateUsersShacHomeOrganizations(String.valueOf(this.user.getId()), subjectsArray);
+					}
+				//USER EDU PERSON SPCOPED AFFILIATIONS WILL BE SET (special method for updating)
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonScopedAffiliations")) {
+					List<String> eduPersonScopedAffiliationsList = (this.attribute.getValue() != null) ? (ArrayList) this.attribute.getValue() : null;
+
+					if(eduPersonScopedAffiliationsList == null || eduPersonScopedAffiliationsList.isEmpty()) {
+						if(ldapConnector.userAttributeExist(this.user, "eduPersonScopedAffiliations")) {
+							updateUserAttribute("eduPersonScopedAffiliations", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						}
+					} else {
+						String[] subjectsArray = Arrays.copyOf(eduPersonScopedAffiliationsList.toArray(), eduPersonScopedAffiliationsList.toArray().length, String[].class);
+						ldapConnector.updateUsersEduPersonScopedAffiliations(String.valueOf(this.user.getId()), subjectsArray);
+					}
 				//USER LIBRARY IDs WILL BE SET (special method for updating)
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs")) {
-					List<String> libraryIDsList = new ArrayList<>();
-					if(this.attribute.getValue() != null) libraryIDsList = (ArrayList) this.attribute.getValue();
-					else libraryIDsList = null;
+					List<String> libraryIDsList = (this.attribute.getValue() != null) ? (ArrayList) this.attribute.getValue() : null;
 
 					if(libraryIDsList == null || libraryIDsList.isEmpty()) {
 						if(ldapConnector.userAttributeExist(this.user, "libraryIDs")) {
@@ -569,6 +589,14 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
 					if(ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
 						updateUserAttribute("userCertificateSubject", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					}
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonScopedAffiliations")) {
+					if(ldapConnector.userAttributeExist(this.user, "eduPersonScopedAffiliations")) {
+						updateUserAttribute("eduPersonScopedAffiliations", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					}
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":schacHomeOrganizations")) {
+					if(ldapConnector.userAttributeExist(this.user, "schacHomeOrganizations")) {
+						updateUserAttribute("schacHomeOrganizations", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs")) {
 					if(ldapConnector.userAttributeExist(this.user, "libraryIDs")) {
@@ -724,6 +752,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		nonOptionalAttributes.add("preferredMail");
 		nonOptionalAttributes.add("o");
 		nonOptionalAttributes.add("userCertificateSubject");
+		nonOptionalAttributes.add("schacHomeOrganizations");
+		nonOptionalAttributes.add("eduPersonScopedAffiliations");
 		nonOptionalAttributes.add("libraryIDs");
 		if(nonOptionalAttributes.contains(attributeName)) return true;
 

@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
@@ -996,6 +997,44 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 		}
 
+	}
+
+	public User getUserFromMessage(PerunSessionImpl sess, String message) throws InternalErrorException {
+		List<PerunBean> perunBeans = AuditParser.parseLog(message);
+
+		User user = null;
+		UserExtSource userExtSource = null;
+		Member member = null;
+
+		for(PerunBean perunBean: perunBeans) {
+			if(perunBean instanceof User) {
+				user = (User) user;
+				break;
+			} else if (perunBean instanceof UserExtSource && userExtSource == null) {
+				userExtSource = (UserExtSource) perunBean;
+			} else if (perunBean instanceof Member && member == null) {
+				member = (Member) perunBean;
+			}
+		}
+
+		//if we don't have object user, try to parse user id from userExtSource (-1 means no userId was defined)
+		if(user == null && userExtSource != null && userExtSource.getUserId() != -1) {
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserById(sess, userExtSource.getUserId());
+			} catch (UserNotExistsException ex) {
+				log.debug("User from UserExtSource {} can't be found by id in Perun. Probably not exists any more or UserExtSource was audited without proper UserId!", userExtSource);
+				return null;
+			}
+		} else if (user == null && member != null) {
+			try {
+				user = getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
+			} catch (UserNotExistsException ex) {
+				log.debug("User from Member {} can't be found by id in Perun. Probably not exists any more or Member was audited without proper UserId!", userExtSource);
+				return null;
+			}
+		}
+
+		return user;
 	}
 
 	public PerunBl getPerunBl() {

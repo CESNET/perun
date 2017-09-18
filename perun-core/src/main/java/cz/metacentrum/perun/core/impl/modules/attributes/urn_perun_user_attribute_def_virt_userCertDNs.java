@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
@@ -30,8 +31,6 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 	private final Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]");
 	private final Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]");
 	private final Pattern extSourceTypeX509 = Pattern.compile("cz.metacentrum.perun.core.impl.ExtSourceX509");
-	private final Pattern userAttributeSet = Pattern.compile("Attribute:\\[(.*)\\] set for User:\\[(.*)\\]");
-	private final Pattern userAttributeRemoved = Pattern.compile("AttributeDefinition:\\[(.*)\\] removed for User:\\[(.*)\\]");
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
@@ -72,12 +71,10 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 		Matcher extSourceTypeX509Matcher = extSourceTypeX509.matcher(message);
 		Matcher addUserExtSourceMatcher = addUserExtSource.matcher(message);
 		Matcher removeUserExtSourceMatcher = removeUserExtSource.matcher(message);
-		Matcher userAttributeSetMatcher = userAttributeSet.matcher(message);
-		Matcher userAttributeRemovedMatcher = userAttributeRemoved.matcher(message);
 
 		if(extSourceTypeX509Matcher.find()) {
 			if(addUserExtSourceMatcher.find() || removeUserExtSourceMatcher.find()) {
-				user = getUserFromMessage(message);
+				user = perunSession.getPerunBl().getModulesUtilsBl().getUserFromMessage(perunSession, message);
 				if(user != null) {
 					attrVirtUserCertDNs = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
 					String messageAttributeSet = attrVirtUserCertDNs.serializeToString() + " set for " + user.serializeToString() + ".";
@@ -97,28 +94,5 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Hash map for all users certificates DN included userExtsources type of X509.");
 		return attr;
-	}
-
-	/**
-	 * Get User from message if exists or if there is only one. In other case return null instead.
-	 *
-	 * @param message
-	 * @return user or null
-	 * @throws InternalErrorException
-	 */
-	private User getUserFromMessage(String message) throws InternalErrorException {
-		User user = null;
-		List<PerunBean> perunBeans = AuditParser.parseLog(message);
-
-		for(PerunBean pb: perunBeans) {
-			if(pb instanceof User) {
-				if(user != null) {
-					return null;
-				} else {
-					user = (User) pb;
-				}
-			}
-		}
-		return user;
 	}
 }
