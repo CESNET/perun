@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Term::ReadKey;
+use Perun::Common qw(printMessage tableToPrint);
+
+sub help {
+	return qq{
+	Adds user to VO from file with UČOs.
+	-------------------------------------
+	Available options:
+	--voId         | -v vo id (deafault MU)
+	--voShortName  | -V vo short name
+	--toGroup      | -g Id of target group (optional)
+	--toGroupName  | -G name of target group (optional)
+	--fileName     | -f filename with list of users UČOs
+	--batch        | -b batch
+	--help         | -h prints this help
+
+	};
+}
+
+our $batch;
+my ($voId,$voShortName,$groupId,$groupName,$filename);
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, 
+	"batch|b"         => \$batch,
+	"voId|v=i"        => \$voId, 
+	"voShortName|V=s" => \$voShortName,
+	"toGroup|g=i"     => \$groupId,
+	"toGroupName|G=s" => \$groupName,
+	"fileName|f=s"    => \$filename
+	) || die help();
+
+my $defaultVo=363; #MU
+
+# Check options
+unless (defined $voShortName or defined $voId ) { $voId=$defaultVo;}
+unless (defined $filename) {die "ERROR: fileName is required\n";}
+       
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+my $membersAgent = $agent->getMembersAgent;
+
+unless (defined $voId ) {
+	my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
+	$voId = $vo->getId;
+}
+
+if (!defined $groupId and defined $groupName) {
+	my $group = $groupsAgent->getGroupByName( vo => $voId, name => $groupName );
+	$groupId = $group->getId;
+}
+ 
+open UCO, $filename or die "ERROR: file $filename cannot be opened\n";
+my $lin;
+while ($lin =<UCO>) {
+	chomp $lin;
+	if ( $lin !~ /^\d+$/) { warn "WARNING: UČO is not numeric\n"; next; }
+	eval {      
+	my @candidates = $vosAgent->findCandidates( 'vo' => $voId, 'searchString' => $lin);
+	unless (@candidates) { warn "WARNING: No candidates found\n"; next; }
+	my $candidate=$candidates[0]; #UCO is unique
+	my $member = $membersAgent->createMember( vo => $voId, candidate => $candidate );
+	unless (defined $member) {  warn "WARNING: Member for UČO $lin has not been created \n";}
+	$member = $membersAgent->validateMemberAsync( member => $member->getId );
+	if (defined $groupId) {
+		$groupsAgent->addMember( group => $groupId, member => $member->getId );
+	if ($! != 0) {warn "WARNING: Member for UČO $lin has not been added to group\n";}
+	}
+	};
+}
