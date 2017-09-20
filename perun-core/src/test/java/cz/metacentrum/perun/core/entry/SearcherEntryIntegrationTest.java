@@ -241,6 +241,72 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	}
 
+	@Test
+	public void getGroupsByGroupResourceSetting() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsByGroupResourceSetting");
+
+		Facility facility = new Facility(0, "testName01", "testName01");
+		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
+
+		Group group1 = new Group("testName01", "testName01");
+		group1 = perun.getGroupsManagerBl().createGroup(sess, vo, group1);
+		Group group2 = new Group("testName02", "testName02");
+		group2 = perun.getGroupsManagerBl().createGroup(sess, vo, group2);
+		Group group3 = new Group("testName03", "testName03");
+		group3 = perun.getGroupsManagerBl().createGroup(sess, vo, group3);
+
+		Resource resource1 = new Resource(0, "testName01", "testName01", facility.getId(), vo.getId());
+		resource1 = perun.getResourcesManagerBl().createResource(sess,resource1, vo, facility);
+		Resource resource2 = new Resource(0, "testName02", "testName02", facility.getId(), vo.getId());
+		resource2 = perun.getResourcesManagerBl().createResource(sess,resource2, vo, facility);
+		Resource resource3 = new Resource(0, "testName03", "testName03", facility.getId(), vo.getId());
+		resource3 = perun.getResourcesManagerBl().createResource(sess,resource3, vo, facility);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource1);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group1, resource2);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource1);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource3);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group3, resource2);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group3, resource3);
+
+		Attribute groupResourceAttr01 = new Attribute(setUpGroupResourceAttribute());
+		groupResourceAttr01.setValue("VALUE01");
+		Attribute groupResourceAttr02 = new Attribute(groupResourceAttr01);
+		groupResourceAttr02.setValue("VALUE02");
+		Attribute resourceAttr01 = new Attribute(setUpResourceAttribute());
+		resourceAttr01.setValue("VALUE01");
+		Attribute resourceAttr02 = new Attribute(resourceAttr01);
+		resourceAttr02.setValue("VALUE02");
+
+		perun.getAttributesManagerBl().setAttribute(sess, resource1, resourceAttr01);
+		perun.getAttributesManagerBl().setAttribute(sess, resource2, resourceAttr02);
+		perun.getAttributesManagerBl().setAttribute(sess, resource3, resourceAttr01);
+
+		perun.getAttributesManagerBl().setAttribute(sess, resource1, group1, groupResourceAttr01);
+		perun.getAttributesManagerBl().setAttribute(sess, resource1, group2, groupResourceAttr02);
+		perun.getAttributesManagerBl().setAttribute(sess, resource2, group1, groupResourceAttr02);
+		perun.getAttributesManagerBl().setAttribute(sess, resource2, group2, groupResourceAttr01);
+		perun.getAttributesManagerBl().setAttribute(sess, resource2, group3, groupResourceAttr01);
+		perun.getAttributesManagerBl().setAttribute(sess, resource3, group2, groupResourceAttr02);
+		perun.getAttributesManagerBl().setAttribute(sess, resource3, group3, groupResourceAttr02);
+
+		List<Group> returnedGroups = perun.getSearcherBl().getGroupsByGroupResourceSetting(sess, groupResourceAttr01, resourceAttr01);
+		assertEquals(1, returnedGroups.size());
+		assertTrue(returnedGroups.contains(group1));
+		returnedGroups = perun.getSearcherBl().getGroupsByGroupResourceSetting(sess, groupResourceAttr01, resourceAttr02);
+		assertEquals(2, returnedGroups.size());
+		assertTrue(returnedGroups.contains(group2));
+		assertTrue(returnedGroups.contains(group3));
+		returnedGroups = perun.getSearcherBl().getGroupsByGroupResourceSetting(sess, groupResourceAttr02, resourceAttr01);
+		assertEquals(2, returnedGroups.size());
+		assertTrue(returnedGroups.contains(group2));
+		assertTrue(returnedGroups.contains(group3));
+		returnedGroups = perun.getSearcherBl().getGroupsByGroupResourceSetting(sess, groupResourceAttr02, resourceAttr02);
+		assertEquals(1, returnedGroups.size());
+		assertTrue(returnedGroups.contains(group1));
+	}
+
 	// PRIVATE METHODS -----------------------------------------------------------
 
 	private void setUpUser1() throws Exception {
@@ -368,4 +434,25 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	}
 
+	private AttributeDefinition setUpResourceAttribute() throws Exception {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace("urn:perun:resource:attribute-def:def");
+		attr.setFriendlyName("testingAttribute01");
+		attr.setType(String.class.getName());
+		attr.setDisplayName("Testing attribute1");
+		attr.setDescription("Testing attribute1");
+
+		return perun.getAttributesManager().createAttribute(sess, attr);
+	}
+
+	private AttributeDefinition setUpGroupResourceAttribute() throws Exception {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace("urn:perun:group_resource:attribute-def:def");
+		attr.setFriendlyName("testingAttribute02");
+		attr.setType(String.class.getName());
+		attr.setDisplayName("Testing attribute2");
+		attr.setDescription("Testing attribute2");
+
+		return perun.getAttributesManager().createAttribute(sess, attr);
+	}
 }

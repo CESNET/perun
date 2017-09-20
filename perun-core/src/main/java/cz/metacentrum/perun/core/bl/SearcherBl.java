@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
@@ -84,4 +85,18 @@ public interface SearcherBl {
 	 */
 	List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date) throws InternalErrorException;
 
+	/**
+	 * Return all groups assigned to any resource with following conditions:
+	 * 1] resource has set "resourceAttribute" attribute with same value
+	 * 2] group and resource has set "groupResourceAttribute" attribute with same value
+	 * Attribute values can't be empty.
+	 * If there is no such group, return empty array.
+	 *
+	 * @param sess
+	 * @param groupResourceAttribute expected attribute set between a group and a resource (group need to be assigned to the resource)
+	 * @param resourceAttribute expected attribute set for assigned resource
+	 * @return list of groups with following conditions
+	 * @throws InternalErrorException if any of attributes is null or has empty value, if any of attributes is not in expected namespace
+	 */
+	List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute) throws InternalErrorException;
 }

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
@@ -180,6 +181,23 @@ public class SearcherImpl implements SearcherImplApi {
 			throw new InternalErrorException(e);
 		}
 
+	}
+
+	@Override
+	public List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute) throws InternalErrorException {
+		try {
+			return jdbcTemplate.query("select  " + GroupsManagerImpl.groupMappingSelectQuery + " from groups where groups.id in ( " +
+							"select distinct gr.group_id from groups_resources gr " +
+							"join group_resource_attr_values grav on gr.group_id=grav.group_id and gr.resource_id=grav.resource_id " +
+							"join resource_attr_values rav on gr.resource_id=rav.resource_id " +
+							"where rav.attr_id=? and grav.attr_id=? and rav.attr_value=? and grav.attr_value=?)", GroupsManagerImpl.GROUP_MAPPER,
+					resourceAttribute.getId(), groupResourceAttribute.getId(), resourceAttribute.getValue(), groupResourceAttribute.getValue());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Group>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+
+		}
 	}
 
 }

@@ -2,7 +2,8 @@ package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
@@ -89,6 +90,21 @@ public class SearcherBlImpl implements SearcherBl {
 	@Override
 	public List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date) throws InternalErrorException {
 		return getSearcherImpl().getMembersByExpiration(sess, operator, date, 0);
+	}
+
+	@Override
+	public List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute) throws InternalErrorException {
+		if(groupResourceAttribute == null || groupResourceAttribute.getValue() == null || resourceAttribute == null || groupResourceAttribute == null) {
+			throw new InternalErrorException("Can't find groups by attributes with null value.");
+		}
+		if(!groupResourceAttribute.getNamespace().equals(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF)) {
+			throw new InternalErrorException("Group-resource attribute need to be in group-resource-def namespace! - " + groupResourceAttribute);
+		}
+		if(!resourceAttribute.getNamespace().equals(AttributesManager.NS_RESOURCE_ATTR_DEF)) {
+			throw new InternalErrorException("Resource attribute need to be in resource-def namespace!" + resourceAttribute);
+		}
+
+		return getSearcherImpl().getGroupsByGroupResourceSetting(sess, groupResourceAttribute, resourceAttribute);
 	}
 
 	/**
