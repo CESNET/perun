@@ -1021,9 +1021,18 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF)) {  // necessary when adding new owners to service accounts
-			throw new PrivilegeException(sess, "findRichUsersWithAttributes");
+				!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN)){
+
+			if (AuthzResolver.isAuthorized(sess, Role.SELF)) {
+				// necessary when adding new owners to service accounts
+				List<User> serviceIdentities = getPerunBl().getUsersManagerBl().getSpecificUsersByUser(sess, sess.getPerunPrincipal().getUser());
+				if (serviceIdentities.isEmpty()) {
+					// user isn't owner of any service identity
+					throw new PrivilegeException(sess, "findRichUsersWithAttributes");
+				}
+			} else {
+				throw new PrivilegeException(sess, "findRichUsersWithAttributes");
+			}
 		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames));
