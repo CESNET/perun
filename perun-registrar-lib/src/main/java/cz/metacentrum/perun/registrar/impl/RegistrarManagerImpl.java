@@ -881,6 +881,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			application.setUser(session.getPerunPrincipal().getUser());
 		}
 
+		// FIXME - create lock on "application type" and "user identity" to prevent multiple submission bug
+
 		// using this to init inner transaction
 		// all minor exceptions inside are catched, if not, it's ok to throw them
 		Application app = this.registrarManager.createApplicationInternal(session, application, data);
@@ -1949,9 +1951,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (group != null) {
 					// group application
 					// get registrations by user logged identity
-					regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and created_by=? and extSourceName=? and state<>?",
+					regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and created_by=? and extSourceName=? and state<>? and state<>?",
 							new SingleColumnRowMapper<Integer>(Integer.class),
-							AppType.INITIAL.toString(), vo.getId(), group.getId(), actor, extSourceName, AppState.REJECTED.toString()));
+							AppType.INITIAL.toString(), vo.getId(), group.getId(), actor, extSourceName, AppState.APPROVED.toString(), AppState.REJECTED.toString()));
 
 					if (!regs.isEmpty()) {
 						throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
@@ -1959,9 +1961,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				} else {
 					// vo application
 					// get registrations by user logged identity
-					regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and created_by=? and extSourceName=? and state<>?",
+					regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and created_by=? and extSourceName=? and state<>? and state<>?",
 							new SingleColumnRowMapper<Integer>(Integer.class),
-							AppType.INITIAL.toString(), vo.getId(), actor, extSourceName, AppState.REJECTED.toString()));
+							AppType.INITIAL.toString(), vo.getId(), actor, extSourceName, AppState.APPROVED.toString(), AppState.REJECTED.toString()));
 
 					if (!regs.isEmpty()) {
 						throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists", actor, extSourceName, regs.get(0));
