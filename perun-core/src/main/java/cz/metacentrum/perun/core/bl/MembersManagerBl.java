@@ -1328,7 +1328,7 @@ public interface MembersManagerBl {
 	 * @param asyncValidation
 	 * @return created member
 	 */
-	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor, boolean asyncValidation) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, ExtendMembershipException, GroupOperationsException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException;
+	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor, boolean asyncValidation) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, ExtendMembershipException, GroupOperationsException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException;
 
 	/**
 	 * Links sponsored member and sponsoring user.
@@ -1337,7 +1337,7 @@ public interface MembersManagerBl {
 	 * @param sponsor sponsor
 	 * @return member
 	 */
-	Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotSponsoredException;
+	Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
 	/**
 	 * Gets list of members that are sponsored by the user in the vo.

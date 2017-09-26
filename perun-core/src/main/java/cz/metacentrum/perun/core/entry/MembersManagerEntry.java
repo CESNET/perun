@@ -1029,7 +1029,7 @@ public class MembersManagerEntry implements MembersManager {
 			throws InternalErrorException, PrivilegeException, MemberNotExistsException, AlreadyMemberException,
 			LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException,
 			PasswordStrengthFailedException, GroupOperationsException, ExtendMembershipException,
-			WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException {
+			WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(vo, "vo");
 		Utils.notNull(namespace, "namespace");
@@ -1046,16 +1046,12 @@ public class MembersManagerEntry implements MembersManager {
 				throw new PrivilegeException(session, "createSponsoredMember must be called by REGISTRAR");
 			}
 		}
-		//check that sponsoring user has role SPONSOR for the VO
-		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
-			throw new PrivilegeException(session, "user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
-		}
 		//create the sponsored member
 		return membersManagerBl.getRichMember(session, membersManagerBl.createSponsoredMember(session, vo, namespace, guestName, password, sponsor, true));
 	}
 
 	@Override
-	public RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotSponsoredException {
+	public RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(sponsored, "sponsored");
 		Utils.notNull(sponsor, "sponsor");
@@ -1067,10 +1063,6 @@ public class MembersManagerEntry implements MembersManager {
 		//Check if the caller is authorised to add sponsor
 		if (!AuthzResolver.isAuthorized(session, Role.VOADMIN)) {
 			throw new PrivilegeException(session, "sponsorMember must be called by VOADMIN");
-		}
-		//check that sponsoring user has role SPONSOR for the VO
-		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
-			throw new PrivilegeException(session, "user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
 		}
 		//create the link between sponsored and sponsoring users
 		return membersManagerBl.getRichMember(session, membersManagerBl.sponsorMember(session, sponsored, sponsor));
