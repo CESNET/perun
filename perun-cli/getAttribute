@@ -12,55 +12,109 @@ sub help {
 	Prints selected attribute for an entity.
 	---------------------------------------------------
 	Available options:
-	--userId       | -u  user identifier
-	--facilityId   | -f  facility identifier
-	--memberId     | -m  member identifier
-	--resourceId   | -r  reource identifier
-	--hostId       | -h  host identifier
-	--groupId      | -g  group identifier
-	--voId         | -v  vo identifier
-	--attributeId  | -a  attribute identifier
-	--orderById    | -i  order by numeric Id
-	--orderByName  | -n  order by Name
-	--batch        | -b  batch
-	--help         | -h  prints this help
+	--userId          | -u  user identifier
+	--facilityId      | -f  facility identifier
+	--memberId        | -m  member identifier
+	--resourceId      | -r  reource identifier
+	--hostId          | -t  host identifier
+	--groupId         | -g  group identifier
+	--voId            | -v  vo identifier
+	--userExtSourceId | -x  user ext source identifier
+	--entityless      | -e  subject of entityless attribute
+	--attributeId     | -a  attribute identifier
+	--attributeName   | -A attribute name (including namespace)
+	--orderById       | -i  order by numeric Id
+	--orderByName     | -n  order by Name
+	--batch           | -b  batch
+	--help            | -h  prints this help
 	};
 }
 
-my ($userId, $facilityId, $memberId, $resourceId, $groupId, $voId, $hostId, $attributeId, $batch, $sortingFunction);
+my ($userId, $facilityId, $memberId, $resourceId, $groupId, $voId, $hostId, $entitylessSubj, $uesId,$attributeId, $attributeName, $batch, $sortingFunction);
 GetOptions("help|h"   => sub {
 		print help;
 		exit 0;
 	},
-	"userId|u=i"      => \$userId,
-	"facilityId|f=i"  => \$facilityId,
-	"memberId|m=i"    => \$memberId,
-	"resourceId|r=i"  => \$resourceId,
-	"groupId|g=i"     => \$groupId,
-	"voId|v=i"        => \$voId,
-	"hostId|h=i"      => \$hostId,
-	"attributeId|a=i" => \$attributeId,
-	"orderById|i"     => sub { $sortingFunction = getSortingFunction("getId") },
-	"orderByName|n"   => sub {$sortingFunction = getSortingFunction("getName", 1) },
-	"batch|b"         => \$batch) || die help;
+	"userId|u=i"		=> \$userId,
+	"facilityId|f=i"	=> \$facilityId,
+	"memberId|m=i"		=> \$memberId,
+	"resourceId|r=i"	=> \$resourceId,
+	"groupId|g=i"		=> \$groupId,
+	"voId|v=i"		=> \$voId,
+	"hostId|t=i"		=> \$hostId,
+	"entityless|e=s"	=> \$entitylessSubj,     
+	"userExtSourceId|x=s"	=> \$uesId,
+	"attributeId|a=i"	=> \$attributeId,
+	"attributeName|A=s"	=> \$attributeName,
+	"orderById|i"		=> sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n"		=> sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"		=> \$batch) || die help;
 
 #options check
-unless (defined $attributeId) { die "ERROR: attributeId is required\n";}
+unless (defined $attributeId or defined $attributeName) { die "ERROR: attributeId or attributeName are required\n";}
 unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
-
 my $agent = Perun::Agent->new();
-
 my $attributesAgent = $agent->getAttributesAgent;
+my $attributeDefinition;
+if (defined $attributeName and not defined $attributeId) {
+	$attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
+	$attributeId=$attributeDefinition->getId;
+}
+
+$attributeDefinition = $attributesAgent->getAttributeDefinitionById( id => $attributeId ); 
+unless (defined $userId or defined $memberId or defined $facilityId or defined $resourceId or defined $groupId or defined $voId or defined $hostId or defined $entitylessSubj or defined $uesId) {
+	warn "WARNING: Entity (user/member/facility/resource/group/vo/host/userExtSource/entityless) is required\n";
+	printMessage ("ATTRIBUTE DEFINITION:\n Id=".$attributeDefinition->getId."\n FriendlyName=".$attributeDefinition->getFriendlyName."\n Namespace=".$attributeDefinition->getNamespace."\n Description=".$attributeDefinition->getDescription."\n Type=".$attributeDefinition->getType, $batch);
+	exit;
+}
+
+if (defined $userId) {
+	if ( $attributeDefinition->getNamespace !~ /.*user.*/) { die "ERROR: wrong attribute, user attribute is needed\n"; }  
+	} 
+if (defined $memberId) {
+	if ( $attributeDefinition->getNamespace !~ /.*member.*/) { die "ERROR: wrong attribute, member attribute is needed\n"; }  
+} 
+if (defined $facilityId) { 
+	if ( $attributeDefinition->getNamespace !~ /.*facility.*/) { die "ERROR: wrong attribute, facility attribute is needed\n"; }  
+}
+if (defined $resourceId) {
+	if ( $attributeDefinition->getNamespace !~ /.*resource.*/) { die "ERROR: wrong attribute, resource attribute is needed\n"; }  
+} 
+if (defined $groupId) {
+	if ( $attributeDefinition->getNamespace !~ /.*group.*/) { die "ERROR: wrong attribute, group attribute is needed\n"; }  
+} 
+if (defined $voId) {
+	if ( $attributeDefinition->getNamespace !~ /.*vo.*/) { die "ERROR: wrong attribute, vo attribute is needed\n"; }  
+} 
+if (defined $hostId) {
+	if ( $attributeDefinition->getNamespace !~ /.*host.*/) { die "ERROR: wrong attribute, host attribute is needed\n"; }  
+} 
+if (defined $uesId) {
+	if ( $attributeDefinition->getNamespace !~ /.*ues.*/) { die "ERROR: wrong attribute, userExtSource attribute is needed\n"; }  
+} 
+if (defined $entitylessSubj) { 
+	if ( $attributeDefinition->getNamespace !~ /.*entityless.*/) { die "ERROR: wrong attribute, entityless attribute is needed\n"; }  
+}
 
 my %parameters;
-$parameters{attributeId} = $attributeId;
-defined ($userId) and $parameters{user} = $userId;
-defined ($facilityId) and $parameters{facility} = $facilityId;
-defined ($memberId) and $parameters{member} = $memberId;
-defined ($resourceId) and $parameters{resource} = $resourceId;
-defined ($groupId) and $parameters{group} = $groupId;
-defined ($voId) and $parameters{vo} = $voId;
-defined ($hostId) and $parameters{host} = $hostId;
+if (defined $entitylessSubj) {
+	unless (defined $attributeName) {
+		$attributeDefinition = $attributesAgent->getAttributeDefinitionById( id => $attributeId );
+		$attributeName=$attributeDefinition->getNamespace.':'.$attributeDefinition->getFriendlyName;
+	}
+	$parameters{attributeName}=$attributeName;
+	$parameters{key}=$entitylessSubj;
+} else {
+	$parameters{attributeId} = $attributeId;
+	defined ($userId) and $parameters{user} = $userId;
+	defined ($facilityId) and $parameters{facility} = $facilityId;
+	defined ($memberId) and $parameters{member} = $memberId;
+	defined ($resourceId) and $parameters{resource} = $resourceId;
+	defined ($groupId) and $parameters{group} = $groupId;
+	defined ($voId) and $parameters{vo} = $voId;
+	defined ($hostId) and $parameters{host} = $hostId;
+	defined ($uesId) and $parameters{userExtSource} = $uesId;
+}
 
 my @attributes = $attributesAgent->getAttribute( %parameters );
 
