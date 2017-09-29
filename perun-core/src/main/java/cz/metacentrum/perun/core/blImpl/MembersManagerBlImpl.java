@@ -2213,7 +2213,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor, boolean asyncValidation) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, ExtendMembershipException, GroupOperationsException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException {
+	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor, boolean asyncValidation) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, ExtendMembershipException, GroupOperationsException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException {
+		//check that sponsoring user has role SPONSOR for the VO
+		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
+			throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
+		}
 		String loginAttributeName = PasswordManagerModule.LOGIN_PREFIX + namespace;
 		//create new user
 		User sponsoredUser = getPerunBl().getUsersManagerBl().createUser(session,parseUserFromCommonName(guestName));
@@ -2256,10 +2260,21 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotSponsoredException {
+	public Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
+		//check that sponsoring user has role SPONSOR for the VO
+		Vo vo = getMemberVo(session, sponsoredMember);
+		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
+			throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
+		}
 		if(!sponsoredMember.isSponsored()) {
 			throw new MemberNotSponsoredException("member "+sponsoredMember.getId()+" is not marked as sponsored");
 		}
+		// check whether the user is already sponsor
+		List<User> sponsors = getPerunBl().getUsersManagerBl().getSponsors(session, sponsoredMember);
+		if(sponsors.stream().map(PerunBean::getId).anyMatch(id -> id==sponsor.getId())) {
+			throw new AlreadySponsorException("member "+sponsoredMember.getId()+" is already sponsored by user "+sponsor.getId());
+		}
+		// add the sponsor
 		getMembersManagerImpl().addSponsor(session, sponsoredMember, sponsor);
 		getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
 
