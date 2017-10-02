@@ -13289,19 +13289,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		//get impl object
 		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-		entityless_test_atr_def = perun.getAttributesManagerBl().getAttributeDefinition(
-				sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID");
+		entityless_test_atr_def = new AttributeDefinition();
+		entityless_test_atr_def.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+		entityless_test_atr_def.setDescription("entityless_test_atr_def");
+		entityless_test_atr_def.setFriendlyName("test-entityless-test-atr-def");
+		entityless_test_atr_def.setType(String.class.getName());
+		entityless_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, entityless_test_atr_def);
 
 		entityless_test_attribute1 = new Attribute(entityless_test_atr_def);
-		entityless_test_attribute1.setValue(154);
+		entityless_test_attribute1.setValue("154");
 		perun.getAttributesManagerBl().setAttribute(sess, "1", entityless_test_attribute1);
 
 		entityless_test_attribute2 = new Attribute(entityless_test_atr_def);
-		entityless_test_attribute2.setValue(202);
+		entityless_test_attribute2.setValue("202");
 		perun.getAttributesManagerBl().setAttribute(sess, "2", entityless_test_attribute2);
 
 		entityless_test_attribute3 = new Attribute(entityless_test_atr_def);
-		entityless_test_attribute3.setValue(362);
+		entityless_test_attribute3.setValue("362");
 		perun.getAttributesManagerBl().setAttribute(sess, "3", entityless_test_attribute3);
 	}
 
@@ -13320,8 +13324,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		userFacility_test_atr_def = new AttributeDefinition();
 		userFacility_test_atr_def.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
-		userFacility_test_atr_def.setDescription("test userFacility attr");
-		userFacility_test_atr_def.setFriendlyName("test");
+		userFacility_test_atr_def.setDescription("userFacility_test_atr_def");
+		userFacility_test_atr_def.setFriendlyName("test-userFacility-test-atr-def");
 		userFacility_test_atr_def.setType(String.class.getName());
 		userFacility_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, userFacility_test_atr_def);
 
@@ -13369,8 +13373,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		memberResource_test_atr_def = new AttributeDefinition();
 		memberResource_test_atr_def.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
-		memberResource_test_atr_def.setDescription("test memberResource attr");
-		memberResource_test_atr_def.setFriendlyName("test");
+		memberResource_test_atr_def.setDescription("memberResource_test_atr_def");
+		memberResource_test_atr_def.setFriendlyName("test-memberResource-test-atr-def");
 		memberResource_test_atr_def.setType(String.class.getName());
 		memberResource_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, memberResource_test_atr_def);
 
@@ -13422,8 +13426,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		memberGroup_test_atr_def = new AttributeDefinition();
 		memberGroup_test_atr_def.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
-		memberGroup_test_atr_def.setDescription("test groupResource attr");
-		memberGroup_test_atr_def.setFriendlyName("test");
+		memberGroup_test_atr_def.setDescription("memberGroup_test_atr_def");
+		memberGroup_test_atr_def.setFriendlyName("test-memberGroup-test-atr-def");
 		memberGroup_test_atr_def.setType(String.class.getName());
 		memberGroup_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, memberGroup_test_atr_def);
 
@@ -13482,8 +13486,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		groupResource_test_atr_def = new AttributeDefinition();
 		groupResource_test_atr_def.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
-		groupResource_test_atr_def.setDescription("test groupResource attr");
-		groupResource_test_atr_def.setFriendlyName("test");
+		groupResource_test_atr_def.setDescription("groupResource_test_atr_def");
+		groupResource_test_atr_def.setFriendlyName("test-groupResource-test-atr-def");
 		groupResource_test_atr_def.setType(String.class.getName());
 		groupResource_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, groupResource_test_atr_def);
 
@@ -13519,23 +13523,31 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 *
 	 */
 	private void setAttributesForVoAttributesTest() throws Exception {
-		String namespaceToEmail = "urn:perun:vo:attribute-def:def:toEmail";
-		String namespaceFromEmail = "urn:perun:vo:attribute-def:def:fromEmail";
-
 		//get Impl object
 		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-		vo_toEmail_def = perun.getAttributesManagerBl().getAttributeDefinition(sess, namespaceToEmail);
-		vo_fromEmail_def = perun.getAttributesManagerBl().getAttributeDefinition(sess, namespaceFromEmail);
+		vo_toEmail_def = new AttributeDefinition();
+		vo_toEmail_def.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		vo_toEmail_def.setDescription("vo_toEmail_def");
+		vo_toEmail_def.setFriendlyName("test-vo-toEmail-def");
+		vo_toEmail_def.setType(String.class.getName());
+		vo_toEmail_def = perun.getAttributesManagerBl().createAttribute(sess, vo_toEmail_def);
+
+		vo_fromEmail_def = new AttributeDefinition();
+		vo_fromEmail_def.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		vo_fromEmail_def.setDescription("vo_fromEmail_def");
+		vo_fromEmail_def.setFriendlyName("test-vo-fromEmail-def");
+		vo_fromEmail_def.setType(String.class.getName());
+		vo_fromEmail_def = perun.getAttributesManagerBl().createAttribute(sess, vo_fromEmail_def);
 
 		//set vo_toEmail_def attribute to vo1
 		vo1_toEmail_attribute = new Attribute(vo_toEmail_def);
-		vo1_toEmail_attribute.setValue(new ArrayList<>(Collections.singletonList("vo1To@email.com")));
+		vo1_toEmail_attribute.setValue("vo1To@email.com");
 		perun.getAttributesManagerBl().setAttribute(sess, vo1, vo1_toEmail_attribute);
 
 		//set vo_toEmail_def attribute to vo2
 		vo2_toEmail_attribute = new Attribute(vo_toEmail_def);
-		vo2_toEmail_attribute.setValue(new ArrayList<>(Collections.singletonList("vo2To@email.com")));
+		vo2_toEmail_attribute.setValue("vo2To@email.com");
 		perun.getAttributesManagerBl().setAttribute(sess, vo2, vo2_toEmail_attribute);
 
 		//set vo_fromEmail_def attribute to vo2
@@ -13554,8 +13566,19 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		//get Impl object
 		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-		user_phone_atr_def = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:user:attribute-def:def:phone");
-		user_email_atr_def = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:user:attribute-def:def:preferredMail");
+		user_phone_atr_def = new AttributeDefinition();
+		user_phone_atr_def.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		user_phone_atr_def.setDescription("user_phone_atr_def");
+		user_phone_atr_def.setFriendlyName("test-user-phone-atr-def");
+		user_phone_atr_def.setType(String.class.getName());
+		user_phone_atr_def = perun.getAttributesManagerBl().createAttribute(sess, user_phone_atr_def);
+
+		user_email_atr_def = new AttributeDefinition();
+		user_email_atr_def.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		user_email_atr_def.setDescription("user_email_atr_def");
+		user_email_atr_def.setFriendlyName("test-user-email-atr-def");
+		user_email_atr_def.setType(String.class.getName());
+		user_email_atr_def = perun.getAttributesManagerBl().createAttribute(sess, user_email_atr_def);
 
 		//set Phone attribute for user1
 		user1_phone_attribute = new Attribute(user_phone_atr_def);
@@ -13591,8 +13614,20 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		//get impl object
 		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-		member_phone_atr_def = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:phone");
-		member_email_atr_def = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:mail");
+		member_phone_atr_def = new AttributeDefinition();
+		member_phone_atr_def.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		member_phone_atr_def.setDescription("member_phone_atr_def");
+		member_phone_atr_def.setFriendlyName("test-member-phone-atr-def");
+		member_phone_atr_def.setType(String.class.getName());
+		member_phone_atr_def = perun.getAttributesManagerBl().createAttribute(sess, member_phone_atr_def);
+
+		member_email_atr_def = new AttributeDefinition();
+		member_email_atr_def.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		member_email_atr_def.setDescription("member_email_atr_def");
+		member_email_atr_def.setFriendlyName("test-member-email-atr-def");
+		member_email_atr_def.setType(String.class.getName());
+		member_email_atr_def = perun.getAttributesManagerBl().createAttribute(sess, member_email_atr_def);
+
 
 		//set Phone attribute for member1OfUser1 and member2OfUser1
 		member1OfUser1_phone_attribute = new Attribute(member_phone_atr_def);
@@ -13643,7 +13678,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		//get impl object
 		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-		group_fromEmail_atr_def = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:fromEmail");
+		group_fromEmail_atr_def = new AttributeDefinition();
+		group_fromEmail_atr_def.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		group_fromEmail_atr_def.setDescription("group_fromEmail_atr_def");
+		group_fromEmail_atr_def.setFriendlyName("test-group-fromEmail-atr-def");
+		group_fromEmail_atr_def.setType(String.class.getName());
+		group_fromEmail_atr_def = perun.getAttributesManagerBl().createAttribute(sess, group_fromEmail_atr_def);
 
 		group1InVo1_email_atr = new Attribute(group_fromEmail_atr_def);
 		group1InVo1_email_atr.setValue("1@mail.com");
@@ -13680,7 +13720,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		//get impl object
 		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-		resource_test_atr_def = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:resource:attribute-def:def:defaultDataQuota");
+		resource_test_atr_def = new AttributeDefinition();
+		resource_test_atr_def.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		resource_test_atr_def.setDescription("resource_test_atr_def");
+		resource_test_atr_def.setFriendlyName("test-resource-test-atr-def");
+		resource_test_atr_def.setType(String.class.getName());
+		resource_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, resource_test_atr_def);
 
 		resource1InVo1_test_atr = new Attribute(resource_test_atr_def);
 		resource1InVo1_test_atr.setValue("1K");
@@ -13708,7 +13753,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		//get impl object
 		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 
-		facility_test_atr_def = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:facility:attribute-def:def:homeDirUmask");
+		facility_test_atr_def = new AttributeDefinition();
+		facility_test_atr_def.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		facility_test_atr_def.setDescription("facility_test_atr_def");
+		facility_test_atr_def.setFriendlyName("test-facility-test-atr-def");
+		facility_test_atr_def.setType(String.class.getName());
+		facility_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, facility_test_atr_def);
 
 		facility1_test_atr = new Attribute(facility_test_atr_def);
 		facility1_test_atr.setValue("756");
@@ -13737,8 +13787,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		host_test_atr_def = new AttributeDefinition();
 		host_test_atr_def.setNamespace(AttributesManager.NS_HOST_ATTR_DEF);
-		host_test_atr_def.setDescription("test host attr");
-		host_test_atr_def.setFriendlyName("host");
+		host_test_atr_def.setDescription("host_test_atr_def");
+		host_test_atr_def.setFriendlyName("test-host-test-atr-def");
 		host_test_atr_def.setType(String.class.getName());
 		host_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, host_test_atr_def);
 
@@ -13779,8 +13829,8 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		ues_test_atr_def = new AttributeDefinition();
 		ues_test_atr_def.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
-		ues_test_atr_def.setDescription("test ues attr");
-		ues_test_atr_def.setFriendlyName("ues");
+		ues_test_atr_def.setDescription("ues_test_atr_def");
+		ues_test_atr_def.setFriendlyName("test-ues-test-atr-def");
 		ues_test_atr_def.setType(String.class.getName());
 		ues_test_atr_def = perun.getAttributesManagerBl().createAttribute(sess, ues_test_atr_def);
 
