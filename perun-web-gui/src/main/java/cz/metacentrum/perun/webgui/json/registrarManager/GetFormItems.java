@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.json.registrarManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.LocaleInfo;
@@ -270,6 +271,14 @@ public class GetFormItems implements JsonCallback {
 			FlexTable editTable = new FlexTable();
 			editTable.setStyleName("noBorder");
 			ft.setWidget(i, 3, editTable);
+
+			JsArrayString appTypes = item.getApplicationTypes();
+			if (appTypes == null || appTypes.length() == 0) {
+				ft.getFlexCellFormatter().setStyleName(i, 0, "log-unused");
+				ft.getFlexCellFormatter().setStyleName(i, 1, "log-unused");
+				ft.getFlexCellFormatter().setStyleName(i, 2, "log-unused");
+				ft.getFlexCellFormatter().setStyleName(i, 3, "log-unused");
+			}
 
 			// color for items with unsaved changes
 			if (item.wasEdited() == true) {

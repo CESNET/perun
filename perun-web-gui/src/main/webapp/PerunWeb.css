@@ -734,6 +734,10 @@ html>body .gwt-DialogBox {
     border-color: yellow;
     background-color: #FCFB97;
 }
+.log-unused {
+	border-color: grey;
+	background-color: #eaeaea;
+}
 
 /* Help widget in Tabs */
 .helpWidgetWrapper{
