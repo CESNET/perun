@@ -384,18 +384,28 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 				continue;
 			}
 
-			Date twoDaysAgo = new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 2);
+			Integer rescheduleInterval = 24 * 2;
+			try {
+				rescheduleInterval = Integer.parseInt(dispatcherPropertiesBean.getProperty("dispatcher.rescheduleInterval"));
+			} catch (RuntimeException e) {
+			}
+			if(rescheduleInterval > 0) {
+				rescheduleInterval *= 1000 * 60 * 60;
+			} else {
+				rescheduleInterval = 1000 * 60 * 60 * 24 * 2;
+			}
+			Date longAgo = new Date(System.currentTimeMillis() - rescheduleInterval);
 			if (task.isSourceUpdated()) {
 				// reschedule the task
 				log.info("TASK ["
 						+ task
 						+ "] data changed. Going to schedule for propagation now.");
 				taskScheduler.scheduleTask(task);
-			} else 	if (task.getEndTime() == null || task.getEndTime().before(twoDaysAgo)) {
+			} else 	if (task.getEndTime() == null || task.getEndTime().before(longAgo)) {
 				// reschedule the task
 				log.info("TASK ["
 						+ task
-						+ "] wasn't propagated for more then 2 days. Going to schedule it for propagation now.");
+						+ "] wasn't propagated for more then " + rescheduleInterval + " hours. Going to schedule it for propagation now.");
 				taskScheduler.scheduleTask(task);
 			} else {
 				log.info("TASK [" + task + "] has finished recently, leaving it for now.");
