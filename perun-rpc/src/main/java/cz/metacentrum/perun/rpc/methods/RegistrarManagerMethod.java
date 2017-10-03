@@ -355,6 +355,47 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Update label, options, help and error message for specified form item and locale.
+	 * FormItem is specified by its ID.
+	 *
+	 * @param formItem ApplicationFormItem Form item to update
+	 * @param locale String Locale specified like: cs, en, ...
+	 */
+	/*#
+	 * Replace label, options, help and error message for specified form item and all locales by current value.
+	 * FormItem is specified by its ID.
+	 *
+	 * @param formItem ApplicationFormItem Form item to update
+	 */
+	updateFormItemTexts {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ApplicationFormItem item = parms.read("formItem", ApplicationFormItem.class);
+			if (parms.contains("locale")) {
+				ac.getRegistrarManager().updateFormItemTexts(ac.getSession(), item, new Locale(parms.readString("locale")));
+			} else {
+				ac.getRegistrarManager().updateFormItemTexts(ac.getSession(), item);
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Return form item by its ID, you must be authorized to manipulate the form.
+	 *
+	 * @param id int ID of application form item
+	 */
+	getFormItemById {
+		@Override
+		public ApplicationFormItem call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getRegistrarManager().getFormItemById(ac.getSession(), parms.readInt("id"));
+		}
+	},
+
+	/*#
 	 * Gets the content for an application form for a given type of application and user.
 	 * The values are prefilled from database for extension applications, and always from federation values
 	 * taken from the user argument.
@@ -774,7 +815,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * @param toVo int Destination VO <code>id</code>
 	 * @return Object Always null
 	 */
-		/*#
+	/*#
 	 * Copy all form items from selected Group into another.
 	 *
 	 * @param fromGroup int Source Group <code>id</code>
