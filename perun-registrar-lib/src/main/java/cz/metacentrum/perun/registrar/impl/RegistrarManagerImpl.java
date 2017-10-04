@@ -667,6 +667,57 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
+	@Override
+	public ApplicationForm getFormByItemId(PerunSession sess, int id) throws PerunException {
+
+		try {
+			ApplicationForm form = jdbc.queryForObject(FORM_SELECT + " where id=(select form_id from application_form_items where id=?)", new RowMapper<ApplicationForm>() {
+				@Override
+				public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
+					ApplicationForm form = new ApplicationForm();
+					form.setId(rs.getInt("id"));
+					form.setAutomaticApproval(rs.getBoolean("automatic_approval"));
+					form.setAutomaticApprovalExtension(rs.getBoolean("automatic_approval_extension"));
+					form.setModuleClassName(rs.getString("module_name"));
+					try {
+						form.setVo(vosManager.getVoById(registrarSession, rs.getInt("vo_id")));
+					} catch (Exception ex) {
+						// we don't care, shouldn't happen for internal identity.
+					}
+					try {
+						if (rs.getInt("group_id") != 0)
+							form.setGroup(perun.getGroupsManager().getGroupById(registrarSession, rs.getInt("group_id")));
+					} catch (Exception ex) {
+						// we don't care, shouldn't happen for internal identity.
+					}
+					return form;
+				}
+			}, id);
+
+			if (form.getGroup() == null) {
+				// VO application
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
+						!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo()) &&
+						!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+					throw new PrivilegeException(sess, "getFormByItemId");
+				}
+			} else {
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
+						!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo()) &&
+						!AuthzResolver.isAuthorized(sess, Role.REGISTRAR) &&
+						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) ) {
+					throw new PrivilegeException(sess, "getFormByItemId");
+				}
+			}
+
+			return form;
+
+		} catch (EmptyResultDataAccessException ex) {
+			throw new FormNotExistsException("Form with ID: "+id+" doesn't exists.");
+		}
+
+	}
+
 	@Transactional
 	@Override
 	public ApplicationFormItem addFormItem(PerunSession user, ApplicationForm form, ApplicationFormItem item) throws PrivilegeException, InternalErrorException {
@@ -864,12 +915,56 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item, Locale locale) {
+	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item, Locale locale) throws PrivilegeException, PerunException {
+
+		try {
+			getFormByItemId(sess, item.getId());
+		} catch (PrivilegeException ex) {
+			throw new PrivilegeException(sess, "updateFormItemTexts");
+		}
 
 		ItemTexts texts = item.getTexts(locale);
 		jdbc.update("update application_form_item_texts set label=?,options=?,help=?,error_message=? where item_id=? and locale=?",
 				texts.getLabel(), texts.getOptions(), texts.getHelp(),
 				texts.getErrorMessage(), item.getId(), locale.getLanguage());
+
+	}
+
+	@Override
+	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item) throws PrivilegeException, PerunException {
+
+		ApplicationForm form;
+
+		// check authz on form
+		try {
+			form = getFormByItemId(sess, item.getId());
+		} catch (PrivilegeException ex) {
+			throw new PrivilegeException(sess, "updateFormItemById");
+		}
+		// check authz
+		if (form.getGroup() == null) {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
+				throw new PrivilegeException(sess, "updateFormItemById");
+			}
+		} else {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
+					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) ) {
+				throw new PrivilegeException(sess, "updateFormItemById");
+			}
+		}
+
+		// update form item texts (easy way = delete and new insert)
+
+		// delete
+		jdbc.update("delete from application_form_item_texts where item_id=?", item.getId());
+		// insert new
+		for (Locale locale : item.getI18n().keySet()) {
+			ItemTexts itemTexts = item.getTexts(locale);
+			jdbc.update("insert into application_form_item_texts(item_id,locale,label,options,help,error_message) values (?,?,?,?,?,?)",
+					item.getId(), locale.getLanguage(), itemTexts.getLabel(),
+					itemTexts.getOptions(), itemTexts.getHelp(),
+					itemTexts.getErrorMessage());
+		}
 
 	}
 
@@ -1602,10 +1697,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// meaning, user should submit membership extension application first !!
 		if (application.getGroup() != null && application.getType().equals(AppType.INITIAL)) {
 			try {
-			User u = application.getUser();
-			if (u == null) {
-				u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, application.getExtSourceName(), application.getCreatedBy());
-			}
+				User u = application.getUser();
+				if (u == null) {
+					u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, application.getExtSourceName(), application.getCreatedBy());
+				}
 				Member member = membersManager.getMemberByUser(registrarSession, application.getVo(), u);
 				if (!Arrays.asList(Status.VALID, Status.INVALID).contains(member.getStatus())) {
 					throw new CantBeApprovedException("Application of member with membership status: " + member.getStatus() + " can't be approved. Please wait until member extends/re-validate own membership in a VO.");
@@ -1844,7 +1939,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
+	public ApplicationFormItem getFormItemById(PerunSession session, int id) throws PrivilegeException {
+
+		// authz - can read form -> can get item
+		try {
+			getFormByItemId(session, id);
+		} catch (PrivilegeException ex) {
+			throw new PrivilegeException("getFormItemById");
+		} catch (PerunException ex) {
+			// shouldn't happen
+		}
+
+		return getFormItemById(id);
+
+	}
+
+	@Override
 	public ApplicationFormItem getFormItemById(int id) {
+
 		ApplicationFormItem item;
 		item = jdbc.queryForObject(FORM_ITEM_SELECT+" where id=?", ITEM_MAPPER, id);
 		if (item != null) {
@@ -1857,6 +1969,67 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		return item;
+
+	}
+
+	@Override
+	public void updateFormItem(PerunSession sess, ApplicationFormItem item) throws PrivilegeException, PerunException {
+
+		ApplicationForm form;
+
+		// check authz on form
+		try {
+			form = getFormByItemId(sess, item.getId());
+		} catch (PrivilegeException ex) {
+			throw new PrivilegeException(sess, "updateFormItemById");
+		}
+		// check authz
+		if (form.getGroup() == null) {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
+				throw new PrivilegeException(sess, "updateFormItemById");
+			}
+		} else {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
+					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) ) {
+				throw new PrivilegeException(sess, "updateFormItemById");
+			}
+		}
+
+		// else update form item
+
+		int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?,fed_attr=?,dst_attr=?,regex=? where id=?",
+				item.getOrdnum(), item.getShortname(), item.isRequired() ? "1" : "0", item
+						.getType().toString(), item.getFederationAttribute(), item
+						.getPerunDestinationAttribute(), item.getRegex(), item
+						.getId());
+		if (result == 0) {
+			// skip whole set if not found for update
+		}
+
+		// update form item texts (easy way = delete and new insert)
+
+		// delete
+		jdbc.update("delete from application_form_item_texts where item_id=?", item.getId());
+		// insert new
+		for (Locale locale : item.getI18n().keySet()) {
+			ItemTexts itemTexts = item.getTexts(locale);
+			jdbc.update("insert into application_form_item_texts(item_id,locale,label,options,help,error_message) values (?,?,?,?,?,?)",
+					item.getId(), locale.getLanguage(), itemTexts.getLabel(),
+					itemTexts.getOptions(), itemTexts.getHelp(),
+					itemTexts.getErrorMessage());
+		}
+
+		// update form item app types (easy way = delete and new insert)
+
+		// delete
+		jdbc.update("delete from application_form_item_apptypes where item_id=?", item.getId());
+		// insert new
+		for (AppType appType : item.getApplicationTypes()) {
+			jdbc.update("insert into application_form_item_apptypes (item_id,apptype) values (?,?)",
+					item.getId(), appType.toString());
+		}
+
+		perun.getAuditer().log(sess, "Application form ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has had it itemID="+item.getId()+" updated.");
 
 	}
 

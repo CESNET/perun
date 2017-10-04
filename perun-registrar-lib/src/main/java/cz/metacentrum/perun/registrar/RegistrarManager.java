@@ -97,6 +97,16 @@ public interface RegistrarManager {
 	ApplicationForm getFormById(PerunSession sess, int id) throws PerunException;
 
 	/**
+	 * Gets an application form for a given form item ID.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param id ID of application form item to get form for
+	 * @return registration form
+	 * @throws PerunException
+	 */
+	ApplicationForm getFormByItemId(PerunSession sess, int id) throws PerunException;
+
+	/**
 	 * Adds a new item to a form.
 	 *
 	 * @param user            the user that adds the items
@@ -155,9 +165,17 @@ public interface RegistrarManager {
 	 * Updates internationalized texts for a form item.
 	 * @param user user changing the form item texts
 	 * @param item the form item to be changed
-	 * @param locale the locale for which texts shoudl be changed
+	 * @param locale the locale for which texts should be changed
 	 */
-	void updateFormItemTexts(PerunSession user, ApplicationFormItem item, Locale locale);
+	void updateFormItemTexts(PerunSession user, ApplicationFormItem item, Locale locale) throws PrivilegeException, PerunException;
+
+	/**
+	 * Updates internationalized texts for a form item (all locales are replaced by current value)
+	 *
+	 * @param user user changing the form item texts
+	 * @param item the form item to be changed
+	 */
+	void updateFormItemTexts(PerunSession user, ApplicationFormItem item) throws PrivilegeException, PerunException;
 
 	/**
 	 * Gets all form items.
@@ -357,10 +375,31 @@ public interface RegistrarManager {
 	/**
 	 * Returns full form item including texts and appTypes
 	 *
+	 * @param session PerunSession for authz
+	 * @param id ID of form item to return
+	 * @return form item
+	 * @throws PrivilegeException
+	 */
+	ApplicationFormItem getFormItemById(PerunSession session, int id) throws PrivilegeException;
+
+	/**
+	 * Returns full form item including texts and appTypes
+	 * For Internal use only !!
+	 *
 	 * @param id ID of form item to return
 	 * @return form item
 	 */
 	ApplicationFormItem getFormItemById(int id);
+
+	/**
+	 * Update form item by it's ID.
+	 *
+	 * @param session PerunSession for authz
+	 * @param item Application form item to update
+	 * @throws PrivilegeException
+	 * @throws PerunException
+	 */
+	void updateFormItem(PerunSession session, ApplicationFormItem item) throws PrivilegeException, PerunException;
 
 	/**
 	 * Returns application object by it's ID
