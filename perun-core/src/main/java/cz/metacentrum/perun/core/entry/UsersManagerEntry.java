@@ -162,8 +162,8 @@ public class UsersManagerEntry implements UsersManager {
 	public User getUserByMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getUserByMember");
 		}
@@ -190,10 +190,8 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
-			throw new PrivilegeException(sess, "getUser");
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getUsers");
 		}
 
 		return getUsersManagerBl().getUsers(sess);
@@ -235,9 +233,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "getAllRichUsers");
 		}
 
@@ -248,9 +244,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "getAllRichUsersWithAttributes");
 		}
 
@@ -267,9 +261,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "getRichUsersFromListOfUsers");
 		}
 
@@ -286,11 +278,9 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
-			throw new PrivilegeException(sess, "getRichUsersFromListOfUsers");
+			throw new PrivilegeException(sess, "getRichUsersWithAttributesFromListOfUsers");
 		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(sess, users));
@@ -551,7 +541,10 @@ public class UsersManagerEntry implements UsersManager {
 	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		//TODO Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "getAllowedResources");
+		}
 
 		getUsersManagerBl().checkUserExists(sess, user);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -562,7 +555,9 @@ public class UsersManagerEntry implements UsersManager {
 	public List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		//TODO Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "getAllowedResources");
+		}
 
 		getUsersManagerBl().checkUserExists(sess, user);
 
@@ -572,7 +567,10 @@ public class UsersManagerEntry implements UsersManager {
 	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		//TODO Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "getAssignedRichResources");
+		}
+
 		getUsersManagerBl().checkUserExists(sess, user);
 		return getUsersManagerBl().getAssignedRichResources(sess, user);
 	}
@@ -580,21 +578,29 @@ public class UsersManagerEntry implements UsersManager {
 	public List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Probably without authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "findUsersByName");
+		}
+
 		return getUsersManagerBl().findUsers(sess, searchString);
 	}
 
 	public List<RichUser> findRichUsers(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Probably without authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "findUsersByName");
+		}
+
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsers(sess, searchString));
 	}
 
 	public List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException, VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		//TODO Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "findUsersByName");
+		}
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		return getUsersManagerBl().getUsersWithoutSpecificVo(sess, vo, searchString);
@@ -603,21 +609,30 @@ public class UsersManagerEntry implements UsersManager {
 	public List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Probably without authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "findUsersByName");
+		}
+
 		return getUsersManagerBl().findUsersByName(sess, searchString);
 	}
 
 	public List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Probably without authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "findUsersByName");
+		}
+
 		return getUsersManagerBl().findUsersByName(sess, titleBefore, firstName, middleName, lastName, titleAfter);
 	}
 
 	public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Probably without authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "findUsersByExactName");
+		}
+
 		return getUsersManagerBl().findUsersByExactName(sess, searchString);
 	}
 
@@ -663,13 +678,7 @@ public class UsersManagerEntry implements UsersManager {
 	public boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		// FIXME zatim nekontrolujeme
-		/*
-			 if(!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
-			 throw new PrivilegeException(sess, "getUsersByAttribute");
-			 }
-			 */
+		// Authorization - must be public since it's used to check anonymous users input on registration form
 
 		return getUsersManagerBl().isLoginAvailable(sess, loginNamespace, login);
 	}
@@ -733,7 +742,7 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "changePassword");
 		}
 
-		// Check if the login-namesapce already exists and the user has a login in the login-namespace
+		// Check if the login-namespace already exists and the user has a login in the login-namespace
 		// Create attribute name
 		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
 
@@ -996,10 +1005,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "getAllRichUsersWithAttributes");
 		}
 
@@ -1015,8 +1021,18 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF)) {
-			throw new PrivilegeException(sess, "findRichUsersWithAttributes");
+				!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN)){
+
+			if (AuthzResolver.isAuthorized(sess, Role.SELF)) {
+				// necessary when adding new owners to service accounts
+				List<User> serviceIdentities = getPerunBl().getUsersManagerBl().getSpecificUsersByUser(sess, sess.getPerunPrincipal().getUser());
+				if (serviceIdentities.isEmpty()) {
+					// user isn't owner of any service identity
+					throw new PrivilegeException(sess, "findRichUsersWithAttributes");
+				}
+			} else {
+				throw new PrivilegeException(sess, "findRichUsersWithAttributes");
+			}
 		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames));
@@ -1027,11 +1043,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.SELF)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) { // called only internally by registrar
 			throw new PrivilegeException(sess, "findRichUsersWithAttributesByExactMatch");
 		}
 
@@ -1043,9 +1055,8 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
-			throw new PrivilegeException(sess, "findRichUsersWithoutSpecificVOWithAttributes");
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "findRichUsersWithoutSpecificVoWithAttributes");
 		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithoutSpecificVoWithAttributes(sess, vo, searchString, attrsName));
@@ -1182,7 +1193,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.notNull(member, "member");
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
-			throw new PrivilegeException(sess, "getSponsors can be called only by REGISTAR");
+			throw new PrivilegeException(sess, "getSponsors can be called only by REGISTRAR");
 		}
 		List<User> sponsors = usersManagerBl.getSponsors(sess, member);
 		if (attrNames == null || attrNames.isEmpty()) {

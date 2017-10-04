@@ -5,7 +5,6 @@ import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
-import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
@@ -21,12 +20,13 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+
+import static cz.metacentrum.perun.cabinet.bl.ErrorCodes.NOT_AUTHORIZED;
 
 /**
  * Top-level API implementation for Publication management in Perun.
@@ -284,13 +284,30 @@ public class CabinetManagerImpl implements CabinetManager {
 	}
 
 	@Override
-	public List<Author> getAllAuthors() throws InternalErrorException {
+	public List<Author> getAllAuthors(PerunSession sess) throws CabinetException, InternalErrorException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new CabinetException("You are not authorized to list all authors.", NOT_AUTHORIZED);
+		}
 		return getAuthorshipManagerBl().getAllAuthors();
 	}
 
 	@Override
-	public List<Author> getAuthorsByPublicationId(int id) throws InternalErrorException {
-		return getAuthorshipManagerBl().getAuthorsByPublicationId(id);
+	public List<Author> getAuthorsByPublicationId(PerunSession session, int id) throws InternalErrorException, PrivilegeException {
+
+		List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(id);
+		boolean oneOfAuthors = false;
+		for (Author author : authors) {
+			if (author.getId() == session.getPerunPrincipal().getUserId()) {
+				oneOfAuthors = true;
+				break;
+			}
+		}
+		if (AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) oneOfAuthors = true;
+		if (!oneOfAuthors) throw new PrivilegeException("You are not allowed to see authors of publications you didn't created.");
+
+		return authors;
+
 	}
 
 	@Override
@@ -298,6 +315,14 @@ public class CabinetManagerImpl implements CabinetManager {
 		return getAuthorshipManagerBl().getAuthorsByAuthorshipId(sess, id);
 	}
 
+	@Override
+	public List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException, InternalErrorException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF)) {
+			throw new CabinetException("You are not authorized to search for new authors.", NOT_AUTHORIZED);
+		}
+		return getAuthorshipManagerBl().findNewAuthors(sess, searchString);
+	}
 
 	// Publications ----------------------------------------
 
@@ -318,17 +343,11 @@ public class CabinetManagerImpl implements CabinetManager {
 				!publication.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
 				publication.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
 			// not perun admin or author of record
-
-			List<Author> authors = getAuthorsByPublicationId(publication.getId());
-			boolean oneOfAuthors = false;
-			for (Author author : authors) {
-				if (author.getId() == sess.getPerunPrincipal().getUserId()) {
-					oneOfAuthors = true;
-					break;
-				}
+			try {
+				getAuthorsByPublicationId(sess, publication.getId());
+			} catch (PrivilegeException ex) {
+				throw new PrivilegeException("You are not allowed to update publications you didn't created.");
 			}
-
-			if (!oneOfAuthors) throw new PrivilegeException("You are not allowed to update publications you didn't created.");
 
 		}
 		return getPublicationManagerBl().updatePublication(sess, publication);

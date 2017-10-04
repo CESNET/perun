@@ -11,7 +11,9 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -237,6 +239,47 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 			result.add(getAuthorshipManagerDao().getAuthorById(r.getUserId()));
 		}
 		return convertAuthorsToAuthorsWithAttributes(result);
+	}
+
+	@Override
+	public List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException, InternalErrorException {
+
+		List<String> attrs = Arrays.asList(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail",
+				AttributesManager.NS_USER_ATTR_DEF + ":organization");
+				//AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:einfra"
+		List<Author> authors = new ArrayList<>();
+
+		try {
+			List<RichUser> users = perun.getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrs);
+			for (RichUser user : users) {
+				Author author = new Author(user.getId(), user.getFirstName(), user.getLastName(), user.getMiddleName(),
+						user.getTitleBefore(), user.getTitleAfter());
+
+				for (Attribute a : user.getUserAttributes()) {
+					if (a.getName().equals(AttributesManager.NS_USER_ATTR_DEF + ":preferredMail")) {
+
+						if (a.getValue() != null && !((String)a.getValue()).isEmpty()) {
+							String safeMail = ((String) a.getValue()).split("@")[0];
+
+							if (safeMail.length() > 2) {
+								safeMail = safeMail.substring(0, 1) + "****" + safeMail.substring(safeMail.length()-1, safeMail.length());
+							}
+
+							safeMail += "@"+((String) a.getValue()).split("@")[1];
+
+							a.setValue(safeMail);
+						}
+					}
+				}
+
+				author.setAttributes(user.getUserAttributes());
+				authors.add(author);
+			}
+		} catch (UserNotExistsException e) {
+			log.error("Shouldn't really happen.");
+		}
+		return authors;
+
 	}
 
 	private List<Author> convertAuthorsToAuthorsWithAttributes(List<Author> authors) {

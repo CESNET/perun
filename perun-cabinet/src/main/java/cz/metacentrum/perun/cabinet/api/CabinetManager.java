@@ -327,19 +327,21 @@ public interface CabinetManager {
 	/**
 	 * Return all Authors of Publications. Empty list of none found.
 	 *
+	 * @param session PerunSession
 	 * @return List of all Authors of Publications. Empty list of none found.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAllAuthors() throws InternalErrorException;
+	List<Author> getAllAuthors(PerunSession session) throws InternalErrorException, CabinetException;
 
 	/**
 	 * Return all Authors of Publication specified by its ID. Empty list of none found.
 	 *
+	 * @param session PerunSession for authz
 	 * @param id ID of Publication to look by
 	 * @return List of Authors of Publication specified its ID. Empty list of none found.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAuthorsByPublicationId(int id) throws InternalErrorException;
+	List<Author> getAuthorsByPublicationId(PerunSession session, int id) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Return all Authors of Publication specified by Authorships ID. Empty list of none found.
@@ -351,6 +353,18 @@ public interface CabinetManager {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Search through all users of Perun in order to allow publication author to add colleagues as co-authors.
+	 * Response data are filtered, so only sub-set of users personal information is provided.
+	 *
+	 * @param sess  PerunSession for authz
+	 * @param searchString String to search users by
+	 * @return List of new possible authors
+	 * @throws CabinetException
+	 * @throws InternalErrorException
+	 */
+	List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException, InternalErrorException;
 
 
 	// Publications ----------------------------------

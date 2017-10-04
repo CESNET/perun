@@ -156,4 +156,16 @@ public interface AuthorshipManagerBl {
 	 */
 	List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException, InternalErrorException;
 
+	/**
+	 * Search through all users of Perun in order to allow publication author to add colleagues as co-authors.
+	 * Response data are filtered, so only sub-set of users personal information is provided.
+	 *
+	 * @param sess  PerunSession for authz
+	 * @param searchString String to search users by
+	 * @return List of new possible authors
+	 * @throws CabinetException
+	 * @throws InternalErrorException
+	 */
+	List<Author> findNewAuthors(PerunSession sess, String searchString) throws CabinetException, InternalErrorException;
+
 }
