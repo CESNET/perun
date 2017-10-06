@@ -73,7 +73,7 @@ sub new {
 		$rpcType = $ENV{PERUN_RPC_TYPE};
 	}
 
-	$self->{_lwpUserAgent} = LWP::UserAgent->new( agent => "Agent.pm/$agentVersion", timeout => 2000 );
+	$self->{_lwpUserAgent} = LWP::UserAgent->new( agent => "Agent.pm/$agentVersion", timeout => 4000 );
 	# Enable cookies if enviromental variable with path exists or home env is available
 	if (defined($ENV{PERUN_COOKIE})) {
 		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
