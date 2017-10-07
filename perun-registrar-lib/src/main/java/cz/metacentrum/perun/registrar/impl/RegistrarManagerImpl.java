@@ -392,7 +392,22 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
-
+		try {
+			attrManager.getAttributeDefinition(registrarSession, "urn:perun:vo:attribute-def:def:voLogoURL");
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName("VO logo's URL");
+			attrDef.setFriendlyName("voLogoURL");
+			attrDef.setNamespace("urn:perun:vo:attribute-def:def");
+			attrDef.setDescription("Full URL of the VO's logo image (including http://).");
+			attrDef.setType(String.class.getName());
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+		}
 	}
 
 	@Override

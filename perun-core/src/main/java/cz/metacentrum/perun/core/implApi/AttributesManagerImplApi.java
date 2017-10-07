@@ -2287,14 +2287,6 @@ public interface AttributesManagerImplApi {
 	Object getAttributesModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException;
 
 	/**
-	 * Creates attributes during initialization. Shouldn't be called from upper layers !!!
-	 *
-	 * @param attribute Attribute to create
-	 * @throws InternalErrorException
-	 */
-	void createAttributeExistsForInitialize(AttributeDefinition attribute) throws InternalErrorException;
-
-	/**
 	 * Updates AttributeDefinition.
 	 *
 	 * @param perunSession

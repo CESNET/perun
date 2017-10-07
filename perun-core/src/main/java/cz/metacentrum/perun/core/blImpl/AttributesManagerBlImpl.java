@@ -22,10 +22,13 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.Objects;
 
 import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.impl.Auditer;
+import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +89,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	private final static Logger log = LoggerFactory.getLogger(AttributesManagerBlImpl.class);
+
+	//Attributes modules.  name => module
+	private Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<String, AttributesModuleImplApi>();
 
 	private final AttributesManagerImplApi attributesManagerImpl;
 	private PerunBl perunBl;
@@ -6449,6 +6455,580 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		String attributesManagerInitializator = "attributesManagerBlImplInitializator";
 		PerunPrincipal pp = new PerunPrincipal(attributesManagerInitializator, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		PerunSession sess = perunBl.getPerunSession(pp, new PerunClient());
+
+		//Load all attributes modules
+		ServiceLoader<AttributesModuleImplApi> attributeModulesLoader = ServiceLoader.load(AttributesModuleImplApi.class);
+		for(AttributesModuleImplApi module : attributeModulesLoader) {
+			attributesModulesMap.put(module.getClass().getName(), module);
+			if(module instanceof VirtualAttributesModuleImplApi) {
+				Auditer.registerAttributeModule((VirtualAttributesModuleImplApi) module);
+			}
+			log.debug("Module " + module.getClass().getSimpleName() + " loaded.");
+		}
+
+		//Check if all core atributes exists, create if doesn't
+		Map<AttributeDefinition, List<AttributeRights>> attributes = new HashMap<>();
+		//Facility.id
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("id");
+		attr.setDisplayName("Facility id");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		List<AttributeRights> rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Facility.name
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("name");
+		attr.setDisplayName("Facility name");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Resource.id
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("id");
+		attr.setDisplayName("Resource id");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Resource.name
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("name");
+		attr.setDisplayName("Resource name");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Resource.description
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("description");
+		attr.setDisplayName("Resource description");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Member.id
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("id");
+		attr.setDisplayName("Member id");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//User.id
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("id");
+		attr.setDisplayName("User id");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//User.firstName
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("firstName");
+		attr.setDisplayName("User first name");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//User.lastName
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("lastName");
+		attr.setDisplayName("User last name");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//User.middleName
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("middleName");
+		attr.setDisplayName("User middle name");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//User.titleBefore
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("titleBefore");
+		attr.setDisplayName("User title before");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//User.titleAfter
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("titleAfter");
+		attr.setDisplayName("User title after");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//User.serviceUser
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("serviceUser");
+		attr.setDisplayName("If user is service user or not.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		attributes.put(attr, rights);
+
+		//User.displayName
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("displayName");
+		attr.setDisplayName("Display name");
+		attr.setDescription("Displayed user's name.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Group.id
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("id");
+		attr.setDisplayName("Group id");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Group.name
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("name");
+		attr.setDisplayName("Group full name");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Group.description
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("description");
+		attr.setDisplayName("Group description");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Group.parentGroupId
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("parentGroupId");
+		attr.setDisplayName("Id of group's parent group.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		attributes.put(attr, rights);
+
+		//Vo.id
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("id");
+		attr.setDisplayName("Vo id");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		attributes.put(attr, rights);
+
+		//Vo.name
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("name");
+		attr.setDisplayName("Vo full name");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Vo.createdAt
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("createdAt");
+		attr.setDisplayName("Vo created date");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		attributes.put(attr, rights);
+
+		//Vo.shortName
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("shortName");
+		attr.setDisplayName("Vo short name");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Host.id
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_HOST_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("id");
+		attr.setDisplayName("Host id");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//Host.hostname
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_HOST_ATTR_CORE);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("hostname");
+		attr.setDisplayName("Host hostname");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		// *** Def attributes
+
+		//urn:perun:user:attribute-def:def:organization
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("organization");
+		attr.setDisplayName("Organization");
+		attr.setDescription("Organization, from which user comes from. Provided by IDP.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:user:attribute-def:def:preferredMail
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("preferredMail");
+		attr.setDisplayName("Preferred mail");
+		attr.setDescription("E-mail address preferred for communication.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:user:attribute-def:def:phone
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("phone");
+		attr.setDisplayName("Phone");
+		attr.setDescription("Phone number in organization. Provided by IDP.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:member:attribute-def:def:mail
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("mail");
+		attr.setDisplayName("Mail");
+		attr.setDescription("E-mail address in organization (VO wide).");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:vo:attribute-def:def:membershipExpirationRules
+		attr = new AttributeDefinition();
+		attr.setDisplayName("Membership expiration rules");
+		attr.setFriendlyName("membershipExpirationRules");
+		attr.setNamespace("urn:perun:vo:attribute-def:def");
+		attr.setDescription("Set of rules to determine date of membership expiration. If not set, membership is not limited.");
+		attr.setType(String.class.getName());
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
+
+		//urn:perun:group:attribute-def:def:groupExtSource
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("groupExtSource");
+		attr.setDisplayName("Group extSource");
+		attr.setDescription("External source from which group comes from. Used for groups synchronization.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:groupMembersExtSource
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("groupMembersExtSource");
+		attr.setDisplayName("Group members extSource");
+		attr.setDescription("External source from which group members comes from. Used for group synchronization. If not set, members are loaded from the same external source as group itself.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:groupMembersQuery
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("groupMembersQuery");
+		attr.setDisplayName("Group members query");
+		attr.setDescription("Query (SQL) on external source which retrieves list of it's members.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:synchronizationEnabled
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("synchronizationEnabled");
+		attr.setDisplayName("Group synchronization enabled");
+		attr.setDescription("Enables group synchronization from external source.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:synchronizationInterval
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("synchronizationInterval");
+		attr.setDisplayName("Synchronization interval");
+		attr.setDescription("Time between two successful synchronizations.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:lastSynchronizationState
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("lastSynchronizationState");
+		attr.setDisplayName("Last synchronization state");
+		attr.setDescription("If group is synchronized, there will be information about state of last synchronization.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:lastSynchronizationTimestamp
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("lastSynchronizationTimestamp");
+		attr.setDisplayName("Last Synchronization timestamp");
+		attr.setDescription("If group is synchronized, there will be the last timestamp of group synchronization.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:lightweightSynchronization
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("lightweightSynchronization");
+		attr.setDisplayName("Lightweight Synchronization");
+		attr.setDescription("If true, then do not update actual members.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:lastSuccessSynchronizationTimestamp
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("lastSuccessSynchronizationTimestamp");
+		attr.setDisplayName("Last successful synchronization timestamp");
+		attr.setDescription("If group is synchronized, there will be timestamp of last successful synchronization.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:group:attribute-def:def:authoritativeGroup
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("authoritativeGroup");
+		attr.setDisplayName("Authoritative Group");
+		attr.setDescription("If group is authoritative for member. (for synchronization)");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn:perun:facility:attribute-def:def:login-namespace
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("login-namespace");
+		attr.setDisplayName("Login namespace");
+		attr.setDescription("Define namespace for all user's logins on Facility.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
+		//urn:perun:user_facility:attribute-def:virt:login
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("login");
+		attr.setDisplayName("Login");
+		attr.setDescription("User's logname at facility. Value is determined automatically from all user's logins by Facility's namespace.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		if(perunBl.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");
+
+		for(Map.Entry<AttributeDefinition, List<AttributeRights>> entry : attributes.entrySet()) {
+			AttributeDefinition attribute = entry.getKey();
+			List<AttributeRights> listOfRights = entry.getValue();
+			try {
+				// If attribute definition is not found, catch exception and create this attribute definition
+				getAttributeDefinition(sess,attribute.getName());
+			} catch (AttributeNotExistsException e) {
+				if(perunBl.isPerunReadOnly()) {
+					throw new InternalErrorException("There is missing required attribute " + attribute + " and can't be created because this instance is read only.");
+				} else {
+					try {
+						attribute = createAttribute(sess, attribute);
+					} catch (AttributeDefinitionExistsException ex) {
+						//should not happen
+						throw new InternalErrorException("Attribute " + attribute + " already exists in Perun when attributeInitializer tried to create it.");
+					}
+					//set correct id of attribute to rights
+					for (int i = 0; i < listOfRights.size(); i++) {
+						listOfRights.get(i).setAttributeId(attribute.getId());
+					}
+					setAttributeRights(sess, listOfRights);
+				}
+			}
+		}
 
 		//Prepare all attribute definition from system perun
 		Set<AttributeDefinition> allAttributesDef = new HashSet<AttributeDefinition>();
