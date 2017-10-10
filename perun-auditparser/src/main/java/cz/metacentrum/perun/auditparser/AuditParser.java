@@ -433,6 +433,8 @@ public class AuditParser {
 		userExtSource.setId(Integer.valueOf(beanAttr.get("id")));
 		userExtSource.setLoa(Integer.valueOf(beanAttr.get("loa")));
 		userExtSource.setLogin(BeansUtils.eraseEscaping(beanAttr.get("login")));
+		//Add userId if exists
+		if(beanAttr.get("userId") != null) userExtSource.setUserId(Integer.valueOf(beanAttr.get("userId")));
 		//Parse and get ExtSource
 		ExtSource extSource;
 		if(beanAttr.get("source").equals("\\0")) extSource = null;
@@ -768,5 +770,5 @@ public class AuditParser {
 
 		return richResource;
 	}
-	
+
 }
