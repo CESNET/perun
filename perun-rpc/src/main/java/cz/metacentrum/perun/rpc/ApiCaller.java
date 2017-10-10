@@ -469,7 +469,7 @@ public class ApiCaller {
 
 	public void stateChangingCheck() throws RpcException {
 		if (!stateChanging) {
-			throw new RpcException(RpcException.Type.STATE_CHANGING_CALL);
+			throw new RpcException(RpcException.Type.STATE_CHANGING_CALL, "This is a state changing operation. Please use HTTP POST request.");
 		}
 	}
 
