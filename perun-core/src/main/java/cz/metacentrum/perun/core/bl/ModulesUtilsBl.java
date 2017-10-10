@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -409,5 +410,21 @@ public interface ModulesUtilsBl {
 	 * @return true if the fqdn is valid
 	 */
 	boolean isFQDNValid(PerunSessionImpl sess, String fqdn);
+
+	/**
+	 * Get object User from Perun audit message.
+	 * Try to find it by different objects in this order: User, UserExtSource, Member.
+	 * Always return first occurrence of User using objects above:
+	 * - if user has been found, return it (do not look for another user)
+	 * - if no user has been found, try to find UserExtSource and get user from it
+	 * - if no UserExtSource has been found, try to find Member and get user from it
+	 * - if there is no such object, return null
+	 *
+	 * @param message audit message in machine format (with characters '<' as brackets)
+	 *
+	 * @return user if found or null if not found
+	 * @throws InternalErrorException
+	 */
+	User getUserFromMessage(PerunSessionImpl sess, String message) throws InternalErrorException;
 
 }

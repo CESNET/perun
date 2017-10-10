@@ -78,7 +78,7 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
 
 		if(extSourceKerberosMatcher.find()) {
 			if (addUserExtSourceMatcher.find() || removeUserExtSourceMatcher.find()) {
-				user = getUserFromMessage(message);
+				user = perunSession.getPerunBl().getModulesUtilsBl().getUserFromMessage(perunSession, message);
 				if (user != null) {
 					attrVirtKerberosLogins = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":kerberosLogins");
 					String messageAttributeSet = attrVirtKerberosLogins.serializeToString() + " set for " + user.serializeToString() + ".";
@@ -104,28 +104,5 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("Logins in kerberos (including realm and kerberos UserExtSources)");
 		return attr;
-	}
-
-	/**
-	 * Get User from message if exists and there is only one. In other case return null instead.
-	 *
-	 * @param message
-	 * @return user or null
-	 * @throws InternalErrorException
-	 */
-	private User getUserFromMessage(String message) throws InternalErrorException {
-		User user = null;
-		List<PerunBean> perunBeans = AuditParser.parseLog(message);
-
-		for(PerunBean pb: perunBeans) {
-			if(pb instanceof User) {
-				if(user != null) {
-					return null;
-				} else {
-					user = (User) pb;
-				}
-			}
-		}
-		return user;
 	}
 }

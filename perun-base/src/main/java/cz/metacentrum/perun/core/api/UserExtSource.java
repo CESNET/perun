@@ -109,6 +109,7 @@ public class UserExtSource extends Auditable implements Comparable<PerunBean> {
 				"id=<").append(getId()).append(">").append(
 				", login=<").append(getLogin() == null ? "\\0" : BeansUtils.createEscaping(getLogin())).append(">").append(
 				", source=<").append(extSource == null ? "\\0" : getExtSource().serializeToString()).append(">").append(
+				", userId=<").append(getUserId()).append(">").append(
 				", loa=<").append(getLoa()).append(">").append(
 				']').toString();
 	}
@@ -118,9 +119,10 @@ public class UserExtSource extends Auditable implements Comparable<PerunBean> {
 		StringBuilder str = new StringBuilder();
 
 		return str.append(getClass().getSimpleName()).append(":[").append(
-				"id='").append(getId()).append(
-				"', login='").append(login).append('\'').append(
+				"id='").append(getId()).append('\'').append(
+				", login='").append(login).append('\'').append(
 				", source='").append(extSource).append('\'').append(
+				", userId='").append(getUserId()).append('\'').append(
 				", loa='").append(loa).append('\'').append(
 				']').toString();
 	}
