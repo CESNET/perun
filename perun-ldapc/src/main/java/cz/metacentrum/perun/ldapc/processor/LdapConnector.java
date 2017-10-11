@@ -218,12 +218,12 @@ public interface LdapConnector {
 	public void updateUsersCertSubjects(String userId, String[] certSubjects);
 
 	/**
-	 * Update all values of user shac home organizations in ldap
+	 * Update all values of user schac home organizations in ldap
 	 *
 	 * @param userId user id
 	 * @param organizations values of organizations
 	 */
-	public void updateUsersShacHomeOrganizations(String userId, String[] organizations);
+	public void updateUsersSchacHomeOrganizations(String userId, String[] organizations);
 
 	/**
 	 * Update all values of user edu person scoped affiliations

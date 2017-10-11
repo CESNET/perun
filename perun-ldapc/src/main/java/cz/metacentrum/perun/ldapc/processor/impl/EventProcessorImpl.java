@@ -498,15 +498,15 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 					}
 				//USER SCHAC HOME ORGANIZATIONS WILL BE SET (special method for updating)
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":schacHomeOrganizations")) {
-					List<String> shacHomeOrganizationsList = (this.attribute.getValue() != null) ? (ArrayList) this.attribute.getValue() : null;
+					List<String> schacHomeOrganizations = (this.attribute.getValue() != null) ? (ArrayList) this.attribute.getValue() : null;
 
-					if(shacHomeOrganizationsList == null || shacHomeOrganizationsList.isEmpty()) {
-						if(ldapConnector.userAttributeExist(this.user, "shacHomeOrganizations")) {
-							updateUserAttribute("shacHomeOrganizations", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					if(schacHomeOrganizations == null || schacHomeOrganizations.isEmpty()) {
+						if(ldapConnector.userAttributeExist(this.user, "schacHomeOrganizations")) {
+							updateUserAttribute("schacHomeOrganizations", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					} else {
-						String[] subjectsArray = Arrays.copyOf(shacHomeOrganizationsList.toArray(), shacHomeOrganizationsList.toArray().length, String[].class);
-						ldapConnector.updateUsersShacHomeOrganizations(String.valueOf(this.user.getId()), subjectsArray);
+						String[] subjectsArray = Arrays.copyOf(schacHomeOrganizations.toArray(), schacHomeOrganizations.toArray().length, String[].class);
+						ldapConnector.updateUsersSchacHomeOrganizations(String.valueOf(this.user.getId()), subjectsArray);
 					}
 				//USER EDU PERSON SPCOPED AFFILIATIONS WILL BE SET (special method for updating)
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonScopedAffiliations")) {

@@ -332,7 +332,7 @@ public class LdapConnectorImpl implements LdapConnector {
 		log.debug("Entry modified in LDAP: UserId {}.", userId);
 	}
 
-	public void updateUsersShacHomeOrganizations(String userId, String[] organizations) {
+	public void updateUsersSchacHomeOrganizations(String userId, String[] organizations) {
 		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
 		context.setAttributeValues("schacHomeOrganizations", organizations);
 		ldapTemplate.modifyAttributes(context);
