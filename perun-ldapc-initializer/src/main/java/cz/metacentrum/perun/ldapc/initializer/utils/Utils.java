@@ -315,6 +315,7 @@ public class Utils {
 			String isSponsoredUser = "isSponsoredUser: ";
 			String userPassword = "userPassword: ";
 			String phone = "telephoneNumber: ";
+			String bonaFideStatus = "bonaFideStatus: ";
 			List<String> membersOf = new ArrayList<>();
 			List<Member> members;
 			Set<String> membersOfPerunVo = new HashSet<>();
@@ -334,6 +335,7 @@ public class Utils {
 			Attribute attrOrganization = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":organization");
 			Attribute attrVirtCertDNs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
 			Attribute attrSchacHomeOrganizations = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":schacHomeOrganizations");
+			Attribute attrBonaFideStatus = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":elixirBonaFideStatus");
 			Attribute attrEduPersonScopedAffiliations = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonScopedAffiliations");
 			Attribute attrLibraryIDs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs");
 			Attribute attrPhone = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":phone");
@@ -359,6 +361,8 @@ public class Utils {
 			else o+= (String) attrOrganization.getValue();
 			if(attrPhone == null || attrPhone.getValue() == null || ((String) attrPhone.getValue()).isEmpty()) phone= null;
 			else phone+= (String) attrPhone.getValue();
+			if(attrBonaFideStatus == null || attrBonaFideStatus.getValue() == null || ((String) attrBonaFideStatus.getValue()).isEmpty()) bonaFideStatus = null;
+			else bonaFideStatus+= (String) attrBonaFideStatus.getValue();
 			Map<String, String> certDNs = null;
 			Set<String> certSubjectsWithPrefix = null;
 			Set<String> certSubjectsWithoutPrefix = new HashSet<>();
@@ -388,6 +392,7 @@ public class Utils {
 			if(preferredMail != null) writer.write(preferredMail + '\n');
 			if(o != null) writer.write(o + '\n');
 			if(phone != null) writer.write(phone + '\n');
+			if(bonaFideStatus != null) writer.write(bonaFideStatus + '\n');
 			if(certSubjectsWithoutPrefix != null && !certSubjectsWithoutPrefix.isEmpty()) {
 				for(String s: certSubjectsWithoutPrefix) {
 					writer.write("userCertificateSubject: " + s + '\n');

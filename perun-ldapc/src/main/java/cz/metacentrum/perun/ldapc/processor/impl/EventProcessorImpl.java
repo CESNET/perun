@@ -78,8 +78,9 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	//Groups patterns
 	private Pattern newGroupPattern = Pattern.compile(" created in Vo:\\[(.*)\\]");
 	private Pattern subGroupPattern = Pattern.compile(" created in Vo:\\[(.*)\\] as subgroup of Group:\\[(.*)\\]");
-	private Pattern assignGroupToResource = Pattern.compile("Group:\\[(.*)\\] assigned to Resource:\\[(.*)\\]");
-	private Pattern removeGroupFromResource = Pattern.compile("Group:\\[(.*)\\] removed from Resource:\\[(.*)\\]");
+	private Pattern assignGroupToResourcePattern = Pattern.compile("Group:\\[(.*)\\] assigned to Resource:\\[(.*)\\]");
+	private Pattern removeGroupFromResourcePattern = Pattern.compile("Group:\\[(.*)\\] removed from Resource:\\[(.*)\\]");
+	private Pattern moveGroupPattern = Pattern.compile("Group:\\[(.*)\\] was moved");
 	//Members patterns
 	private Pattern addedToPattern = Pattern.compile(" added to Group:\\[(.*)\\]");
 	private Pattern totallyRemovedFromPatter = Pattern.compile(" was removed from Group:\\[(.*)\\] totally");
@@ -94,17 +95,82 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	private Pattern userRemovePattern = Pattern.compile(" removed for User:\\[(.*)\\]");
 	private Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)\\]");
 
-	private Pattern userUidNamespace = Pattern.compile(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:");
-	private Pattern userLoginNamespace = Pattern.compile(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:");
+	private Pattern userUidNamespacePattern = Pattern.compile(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:");
+	private Pattern userLoginNamespacePattern = Pattern.compile(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:");
 	//UserExtSources patterns
-	private Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]");
-	private Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]");
+	private Pattern addUserExtSourcePattern = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]");
+	private Pattern removeUserExtSourcePattern = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]");
 
 	//CONSTANTS
 	private static final String LDAP_NAME = "ldap";
 	private static final String PATH_TO_ERROR_FILE = "./errorParseMessageForLDAP.log";
 	private static final String PATH_TO_NOT_EXECUTED_ERROR_FILE = "./notExecutedMessages.log";
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+	//PERUN ATTRIBUTES NAMES
+	public static final String perunAttrPreferredMail = "preferredMail";
+	public static final String perunAttrMail = "mail";
+	public static final String perunAttrOrganization = "organization";
+	public static final String perunAttrPhone = "phone";
+	public static final String perunAttrUserCertDNs = "userCertDNs";
+	public static final String perunAttrBonaFideStatus = "elixirBonaFideStatus";
+	public static final String perunAttrSchacHomeOrganizations = "schacHomeOrganizations";
+	public static final String perunAttrEduPersonScopedAffiliations = "eduPersonScopedAffiliations";
+	public static final String perunAttrLibraryIDs = "libraryIDs";
+	public static final String perunAttrEntityID = "entityID";
+
+	//LDAP ATTRIBUTES NAMES
+	public static final String ldapAttrAssignedToResourceId = "assignedToResourceId";
+	public static final String ldapAttrAssignedGroupId = "assignedGroupId";
+	public static final String ldapAttrDescription = "description";
+	public static final String ldapAttrCommonName = "cn";
+	public static final String ldapAttrPerunUniqueGroupName= "perunUniqueGroupName";
+	public static final String ldapAttrEduPersonPrincipalNames = "eduPersonPrincipalNames";
+	public static final String ldapAttrPreferredMail = perunAttrPreferredMail;
+	public static final String ldapAttrMail = perunAttrMail;
+	public static final String ldapAttrOrganization = "o";
+	public static final String ldapAttrTelephoneNumber = "telephoneNumber";
+	public static final String ldapAttrUserCertDNs = "userCertificateSubject";
+	public static final String ldapAttrBonaFideStatus = "bonaFideStatus";
+	public static final String ldapAttrSchacHomeOrganizations = perunAttrSchacHomeOrganizations;
+	public static final String ldapAttrEduPersonScopedAffiliations = perunAttrEduPersonScopedAffiliations;
+	public static final String ldapAttrLibraryIDs = perunAttrLibraryIDs;
+	public static final String ldapAttrUidNumber = "uidNumber;x-ns-";
+	public static final String ldapAttrLogin = "login;x-ns-";
+	public static final String ldapAttrUserPassword = "userPassword";
+	public static final String ldapAttrSurname = "sn";
+	public static final String ldapAttrGivenName = "givenName";
+	public static final String ldapAttrEntityID = perunAttrEntityID;
+	public static final String ldapAttrObjectClass = "objectClass";
+	public static final String ldapAttrPerunVoId = "perunVoId";
+	public static final String ldapAttrPerunFacilityId = "perunFacilityId";
+	public static final String ldapAttrPerunUserId = "perunUserId";
+	public static final String ldapAttrPerunGroupId = "perunGroupId";
+	public static final String ldapAttrPerunResourceId = "perunResourceId";
+	public static final String ldapAttrPerunParentGroup = "perunParentGroup";
+	public static final String ldapAttrPerunParentGroupId = "perunParentGroupId";
+	public static final String ldapAttrMemberOf = "memberOf";
+	public static final String ldapAttrUniqueMember = "uniqueMember";
+	public static final String ldapAttrMemberOfPerunVo = "memberOfPerunVo";
+	public static final String ldapAttrEntryStatus = "entryStatus";
+	public static final String ldapAttrIsServiceUser = "isServiceUser";
+	public static final String ldapAttrIsSponsoredUser = "isSponsoredUser";
+
+	//LDAP OBJECT CLASSES
+	public static final String objectClassTop = "top";
+	public static final String objectClassPerunResource = "perunResource";
+	public static final String objectClassPerunGroup = "perunGroup";
+	public static final String objectClassOrganization = "organization";
+	public static final String objectClassPerunVO = "perunVO";
+	public static final String objectClassPerson = "person";
+	public static final String objectClassOrganizationalPerson = "organizationalPerson";
+	public static final String objectClassInetOrgPerson = "inetOrgPerson";
+	public static final String objectClassPerunUser = "perunUser";
+	public static final String objectClassTenOperEntry = "tenOperEntry";
+	public static final String objectClassInetUser = "inetUser";
+
+	//LDAP ORGANIZATION UNITS
+	public static final String organizationalUnitPeople = "ou=People";
 
 	/**
 	 * This method waiting for new messages in AuditLog (using AuditerConsumer)
@@ -146,10 +212,10 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 					if(messages == null) Thread.sleep(1000);
 				} while(messages == null);
 				//If new messages exist, resolve them all
-				Iterator<AuditMessage> messagesIter = messages.iterator();
-				while(messagesIter.hasNext()) {
-					message = messagesIter.next();
-					messagesIter.remove();
+				Iterator<AuditMessage> messagesIterator = messages.iterator();
+				while(messagesIterator.hasNext()) {
+					message = messagesIterator.next();
+					messagesIterator.remove();
 					//Warning when two consecutive messages are separated by more than 15 ids
 					if(lastProcessedIdNumber > 0 && lastProcessedIdNumber < message.getId()) {
 						if((message.getId() - lastProcessedIdNumber) > 15) log.debug("SKIP FLAG WARNING: lastProcessedIdNumber: " + lastProcessedIdNumber + " - newMessageNumber: " + message.getId() + " = " + (lastProcessedIdNumber - message.getId()));
@@ -207,6 +273,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	 *   -> 5.1) if there is message with deleting group => delete this group from LDAP
 	 *   -> 5.2) if there is message with creating group => create this group in LDAP
 	 *   -> 5.3) if there is message with updating group => update this group in LDAP
+	 *   -> 5.4) if there is message with moving group in the structure => modify existing group to the new state
 	 * -> 6) only MEMBER exists (RPC CALLING used)
 	 *   -> 6.1) if there is message with changing of member state to valid => add member to all groups in LDAP where he needs to be
 	 *   -> 6.2) if there is message with changing of member state to other than valid => remove member from all groups in LDAP where is needed
@@ -240,10 +307,10 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	 */
 	protected void resolveMessage(String msg, Integer idOfMessage) throws InternalErrorException {
 
-		List<PerunBean> listOfBeans = new ArrayList<PerunBean>();
+		List<PerunBean> listOfBeans;
 		listOfBeans = AuditParser.parseLog(msg);
 
-		//TemporaryDebug information for controling parsing of message.
+		//Debug information to check parsing of message.
 		if(!listOfBeans.isEmpty()){
 			int i=0;
 			for(PerunBean p: listOfBeans) {
@@ -279,35 +346,34 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				}
 			}
 			// 1.2) MEMBER WILL BE REMOVED FROM GROUP
-			//Matcher removedFrom = removedFromPattern.matcher(msg);
 			Matcher totallyRemovedFrom = totallyRemovedFromPatter.matcher(msg);
 
 			if(totallyRemovedFrom.find()) {
 				if(ldapConnector.isAlreadyMember(this.member, this.group)) ldapConnector.removeMemberFromGroup(this.member, this.group);
 			}
 
-			// 2) IF 2 GROUPS WERE FOUND, TRY TO WORK WITH PARENTGROUP-SUBGROUP SPECIFIC OPERATIONS
+			// 2) IF 2 GROUPS WERE FOUND, TRY TO WORK WITH PARENT_GROUP-SUBGROUP SPECIFIC OPERATIONS
 		} else if(this.group != null && this.parentGroup != null) {
 			Matcher newSubGroup = subGroupPattern.matcher(msg);
 
-			// 2.1) ADD GROUP AS SUBGROUP TO PARENTGROUP
+			// 2.1) ADD GROUP AS SUBGROUP TO PARENT_GROUP
 			if(newSubGroup.find()) {
 				ldapConnector.addGroupAsSubGroup(this.group, this.parentGroup);
 			}
 
 			// 3) IF GROUP AND RESOURCE WERE FOUND, TRY TO WORK WITH GROUP-RESOURCE SPECIFIC OPERATIONS
 		} else if(this.group != null && this.resource != null) {
-			Matcher assigned = assignGroupToResource.matcher(msg);
-			Matcher removed = removeGroupFromResource.matcher(msg);
+			Matcher assigned = assignGroupToResourcePattern.matcher(msg);
+			Matcher removed = removeGroupFromResourcePattern.matcher(msg);
 
 			// 3.1) ADD NEW RESOURCE FOR GROUP IN LDAP
 			if(assigned.find()) {
-				updateGroupAttribute("assignedToResourceId", String.valueOf(this.resource.getId()), LdapOperation.ADD_ATTRIBUTE, this.group);
-				updateResourceAttribute("assignedGroupId", String.valueOf(this.group.getId()), LdapOperation.ADD_ATTRIBUTE, this.resource);
+				updateGroupAttribute(ldapAttrAssignedToResourceId, String.valueOf(this.resource.getId()), LdapOperation.ADD_ATTRIBUTE, this.group);
+				updateResourceAttribute(ldapAttrAssignedGroupId, String.valueOf(this.group.getId()), LdapOperation.ADD_ATTRIBUTE, this.resource);
 				// 3.2) REMOVE RESOURCE FROM GROUP IN LDAP
 			} else if(removed.find()) {
-				updateGroupAttribute("assignedToResourceId", String.valueOf(this.resource.getId()), LdapOperation.REMOVE_ATTRIBUTE, this.group);
-				updateResourceAttribute("assignedGroupId", String.valueOf(this.group.getId()), LdapOperation.REMOVE_ATTRIBUTE, this.resource);
+				updateGroupAttribute(ldapAttrAssignedToResourceId, String.valueOf(this.resource.getId()), LdapOperation.REMOVE_ATTRIBUTE, this.group);
+				updateResourceAttribute(ldapAttrAssignedGroupId, String.valueOf(this.group.getId()), LdapOperation.REMOVE_ATTRIBUTE, this.resource);
 			}
 			// 4) IF ONLY RESOURCE WERE FOUND, TRY TO WORK WITH RESOURCE SPECIFIC OPERATIONS
 		} else if(this.resource != null) {
@@ -323,10 +389,10 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				ldapConnector.createResource(resource, getFacilityEntityIdValue(resource.getFacilityId()));
 				// 4.3) RESOURCE WILL BE UPDATED
 			} else if(updated.find()) {
-				Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
-				List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
-				replaceList.add(new Pair("cn",this.resource.getName()));
-				if(this.resource.getDescription() != null && !this.resource.getDescription().isEmpty()) replaceList.add(new Pair("description", this.resource.getDescription()));
+				Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<>();
+				List<Pair<String,String>> replaceList = new ArrayList<>();
+				replaceList.add(new Pair(ldapAttrCommonName,this.resource.getName()));
+				if(this.resource.getDescription() != null && !this.resource.getDescription().isEmpty()) replaceList.add(new Pair(ldapAttrDescription, this.resource.getDescription()));
 				attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
 				updateResourceAttributes(attributes, this.resource);
 			}
@@ -335,22 +401,20 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			Matcher deleted = deletedPattern.matcher(msg);
 			Matcher newGroup = newGroupPattern.matcher(msg);
 			Matcher updated = updatedPattern.matcher(msg);
+			Matcher moveGroup = moveGroupPattern.matcher(msg);
 
-			// 5.1) GROUP WILL BE DELETED
 			if(deleted.find()){
+				// 5.1) GROUP WILL BE DELETED
 				ldapConnector.removeGroup(this.group);
-				// 5.2) GROUP WILL BE CREATED
 			} else if(newGroup.find()) {
+				// 5.2) GROUP WILL BE CREATED
 				ldapConnector.addGroup(this.group);
-				// 5.3) GROUP WILL BE UPDATED
 			} else if(updated.find()) {
-				Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
-				List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
-				replaceList.add(new Pair("cn",this.group.getName()));
-				replaceList.add(new Pair("perunUniqueGroupName", ldapConnector.getVoShortName(this.group.getVoId()) + ":" + this.group.getName()));
-				if(this.group.getDescription() != null && !this.group.getDescription().isEmpty()) replaceList.add(new Pair("description", this.group.getDescription()));
-				attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
-				updateGroupAttributes(attributes, this.group);
+				// 5.3) GROUP WILL BE UPDATED
+				updateGroup(group);
+			} else if(moveGroup.find()) {
+				// 5.4) MOVE GROUP IN STRUCTURE
+				moveGroup(group);
 			}
 
 			// 6) IF MEMBER WAS FOUND, TRY TO WORK WITH MEMBER SPECIFIC OPERATIONS (! RPC CALLING used there !)
@@ -364,7 +428,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				try {
 					memberGroups = Rpc.GroupsManager.getAllMemberGroups(ldapcManager.getRpcCaller(), this.member);
 				} catch (MemberNotExistsException e) {
-					//IMPORTATNT this is not problem, if member not exist, we expected that will be deleted in some message after that, in DB is deleted
+					//IMPORTANT this is not problem, if member not exist, we expected that will be deleted in some message after that, in DB is deleted
 				} catch (PrivilegeException e) {
 					throw new InternalErrorException("There are no privilegies for getting member's groups", e);
 				} catch (InternalErrorException e) {
@@ -406,15 +470,15 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			} else if(updated.find()) {
 				Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
 				List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
-				replaceList.add(new Pair("description",this.vo.getName()));
+				replaceList.add(new Pair(ldapAttrDescription,this.vo.getName()));
 				attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
 				updateVoAttributes(attributes, this.vo);
 			}
 
 			// 8) IF USER AND USEREXTSOURCE WERE FOUND, TRY TO WORK WITH USER-USEREXTSOURCE SPECIFIC OPERATIONS (LIKE SET EXT LOGINS FOR IDP EXTSOURCES)
 		} else if(this.user != null && this.userExtSource != null) {
-			Matcher addExtSource = addUserExtSource.matcher(msg);
-			Matcher removeExtSource = removeUserExtSource.matcher(msg);
+			Matcher addExtSource = addUserExtSourcePattern.matcher(msg);
+			Matcher removeExtSource = removeUserExtSourcePattern.matcher(msg);
 
 			// 8.1) ADD ATTRIBUTE WITH IDP EXTSOURCE
 			if(addExtSource.find()) {
@@ -423,7 +487,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 					if(this.userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 						extLogin = this.userExtSource.getLogin();
 						if(extLogin == null) extLogin = "";
-						updateUserAttribute("eduPersonPrincipalNames", extLogin, LdapOperation.ADD_ATTRIBUTE, user);
+						updateUserAttribute(ldapAttrEduPersonPrincipalNames, extLogin, LdapOperation.ADD_ATTRIBUTE, user);
 					}
 				}
 				// 8.2) REMOVE ATTRIBUTE WITH IDP EXTSOURCE
@@ -433,7 +497,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 					if(this.userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 						extLogin = this.userExtSource.getLogin();
 						if(extLogin == null) extLogin = "";
-						updateUserAttribute("eduPersonPrincipalNames", extLogin, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						updateUserAttribute(ldapAttrEduPersonPrincipalNames, extLogin, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 				}
 			}
@@ -444,47 +508,47 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 
 			// 9.1) SOME USER ATTRIBUTE WILL BE PROBABLY SET (IF IT IS ONE OF SPECIFIC ATTRIBUTES)
 			if(set.find()) {
-				Matcher uidMatcher = userUidNamespace.matcher(this.attribute.getName());
-				Matcher loginMatcher = userLoginNamespace.matcher(this.attribute.getName());
+				Matcher uidMatcher = userUidNamespacePattern.matcher(this.attribute.getName());
+				Matcher loginMatcher = userLoginNamespacePattern.matcher(this.attribute.getName());
 				//USER PREFERREDMAIL WILL BE SET
-				if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":preferredMail")) {
+				if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrPreferredMail)) {
 					//this mean change of attribute preferredMail in User
 					if(this.attribute.getValue() != null) {
-						updateUserAttribute("preferredMail", (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, user);
-						updateUserAttribute("mail", (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, user);
+						updateUserAttribute(ldapAttrPreferredMail, (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, user);
+						updateUserAttribute(ldapAttrMail, (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, user);
 					} else {
-						if(ldapConnector.userAttributeExist(this.user, "preferredMail")) {
-							updateUserAttribute("preferredMail", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrPreferredMail)) {
+							updateUserAttribute(ldapAttrPreferredMail, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
-						if(ldapConnector.userAttributeExist(this.user, "mail")) {
-							updateUserAttribute("mail", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrMail)) {
+							updateUserAttribute(ldapAttrMail, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
 					//USER ORGANIZATION WILL BE SET
-				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":organization")) {
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrOrganization)) {
 					if(this.attribute.getValue() != null) {
-						updateUserAttribute("o", (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
+						updateUserAttribute(ldapAttrOrganization, (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
 					} else {
-						if(ldapConnector.userAttributeExist(this.user, "o")) {
-							updateUserAttribute("o", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrOrganization)) {
+							updateUserAttribute(ldapAttrOrganization, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
 					//USER PHONE WILL BE SET
-				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":phone")) {
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrPhone)) {
 					if(this.attribute.getValue() != null) {
-						updateUserAttribute("telephoneNumber", (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
+						updateUserAttribute(ldapAttrTelephoneNumber, (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
 					} else {
-						if(ldapConnector.userAttributeExist(this.user, "telephoneNumber")) {
-							updateUserAttribute("telephoneNumber", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrTelephoneNumber)) {
+							updateUserAttribute(ldapAttrTelephoneNumber, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
 					//USER CERT DNS WILL BE SET (special method for updating)
-				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrUserCertDNs)) {
 					Map<String, String> certDNsMap = (this.attribute.getValue() != null) ? (Map) this.attribute.getValue() : null;
 
 					if (certDNsMap == null || certDNsMap.isEmpty()) {
-						if (ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
-							updateUserAttribute("userCertificateSubject", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						if (ldapConnector.userAttributeExist(this.user, ldapAttrUserCertDNs)) {
+							updateUserAttribute(ldapAttrUserCertDNs, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					} else {
 						Set<String> certSubjectsWithPrefixes = ((Map) this.attribute.getValue()).keySet();
@@ -496,37 +560,46 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 						String[] subjectsArray = Arrays.copyOf(certSubjectsWithoutPrefixes.toArray(), certSubjectsWithoutPrefixes.toArray().length, String[].class);
 						ldapConnector.updateUsersCertSubjects(String.valueOf(this.user.getId()), subjectsArray);
 					}
+				//USER BONA FIDE STATUS WILL BE SET (special method for updating)
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrBonaFideStatus)) {
+					if(this.attribute.getValue() != null) {
+						updateUserAttribute(ldapAttrBonaFideStatus, (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
+					} else {
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrBonaFideStatus)) {
+							updateUserAttribute(ldapAttrBonaFideStatus, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						}
+					}
 				//USER SCHAC HOME ORGANIZATIONS WILL BE SET (special method for updating)
-				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":schacHomeOrganizations")) {
-					List<String> schacHomeOrganizations = (this.attribute.getValue() != null) ? (ArrayList) this.attribute.getValue() : null;
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrSchacHomeOrganizations)) {
+					List<String> schacHomeOrganizationsList = (this.attribute.getValue() != null) ? (ArrayList) this.attribute.getValue() : null;
 
-					if(schacHomeOrganizations == null || schacHomeOrganizations.isEmpty()) {
-						if(ldapConnector.userAttributeExist(this.user, "schacHomeOrganizations")) {
-							updateUserAttribute("schacHomeOrganizations", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					if(schacHomeOrganizationsList == null || schacHomeOrganizationsList.isEmpty()) {
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrSchacHomeOrganizations)) {
+							updateUserAttribute(ldapAttrSchacHomeOrganizations, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					} else {
-						String[] subjectsArray = Arrays.copyOf(schacHomeOrganizations.toArray(), schacHomeOrganizations.toArray().length, String[].class);
+						String[] subjectsArray = Arrays.copyOf(schacHomeOrganizationsList.toArray(), schacHomeOrganizationsList.toArray().length, String[].class);
 						ldapConnector.updateUsersSchacHomeOrganizations(String.valueOf(this.user.getId()), subjectsArray);
 					}
 				//USER EDU PERSON SPCOPED AFFILIATIONS WILL BE SET (special method for updating)
-				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonScopedAffiliations")) {
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrEduPersonScopedAffiliations)) {
 					List<String> eduPersonScopedAffiliationsList = (this.attribute.getValue() != null) ? (ArrayList) this.attribute.getValue() : null;
 
 					if(eduPersonScopedAffiliationsList == null || eduPersonScopedAffiliationsList.isEmpty()) {
-						if(ldapConnector.userAttributeExist(this.user, "eduPersonScopedAffiliations")) {
-							updateUserAttribute("eduPersonScopedAffiliations", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrEduPersonScopedAffiliations)) {
+							updateUserAttribute(ldapAttrEduPersonScopedAffiliations, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					} else {
 						String[] subjectsArray = Arrays.copyOf(eduPersonScopedAffiliationsList.toArray(), eduPersonScopedAffiliationsList.toArray().length, String[].class);
 						ldapConnector.updateUsersEduPersonScopedAffiliations(String.valueOf(this.user.getId()), subjectsArray);
 					}
 				//USER LIBRARY IDs WILL BE SET (special method for updating)
-				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs")) {
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrLibraryIDs)) {
 					List<String> libraryIDsList = (this.attribute.getValue() != null) ? (ArrayList) this.attribute.getValue() : null;
 
 					if(libraryIDsList == null || libraryIDsList.isEmpty()) {
-						if(ldapConnector.userAttributeExist(this.user, "libraryIDs")) {
-							updateUserAttribute("libraryIDs", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrLibraryIDs)) {
+							updateUserAttribute(ldapAttrLibraryIDs, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					} else {
 						String[] subjectsArray = Arrays.copyOf(libraryIDsList.toArray(), libraryIDsList.toArray().length, String[].class);
@@ -535,27 +608,27 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 					//USER UID NUMBER WILL BE SET
 				} else if(uidMatcher.find()) {
 					if(this.attribute.getValue() != null) {
-						updateUserAttribute("uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter(), String.valueOf((Integer) this.attribute.getValue()), LdapOperation.REPLACE_ATTRIBUTE, this.user);
+						updateUserAttribute(ldapAttrUidNumber + this.attribute.getFriendlyNameParameter(), String.valueOf((Integer) this.attribute.getValue()), LdapOperation.REPLACE_ATTRIBUTE, this.user);
 					} else {
-						if(ldapConnector.userAttributeExist(this.user, "uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter())) {
-							updateUserAttribute("uidNumber;x-ns-" + this.attribute.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrUidNumber + this.attribute.getFriendlyNameParameter())) {
+							updateUserAttribute(ldapAttrUidNumber + this.attribute.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
 					//USER LOGIN WILL BE SET
 				} else if(loginMatcher.find()) {
 					if(this.attribute.getValue() != null) {
-						updateUserAttribute("login;x-ns-" + this.attribute.getFriendlyNameParameter(), (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
+						updateUserAttribute(ldapAttrLogin + this.attribute.getFriendlyNameParameter(), (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
 						//if login is from loginNamespace (eg. EINFRA) (new value), then userPassword must be set or modified
 						if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(this.attribute.getFriendlyNameParameter())) {
-							updateUserAttribute("userPassword", "{SASL}" + this.attribute.getValue() + "@" + ldapProperties.getLdapLoginNamespace(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
+							updateUserAttribute(ldapAttrUserPassword, "{SASL}" + this.attribute.getValue() + "@" + ldapProperties.getLdapLoginNamespace(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
 						}
 					} else {
-						if(ldapConnector.userAttributeExist(this.user, "login;x-ns-" + this.attribute.getFriendlyNameParameter())) {
-							updateUserAttribute("login;x-ns-" + this.attribute.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrLogin + this.attribute.getFriendlyNameParameter())) {
+							updateUserAttribute(ldapAttrLogin + this.attribute.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 						if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(this.attribute.getFriendlyNameParameter())) {
-							if(ldapConnector.userAttributeExist(this.user, "userPassword")) {
-								updateUserAttribute("userPassword", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+							if(ldapConnector.userAttributeExist(this.user, ldapAttrUserPassword)) {
+								updateUserAttribute(ldapAttrUserPassword, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 							}
 						}
 					}
@@ -567,52 +640,56 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			Matcher remove = userRemovePattern.matcher(msg);
 			// 10.1) REMOVE SPECIFIC USER ATTRIBUTE
 			if(remove.find() &&  ldapConnector.userExist(this.user)) {
-				Matcher uidMatcher = userUidNamespace.matcher(this.attributeDef.getName());
-				Matcher loginMatcher = userLoginNamespace.matcher(this.attributeDef.getName());
-				if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":preferredMail")) {
-					if(ldapConnector.userAttributeExist(this.user, "preferredMail")) {
-						updateUserAttribute("preferredMail", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+				Matcher uidMatcher = userUidNamespacePattern.matcher(this.attributeDef.getName());
+				Matcher loginMatcher = userLoginNamespacePattern.matcher(this.attributeDef.getName());
+				if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrPreferredMail)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrPreferredMail)) {
+						updateUserAttribute(ldapAttrPreferredMail, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
-					if(ldapConnector.userAttributeExist(this.user, "mail")) {
-						updateUserAttribute("mail", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrMail)) {
+						updateUserAttribute(ldapAttrMail, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 					//TODO: organization (user) will not exists
 
-				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":organization")) {
-					if(ldapConnector.userAttributeExist(this.user, "o")) {
-						updateUserAttribute("o", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrOrganization)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrOrganization)) {
+						updateUserAttribute(ldapAttrOrganization, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
-				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":phone")) {
-					if(ldapConnector.userAttributeExist(this.user, "telephoneNumber")) {
-						updateUserAttribute("telephoneNumber", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrPhone)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrTelephoneNumber)) {
+						updateUserAttribute(ldapAttrTelephoneNumber, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
-				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
-					if(ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
-						updateUserAttribute("userCertificateSubject", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrUserCertDNs)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrUserCertDNs)) {
+						updateUserAttribute(ldapAttrUserCertDNs, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
-				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonScopedAffiliations")) {
-					if(ldapConnector.userAttributeExist(this.user, "eduPersonScopedAffiliations")) {
-						updateUserAttribute("eduPersonScopedAffiliations", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrEduPersonScopedAffiliations)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrEduPersonScopedAffiliations)) {
+						updateUserAttribute(ldapAttrEduPersonScopedAffiliations, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
-				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":schacHomeOrganizations")) {
-					if(ldapConnector.userAttributeExist(this.user, "schacHomeOrganizations")) {
-						updateUserAttribute("schacHomeOrganizations", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrBonaFideStatus)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrBonaFideStatus)) {
+						updateUserAttribute(ldapAttrBonaFideStatus, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
-				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs")) {
-					if(ldapConnector.userAttributeExist(this.user, "libraryIDs")) {
-						updateUserAttribute("libraryIDs", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrSchacHomeOrganizations)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrSchacHomeOrganizations)) {
+						updateUserAttribute(ldapAttrSchacHomeOrganizations, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					}
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrLibraryIDs)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrLibraryIDs)) {
+						updateUserAttribute(ldapAttrLibraryIDs, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 				} else if(uidMatcher.find()) {
-					if(ldapConnector.userAttributeExist(this.user, "uidNumber;x-ns-" + this.attributeDef.getFriendlyNameParameter())) {
-						updateUserAttribute("uidNumber;x-ns-" + this.attributeDef.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrUidNumber + this.attributeDef.getFriendlyNameParameter())) {
+						updateUserAttribute(ldapAttrUidNumber + this.attributeDef.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 				} else if(loginMatcher.find()) {
-					if(ldapConnector.userAttributeExist(this.user, "login;x-ns-" + this.attributeDef.getFriendlyNameParameter())) {
-						updateUserAttribute("login;x-ns-" + this.attributeDef.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrLogin + this.attributeDef.getFriendlyNameParameter())) {
+						updateUserAttribute(ldapAttrLogin + this.attributeDef.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 					if(ldapProperties.getLdapLoginNamespace().toLowerCase().equals(this.attributeDef.getFriendlyNameParameter())) {
 						if(ldapConnector.userPasswordExists(this.user)) {
-							updateUserAttribute("userPassword", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+							updateUserAttribute(ldapAttrUserPassword, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
 				}
@@ -637,17 +714,17 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				String lastName = this.user.getLastName();
 				if(firstName == null) firstName = "";
 				if(lastName == null || lastName.isEmpty()) lastName = "N/A";
-				replaceList.add(new Pair("sn",lastName));
-				replaceList.add(new Pair("cn", firstName + " " + lastName));
+				replaceList.add(new Pair(ldapAttrSurname,lastName));
+				replaceList.add(new Pair(ldapAttrCommonName, firstName + " " + lastName));
 				// IF firstName is empty, maybe need to be removed first
 				if(firstName.isEmpty()) {
 					//if first name exists and new one is empty, then remove it, else do nothing
-					if(ldapConnector.userAttributeExist(this.user, "givenName")) {
-						updateUserAttribute("givenName", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrGivenName)) {
+						updateUserAttribute(ldapAttrGivenName, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 				} else {
 					//if first name is not empty, replace it by new first name
-					replaceList.add(new Pair("givenName", firstName));
+					replaceList.add(new Pair(ldapAttrGivenName, firstName));
 				}
 				attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
 				updateUserAttributes(attributes, this.user);
@@ -687,18 +764,18 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			// 12.1) SOME FACILITY ATTRIBUTE WILL BE PROBABLY SET (IF IT IS ONE OF SPECIFIC ATTRIBUTES)
 			if(set.find()) {
 				//EntityID WILL BE SET
-				if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_DEF + ":entityID")) {
+				if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_DEF + ":" + perunAttrEntityID)) {
 					try {
 						List<Resource> resources = Rpc.FacilitiesManager.getAssignedResources(ldapcManager.getRpcCaller(), this.facility);
 						//this mean change of attribute entityID in all assigned resources
 						if(this.attribute.getValue() != null) {
 							for(Resource res: resources) {
-								updateResourceAttribute("entityID", (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, res);
+								updateResourceAttribute(ldapAttrEntityID, (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, res);
 							}
 						} else {
 							for(Resource res: resources) {
-								if(ldapConnector.resourceAttributeExist(res, "entityID")) {
-									updateResourceAttribute("entityID", null, LdapOperation.REMOVE_ATTRIBUTE, res);
+								if(ldapConnector.resourceAttributeExist(res, ldapAttrEntityID)) {
+									updateResourceAttribute(ldapAttrEntityID, null, LdapOperation.REMOVE_ATTRIBUTE, res);
 								}
 							}
 						}
@@ -716,12 +793,12 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			Matcher remove = facilityRemovePattern.matcher(msg);
 			// 13.1) REMOVE SPECIFIC FACILITY ATTRIBUTE
 			if(remove.find()) {
-				if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_DEF + ":entityID")) {
+				if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_DEF + ":" + perunAttrEntityID)) {
 					try {
 						List<Resource> resources = Rpc.FacilitiesManager.getAssignedResources(ldapcManager.getRpcCaller(), this.facility);
 						for(Resource res: resources) {
-							if(ldapConnector.resourceAttributeExist(res, "entityID")) {
-								updateResourceAttribute("entityID", null, LdapOperation.REMOVE_ATTRIBUTE, res);
+							if(ldapConnector.resourceAttributeExist(res, ldapAttrEntityID)) {
+								updateResourceAttribute(ldapAttrEntityID, null, LdapOperation.REMOVE_ATTRIBUTE, res);
 							}
 						}
 					} catch (FacilityNotExistsException ex) {
@@ -748,20 +825,21 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	 */
 	private boolean isRemovableUserAttribute(String attributeName) {
 		List<String> nonOptionalAttributes = new ArrayList<String>();
-		nonOptionalAttributes.add("mail");
-		nonOptionalAttributes.add("preferredMail");
-		nonOptionalAttributes.add("o");
-		nonOptionalAttributes.add("userCertificateSubject");
-		nonOptionalAttributes.add("schacHomeOrganizations");
-		nonOptionalAttributes.add("eduPersonScopedAffiliations");
-		nonOptionalAttributes.add("libraryIDs");
+		nonOptionalAttributes.add(ldapAttrMail);
+		nonOptionalAttributes.add(ldapAttrPreferredMail);
+		nonOptionalAttributes.add(ldapAttrOrganization);
+		nonOptionalAttributes.add(ldapAttrUserCertDNs);
+		nonOptionalAttributes.add(ldapAttrSchacHomeOrganizations);
+		nonOptionalAttributes.add(ldapAttrBonaFideStatus);
+		nonOptionalAttributes.add(ldapAttrEduPersonScopedAffiliations);
+		nonOptionalAttributes.add(ldapAttrLibraryIDs);
 		if(nonOptionalAttributes.contains(attributeName)) return true;
 
 		List<String> optionalAttributes = new ArrayList<String>();
-		optionalAttributes.add("uidNumber");
-		optionalAttributes.add("login");
-		optionalAttributes.add("userPassword");
-		optionalAttributes.add("telephoneNumber");
+		optionalAttributes.add(ldapAttrUidNumber);
+		optionalAttributes.add(ldapAttrLogin);
+		optionalAttributes.add(ldapAttrUserPassword);
+		optionalAttributes.add(ldapAttrTelephoneNumber);
 
 		for(String s: optionalAttributes) {
 			if(attributeName.startsWith(s)) return true;
@@ -780,7 +858,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	private String getUserPreferredMailValue(User user) throws InternalErrorException {
 		cz.metacentrum.perun.core.api.Attribute preferredMailAttr = null;
 		try {
-			preferredMailAttr = Rpc.AttributesManager.getAttribute(ldapcManager.getRpcCaller(), user, cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+			preferredMailAttr = Rpc.AttributesManager.getAttribute(ldapcManager.getRpcCaller(), user, cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrPreferredMail);
 		} catch(PrivilegeException ex) {
 			throw new InternalErrorException("There are no privilegies for getting user's attribute.", ex);
 		} catch(AttributeNotExistsException ex) {
@@ -815,7 +893,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 
 		cz.metacentrum.perun.core.api.Attribute entityID = null;
 		try {
-			entityID = Rpc.AttributesManager.getAttribute(ldapcManager.getRpcCaller(), facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":entityID");
+			entityID = Rpc.AttributesManager.getAttribute(ldapcManager.getRpcCaller(), facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":" + perunAttrEntityID);
 		} catch(PrivilegeException ex) {
 			throw new InternalErrorException("There are no privilegies for getting facility attribute.", ex);
 		} catch(AttributeNotExistsException ex) {
@@ -1026,6 +1104,78 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			ModificationItem[] items = Arrays.copyOf(listOfItemsToModify.toArray(), listOfItemsToModify.toArray().length, ModificationItem[].class);
 			ldapConnector.updateResource(resource, items);
 		}
+	}
+
+	/**
+	 * Move group in hierarchical structure of it's VO.
+	 *
+	 * That means to change attributes in LDAP with name of group (structure is defined in name of group)
+	 * and references to parentGroup if any exist.
+	 *
+	 * @param group group object after moving
+	 *
+	 * @throws InternalErrorException
+	 */
+	private void moveGroup(Group group) throws InternalErrorException {
+		Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
+
+		List<Pair<String,String>> listAttributesToBeRemoved = new ArrayList<>();
+		List<Pair<String,String>> listAttributesToBeReplaced = new ArrayList<>();
+
+		listAttributesToBeReplaced.add(new Pair(ldapAttrCommonName,group.getName()));
+		listAttributesToBeReplaced.add(new Pair(ldapAttrPerunUniqueGroupName, ldapConnector.getVoShortName(group.getVoId()) + ":" + group.getName()));
+
+		//Check if group is now as subgroup or as top group
+		if(group.getName().contains(":")) {
+			//group is moved as subgroup
+			listAttributesToBeReplaced.add(new Pair(ldapAttrPerunParentGroup, ldapAttrPerunGroupId + "=" + group.getParentGroupId().toString() + "," + ldapAttrPerunVoId + "=" + group.getVoId() + "," + ldapProperties.getLdapBase()));
+			listAttributesToBeReplaced.add(new Pair(ldapAttrPerunParentGroupId, group.getParentGroupId().toString()));
+		} else {
+			//group is moved as top group
+			listAttributesToBeRemoved.add(new Pair(ldapAttrPerunParentGroup, null ));
+			listAttributesToBeRemoved.add(new Pair(ldapAttrPerunParentGroupId, null ));
+		}
+
+		//Add all attributes which will be replaced for the group (that also mean added if not exists yet)
+		attributes.put(LdapOperation.REPLACE_ATTRIBUTE, listAttributesToBeReplaced);
+		//Add all attributes (if any) which will be removed for group
+		if(!listAttributesToBeReplaced.isEmpty()) attributes.put(LdapOperation.REMOVE_ATTRIBUTE, listAttributesToBeRemoved);
+
+		//update attributes in LDAP for group
+		updateGroupAttributes(attributes, group);
+	}
+
+	/**
+	 * Update basic group attributes (name and description) in LDAP
+	 *
+	 * @param group group after update
+	 *
+	 * @throws InternalErrorException
+	 */
+	private void updateGroup(Group group) throws InternalErrorException {
+		Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<>();
+
+		List<Pair<String,String>> listAttributesToBeRemoved = new ArrayList<>();
+		List<Pair<String,String>> listAttributesToBeReplaced = new ArrayList<>();
+
+		//change name
+		listAttributesToBeReplaced.add(new Pair(ldapAttrCommonName,this.group.getName()));
+		listAttributesToBeReplaced.add(new Pair(ldapAttrPerunUniqueGroupName, ldapConnector.getVoShortName(this.group.getVoId()) + ":" + this.group.getName()));
+
+		//change description (or remove it if there is none)
+		if(group.getDescription() != null && !group.getDescription().isEmpty()) {
+			listAttributesToBeReplaced.add(new Pair(ldapAttrDescription, this.group.getDescription()));
+		} else {
+			listAttributesToBeRemoved.add(new Pair(ldapAttrDescription, null));
+		}
+
+		//Add all attributes which will be replaced for the group (that also mean added if not exists yet)
+		attributes.put(LdapOperation.REPLACE_ATTRIBUTE, listAttributesToBeReplaced);
+		//Add all attributes (if any) which will be removed for group
+		if(!listAttributesToBeReplaced.isEmpty()) attributes.put(LdapOperation.REMOVE_ATTRIBUTE, listAttributesToBeRemoved);
+
+		//update attributes in LDAP for group
+		updateGroupAttributes(attributes, group);
 	}
 
 	/**
