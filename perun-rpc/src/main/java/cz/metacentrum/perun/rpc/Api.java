@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -379,6 +380,23 @@ public class Api extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		serve(req, resp, false, false);
+	}
+
+	/**
+	 * OPTIONS method is called by CORS pre-flight requests made by JavaScript clients running in browsers.
+	 * The response must set CORS headers that allow the next request.
+	 * @param req HTTP request
+	 * @param resp HTTP response
+	 */
+	@Override
+	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String origin = req.getHeader("Origin");
+		if(origin==null) origin = "*";
+		resp.setHeader("Access-Control-Allow-Origin",origin);
+		resp.setHeader("Vary","Origin");
+		resp.setHeader("Access-Control-Allow-Methods","GET, POST, OPTIONS");
+		resp.setHeader("Access-Control-Allow-Headers","Authorization, Content-Type");
+		resp.setIntHeader("Access-Control-Max-Age",86400);
 	}
 
 	@SuppressWarnings("ConstantConditions")
