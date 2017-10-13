@@ -54,14 +54,17 @@ public class urn_perun_entityless_attribute_def_def_usedGids extends EntitylessA
 			if(!keyMatcher.matches()) throw new WrongAttributeValueException(attribute, key, "Key in usedGids can be only in format 'Rx', 'Gx', 'Dx' where 'x' is positive integer.");
 			
 			//Test value
-			String value = map.get(key);
-			if(value == null) throw new WrongAttributeValueException(attribute, key, "Value is usedGids can't be null.");
+			String value = map.get(mapKey);
+			if(value == null) throw new WrongAttributeValueException(attribute, key, "Value in usedGids can't be null.");
 			Matcher valueMatcher = valuePattern.matcher(value);
 			if(!valueMatcher.matches()) throw new WrongAttributeValueException(attribute, key, "Key in usedGids can be only positive integer.");
 		}
 		
 		//If group or resource has some gid, this gid can't be depleted at the same time!
 		for(String mapKey: mapKeys) {
+			//We have to skip keys in usedGids which start with "D",
+			//usedGids always contains key "D" + value when value has key starting with "D"
+			if(mapKey.startsWith("D")) continue;
 			String value = map.get(mapKey);
 			if(map.containsKey("D" + value)) throw new WrongAttributeValueException(attribute, key, "This gid can't be depleted and used at the same time!");
 		}
