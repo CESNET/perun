@@ -392,6 +392,9 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceSql" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>
+	<bean class="cz.metacentrum.perun.core.impl.ExtSourceREMS" factory-method="setPerunBlImpl">
+		<constructor-arg ref="perun" />
+	</bean>
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceSqlComplex" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>
