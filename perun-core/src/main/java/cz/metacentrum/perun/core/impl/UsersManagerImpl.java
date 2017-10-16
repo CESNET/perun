@@ -951,6 +951,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 						userExtSource.getLogin(), userExtSource.getExtSource().getId());
 			}
 
+		} catch(EmptyResultDataAccessException ex) {
+			exists = false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		try {
 			// check by UES ID if present in object
 			if (!exists && userExtSource.getId() > 0) {
 				exists = 1 == jdbc.queryForInt("select 1 from user_ext_sources where id=?",
@@ -958,12 +965,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			}
 
 			return exists;
-
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+
 	}
 
 	public List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds) throws InternalErrorException {

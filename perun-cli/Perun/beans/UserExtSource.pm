@@ -40,9 +40,23 @@ sub TO_JSON
 		$loa = 0;
 	}
 
+	my $persistent;
+	if (defined($self->{_persistent})) {
+		$persistent = $self->{_persistent};
+	} else {
+		$persistent = undef;
+	}
+
+	my $userId;
+	if (defined($self->{_userId})) {
+		$userId = $self->{_userId} * 1;
+	} else {
+		$userId = 0;
+	}
+
 	my $extSource = $self->{_extSource};
 
-	return { id => $id, login => $login, loa => $loa, extSource => $extSource };
+	return { id => $id, login => $login, loa => $loa, userId => $userId, persistent => $persistent, extSource => $extSource };
 }
 
 sub getId
@@ -86,6 +100,45 @@ sub setLogin
 {
 	my $self = shift;
 	$self->{_login} = shift;
+
+	return;
+}
+
+sub isPersistent
+{
+	my $self = shift;
+	return ($self->{_persistent}) ? 'true' : 'false';
+}
+
+sub setPersistent
+{
+	my $self = shift;
+	my $value = shift;
+	if (ref $value eq "JSON::XS::Boolean")
+	{
+		$self->{_persistent} = $value;
+	} elsif ($value eq 'true' || $value eq 1)
+	{
+		$self->{_persistent} = JSON::XS::true;
+	} else
+	{
+		$self->{_persistent} = JSON::XS::false;
+	}
+
+	return;
+}
+
+sub getUserId
+{
+	my $self = shift;
+
+	return $self->{_userId};
+}
+
+sub setUserId
+{
+	my $self = shift;
+	$self->{_userId} = shift;
 
 	return;
 }

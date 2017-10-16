@@ -14,7 +14,7 @@ Available options:
  --NotifReceiverId       | -i id of the NotifReceiver
  --batch                 | -b batch
  --help                  | -h prints this help
- 
+
 };
 }
 

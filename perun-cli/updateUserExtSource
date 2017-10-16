@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Updates UserExtSource - change login or LoA or both. UES ID and (login or loa) is required.
+	Only Perun admin is allowed to use this tool.
+	---------------------------------------
+	Available options:
+	--uesId       | -i user ext source ID
+	--login       | -l login to set
+	--loa         | -o level of assurance (0,1,2) to set
+	--batch       | -b batch
+	--help        | -h prints this help
+
+};
+}
+
+my ($uesId, $login, $loa, $batch);
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"    => \$batch,
+	"uesId|i=i"     => \$uesId,
+	"login|l=s"     => \$login,
+	"loa|o=s"       => \$loa) || die help();
+
+# Check options
+unless (defined($uesId)) { die "ERROR: uesId is required \n";}
+
+unless (defined($login) or defined($loa)) { die "ERROR: login or loa is required \n";}
+
+my $agent = Perun::Agent->new();
+my $usersAgent = $agent->getUsersAgent;
+
+my $ues = $usersAgent->getUserExtSourceById( userExtSource => $uesId );
+
+if (defined($login)) {
+	unless ($login !~ /^\s*$/) { die "ERROR: login cannot be empty string\n";}
+	$ues->setLogin( $login );
+}
+
+if (defined($loa)) {
+	unless ($loa >= 0 and $loa < 3) { die "ERROR: loa can be only 0,1,2\n";}
+	$ues->setLoa( $loa );
+}
+
+$ues = $usersAgent->updateUserExtSource( userExtSource => $ues );
+
+printMessage("User ext source Id:$uesId successfully updated", $batch);
