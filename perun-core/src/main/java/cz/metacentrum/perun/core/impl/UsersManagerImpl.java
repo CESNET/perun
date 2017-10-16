@@ -939,14 +939,26 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		Utils.notNull(userExtSource.getLogin(), "userExtSource.getLogin");
 		Utils.notNull(userExtSource.getExtSource(), "userExtSource.getExtSource");
 
+		boolean exists = false;
 		try {
+
+			// check by ext identity (login/ext source ID)
 			if (userExtSource.getUserId() >= 0) {
-				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=? and user_id=?",
+				exists = 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=? and user_id=?",
 						userExtSource.getLogin(), userExtSource.getExtSource().getId(), userExtSource.getUserId());
 			} else {
-				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=?",
+				exists = 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=?",
 						userExtSource.getLogin(), userExtSource.getExtSource().getId());
 			}
+
+			// check by UES ID if present in object
+			if (!exists && userExtSource.getId() > 0) {
+				exists = 1 == jdbc.queryForInt("select 1 from user_ext_sources where id=?",
+						userExtSource.getId());
+			}
+
+			return exists;
+
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -955,7 +967,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	public List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds) throws InternalErrorException {
-		// If usersIds is empty, we can immediatelly return empty results
+		// If usersIds is empty, we can immediately return empty results
 		if (usersIds.size() == 0) {
 			return new ArrayList<User>();
 		}
