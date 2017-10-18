@@ -427,11 +427,12 @@ public class EditFormItemTabItem implements TabItem {
 		federationAttributes.addItem("Organization", "o");
 		federationAttributes.addItem("Level of Assurance (LoA)", "loa");
 		federationAttributes.addItem("First name", "givenName");
-		federationAttributes.addItem("Sure name", "sn");
+		federationAttributes.addItem("Surname", "sn");
 		federationAttributes.addItem("EPPN", "eppn");
 		federationAttributes.addItem("IdP Category", "md_entityCategory");
 		federationAttributes.addItem("IdP Affiliation", "affiliation");
 		federationAttributes.addItem("EduPersonScopedAffiliation", "eduPersonScopedAffiliation");
+		federationAttributes.addItem("Forwarded Affiliation from Proxy", "forwardedScopedAffiliation");
 		federationAttributes.addItem("schacHomeOrganization", "schacHomeOrganization");
 
 		// application types
