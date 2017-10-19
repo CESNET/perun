@@ -34,42 +34,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @throws InternalErrorException when problem
 	 */
 	protected static void init(PerunSession sess) throws InternalErrorException {
-
 		log.trace("Initializing AuthzResolver for [{}]", sess.getPerunPrincipal());
 
-		//Prepare service roles like engine, service, registrar, perunAdmin etc.
-		prepareServiceRoles(sess);
-
-		if (!sess.getPerunPrincipal().getRoles().isEmpty()) {
-			// We have some of the service principal, so we can quit
-			sess.getPerunPrincipal().setAuthzInitialized(true);
-			return;
-		}
-
-		// Prepare first users rights on all subgroups of groups where user is GroupAdmin and add them to AuthzRoles of the user
-		AuthzRoles authzRoles = addAllSubgroupsToAuthzRoles(sess, authzResolverImpl.getRoles(sess.getPerunPrincipal().getUser()));
-
-		// Load all user's roles with all possible subgroups
-		sess.getPerunPrincipal().setRoles(authzRoles);
-
-		// Add self role for the user
-		if (sess.getPerunPrincipal().getUser() != null) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SELF, sess.getPerunPrincipal().getUser());
-
-			// Add service user role
-			if (sess.getPerunPrincipal().getUser().isServiceUser()) {
-				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SERVICEUSER);
-			}
-		}
-		sess.getPerunPrincipal().setAuthzInitialized(true);
+		refreshAuthz(sess);
+		
 		log.debug("AuthzResolver: Complete PerunPrincipal: {}", sess.getPerunPrincipal());
-	}
-
-	private static AuthzRoles getRoles(PerunSession sess) throws InternalErrorException {
-		if (sess == null || sess.getPerunPrincipal() == null || sess.getPerunPrincipal().getUser() == null) {
-			return new AuthzRoles();
-		}
-		return addAllSubgroupsToAuthzRoles(sess, authzResolverImpl.getRoles(sess.getPerunPrincipal().getUser()));
 	}
 
 	/**
@@ -1195,21 +1164,45 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	public static synchronized void refreshAuthz(PerunSession sess) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
-		log.debug("Refreshing authz roles for session {}.", sess);
+		log.trace("Refreshing authz roles for session {}.", sess);
 
-		sess.getPerunPrincipal().setRoles(AuthzResolverBlImpl.getRoles(sess));
+		//set empty set of roles
+		sess.getPerunPrincipal().setRoles(new AuthzRoles());
+		//Prepare service roles like engine, service, registrar, perunAdmin etc.
 		prepareServiceRoles(sess);
 
-		// Add self role for the user
-		if (sess.getPerunPrincipal().getUser() != null) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SELF, sess.getPerunPrincipal().getUser());
-
-			// Add service user role
-			if (sess.getPerunPrincipal().getUser().isServiceUser()) {
-				sess.getPerunPrincipal().getRoles().putAuthzRole(Role.SERVICEUSER);
+		// if have some of the service principal, we do not need to search further
+		if (sess.getPerunPrincipal().getRoles().isEmpty()) {
+			User user = sess.getPerunPrincipal().getUser();
+			AuthzRoles roles;
+			if (user == null) {
+				roles = new AuthzRoles();
+			} else {
+				// Load all user's roles with all possible subgroups
+				roles = addAllSubgroupsToAuthzRoles(sess, authzResolverImpl.getRoles(user));
+				// Add self role for the user
+				roles.putAuthzRole(Role.SELF, user);
+				// Add service user role
+				if (user.isServiceUser()) {
+					roles.putAuthzRole(Role.SERVICEUSER);
+				}
 			}
+			sess.getPerunPrincipal().setRoles(roles);
 		}
 
+		//for OAuth clients, do not allow delegating roles not allowed by scopes
+		if (sess.getPerunClient().getType() == PerunClient.Type.OAUTH) {
+			List<String> oauthScopes = sess.getPerunClient().getScopes();
+			if(!oauthScopes.contains(PerunClient.PERUN_ADMIN_SCOPE)) {
+				log.debug("removing PERUNADMIN role from session {}",sess);
+				sess.getPerunPrincipal().getRoles().remove(Role.PERUNADMIN);
+			}
+			if(!oauthScopes.contains(PerunClient.PERUN_API_SCOPE)) {
+				log.warn("removing all roles from session {}",sess);
+				sess.getPerunPrincipal().getRoles().clear();
+			}
+		}
+		log.trace("Refreshed roles: {}", sess.getPerunPrincipal().getRoles());
 		sess.getPerunPrincipal().setAuthzInitialized(true);
 	}
 

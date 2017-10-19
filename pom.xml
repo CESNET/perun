@@ -38,7 +38,6 @@
 		<module>perun-voot</module>
 		<module>perun-auditer-exporter</module>
 		<module>perun-ldapc-initializer</module>
-		<module>perun-oidc</module>
 		<module>perun-web-gui</module>
 	</modules>
 

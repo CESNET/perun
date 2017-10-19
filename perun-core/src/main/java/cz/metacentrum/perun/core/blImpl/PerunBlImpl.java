@@ -1,8 +1,56 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.bl.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.AuditMessagesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.CoreConfig;
+import cz.metacentrum.perun.core.api.DatabaseManager;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.FacilitiesManager;
+import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.MembersManager;
+import cz.metacentrum.perun.core.api.OwnersManager;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.RTMessagesManager;
+import cz.metacentrum.perun.core.api.ResourcesManager;
+import cz.metacentrum.perun.core.api.Searcher;
+import cz.metacentrum.perun.core.api.SecurityTeamsManager;
+import cz.metacentrum.perun.core.api.ServicesManager;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.UsersManager;
+import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
+import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
+import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
+import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
+import cz.metacentrum.perun.core.bl.MembersManagerBl;
+import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
+import cz.metacentrum.perun.core.bl.OwnersManagerBl;
+import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
+import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
+import cz.metacentrum.perun.core.bl.SearcherBl;
+import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
+import cz.metacentrum.perun.core.bl.ServicesManagerBl;
+import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
@@ -64,47 +112,50 @@ public class PerunBlImpl implements PerunBl {
 
 	public PerunSession getPerunSession(PerunPrincipal principal, PerunClient client) throws InternalErrorException {
 		PerunSessionImpl perunSession = new PerunSessionImpl(this, principal, client);
-		log.debug("creating PerunSession for user {}",principal.getActor());
-		if (principal.getUser() == null && usersManagerBl!=null && !dontLookupUsersForLogins.contains(principal.getActor())) {
+		log.debug("creating PerunSession for user {}", principal.getActor());
+		if (principal.getUser() == null && usersManagerBl != null && !dontLookupUsersForLogins.contains(principal.getActor())) {
 			// Get the user if we are completely initialized
 			try {
 				PerunSession internalSession = getPerunSession();
 				User user = usersManagerBl.getUserByExtSourceNameAndExtLogin(internalSession, principal.getExtSourceName(), principal.getActor());
 				principal.setUser(user);
-				// Try to update LoA for userExtSource
-				ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
-				UserExtSource ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
-				if (ues.getLoa() != principal.getExtSourceLoa()) {
-					ues.setLoa(principal.getExtSourceLoa());
-					usersManagerBl.updateUserExtSource(internalSession, ues);
-				}
-				// Update last access for userExtSource
-				usersManagerBl.updateUserExtSourceLastAccess(internalSession, ues);
 
-				// update selected attributes for given extsourcetype
-				List<AttributeDefinition> attrs = coreConfig.getAttributesForUpdate().get(principal.getExtSourceType());
-				if (attrs != null) {
-					for (AttributeDefinition attr : attrs) {
-						//get value from authentication
-						String attrValue = principal.getAdditionalInformations().get(attr.getFriendlyName());
-						if ("".equals(attrValue)) attrValue = null;
-						//save the value to attribute (create the attribute if it does not exist)
-						try {
-							Attribute attributeWithValue;
+				if (client.getType() != PerunClient.Type.OAUTH) {
+					// Try to update LoA for userExtSource
+					ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
+					UserExtSource ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
+					if (ues.getLoa() != principal.getExtSourceLoa()) {
+						ues.setLoa(principal.getExtSourceLoa());
+						usersManagerBl.updateUserExtSource(internalSession, ues);
+					}
+					// Update last access for userExtSource
+					usersManagerBl.updateUserExtSourceLastAccess(internalSession, ues);
+
+					// update selected attributes for given extsourcetype
+					List<AttributeDefinition> attrs = coreConfig.getAttributesForUpdate().get(principal.getExtSourceType());
+					if (attrs != null) {
+						for (AttributeDefinition attr : attrs) {
+							//get value from authentication
+							String attrValue = principal.getAdditionalInformations().get(attr.getFriendlyName());
+							if ("".equals(attrValue)) attrValue = null;
+							//save the value to attribute (create the attribute if it does not exist)
 							try {
-								attributeWithValue = attributesManagerBl.getAttribute(perunSession, ues, attr.getName());
-							} catch (AttributeNotExistsException ex) {
+								Attribute attributeWithValue;
 								try {
-									attributeWithValue = new Attribute(attributesManagerBl.createAttribute(perunSession, attr));
-								} catch (AttributeDefinitionExistsException e) {
 									attributeWithValue = attributesManagerBl.getAttribute(perunSession, ues, attr.getName());
+								} catch (AttributeNotExistsException ex) {
+									try {
+										attributeWithValue = new Attribute(attributesManagerBl.createAttribute(perunSession, attr));
+									} catch (AttributeDefinitionExistsException e) {
+										attributeWithValue = attributesManagerBl.getAttribute(perunSession, ues, attr.getName());
+									}
 								}
+								attributeWithValue.setValue(attrValue);
+								log.debug("storing attribute {}='{}' for user {}", attributeWithValue.getFriendlyName(), attrValue, principal.getActor());
+								attributesManagerBl.setAttribute(perunSession, ues, attributeWithValue);
+							} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+								log.error("Attribute " + attr.getName() + " with value '" + attrValue + "' cannot be saved", e);
 							}
-							attributeWithValue.setValue(attrValue);
-							log.debug("storing attribute {}='{}' for user {}",attributeWithValue.getFriendlyName(),attrValue,principal.getActor());
-							attributesManagerBl.setAttribute(perunSession, ues, attributeWithValue);
-						} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-							log.error("Attribute " + attr.getName() + " with value '" + attrValue + "' cannot be saved", e);
 						}
 					}
 				}

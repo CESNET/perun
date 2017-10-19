@@ -42,6 +42,8 @@
 		<property name="userExtSourcesPersistent" value="${perun.userExtSources.persistent}"/>
 		<property name="attributesForUpdateIdP" value="#{'${perun.attributesForUpdate.idp}'.split('\s*,\s*')}"/>
 		<property name="attributesForUpdateX509" value="#{'${perun.attributesForUpdate.x509}'.split('\s*,\s*')}"/>
+		<property name="oidcExtsourceName" value="${perun.oidc.extsource.name}"/>
+		<property name="oidcExtsourceType" value="${perun.oidc.extsource.type}"/>
 	</bean>
 
 
@@ -95,6 +97,13 @@
 				<prop key="perun.attributesForUpdate.x509">mail,cn,o,dn,cadn,certificate</prop>
 				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
 				<prop key="perun.instanceName">LOCAL</prop>
+				<!--
+				   the perun.oidc.extsource.* properties should match the attribute set in MitreID setting
+				   attribute.openid.sub  in /etc/perun/perun-mitreid.properties,
+				   this default matches attribute.openid.sub=urn:perun:user:attribute-def:core:id
+				-->
+				<prop key="perun.oidc.extsource.name">PERUN</prop>
+				<prop key="perun.oidc.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceSqlComplex</prop>
 			</props>
 		</property>
 	</bean>

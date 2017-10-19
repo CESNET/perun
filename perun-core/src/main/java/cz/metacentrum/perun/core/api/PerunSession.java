@@ -57,7 +57,6 @@ public abstract class PerunSession {
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getSimpleName()).append(":[")
-				.append("principal='").append(principal).append("']").toString();
+		return getClass().getSimpleName() + ":[" +"principal='" + principal + "', client='"+client+"']";
 	}
 }

@@ -49,6 +49,8 @@ public class CoreConfig {
 	private String smsProgram;
 	private String userExtSourcesPersistent;
 	private Map<String, List<AttributeDefinition>> attributesForUpdate = new HashMap<>();
+	private String oidcExtsourceName;
+	private String oidcExtsourceType;
 
 
 	boolean isDbInitializatorEnabled() {
@@ -307,6 +309,21 @@ public class CoreConfig {
 		this.userExtSourcesPersistent = userExtSourcesPersistent;
 	}
 
+	public String getOidcExtsourceName() {
+		return oidcExtsourceName;
+	}
+
+	public void setOidcExtsourceName(String oidcExtsourceName) {
+		this.oidcExtsourceName = oidcExtsourceName;
+	}
+
+	public String getOidcExtsourceType() {
+		return oidcExtsourceType;
+	}
+
+	public void setOidcExtsourceType(String oidcExtsourceType) {
+		this.oidcExtsourceType = oidcExtsourceType;
+	}
 
 	/**
 	 * Attributes to be saved when new PerunSession is created.
