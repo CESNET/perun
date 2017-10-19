@@ -1008,7 +1008,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 		for(PerunBean perunBean: perunBeans) {
 			if(perunBean instanceof User) {
-				user = (User) user;
+				user = (User) perunBean;
 				break;
 			} else if (perunBean instanceof UserExtSource && userExtSource == null) {
 				userExtSource = (UserExtSource) perunBean;
