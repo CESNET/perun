@@ -6,7 +6,6 @@ import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.strategy.AbstractPublicationSystemStrategy;
-import cz.metacentrum.perun.cabinet.strategy.PublicationSystemStrategy;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Utils;
 import org.apache.commons.lang3.text.WordUtils;
@@ -30,7 +29,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,6 +45,8 @@ import java.util.Map;
 
 /**
  * Implementation of publication connector for MU (prezentator).
+ *
+ * Remote API documentation: https://is.muni.cz/auth/prezentator/format_navod?soubor=n;typ=xml;kodovani=utf-8;zpet=.%2F%3Fsoubor%3Dn%3Btyp%3Dxml%3Bkodovani%3Dutf-8;zpet_text=Zp%C4%9Bt%20na%20zpracov%C3%A1n%C3%AD%20p%C5%99edlohy
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */

@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -167,6 +168,33 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 
 			result.addAll(findPublicationsInPubSys(authorId, yearSince, yearTill, ps));
 			return result;
+
+		} else if (ps.getLoginNamespace().equalsIgnoreCase("europepmc")) {
+
+			try {
+				Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:virt:eduPersonORCID");
+				ArrayList<String> attrValue = (ArrayList<String>)attribute.getValue();
+				if (attrValue != null && !attrValue.isEmpty()) {
+					// user shouldn't, but technically can have multiple orcid identities
+					for (String singleValue : attrValue) {
+						// get ID from OrcID identity: http://orcid.org/ID
+						String orcid = StringUtils.substringAfter(singleValue, "http://orcid.org/");
+						// iterate over all years since it can get only specific year
+						for (int counter=yearSince; counter<=yearTill; counter++) {
+							// get publications
+							result.addAll(findPublicationsInPubSys(orcid, counter, 0, ps));
+						}
+					}
+					return result;
+				} else {
+					throw new CabinetException("You don't have assigned ORCID identity in Perun for use in Europe PMC.", ErrorCodes.NO_IDENTITY_FOR_PUBLICATION_SYSTEM);
+				}
+
+			} catch (WrongAttributeAssignmentException e) {
+				throw new InternalErrorException(e);
+			} catch (AttributeNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
 
 		} else {
 			log.error("Publication System with namespace: [{}] found but not supported for import.", pubSysNamespace);

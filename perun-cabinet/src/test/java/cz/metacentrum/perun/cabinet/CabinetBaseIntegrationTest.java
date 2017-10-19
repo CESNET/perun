@@ -126,6 +126,14 @@ public abstract class CabinetBaseIntegrationTest {
 		pubSysMu = getCabinetManager().createPublicationSystem(sess, ps2);
 		assertTrue(pubSysMu.getId() > 0);
 
+		PublicationSystem ps3 = new PublicationSystem();
+		ps3.setFriendlyName("Europe PMC");
+		ps3.setLoginNamespace("europepmc");
+		ps3.setUrl("https://www.ebi.ac.uk/europepmc/webservices/rest/search?");
+		ps3.setType("cz.metacentrum.perun.cabinet.strategy.impl.EuropePMCStrategy");
+		ps3 = getCabinetManager().createPublicationSystem(sess, ps3);
+		assertTrue(ps3.getId() > 0);
+
 		// create publication
 
 		Publication p1 = new Publication();

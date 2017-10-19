@@ -69,4 +69,22 @@ public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegra
 
 	}
 
+	@Test
+	public void contactPublicationSystemEuropePMCTest() throws Exception {
+		System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemEuropePMCTest");
+
+		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("orcid");
+		assertNotNull(publicationSystem);
+
+		PublicationSystemStrategy prezentator = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+		assertNotNull(prezentator);
+
+		String authorId = "0000-0002- 1767-9318";
+		int yearSince = 2017;
+		int yearTill = 0;
+		HttpResponse result = prezentator.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, publicationSystem));
+		assertNotNull(result);
+
+	}
+
 }
