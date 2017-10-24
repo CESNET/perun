@@ -35,10 +35,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	protected static void init(PerunSession sess) throws InternalErrorException {
 		log.trace("Initializing AuthzResolver for [{}]", sess.getPerunPrincipal());
-
 		refreshAuthz(sess);
-		
-		log.debug("AuthzResolver: Complete PerunPrincipal: {}", sess.getPerunPrincipal());
+		log.trace("AuthzResolver: Complete PerunPrincipal: {}", sess.getPerunPrincipal());
 	}
 
 	/**
@@ -1194,7 +1192,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (sess.getPerunClient().getType() == PerunClient.Type.OAUTH) {
 			List<String> oauthScopes = sess.getPerunClient().getScopes();
 			if(!oauthScopes.contains(PerunClient.PERUN_ADMIN_SCOPE)) {
-				log.debug("removing PERUNADMIN role from session {}",sess);
+				log.debug("removing PERUNADMIN role from session of user {}",sess.getPerunPrincipal().getUserId());
 				sess.getPerunPrincipal().getRoles().remove(Role.PERUNADMIN);
 			}
 			if(!oauthScopes.contains(PerunClient.PERUN_API_SCOPE)) {

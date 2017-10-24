@@ -1,7 +1,17 @@
 package cz.metacentrum.perun.rpc;
 
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.CoreConfig;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunRequest;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
@@ -26,11 +36,19 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.lang.IllegalArgumentException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -69,6 +87,7 @@ public class Api extends HttpServlet {
 	private static final String OIDC_CLAIM_SUB = "OIDC_CLAIM_sub";
 	private static final String OIDC_CLAIM_CLIENT_ID = "OIDC_CLAIM_client_id";
 	private static final String OIDC_CLAIM_SCOPE = "OIDC_CLAIM_scope";
+	private static final String OIDC_CLAIM_ISS = "OIDC_CLAIM_iss";
 	private static final String EXTSOURCE = "EXTSOURCE";
 	private static final String EXTSOURCETYPE = "EXTSOURCETYPE";
 	private static final String EXTSOURCELOA = "EXTSOURCELOA";
@@ -94,7 +113,14 @@ public class Api extends HttpServlet {
 			return getOriginalIdP(shibIdentityProvider, sourceIdpEntityId);
 		} else {
 			if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
-				return BeansUtils.getCoreConfig().getOidcExtsourceName();
+				String iss = req.getHeader(OIDC_CLAIM_ISS);
+				if(iss!=null) {
+					String extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
+					if(extSourceName!=null) {
+						return extSourceName;
+					}
+				}
+				throw new InternalErrorException("OIDC issuer "+iss+" not configured");
 			} else if (Objects.equals(req.getAttribute(SSL_CLIENT_VERIFY), SUCCESS)) {
 				return getStringAttribute(req, SSL_CLIENT_ISSUER_DN);
 			} else {
@@ -206,11 +232,20 @@ public class Api extends HttpServlet {
 
 		// If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2 with MITRE.
 		else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
-			//this is configurable, as the OIDC server has the sub claim also configurable
-			extSourceName = config.getOidcExtsourceName();
-			extSourceType = config.getOidcExtsourceType();
-			extSourceLoaString = "-1";
 			extLogin = req.getHeader(OIDC_CLAIM_SUB);
+			//this is configurable, as the OIDC server has the source of sub claim also configurable
+			String iss = req.getHeader(OIDC_CLAIM_ISS);
+			if (iss != null) {
+				extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
+				extSourceType = BeansUtils.getCoreConfig().getOidcIssuersExtsourceTypes().get(iss);
+				if (extSourceName == null || extSourceType == null) {
+					throw new InternalErrorException("OIDC issuer " + iss + " not configured");
+				}
+			} else {
+				throw new InternalErrorException("OIDC issuer not send by Authorization Server");
+			}
+			extSourceLoaString = "-1";
+			log.debug("detected OIDC/OAuth2 client for sub={},iss={}",extLogin,iss);
 		}
 
 		// EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)
@@ -339,6 +374,7 @@ public class Api extends HttpServlet {
 		if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
 			String clientId = req.getHeader(OIDC_CLAIM_CLIENT_ID);
 			List<String> scopes = Arrays.asList(req.getHeader(OIDC_CLAIM_SCOPE).split(" "));
+			log.debug("detected OIDC/OAuth2 client {} with scopes {} for sub {}", clientId, scopes, req.getHeader(OIDC_CLAIM_SUB));
 			return new PerunClient(clientId, scopes);
 		}
 

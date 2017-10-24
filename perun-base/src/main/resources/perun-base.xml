@@ -8,6 +8,7 @@
 
 	<!-- type-safe configuration -->
 	<bean id="coreConfig" class="cz.metacentrum.perun.core.api.CoreConfig" init-method="initBeansUtils">
+		<property name="properties" ref="coreProperties"/>
 		<property name="admins" value="#{'${perun.admins}'.split('\s*,\s*')}"/>
 		<property name="alternativePasswordManagerProgram" value="${perun.alternativePasswordManager.program}"/>
 		<property name="dbInitializatorEnabled" value="${perun.DBInitializatorEnabled}"/>
@@ -42,8 +43,7 @@
 		<property name="userExtSourcesPersistent" value="${perun.userExtSources.persistent}"/>
 		<property name="attributesForUpdateIdP" value="#{'${perun.attributesForUpdate.idp}'.split('\s*,\s*')}"/>
 		<property name="attributesForUpdateX509" value="#{'${perun.attributesForUpdate.x509}'.split('\s*,\s*')}"/>
-		<property name="oidcExtsourceName" value="${perun.oidc.extsource.name}"/>
-		<property name="oidcExtsourceType" value="${perun.oidc.extsource.type}"/>
+		<property name="oidcIssuers" value="#{'${perun.oidc.issuers}'.split('\s*,\s*')}"/>
 	</bean>
 
 
@@ -98,12 +98,18 @@
 				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
 				<prop key="perun.instanceName">LOCAL</prop>
 				<!--
-				   the perun.oidc.extsource.* properties should match the attribute set in MitreID setting
-				   attribute.openid.sub  in /etc/perun/perun-mitreid.properties,
-				   this default matches attribute.openid.sub=urn:perun:user:attribute-def:core:id
+				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
 				-->
-				<prop key="perun.oidc.extsource.name">PERUN</prop>
-				<prop key="perun.oidc.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceSqlComplex</prop>
+				<prop key="perun.oidc.issuers">i1,i2,i3</prop>
+				<prop key="perun.oidc.i1.iss">https://perun-dev.meta.zcu.cz/oidc/</prop>
+				<prop key="perun.oidc.i1.extsource.name">PERUN</prop>
+				<prop key="perun.oidc.i1.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceSqlComplex</prop>
+				<prop key="perun.oidc.i2.iss">https://perun.cesnet.cz/oidc/</prop>
+				<prop key="perun.oidc.i2.extsource.name">PERUN</prop>
+				<prop key="perun.oidc.i2.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceSqlComplex</prop>
+				<prop key="perun.oidc.i3.iss">https://perun.elixir-czech.cz/oidc/</prop>
+				<prop key="perun.oidc.i3.extsource.name">https://login.elixir-czech.org/idp/</prop>
+				<prop key="perun.oidc.i3.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceIdp</prop>
 			</props>
 		</property>
 	</bean>

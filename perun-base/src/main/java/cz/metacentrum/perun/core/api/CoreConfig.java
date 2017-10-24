@@ -1,6 +1,14 @@
 package cz.metacentrum.perun.core.api;
 
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Core configuration values. Bean initialized by Spring.
@@ -8,6 +16,10 @@ import java.util.*;
  * @author Martin Kuba makub@ics.muni.cz
  */
 public class CoreConfig {
+
+	private final static Logger log = LoggerFactory.getLogger(CoreConfig.class);
+
+	private Properties properties;
 
 	/**
 	 * Stores this bean into static BeansUtils for backward compatibility. Called by init-method in perun-base.xml.
@@ -49,9 +61,8 @@ public class CoreConfig {
 	private String smsProgram;
 	private String userExtSourcesPersistent;
 	private Map<String, List<AttributeDefinition>> attributesForUpdate = new HashMap<>();
-	private String oidcExtsourceName;
-	private String oidcExtsourceType;
-
+	private Map<String, String> oidcIssuersExtsourceNames = new HashMap<>();
+	private Map<String, String> oidcIssuersExtsourceTypes = new HashMap<>();
 
 	boolean isDbInitializatorEnabled() {
 		return dbInitializatorEnabled;
@@ -309,20 +320,35 @@ public class CoreConfig {
 		this.userExtSourcesPersistent = userExtSourcesPersistent;
 	}
 
-	public String getOidcExtsourceName() {
-		return oidcExtsourceName;
+	public void setOidcIssuers(List<String> oidcIssuers) {
+		for (String issuer : oidcIssuers) {
+			String iss = getOidcIssuerProperty(issuer, "iss");
+			if (iss == null) continue;
+			String extSourceName = getOidcIssuerProperty(issuer, "extsource.name");
+			if (extSourceName == null) continue;
+			String extSourceType = getOidcIssuerProperty(issuer, "extsource.type");
+			if (extSourceType == null) continue;
+			log.debug("registering OIDC issuer {} with extSourceName={} and extSourceType={}", iss, extSourceName, extSourceType);
+			oidcIssuersExtsourceNames.put(iss, extSourceName);
+			oidcIssuersExtsourceTypes.put(iss, extSourceType);
+		}
 	}
 
-	public void setOidcExtsourceName(String oidcExtsourceName) {
-		this.oidcExtsourceName = oidcExtsourceName;
+	private String getOidcIssuerProperty(String issuer, String suffix) {
+		String p = "perun.oidc." + issuer + "." + suffix;
+		String value = properties.getProperty(p);
+		if (value == null) {
+			log.error("property {} not found, skipping OIDC issuer {}", p, issuer);
+		}
+		return value;
 	}
 
-	public String getOidcExtsourceType() {
-		return oidcExtsourceType;
+	public Map<String, String> getOidcIssuersExtsourceNames() {
+		return oidcIssuersExtsourceNames;
 	}
 
-	public void setOidcExtsourceType(String oidcExtsourceType) {
-		this.oidcExtsourceType = oidcExtsourceType;
+	public Map<String, String> getOidcIssuersExtsourceTypes() {
+		return oidcIssuersExtsourceTypes;
 	}
 
 	/**
@@ -341,7 +367,7 @@ public class CoreConfig {
 			attr.setType(String.class.getName());
 			attr.setNamespace("urn:perun:ues:attribute-def:def");
 			attr.setFriendlyName(attrName);
-			switch(attrName) {
+			switch (attrName) {
 				case "mail":
 					attr.setDisplayName("mail");
 					attr.setDescription("email address");
@@ -422,5 +448,9 @@ public class CoreConfig {
 
 	public void setAttributesForUpdateX509(List<String> attrNames) {
 		createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceX509", attrNames);
+	}
+
+	public void setProperties(Properties properties) {
+		this.properties = properties;
 	}
 }
