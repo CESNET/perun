@@ -1,7 +1,17 @@
 package cz.metacentrum.perun.rpc;
 
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.CoreConfig;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunRequest;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
@@ -26,11 +36,19 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.lang.IllegalArgumentException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,7 +75,6 @@ public class Api extends HttpServlet {
 	private final static String PERUNSTATUS = "getPerunStatus";
 	private final static String PERUNSTATISTICS = "getPerunStatistics";
 	private final static String VOOTMANAGER = "vootManager";
-	private final static String OIDCMANAGER = "oidcManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
 
 	private static final String SHIB_IDENTITY_PROVIDER = "Shib-Identity-Provider";
@@ -68,11 +85,9 @@ public class Api extends HttpServlet {
 	private static final String SSL_CLIENT_CERT = "SSL_CLIENT_CERT";
 	private static final String SUCCESS = "SUCCESS";
 	private static final String OIDC_CLAIM_SUB = "OIDC_CLAIM_sub";
-	private static final String OIDC_CLAIM_EXTSOURCE_NAME = "OIDC_CLAIM_extSourceName";
-	private static final String OIDC_CLAIM_EXTSOURCE_TYPE = "OIDC_CLAIM_extSourceType";
-	private static final String OIDC_CLAIM_EXTSOURCE_LOA = "OIDC_CLAIM_extSourceLoa";
 	private static final String OIDC_CLAIM_CLIENT_ID = "OIDC_CLAIM_client_id";
 	private static final String OIDC_CLAIM_SCOPE = "OIDC_CLAIM_scope";
+	private static final String OIDC_CLAIM_ISS = "OIDC_CLAIM_iss";
 	private static final String EXTSOURCE = "EXTSOURCE";
 	private static final String EXTSOURCETYPE = "EXTSOURCETYPE";
 	private static final String EXTSOURCELOA = "EXTSOURCELOA";
@@ -98,7 +113,14 @@ public class Api extends HttpServlet {
 			return getOriginalIdP(shibIdentityProvider, sourceIdpEntityId);
 		} else {
 			if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
-				return req.getHeader(OIDC_CLAIM_EXTSOURCE_NAME);
+				String iss = req.getHeader(OIDC_CLAIM_ISS);
+				if(iss!=null) {
+					String extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
+					if(extSourceName!=null) {
+						return extSourceName;
+					}
+				}
+				throw new InternalErrorException("OIDC issuer "+iss+" not configured");
 			} else if (Objects.equals(req.getAttribute(SSL_CLIENT_VERIFY), SUCCESS)) {
 				return getStringAttribute(req, SSL_CLIENT_ISSUER_DN);
 			} else {
@@ -183,8 +205,8 @@ public class Api extends HttpServlet {
 		String sourceIdpEntityId = getStringAttribute(req, SOURCE_IDP_ENTITY_ID);
 		String remoteUser = req.getRemoteUser();
 
-
-
+		CoreConfig config = BeansUtils.getCoreConfig();
+		
 		// If we have header Shib-Identity-Provider, then the user uses identity federation to authenticate
 		if (isNotEmpty(shibIdentityProvider)) {
 			extSourceName = getOriginalIdP(shibIdentityProvider, sourceIdpEntityId);
@@ -210,10 +232,20 @@ public class Api extends HttpServlet {
 
 		// If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2 with MITRE.
 		else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
-			extSourceName = req.getHeader(OIDC_CLAIM_EXTSOURCE_NAME);
-			extSourceType = req.getHeader(OIDC_CLAIM_EXTSOURCE_TYPE);
-			extSourceLoaString = req.getHeader(OIDC_CLAIM_EXTSOURCE_LOA);
-			extLogin = remoteUser;
+			extLogin = req.getHeader(OIDC_CLAIM_SUB);
+			//this is configurable, as the OIDC server has the source of sub claim also configurable
+			String iss = req.getHeader(OIDC_CLAIM_ISS);
+			if (iss != null) {
+				extSourceName = BeansUtils.getCoreConfig().getOidcIssuersExtsourceNames().get(iss);
+				extSourceType = BeansUtils.getCoreConfig().getOidcIssuersExtsourceTypes().get(iss);
+				if (extSourceName == null || extSourceType == null) {
+					throw new InternalErrorException("OIDC issuer " + iss + " not configured");
+				}
+			} else {
+				throw new InternalErrorException("OIDC issuer not send by Authorization Server");
+			}
+			extSourceLoaString = "-1";
+			log.debug("detected OIDC/OAuth2 client for sub={},iss={}",extLogin,iss);
 		}
 
 		// EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)
@@ -289,7 +321,7 @@ public class Api extends HttpServlet {
 		}
 
 		//store selected attributes for update
-		for (AttributeDefinition attr : BeansUtils.getCoreConfig().getAttributesForUpdate().getOrDefault(extSourceType,Collections.emptyList())) {
+		for (AttributeDefinition attr : config.getAttributesForUpdate().getOrDefault(extSourceType,Collections.emptyList())) {
 			String attrValue = (String) req.getAttribute(attr.getFriendlyName());
 			if(attrValue!=null) {
 				//fix shibboleth encoding
@@ -307,7 +339,7 @@ public class Api extends HttpServlet {
 
 		// If the RPC was called by the user who can do delegation and delegatedLogin is set, set the values sent in the request
 		if (des != null && extLogin != null) {
-			List<String> powerUsers = BeansUtils.getCoreConfig().getRpcPowerusers();
+			List<String> powerUsers = config.getRpcPowerusers();
 			if (powerUsers.contains(extLogin) && des.contains(DELEGATED_LOGIN)) {
 				// Rewrite the remoteUser and extSource
 				extLogin = des.readString(DELEGATED_LOGIN);
@@ -342,6 +374,7 @@ public class Api extends HttpServlet {
 		if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
 			String clientId = req.getHeader(OIDC_CLAIM_CLIENT_ID);
 			List<String> scopes = Arrays.asList(req.getHeader(OIDC_CLAIM_SCOPE).split(" "));
+			log.debug("detected OIDC/OAuth2 client {} with scopes {} for sub {}", clientId, scopes, req.getHeader(OIDC_CLAIM_SUB));
 			return new PerunClient(clientId, scopes);
 		}
 
@@ -352,6 +385,7 @@ public class Api extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		mirrorOriginHeader(req,resp);
 		if (req.getPathInfo() == null || req.getPathInfo().equals("/")) {
 			resp.setContentType("text/plain; charset=utf-8");
 			Writer wrt = resp.getWriter();
@@ -374,11 +408,13 @@ public class Api extends HttpServlet {
 
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		mirrorOriginHeader(req,resp);
 		serve(req, resp, false, true);
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		mirrorOriginHeader(req,resp);
 		serve(req, resp, false, false);
 	}
 
@@ -390,13 +426,18 @@ public class Api extends HttpServlet {
 	 */
 	@Override
 	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		mirrorOriginHeader(req,resp);
+		resp.setHeader("Access-Control-Allow-Methods","GET, POST, OPTIONS");
+		resp.setHeader("Access-Control-Allow-Headers","Authorization, Content-Type");
+		resp.setIntHeader("Access-Control-Max-Age",86400);
+		resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
+
+	private void mirrorOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
 		String origin = req.getHeader("Origin");
 		if(origin==null) origin = "*";
 		resp.setHeader("Access-Control-Allow-Origin",origin);
 		resp.setHeader("Vary","Origin");
-		resp.setHeader("Access-Control-Allow-Methods","GET, POST, OPTIONS");
-		resp.setHeader("Access-Control-Allow-Headers","Authorization, Content-Type");
-		resp.setIntHeader("Access-Control-Max-Age",86400);
 	}
 
 	@SuppressWarnings("ConstantConditions")
@@ -598,11 +639,11 @@ public class Api extends HttpServlet {
 
 			}
 
-			/* Security check. Currently only OIDC manager can handle scopes from untrustful (OAuth2) clients
-				or client has to have allowed scope ALL. */
-			if (!caller.getSession().getPerunClient().getType().equals(PerunClient.Type.INTERNAL)) {
-				if (!OIDCMANAGER.equals(manager) && !caller.getSession().getPerunClient().getScopes().contains(PerunClient.SCOPE_ALL)) {
-					throw new PrivilegeException("Your client " + caller.getSession().getPerunClient().getId() + " is not allowed to call manager " + manager + ". Try " + OIDCMANAGER + " instead.");
+			PerunClient perunClient = caller.getSession().getPerunClient();
+			if(perunClient.getType() == PerunClient.Type.OAUTH) {
+				if(!perunClient.getScopes().contains(PerunClient.PERUN_API_SCOPE)) {
+					//user has not consented to scope perun_api for th client on the OAuth Authorization Server
+					throw new PrivilegeException("Your client " + perunClient.getId() + " does not have scope "+PerunClient.PERUN_API_SCOPE+" allowed by this user");
 				}
 			}
 
@@ -610,11 +651,6 @@ public class Api extends HttpServlet {
 			if (VOOTMANAGER.equals(manager)) {
 				// Process VOOT protocol
 				result = caller.getVOOTManager().process(caller.getSession(), method, des.readAll());
-				if (perunRequest != null) perunRequest.setResult(result);
-				ser.write(result);
-			} else if (OIDCMANAGER.equals(manager)) {
-				// OIDC
-				result = caller.getOIDCManager().process(caller.getSession(), method, des);
 				if (perunRequest != null) perunRequest.setResult(result);
 				ser.write(result);
 			} else {

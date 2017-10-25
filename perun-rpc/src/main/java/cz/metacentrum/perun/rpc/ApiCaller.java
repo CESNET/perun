@@ -11,7 +11,6 @@ import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.core.api.PerunClient;
-import cz.metacentrum.perun.oidc.OIDC;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.voot.VOOT;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -71,7 +70,7 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  * ApiCaller calls Perun manager methods.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @autor Pavel Zlámal <zlamal@cesnet.cz>
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class ApiCaller {
 
@@ -96,7 +95,6 @@ public class ApiCaller {
 	private RegistrarManager registrarManager;
 	private PerunNotifNotificationManager notificationManager;
 	private VOOT vootManager = null;
-	private OIDC oidcManager = null;
 
 	private final static String RPCPRINCIPAL = "perunRpc";
 
@@ -230,10 +228,6 @@ public class ApiCaller {
 
 	public VOOT getVOOTManager(){
 		return vootManager;
-	}
-
-	public OIDC getOIDCManager(){
-		return oidcManager;
 	}
 
 	public Vo getVoById(int id) throws PerunException {
@@ -446,9 +440,6 @@ public class ApiCaller {
 
 		// Initialize VOOT Manager
 		this.vootManager = new VOOT();
-
-		// Initialize OIDC Manager
-		this.oidcManager = new OIDC();
 
 		this.session = perun.getPerunSession(perunPrincipal, client);
 	}

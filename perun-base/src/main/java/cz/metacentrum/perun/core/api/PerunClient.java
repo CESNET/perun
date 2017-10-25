@@ -96,4 +96,7 @@ public class PerunClient {
 		INTERNAL, // Trustful client. E.g. Perun GUI, client for internal components or tests. No privileges are checked.
 		OAUTH;  // Untrustful client. Privileges (scopes) should be checked. Not all methods are allowed to access.
 	}
+
+	public static final String PERUN_API_SCOPE = "perun_api"; //scope for calling RPC and delegation all roles except PERUNADMIN
+	public static final String PERUN_ADMIN_SCOPE = "perun_admin"; //scope fo delagating even the admin role
 }
