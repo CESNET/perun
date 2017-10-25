@@ -1,16 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.core.api.ActionType;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_ATTR;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_RESOURCE_ATTR;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_ATTR;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_GROUP_ATTR;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_RESOURCE_ATTR;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_RESOURCE_ATTR;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_FACILITY_ATTR;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -77,6 +67,9 @@ import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import static cz.metacentrum.perun.core.api.AttributesManager.*;
 
 /**
  * AttributesManager buisness logic.
@@ -1255,7 +1248,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//if there is no entities, so no attribute definition will be returned => empty array list of ADs
 		if(entities == null || entities.isEmpty()) return attributeDefinitions;
-		//or fill list by all attributeDefinitions
+			//or fill list by all attributeDefinitions
 		else attributeDefinitions = this.getAttributesDefinition(sess);
 
 		//Prepare possible objects
@@ -1278,7 +1271,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			else if(entity instanceof Facility) facility = (Facility) entity;
 			else if(entity instanceof Host) host = (Host) entity;
 			else if(entity instanceof UserExtSource) ues = (UserExtSource) entity;
-			//Else skip not identified entity (log it)
+				//Else skip not identified entity (log it)
 			else log.debug("In method GetAttributesDefinitionWithRights there are entity which is not identified correctly and will be skipped: " + entity);
 		}
 
@@ -1347,13 +1340,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				} else {
 					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, facility, null));
 				}
-			} else if(this.isFromNamespace(sess, attrDef, AttributesManager.NS_HOST_ATTR) && host != null) {
+			} else if(this.isFromNamespace(sess, attrDef, NS_HOST_ATTR) && host != null) {
 				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, host, null)) {
 					iterator.remove();
 				} else {
 					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, host, null));
 				}
-			} else if(this.isFromNamespace(sess, attrDef, AttributesManager.NS_UES_ATTR) && ues != null) {
+			} else if(this.isFromNamespace(sess, attrDef, NS_UES_ATTR) && ues != null) {
 				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, ues, null)) {
 					iterator.remove();
 				} else {
@@ -1576,7 +1569,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, facility, attribute)) {
 			checkAttributeValue(sess, facility, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(facility, null, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(facility, null, attribute));
 		}
 	}
 
@@ -1607,7 +1600,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, vo, attribute)) {
 			checkAttributeValue(sess, vo, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(vo, null, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(vo, null, attribute));
 		}
 	}
 
@@ -1637,7 +1630,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, group, attribute)) {
 			checkAttributeValue(sess, group, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(group, null, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(group, null, attribute));
 		}
 	}
 
@@ -1649,7 +1642,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, resource, attribute)) {
 			checkAttributeValue(sess, resource, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(resource, null, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, null, attribute));
 		}
 	}
 
@@ -1703,7 +1696,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, resource, member, attribute, false)) {
 			checkAttributeValue(sess, resource, member, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(resource, member, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, attribute));
 		}
 	}
 
@@ -1716,7 +1709,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if (setAttributeWithoutCheck(sess, member, group, attribute, false)) {
 			checkAttributeValue(sess, member, group, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(member, group, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(member, group, attribute));
 		}
 	}
 
@@ -1728,7 +1721,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(!workWithUserAttributes) {
 			if(setAttributeWithoutCheck(sess, resource, member, attribute, false)) {
-				this.checkAttributeDependencies(sess, new RichAttribute(resource, member, attribute));
+				this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, attribute));
 				checkAttributeValue(sess, resource, member, attribute);
 			}
 		} else {
@@ -1864,7 +1857,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, member, attribute)) {
 			checkAttributeValue(sess, member, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(member, null, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(member, null, attribute));
 		}
 	}
 
@@ -1914,7 +1907,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, facility, user, attribute)) {
 			checkAttributeValue(sess, facility, user, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(facility, user, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(facility, user, attribute));
 		}
 	}
 
@@ -1926,7 +1919,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, user, attribute)) {
 			checkAttributeValue(sess, user, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(user, null, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(user, null, attribute));
 		}
 	}
 
@@ -1961,7 +1954,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, host, attribute)) {
 			checkAttributeValue(sess, host, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(host, null, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(host, null, attribute));
 		}
 	}
 
@@ -1992,7 +1985,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			return;
 		}
 		if(setAttributeWithoutCheck(sess, resource, group, attribute)) {
-			this.checkAttributeDependencies(sess, new RichAttribute(resource, group, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, group, attribute));
 			checkAttributeValue(sess, resource, group, attribute);
 		}
 	}
@@ -2082,7 +2075,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, key, attribute)) {
 			checkAttributeValue(sess, key, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(key, null, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(key, null, attribute));
 		}
 	}
 
@@ -2094,7 +2087,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(setAttributeWithoutCheck(sess, ues, attribute)) {
 			checkAttributeValue(sess, ues, attribute);
-			this.checkAttributeDependencies(sess, new RichAttribute(ues, null, attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(ues, null, attribute));
 		}
 	}
 
@@ -2112,7 +2105,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//check if attribute.type is valid class name
 		try {
 			if (!attribute.getType().equals(BeansUtils.largeStringClassName) &&
-					!attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
+						!attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
 				Class.forName(attribute.getType());
 			}
 		} catch(ClassNotFoundException ex) {
@@ -2746,7 +2739,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					if(a.getValue() != null) attributesWithChangedValue.add(a);
 				}
 			}
-		return attributesWithChangedValue;
+			return attributesWithChangedValue;
 		}
 	}
 
@@ -3282,7 +3275,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, key, attribute)) {
 			this.checkAttributeValue(sess, key, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(key, null, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(key, null, new Attribute(attribute)));
 		}
 	}
 
@@ -3308,7 +3301,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, facility, attribute)) {
 			this.checkAttributeValue(sess, facility, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(facility, null, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(facility, null, new Attribute(attribute)));
 		}
 	}
 
@@ -3475,7 +3468,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if (removeAttributeWithoutCheck(sess, host, attribute)) {
 			checkAttributeValue(sess, host, new Attribute(attribute));
 			try {
-				this.checkAttributeDependencies(sess, new RichAttribute(host, null, new Attribute(attribute)));
+				this.checkAttributeDependencies(sess, new RichAttribute<>(host, null, new Attribute(attribute)));
 			} catch (WrongReferenceAttributeValueException ex) {
 				throw new WrongAttributeValueException(ex);
 			}
@@ -3553,7 +3546,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, vo, attribute)) {
 			checkAttributeValue(sess, vo, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(vo, null, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(vo, null, new Attribute(attribute)));
 		}
 	}
 
@@ -3619,7 +3612,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, group, attribute)) {
 			checkAttributeValue(sess, group, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(group, null, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(group, null, new Attribute(attribute)));
 		}
 	}
 
@@ -3685,7 +3678,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		boolean changed = removeAttributeWithoutCheck(sess, resource, attribute);
 		if (changed) {
 			checkAttributeValue(sess, resource, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(resource, null, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, null, new Attribute(attribute)));
 		}
 		return changed;
 	}
@@ -3762,7 +3755,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, resource, member, attribute)) {
 			checkAttributeValue(sess, resource, member, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(resource, member, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, new Attribute(attribute)));
 		}
 	}
 
@@ -3858,10 +3851,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, member, group, attribute)) {
 			checkAttributeValue(sess, member, group, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(member, group, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(member, group, new Attribute(attribute)));
 		}
 	}
-// s workWithUserAttr.
+	// s workWithUserAttr.
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_GROUP_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
@@ -3950,7 +3943,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, member, attribute)) {
 			checkAttributeValue(sess, member, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(member, null, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(member, null, new Attribute(attribute)));
 		}
 	}
 
@@ -4019,7 +4012,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, facility, user, attribute)) {
 			checkAttributeValue(sess, facility, user, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(facility, user, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(facility, user, new Attribute(attribute)));
 		}
 	}
 
@@ -4133,7 +4126,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, user, attribute)) {
 			checkAttributeValue(sess, user, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(user, null, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(user, null, new Attribute(attribute)));
 		}
 	}
 
@@ -4199,7 +4192,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, resource, group, attribute)) {
 			checkAttributeValue(sess, resource, group, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(resource, group, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, group, new Attribute(attribute)));
 		}
 	}
 
@@ -4296,7 +4289,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, ues, attribute)) {
 			checkAttributeValue(sess, ues, new Attribute(attribute));
-			this.checkAttributeDependencies(sess, new RichAttribute(ues, null, new Attribute(attribute)));
+			this.checkAttributeDependencies(sess, new RichAttribute<>(ues, null, new Attribute(attribute)));
 		}
 	}
 
@@ -4526,7 +4519,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	public Object stringToAttributeValue(String value, String type) throws InternalErrorException {
 		if (type.equals(ArrayList.class.getName()) || type.equals(LinkedHashMap.class.getName()) ||
-				type.equals(BeansUtils.largeArrayListClassName)) {
+					type.equals(BeansUtils.largeArrayListClassName)) {
 			if (value != null && !value.isEmpty() && !value.endsWith(String.valueOf(AttributesManagerImpl.LIST_DELIMITER))) {
 				value = value.concat(String.valueOf(AttributesManagerImpl.LIST_DELIMITER));
 			}
@@ -4873,7 +4866,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	private void checkAttributesDependencies(PerunSession sess, Object primaryHolder, Object secondaryHolder, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if(attributes != null && !attributes.isEmpty()) {
 			for(Attribute attr: attributes) {
-				checkAttributeDependencies(sess, new RichAttribute(primaryHolder, secondaryHolder, attr));
+				checkAttributeDependencies(sess, new RichAttribute<>(primaryHolder, secondaryHolder, attr));
 			}
 		}
 	}
@@ -4889,10 +4882,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					List<RichAttribute> richAttributesToCheck;
 					try {
 						richAttributesToCheck = getRichAttributesWithHoldersForAttributeDefinition(sess, dependency, richAttr);
-					} catch (AttributeNotExistsException ex) {
-						//TODO better exception here (need to implement to all setMethods)
-						throw new InternalErrorException(ex);
-					} catch (VoNotExistsException ex) {
+					} catch (AttributeNotExistsException | VoNotExistsException | UserNotExistsException ex) {
 						//TODO better exception here (need to implement to all setMethods)
 						throw new InternalErrorException(ex);
 					} catch (MemberResourceMismatchException ex) {
@@ -5068,12 +5058,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
+	public List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, UserNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		//Filling objects from aidingAttr
 		if(aidingAttr == null) throw new InternalErrorException("Aiding attribute cant be null.");
 		if(attrDef == null) throw new InternalErrorException("attrDef cant be null.");
 
-		List<RichAttribute> listOfRichAttributes = new ArrayList<RichAttribute>();
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 
 		//All possible useful objects
 		Vo vo = null;
@@ -5084,7 +5074,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		Host host = null;
 		Resource resource = null;
 		String key = null;
-		Attribute attribute = null;
+		UserExtSource userExtSource = null;
 
 		//Get object for primaryHolder of aidingAttr
 		if(aidingAttr.getPrimaryHolder() != null) {
@@ -5095,6 +5085,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			else if(aidingAttr.getPrimaryHolder() instanceof User) user = (User) aidingAttr.getPrimaryHolder();
 			else if(aidingAttr.getPrimaryHolder() instanceof Host) host = (Host) aidingAttr.getPrimaryHolder();
 			else if(aidingAttr.getPrimaryHolder() instanceof Resource) resource = (Resource) aidingAttr.getPrimaryHolder();
+			else if(aidingAttr.getPrimaryHolder() instanceof UserExtSource) userExtSource = (UserExtSource) aidingAttr.getPrimaryHolder();
 			else if(aidingAttr.getPrimaryHolder() instanceof String) key = (String) aidingAttr.getPrimaryHolder();
 			else {
 				throw new InternalErrorException("There is unrecognized object in primaryHolder of aidingAttr.");
@@ -5112,6 +5103,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			else if(aidingAttr.getSecondaryHolder() instanceof User) user = (User) aidingAttr.getSecondaryHolder();
 			else if(aidingAttr.getSecondaryHolder() instanceof Host) host = (Host) aidingAttr.getSecondaryHolder();
 			else if(aidingAttr.getSecondaryHolder() instanceof Resource) resource = (Resource) aidingAttr.getSecondaryHolder();
+			else if(aidingAttr.getSecondaryHolder() instanceof UserExtSource) userExtSource = (UserExtSource) aidingAttr.getSecondaryHolder();
 			else if(aidingAttr.getSecondaryHolder() instanceof String) key = (String) aidingAttr.getSecondaryHolder();
 			else {
 				throw new InternalErrorException("There is unrecognized object in secondaryHolder of aidingAttr");
@@ -5119,1252 +5111,412 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		} // If not, its ok, secondary holder can be null
 
 		//First i choose what i am looking for by descriptionAttr
-		//IMPORTANT: If member is Invalid, all objects bind to him are not accept
-
-		//!!! PROJIT VSECHNY DOTAZY A POUZIT JAKO KLICOVOU VRSTVU KDE TO JDE VRSTVU S MEMBERY PODLE VALIDITY !!!
+		//Second on the fact what i really have in aidingAttr i try to find what i am looking for
+		//IMPORTANT: If member is not allowed on connected objects (INVALID or DISABLED status), we skip these objects
 
 		if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_VO_ATTR)) {
-			//Second on the fact what i really have in aidingAttr i try to find what i am looking for
+
 			if(resource != null && member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					vo = getPerunBl().getVosManagerBl().getVoById(sess, member.getVoId());
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(vo, null, attribute));
-				}
+				//we do not need object resource to resolve this case
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, member, attrDef));
 			} else if(group != null && resource != null) {
-				vo = getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId());
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(vo, null, attribute));
+				//we do not need object resource to resolve this case
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, group, attrDef));
 			} else if(user != null && facility != null) {
-				List<Vo> vosFromUser = new ArrayList<Vo>();
-				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Resource> resourcesFromUser = new ArrayList<Resource>();
-				for (Member memberElement : membersFromUser) {
-					resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, memberElement));
-				}
-				for (Resource resourceElement : resourcesFromUser) {
-					vosFromUser.add(getPerunBl().getResourcesManagerBl().getVo(sess, resourceElement));
-				}
-				List<Vo> vosFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility);
-				vosFromFacility.retainAll(vosFromUser);
-				vosFromFacility = new ArrayList<Vo>(new HashSet<Vo>(vosFromFacility));
-				for (Vo voElement : vosFromFacility) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, voElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(voElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				vo = getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId());
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(vo, null, attribute));
+				//we do not need object group to resolve this case
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, member, attrDef));
 			} else if(group != null) {
-				vo = getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId());
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(vo, null, attribute));
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, group, attrDef));
 			} else if(member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(vo, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, member, attrDef));
 			} else if(resource != null) {
-				vo = getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(vo, null, attribute));
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, resource, attrDef));
 			} else if(user != null) {
-				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Vo> vosFromMembers = new ArrayList<Vo>();
-				for(Member memberElement: membersFromUser) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						vosFromMembers.add(getPerunBl().getMembersManagerBl().getMemberVo(sess, memberElement));
-					}
-				}
-				for(Vo voElement: vosFromMembers){
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, voElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(voElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, user, attrDef));
 			} else if(host != null) {
-				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<Vo> vos = getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility);
-				for(Vo voElement: vos){
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, voElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(voElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, host, attrDef));
 			} else if(facility != null) {
-				List<Vo> vos = getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility);
-				for(Vo voElement: vos){
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, voElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(voElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(vo, null, attribute));
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, userExtSource, attrDef));
 			} else if(key != null){
-				List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
-				for(Vo voElement: vos){
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, voElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(voElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getVoAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
 		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_GROUP_ATTR)) {
 			if(resource != null && member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-					List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
-					groupsFromResource.retainAll(groupsFromMember);
-					groupsFromResource = new ArrayList<Group>(new HashSet<Group>(groupsFromResource));
-					for(Group groupElement: groupsFromResource) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, member, resource, attrDef));
 			} else if(group != null && resource != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(group, null, attribute));
+				//we do not need to use the resource object here
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, group, attrDef));
 			} else if(user != null && facility != null) {
-				List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				Set<Group> groupsFromMembers = new HashSet<Group>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						groupsFromMembers.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
-					}
-				}
-				groupsFromMembers.retainAll(getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility));
-				for (Group groupElement : groupsFromMembers) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(group, null, attribute));
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, member, group, attrDef));
 			} else if(group != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(group, null, attribute));
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, group, attrDef));
 			} else if(member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
-					for(Group groupElement: groupsFromMember) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, member, attrDef));
 			} else if(resource != null) {
-				List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-				for(Group groupElement: groupsFromResource) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, resource, attrDef));
 			} else if(user != null) {
-				List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Group> groupsFromMembers = new ArrayList<Group>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						groupsFromMembers.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
-					}
-				}
-				groupsFromMembers = new ArrayList<Group>(new HashSet<Group>(groupsFromMembers));
-				for(Group groupElement: groupsFromMembers) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, user, attrDef));
 			} else if(host != null) {
-				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
-				for(Group groupElement: groupsFromFacility) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, host, attrDef));
 			} else if(facility != null) {
-				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
-				for(Group groupElement: groupsFromFacility) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				List<Group> groups = getPerunBl().getGroupsManagerBl().getAllGroups(sess, vo);
-				for(Group groupElement: groups) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, userExtSource, attrDef));
 			} else if(key != null) {
-				List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
-				List<Group> groupsFromVos = new ArrayList<Group>();
-				for(Vo voElement: vos) {
-					groupsFromVos.addAll(getPerunBl().getGroupsManagerBl().getAllGroups(sess, voElement));
-				}
-				groupsFromVos = new ArrayList<Group>(new HashSet<Group>(groupsFromVos));
-				for(Group groupElement: groupsFromVos) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getGroupAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
 		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_FACILITY_ATTR)) {
 			if(resource != null && member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facility, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, member, resource, attrDef));
 			} else if(group != null && resource != null) {
-				facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(facility, null, attribute));
+				//we do not need to use the group object here
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, resource, attrDef));
 			} else if(user != null && facility != null) {
-				List<Facility> facilitiesFromUser = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
-				if(facilitiesFromUser.contains(facility)) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facility, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				List<Facility> facilitiesFromResources = new ArrayList<>();
-				for (Resource resourceElement : resources) {
-					facilitiesFromResources.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-				}
-				facilitiesFromResources = new ArrayList<>(new HashSet<>(facilitiesFromResources));
-				for (Facility facilityElement : facilitiesFromResources) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facilityElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, member, group, attrDef));
 			} else if(group != null) {
-				List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				List<Facility> facilitiesFromResources = new ArrayList<Facility>();
-				for(Resource resourceElemenet: resources) {
-					facilitiesFromResources.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElemenet));
-				}
-				facilitiesFromResources = new ArrayList<Facility>(new HashSet<Facility>(facilitiesFromResources));
-				for(Facility facilityElement: facilitiesFromResources) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facilityElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, group, attrDef));
 			} else if(member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					List<Group> groupsForMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
-					List<Resource> resourcesFromMember = new ArrayList<Resource>();
-					for(Group groupElement: groupsForMember) {
-						resourcesFromMember.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, groupElement));
-					}
-					resourcesFromMember = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromMember));
-					for(Resource resourceElement: resourcesFromMember) {
-						Facility facilityFromMember = getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement);
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityFromMember, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(facilityFromMember, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, member, attrDef));
 			} else if(resource != null) {
-				facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(facility, null, attribute));
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, resource, attrDef));
 			} else if(user != null) {
-				List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
-				for(Facility facilityElement: facilities) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facilityElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, user, attrDef));
 			} else if(host != null) {
-				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(facility, null, attribute));
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, host, attrDef));
 			} else if(facility != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(facility, null, attribute));
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
-				List<Facility> facilitiesFromResources = new ArrayList<Facility>();
-				for(Resource resourceElemenet: resources) {
-					facilitiesFromResources.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElemenet));
-				}
-				facilitiesFromResources = new ArrayList<Facility>(new HashSet<Facility>(facilitiesFromResources));
-				for(Facility facilityElement: facilitiesFromResources) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facilityElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, userExtSource, attrDef));
 			} else if(key != null) {
-				List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
-				for(Facility facilityElement: facilities) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facilityElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getFacilityAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
 		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_MEMBER_ATTR)) {
 			if(resource != null && member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(member, null, attribute));
-				}
+				//we do not need to use the resource object here
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, member, attrDef));
 			} else if(group != null && resource != null) {
-				List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-				List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-				membersFromResource.retainAll(membersFromGroup);
-				membersFromResource = new ArrayList<Member>(new HashSet<Member>(membersFromResource));
-				for(Member memberElement: membersFromResource) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
-					}
-				}
+				//we do not need to use the resource object here
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, group, attrDef));
 			} else if(user != null && facility != null) {
-				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
-				membersFromUser.retainAll(membersFromFacility);
-				membersFromUser = new ArrayList<Member>(new HashSet<Member>(membersFromUser));
-				for(Member memberElement: membersFromUser) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(member, null, attribute));
-				}
+				//we do not need to use the group object here
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, member, attrDef));
 			} else if(group != null) {
-				List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-				for(Member memberElement: membersFromGroup) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, group, attrDef));
 			} else if(member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(member, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, member, attrDef));
 			} else if(resource != null) {
-				List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-				for(Member memberElement: membersFromResource) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, resource, attrDef));
 			} else if(user != null) {
-				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				for(Member memberElement: membersFromUser) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, user, attrDef));
 			} else if(host != null) {
-				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<Member> membersFromHost = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
-				for(Member memberElement: membersFromHost) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, host, attrDef));
 			} else if(facility != null) {
-				List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
-				for(Member memberElement: membersFromFacility) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				List<Member> membersFromVo = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
-				for(Member memberElement: membersFromVo) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, userExtSource, attrDef));
 			} else if(key != null) {
-				List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
-				List<Member> allMembers = new ArrayList<Member>();
-				for(Vo voElement: vos) {
-					allMembers.addAll(getPerunBl().getMembersManagerBl().getMembers(sess, voElement));
-				}
-				allMembers = new ArrayList<Member>(new HashSet<Member>(allMembers));
-				for(Member memberElement: allMembers) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
 		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_RESOURCE_ATTR)) {
 			if(resource != null && member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resource, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, member, resource, attrDef));
 			} else if(group != null && resource != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(resource, null, attribute));
+				//we do not need to use the group object here
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, resource, attrDef));
 			} else if(user != null && facility != null) {
-				List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Resource> resourcesFromUser = new ArrayList<Resource>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, memberElement));
-					}
-				}
-				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				resourcesFromUser.retainAll(resourcesFromFacility);
-				resourcesFromUser = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromUser));
-				for(Resource resourceElement: resourcesFromUser) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				List<Resource> resourcesFromGroup =
-						new ArrayList<>(new HashSet<>(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group)));
-				for (Resource resourceElement : resourcesFromGroup) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, member, group, attrDef));
 			} else if(group != null) {
-				List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				for(Resource resourceElement: resourcesFromGroup) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, group, attrDef));
 			} else if(member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					List<Resource> resourcesFromMember = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
-					for(Resource resourceElement: resourcesFromMember) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, member, attrDef));
 			} else if(resource != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(resource, null, attribute));
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, resource, attrDef));
 			} else if(user != null) {
-				List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Resource> resourcesFromUser = new ArrayList<Resource>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, memberElement));
-					}
-				}
-				resourcesFromUser = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromUser));
-				for(Resource resourceElement: resourcesFromUser) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, user, attrDef));
 			} else if(host != null) {
-				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				for(Resource resourceElement: resourcesFromFacility) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, host, attrDef));
 			} else if(facility != null) {
-				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				for(Resource resourceElement: resourcesFromFacility) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				List<Resource> resourcesFromVo = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
-				for(Resource resourceElement: resourcesFromVo) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, userExtSource, attrDef));
 			} else if(key != null) {
-				List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
-				List<Resource> allResources = new ArrayList<Resource>();
-				for(Vo voElement: vos) {
-					allResources.addAll(getPerunBl().getResourcesManagerBl().getResources(sess, voElement));
-				}
-				allResources = new ArrayList<Resource>(new HashSet<Resource>(allResources));
-				for(Resource resourceElement: allResources) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getResourceAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
 		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_USER_ATTR)) {
 			if(resource != null && member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(user, null, attribute));
-				}
+				//we do not need to use the resource object here
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, member, attrDef));
 			} else if(group != null && resource != null) {
-				List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-				List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-				members.retainAll(membersFromResource);
-				List<User> usersFromGroup = new ArrayList<User>();
-				for(Member memberElement: members) {
-					usersFromGroup.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-				}
-				usersFromGroup = new ArrayList<User>(new HashSet<User>(usersFromGroup));
-				for(User userElement: usersFromGroup) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, userElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(userElement, null, attribute));
-				}
+				//we do not need to use the resource object here
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, group, attrDef));
 			} else if(user != null && facility != null) {
-				List<Facility> facilitiesFromUser = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
-				if(facilitiesFromUser.contains(user)) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(user, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(user, null, attribute));
-				}
+				//we do not need to use the group object here
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, member, attrDef));
 			} else if(group != null) {
-				List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-				List<User> usersFromGroup = new ArrayList<User>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						usersFromGroup.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-					}
-				}
-				usersFromGroup = new ArrayList<User>(new HashSet<User>(usersFromGroup));
-				for(User userElement: usersFromGroup) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, userElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(userElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, group, attrDef));
 			} else if(member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(user, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, member, attrDef));
 			} else if(resource != null) {
-				List<User> usersFromResource = getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
-				for(User userElement: usersFromResource) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, userElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(userElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, resource, attrDef));
 			} else if(user != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(user, null, attribute));
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, user, attrDef));
 			} else if(host != null) {
-				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<User> usersFromHost = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-				for(User userElement: usersFromHost) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, userElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(userElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, host, attrDef));
 			} else if(facility != null) {
-				List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-				for(User userElement: usersFromFacility) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, userElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(userElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
-				List<User> usersFromVo = new ArrayList<User>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						usersFromVo.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-					}
-				}
-				usersFromVo = new ArrayList<User>(new HashSet<User>(usersFromVo));
-				for(User userElement: usersFromVo) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, userElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(userElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, userExtSource, attrDef));
 			} else if(key != null) {
-				List<User> allUsers = getPerunBl().getUsersManagerBl().getUsers(sess);
-				for(User userElement: allUsers) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, userElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(userElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
 		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, AttributesManager.NS_HOST_ATTR)) {
 			if(resource != null && member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-					List<Host> hostsFromResource = getPerunBl().getFacilitiesManagerBl().getHosts(sess, facility);
-					for(Host hostElement: hostsFromResource) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, member, resource, attrDef));
 			} else if(group != null && resource != null) {
-				facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				List<Host> hostsFromResource = getPerunBl().getFacilitiesManagerBl().getHosts(sess, facility);
-				for(Host hostElement: hostsFromResource) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-				}
+				//we do not need to user the group object here
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, resource, attrDef));
 			} else if(user != null && facility != null) {
-				if(getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user).contains(facility)) {
-					List<Host> hostsFromFacility = getPerunBl().getFacilitiesManagerBl().getHosts(sess, facility);
-					for(Host hostElement: hostsFromFacility) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				List<Facility> facilitiesFromResources = new ArrayList<>();
-				for (Resource resourceElement : resourcesFromGroup) {
-					facilitiesFromResources.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-				}
-				facilitiesFromResources = new ArrayList<>(new HashSet<>(facilitiesFromResources));
-				List<Host> hostsFromFacilities = new ArrayList<>();
-				for (Facility facilityElement : facilitiesFromResources) {
-					hostsFromFacilities.addAll(getPerunBl().getFacilitiesManagerBl().getHosts(sess, facilityElement));
-				}
-				for (Host hostElement : hostsFromFacilities) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, member, group, attrDef));
 			} else if(group != null) {
-				List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				List<Facility> facilities = new ArrayList<Facility>();
-				for(Resource resourceElement: resources) {
-					facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-				}
-				List<Host> hostsFromGroup = new ArrayList<Host>();
-				for(Facility facilityElement: facilities) {
-					hostsFromGroup.addAll(getPerunBl().getFacilitiesManagerBl().getHosts(sess, facilityElement));
-				}
-				hostsFromGroup = new ArrayList<Host>(new HashSet<Host>(hostsFromGroup));
-				for(Host hostElement: hostsFromGroup) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, group, attrDef));
 			} else if(member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					List<Resource> resources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
-					List<Facility> facilities = new ArrayList<Facility>();
-					for(Resource resourceElement: resources) {
-						facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-					}
-					List<Host> hostsFromMembers = new ArrayList<Host>();
-					for(Facility facilityElement: facilities) {
-						hostsFromMembers.addAll(getPerunBl().getFacilitiesManagerBl().getHosts(sess, facilityElement));
-					}
-					hostsFromMembers = new ArrayList<Host>(new HashSet<Host>(hostsFromMembers));
-					for(Host hostElement: hostsFromMembers) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, member, attrDef));
 			} else if(resource != null) {
-				facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				List<Host> hostsFromResource = getPerunBl().getFacilitiesManagerBl().getHosts(sess, facility);
-				for(Host hostElement: hostsFromResource) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, resource, attrDef));
 			} else if(user != null) {
-				List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
-				List<Host> hostsFromUser = new ArrayList<Host>();
-				for(Facility facilityElement: facilities) {
-					hostsFromUser.addAll(getPerunBl().getFacilitiesManagerBl().getHosts(sess, facilityElement));
-				}
-				hostsFromUser = new ArrayList<Host>(new HashSet<Host>(hostsFromUser));
-				for(Host hostElement: hostsFromUser) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, user, attrDef));
 			} else if(host != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, host, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(host, null, attribute));
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, host, attrDef));
 			} else if(facility != null) {
-				List<Host> hostsFromFacility = getPerunBl().getFacilitiesManagerBl().getHosts(sess, facility);
-				for(Host hostElement: hostsFromFacility) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
-				List<Facility> facilities = new ArrayList<Facility>();
-				for(Resource resourceElement: resources) {
-					facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-				}
-				List<Host> hostsFromVo = new ArrayList<Host>();
-				for(Facility facilityElement: facilities) {
-					hostsFromVo.addAll(getPerunBl().getFacilitiesManagerBl().getHosts(sess, facilityElement));
-				}
-				hostsFromVo = new ArrayList<Host>(new HashSet<Host>(hostsFromVo));
-				for(Host hostElement: hostsFromVo) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-				}
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, userExtSource, attrDef));
 			} else if(key != null) {
-				List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
-				List<Host> hostsFromVo = new ArrayList<Host>();
-				for(Facility facilityElement: facilities) {
-					hostsFromVo.addAll(getPerunBl().getFacilitiesManagerBl().getHosts(sess, facilityElement));
-				}
-				hostsFromVo = new ArrayList<Host>(new HashSet<Host>(hostsFromVo));
-				for(Host hostElement: hostsFromVo) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, hostElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(hostElement, null, attribute));
-				}
-			}
-		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, AttributesManager.NS_ENTITYLESS_ATTR)) {
-			if(key != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, key, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(key, null, attribute));
+				listOfRichAttributes.addAll(this.getHostAttributes(sess, key, attrDef));
 			} else {
-				List<String> keys = this.getEntitylessKeys(sess, attrDef);
-				for(String keyElement: keys) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, keyElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(keyElement, null, attribute));
-				}
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
 		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR)) {
 			if(resource != null && member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-					List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
-					groupsFromResource.retainAll(groupsFromMember);
-					groupsFromResource = new ArrayList<Group>(new HashSet<Group>(groupsFromResource));
-					for(Group groupElement: groupsFromResource) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resource, groupElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, member, resource, attrDef));
 			} else if(group != null && resource != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(resource, group, attribute));
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, group, resource, attrDef));
 			} else if(user != null && facility != null) {
-				//Groups from User
-				List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Group> groupsFromUser = new ArrayList<Group>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						groupsFromUser.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
-					}
-				}
-				//Retain of Groups from facility
-				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
-				groupsFromFacility.retainAll(groupsFromUser);
-				//Resources from user
-				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Resource> resourcesFromUser = new ArrayList<Resource>();
-				for(Member memberElement: membersFromUser) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, memberElement));
-					}
-				}
-				//Resource from facility
-				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				//Retain of Resources
-				resourcesFromFacility.retainAll(resourcesFromUser);
-				//All possibilities
-				resourcesFromFacility = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromFacility));
-				for(Resource resourceElement: resourcesFromFacility) {
-					List<Group> groupsForResourceElement = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement);
-					groupsForResourceElement.retainAll(groupsFromFacility);
-					groupsForResourceElement = new ArrayList<Group>(new HashSet<Group>(groupsForResourceElement));
-					for(Group groupElement: groupsForResourceElement) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, groupElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				// there is no need to get Resources from Member because Members are only in those groups
-				// from which we already took Resources
-				List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				for (Resource resourceElement : resourcesFromGroup) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, group, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, group, attribute));
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, member, group, attrDef));
 			} else if(group != null) {
-				List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				for(Resource resourceElement: resourcesFromGroup) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, group, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, group, attribute));
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, group, attrDef));
 			} else if(member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
-					List<Resource> resourcesFromMember = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
-					for(Resource resourceElement: resourcesFromMember) {
-						List<Group> groupsFromResourceElement = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement);
-						groupsFromResourceElement.retainAll(groupsFromMember);
-						groupsFromResourceElement = new ArrayList<Group>(new HashSet<Group>(groupsFromResourceElement));
-						for(Group groupElement: groupsFromResourceElement) {
-							attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, groupElement, attrDef.getName());
-							listOfRichAttributes.add(new RichAttribute(resourceElement, groupElement, attribute));
-						}
-					}
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, member, attrDef));
 			} else if(resource != null) {
-				List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-				for(Group groupElement: groupsFromResource) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, groupElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resource, groupElement, attribute));
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, resource, attrDef));
 			} else if(user != null) {
-				List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Group> groupsFromUser = new ArrayList<Group>();
-				List<Resource> resourcesFromUser = new ArrayList<Resource>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						groupsFromUser.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
-						resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, memberElement));
-					}
-				}
-				groupsFromUser = new ArrayList<Group>(new HashSet<Group>(groupsFromUser));
-				for(Group groupElement: groupsFromUser) {
-					List<Resource> resourcesFromGroupElement = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, groupElement);
-					resourcesFromGroupElement.retainAll(resourcesFromUser);
-					resourcesFromGroupElement = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromGroupElement));
-					for(Resource resourceElement: resourcesFromGroupElement) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, groupElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, user, attrDef));
 			} else if(host != null) {
-				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<Resource> resourcesFromHost = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				for(Resource resourceElement: resourcesFromHost) {
-					List<Group> groupsFromResourceElement = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement);
-					for(Group groupElement: groupsFromResourceElement) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, groupElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, host, attrDef));
 			} else if(facility != null) {
-				List<Resource> resourcesFromHost = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				for(Resource resourceElement: resourcesFromHost) {
-					List<Group> groupsFromResourceElement = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement);
-					for(Group groupElement: groupsFromResourceElement) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, groupElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
-				for(Resource resourceElement: resources) {
-					List<Group> groupsFromResourceElement = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement);
-					for(Group groupElement: groupsFromResourceElement) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, groupElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, userExtSource, attrDef));
 			} else if(key != null) {
-				List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
-				List<Resource> resources = new ArrayList<Resource>();
-				for(Facility facilityElement: facilities) {
-					resources.addAll(getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facilityElement));
-				}
-				resources = new ArrayList<Resource>(new HashSet<Resource>(resources));
-				for(Resource resourceElement: resources) {
-					List<Group> groupsFromResourceElement = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement);
-					for(Group groupElement: groupsFromResourceElement) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, groupElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getGroupResourceAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
 		} else if (getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_MEMBER_GROUP_ATTR)) {
-			if (resource != null && member != null) {
-				List<Group> groupFromMembers = new ArrayList<>();
-				if (!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					groupFromMembers = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
-				}
-				List<Group> groupsFromResources = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-				groupsFromResources.retainAll(groupFromMembers);
-				groupsFromResources = new ArrayList<>(new HashSet<>(groupsFromResources));
-				for (Group groupElement : groupsFromResources) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, groupElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(member, group, attribute));
-				}
-			} else if (group != null && resource != null) {
-				// there is no need to get Members from Resource because needed Members are only from 'group' variable
-				// which we already have. Other Members (aquired from Resource) than from 'group' variable will be redundant because
-				// they will be not assigned to it.
-				List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group, Status.VALID);
-				for (Member memberElement : membersFromGroup) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, group, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(memberElement, group, attribute));
-				}
-			} else if (user != null && facility != null) {
-				// get all groups from facility
-				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
-				// get all groups from user
-				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				Set<Group> groupsFromMembers = new HashSet<>();
-				for (Member memberElement : membersFromUser) {
-					groupsFromMembers.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
-				}
-				// retain of groups
-				groupsFromMembers.retainAll(groupsFromFacility);
-				List<Group> retainedGroups = new ArrayList<>(groupsFromMembers);
-				// all possible groups
-				for (Group groupElement : retainedGroups) {
-					// get all members for 'groupElement' variable
-					List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group, Status.VALID);
-					// all possibilities
-					for (Member memberElement : membersFromGroup) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, groupElement, attribute));
-					}
-				}
+			if(resource != null && member != null) {
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, member, resource, attrDef));
+			} else if(group != null && resource != null) {
+				//we do not need to use the resource object
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, group, attrDef));
+			} else if(user != null && facility != null) {
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				if (!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, group, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(member, group, attribute));
-				}
-			} else if (group != null) {
-				List<Member> membersFromGroups = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group, Status.VALID);
-				for (Member memberElement: membersFromGroups) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, group, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(memberElement, group, attribute));
-				}
-			} else if (member != null) {
-				if (!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					List<Group> groupsFromMembers = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
-					for(Group groupElement : groupsFromMembers) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(member, groupElement, attribute));
-					}
-				}
-			} else if (resource != null) {
-				List<Group> groupsFromResources = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-				for (Group groupElement : groupsFromResources) {
-					// get all members for 'groupElement' variable
-					List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group, Status.VALID);
-					for (Member memberElement : membersFromGroup) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, groupElement, attribute));
-					}
-				}
-			} else if (user != null) {
-				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				for (Member memberElement: membersFromUser) {
-					if (!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						// get all groups for 'memberElement' variable
-						List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement);
-						for (Group groupElement : groupsFromMember) {
-							attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, groupElement, attrDef.getName());
-							listOfRichAttributes.add(new RichAttribute(memberElement, groupElement, attribute));
-						}
-					}
-				}
-			} else if (host != null) {
-				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
-				for (Group groupElement : groupsFromFacility) {
-					// get all members for 'groupElement' variable
-					List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group, Status.VALID);
-					for (Member memberElement : membersFromGroup) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, groupElement, attribute));
-					}
-				}
-			} else if (facility != null) {
-				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
-				for (Group groupElement : groupsFromFacility) {
-					// get all members for 'groupElement' variable
-					List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group, Status.VALID);
-					for (Member memberElement : membersFromGroup) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, groupElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, member, group, attrDef));
+			} else if(group != null) {
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, group, attrDef));
+			} else if(member != null) {
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, member, attrDef));
+			} else if(resource != null) {
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, resource, attrDef));
+			} else if(user != null) {
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, user, attrDef));
+			} else if(host != null) {
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, host, attrDef));
+			} else if(facility != null) {
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				List<Group> groupsFromVo = getPerunBl().getGroupsManagerBl().getAllGroups(sess, vo);
-				for (Group groupElement : groupsFromVo) {
-					// get all members for 'groupElement' variable
-					List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group, Status.VALID);
-					for (Member memberElement : membersFromGroup) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, groupElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, userExtSource, attrDef));
 			} else if(key != null) {
-				List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
-				List<Group> groupsFromVo = new ArrayList<>();
-				for(Vo voElement : vos) {
-					groupsFromVo.addAll(getPerunBl().getGroupsManagerBl().getAllGroups(sess, voElement));
-				}
-				groupsFromVo = new ArrayList<>(new HashSet<>(groupsFromVo));
-				for (Group groupElement : groupsFromVo) {
-					// get all members for 'groupElement' variable
-					List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group, Status.VALID);
-					for (Member memberElement : membersFromGroup) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, groupElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(memberElement, groupElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberGroupAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
 		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_MEMBER_RESOURCE_ATTR)) {
 			if(resource != null && member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, member, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resource, member, attribute));
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, member, resource, attrDef));
 			} else if(group != null && resource != null) {
-				List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-				List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-				membersFromGroup.retainAll(membersFromResource);
-				membersFromGroup = new ArrayList<Member>(new HashSet<Member>(membersFromGroup));
-				for(Member memberElement: membersFromGroup) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resource, memberElement, attribute));
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, group, resource, attrDef));
 			} else if(user != null && facility != null) {
-				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
-				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Resource> resourcesFromUser = new ArrayList<Resource>();
-				for(Member memberElement: membersFromUser) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, memberElement));
-					}
-				}
-				membersFromUser.retainAll(membersFromFacility);
-				resourcesFromUser.retainAll(resourcesFromFacility);
-				resourcesFromUser = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromUser));
-				for(Resource resourceElement: resourcesFromUser) {
-					List<Member> membersForResourceElement = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement);
-					membersForResourceElement.retainAll(membersFromUser);
-					membersForResourceElement = new ArrayList<Member>(new HashSet<Member>(membersForResourceElement));
-					for(Member memberElement: membersForResourceElement) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, memberElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				// there is no need to get Resources from Member because Members are only in those groups
-				// from which we already took Resources
-				List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				for (Resource resourceElement : resourcesFromGroup) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, member, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resourceElement, member, attribute));
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, member, group, attrDef));
 			} else if(group != null) {
-				List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-				for(Resource resourceElement: resources) {
-					List<Member> membersForResourceElement = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement);
-					membersForResourceElement.retainAll(members);
-					membersForResourceElement = new ArrayList<Member>(new HashSet<Member>(membersForResourceElement));
-					for(Member memberElement: members) {
-						if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-							attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
-							listOfRichAttributes.add(new RichAttribute(resourceElement, memberElement, attribute));
-						}
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, group, attrDef));
 			} else if(member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					List<Resource> resources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
-					for(Resource resourceElement: resources) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, member, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, member, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, member, attrDef));
 			} else if(resource != null) {
-				List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-				for(Member memberElement: members) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(resource, memberElement, attribute));
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, resource, attrDef));
 			} else if(user != null) {
-				List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						List<Resource> resources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, memberElement);
-						for(Resource resourceElement: resources) {
-							attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
-							listOfRichAttributes.add(new RichAttribute(resourceElement, memberElement, attribute));
-						}
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, user, attrDef));
 			} else if(host != null) {
-				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				for(Resource resourceElement: resources) {
-					List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement);
-					for(Member memberElement: members) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, memberElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, host, attrDef));
 			} else if(facility != null) {
-				List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				for(Resource resourceElement: resources) {
-					List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement);
-					for(Member memberElement: members) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, memberElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
-				List<Member> membersFromVo = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
-				for(Resource resourceElement: resources) {
-					List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-					membersFromResource.retainAll(membersFromVo);
-					for(Member memberElement: membersFromResource) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, memberElement, attribute));
-					}
-				}
-
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, userExtSource, attrDef));
 			} else if(key != null) {
-				List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
-				List<Resource> resources = new ArrayList<Resource>();
-				List<Member> membersFromVo = new ArrayList<Member>();
-				for(Vo voElement: vos) {
-					resources.addAll(getPerunBl().getResourcesManagerBl().getResources(sess, voElement));
-					membersFromVo.addAll(getPerunBl().getMembersManagerBl().getMembers(sess, voElement));
-				}
-				resources = new ArrayList<Resource>(new HashSet<Resource>(resources));
-				for(Resource resourceElement: resources) {
-					List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement);
-					membersFromResource.retainAll(membersFromVo);
-					membersFromResource = new ArrayList<Member>(new HashSet<Member>(membersFromResource));
-					for(Member memberElement: membersFromResource) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(resourceElement, memberElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getMemberResourceAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
 		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_USER_FACILITY_ATTR)) {
 			if(resource != null && member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-					user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facility, user, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, member, resource, attrDef));
 			} else if(group != null && resource != null) {
-				facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				//get Users from Group
-				List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-				List<User> usersFromGroup = new ArrayList<User>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						usersFromGroup.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-					}
-				}
-				//get users from resource
-				List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-				List<User> usersFromResource = new ArrayList<User>();
-				for(Member memberElement: membersFromResource) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						usersFromResource.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-					}
-				}
-				usersFromGroup.retainAll(usersFromResource);
-				usersFromGroup = new ArrayList<User>(new HashSet<User>(usersFromGroup));
-				for(User userElement: usersFromGroup) {
-					if(getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, userElement).contains(facility)) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, userElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(facility, userElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, group, resource, attrDef));
 			} else if(user != null && facility != null) {
-				attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, attrDef.getName());
-				listOfRichAttributes.add(new RichAttribute(facility, user, attribute));
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, user, facility, attrDef));
 			} else if (member != null && group != null) {
-				List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				List<Facility> facilitiesFromResources = new ArrayList<>();
-				for (Resource resourceElement : resourcesFromGroup) {
-					facilitiesFromResources.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-				}
-				facilitiesFromResources = new ArrayList<>(new HashSet<>(facilitiesFromResources));
-				User userFromMember = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				for (Facility facilityElement : facilitiesFromResources) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, userFromMember, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facilityElement, userFromMember, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, member, group, attrDef));
 			} else if(group != null) {
-				List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-				List<User> users = new ArrayList<User>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						users.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-					}
-				}
-				List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-				List<Facility> facilities = new ArrayList<Facility>();
-				for(Resource resourceElement: resources) {
-					facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-				}
-				users = new ArrayList<User>(new HashSet<User>(users));
-				for(User userElement: users) {
-					List<Facility> facilitiesFromUser = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, userElement);
-					facilities.retainAll(facilitiesFromUser);
-					facilities = new ArrayList<Facility>(new HashSet<Facility>(facilities));
-					for(Facility facilityElement: facilities) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, userElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(facilityElement, userElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, group, attrDef));
 			} else if(member != null) {
-				if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
-					user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-					List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
-					List<Facility> facilities = new ArrayList<Facility>();
-					for(Resource resourceElement: memberResources) {
-						facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-					}
-					facilities = new ArrayList<Facility>(new HashSet<Facility>(facilities));
-					for(Facility facilityElement: facilities) {
-						if(getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user).contains(facilityElement)) {
-							attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, user, attrDef.getName());
-							listOfRichAttributes.add(new RichAttribute(facilityElement, user, attribute));
-						}
-					}
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, member, attrDef));
 			} else if(resource != null) {
-				facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				List<User> usersFromResource = getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
-				for(User userElement: usersFromResource) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, userElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facility, userElement, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, resource, attrDef));
 			} else if(user != null) {
-				List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
-				for(Facility facilityElement: facilities) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, user, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facilityElement, user, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, user, attrDef));
 			} else if(host != null) {
-				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<User> users = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-				for(User userElement: users) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, userElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facility, userElement, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, host, attrDef));
 			} else if(facility != null) {
-				List<User> users = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-				for(User userElement: users) {
-					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, userElement, attrDef.getName());
-					listOfRichAttributes.add(new RichAttribute(facility, userElement, attribute));
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, facility, attrDef));
 			} else if(vo != null) {
-				List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
-				List<User> users = new ArrayList<User>();
-				for(Member memberElement: members) {
-					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						users.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-					}
-				}
-				List<Resource> resourcesFromVo = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
-				List<Facility> facilitiesFromVo = new ArrayList<Facility>();
-				for(Resource resourceElement: resourcesFromVo) {
-					facilitiesFromVo.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-				}
-				users = new ArrayList<User>(new HashSet<User>(users));
-				for(User userElement: users) {
-					List<Facility> facilitiesFromUserElement = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, userElement);
-					facilitiesFromUserElement.retainAll(facilitiesFromVo);
-					facilitiesFromUserElement = new ArrayList<Facility>(new HashSet<Facility>(facilitiesFromUserElement));
-					for(Facility facilityElement: facilitiesFromUserElement) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, userElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(facilityElement, userElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, userExtSource, attrDef));
 			} else if(key != null) {
-				List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
-				for(Facility facilityElement: facilities) {
-					List<User> users = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facilityElement);
-					for(User userElement: users) {
-						attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, userElement, attrDef.getName());
-						listOfRichAttributes.add(new RichAttribute(facilityElement, userElement, attribute));
-					}
-				}
+				listOfRichAttributes.addAll(this.getUserFacilityAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
 			}
+
+		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, NS_UES_ATTR)) {
+			if(resource != null && member != null) {
+				//we do not need to use the resource object here
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, member, attrDef));
+			} else if(group != null && resource != null) {
+				//we do not need to use the resource object here
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, group, attrDef));
+			} else if(user != null && facility != null) {
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, user, facility, attrDef));
+			} else if (member != null && group != null) {
+				//we do not need to use the group object here
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, member, attrDef));
+			} else if(group != null) {
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, group, attrDef));
+			} else if(member != null) {
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, member, attrDef));
+			} else if(resource != null) {
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, resource, attrDef));
+			} else if(user != null) {
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, user, attrDef));
+			} else if(host != null) {
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, host, attrDef));
+			} else if(facility != null) {
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, facility, attrDef));
+			} else if(vo != null) {
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, vo, attrDef));
+			} else if(userExtSource != null) {
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, userExtSource, attrDef));
+			} else if(key != null) {
+				listOfRichAttributes.addAll(this.getUserExtSourceAttributes(sess, key, attrDef));
+			} else {
+				throw new InternalErrorException("Unknown combination of PerunBeans: " + aidingAttr );
+			}
+
+		} else if(getAttributesManagerImpl().isFromNamespace(sess, attrDef, AttributesManager.NS_ENTITYLESS_ATTR)) {
+			if(key != null) {
+				listOfRichAttributes.addAll(getEntitylessAttributes(sess, key, attrDef));
+			} else {
+				listOfRichAttributes.addAll(getEntitylessAttributes(sess, attrDef));
+			}
+
 		} else {
 			throw new InternalErrorException("There is unrecognized namespace in attribute " + attrDef);
 		}
 
-		return listOfRichAttributes;
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+    return listOfRichAttributes;
 	}
 
 	/**
@@ -6880,4 +6032,3678 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		return userAttrs;
 	}
+
+	// ------------ PRIVATE METHODS FOR ATTRIBUTE DEPENDENCIES LOGIC --------------
+	// These methods get one or two Perun Beans and return list of richAttributes
+	// of specific type defined by name of method which actually exists in Perun
+	// and they are connected to the Perun Beans in parameters. If there is any
+	// possibility to filter them by members, use only allowed members connections.
+	// If member is not allowed (is in state Disabled or Invalid), remove
+	// all objects connected to him from structure for getting attributes.
+	//
+	// Example: We have USER and we want all GROUP attributes connected to this
+	// User. So we find all members connected to this user and only for those who
+	// are allowed (NOT have status DISABLED or INVALID we find all connected groups
+	// and then we find all group attributes for these groups and return them
+	// as RichAttributes.
+	// ----------------------------------------------------------------------------
+
+	// ---------------------------------VO-----------------------------------------
+
+	/**
+	 * Returns all relevant Vo RichAttributes for given User.
+	 * That means find all Vos where given user has allowed member.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of Rich attributes for given user
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getVoAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		for (Member memberElement : membersFromUser) {
+			listOfRichAttributes.addAll(getVoAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Vo RichAttributes for given member.
+	 * If member is allowed returns its Vo's Rich attribute.
+	 * Otherwise no attributes are returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+			listOfRichAttributes.addAll(getVoAttributes(sess, vo, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Vo RichAttributes for given group.
+	 * Finds directly the Vo where the group belongs.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws VoNotExistsException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, VoNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId());
+		listOfRichAttributes.addAll(getVoAttributes(sess, vo, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Vo RichAttributes for given resource.
+	 * Finds the Vo that the resource is assigned to.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return list of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws VoNotExistsException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, VoNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());
+		listOfRichAttributes.addAll(getVoAttributes(sess, vo, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Vo RichAttributes for given Vo.
+	 * Find attributes for given Vo directly.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo virtual organization
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, attrDef.getName());
+		listOfRichAttributes.add(new RichAttribute<>(vo, null, attribute));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Vo RichAttributes for given Facility.
+	 * Finds allowed Vos for given facility.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Vo> vos = getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility);
+		for (Vo voElement : vos) {
+			listOfRichAttributes.addAll(getVoAttributes(sess, voElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Vo RichAttributes for given host.
+	 * Finds facility for given host and gets allowed Vos for the facility.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAtrributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getVoAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Vo RichAttributes for given userExtSource. That means find user for given userExtSource and
+	 * find all Vos where given user has allowed member.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource user external source
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws VoNotExistsException
+	 */
+	private List<RichAttribute> getVoAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, VoNotExistsException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		listOfRichAttributes.addAll(getVoAttributes(sess, user, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Vo RichAttributes for given user and facility.
+	 * That means:
+	 * 1. Finds all members for given user. For each member, if is allowed, find all its groups.
+	 * 2. For given facility find all its resource. For each resource finds assigned groups.
+	 * 3. Then compare these groups and keeps only those that were in both lists.
+	 * 4. For those groups finds theirs Vos and returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getVoAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Group> groupsFromUser = new ArrayList<>();
+		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		for (Member memberElement : membersFromUser) {
+			if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+				groupsFromUser.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
+			}
+		}
+		List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+		List<Group> groupsFromFacility = new ArrayList<>();
+		for (Resource resourceElement : resourcesFromFacility) {
+			groupsFromFacility.addAll(perunBl.getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
+		}
+		groupsFromUser.retainAll(groupsFromFacility);
+		groupsFromUser = new ArrayList<>(new HashSet<>(groupsFromUser));
+
+		List<Vo> vos = new ArrayList<>();
+		for (Group groupElement : groupsFromUser) {
+			vos.add(getPerunBl().getGroupsManagerBl().getVo(sess, groupElement));
+		}
+
+		vos = new ArrayList<>(new HashSet<>(vos));
+
+		for (Vo voElement : vos) {
+			listOfRichAttributes.addAll(getVoAttributes(sess, voElement, attrDef));
+		}
+
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all Vo RichAttributes.
+	 * Finds attributes for all Vos. The given parameter key is not used.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key not used
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getVoAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
+		for (Vo voElement : vos) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, voElement, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(voElement, null, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------USER----------------------------------------
+
+	/**
+	 * Returns all relevant User RichAttributes for given user.
+	 * Finds attributes for given user directly.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attrDef.getName());
+		listOfRichAttributes.add(new RichAttribute<>(user, null, attribute));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant User RichAttributes for given member.
+	 * Checks if given member is allowed. If so, gets its user and return its attribute.
+	 * If member is not allowed, an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			listOfRichAttributes.addAll(getUserAttributes(sess, user, attrDef));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant User RichAttributes for given member.
+	 * Finds all members for given group. For each allowed member gets its user. Returns attributes for those users.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		for (Member memberElement : members) {
+			listOfRichAttributes.addAll(getUserAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant User RichAttributes for given resource.
+	 * Gets allowed users for given resource. Returns attributes for those users.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<User> usersFromResource = getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
+		for (User userElement : usersFromResource) {
+			listOfRichAttributes.addAll(getUserAttributes(sess, userElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant User RichAttributes for given vo.
+	 * Find all members of given vo. For each allowed member gets its user and returns rich attributes for those users.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
+		for (Member memberElement : members) {
+			listOfRichAttributes.addAll(getUserAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant User RichAttributes for given facility.
+	 * Finds allowed users for given facility. For each of them returns rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
+		for (User userElement : usersFromFacility) {
+			listOfRichAttributes.addAll(getUserAttributes(sess, userElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant User RichAttributes for given host.
+	 * For given host finds its facility. Then for this facility finds allowed users and returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getUserAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant User RichAttributes for given userExtSource.
+	 * For given userExtSource finds its user. Then for this user gets its attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource user external source
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		listOfRichAttributes.addAll(getUserAttributes(sess, user, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant User RichAttributes for given user and facility.
+	 * That means:
+	 * 1. Finds all allowed facilities for given user.
+	 * 2. Checks if those facilities contains given facility.
+	 * 3. If so, returns the user's rich attribute, an empty list otherwise.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Facility> facilitiesFromUser = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
+		if (facilitiesFromUser.contains(facility)) {
+			listOfRichAttributes.addAll(getUserAttributes(sess, user, attrDef));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns RichAttributes for all users.
+	 * Finds all users. Returns theirs rich attributes. The key param is not used.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key not used
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<User> allUsers = getPerunBl().getUsersManagerBl().getUsers(sess);
+		for (User userElement : allUsers) {
+			listOfRichAttributes.addAll(getUserAttributes(sess, userElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------MEMBER--------------------------------------
+
+	/**
+	 * Returns all relevant Member RichAttributes for given user.
+	 * Finds all members for given user. For those members that are allowed returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		for (Member memberElement : membersFromUser) {
+			listOfRichAttributes.addAll(getMemberAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Member RichAttributes for given member.
+	 * Checks if given member is allowed. If so, returns its attribute.
+	 * Otherwise an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(member, null, attribute));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Member RichAttributes for given group.
+	 * Finds all members for given group. For each member that is allowed returns its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		for (Member memberElement : membersFromGroup) {
+			listOfRichAttributes.addAll(getMemberAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Member RichAttributes for given resource.
+	 * Finds allowed members who can access the resource.
+	 * For those members that are allowed returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
+		for (Member memberElement : membersFromResource) {
+			listOfRichAttributes.addAll(getMemberAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Member RichAttributes for given Vo.
+	 * Gets all members of given Vo. For each allowed member returns its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo virtual organization
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromVo = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
+		for (Member memberElement : membersFromVo) {
+			listOfRichAttributes.addAll(getMemberAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Member RichAttributes for given facility.
+	 * Finds members that can access the given facility. For each allowed member returns its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
+		for (Member memberElement : membersFromFacility) {
+			listOfRichAttributes.addAll(getMemberAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Member RichAttributes for given host.
+	 * Finds facility for given host. Finds all members who can access the facility.
+	 * For each allowed member returns its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getMemberAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Member RichAttributes for given userExtSource.
+	 * For given userExtSource finds user. Finds all members for the user.
+	 * For each allowed member returns its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource user external source
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		listOfRichAttributes.addAll(getMemberAttributes(sess, user, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Member RichAttributes for given user and facility.
+	 * That means:
+	 * 1. Finds members for given user.
+	 * 2. Finds members for given facility.
+	 * 3. Keeps those that are in both lists.
+	 * 4. For each of them return its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
+		membersFromUser.retainAll(membersFromFacility);
+		membersFromUser = new ArrayList<>(new HashSet<>(membersFromUser));
+		for (Member memberElement : membersFromUser) {
+			listOfRichAttributes.addAll(getMemberAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns RichAttributes for all allowed members.
+	 * Key argument is not used.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session.
+	 * @param key is not used.
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
+		for (Vo voElement : vos) {
+			listOfRichAttributes.addAll(getMemberAttributes(sess, voElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------GROUP---------------------------------------
+
+	/**
+	 * Returns all relevant Group RichAttributes for given user.
+	 * Finds members for given user. For each allowed member returns its group's rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		for (Member memberElement : members) {
+			listOfRichAttributes.addAll(getGroupAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Group RichAttributes for given member.
+	 * Checks if given member is allowed. If so, finds all groups for it. For each group returns its rich attribute.
+	 * If member is not allowed return an empty List.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
+			for (Group groupElement : groupsFromMember) {
+				listOfRichAttributes.addAll(getGroupAttributes(sess, groupElement, attrDef));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Group RichAttributes for given group.
+	 * Finds rich attribute for given group directly.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, attrDef.getName());
+		listOfRichAttributes.add(new RichAttribute<>(group, null, attribute));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Group RichAttributes for given resource.
+	 * Finds groups assigned for given resource. Returns rich attributes for those groups.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+		for (Group groupElement : groupsFromResource) {
+			listOfRichAttributes.addAll(getGroupAttributes(sess, groupElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Group RichAttributes for given Vo.
+	 * Finds groups that belongs in given Vo. For each group return its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo virtual organization
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Group> groups = getPerunBl().getGroupsManagerBl().getAllGroups(sess, vo);
+		for (Group groupElement : groups) {
+			listOfRichAttributes.addAll(getGroupAttributes(sess, groupElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Group RichAttributes for given facility.
+	 * Finds groups that are assigned to given facility. For each group returns its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
+		for (Group groupElement : groupsFromFacility) {
+			listOfRichAttributes.addAll(getGroupAttributes(sess, groupElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Group RichAttributes for given host.
+	 * Finds facility for given host. Finds groups assigned to this host. For each group returns its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getGroupAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Group RichAttributes for given userExtSource.
+	 * Finds user for given userExtSource. Finds members for this user.
+	 * For each allowed member returns its group's rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource user external source
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		listOfRichAttributes.addAll(getGroupAttributes(sess, user, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Group RichAttributes for given member and group.
+	 * Checks if the member is allowed. If so, returns rich attribute for given group.
+	 * Otherwise an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			listOfRichAttributes = getGroupAttributes(sess, group, attrDef);
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Group RichAttributes for given member and resource.
+	 * That means:
+	 * 1. Check if member is allowed, if is not, returns an empty list.
+	 * 2. Finds assigned groups for given resource.
+	 * 3. Finds all groups for given member.
+	 * 4. Keeps those groups that are in both lists.
+	 * 5. Returns rich attributes for those groups.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+			List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
+			groupsFromResource.retainAll(groupsFromMember);
+			groupsFromResource = new ArrayList<>(new HashSet<>(groupsFromResource));
+			for (Group groupElement : groupsFromResource) {
+				listOfRichAttributes.addAll(getGroupAttributes(sess, groupElement, attrDef));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Group RichAttributes for given user and facility.
+	 * That means:
+	 * 1. Finds all members for given user.
+	 * 2. For each member that is allowed, find its group.
+	 * 3. Finds group assigned to given facility.
+	 * 4. Keeps groups that are in both list.
+	 * 5. For those groups returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		Set<Group> groupsFromMembers = new HashSet<>();
+		for (Member memberElement : members) {
+			if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+				groupsFromMembers.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
+			}
+		}
+		groupsFromMembers.retainAll(getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility));
+		for (Group groupElement : groupsFromMembers) {
+			listOfRichAttributes.addAll(getGroupAttributes(sess, groupElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns rich attributes for all groups.
+	 * The key param is not used.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key key
+	 * @param attrDef type of attribute that will be returned
+	 * @return list of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
+		for (Vo voElement : vos) {
+			listOfRichAttributes.addAll(getGroupAttributes(sess, voElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------RESOURCE------------------------------------
+	/**
+	 * Returns all relevant Resource RichAttributes for given user.
+	 * Finds members for given user. For each allowed member finds resources the member can access.
+	 * For each of those resources returns theirs rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return list of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		for (Member memberElement : members) {
+			listOfRichAttributes.addAll(getResourceAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Resource RichAttributes for given member.
+	 * If member is not allowed returns an empty list.
+	 * Otherwise finds resources the member can access.
+	 * Then returns rich attributes for those resources.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return list of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Resource> resourcesFromMember = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
+			for (Resource resourceElement : resourcesFromMember) {
+				listOfRichAttributes.addAll(getResourceAttributes(sess, resourceElement, attrDef));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Resource RichAttributes for given group.
+	 * Finds assigned resources for given group. For those resources returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return list of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+		for (Resource resourceElement : resourcesFromGroup) {
+			listOfRichAttributes.addAll(getResourceAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Resource RichAttributes for given resource.
+	 * Finds rich attribute for the given resource.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess sesion
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, attrDef.getName());
+		listOfRichAttributes.add(new RichAttribute<>(resource, null, attribute));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Resource RichAttributes for given vo.
+	 * Finds resources assigned to given Vo. For each returns its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo virtual organization
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resourcesFromVo = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+		for (Resource resourceElement : resourcesFromVo) {
+			listOfRichAttributes.addAll(getResourceAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Resource RichAttributes for given facility.
+	 * Finds assigned resources to the given facility. Returns rich attributes of these resources.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+		for (Resource resourceElement : resourcesFromFacility) {
+			listOfRichAttributes.addAll(getResourceAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Resource RichAttributes for given host.
+	 * Finds the given host's facility. For this facility finds assigned resources.
+	 * For each of those resources returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getResourceAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Resource RichAttributes for given userExtSource.
+	 * Finds user for given userExtSource. Finds members for the user.
+	 * For each allowed member finds resources the member can access.
+	 * For each of those resources returns theirs rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource user external source
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		listOfRichAttributes.addAll(getResourceAttributes(sess, user, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Resource RichAttributes for given member and group.
+	 * 1. Checks if member is allowed, if is not returns an empty list.
+	 * 2. Otherwise finds assigned resources to given group.
+	 * 3. For those resources returns theirs rich attributes
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Resource> resourcesFromGroup = new ArrayList<>(new HashSet<>(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group)));
+			for (Resource resourceElement : resourcesFromGroup) {
+				listOfRichAttributes.addAll(getResourceAttributes(sess, resourceElement, attrDef));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Resource RichAttributes for given member and resource.
+	 * 1. Checks if member is allowed, if not so, an empty list is returned
+	 * 2. Otherwise returns rich attribute for given resource
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(resource, null, attribute));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Resource RichAttributes for given user and facility.
+	 * 1. Finds members for given user
+	 * 2. For each allowed member finds its allowed resources
+	 * 3. Finds assigned resources to given facility
+	 * 4. Keeps only resources that are in both lists
+	 * 5. For those resources returns theirs rich attributes
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		List<Resource> resourcesFromUser = new ArrayList<>();
+		for (Member memberElement : members) {
+			if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+				resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, memberElement));
+			}
+		}
+		List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+		resourcesFromUser.retainAll(resourcesFromFacility);
+		resourcesFromUser = new ArrayList<>(new HashSet<>(resourcesFromUser));
+		for (Resource resourceElement : resourcesFromUser) {
+			listOfRichAttributes.addAll(getResourceAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Finds rich attributes for all resources.
+	 * The key param is not used.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key not used
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
+		for (Vo voElement : vos) {
+			listOfRichAttributes.addAll(getResourceAttributes(sess, voElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------FACILITY------------------------------------
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given user.
+	 * Finds facilities that the given user can access.
+	 * For those facilities are returned rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
+		for (Facility facilityElement : facilities) {
+			listOfRichAttributes.addAll(getFacilityAttributes(sess, facilityElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given member.
+	 * 1. Checks if given member is allowed, if not, an empty list is returned.
+	 * 2. Otherwise finds groups for given member.
+	 * 3. For those groups finds assigned resources.
+	 * 4. Finds facility for each resource.
+	 * 5. Returns rich attributes for those facilities.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Group> groupsForMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
+			for (Group groupElement : groupsForMember) {
+				listOfRichAttributes.addAll(getFacilityAttributes(sess, groupElement, attrDef));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given group.
+	 * 1. For the given group finds assigned resources.
+	 * 2. Finds facility for each resource.
+	 * 3. Returns rich attributes for those facilities.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+		for (Resource resourceElement : resources) {
+			listOfRichAttributes.addAll(getFacilityAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given resource.
+	 * Finds facility that the resource belongs to and return its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+		listOfRichAttributes.addAll(getFacilityAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given vo.
+	 * Finds resources assigned to given vo.
+	 * For each resource finds facility it belongs to.
+	 * Returns rich attributes for these resources.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo virtual organization
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+		for (Resource resourceElement : resources) {
+			listOfRichAttributes.addAll(getFacilityAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given Facility.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, attrDef.getName());
+		listOfRichAttributes.add(new RichAttribute<>(facility, null, attribute));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given host.
+	 * Finds the facility the given host is assigned to.
+	 * For this facility returns its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getFacilityAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given user.
+	 * Finds user for given userExtSource.
+	 * Finds facilities that the user can access.
+	 * For those facilities are returned rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource user external source
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws UserNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		listOfRichAttributes.addAll(getFacilityAttributes(sess, user, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given member and group.
+	 * 1. Checks if the member is allowed, if not, empty list is returned
+	 * 2. Otherwise for the given group finds assigned resources.
+	 * 3. Finds facility for each resource.
+	 * 4. Returns rich attributes for those facilities.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			listOfRichAttributes = getFacilityAttributes(sess, group, attrDef);
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given member and resource.
+	 * 1. Checks if the given member is allowed. If not, an empty list is returned.
+	 * 2. Otherwise finds facility that the resource belongs to and returns its rich attribute.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			listOfRichAttributes.addAll(getFacilityAttributes(sess, resource, attrDef));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Facility RichAttributes for given user and facility
+	 * 1. Finds facilities the given user can access.
+	 * 2. Checks if those facilities contains the given one. If they do, return this facility's rich attribute.
+	 * 3. Otherwise an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Facility> facilitiesFromUser = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
+		if (facilitiesFromUser.contains(facility)) {
+			listOfRichAttributes.addAll(getFacilityAttributes(sess, facility, attrDef));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Finds all facilities rich attributes.
+	 * The key param is not used.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key not used
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
+		for (Facility facilityElement : facilities) {
+			listOfRichAttributes.addAll(getFacilityAttributes(sess, facilityElement, attrDef));
+		}
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------HOST----------------------------------------
+
+	/**
+	 * Returns all relevant Host RichAttributes for given user.
+	 * Finds facilities where the given user is allowed.
+	 * For each of those facilities finds theirs hosts.
+	 * For each of those host returns its rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
+		for (Facility facilityElement : facilities) {
+			listOfRichAttributes.addAll(getHostAttributes(sess, facilityElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Host RichAttributes for given member.
+	 * If member is not allowed returns an empty list.
+	 * Otherwise finds groups for the given member.
+	 * For those groups finds assigned resources.
+	 * For each of those resources finds theirs facilities.
+	 * For each of those facilities finds theirs hosts.
+	 * For each of those host returns its rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(perunBl.getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Group> groupsForMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
+			for (Group groupElement : groupsForMember) {
+				listOfRichAttributes.addAll(getHostAttributes(sess, groupElement, attrDef));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Host RichAttributes for given group.
+	 * For the given group finds assigned resources.
+	 * For each of those resources finds theirs facilities.
+	 * For each of those facilities finds theirs hosts.
+	 * For each of those host returns its rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+		for (Resource resourceElement : resources) {
+			listOfRichAttributes.addAll(getHostAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Host RichAttributes for given resource.
+	 * For the given resource finds its facility.
+	 * For the facility finds its hosts.
+	 * For each of those host returns its rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resources
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+		listOfRichAttributes.addAll(getHostAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Host RichAttributes for given vo.
+	 * Finds assigned resources to the given vo.
+	 * For each of those resources finds theirs facilities.
+	 * For each of those facilities finds theirs hosts.
+	 * For each of those host returns its rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo virtual organization
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+		for (Resource resourceElement : resources) {
+			listOfRichAttributes.addAll(getHostAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Host RichAttributes for given facility.
+	 * For the given facility finds its hosts.
+	 * For each of those host returns its rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Host> hostsFromFacility = getPerunBl().getFacilitiesManagerBl().getHosts(sess, facility);
+		for (Host hostElement : hostsFromFacility) {
+			listOfRichAttributes.addAll(getHostAttributes(sess, hostElement, attrDef));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Host RichAttributes for given host.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, host, attrDef.getName());
+		listOfRichAttributes.add(new RichAttribute<>(host, null, attribute));
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Host RichAttributes for given userExtSource.
+	 * Finds user for the given userExtSource.
+	 * Finds facilities where the user is allowed.
+	 * For each of those facilities finds theirs hosts.
+	 * For each of those host returns its rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource userExtSource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws UserNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		listOfRichAttributes.addAll(getHostAttributes(sess, user, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Host RichAttributes for given member and group.
+	 * If the member is not allowed returns an empty list.
+	 * Otherwise, for the given group finds assigned resources.
+	 * For each of those resources finds theirs facilities.
+	 * For each of those facilities finds theirs hosts.
+	 * For each of those host returns its rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			listOfRichAttributes.addAll(getHostAttributes(sess, group, attrDef));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Host RichAttributes for given member and resource.
+	 * For the given resource finds its facility.
+	 * For the facility finds its hosts.
+	 * For each of those host returns its rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resources
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			listOfRichAttributes = getHostAttributes(sess, resource, attrDef);
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant Host RichAttributes for given user and facility.
+	 * Checks if user can access the facility. If not, an empty list is returned.
+	 * Otherwise, gets hosts from the given facility and returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user).contains(facility)) {
+			List<Host> hostsFromFacility = getPerunBl().getFacilitiesManagerBl().getHosts(sess, facility);
+			for (Host hostElement : hostsFromFacility) {
+				listOfRichAttributes.addAll(getHostAttributes(sess, hostElement, attrDef));
+			}
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns rich attributes for all hosts.
+	 * The key param is not used.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key not used
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getHostAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
+		for (Facility facilityElement : facilities) {
+			listOfRichAttributes.addAll(getHostAttributes(sess, facilityElement, attrDef));
+		}
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------USER-EXT-SOURCE-------------------------------
+
+	/**
+	 * Returns all relevant UserExtSource RichAttributes for given user.
+	 * Finds all user's userExtSources and returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<UserExtSource> userExtSources = getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
+		for(UserExtSource userExtSourceElement : userExtSources) {
+			listOfRichAttributes.addAll(getUserExtSourceAttributes(sess, userExtSourceElement, attrDef));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserExtSource RichAttributes for given member.
+	 * Checks if the given member is allowed. If not, an empty list is returned.
+	 * Otherwise, finds all its user's userExtSources and returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			listOfRichAttributes.addAll(getUserExtSourceAttributes(sess, user, attrDef));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserExtSource RichAttributes for given group.
+	 * Finds all members for given group.
+	 * For all allowed members finds theirs user's userExtSources and returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> groupMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		for(Member memberElement: groupMembers) {
+			listOfRichAttributes.addAll(getUserExtSourceAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserExtSource RichAttributes for given resource.
+	 * Finds allowed members for the given resource.
+	 * Finds theirs user's userExtSources and returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> resourceMembers = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
+		for(Member memberElement: resourceMembers) {
+			listOfRichAttributes.addAll(getUserExtSourceAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserExtSource RichAttributes for given vo.
+	 * Finds allowed members for the given vo.
+	 * Finds theirs user's userExtSources and returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> voMembers = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
+		for(Member memberElement: voMembers) {
+			listOfRichAttributes.addAll(getUserExtSourceAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserExtSource RichAttributes for given facility.
+	 * Finds allowed members for the given facility.
+	 * Finds theirs user's userExtSources and returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> facilityMembers = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
+		for(Member memberElement: facilityMembers) {
+			listOfRichAttributes.addAll(getUserExtSourceAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserExtSource RichAttributes for given host.
+	 * Finds allowed members for the given host's facility.
+	 * Finds theirs user's userExtSources and returns theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getUserExtSourceAttributes(sess, facility, attrDef));
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserExtSource RichAttributes for given userExtSource.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource userExtSource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, userExtSource, attrDef.getName());
+		listOfRichAttributes.add(new RichAttribute<>(userExtSource, null, attribute));
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserExtSource RichAttributes for given user and facility.
+	 * Checks if the given user can access the given facility. If not, an empty list is returned.
+	 * Otherwise, finds all given user's userExtSources and return theirs rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
+		if(usersFromFacility.contains(user)) {
+			List<UserExtSource> userExtSources = getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
+			for(UserExtSource userExtSourceElement: userExtSources) {
+				listOfRichAttributes.addAll(getUserExtSourceAttributes(sess, userExtSourceElement, attrDef));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns RichAttributes for all userExtSource.
+	 * The key param is not used.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key not used
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
+		for(Facility facilityElement: facilities) {
+			listOfRichAttributes.addAll(getUserExtSourceAttributes(sess, facilityElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------GROUP-RESOURCE-------------------------------
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given user.
+	 * That means, returns all GroupResource rich attributes for those groups where the given user has at least one
+	 * allowed member and for those resources that the given user can access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		for(Member memberElement: members) {
+			listOfRichAttributes.addAll(getGroupResourceAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given member.
+	 * That means, returns all GroupResource rich attributes for those groups that the given member is assigned to
+	 * and for those resources that the given member can access.
+	 * If the given member is not allowed, an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
+			List<Resource> resourcesFromMember = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
+			for(Resource resourceElement: resourcesFromMember) {
+				List<Group> groupsFromResourceElement = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement);
+				groupsFromResourceElement.retainAll(groupsFromMember);
+				groupsFromResourceElement = new ArrayList<>(new HashSet<>(groupsFromResourceElement));
+				for(Group groupElement: groupsFromResourceElement) {
+					Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, groupElement, attrDef.getName());
+					listOfRichAttributes.add(new RichAttribute<>(resourceElement, groupElement, attribute));
+				}
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given group.
+	 * That means, returns all GroupResource rich attributes for the given group and resources that the given group
+	 * can access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+		for(Resource resourceElement: resourcesFromGroup) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, group, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(resourceElement, group, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given resource.
+	 * That means, returns all GroupResource rich attributes for the given resource and those groups that can access
+	 * this resource.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+		for(Group groupElement: groupsFromResource) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, groupElement, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(resource, groupElement, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given vo.
+	 * That means, returns all GroupResource rich attributes for those resources, that can be accessed by the given vo.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+		for(Resource resourceElement: resources) {
+			listOfRichAttributes.addAll(getGroupResourceAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given facility.
+	 * That means, returns all GroupResource rich attributes for those resources, that are located on the given facility.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+		for(Resource resourceElement: resourcesFromFacility) {
+			listOfRichAttributes.addAll(getGroupResourceAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given facility.
+	 * That means, returns all GroupResource rich attributes for those resources, that are located on the facility
+	 * with the given host.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getGroupResourceAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given userExtSource.
+	 * That means, returns all GroupResource rich attributes for groups, where user with given userExtSource has
+	 * at least one allowed member and for those resources, that can the user access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource userExtSource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		listOfRichAttributes.addAll(getGroupResourceAttributes(sess, user, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given group and resource.
+	 * That means, returns all GroupResource rich attributes for the given group and resource.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, attrDef.getName());
+		listOfRichAttributes.add(new RichAttribute<>(resource, group, attribute));
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given group and member.
+	 * That means, returns all GroupResource rich attributes for the given group and those resources, that can the
+	 * given member access. If the given member is not allowed, an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		// there is no need to get Resources from Member because Members are only in those groups from which we already took Resources
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			listOfRichAttributes = getGroupResourceAttributes(sess, group, attrDef);
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given resource and member.
+	 * That means, returns all GroupResource rich attributes for the given resource and those groups, that can the
+	 * given member access and that can access the given resource.
+	 * If the given member is not allowed, an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+			List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
+			groupsFromResource.retainAll(groupsFromMember);
+			groupsFromResource = new ArrayList<>(new HashSet<>(groupsFromResource));
+			for (Group groupElement : groupsFromResource) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, groupElement, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(resource, groupElement, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant GroupResource RichAttributes for given user and facility.
+	 * That means, returns all GroupResource rich attributes for those groups, where has the given user at least
+	 * one allowed member, and for those resources, that can be accessed via this groups and are located on the
+	 * given facility.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		//Groups from User
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		List<Group> groupsFromUser = new ArrayList<>();
+		for (Member memberElement : members) {
+			if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+				groupsFromUser.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
+			}
+		}
+		//Retain of Groups from facility
+		List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
+		groupsFromFacility.retainAll(groupsFromUser);
+		//Resources from user
+		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		List<Resource> resourcesFromUser = new ArrayList<>();
+		for (Member memberElement : membersFromUser) {
+			if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+				resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, memberElement));
+			}
+		}
+		//Resource from facility
+		List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+		//Retain of Resources
+		resourcesFromFacility.retainAll(resourcesFromUser);
+		//All possibilities
+		resourcesFromFacility = new ArrayList<>(new HashSet<>(resourcesFromFacility));
+		for (Resource resourceElement : resourcesFromFacility) {
+			List<Group> groupsForResourceElement = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement);
+			groupsForResourceElement.retainAll(groupsFromFacility);
+			groupsForResourceElement = new ArrayList<>(new HashSet<>(groupsForResourceElement));
+			for (Group groupElement : groupsForResourceElement) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, groupElement, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(resourceElement, groupElement, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all GroupResource RichAttributes.
+	 * That means, returns all GroupResource rich attributes with all groups and those resources, that can be accessed
+	 * via these groups.
+	 * The key param is not used.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key key
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws GroupResourceMismatchException
+	 */
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
+		List<Resource> resources = new ArrayList<>();
+		for(Facility facilityElement: facilities) {
+			resources.addAll(getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facilityElement));
+		}
+		resources = new ArrayList<>(new HashSet<>(resources));
+		for(Resource resourceElement: resources) {
+			List<Group> groupsFromResourceElement = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement);
+			for(Group groupElement: groupsFromResourceElement) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, groupElement, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(resourceElement, groupElement, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------MEMBER-GROUP-------------------------------
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given user.
+	 * That means, returns all MemberGroup rich attributes for those members, who belong to the given user and are allowed,
+	 * and for those groups that those members can access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		for (Member memberElement: membersFromUser) {
+			listOfRichAttributes.addAll(getMemberGroupAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given member.
+	 * That means, returns all MemberGroup rich attributes for the given member, and for groups that can this member access.
+	 * If the given member is not allowed, an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Group> groupsFromMembers = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
+			for(Group groupElement : groupsFromMembers) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, groupElement, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(member, groupElement, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given group.
+	 * That means, returns all MemberGroup rich attributes for the given group and those members who belong to this group
+	 * and are allowed.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromGroups = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		for (Member memberElement: membersFromGroups) {
+			if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, group, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(memberElement, group, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given resource.
+	 * That means, returns all MemberGroup rich attributes for groups that can access the given resource and for members
+	 * that can access those groups and are allowed.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Group> groupsFromResources = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+		for (Group groupElement : groupsFromResources) {
+			listOfRichAttributes.addAll(getMemberGroupAttributes(sess, groupElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given vo.
+	 * That means, returns all MemberGroup rich attributes for groups from the given vo and for those members, who
+	 * belong to these groups and are allowed.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Group> groupsFromVo = getPerunBl().getGroupsManagerBl().getAllGroups(sess, vo);
+		for (Group groupElement : groupsFromVo) {
+			listOfRichAttributes.addAll(getMemberGroupAttributes(sess, groupElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given facility.
+	 * That means, returns all MemberGroup rich attributes for groups that can access the given facility and for members
+	 * that can access these groups and are allowed.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
+		for (Group groupElement : groupsFromFacility) {
+			listOfRichAttributes.addAll(getMemberGroupAttributes(sess, groupElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given host.
+	 * That means, returns all MemberGroup rich attributes for groups that can access the given host's facility and
+	 * for members that can access these groups and are allowed.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getMemberGroupAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given userExtSource.
+	 * That means, returns all MemberGroup rich attributes for those members, who belong to the given userExtSource's user
+	 * and are allowed, and for those groups that those members can access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource userExtSource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws UserNotExistsException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		listOfRichAttributes.addAll(getMemberGroupAttributes(sess, user, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given member and group.
+	 * That means, returns all MemberGroup rich attributes for the given member and group.
+	 * If the member is not allowed, an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, group, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(member, group, attribute));
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given member and resource.
+	 * That means, returns all MemberGroup rich attributes for the given member and groups that can access the given resource.
+	 * If the member is not allowed, an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		//If member is not allowed, skip whole process
+		if(!getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) return listOfRichAttributes;
+		List<Group> groupFromMembers = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			groupFromMembers = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
+		}
+		List<Group> groupsFromResources = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+		groupsFromResources.retainAll(groupFromMembers);
+		groupsFromResources = new ArrayList<>(new HashSet<>(groupsFromResources));
+		for (Group groupElement : groupsFromResources) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, groupElement, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(member, groupElement, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberGroup RichAttributes for given user and facility.
+	 * That means, returns all MemberGroup rich attributes for members that belong to the given user and are allowed
+	 * and those groups that can access the given facility.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		// get all groups from facility
+		List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
+		// get all groups from user
+		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		Set<Group> groupsFromMembers = new HashSet<>();
+		for (Member memberElement : membersFromUser) {
+			groupsFromMembers.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
+		}
+		// retain of groups
+		groupsFromMembers.retainAll(groupsFromFacility);
+		List<Group> retainedGroups = new ArrayList<>(groupsFromMembers);
+		// all possible groups
+		for (Group groupElement : retainedGroups) {
+			// get all members for 'groupElement' variable
+			List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, groupElement);
+			membersFromGroup.retainAll(membersFromUser);
+			// all possibilities
+			for (Member memberElement : membersFromGroup) {
+				if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+					Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, groupElement, attrDef.getName());
+					listOfRichAttributes.add(new RichAttribute<>(memberElement, groupElement, attribute));
+				}
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all MemberGroup RichAttributes.
+	 * That means, returns all MemberGroup rich attributes for all members who are allowed and all groups that can those
+	 * members access.
+	 * The key param is not used.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key not used
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
+		List<Group> groupsFromVo = new ArrayList<>();
+		for(Vo voElement : vos) {
+			groupsFromVo.addAll(getPerunBl().getGroupsManagerBl().getAllGroups(sess, voElement));
+		}
+		groupsFromVo = new ArrayList<>(new HashSet<>(groupsFromVo));
+		for (Group groupElement : groupsFromVo) {
+			// get all members for 'groupElement' variable
+			List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, groupElement);
+			for (Member memberElement : membersFromGroup) {
+				if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+					Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, groupElement, attrDef.getName());
+					listOfRichAttributes.add(new RichAttribute<>(memberElement, groupElement, attribute));
+				}
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------MEMBER-RESOURCE-------------------------------
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given user.
+	 * That means, returns all MemberResource rich attributes for those members, who belong to the given user and are allowed,
+	 * and for those resources that can those members access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		for(Member memberElement: members) {
+			listOfRichAttributes.addAll(getMemberResourceAttributes(sess, memberElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given member.
+	 * That means, returns all MemberResource rich attributes for the given member and those resources that can those
+	 * members access.
+	 * If the given member is not allowed, an empty list is returned.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
+			for(Resource resourceElement: resources) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, member, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(resourceElement, member, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given group.
+	 * That means, returns all MemberResource rich attributes for allowed members from the given group and for the resources
+	 * that can those members access via this group.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+		List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		for(Resource resourceElement: resourcesFromGroup) {
+			List<Member> membersForResourceElement = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement);
+			membersForResourceElement.retainAll(membersFromGroup);
+			membersForResourceElement = new ArrayList<>(new HashSet<>(membersForResourceElement));
+			for(Member memberElement: membersForResourceElement) {
+				if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+					Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
+					listOfRichAttributes.add(new RichAttribute<>(resourceElement, memberElement, attribute));
+				}
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given resource.
+	 * That means, returns all MemberResource rich attributes for the given resource and for those members that can
+	 * access the given resource and are allowed.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
+		for(Member memberElement: members) {
+			if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberElement, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(resource, memberElement, attribute));
+			}
+		}
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given vo.
+	 * That means, returns all MemberResource rich attributes for resources that belongs to the given vo and for members
+	 * that can access those resource and are allowed.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+		for(Resource resourceElement: resources) {
+			listOfRichAttributes.addAll(getMemberResourceAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given facility.
+	 * That means, returns all MemberResource rich attributes for resources that belongs to the given facility and for
+	 * members who can access those resources and are allowed.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+		for(Resource resourceElement: resources) {
+			listOfRichAttributes.addAll(getMemberResourceAttributes(sess, resourceElement, attrDef));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given host.
+	 * That means, returns all MemberResource rich attributes for resources that belongs to the given host's facility
+	 * and for members who can access those resources and are allowed.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getMemberResourceAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given userExtSource.
+	 * That means, returns all MemberResource rich attributes for members of given userExtSource's user that are allowed
+	 * and for those resources that those members can access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource userExtSource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 * @throws UserNotExistsException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		listOfRichAttributes.addAll(getMemberResourceAttributes(sess, user, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given group and resource.
+	 * That means, returns all MemberResource rich attributes for the given resource and groups that can access this
+	 * resource via theirs allowed users.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
+		membersFromGroup.retainAll(membersFromResource);
+		membersFromGroup = new ArrayList<>(new HashSet<>(membersFromGroup));
+		for(Member memberElement: membersFromGroup) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberElement, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(resource, memberElement, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given group and member.
+	 * That means, returns all MemberResource rich attributes for the given member and resources that can this member
+	 * access via the given group.
+	 * If the given member is not allowed, returns an empty list.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		//we can take everything from group, because member should be assigned to this group already
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+			for (Resource resourceElement : resourcesFromGroup) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, member, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(resourceElement, member, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given resource and member.
+	 * That means, returns all MemberResource rich attributes for the given member and resource.
+	 * If the given member is not allowed, returns an empty list.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, member, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(resource, member, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant MemberResource RichAttributes for given user and facility.
+	 * That means, returns all MemberResource rich attributes for the given user's members who are allowed and for
+	 * resources that can those members access and are located on the given facility.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
+		membersFromUser.retainAll(membersFromFacility);
+		List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+		List<Resource> resourcesFromUser =getPerunBl().getUsersManagerBl().getAllowedResources(sess, user);
+		resourcesFromUser.retainAll(resourcesFromFacility);
+		resourcesFromUser = new ArrayList<>(new HashSet<>(resourcesFromUser));
+		for(Resource resourceElement: resourcesFromUser) {
+			List<Member> membersForResourceElement = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement);
+			membersForResourceElement.retainAll(membersFromUser);
+			membersForResourceElement = new ArrayList<>(new HashSet<>(membersForResourceElement));
+			for(Member memberElement: membersForResourceElement) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(resourceElement, memberElement, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all MemberResource RichAttributes.
+	 * That means, returns all MemberResource RichAttributes for all members who are allowed and all resources they
+	 * can access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key key
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws MemberResourceMismatchException
+	 */
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
+		List<Resource> resources = new ArrayList<>();
+		for(Vo voElement: vos) {
+			resources.addAll(getPerunBl().getResourcesManagerBl().getResources(sess, voElement));
+		}
+		resources = new ArrayList<>(new HashSet<>(resources));
+		for(Resource resourceElement: resources) {
+			List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement);
+			for(Member memberElement: membersFromResource) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(resourceElement, memberElement, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------USER-FACILITY-------------------------------
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given user.
+	 * That means, returns all UserFacility rich attributes for the given user and for facilities it can access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
+		for(Facility facilityElement: facilities) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, user, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(facilityElement, user, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given member.
+	 * That means, returns all UserFacility rich attributes for the facilities the given member can access and for its user.
+	 * If the given member is not allowed, returns an empty list
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
+			List<Facility> facilities = new ArrayList<>();
+			for(Resource resourceElement: memberResources) {
+				facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
+			}
+			facilities = new ArrayList<>(new HashSet<>(facilities));
+			List<Facility> userAllowedFacilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
+			for(Facility facilityElement: facilities) {
+				if(userAllowedFacilities.contains(facilityElement)) {
+					Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, user, attrDef.getName());
+					listOfRichAttributes.add(new RichAttribute<>(facilityElement, user, attribute));
+				}
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given group.
+	 * That means, returns all UserFacility rich attributes for the facilities that can access members from the given
+	 * group and that are allowed and for users from these members.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		List<User> users = new ArrayList<>();
+		for(Member memberElement: members) {
+			if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+				users.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
+			}
+		}
+		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+		List<Facility> facilities = new ArrayList<>();
+		for(Resource resourceElement: resources) {
+			facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
+		}
+		users = new ArrayList<>(new HashSet<>(users));
+		for(User userElement: users) {
+			List<Facility> facilitiesFromUser = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, userElement);
+			facilities.retainAll(facilitiesFromUser);
+			facilities = new ArrayList<>(new HashSet<>(facilities));
+			for(Facility facilityElement: facilities) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, userElement, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(facilityElement, userElement, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given resource.
+	 * That means, returns all UserFacility rich attributes for the facility from the given resource and for members
+	 * that can access this resource and are allowed.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+		List<User> usersFromResource = getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
+		for(User userElement: usersFromResource) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, userElement, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(facility, userElement, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given vo.
+	 * That means, returns all UserFacility rich attributes for the users who has at least one allowed member in the
+	 * given Vo and for the facilities that can those users access via a group in this Vo.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param vo vo
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Group> groupsFromVo = getPerunBl().getGroupsManagerBl().getGroups(sess, vo);
+		for (Group groupElement : groupsFromVo) {
+			List<Facility> groupFacilities = getPerunBl().getFacilitiesManagerBl().getAssignedFacilities(sess, groupElement);
+			List<Member> groupMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, groupElement);
+			List<Member> allowedMembers = new ArrayList<>();
+			for(Member memberElement : groupMembers) {
+				if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+					allowedMembers.add(memberElement);
+				}
+			}
+			List<User> groupUsers = new ArrayList<>();
+			for (Member memberElement : allowedMembers) {
+				groupUsers.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
+			}
+			for (Facility facilityElement : groupFacilities) {
+				for (User userElement : groupUsers) {
+					Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, userElement, attrDef.getName());
+					listOfRichAttributes.add(new RichAttribute<>(facilityElement, userElement, attribute));
+				}
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given facility.
+	 * That means, returns all UserFacility rich attributes for the given facility and users that can access it.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<User> users = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
+		for(User userElement: users) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, userElement, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(facility, userElement, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given host.
+	 * That means, returns all UserFacility rich attributes for the given host's facility and users that can access it.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param host host
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		listOfRichAttributes.addAll(getUserFacilityAttributes(sess, facility, attrDef));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given userExtSource.
+	 * That means, returns all UserFacility rich attributes for the given userExtSource's user and for facilities it can access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param userExtSource userExtSource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws UserNotExistsException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
+		for(Facility facilityElement: facilities) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, user, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(facilityElement, user, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given group and resource.
+	 * That means, returns all UserFacility rich attributes for users who has at least one allowed member in the given group
+	 * and for facilities that those users can access via the given group and via the given resource.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+		//get Users from Group
+		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		List<User> usersFromGroup = new ArrayList<>();
+		for(Member memberElement: members) {
+			if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+				usersFromGroup.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
+			}
+		}
+		//get users from resource
+		List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
+		List<User> usersFromResource = new ArrayList<>();
+		for(Member memberElement: membersFromResource) {
+			if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
+				usersFromResource.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
+			}
+		}
+		usersFromGroup.retainAll(usersFromResource);
+		usersFromGroup = new ArrayList<>(new HashSet<>(usersFromGroup));
+		for(User userElement: usersFromGroup) {
+			if(getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, userElement).contains(facility)) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, userElement, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(facility, userElement, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given group and member.
+	 * That means, returns all UserFacility rich attributes for user of the given member and for facilities this member
+	 * can access via the given group.
+	 * If the given member is not allowed, returns an empty list.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+			List<Facility> facilitiesFromResources = new ArrayList<>();
+			for (Resource resourceElement : resourcesFromGroup) {
+				facilitiesFromResources.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
+			}
+			facilitiesFromResources = new ArrayList<>(new HashSet<>(facilitiesFromResources));
+			User userFromMember = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			for (Facility facilityElement : facilitiesFromResources) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, userFromMember, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(facilityElement, userFromMember, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all relevant UserFacility RichAttributes for given resource and member.
+	 * That means, returns all UserFacility rich attributes for user of the given member and for facilities this member
+	 * can access via the given resource.
+	 * If the given member is not allowed, returns an empty list.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param resource resource
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		if(getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
+			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+			List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
+			if(memberResources.contains(resource)) {
+				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(facility, user, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns UserFacility RichAttributes for the given user and facility.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param facility facility
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, attrDef.getName());
+		listOfRichAttributes.add(new RichAttribute<>(facility, user, attribute));
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all UserFacility RichAttributes.
+	 * That means, returns all UserFacility rich attributes for all users and all facilities these users can access.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key not used
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
+		for (Facility facilityElement : facilities) {
+			List<User> users = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facilityElement);
+			for (User userElement : users) {
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityElement, userElement, attrDef.getName());
+				listOfRichAttributes.add(new RichAttribute<>(facilityElement, userElement, attribute));
+			}
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------------------------ENTITYLESS---------------------------------
+
+	/**
+	 * Returns all entityless rich attributes.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getEntitylessAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		List<String> keys = this.getEntitylessKeys(sess, attrDef);
+		for (String keyElement : keys) {
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, keyElement, attrDef.getName());
+			listOfRichAttributes.add(new RichAttribute<>(keyElement, null, attribute));
+		}
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	/**
+	 * Returns all entityless rich attributes for the given key.
+	 * Each rich attribute is returned only once.
+	 *
+	 * @param sess session
+	 * @param key key
+	 * @param attrDef type of attribute that will be returned
+	 * @return List of RichAttribute
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	private List<RichAttribute> getEntitylessAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
+		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, key, attrDef.getName());
+		listOfRichAttributes.add(new RichAttribute<>(key, null, attribute));
+		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
+		return listOfRichAttributes;
+	}
+
+	// --------------END OF METHODS FOR ATTRIBUTES DEPENDENCIES-------------------
 }
