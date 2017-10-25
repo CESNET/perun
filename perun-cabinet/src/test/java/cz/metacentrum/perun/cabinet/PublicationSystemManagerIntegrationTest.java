@@ -91,7 +91,8 @@ public class PublicationSystemManagerIntegrationTest extends CabinetBaseIntegrat
 		assertTrue(!systems.isEmpty());
 		assertTrue(systems.contains(pubSysMu));
 		assertTrue(systems.contains(pubSysZcu));
-		assertTrue(systems.size() == 3);
+		assertTrue(systems.contains(pubSysEuropePMC));
+		assertTrue(systems.size() == 4);
 
 	}
 

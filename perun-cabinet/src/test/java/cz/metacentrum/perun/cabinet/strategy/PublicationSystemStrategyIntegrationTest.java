@@ -73,7 +73,7 @@ public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegra
 	public void contactPublicationSystemEuropePMCTest() throws Exception {
 		System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemEuropePMCTest");
 
-		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("orcid");
+		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("europepmc");
 		assertNotNull(publicationSystem);
 
 		PublicationSystemStrategy prezentator = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();

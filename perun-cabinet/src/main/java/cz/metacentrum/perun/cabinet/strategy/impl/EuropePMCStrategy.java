@@ -88,7 +88,7 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 
 	/**
 	 * Parse String response as XML document and retrieve Publications from it.
-	 * @param xml XML response from MU Prezentator
+	 * @param xml XML response from EuropePMC
 	 * @return List of Publications
 	 * @throws CabinetException If anything fails
 	 */
@@ -177,17 +177,19 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 		publication.setTitle((title != null) ? title : "");
 
 		//optional properties
-		String isbn = (String) getValueFromXpath(node, "./journalIssn/text()", XPathConstants.STRING);
-		publication.setIsbn((isbn != null) ? isbn : "");
+		String issn = (String) getValueFromXpath(node, "./journalInfo/journal/ISSN/text()", XPathConstants.STRING);
+		publication.setIsbn((issn != null) ? issn : "");
+
+		String isbn = (String) getValueFromXpath(node, "./bookOrReportDetails/isbn13/text()", XPathConstants.STRING);
+		if (publication.getIsbn() == null) {
+			publication.setIsbn((isbn != null) ? isbn : "");
+		}
 
 		String doi = (String) getValueFromXpath(node, "./doi/text()", XPathConstants.STRING);
 		publication.setDoi((doi != null) ? doi : "");
 
 		int year = ((Double)getValueFromXpath(node, "./pubYear/text()", XPathConstants.NUMBER)).intValue();
 		publication.setYear(year);
-
-		// TODO Citation
-		// publication.setMain(((String)getValueFromXpath(node, "./main/text()", XPathConstants.STRING)));
 
 		XPath xpath = xPathFactory.newXPath();
 		XPathExpression authorsQuery;
@@ -219,9 +221,14 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 				try {
 					String firstName = ((String)getValueFromXpath(singleNode, "./firstName/text()", XPathConstants.STRING));
 					String lastName = ((String)getValueFromXpath(singleNode, "./lastName/text()", XPathConstants.STRING));
+					String initials = ((String)getValueFromXpath(singleNode, "./initials/text()", XPathConstants.STRING));
 					Author author = new Author();
-					author.setFirstName(firstName);
-					author.setLastName(WordUtils.capitalize(lastName));
+					if (firstName == null || firstName.isEmpty()) {
+						author.setFirstName(initials.trim());
+					} else {
+						author.setFirstName(firstName.trim());
+					}
+					author.setLastName(WordUtils.capitalize(lastName.trim()));
 					authors.add(author);
 				} catch (InternalErrorException ex) {
 					log.error("Exception [{}] caught while processing authors of response: [{}]", ex, node);
@@ -231,6 +238,39 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 			publication.setAuthors(authors);
 
 		}
+
+		// Make up citation
+
+		List<Author> authors = publication.getAuthors();
+		String main = "";
+		for (int i=0; i<authors.size(); i++){
+			if (i == 0) {
+				main += authors.get(i).getLastName().toUpperCase() + " " + authors.get(i).getFirstName();
+			} else {
+				main += authors.get(i).getFirstName() + " " + authors.get(i).getLastName().toUpperCase();
+			}
+			main += " a ";
+		}
+		if (main.length() > 3) {
+			main = main.substring(0, main.length()-3)+ ". ";
+		}
+		main = main.replaceAll("\\s{2,}", " ");
+		main += publication.getTitle() + ((publication.getTitle().endsWith(".")) ? " " : ". ");
+		main += (publication.getYear() != 0) ? publication.getYear()+". " : "";
+
+		String journalTitle = (String) getValueFromXpath(node, "./journalInfo/journal/title/text()", XPathConstants.STRING);
+		String journalYear = (String) getValueFromXpath(node, "./journalInfo/yearOfPublication/text()", XPathConstants.STRING);
+		String journalIssue = (String) getValueFromXpath(node, "./journalInfo/volume/text()", XPathConstants.STRING);
+		String pages = (String) getValueFromXpath(node, "./bookOrReportDetails/numberOfPages/text()", XPathConstants.STRING);
+
+		main += (!journalTitle.isEmpty()) ? journalTitle+", " : "";
+		main += (!journalYear.isEmpty()) ? " roč. "+journalYear+", " : "";
+		main += (!journalIssue.isEmpty()) ? " č. "+journalIssue+", " : "";
+		main += (!pages.isEmpty()) ? "s. "+pages+"," : "";
+		main += (isbn != null && !isbn.isEmpty()) ? " ISBN: "+isbn+"." : "";
+		main += (issn != null && !issn.isEmpty()) ? " ISSN: "+issn+"." : "";
+		main += (doi != null && !doi.isEmpty()) ? " DOI: "+doi+"." : "";
+		publication.setMain(main);
 
 		return publication;
 

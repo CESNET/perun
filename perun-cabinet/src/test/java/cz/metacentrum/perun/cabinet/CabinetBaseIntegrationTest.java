@@ -42,6 +42,7 @@ public abstract class CabinetBaseIntegrationTest {
 	public static int USER_ID_2 = 1;
 	public PublicationSystem pubSysZcu;
 	public PublicationSystem pubSysMu;
+	public PublicationSystem pubSysEuropePMC;
 
 	private boolean init = false;
 
@@ -131,8 +132,9 @@ public abstract class CabinetBaseIntegrationTest {
 		ps3.setLoginNamespace("europepmc");
 		ps3.setUrl("https://www.ebi.ac.uk/europepmc/webservices/rest/search?");
 		ps3.setType("cz.metacentrum.perun.cabinet.strategy.impl.EuropePMCStrategy");
-		ps3 = getCabinetManager().createPublicationSystem(sess, ps3);
-		assertTrue(ps3.getId() > 0);
+
+		pubSysEuropePMC = getCabinetManager().createPublicationSystem(sess, ps3);
+		assertTrue(pubSysEuropePMC.getId() > 0);
 
 		// create publication
 
