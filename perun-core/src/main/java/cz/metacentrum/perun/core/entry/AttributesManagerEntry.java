@@ -2918,7 +2918,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeValue(sess, user, attribute);
 	}
 
-	public void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException,AttributeNotExistsException, HostNotExistsException {
+	public void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, HostNotExistsException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributeExists(sess, attribute);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);
@@ -2928,7 +2928,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeValue(sess, host, attribute);
 	}
 
-	public void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, HostNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, HostNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getAttributesManagerBl().checkAttributesExists(sess, attributes);
 		getPerunBl().getFacilitiesManagerBl().checkHostExists(sess, host);

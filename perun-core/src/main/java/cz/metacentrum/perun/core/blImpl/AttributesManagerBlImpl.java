@@ -1977,8 +1977,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(changed) {
 			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, host);
-			//TODO this method not existed yet!
-			//getAttributesManagerImpl().changedAttributeHook(sess, host, attribute);
+			getAttributesManagerImpl().changedAttributeHook(sess, host, attribute);
 		}
 
 		return changed;
@@ -2066,8 +2065,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if(changed) {
 			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, key);
-			//TODO this method not existed yet
-			//getAttributesManagerImpl().changedAttributeHook(sess, key, attribute);
+			getAttributesManagerImpl().changedAttributeHook(sess, key, attribute);
 		}
 
 		return changed;
@@ -3202,14 +3200,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException,WrongAttributeAssignmentException{
+	public void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_HOST_ATTR);
 
 		for(Attribute attribute : attributes) {
 			getAttributesManagerImpl().checkAttributeValue(sess, host, attribute);
 		}
 	}
-	public void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,WrongAttributeAssignmentException{
+	public void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_HOST_ATTR);
 
 		getAttributesManagerImpl().checkAttributeValue(sess, host, attribute);
@@ -3470,7 +3468,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, host, attribute)) {
 			checkAttributeValue(sess, host, new Attribute(attribute));
 			try {
@@ -3487,22 +3485,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		boolean changed = getAttributesManagerImpl().removeAttribute(sess, host, attribute);
 		if (changed) {
-			//TODO HOOK FOR HOSTS!
-			/*try {
+			try {
 				getAttributesManagerImpl().changedAttributeHook(sess, host, new Attribute(attribute));
-				} catch (WrongAttributeValueException ex) {
+			} catch (WrongAttributeValueException ex) {
 			//TODO better exception here
 			throw new InternalErrorException(ex);
 			} catch (WrongReferenceAttributeValueException ex) {
 			//TODO better exception here
 			throw new InternalErrorException(ex);
-			}*/
+			}
 			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, host);
 		}
 		return changed;
 	}
 
-	public void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributesDefinition) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributesDefinition) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributesDefinition, AttributesManager.NS_HOST_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributesDefinition) {
@@ -3534,19 +3531,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			throw new WrongAttributeValueException(ex);
 		}
 
-		//TODO HOOK FOR HOSTS
-		/*
-			 for(Attribute attribute: attributes) {
-			 try {
-			 getAttributesManagerImpl().changedAttributeHook(sess, host, new Attribute(attribute));
-			 } catch (WrongAttributeValueException ex) {
-		//TODO better exception here
-		throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-		//TODO better exception here
-		throw new InternalErrorException(ex);
+		for(Attribute attribute: attributes) {
+			try {
+			getAttributesManagerImpl().changedAttributeHook(sess, host, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+			//TODO better exception here
+			throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+			//TODO better exception here
+			throw new InternalErrorException(ex);
+			}
 		}
-		}*/
 	}
 
 	public void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {

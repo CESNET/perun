@@ -3215,7 +3215,7 @@ public interface AttributesManager {
 	 * @throws AttributeNotExistsException if given attribute doesn't exist
 	 * @throws HostNotExistsException if specified host doesn't exist
 	 */
-	void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException,AttributeNotExistsException, HostNotExistsException;
+	void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, HostNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
 	 * PRIVILEGE: Check attributes only when principal has access to write on them.
@@ -3223,7 +3223,7 @@ public interface AttributesManager {
 	 * batch version of checkAttributeValue
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession, Host, Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, HostNotExistsException, WrongAttributeValueException,WrongAttributeAssignmentException;
+	void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, HostNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Checks if value of this group attribute is valid

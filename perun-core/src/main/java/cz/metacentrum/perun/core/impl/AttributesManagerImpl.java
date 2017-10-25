@@ -96,6 +96,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttribut
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.HostAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
@@ -2714,9 +2715,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public Attribute fillAttribute(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException {
-		//TODO
-		log.debug("fillAttribute - There's no rule for this attribute. Attribute wasn't filled. Attribute={}", attribute);
-		return attribute;
+		HostAttributesModuleImplApi attributeModule = getHostAttributeModule(sess, attribute);
+		if(attributeModule == null) {
+			log.debug("fillAttribute - There's no rule for this attribute. Attribute wasn't filled. Attribute={}", attribute);
+			return attribute;
+		}
+		try {
+			return attributeModule.fillAttribute((PerunSessionImpl) sess, host, attribute);
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	public Attribute fillAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException {
@@ -2768,7 +2776,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public void changedAttributeHook(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		throw new InternalErrorException("This method is not supported yet.");
+		//Call attribute module
+		HostAttributesModuleImplApi hostModule = getHostAttributeModule(sess, attribute);
+		if(hostModule == null) return; //host module doesn't exists
+		try {
+			hostModule.changedAttributeHook((PerunSessionImpl) sess, host, attribute);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	public void changedAttributeHook(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -2995,8 +3010,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
-		//TODO
+	public void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		HostAttributesModuleImplApi attributeModule = getHostAttributeModule(sess, attribute);
+		if(attributeModule == null) return;
+		try {
+			attributeModule.checkAttributeValue((PerunSessionImpl) sess, host, attribute);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	public void checkAttributeValue(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -3010,7 +3031,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException {
-		//TODO
+		EntitylessAttributesModuleImplApi attributeModule = getEntitylessAttributeModule(sess, attribute);
+		if(attributeModule == null) return;
+		try {
+			attributeModule.checkAttributeValue((PerunSessionImpl) sess, key, attribute);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	public boolean removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException {
@@ -3576,6 +3603,28 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return (GroupAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new WrongModuleTypeException("Required attribute module isn't FacilityAttributesModule");
+		}
+	}
+
+	/**
+	 * Get Host attribute module for the attribute.
+	 *
+	 * @param sess
+	 * @param attribute attribute for which you get the module
+	 * @return instance host attribute module
+	 *         null if the module doesn't exists
+	 *
+	 * @throws WrongModuleTypeException
+	 * @throws InternalErrorException
+	 */
+	private HostAttributesModuleImplApi getHostAttributeModule(PerunSession sess, AttributeDefinition attribute) throws WrongModuleTypeException, InternalErrorException {
+		Object attributeModule = getAttributesModule(sess, attribute);
+		if(attributeModule == null) return null;
+
+		if(attributeModule instanceof HostAttributesModuleImplApi) {
+			return (HostAttributesModuleImplApi) attributeModule;
+		} else {
+			throw new WrongModuleTypeException("Required attribute module isn't HostAttributesModule");
 		}
 	}
 
