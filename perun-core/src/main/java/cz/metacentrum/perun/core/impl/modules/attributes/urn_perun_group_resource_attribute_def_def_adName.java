@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttribu
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * AD Name module
@@ -34,13 +35,24 @@ public class urn_perun_group_resource_attribute_def_def_adName extends ResourceG
 
 	private static final String A_R_D_AD_OU_NAME = AttributesManager.NS_RESOURCE_ATTR_DEF + ":adOuName";
 
+	private static final Pattern pattern = Pattern.compile("(\\w|-|\\.)*");
+
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		String attributeValue = null;
+		String attributeValue;
 
 		//Attribute can be null
 		if(attribute.getValue() == null) {
 			return;
+		}
+
+		if(attribute.getValue() instanceof String) {
+			attributeValue = (String) attribute.getValue();
+			if (!pattern.matcher(attributeValue).matches()) {
+				throw new WrongAttributeValueException(attribute, "Invalid attribute adName value. It should contain only letters, digits, hyphens, underscores or dots.");
+			}
+		} else {
+			throw new WrongAttributeValueException(attribute, "Attribute adName value must be a String.");
 		}
 
 		Attribute resourceAdOuName;
