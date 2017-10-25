@@ -110,6 +110,10 @@ public class PerunBlImpl implements PerunBl {
 
 	}
 
+	public PerunBlImpl(Auditer auditer) {
+		this.auditer = auditer;
+	}
+
 	public PerunSession getPerunSession(PerunPrincipal principal, PerunClient client) throws InternalErrorException {
 		PerunSessionImpl perunSession = new PerunSessionImpl(this, principal, client);
 		log.debug("creating PerunSession for user {}", principal.getActor());

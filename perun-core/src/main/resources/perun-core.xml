@@ -39,7 +39,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setVirtualAttribute(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.createAttribute(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.changedAttributeHook(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.createAttributeExistsForInitialize(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.updateAttributeDefinition(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeRight(..))"/>
 		<!-- AuthzResolverImpl -->
@@ -155,6 +154,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 
 	<!-- Perun implementation -->
 	<bean id="perun" class="cz.metacentrum.perun.core.blImpl.PerunBlImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
+		<constructor-arg name="auditer" ref="auditer"/>
 		<property name="vosManagerBl" ref="vosManagerBl"/>
 		<property name="usersManagerBl" ref="usersManagerBl"/>
 		<property name="groupsManagerBl" ref="groupsManagerBl"/>
@@ -185,7 +185,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="RTMessagesManager" ref="RTMessagesManager"/>
 		<property name="securityTeamsManager" ref="securityTeamsManager"/>
 		<property name="searcher" ref="searcher"/>
-		<property name="auditer" ref="auditer"/>
 		<property name="databaseManager" ref="databaseManager"/>
 		<property name="coreConfig" ref="coreConfig"/>
 	</bean>
@@ -340,7 +339,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<constructor-arg ref="dataSource" />
 		<property name="self" ref="extSourcesManagerImpl"/>
 	</bean>
-	<bean id="attributesManagerImpl" class="cz.metacentrum.perun.core.impl.AttributesManagerImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
+	<bean id="attributesManagerImpl" class="cz.metacentrum.perun.core.impl.AttributesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perun" ref="perun"/>
 		<property name="self" ref="attributesManagerImpl"/>
 		<constructor-arg ref="dataSource" />
