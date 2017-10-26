@@ -1,12 +1,13 @@
 package cz.metacentrum.perun.cabinet.strategy.impl;
 
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.strategy.AbstractPublicationSystemStrategy;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpGet;
@@ -39,17 +40,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of publication connector for OBD 3.0 from ZČU.
+ * EuropePMC publication system
  *
- * Remote API documentation: http://support.zcu.cz/index.php/OBD
+ * Remote API Documentation: https://europepmc.org/RestfulWebService
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class OBD30Strategy extends AbstractPublicationSystemStrategy {
+public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 
-	private Logger log = LoggerFactory.getLogger(OBD30Strategy.class);
-
-	// http://obd.zcu.cz:6443/fcgi/verso.fpl?fname=obd_exportt_xml&_a_prijmeni=Habernal&_diakritika=0&_a_jmeno=Ivan&_diakritika=0
+	private static Logger log = LoggerFactory.getLogger(EuropePMCStrategy.class);
 
 	@Override
 	public List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException {
@@ -61,20 +60,16 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 	}
 
 	@Override
-	public HttpUriRequest getHttpRequest(String kodOsoby, int yearSince, int yearTill, PublicationSystem ps) {
+	public HttpUriRequest getHttpRequest(String orcid, int yearSince, int yearTill, PublicationSystem ps) {
+
+		// yearTill is expected 0
+		// yearSince holds specific year
 
 		// set params
 		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
-		formparams.add(new BasicNameValuePair("fname", "obd_exportt_xml"));
-		formparams.add(new BasicNameValuePair("_v_vlo", String.valueOf(yearSince)));
-		formparams.add(new BasicNameValuePair("_v_vld", String.valueOf(yearTill)));
-
-		// search base on lastName + firstName of person
-		String[] names = String.valueOf(kodOsoby).split(",");
-		formparams.add(new BasicNameValuePair("_a_prijmeni", names[0]));
-		formparams.add(new BasicNameValuePair("_diakritika", "0"));
-		formparams.add(new BasicNameValuePair("_a_jmeno", names[1]));
-		formparams.add(new BasicNameValuePair("_diakritika", "0"));
+		formparams.add(new BasicNameValuePair("query", "AUTHORID:\""+orcid+"\" sort_date:y PUB_YEAR:"+yearSince+""));
+		formparams.add(new BasicNameValuePair("pageSize", "50"));
+		formparams.add(new BasicNameValuePair("resultType", "core"));
 
 		// prepare valid uri
 		URI uri = null;
@@ -84,7 +79,7 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 			//log.debug("URI: {}", uri);
 
 		} catch (URISyntaxException e) {
-			log.error("Wrong URL syntax for contacting OBD 3.0 publication system.", e);
+			log.error("Wrong URL syntax for contacting OrcID europepmc publication system.", e);
 		}
 
 		return new HttpGet(uri);
@@ -93,7 +88,7 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 
 	/**
 	 * Parse String response as XML document and retrieve Publications from it.
-	 * @param xml XML response from OBD 3.0
+	 * @param xml XML response from EuropePMC
 	 * @return List of Publications
 	 * @throws CabinetException If anything fails
 	 */
@@ -127,11 +122,11 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 		}
 
 		//Prepare xpath expression
-		XPathFactory xPathfactory = XPathFactory.newInstance();
-		XPath xpath = xPathfactory.newXPath();
+		XPathFactory xPathFactory = XPathFactory.newInstance();
+		XPath xpath = xPathFactory.newXPath();
 		XPathExpression publicationsQuery;
 		try {
-			publicationsQuery = xpath.compile("/zaznamy/zaznam");
+			publicationsQuery = xpath.compile("/responseWrapper/resultList/result");
 		} catch (XPathExpressionException ex) {
 			throw new CabinetException("Error when compiling xpath query.", ex);
 		}
@@ -155,7 +150,7 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 			// remove node from original structure in order to keep access time constant (otherwise is exp.)
 			singleNode.getParentNode().removeChild(singleNode);
 			try {
-				Publication publication = convertNodeToPublication(singleNode);
+				Publication publication = convertNodeToPublication(singleNode, xPathFactory);
 				result.add(publication);
 			} catch (InternalErrorException ex) {
 				log.error("Unable to parse Publication:", ex);
@@ -172,67 +167,81 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 	 * @return Publication instance
 	 * @throws InternalErrorException
 	 */
-	private Publication convertNodeToPublication(Node node) throws InternalErrorException {
+	private Publication convertNodeToPublication(Node node, XPathFactory xPathFactory) throws InternalErrorException, CabinetException {
 
 		Publication publication = new Publication();
 
-		publication.setExternalId(Integer.valueOf(node.getAttributes().getNamedItem("id").getNodeValue()));
+		publication.setExternalId(((Double)getValueFromXpath(node, "./id/text()", XPathConstants.NUMBER)).intValue());
 
-		NodeList titleList = (NodeList) getValueFromXpath(node, "./titul_list/titul", XPathConstants.NODESET);
-		for(int i=0; i<titleList.getLength(); i++) {
-			Node singleNode = titleList.item(i);
+		String title = (String) getValueFromXpath(node, "./title/text()", XPathConstants.STRING);
+		publication.setTitle((title != null) ? title : "");
 
-			String original = (String)getValueFromXpath(singleNode, "./original/text()", XPathConstants.STRING);
-			// use original name (language) of publication
-			if ("ano".equalsIgnoreCase(original)) {
-				String title = (String) getValueFromXpath(singleNode, "./nazev/text()", XPathConstants.STRING);
-				publication.setTitle((title != null) ? title : "");
-			}
+		//optional properties
+		String issn = (String) getValueFromXpath(node, "./journalInfo/journal/ISSN/text()", XPathConstants.STRING);
+		publication.setIsbn((issn != null) ? issn : "");
 
+		String isbn = (String) getValueFromXpath(node, "./bookOrReportDetails/isbn13/text()", XPathConstants.STRING);
+		if (publication.getIsbn() == null) {
+			publication.setIsbn((isbn != null) ? isbn : "");
 		}
 
-		String isbn = (String) getValueFromXpath(node, "./isbn/text()", XPathConstants.STRING);
-		isbn = (isbn != null) ? isbn : "";
+		String doi = (String) getValueFromXpath(node, "./doi/text()", XPathConstants.STRING);
+		publication.setDoi((doi != null) ? doi : "");
 
-		String issn = (String) getValueFromXpath(node, "./issn/text()", XPathConstants.STRING);
-		issn = (issn != null) ? issn : "";
-
-		if (!issn.isEmpty()) publication.setIsbn(issn);
-		if (!isbn.isEmpty()) publication.setIsbn(isbn);
-
-		int year = ((Double)getValueFromXpath(node, "./rok/text()", XPathConstants.NUMBER)).intValue();
+		int year = ((Double)getValueFromXpath(node, "./pubYear/text()", XPathConstants.NUMBER)).intValue();
 		publication.setYear(year);
 
-		String source = (String) getValueFromXpath(node, "./zdroj_nazev/text()", XPathConstants.STRING);
-		source = (source != null) ? source : "";
-
-		String source_year = (String) getValueFromXpath(node, "./rocnik/text()", XPathConstants.STRING);
-		source_year = (source_year != null) ? source_year : "";
-
-		String pages = (String) getValueFromXpath(node, "./strany/text()", XPathConstants.STRING);
-		pages = (pages != null) ? pages : "";
-
-		String issue = (String) getValueFromXpath(node, "./cislo/text()", XPathConstants.STRING);
-		issue = (issue != null) ? issue : "";
-
-		// parse authors
-		List<Author> authors = new ArrayList<Author>();
-
-		NodeList authorList = (NodeList) getValueFromXpath(node, "./autor_list/autor", XPathConstants.NODESET);
-		for(int i=0; i<authorList.getLength(); i++) {
-			Node singleNode = authorList.item(i);
-
-			Author author = new Author();
-			author.setTitleBefore((String)getValueFromXpath(singleNode, "./titul_pred/text()", XPathConstants.STRING));
-			author.setTitleAfter((String)getValueFromXpath(singleNode, "./titul_za/text()", XPathConstants.STRING));
-			author.setFirstName((String)getValueFromXpath(singleNode, "./jmeno/text()", XPathConstants.STRING));
-			author.setLastName((String)getValueFromXpath(singleNode, "./prijmeni/text()", XPathConstants.STRING));
-			authors.add(author);
+		XPath xpath = xPathFactory.newXPath();
+		XPathExpression authorsQuery;
+		try {
+			authorsQuery = xpath.compile("./authorList/author");
+		} catch (XPathExpressionException ex) {
+			throw new CabinetException("Error when compiling xpath query.", ex);
 		}
 
-		publication.setAuthors(authors);
+		NodeList nodeList;
+		try {
+			nodeList = (NodeList) authorsQuery.evaluate(node, XPathConstants.NODESET);
+		} catch (XPathExpressionException ex) {
+			throw new CabinetException("Error when evaluate xpath query on document.", ex);
+		}
 
-		// create main entry
+		if(nodeList.getLength() == 0) {
+			// There are no authors !! Which is weird, return rest of publication
+			return publication;
+		} else {
+
+			List<Author> authors = new ArrayList<Author>();
+
+			//Iterate through nodes and convert them to Map<String,String>
+			for(int i=0; i<nodeList.getLength(); i++) {
+				Node singleNode = nodeList.item(i);
+				// remove node from original structure in order to keep access time constant (otherwise is exp.)
+				singleNode.getParentNode().removeChild(singleNode);
+				try {
+					String firstName = ((String)getValueFromXpath(singleNode, "./firstName/text()", XPathConstants.STRING));
+					String lastName = ((String)getValueFromXpath(singleNode, "./lastName/text()", XPathConstants.STRING));
+					String initials = ((String)getValueFromXpath(singleNode, "./initials/text()", XPathConstants.STRING));
+					Author author = new Author();
+					if (firstName == null || firstName.isEmpty()) {
+						author.setFirstName(initials.trim());
+					} else {
+						author.setFirstName(firstName.trim());
+					}
+					author.setLastName(WordUtils.capitalize(lastName.trim()));
+					authors.add(author);
+				} catch (InternalErrorException ex) {
+					log.error("Exception [{}] caught while processing authors of response: [{}]", ex, node);
+				}
+			}
+
+			publication.setAuthors(authors);
+
+		}
+
+		// Make up citation
+
+		List<Author> authors = publication.getAuthors();
 		String main = "";
 		for (int i=0; i<authors.size(); i++){
 			if (i == 0) {
@@ -245,15 +254,22 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 		if (main.length() > 3) {
 			main = main.substring(0, main.length()-3)+ ". ";
 		}
-		main += publication.getTitle() + ". ";
+		main = main.replaceAll("\\s{2,}", " ");
+		main += publication.getTitle() + ((publication.getTitle().endsWith(".")) ? " " : ". ");
 		main += (publication.getYear() != 0) ? publication.getYear()+". " : "";
 
-		main += (!source.isEmpty()) ? source+"," : "";
-		main += (!source_year.isEmpty()) ? " roč. "+source_year+"," : "";
-		main += (!issue.isEmpty()) ? " č. "+issue+"," : "";
-		main += (!pages.isEmpty()) ? " s. "+pages+"," : "";
-		main += (!isbn.isEmpty()) ? " ISBN: "+isbn+"." : "";
-		main += (!issn.isEmpty()) ? " ISSN: "+issn+"." : "";
+		String journalTitle = (String) getValueFromXpath(node, "./journalInfo/journal/title/text()", XPathConstants.STRING);
+		String journalYear = (String) getValueFromXpath(node, "./journalInfo/yearOfPublication/text()", XPathConstants.STRING);
+		String journalIssue = (String) getValueFromXpath(node, "./journalInfo/volume/text()", XPathConstants.STRING);
+		String pages = (String) getValueFromXpath(node, "./bookOrReportDetails/numberOfPages/text()", XPathConstants.STRING);
+
+		main += (!journalTitle.isEmpty()) ? journalTitle+", " : "";
+		main += (!journalYear.isEmpty()) ? " roč. "+journalYear+", " : "";
+		main += (!journalIssue.isEmpty()) ? " č. "+journalIssue+", " : "";
+		main += (!pages.isEmpty()) ? "s. "+pages+"," : "";
+		main += (isbn != null && !isbn.isEmpty()) ? " ISBN: "+isbn+"." : "";
+		main += (issn != null && !issn.isEmpty()) ? " ISSN: "+issn+"." : "";
+		main += (doi != null && !doi.isEmpty()) ? " DOI: "+doi+"." : "";
 		publication.setMain(main);
 
 		return publication;
