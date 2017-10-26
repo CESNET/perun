@@ -2224,7 +2224,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
-	 * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code> doesn't have the same Vo.
+	 * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code> aren't from the same Vo.
 	 */
 	/*#
 	 * Checks if this group-resource attribute is valid.
@@ -2238,7 +2238,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't group-resource attribute.
-	 * @throw GroupResourceMismatchException When the group with <code>id</code> and Resource with <code>id</code> doesn't have the same Vo.
+	 * @throw GroupResourceMismatchException When the group with <code>id</code> and Resource with <code>id</code> aren't from the same Vo.
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
 	 */
 	/*#
