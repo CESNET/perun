@@ -147,6 +147,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private String shibLastNameVar = "sn";
 	private String shibLoAVar = "loa";
 
+	private final Set<String> runningCreateApplication = new HashSet<>();
+
 	public void setDataSource(DataSource dataSource) {
 		this.jdbc = new JdbcPerunTemplate(dataSource);
 	}
@@ -991,11 +993,33 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			application.setUser(session.getPerunPrincipal().getUser());
 		}
 
-		// FIXME - create lock on "application type" and "user identity" to prevent multiple submission bug
+		// lock to prevent multiple submission of same application on server side
 
-		// using this to init inner transaction
-		// all minor exceptions inside are catched, if not, it's ok to throw them
-		Application app = this.registrarManager.createApplicationInternal(session, application, data);
+		String key = application.getType().toString() +
+				application.getVo().getShortName() +
+				((application.getGroup() != null) ? application.getGroup().getName() : "nogroup") +
+				application.getCreatedBy()+application.getExtSourceName()+application.getExtSourceType();
+
+		synchronized(runningCreateApplication) {
+			if (runningCreateApplication.contains(key)) {
+				throw new AlreadyProcessingException("You application submission is being processed already.");
+			} else {
+				runningCreateApplication.add(key);
+			}
+		}
+
+		Application app = null;
+		try {
+			// using this to init inner transaction
+			// all minor exceptions inside are catched, if not, it's ok to throw them out
+			app = this.registrarManager.createApplicationInternal(session, application, data);
+		} catch (Exception ex) {
+			// clear flag and re-throw exception, since application was processed with exception
+			synchronized (runningCreateApplication) {
+				runningCreateApplication.remove(key);
+			}
+			throw ex;
+		}
 
 		// try to verify (or even auto-approve) application
 		try {
@@ -1005,7 +1029,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			AuthzResolverBlImpl.refreshSession(session);
 		} catch (Exception ex) {
 			log.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}", app, ex);
+			// clear flag and re-throw exception, since application was processed with exception
+			synchronized (runningCreateApplication) {
+				runningCreateApplication.remove(key);
+			}
 			throw ex;
+		}
+
+		// clear flag, since application was processed
+		synchronized (runningCreateApplication) {
+			runningCreateApplication.remove(key);
 		}
 
 		return data;
