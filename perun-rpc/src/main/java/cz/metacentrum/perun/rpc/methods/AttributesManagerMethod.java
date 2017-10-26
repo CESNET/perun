@@ -2179,18 +2179,37 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
+	 * @throw UserNotExistsException When the User with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't user-facility attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this facility attribute is valid.
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't facility attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this vo attribute is valid.
 	 *
 	 * @param vo int Vo <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw VoNotExistsException When the vo with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeAssignmentException When the attribute isn't attribute of Vo with <code>id</code>.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this member-resource attribute is valid.
@@ -2198,6 +2217,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param resource int Resource <code>id</code>
 	 * @param member int Member <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code> aren't from the same Vo.
 	 */
 	/*#
 	 * Checks if this group-resource attribute is valid.
@@ -2205,12 +2232,26 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param resource int Resource <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't group-resource attribute.
+	 * @throw GroupResourceMismatchException When the group with <code>id</code> and Resource with <code>id</code> aren't from the same Vo.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
 	 */
 	/*#
 	 * Checks if this resource attribute is valid.
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Resource with <code>id</code>.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this member-group attribute is valid.
@@ -2218,36 +2259,73 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this member attribute is valid.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this group attribute is valid.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw WrongAttributeValueException  When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with <code>id</code>.
+	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this host attribute is valid.
 	 *
 	 * @param host int Host <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with <code>id</code>.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw HostNotExistsException When the host with <code>id</code> doesn't exist.
+	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
 	 */
 	/*#
 	 * Checks if this user attribute is valid.
 	 *
 	 * @param user int User <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw UserNotExistsException When the user with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't user-facility attribute.
+	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this userExtSource attribute is valid.
 	 *
 	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of UserExtSource with <code>id</code>.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw UserExtSourceNotExistsException When the specified user external source with <code>id</code> doesn't exist.
+	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
 	 */
 	checkAttributeValue {
 
