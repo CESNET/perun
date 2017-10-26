@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleImplApi;
 import org.slf4j.Logger;
@@ -461,6 +462,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					try {
 						MemberVirtualAttributesModuleImplApi attributeModule = this.attributesManagerImpl.getMemberVirtualAttributeModule(sess, attribute);
 						return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Member) attributeHolder, attribute);
+					} catch (InternalErrorException ex) {
+						throw new InternalErrorRuntimeException(ex);
+					}
+
+				} else if(this.attributesManagerImpl.isFromNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR_VIRT)) {
+					if(!(attributeHolder instanceof Group)) throw new ConsistencyErrorRuntimeException("Attribute holder of group attribute isn't group");
+
+					try {
+						GroupVirtualAttributesModuleImplApi attributeModule = this.attributesManagerImpl.getGroupVirtualAttributeModule(sess, attribute);
+						return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Group) attributeHolder, attribute);
 					} catch (InternalErrorException ex) {
 						throw new InternalErrorRuntimeException(ex);
 					}
@@ -3974,6 +3985,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return (UserExtSourceVirtualAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new InternalErrorException("Required attribute module isn't UserExtSourceVirtualAttributesModule. " + attribute);
+		}
+	}
+
+	/**
+	 * Get group virtual attribute module for the attribute.
+	 *
+	 * @param attribute attribute for which you get the module
+	 * @return instance of member attribute module
+	 *
+	 * @throws InternalErrorException
+	 * @throws WrongModuleTypeException
+	 * @throws ModuleNotExistsException
+	 */
+	private GroupVirtualAttributesModuleImplApi getGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException {
+		Object attributeModule = getAttributesModule(sess, attribute);
+		if(attributeModule == null) throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
+
+		if(attributeModule instanceof GroupVirtualAttributesModuleImplApi) {
+			return (GroupVirtualAttributesModuleImplApi) attributeModule;
+		} else {
+			throw new WrongModuleTypeException("Required attribute module isn't GroupVirtualAttributesModule");
 		}
 	}
 
