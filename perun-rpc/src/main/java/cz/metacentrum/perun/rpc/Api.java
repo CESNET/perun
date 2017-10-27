@@ -642,8 +642,8 @@ public class Api extends HttpServlet {
 			PerunClient perunClient = caller.getSession().getPerunClient();
 			if(perunClient.getType() == PerunClient.Type.OAUTH) {
 				if(!perunClient.getScopes().contains(PerunClient.PERUN_API_SCOPE)) {
-					//user has not consented to scope perun_api for th client on the OAuth Authorization Server
-					throw new PrivilegeException("Your client " + perunClient.getId() + " does not have scope "+PerunClient.PERUN_API_SCOPE+" allowed by this user");
+					//user has not consented to scope perun_api for the client on the OAuth Authorization Server
+					throw new PrivilegeException("Scope "+PerunClient.PERUN_API_SCOPE+" is missing, either the client app "+perunClient.getId()+" has not asked for it, or the user has not granted it.");
 				}
 			}
 
