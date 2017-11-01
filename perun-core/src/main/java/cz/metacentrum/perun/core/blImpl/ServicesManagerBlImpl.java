@@ -464,7 +464,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		if(!getServicesManagerImpl().destinationExists(sess, destination)) {
 			try {
 				//Try to get the destination without id
-				destination = getServicesManagerImpl().getDestination(sess, destination.getDestination(), destination.getType());
+				Destination existingDestination = getServicesManagerImpl().getDestination(sess, destination.getDestination(), destination.getType());
+				// pass new propagation type from API to object retrieved from DB,
+				// since it always contains PARALLEL type
+				existingDestination.setPropagationType(destination.getPropagationType());
+				destination = existingDestination;
 			} catch(DestinationNotExistsException ex) {
 				try {
 					destination = createDestination(sess, destination);
@@ -484,7 +488,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		if(!getServicesManagerImpl().destinationExists(perunSession, destination)) {
 			try {
 				//Try to get the destination without id
-				destination = getServicesManagerImpl().getDestination(perunSession, destination.getDestination(), destination.getType());
+				Destination existingDestination = getServicesManagerImpl().getDestination(perunSession, destination.getDestination(), destination.getType());
+				// pass new propagation type from API to object retrieved from DB,
+				// since it always contains PARALLEL type
+				existingDestination.setPropagationType(destination.getPropagationType());
+				destination = existingDestination;
 			} catch(DestinationNotExistsException ex) {
 				try {
 					destination = createDestination(perunSession, destination);
