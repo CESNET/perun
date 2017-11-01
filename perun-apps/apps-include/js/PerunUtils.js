@@ -13,6 +13,8 @@ function getAuthz() {
         return "fed";
     } else if (pathname.indexOf("/cert/") > -1) {
         return "cert";
+    } else if (pathname.indexOf("/allfed/") > -1) {
+	    return "fed";
     } else if (pathname.indexOf("/edugain/") > -1) {
         return "fed";
     } else {
