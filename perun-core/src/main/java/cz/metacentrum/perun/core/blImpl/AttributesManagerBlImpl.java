@@ -3257,7 +3257,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				//TODO better exception here
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, key);
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", new AttributeDefinition(attribute), key);
 		}
 		return changed;
 	}
@@ -3297,7 +3297,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				//TODO better exception here
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, facility);
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", new AttributeDefinition(attribute), facility);
 		}
 		return changed;
 	}
@@ -3494,7 +3494,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			//TODO better exception here
 			throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, host);
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", new AttributeDefinition(attribute), host);
 		}
 		return changed;
 	}
@@ -3566,7 +3566,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				//TODO better exception here
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, vo);
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", new AttributeDefinition(attribute), vo);
 		}
 		return changed;
 	}
@@ -3632,7 +3632,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				//TODO better exception here
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, group);
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", new AttributeDefinition(attribute), group);
 		}
 		return changed;
 	}
@@ -3704,7 +3704,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			//TODO better exception here
 			throw new InternalErrorException(ex);
 		}
-		if (changed) getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, resource);
+		if (changed) getPerunBl().getAuditer().log(sess, "{} removed for {}", new AttributeDefinition(attribute), resource);
 		return changed;
 	}
 
@@ -3776,7 +3776,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				//TODO better exception here
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", attribute, resource, member);
+			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", new AttributeDefinition(attribute), resource, member);
 		}
 
 		return changed;
@@ -3871,7 +3871,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				//TODO better exception here
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", attribute, member, group);
+			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", new AttributeDefinition(attribute), member, group);
 		}
 
 		return changed;
@@ -3965,7 +3965,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				//TODO better exception here
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, member);
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", new AttributeDefinition(attribute), member);
 		}
 
 		return changed;
@@ -4039,7 +4039,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				//TODO better exception here
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", attribute, facility, user);
+			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", new AttributeDefinition(attribute), facility, user);
 		}
 		return changed;
 	}
@@ -4147,7 +4147,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				//TODO better exception here
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, user);
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", new AttributeDefinition(attribute), user);
 		}
 		return changed;
 	}
@@ -4216,7 +4216,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			//TODO better exception here
 			throw new InternalErrorException(ex);
 		}
-		if (changed) getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", attribute, group, resource);
+		if (changed) getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", new AttributeDefinition(attribute), group, resource);
 		return changed;
 	}
 
@@ -4310,7 +4310,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				//TODO better exception here
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, ues);
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", new AttributeDefinition(attribute), ues);
 		}
 		return changed;
 	}
