@@ -100,16 +100,20 @@
 				<!--
 				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
 				-->
-				<prop key="perun.oidc.issuers">i1,i2,i3</prop>
+				<prop key="perun.oidc.issuers">i1,i2,i3,i4</prop>
 				<prop key="perun.oidc.i1.iss">https://perun-dev.meta.zcu.cz/oidc/</prop>
 				<prop key="perun.oidc.i1.extsource.name">PERUN</prop>
 				<prop key="perun.oidc.i1.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceSqlComplex</prop>
-				<prop key="perun.oidc.i2.iss">https://perun.cesnet.cz/oidc/</prop>
-				<prop key="perun.oidc.i2.extsource.name">PERUN</prop>
-				<prop key="perun.oidc.i2.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceSqlComplex</prop>
-				<prop key="perun.oidc.i3.iss">https://perun.elixir-czech.cz/oidc/</prop>
-				<prop key="perun.oidc.i3.extsource.name">https://login.elixir-czech.org/idp/</prop>
+				<prop key="perun.oidc.i2.iss">https://login.cesnet.cz/oidc/</prop>
+				<prop key="perun.oidc.i2.extsource.name">https://login.cesnet.cz/idp/</prop>
+				<prop key="perun.oidc.i2.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceIdp</prop>
+				<prop key="perun.oidc.i3.iss">https://auth.west-life.eu/oidc/</prop>
+				<prop key="perun.oidc.i3.extsource.name">https://auth.west-life.eu/proxy/saml2/idp/metadata.php</prop>
 				<prop key="perun.oidc.i3.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceIdp</prop>
+				<prop key="perun.oidc.i4.iss">https://login.elixir-czech.org/oidc/</prop>
+				<prop key="perun.oidc.i4.extsource.name">https://login.elixir-czech.org/idp/</prop>
+				<prop key="perun.oidc.i4.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceIdp</prop>
+
 			</props>
 		</property>
 	</bean>
