@@ -1055,7 +1055,7 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
 			throw new PrivilegeException(sess, "findRichUsersWithoutSpecificVoWithAttributes");
 		}
 
