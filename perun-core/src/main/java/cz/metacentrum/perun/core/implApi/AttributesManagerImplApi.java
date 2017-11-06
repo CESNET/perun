@@ -2157,12 +2157,11 @@ public interface AttributesManagerImplApi {
 	/**
 	 * Determine if attribute is from specified namespace.
 	 *
-	 * @param sess
 	 * @param attribute
 	 * @param namespace
 	 * @return true if the attribute is from specified namespace false otherwise
 	 */
-	boolean isFromNamespace(PerunSession sess, AttributeDefinition attribute, String namespace);
+	boolean isFromNamespace(AttributeDefinition attribute, String namespace);
 
 	/**
 	 * Determine if attribute is from specified namespace.

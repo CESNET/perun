@@ -340,7 +340,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="self" ref="extSourcesManagerImpl"/>
 	</bean>
 	<bean id="attributesManagerImpl" class="cz.metacentrum.perun.core.impl.AttributesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perun" ref="perun"/>
 		<property name="self" ref="attributesManagerImpl"/>
 		<constructor-arg ref="dataSource" />
 	</bean>
