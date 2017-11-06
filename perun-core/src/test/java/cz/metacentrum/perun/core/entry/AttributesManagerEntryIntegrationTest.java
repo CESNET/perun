@@ -9264,10 +9264,10 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForVoAttributesTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getVoAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//get all vo_toEmail_def attributes
-		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, null, vo_toEmail_def);
+		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl, sess, vo_toEmail_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 		ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
 
@@ -9533,11 +9533,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForUserAttributesTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getUserAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all phone user attributes
 		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, user_phone_atr_def);
+				sess, user_phone_atr_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 		ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
 
@@ -9839,11 +9839,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForMemberAttributesTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getMemberAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all phone member attributes
 		List<RichAttribute> ra_phone_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, member_phone_atr_def);
+				sess, member_phone_atr_def);
 		List<Attribute> attrs_phone_all = new ArrayList<>();
 		ra_phone_all.forEach(ra -> attrs_phone_all.add(ra.getAttribute()));
 
@@ -10112,11 +10112,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForGroupAttributesTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getGroupAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all email group attributes
 		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, group_fromEmail_atr_def);
+				sess, group_fromEmail_atr_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 		ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
 
@@ -10456,11 +10456,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForResourceAttributesTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getResourceAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all test resource attributes
 		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, resource_test_atr_def);
+				sess, resource_test_atr_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 		ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
 
@@ -10825,11 +10825,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForFacilityAttributesTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getFacilityAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all test resource attributes
 		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, facility_test_atr_def);
+				sess, facility_test_atr_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 		ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
 
@@ -11228,11 +11228,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForHostAttributesTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getHostAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all test host attributes
 		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, host_test_atr_def);
+				sess, host_test_atr_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 		ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
 
@@ -11577,11 +11577,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForUESAttributesTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getUserExtSourceAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all test UES attributes
 		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, ues_test_atr_def);
+				sess, ues_test_atr_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 		ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
 
@@ -12019,11 +12019,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForGroupResourceAttributesTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getGroupResourceAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all test group-resource attributes
 		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, groupResource_test_atr_def);
+				sess, groupResource_test_atr_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 		ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
 
@@ -12435,11 +12435,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForMemberGroupAttributesTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getMemberGroupAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all test member-group attributes
 		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, memberGroup_test_atr_def);
+				sess, memberGroup_test_atr_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 
 		//remove attributes which are not used in test
@@ -12867,11 +12867,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForMemberResourceTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getMemberResourceAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all test member-group attributes
 		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, memberResource_test_atr_def);
+				sess, memberResource_test_atr_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 		ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
 
@@ -13333,11 +13333,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		setAttributesForUserFacilityTest();
 
 		Method testedMethod = getPrivateMethodFromAtrManager("getUserFacilityAttributes",
-				PerunSession.class, String.class, AttributeDefinition.class);
+				PerunSession.class, AttributeDefinition.class);
 
 		//find all test user-facility attributes
 		List<RichAttribute> ra_all = (List<RichAttribute>) testedMethod.invoke(attributesManagerBl,
-				sess, null, userFacility_test_atr_def);
+				sess, userFacility_test_atr_def);
 		List<Attribute> attrs_all = new ArrayList<>();
 		ra_all.forEach(ra -> attrs_all.add(ra.getAttribute()));
 
