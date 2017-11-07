@@ -61,6 +61,8 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 			//Fill lists of groups and resources
 			groupsWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupUnixGroupName));
 			resourcesWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceUnixGroupName));
+			//Remove self from the list of groups with the same namespace
+			groupsWithSameGroupNameInTheSameNamespace.remove(group);
 
 			//If there is no group or resource with same GroupNameInTheSameNamespace, its ok
 			if(groupsWithSameGroupNameInTheSameNamespace.isEmpty() && resourcesWithSameGroupNameInTheSameNamespace.isEmpty()) return;
