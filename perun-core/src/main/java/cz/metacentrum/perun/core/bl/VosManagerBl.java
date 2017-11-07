@@ -2,8 +2,11 @@ package cz.metacentrum.perun.core.bl;
 
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichUser;
@@ -133,6 +136,33 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Candidate> findCandidates(PerunSession sess, Group group, String searchString) throws InternalErrorException;
+
+	/**
+	 * Finds MemberCandidates who can join the Vo.
+	 *
+	 * @param sess session
+	 * @param vo vo to be used
+	 * @param attrNames name of attributes to be searched
+	 * @param searchString depends on the extSource of the Vo, could by part of the name, email or something like that.
+	 * @return list of memberCandidates who match the searchString
+	 * @throws InternalErrorException internal error
+	 */
+	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString) throws InternalErrorException;
+
+	/**
+	 * Finds MemberCandidates who can join the Group. If the given vo is not null, it searches only
+	 * users who belong to this Vo.
+	 *
+	 * @param sess session
+	 * @param vo vo if is null, users are searched in whole perun, otherwise only members of this vo are used.
+	 * @param group group to be used
+	 * @param attrNames name of attributes to be searched
+	 * @param searchString depends on the extSource of the Vo, could by part of the name, email or something like that.
+	 * @param extSources extSources used to find candidates
+	 * @return list of memberCandidates who match the searchString
+	 * @throws InternalErrorException internal error
+	 */
+	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, Group group, List<String> attrNames, String searchString, List<ExtSource> extSources) throws InternalErrorException;
 
 	/**
 	 * Add a user administrator to the VO.

@@ -1796,6 +1796,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
+	@Override
+	public RichUser convertUserToRichUserWithAttributesByNames(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException {
+		AttributesManagerBl attributesManagerBl = this.getPerunBl().getAttributesManagerBl();
+
+		RichUser richUser = new RichUser(user, getUserExtSources(sess, user));
+		richUser.setUserAttributes(attributesManagerBl.getAttributes(sess, user, attrNames));
+
+		return richUser;
+	}
+
 	public List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
 
 		if(attrsName == null || attrsName.isEmpty()) {

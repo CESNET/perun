@@ -135,6 +135,10 @@ $objectExamples{"Candidate"} = "{ \"id\" : 0 , \"serviceUser\" : false , \"first
 $objectExamples{"List&lt;Candidate&gt;"} = $listPrepend . $objectExamples{"Candidate"} . $listAppend;
 $objectExamples{"List<Candidate>"} = $objectExamples{"List&lt;Candidate&gt;"};
 
+$objectExamples("MemberCandidate") = "{ \"candidate\" : " . objectExamples("Candidate") . " , \"member\" : " . objectExamples("Member") . " , \"richUser\" : " . objectExamples("RichUser") . " }";
+$objectExamples("List&lt;MemberCandidate&gt;") = $listPrepend . $objectExamples("MemberCandidate") . $listAppend;
+$objectExamples("List<MemberCandidate>") = $objectExamples("List&lt;MemberCandidate&gt;");
+
 $objectExamples{"SecurityTeam"} = "{ \"id\" : 924 , \"name\" : \"CSIRT\" , \"description\" : \"My CSIRT\" }";
 $objectExamples{"List&lt;SecurityTeam&gt;"} = $listPrepend . $objectExamples{"SecurityTeam"} . $listAppend;
 $objectExamples{"List<SecurityTeam>"} = $objectExamples{"List&lt;SecurityTeam&gt;"};
