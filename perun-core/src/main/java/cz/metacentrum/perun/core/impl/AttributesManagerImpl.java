@@ -58,6 +58,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserExtSourceAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserExtSourceVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -4003,7 +4004,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			//attribute module doesn't exist
 			return null;
 		} catch (InstantiationException ex) {
-			throw new InternalErrorException("Attribute module " + moduleName + " cannot be instaciated.", ex);
+			throw new InternalErrorException("Attribute module " + moduleName + " cannot be instantiated.", ex);
 		} catch (IllegalAccessException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -4013,6 +4014,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules) {
 		for (AttributesModuleImplApi module : modules) {
 			attributesModulesMap.put(module.getClass().getName(), module);
+			log.debug("Module {} loaded.", module.getClass().getSimpleName());
+		}
+	}
+
+	public void registerVirtAttributeModules(ServiceLoader<AttributesModuleImplApi> modules) {
+		for (AttributesModuleImplApi module : modules) {
+			if (module instanceof VirtualAttributesModuleImplApi) {
+				Auditer.registerAttributeModule((VirtualAttributesModuleImplApi) module);
+				log.debug("Module {} was registered for audit message listening.", module.getClass().getName());
+			}
 		}
 	}
 

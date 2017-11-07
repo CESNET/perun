@@ -2344,4 +2344,12 @@ public interface AttributesManagerImplApi {
 	 */
 	public void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
 
+	/**
+	 * Register virtual attribute modules in Auditer for message listening.
+	 *
+	 * @see AttributesManagerBlImpl#initialize()
+	 * @param modules List of attribute module class instances
+	 */
+	public void registerVirtAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
+
 }

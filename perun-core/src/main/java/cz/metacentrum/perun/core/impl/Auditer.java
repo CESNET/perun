@@ -78,10 +78,10 @@ public class Auditer {
 	private static Set<VirtualAttributesModuleImplApi> registeredAttributesModules = new HashSet<>();
 
 	public static void registerAttributeModule(VirtualAttributesModuleImplApi virtualAttributesModuleImplApi) {
-		log.trace("Auditer: Try to load module {}", (virtualAttributesModuleImplApi == null) ? null : virtualAttributesModuleImplApi.getClass().getName());
+		log.trace("Auditer: Try to register module {}", (virtualAttributesModuleImplApi == null) ? null : virtualAttributesModuleImplApi.getClass().getName());
 		if(virtualAttributesModuleImplApi != null && !registeredAttributesModules.contains(virtualAttributesModuleImplApi)) {
 			registeredAttributesModules.add(virtualAttributesModuleImplApi);
-			log.debug("Auditer: Module {} was loaded.", virtualAttributesModuleImplApi.getClass().getName());
+			log.debug("Auditer: Module {} was registered for audit message listening.", virtualAttributesModuleImplApi.getClass().getName());
 		}
 
 	}
