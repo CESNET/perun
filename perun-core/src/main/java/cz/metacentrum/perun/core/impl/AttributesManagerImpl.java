@@ -85,6 +85,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR;
@@ -3982,7 +3983,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	/**
-	 * Get the atributeModule
+	 * Get the attributeModule
 	 *
 	 * @param moduleName name of the module
 	 * @return instance of attribute module
@@ -3999,7 +4000,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			attributesModulesMap.put(moduleName, (AttributesModuleImplApi) module);
 			return module;
 		} catch (ClassNotFoundException ex) {
-			//attrribute module don't exist
+			//attribute module doesn't exist
 			return null;
 		} catch (InstantiationException ex) {
 			throw new InternalErrorException("Attribute module " + moduleName + " cannot be instaciated.", ex);
@@ -4007,6 +4008,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 
+	}
+
+	public void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules) {
+		for (AttributesModuleImplApi module : modules) {
+			attributesModulesMap.put(module.getClass().getName(), module);
+		}
 	}
 
 	public void setSelf(AttributesManagerImplApi self) {

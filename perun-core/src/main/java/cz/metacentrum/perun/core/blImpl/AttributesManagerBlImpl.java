@@ -5539,6 +5539,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//Load all attributes modules
 		ServiceLoader<AttributesModuleImplApi> attributeModulesLoader = ServiceLoader.load(AttributesModuleImplApi.class);
+		getAttributesManagerImpl().initAttributeModules(attributeModulesLoader);
 		for (AttributesModuleImplApi module : attributeModulesLoader) {
 			if (module instanceof VirtualAttributesModuleImplApi) {
 				Auditer.registerAttributeModule((VirtualAttributesModuleImplApi) module);
@@ -5546,7 +5547,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			log.debug("Module " + module.getClass().getSimpleName() + " loaded.");
 		}
 
-		//Check if all core atributes exists, create if doesn't
+		//Check if all core attributes exists, create if doesn't
 		Map<AttributeDefinition, List<AttributeRights>> attributes = new HashMap<>();
 		//Facility.id
 		AttributeDefinition attr = new AttributeDefinition();
