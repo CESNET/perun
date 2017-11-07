@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.ActionType;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -32,6 +33,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongModuleTypeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
 /**
@@ -2332,4 +2335,21 @@ public interface AttributesManagerImplApi {
 	 * @throws ModuleNotExistsException
 	 */
 	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException;
+
+	/**
+	 * Init attribute modules map in Impl layer.
+	 *
+	 * @see AttributesManagerBlImpl#initialize()
+	 * @param modules List of attribute module class instances
+	 */
+	public void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
+
+	/**
+	 * Register virtual attribute modules in Auditer for message listening.
+	 *
+	 * @see AttributesManagerBlImpl#initialize()
+	 * @param modules List of attribute module class instances
+	 */
+	public void registerVirtAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
+
 }

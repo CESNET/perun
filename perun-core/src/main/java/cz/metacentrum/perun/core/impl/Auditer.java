@@ -2,8 +2,10 @@ package cz.metacentrum.perun.core.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.sql.DataSource;
@@ -73,13 +75,13 @@ public class Auditer {
 
 	private static final Object LOCK_DB_TABLE_AUDITER_LOG = new Object();
 
-	private static List<VirtualAttributesModuleImplApi> registeredAttributesModules = new ArrayList<VirtualAttributesModuleImplApi>();
+	private static Set<VirtualAttributesModuleImplApi> registeredAttributesModules = new HashSet<>();
 
 	public static void registerAttributeModule(VirtualAttributesModuleImplApi virtualAttributesModuleImplApi) {
-		log.trace("Auditer: Try to load module {}", virtualAttributesModuleImplApi.getClass().getName());
+		log.trace("Auditer: Try to register module {}", (virtualAttributesModuleImplApi == null) ? null : virtualAttributesModuleImplApi.getClass().getName());
 		if(virtualAttributesModuleImplApi != null && !registeredAttributesModules.contains(virtualAttributesModuleImplApi)) {
 			registeredAttributesModules.add(virtualAttributesModuleImplApi);
-			log.debug("Auditer: Module {} was loaded.", virtualAttributesModuleImplApi.getClass().getName());
+			log.debug("Auditer: Module {} was registered for audit message listening.", virtualAttributesModuleImplApi.getClass().getName());
 		}
 
 	}
@@ -178,7 +180,7 @@ public class Auditer {
 		}
 	}
 
-	
+
 	/**
 	 * Log message.
 	 * Message is stored in actual transaction. If no transaction is active message will be immediatelly flushed out.
@@ -321,7 +323,7 @@ public class Auditer {
 	 */
 	public void newTopLevelTransaction() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
-		
+
 		// prepare new messages chain
 		List<List<AuditerMessage>> transactionChain = new ArrayList<>();
 		List<AuditerMessage> messages = new ArrayList<>();
@@ -335,10 +337,10 @@ public class Auditer {
 			topLevelTransactions.add(transactionChain);
 		}
 	}
-		
+
 	/**
 	 * Creates new list for saving auditer messages of a new nested transactions.
-	 * 
+	 *
 	 */
 	public void newNestedTransaction() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
@@ -346,11 +348,11 @@ public class Auditer {
 		List<AuditerMessage> messages = new ArrayList<>();
 		transactionChain.add(messages);
 	}
-	
+
 	/**
 	 * Flush auditer messages of the last messages to the store of the outer transaction.
 	 * There should be at least one nested transaction.
-	 * 
+	 *
 	 */
 	public void flushNestedTransaction() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
@@ -360,14 +362,14 @@ public class Auditer {
 			return;
 		}
 		List<AuditerMessage> messagesToFlush = transactionChain.get(transactionChain.size() - 1);
-		
+
 		transactionChain.get(transactionChain.size() - 2).addAll(messagesToFlush);
 		List<AuditerMessage> messages = transactionChain.remove(transactionChain.size() - 1);
 	}
-	
+
 	/**
 	 * Erases the auditer messages for the last transaction.
-	 * 
+	 *
 	 */
 	public void cleanNestedTransation() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
@@ -378,7 +380,7 @@ public class Auditer {
 		}
 		List<AuditerMessage> messages = transactionChain.remove(transactionChain.size() - 1);
 	}
-	
+
 	/**
 	 * Imidiately flushes stored message for last top-level transaction into the log
 	 *
@@ -395,7 +397,7 @@ public class Auditer {
 			topLevelTransactions.remove(topLevelTransactions.size() - 1);
 			return;
 		}
-		
+
 		if (transactionChain.size() != 1) {
 			log.error("There should be only one list of messages while flushing representing the most outer transaction.");
 		}
@@ -439,7 +441,7 @@ public class Auditer {
 	/**
 	 * All prepared auditer messages in the last top-level transaction are erased without storing into db.
 	 * Mostly wanted while rollbacking.
-	 * 
+	 *
 	 */
 	public void clean() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
@@ -447,18 +449,18 @@ public class Auditer {
 			log.trace("No messages to clean");
 			return;
 		}
-		
+
 		List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
 		if (transactionChain.isEmpty()) {
 			log.trace("No messages to clean");
 		}
-		
+
 		if (transactionChain.size() != 1) {
 			log.error("There should be only one list of messages while cleaning.");
 		}
 
 		topLevelTransactions.remove(topLevelTransactions.size() - 1);
-		
+
 		if (topLevelTransactions.isEmpty()) {
 			TransactionSynchronizationManager.unbindResourceIfPossible(this);
 		}
@@ -533,7 +535,7 @@ public class Auditer {
 			throw new InternalErrorException(err);
 		}
 	}
-	
+
 	private List<List<List<AuditerMessage>>> getTopLevelTransactions() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
 		if (topLevelTransactions == null) {
