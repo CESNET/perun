@@ -299,43 +299,88 @@ public interface AuthzResolverImplApi {
 	 */
 	void removePerunAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException;
 
+
 	/**
-	 * Adds role for user in a VO.
+	 * Adds role for user in VO.
+	 * @param sess perun session
+	 * @param role role of user in VO
+	 * @param vo virtual organization
+	 * @param user user
+	 * @throws InternalErrorException
+	 * @throws AlreadyAdminException
 	 */
 	void addVoRole(PerunSession sess, Role role, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
 
 	/**
 	 * Adds role for group in a VO.
+	 * @param sess perun session
+	 * @param role role of group in VO
+	 * @param vo virtual organization
+	 * @param group group
+	 * @throws InternalErrorException
+	 * @throws AlreadyAdminException
 	 */
 	void addVoRole(PerunSession sess, Role role, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
 
 	/**
-	 * Removes role from user in a VO.
+	 * Removes role from user in a VO
+	 * @param sess perun session
+	 * @param role role of user in a VO
+	 * @param vo virtual organization
+	 * @param user user
+	 * @throws InternalErrorException
+	 * @throws UserNotAdminException
 	 */
 	void removeVoRole(PerunSession sess, Role role, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
 
 	/**
 	 * Removes role from group in a VO.
+	 * @param sess perun session
+	 * @param role role of group in a VO
+	 * @param vo virtual organization
+	 * @param group group
+	 * @throws InternalErrorException
+	 * @throws GroupNotAdminException
 	 */
 	void removeVoRole(PerunSession sess, Role role, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
 
 	/**
 	 * Checks whether the user is in role for Vo.
+	 * @param session perun session
+	 * @param user user
+	 * @param role role of user
+	 * @param vo virtual organisation
+	 * @return true if user is in role for VO, otherwise false.
 	 */
 	boolean isUserInRoleForVo(PerunSession session, User user, Role role, Vo vo);
 
 	/**
-	 * Checks whether the group is in role for Vo.
+	 * Checks whether the gruop is in role for Vo.
+	 * @param session perun session
+	 * @param group group
+	 * @param role role of group
+	 * @param vo virtual organization
+	 * @return true if group is in role for VO, otherwise false.
 	 */
 	boolean isGroupInRoleForVo(PerunSession session, Group group, Role role, Vo vo);
 
 	/**
-	 * Gets list fo VOs for which the group has the role.
+	 * Gets list of VOs for which the group has the role.
+	 * @param sess perun session
+	 * @param group group
+	 * @param role role of group
+	 * @return list of VOs from which the group has the role
+	 * @throws InternalErrorException
 	 */
 	List<Integer> getVoIdsForGroupInRole(PerunSession sess, Group group, Role role) throws InternalErrorException;
 
 	/**
-	 * Gets list fo VOs for which the user has the role.
+	 * Gets list of VOs for which the user has the role.
+	 * @param sess perun session
+	 * @param user user
+	 * @param role role of user
+	 * @return list of VOs for which the user has the role.
+	 * @throws InternalErrorException
 	 */
 	List<Integer> getVoIdsForUserInRole(PerunSession sess, User user, Role role) throws InternalErrorException;
 }

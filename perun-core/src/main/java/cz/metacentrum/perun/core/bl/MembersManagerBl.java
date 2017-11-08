@@ -1329,28 +1329,52 @@ public interface MembersManagerBl {
 
 	/**
 	 * Creates a new sponsored member.
-	 * @param session session
-	 * @param vo vo
+	 *
+	 * @param session perun session
+	 * @param vo virtual organization
 	 * @param namespace used for selecting external system in which guest user account will be created
 	 * @param guestName full name or other designation
 	 * @param password password
 	 * @param sponsor sponsoring user
 	 * @param asyncValidation
 	 * @return created member
+	 * @throws MemberNotExistsException
+	 * @throws InternalErrorException
+	 * @throws AlreadyMemberException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordOperationTimeoutException if operation with password in backend exceeds expected limit.
+	 * @throws PasswordCreationFailedException
+	 * @throws PasswordStrengthFailedException if password doesn't match expected strength requirements.
+	 * @throws ExtendMembershipException
+	 * @throws GroupOperationsException if operation with groups fails (adding subgroup, creating/removing unions of groups, ..).
+	 * @throws WrongAttributeValueException
+	 * @throws ExtSourceNotExistsException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws UserNotInRoleException if the member is not in required role
 	 */
 	Member createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor, boolean asyncValidation) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, ExtendMembershipException, GroupOperationsException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException;
 
 	/**
 	 * Links sponsored member and sponsoring user.
-	 * @param session session
-	 * @param sponsoredMember
-	 * @param sponsor sponsor
+	 * @param session perun session
+	 * @param sponsoredMember member which is sponsored
+	 * @param sponsor sponsoring user
 	 * @return member
+	 * @throws InternalErrorException
+	 * @throws MemberNotSponsoredException
+	 * @throws AlreadySponsorException
+	 * @throws UserNotInRoleException
 	 */
 	Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
 	/**
-	 * Gets list of members that are sponsored by the user in the vo.
+	 * Gets list of members that are sponsored by the user in the vo
+	 *
+	 * @param sess perun session
+	 * @param vo virtual organization
+	 * @param user user sponsoring members
+	 * @return list of members sponsored by the user in VO
+	 * @throws InternalErrorException if given parameters are invalid
 	 */
 	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws InternalErrorException;
 
@@ -1365,11 +1389,21 @@ public interface MembersManagerBl {
 
 	/**
 	 * Removes a sponsor.
+	 * @param sess perun session
+	 * @param sponsoredMember member which is sponsored
+	 * @param sponsor sponsoring user
+	 * @throws InternalErrorException if given parameters are invalid
 	 */
 	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsor) throws InternalErrorException;
 
 	/**
 	 * Extends expiration date. Sponsored members cannot apply for membership extension, this method allows a sponsor to extend it.
+	 *
+	 * @param sess perun session
+	 * @param sponsoredMember member which is sponsored
+	 * @param sponsorUser sponsoring user or null for the caller
+	 * @return new expiration date
+	 * @throws InternalErrorException
 	 */
 	String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws InternalErrorException;
 }

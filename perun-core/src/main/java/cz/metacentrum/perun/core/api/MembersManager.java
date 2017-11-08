@@ -1136,6 +1136,20 @@ public interface MembersManager {
 	 * @param password  password
 	 * @param sponsor sponsoring user or null for the caller
 	 * @return new Member in the Vo
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
+	 * @throws MemberNotExistsException
+	 * @throws AlreadyMemberException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordOperationTimeoutException
+	 * @throws PasswordCreationFailedException
+	 * @throws PasswordStrengthFailedException
+	 * @throws GroupOperationsException
+	 * @throws ExtendMembershipException
+	 * @throws WrongAttributeValueException
+	 * @throws ExtSourceNotExistsException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws UserNotInRoleException
 	 */
 	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotExistsException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, GroupOperationsException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException;
 
@@ -1145,11 +1159,22 @@ public interface MembersManager {
 	 * @param sponsored existing member that needs sponsoring
 	 * @param sponsor sponsoring user or null for the caller
 	 * @return existing Member
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws MemberNotSponsoredException
+	 * @throws AlreadySponsorException
+	 * @throws UserNotInRoleException
 	 */
 	RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
 	/**
 	 * Gets list of members of a VO sponsored by the given user.
+	 * @param sess actor
+	 * @param vo virtual organization from which are the sponsored members chosen
+	 * @param user user of system
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
+	 * @return list of members from given VO who are sponsored by the given user.
 	 */
 	List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws InternalErrorException, PrivilegeException;
 
@@ -1158,18 +1183,31 @@ public interface MembersManager {
 	 * @param sess actor
 	 * @param vo virtual organization from which are the sponsored members chosen
 	 * @throws InternalErrorException if given parameters are invalid
-	 * @throws PrivilegeException If not REGISTRAR or VOADMIN
-	 * @return list of members from given vo who are sponsored
+	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
+	 * @return list of members from given VO who are sponsored
 	 */
 	List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Extends expiration date. Sponsored members cannot apply for membership extension, this method allows a sponsor to extend it.
+	 * @param session actor
+	 * @param sponsored existing member that is sponsored
+	 * @param sponsor sponsoring user or null for the caller
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
+	 * @throws VoNotExistsException
+	 * @return new expiration date
 	 */
 	String extendExpirationForSponsoredMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
 	/**
 	 * Removes the sponsor.
+	 *
+	 * @param sess actor
+	 * @param sponsoredMember existing member that is sponsored
+	 * @param sponsorToRemove sponsoring user for removal
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @throws PrivilegeException if not REGISTRAR or VOADMIN
 	 */
 	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws InternalErrorException, PrivilegeException;
 

@@ -373,11 +373,23 @@ public interface VosManagerBl {
 
 	/**
 	 * Handles a user that lost a role.
+	 *
+	 * @param sess perun session
+	 * @param user user
+	 * @param vo virtual organization
+	 * @param role role of user in VO
+	 * @throws InternalErrorException
 	 */
 	void handleUserLostVoRole(PerunSession sess, User user, Vo vo, Role role) throws InternalErrorException;
 
 	/**
 	 * Handles a group that lost a role.
+	 *
+	 * @param sess perun session
+	 * @param group group
+	 * @param vo virtual organization
+	 * @param role role of group in VO
+	 * @throws InternalErrorException
 	 */
 	void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, Role role) throws InternalErrorException;
 }

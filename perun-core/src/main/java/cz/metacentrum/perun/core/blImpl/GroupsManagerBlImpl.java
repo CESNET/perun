@@ -609,6 +609,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	/**
 	 * When a member is removed from a group, and the group is in a role, the member's user loses that role, which may need processing.
+	 *
+	 * @param sess perun session
+	 * @param group group
+	 * @param member member
+	 * @throws InternalErrorException
 	 */
 	private void notifyMemberRemovalFromGroup(PerunSession sess, Group group, Member member) throws InternalErrorException {
 		log.debug("notifyMemberRemovalFromGroup(group={},member={})",group.getName(),member);
