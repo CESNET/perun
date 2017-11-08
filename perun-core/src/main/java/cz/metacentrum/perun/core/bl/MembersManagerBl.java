@@ -1368,7 +1368,7 @@ public interface MembersManagerBl {
 	Member sponsorMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
 	/**
-	 * Gets list of members that are sponsored by the user in the vo
+	 * Gets list of members that are sponsored by the user in the vo.
 	 *
 	 * @param sess perun session
 	 * @param vo virtual organization

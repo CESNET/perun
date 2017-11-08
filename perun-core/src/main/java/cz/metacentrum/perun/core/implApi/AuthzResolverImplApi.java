@@ -323,7 +323,7 @@ public interface AuthzResolverImplApi {
 	void addVoRole(PerunSession sess, Role role, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
 
 	/**
-	 * Removes role from user in a VO
+	 * Removes role from user in a VO.
 	 * @param sess perun session
 	 * @param role role of user in a VO
 	 * @param vo virtual organization
