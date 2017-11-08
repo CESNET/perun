@@ -1339,6 +1339,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 	/**
 	 * Checks whether the user is in role for Vo.
+	 *
+	 * @param session perun session
+	 * @param user user
+	 * @param role role of user
+	 * @param vo virtual organization
+	 * @return true if user is in role for VO, false otherwise
 	 */
 	static boolean isUserInRoleForVo(PerunSession session, User user, Role role, Vo vo) {
 		return authzResolverImpl.isUserInRoleForVo(session, user, role, vo);
@@ -1346,6 +1352,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 	/**
 	 * Checks whether the group is in role for Vo.
+	 *
+	 * @param session perun session
+	 * @param group group
+	 * @param role role of group
+	 * @param vo virtual organization
+	 * @return true if group is in role for VO, false otherwise
 	 */
 	static boolean isGroupInRoleForVo(PerunSession session, Group group, Role role, Vo vo) {
 		return authzResolverImpl.isGroupInRoleForVo(session, group, role, vo);

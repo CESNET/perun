@@ -704,11 +704,18 @@ public interface UsersManagerImplApi {
 
 	/**
 	 * Gets list of user that sponsored a member.
+	 * @param sess perun session
+	 * @param sponsoredMember member which is sponsored
+	 * @return list of users that sponsored a member.
+	 * @throws InternalErrorException
 	 */
 	List<User> getSponsors(PerunSession sess, Member sponsoredMember) throws InternalErrorException;
 
 	/**
 	 * Deletes all links to sponsors, even those marked as inactive.
+	 * @param sess perun session
+	 * @param sponsor sponsor
+	 * @throws InternalErrorException
 	 */
 	void deleteSponsorLinks(PerunSession sess, User sponsor) throws InternalErrorException;
 }

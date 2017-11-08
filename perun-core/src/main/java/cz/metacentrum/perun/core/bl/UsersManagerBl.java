@@ -1143,6 +1143,10 @@ public interface UsersManagerBl {
 
 	/**
 	 * Gets list of users that sponsor the member.
+	 * @param sess perun session
+	 * @param sponsoredMember member which is sponsored
+	 * @return list of users that sponsor the member.
+	 * @throws InternalErrorException
 	 */
 	List<User> getSponsors(PerunSession sess, Member sponsoredMember) throws InternalErrorException;
 

@@ -43,6 +43,7 @@ public interface MembersManagerImplApi {
 	 * @param user User
 	 * @return created member with id filled
 	 * @throws InternalErrorException
+	 * @throws AlreadyMemberException
 	 */
 	Member createMember(PerunSession perunSession, Vo vo, User user) throws InternalErrorException, AlreadyMemberException;
 
@@ -198,16 +199,29 @@ public interface MembersManagerImplApi {
 
 	/**
 	 * Adds another sponsoring user for a sponsored member.
+	 * @param session perun session
+	 * @param sponsoredMember member which is sponsored
+	 * @param sponsor sponsoring user
+	 * @throws InternalErrorException
 	 */
 	void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException;
 
 	/**
 	 * Removes a sponsoring user. In fact marks the link as inactive.
+	 * @param sess perun session
+	 * @param sponsoredMember member which is sponsored
+	 * @param sponsor sponsoring user
+	 * @throws InternalErrorException
 	 */
 	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsor) throws InternalErrorException;
 
 	/**
 	 * Gets members sponsored by the given user.
+	 * @param sess perun session
+	 * @param vo virtual organization
+	 * @param sponsor sponsoring user
+	 * @return list of members sponsored by the given user
+	 * @throws InternalErrorException
 	 */
 	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User sponsor) throws InternalErrorException;
 
@@ -222,6 +236,9 @@ public interface MembersManagerImplApi {
 
 	/**
 	 * Deletes all links to sponsors, even those marked as inactive.
+	 * @param sess perun session
+	 * @param member member which is sponsored
+	 * @throws InternalErrorException
 	 */
 	void deleteSponsorLinks(PerunSession sess, Member member) throws InternalErrorException;
 
