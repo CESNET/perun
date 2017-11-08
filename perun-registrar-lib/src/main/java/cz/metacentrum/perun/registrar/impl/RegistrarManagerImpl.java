@@ -1010,6 +1010,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		Application app = null;
 		try {
+
+			// throws exception if user already submitted application or is already a member or can't submit it by VO expiration rules.
+			checkDuplicateRegistrationAttempt(session, application.getType(), (application.getGroup() != null) ? getFormForGroup(application.getGroup()) : getFormForVo(application.getVo()));
+
 			// using this to init inner transaction
 			// all minor exceptions inside are catched, if not, it's ok to throw them out
 			app = this.registrarManager.createApplicationInternal(session, application, data);
@@ -2101,134 +2105,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		RegistrarModule module = getRegistrarModule(form);
 		if (module != null) module.canBeSubmitted(sess, federValues);
 
-		// Check if it's not DuplicateRegistrationAttempt (for initial)
-		if (AppType.INITIAL.equals(appType)) {
-
-			List<Integer> regs = new ArrayList<Integer>();
-			if (user != null) {
-				// user is known
-				try {
-					Member m = membersManager.getMemberByUser(registrarSession, vo, user);
-					if (group != null) {
-						// get members groups
-						List<Group> g = perun.getGroupsManager().getMemberGroups(registrarSession, m);
-						if (g.contains(group)) {
-							// user is member of group - can't post more initial applications
-							throw new AlreadyRegisteredException("You are already member of group "+group.getName()+".");
-						} else {
-							// user isn't member of group
-							regs.clear();
-							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
-									new SingleColumnRowMapper<Integer>(Integer.class),
-									AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
-							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
-									new SingleColumnRowMapper<Integer>(Integer.class),
-									AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
-							if (!regs.isEmpty()) {
-								// user have unprocessed application for group
-								throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
-							}
-							// pass if have approved or rejected app
-						}
-					} else {
-						// user is member of vo, can't post more initial applications
-						throw new AlreadyRegisteredException("You are already member of VO: "+vo.getName());
-					}
-				} catch (MemberNotExistsException ex) {
-					// user is not member of vo
-					if (group != null) {
-						// not member of VO - check for unprocessed applications to Group
-						regs.clear();
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
-								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
-								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
-						if (!regs.isEmpty()) {
-							// user have unprocessed application for group - can't post more
-							throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
-						}
-						//throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
-					} else {
-						// not member of VO - check for unprocessed applications
-						regs.clear();
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and state=? and (user_id=? or (created_by=? and extSourceName=?))",
-								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and state=? and (user_id=? or (created_by=? and extSourceName=?))",
-								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
-						if (!regs.isEmpty()) {
-							// user have unprocessed application for VO - can't post more
-							throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists.", actor, extSourceName, regs.get(0));
-						}
-						// pass not member and have only approved or rejected apps
-					}
-				}
-			} else {
-
-				// user is not known
-				if (group != null) {
-					// group application
-					// get registrations by user logged identity
-					regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and created_by=? and extSourceName=? and state<>? and state<>?",
-							new SingleColumnRowMapper<Integer>(Integer.class),
-							AppType.INITIAL.toString(), vo.getId(), group.getId(), actor, extSourceName, AppState.APPROVED.toString(), AppState.REJECTED.toString()));
-
-					if (!regs.isEmpty()) {
-						throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
-					}
-				} else {
-					// vo application
-					// get registrations by user logged identity
-					regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and created_by=? and extSourceName=? and state<>? and state<>?",
-							new SingleColumnRowMapper<Integer>(Integer.class),
-							AppType.INITIAL.toString(), vo.getId(), actor, extSourceName, AppState.APPROVED.toString(), AppState.REJECTED.toString()));
-
-					if (!regs.isEmpty()) {
-						throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists", actor, extSourceName, regs.get(0));
-					}
-				}
-
-			}
-
-			// if false, throws exception with reason for GUI
-			membersManager.canBeMemberWithReason(sess, vo, user, String.valueOf(extSourceLoa));
-
-		}
-		// if extension, user != null !!
-		if (AppType.EXTENSION.equals(appType)) {
-
-			if (user == null) {
-				throw new RegistrarException("Trying to get extension application for non-existing user. Try to log-in with different identity known to Perun.");
-			}
-
-			if (form.getGroup() != null) {
-				throw new RegistrarException("You are already member of group "+form.getGroup().getShortName()+".");
-			}
-
-			// check for submitted registrations (only for VO)
-			List<Integer> regs = new ArrayList<Integer>();
-			regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
-					new SingleColumnRowMapper<Integer>(Integer.class),
-					AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.NEW.toString()));
-			regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
-					new SingleColumnRowMapper<Integer>(Integer.class),
-					AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.VERIFIED.toString()));
-			if (!regs.isEmpty()) {
-				// user have unprocessed application for group
-				throw new DuplicateRegistrationAttemptException("Extension application for VO: "+vo.getName()+" already exists.", actor, extSourceName, regs.get(0));
-			}
-
-			Member member = membersManager.getMemberByUser(sess, vo, user);
-			// if false, throws exception with reason for GUI
-			membersManager.canExtendMembershipWithReason(sess, member);
-			//sponsored members cannot be extended in this way
-			if(member.isSponsored()) {
-				throw new CantBeSubmittedException("Sponsored member cannot apply for membership extension, it must be extended by the sponsor.");
-			}
-		}
+		// throws exception if user couldn't submit application - no reason to get form
+		checkDuplicateRegistrationAttempt(sess, appType, form);
 
 		// PROCEED
 		Map<String, String> parsedName = extractNames(federValues);
@@ -2375,6 +2253,155 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// return prefilled form
 		return itemsWithValues;
+
+	}
+
+	/**
+	 * Check if user can submit application for specified form and type.
+	 * Performs check on VO/Group membership, VO expiration rules, form modules and duplicate (already submitted) applications.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param appType Type of application form
+	 * @param form Application form
+	 */
+	private void checkDuplicateRegistrationAttempt(PerunSession sess, AppType appType, ApplicationForm form) throws DuplicateRegistrationAttemptException, AlreadyRegisteredException, UserNotExistsException, PrivilegeException, VoNotExistsException, InternalErrorException, ExtendMembershipException, RegistrarException, MemberNotExistsException, CantBeSubmittedException {
+
+		Vo vo = form.getVo();
+		Group group = form.getGroup();
+
+		// get necessary params from session
+		User user = sess.getPerunPrincipal().getUser();
+		String actor = sess.getPerunPrincipal().getActor();
+		String extSourceName = sess.getPerunPrincipal().getExtSourceName();
+		int extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
+
+		if (AppType.INITIAL.equals(appType)) {
+
+			List<Integer> regs = new ArrayList<Integer>();
+			if (user != null) {
+				// user is known
+				try {
+					Member m = membersManager.getMemberByUser(registrarSession, vo, user);
+					if (group != null) {
+						// get members groups
+						List<Group> g = perun.getGroupsManager().getMemberGroups(registrarSession, m);
+						if (g.contains(group)) {
+							// user is member of group - can't post more initial applications
+							throw new AlreadyRegisteredException("You are already member of group "+group.getName()+".");
+						} else {
+							// user isn't member of group
+							regs.clear();
+							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
+									new SingleColumnRowMapper<Integer>(Integer.class),
+									AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
+							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
+									new SingleColumnRowMapper<Integer>(Integer.class),
+									AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
+							if (!regs.isEmpty()) {
+								// user have unprocessed application for group
+								throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
+							}
+							// pass if have approved or rejected app
+						}
+					} else {
+						// user is member of vo, can't post more initial applications
+						throw new AlreadyRegisteredException("You are already member of VO: "+vo.getName());
+					}
+				} catch (MemberNotExistsException ex) {
+					// user is not member of vo
+					if (group != null) {
+						// not member of VO - check for unprocessed applications to Group
+						regs.clear();
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
+								new SingleColumnRowMapper<Integer>(Integer.class),
+								AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
+								new SingleColumnRowMapper<Integer>(Integer.class),
+								AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
+						if (!regs.isEmpty()) {
+							// user have unprocessed application for group - can't post more
+							throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
+						}
+						//throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
+					} else {
+						// not member of VO - check for unprocessed applications
+						regs.clear();
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and state=? and (user_id=? or (created_by=? and extSourceName=?))",
+								new SingleColumnRowMapper<Integer>(Integer.class),
+								AppType.INITIAL.toString(), vo.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and state=? and (user_id=? or (created_by=? and extSourceName=?))",
+								new SingleColumnRowMapper<Integer>(Integer.class),
+								AppType.INITIAL.toString(), vo.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
+						if (!regs.isEmpty()) {
+							// user have unprocessed application for VO - can't post more
+							throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists.", actor, extSourceName, regs.get(0));
+						}
+						// pass not member and have only approved or rejected apps
+					}
+				}
+			} else {
+
+				// user is not known
+				if (group != null) {
+					// group application
+					// get registrations by user logged identity
+					regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and created_by=? and extSourceName=? and state<>? and state<>?",
+							new SingleColumnRowMapper<Integer>(Integer.class),
+							AppType.INITIAL.toString(), vo.getId(), group.getId(), actor, extSourceName, AppState.APPROVED.toString(), AppState.REJECTED.toString()));
+
+					if (!regs.isEmpty()) {
+						throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
+					}
+				} else {
+					// vo application
+					// get registrations by user logged identity
+					regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and created_by=? and extSourceName=? and state<>? and state<>?",
+							new SingleColumnRowMapper<Integer>(Integer.class),
+							AppType.INITIAL.toString(), vo.getId(), actor, extSourceName, AppState.APPROVED.toString(), AppState.REJECTED.toString()));
+
+					if (!regs.isEmpty()) {
+						throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists", actor, extSourceName, regs.get(0));
+					}
+				}
+
+			}
+
+			// if false, throws exception with reason for GUI
+			membersManager.canBeMemberWithReason(sess, vo, user, String.valueOf(extSourceLoa));
+
+		}
+		// if extension, user != null !!
+		if (AppType.EXTENSION.equals(appType)) {
+
+			if (user == null) {
+				throw new RegistrarException("Trying to get extension application for non-existing user. Try to log-in with different identity known to Perun.");
+			}
+
+			if (form.getGroup() != null) {
+				throw new RegistrarException("You are already member of group " + form.getGroup().getShortName() + ".");
+			}
+
+			// check for submitted registrations (only for VO)
+			List<Integer> regs = new ArrayList<Integer>();
+			regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+					new SingleColumnRowMapper<Integer>(Integer.class),
+					AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.NEW.toString()));
+			regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+					new SingleColumnRowMapper<Integer>(Integer.class),
+					AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.VERIFIED.toString()));
+			if (!regs.isEmpty()) {
+				// user have unprocessed application for group
+				throw new DuplicateRegistrationAttemptException("Extension application for VO: " + vo.getName() + " already exists.", actor, extSourceName, regs.get(0));
+			}
+
+			Member member = membersManager.getMemberByUser(sess, vo, user);
+			// if false, throws exception with reason for GUI
+			membersManager.canExtendMembershipWithReason(sess, member);
+			//sponsored members cannot be extended in this way
+			if (member.isSponsored()) {
+				throw new CantBeSubmittedException("Sponsored member cannot apply for membership extension, it must be extended by the sponsor.");
+			}
+		}
 
 	}
 
