@@ -29,6 +29,7 @@ public interface ExtSourcesManager {
 	public static final String EXTSOURCE_INTERNAL = "cz.metacentrum.perun.core.impl.ExtSourceInternal";
 	public static final String EXTSOURCE_ISMU = "cz.metacentrum.perun.core.impl.ExtSourceISMU";
 	public static final String EXTSOURCE_X509 = "cz.metacentrum.perun.core.impl.ExtSourceX509";
+	public static final String EXTSOURCE_REMS = "cz.metacentrum.perun.core.impl.ExtSourceREMS";
 
 	/**
 	 * Name of the LOCAL extSource, which is used for users without any external authentication.
