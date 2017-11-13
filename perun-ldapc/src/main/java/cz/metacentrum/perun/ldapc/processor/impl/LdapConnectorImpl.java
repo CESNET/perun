@@ -50,20 +50,20 @@ public class LdapConnectorImpl implements LdapConnector {
 		Attributes attributes = new BasicAttributes();
 
 		// Create the objectclass to add
-		Attribute objClasses = new BasicAttribute("objectClass");
-		objClasses.add("top");
-		objClasses.add("perunResource");
+		Attribute objClasses = new BasicAttribute(EventProcessorImpl.ldapAttrObjectClass);
+		objClasses.add(EventProcessorImpl.objectClassTop);
+		objClasses.add(EventProcessorImpl.objectClassPerunResource);
 
 		// Add attributes
 		attributes.put(objClasses);
-		attributes.put("cn", resource.getName());
-		attributes.put("perunResourceId", String.valueOf(resource.getId()));
-		attributes.put("perunFacilityId", String.valueOf(resource.getFacilityId()));
-		attributes.put("perunVoId", String.valueOf(resource.getVoId()));
-		if(resource.getDescription() != null && !resource.getDescription().isEmpty()) attributes.put("description", resource.getDescription());
+		attributes.put(EventProcessorImpl.ldapAttrCommonName, resource.getName());
+		attributes.put(EventProcessorImpl.ldapAttrPerunResourceId, String.valueOf(resource.getId()));
+		attributes.put(EventProcessorImpl.ldapAttrPerunFacilityId, String.valueOf(resource.getFacilityId()));
+		attributes.put(EventProcessorImpl.ldapAttrPerunVoId, String.valueOf(resource.getVoId()));
+		if(resource.getDescription() != null && !resource.getDescription().isEmpty()) attributes.put(EventProcessorImpl.ldapAttrDescription, resource.getDescription());
 
 		// get info about entityID attribute if exists
-		if(entityID != null) attributes.put("entityID", entityID);
+		if(entityID != null) attributes.put(EventProcessorImpl.ldapAttrEntityID, entityID);
 
 		// Create the entry
 		try {
@@ -95,20 +95,20 @@ public class LdapConnectorImpl implements LdapConnector {
 		Attributes attributes = new BasicAttributes();
 
 		// Create the objectclass to add
-		Attribute objClasses = new BasicAttribute("objectClass");
-		objClasses.add("top");
-		objClasses.add("perunGroup");
+		Attribute objClasses = new BasicAttribute(EventProcessorImpl.ldapAttrObjectClass);
+		objClasses.add(EventProcessorImpl.objectClassTop);
+		objClasses.add(EventProcessorImpl.objectClassPerunGroup);
 
 		// Add attributes
 		attributes.put(objClasses);
-		attributes.put("cn", group.getName());
-		attributes.put("perunGroupId", String.valueOf(group.getId()));
-		attributes.put("perunUniqueGroupName", new String(this.getVoShortName(group.getVoId()) + ":" + group.getName()));
-		attributes.put("perunVoId", String.valueOf(group.getVoId()));
-		if(group.getDescription() != null && !group.getDescription().isEmpty()) attributes.put("description", group.getDescription());
+		attributes.put(EventProcessorImpl.ldapAttrCommonName, group.getName());
+		attributes.put(EventProcessorImpl.ldapAttrPerunGroupId, String.valueOf(group.getId()));
+		attributes.put(EventProcessorImpl.ldapAttrPerunUniqueGroupName, new String(this.getVoShortName(group.getVoId()) + ":" + group.getName()));
+		attributes.put(EventProcessorImpl.ldapAttrPerunVoId, String.valueOf(group.getVoId()));
+		if(group.getDescription() != null && !group.getDescription().isEmpty()) attributes.put(EventProcessorImpl.ldapAttrDescription, group.getDescription());
 		if(group.getParentGroupId() != null) {
-			attributes.put("perunParentGroup", "perunGroupId=" + group.getParentGroupId().toString() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
-			attributes.put("perunParentGroupId", group.getParentGroupId().toString());
+			attributes.put(EventProcessorImpl.ldapAttrPerunParentGroup, EventProcessorImpl.ldapAttrPerunGroupId + "=" + group.getParentGroupId().toString() + "," + EventProcessorImpl.ldapAttrPerunVoId + "=" + group.getVoId() + "," + ldapProperties.getLdapBase());
+			attributes.put(EventProcessorImpl.ldapAttrPerunParentGroupId, group.getParentGroupId().toString());
 		}
 
 		// Create the entry
@@ -130,7 +130,7 @@ public class LdapConnectorImpl implements LdapConnector {
 		List<String> uniqueUsersIds = new ArrayList<String>();
 		uniqueUsersIds = this.getAllUniqueMembersInGroup(group.getId(), group.getVoId());
 		for(String s: uniqueUsersIds) {
-			Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
+			Attribute memberOf = new BasicAttribute(EventProcessorImpl.ldapAttrMemberOf, EventProcessorImpl.ldapAttrPerunGroupId + "=" + group.getId() + "," + EventProcessorImpl.ldapAttrPerunVoId + "=" + group.getVoId() + "," + ldapProperties.getLdapBase());
 			ModificationItem memberOfItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, memberOf);
 			this.updateUserWithUserId(s, new ModificationItem[] {memberOfItem});
 		}
@@ -152,7 +152,7 @@ public class LdapConnectorImpl implements LdapConnector {
 
 	public void addMemberToGroup(Member member, Group group) throws InternalErrorException {
 		//Add member to group
-		Attribute uniqueMember = new BasicAttribute("uniqueMember", "perunUserId=" + member.getUserId() + ",ou=People," + ldapProperties.getLdapBase());
+		Attribute uniqueMember = new BasicAttribute(EventProcessorImpl.ldapAttrUniqueMember, EventProcessorImpl.ldapAttrPerunUserId + "=" + member.getUserId() + "," + EventProcessorImpl.organizationalUnitPeople + "," + ldapProperties.getLdapBase());
 		ModificationItem uniqueMemberItem = new ModificationItem(DirContext.ADD_ATTRIBUTE, uniqueMember);
 		this.updateGroup(group, new ModificationItem[] {uniqueMemberItem});
 		//Add member to vo if this group is memebrsGroup
@@ -160,19 +160,19 @@ public class LdapConnectorImpl implements LdapConnector {
 			//Add info to vo
 			this.updateVo(group.getVoId(), new ModificationItem[] {uniqueMemberItem});
 			//Add info also to user
-			Attribute memberOfPerunVo = new BasicAttribute("memberOfPerunVo", String.valueOf(group.getVoId()));
+			Attribute memberOfPerunVo = new BasicAttribute(EventProcessorImpl.ldapAttrMemberOfPerunVo, String.valueOf(group.getVoId()));
 			ModificationItem memberOfPerunVoItem = new ModificationItem(DirContext.ADD_ATTRIBUTE, memberOfPerunVo);
 			this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfPerunVoItem});
 		}
 		//Add group info to member
-		Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
+		Attribute memberOf = new BasicAttribute("memberOf", EventProcessorImpl.ldapAttrPerunGroupId + "=" + group.getId() + "," + EventProcessorImpl.ldapAttrPerunVoId + "=" + group.getVoId() + "," + ldapProperties.getLdapBase());
 		ModificationItem memberOfItem = new ModificationItem(DirContext.ADD_ATTRIBUTE, memberOf);
 		this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfItem});
 	}
 
 	public void removeMemberFromGroup(Member member, Group group) throws InternalErrorException {
 		//Remove member from group
-		Attribute uniqueMember = new BasicAttribute("uniqueMember", "perunUserId=" + member.getUserId() + ",ou=People," + ldapProperties.getLdapBase());
+		Attribute uniqueMember = new BasicAttribute(EventProcessorImpl.ldapAttrUniqueMember, EventProcessorImpl.ldapAttrPerunUserId + "=" + member.getUserId() + "," + EventProcessorImpl.organizationalUnitPeople + "," + ldapProperties.getLdapBase());
 		ModificationItem uniqueMemberItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, uniqueMember);
 		this.updateGroup(group, new ModificationItem[] {uniqueMemberItem});
 		//Remove member from vo if this group is membersGroup
@@ -180,12 +180,12 @@ public class LdapConnectorImpl implements LdapConnector {
 			//Remove info from vo
 			this.updateVo(group.getVoId(), new ModificationItem[] {uniqueMemberItem});
 			//Remove also information from user
-			Attribute memberOfPerunVo = new BasicAttribute("memberOfPerunVo", String.valueOf(group.getVoId()));
+			Attribute memberOfPerunVo = new BasicAttribute(EventProcessorImpl.ldapAttrMemberOfPerunVo, String.valueOf(group.getVoId()));
 			ModificationItem memberOfPerunVoItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, memberOfPerunVo);
 			this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfPerunVoItem});
 		}
 		//Remove group info from member
-		Attribute memberOf = new BasicAttribute("memberOf", "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapProperties.getLdapBase());
+		Attribute memberOf = new BasicAttribute(EventProcessorImpl.ldapAttrMemberOf, EventProcessorImpl.ldapAttrPerunGroupId + "=" + group.getId() + "," + EventProcessorImpl.ldapAttrPerunVoId + "=" + group.getVoId() + "," + ldapProperties.getLdapBase());
 		ModificationItem memberOfItem = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, memberOf);
 		this.updateUserWithUserId(String.valueOf(member.getUserId()), new ModificationItem[] {memberOfItem});
 	}
@@ -195,7 +195,7 @@ public class LdapConnectorImpl implements LdapConnector {
 		String[] memberOfInformation = (String []) o;
 		if(memberOfInformation != null) {
 			for(String s: memberOfInformation) {
-				if(s.equals("perunGroupId="+group.getId()+",perunVoId="+group.getVoId()+"," + ldapProperties.getLdapBase())) return true;
+				if(s.equals(EventProcessorImpl.ldapAttrPerunGroupId + "=" + group.getId() + "," + EventProcessorImpl.ldapAttrPerunVoId + "=" + group.getVoId() + "," + ldapProperties.getLdapBase())) return true;
 			}
 		}
 		return false;
@@ -221,16 +221,16 @@ public class LdapConnectorImpl implements LdapConnector {
 		Attributes voAttributes = new BasicAttributes();
 
 		// Create the objectclass to add
-		Attribute voObjClasses = new BasicAttribute("objectClass");
-		voObjClasses.add("top");
-		voObjClasses.add("organization");
-		voObjClasses.add("perunVO");
+		Attribute voObjClasses = new BasicAttribute(EventProcessorImpl.ldapAttrObjectClass);
+		voObjClasses.add(EventProcessorImpl.objectClassTop);
+		voObjClasses.add(EventProcessorImpl.objectClassOrganization);
+		voObjClasses.add(EventProcessorImpl.objectClassPerunVO);
 
 		// Add attributes
 		voAttributes.put(voObjClasses);
-		voAttributes.put("o", vo.getShortName());
-		voAttributes.put("description", vo.getName());
-		voAttributes.put("perunVoId", String.valueOf(vo.getId()));
+		voAttributes.put(EventProcessorImpl.ldapAttrOrganization, vo.getShortName());
+		voAttributes.put(EventProcessorImpl.ldapAttrDescription, vo.getName());
+		voAttributes.put(EventProcessorImpl.ldapAttrPerunVoId, String.valueOf(vo.getId()));
 
 		// Create the entires
 		try {
@@ -277,14 +277,14 @@ public class LdapConnectorImpl implements LdapConnector {
 		Attributes attributes = new BasicAttributes();
 
 		// Create the objectclass to add
-		Attribute objClasses = new BasicAttribute("objectClass");
-		objClasses.add("top");
-		objClasses.add("person");
-		objClasses.add("organizationalPerson");
-		objClasses.add("inetOrgPerson");
-		objClasses.add("perunUser");
-		objClasses.add("tenOperEntry");
-		objClasses.add("inetUser");
+		Attribute objClasses = new BasicAttribute(EventProcessorImpl.ldapAttrObjectClass);
+		objClasses.add(EventProcessorImpl.objectClassTop);
+		objClasses.add(EventProcessorImpl.objectClassPerson);
+		objClasses.add(EventProcessorImpl.objectClassOrganizationalPerson);
+		objClasses.add(EventProcessorImpl.objectClassInetOrgPerson);
+		objClasses.add(EventProcessorImpl.objectClassPerunUser);
+		objClasses.add(EventProcessorImpl.objectClassTenOperEntry);
+		objClasses.add(EventProcessorImpl.objectClassInetUser);
 
 		String firstName = user.getFirstName();
 		String lastName = user.getLastName();
@@ -293,15 +293,15 @@ public class LdapConnectorImpl implements LdapConnector {
 
 		// Add attributes
 		attributes.put(objClasses);
-		attributes.put("entryStatus", "active");
-		attributes.put("sn", lastName);
-		attributes.put("cn", firstName + " " + lastName);
-		if(!firstName.isEmpty()) attributes.put("givenName", firstName);
-		attributes.put("perunUserId", String.valueOf(user.getId()));
-		if(user.isServiceUser()) attributes.put("isServiceUser", "1");
-		else attributes.put("isServiceUser", "0");
-		if(user.isSponsoredUser()) attributes.put("isSponsoredUser", "1");
-		else attributes.put("isSponsoredUser", "0");
+		attributes.put(EventProcessorImpl.ldapAttrEntryStatus, "active");
+		attributes.put(EventProcessorImpl.ldapAttrSurname, lastName);
+		attributes.put(EventProcessorImpl.ldapAttrCommonName, firstName + " " + lastName);
+		if(!firstName.isEmpty()) attributes.put(EventProcessorImpl.ldapAttrGivenName, firstName);
+		attributes.put(EventProcessorImpl.ldapAttrPerunUserId, String.valueOf(user.getId()));
+		if(user.isServiceUser()) attributes.put(EventProcessorImpl.ldapAttrIsServiceUser, "1");
+		else attributes.put(EventProcessorImpl.ldapAttrIsServiceUser, "0");
+		if(user.isSponsoredUser()) attributes.put(EventProcessorImpl.ldapAttrIsSponsoredUser, "1");
+		else attributes.put(EventProcessorImpl.ldapAttrIsSponsoredUser, "0");
 
 		// Create the entry
 		try {
@@ -327,28 +327,28 @@ public class LdapConnectorImpl implements LdapConnector {
 
 	public void updateUsersCertSubjects(String userId, String[] certSubjects) {
 		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
-		context.setAttributeValues("userCertificateSubject", certSubjects);
+		context.setAttributeValues(EventProcessorImpl.ldapAttrUserCertDNs, certSubjects);
 		ldapTemplate.modifyAttributes(context);
 		log.debug("Entry modified in LDAP: UserId {}.", userId);
 	}
 
 	public void updateUsersSchacHomeOrganizations(String userId, String[] organizations) {
 		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
-		context.setAttributeValues("schacHomeOrganizations", organizations);
+		context.setAttributeValues(EventProcessorImpl.ldapAttrSchacHomeOrganizations, organizations);
 		ldapTemplate.modifyAttributes(context);
 		log.debug("Entry modified in LDAP: UserId {}.", userId);
 	}
 
 	public void updateUsersEduPersonScopedAffiliations(String userId, String[] affiliations) {
 		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
-		context.setAttributeValues("eduPersonScopedAffiliations", affiliations);
+		context.setAttributeValues(EventProcessorImpl.ldapAttrEduPersonScopedAffiliations, affiliations);
 		ldapTemplate.modifyAttributes(context);
 		log.debug("Entry modified in LDAP: UserId {}.", userId);
 	}
 
 	public void updateUsersLibraryIds(String userId, String[] libraryIDs) {
 		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
-		context.setAttributeValues("libraryIDs", libraryIDs);
+		context.setAttributeValues(EventProcessorImpl.ldapAttrLibraryIDs, libraryIDs);
 		ldapTemplate.modifyAttributes(context);
 		log.debug("Entry modified in LDAP: UserId {}.", userId);
 	}
@@ -407,7 +407,7 @@ public class LdapConnectorImpl implements LdapConnector {
 		if(o != null) attrs = (Attributes) o;
 
 		if(attrs != null) {
-			Attribute a = attrs.get("userPassword");
+			Attribute a = attrs.get(EventProcessorImpl.ldapAttrUserPassword);
 			if(a != null) return true;
 		}
 		return false;
@@ -453,9 +453,9 @@ public class LdapConnectorImpl implements LdapConnector {
 	 */
 	private String getGroupDN(String voId, String groupId) {
 		return new StringBuffer()
-			.append("perunGroupId=")
+			.append(EventProcessorImpl.ldapAttrPerunGroupId + "=")
 			.append(groupId)
-			.append(",perunVoId=")
+			.append("," + EventProcessorImpl.ldapAttrPerunVoId + "=")
 			.append(voId)
 			.toString();
 	}
@@ -469,9 +469,9 @@ public class LdapConnectorImpl implements LdapConnector {
 	 */
 	private String getResourceDN(String voId, String resourceId) {
 		return new StringBuffer()
-			.append("perunResourceId=")
+			.append(EventProcessorImpl.ldapAttrPerunResourceId + "=")
 			.append(resourceId)
-			.append(",perunVoId=")
+			.append("," + EventProcessorImpl.ldapAttrPerunVoId + "=")
 			.append(voId)
 			.toString();
 	}
@@ -484,7 +484,7 @@ public class LdapConnectorImpl implements LdapConnector {
 	 */
 	private String getVoDNByVoId(String voId) {
 		return new StringBuffer()
-			.append("perunVoId=")
+			.append(EventProcessorImpl.ldapAttrPerunVoId + "=")
 			.append(voId)
 			.toString();
 	}
@@ -497,7 +497,7 @@ public class LdapConnectorImpl implements LdapConnector {
 	 */
 	private String getVoDNByShortName(String voShortName) {
 		return new StringBuffer()
-			.append("o=")
+			.append(EventProcessorImpl.ldapAttrOrganization + "=")
 			.append(voShortName)
 			.toString();
 	}
@@ -510,9 +510,9 @@ public class LdapConnectorImpl implements LdapConnector {
 	 */
 	private String getUserDN(String userId) {
 		return new StringBuffer()
-			.append("perunUserId=")
+			.append(EventProcessorImpl.ldapAttrPerunUserId + "=")
 			.append(userId)
-			.append(",ou=People")
+			.append("," + EventProcessorImpl.organizationalUnitPeople)
 			.toString();
 	}
 
@@ -524,7 +524,7 @@ public class LdapConnectorImpl implements LdapConnector {
 	private class UserMemberOfContextMapper implements ContextMapper {
 		public String[] mapFromContext(Object ctx) {
 			DirContextAdapter context = (DirContextAdapter)ctx;
-			String[] s=context.getStringAttributes("memberOf");
+			String[] s=context.getStringAttributes(EventProcessorImpl.ldapAttrMemberOf);
 			return s;
 		}
 	}
@@ -563,7 +563,7 @@ public class LdapConnectorImpl implements LdapConnector {
 	private class UserPerunUserIdContextMapper implements ContextMapper {
 		public String mapFromContext(Object ctx) {
 			DirContextAdapter context = (DirContextAdapter)ctx;
-			String s=context.getStringAttribute("perunUserId");
+			String s=context.getStringAttribute(EventProcessorImpl.ldapAttrPerunUserId);
 			return s;
 		}
 	}
@@ -589,7 +589,7 @@ public class LdapConnectorImpl implements LdapConnector {
 	private class GroupUniqueMemberOfContextMapper implements ContextMapper {
 		public String[] mapFromContext(Object ctx) {
 			DirContextAdapter context = (DirContextAdapter)ctx;
-			String[] s=context.getStringAttributes("uniqueMember");
+			String[] s=context.getStringAttributes(EventProcessorImpl.ldapAttrUniqueMember);
 			return s;
 		}
 	}
