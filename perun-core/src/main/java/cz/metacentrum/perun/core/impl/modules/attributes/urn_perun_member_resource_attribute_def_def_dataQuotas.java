@@ -25,15 +25,9 @@ public class urn_perun_member_resource_attribute_def_def_dataQuotas extends Reso
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		//needed variables with quota informations
-		Map<String, String> defaultQuotasMap = new HashMap<>();
-
 		//attribute can be null, it means there are no default settings on resource
 		if(attribute.getValue() == null) {
 			return;
-		} else {
-			//if not null, fill the value variable
-			defaultQuotasMap = (Map<String,String>) attribute.getValue();
 		}
 
 		//Check if every part of this map has the right pattern
