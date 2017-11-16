@@ -58,6 +58,11 @@ sub getAllowedMembers
 	return Perun::Common::callManagerMethod('getAllowedMembers', '[]Member', @_);
 }
 
+sub getAssignedMembers
+{
+	return Perun::Common::callManagerMethod('getAssignedMembers', '[]Member', @_);
+}
+
 sub getAllowedUsers
 {
 	return Perun::Common::callManagerMethod('getAllowedUsers', '[]User', @_);
