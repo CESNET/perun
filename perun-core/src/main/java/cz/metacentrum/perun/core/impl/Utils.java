@@ -66,6 +66,14 @@ public class Utils {
 		return str.replace(':', '-').replace(' ', '_');
 	}
 
+	public static <T> boolean hasDuplicate(List<T> all) {
+		Set<T> set = new HashSet<T>(all.size());
+		// Set#add returns false if the set does not change, which
+		// indicates that a duplicate element has been added.
+		for (T each: all) if (!set.add(each)) return true;
+		return false;
+	}
+
 	/**
 	 * Joins Strings or any objects into a String. Use as
 	 * <pre>
