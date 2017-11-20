@@ -463,4 +463,13 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 		this.indirectCheckable = checkable;
 	}
 
+	/**
+	 * Get table selection model.
+	 *
+	 * @return table selection model
+	 */
+	public MultiSelectionModel<RichMember> getSelectionModel() {
+		return this.selectionModel;
+	}
+
 }

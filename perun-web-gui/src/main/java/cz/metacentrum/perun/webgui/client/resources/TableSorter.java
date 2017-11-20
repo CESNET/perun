@@ -378,6 +378,24 @@ public class TableSorter<T> {
 				}
 				return result;
 
+			} else if (value.beanName == "MemberCandidate") {
+
+				result = "";
+
+				if (value.richUser != null) {
+					if (value.richUser.lastName) {
+						result += value.richUser.lastName;
+					}
+					if (value.richUser.lastName && value.richUser.firstName) { result += " "; }
+					if (value.richUser.firstName) {
+						result += value.richUser.firstName;
+					}
+				} else {
+					return value.candidate.lastName + " " + value.candidate.firstName;
+				}
+
+				return result;
+
 			} else if (value.beanName == "Author") {
 
 				result = "";

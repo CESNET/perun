@@ -27,13 +27,12 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.AddMember;
 import cz.metacentrum.perun.webgui.json.membersManager.CreateMember;
-import cz.metacentrum.perun.webgui.json.membersManager.FindCompleteRichMembers;
 import cz.metacentrum.perun.webgui.json.membersManager.GetCompleteRichMembers;
 import cz.metacentrum.perun.webgui.json.registrarManager.SendInvitation;
-import cz.metacentrum.perun.webgui.json.vosManager.FindCandidatesOrUsersToAddToVo;
-import cz.metacentrum.perun.webgui.model.Candidate;
+import cz.metacentrum.perun.webgui.json.vosManager.GetCompleteCandidates;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.Group;
+import cz.metacentrum.perun.webgui.model.MemberCandidate;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.model.User;
@@ -41,7 +40,6 @@ import cz.metacentrum.perun.webgui.tabs.MembersTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
-import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
@@ -83,7 +81,6 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 	private SimplePanel alreadyAdded = new SimplePanel();
 
 	private boolean search = true;
-	private boolean searchCandidates = false;
 
 	ScrollPanel sp = new ScrollPanel();
 	ScrollPanel sp2 = new ScrollPanel();
@@ -146,35 +143,24 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		final TabItem tab = this;
 
 		// CALLBACKS
-		final FindCompleteRichMembers findMembers;                            // for both
-		final GetCompleteRichMembers getAllMembers;                           // for both
-		final FindCandidatesOrUsersToAddToVo findCandidatesOrUsersToAddToVo;  // for VO/group admin differs search
+		final GetCompleteRichMembers getAllMembers;         // for both
+		final GetCompleteCandidates findCandidates;         // for VO/group admin differs search
 
 		// elements handled by callback events
-		final CustomButton searchButton = new CustomButton("Search in VO", ButtonTranslation.INSTANCE.searchMemberInVo(), SmallIcons.INSTANCE.findIcon());
-		final CustomButton searchGloballyButton = new CustomButton("Search globally", ButtonTranslation.INSTANCE.searchForMembersInExtSources(), SmallIcons.INSTANCE.findIcon());
+		final CustomButton searchButton = new CustomButton("Search", ButtonTranslation.INSTANCE.searchMemberInVo(), SmallIcons.INSTANCE.findIcon());
 		final CustomButton listAllButton = new CustomButton("List all VO members", ButtonTranslation.INSTANCE.listAllMembersInVo(), SmallIcons.INSTANCE.userGreenIcon());
 
 		final CheckBox disabled = new CheckBox(WidgetTranslation.INSTANCE.showDisabledMembers());
 
 		// search through whole VO
-		findMembers = new FindCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), "", null);
 		getAllMembers = new GetCompleteRichMembers(PerunEntity.VIRTUAL_ORGANIZATION, group.getVoId(), null);
+		findCandidates = new GetCompleteCandidates(group.getVoId(), group.getId(), "", null);
 
-		if (session.isVoAdmin(group.getVoId())) {
-			// will search vo ext sources and users
-			findCandidatesOrUsersToAddToVo = new FindCandidatesOrUsersToAddToVo(group.getVoId(), 0, "", null);
-		} else {
-			// will search group ext sources only
-			findCandidatesOrUsersToAddToVo = new FindCandidatesOrUsersToAddToVo(group.getVoId(), group.getId(), "", null);
-		}
-
-		final CellTable<Candidate> candidatesTable = findCandidatesOrUsersToAddToVo.getEmptyTable();
-
-		final CellTable<RichMember> table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
-			// when user click on a row -> open new tab
-			public void update(int index, RichMember object, RichMember value) {
-				session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), groupId));
+		final CellTable<MemberCandidate> candidatesTable = findCandidates.getEmptyTable();
+		final CellTable<RichMember> table = getAllMembers.getEmptyTable(new FieldUpdater<RichMember,RichMember>() {
+			@Override
+			public void update(int i, RichMember o, RichMember o2) {
+				session.getTabManager().addTab(new MemberDetailTabItem(o.getId(), groupId));
 			}
 		});
 
@@ -184,12 +170,11 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
 			public void searchFor(String text) {
 				searchString = text;
-				findMembers.searchFor(searchString);
+				findCandidates.searchFor(searchString);
 				search = true;
-				searchCandidates = false;
 				// remove previous table
 				firstTabPanel.getWidget(2).removeFromParent();
-				firstTabPanel.add(sp);
+				firstTabPanel.add(sp2);
 				UiElements.runResizeCommands(tab);
 			}
 		}, searchButton);
@@ -199,10 +184,10 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		searchBox.getTextBox().addKeyUpHandler(new KeyUpHandler() {
 			public void onKeyUp(KeyUpEvent event) {
 				if (!searchBox.getTextBox().getText().trim().isEmpty()) {
-					searchGloballyButton.setEnabled(true);
+					searchButton.setEnabled(true);
 					// do not trigger search on both !!
 				} else {
-					searchGloballyButton.setEnabled(false);
+					searchButton.setEnabled(false);
 				}
 			}
 		});
@@ -220,66 +205,15 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 				DomEvent.fireNativeEvent(Document.get().createKeyUpEvent(false, false, false, false, KeyCodes.KEY_DOWN), searchBox.getTextBox());
 			}
 		});
+
 		// button click triggers action
-		searchGloballyButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				if(UiElements.searchStingCantBeEmpty(searchBox.getTextBox().getText().trim())){
-					new PerunSearchEvent() {
-						public void searchFor(String text) {
-							searchString = text;
-							findCandidatesOrUsersToAddToVo.searchFor(searchString);
-							searchCandidates = true;
-							search = false;
-							// remove previous table
-							firstTabPanel.getWidget(2).removeFromParent();
-							firstTabPanel.add(sp2);
-							UiElements.runResizeCommands(tab);
-						}
-					}.searchFor(searchBox.getTextBox().getText().trim());
-				}
-			}
-		});
-		searchGloballyButton.setEnabled(false);
-
-		findMembers.setEvents(JsonCallbackEvents.disableButtonEvents(searchButton, new JsonCallbackEvents() {
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				// if found 1 item, select
-				listAllButton.setEnabled(true);
-				searchGloballyButton.setEnabled(true);
-				searchBox.getTextBox().setEnabled(true);
-				ArrayList<RichMember> list = JsonUtils.jsoAsList(jso);
-				if (list != null && list.size() == 1) {
-					findMembers.getSelectionModel().setSelected(list.get(0), true);
-				}
-			}
-
-			@Override
-			public void onError(PerunError error) {
-				listAllButton.setEnabled(true);
-				searchGloballyButton.setEnabled(true);
-				searchBox.getTextBox().setEnabled(true);
-			}
-
-			@Override
-			public void onLoadingStart() {
-				listAllButton.setEnabled(false);
-				searchGloballyButton.setEnabled(false);
-				disabled.setVisible(false);
-				searchBox.getTextBox().setEnabled(false);
-				addButton.setEnabled(false);
-				inviteButton.setEnabled(false);
-			}
-		}));
+		searchButton.setEnabled(false);
 
 		getAllMembers.setEvents(JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(listAllButton, JsonCallbackEvents.disableCheckboxEvents(disabled)),
 				new JsonCallbackEvents() {
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						// pass data to table handling callback
-						findMembers.onFinished(jso);
-						((AjaxLoaderImage) table.getEmptyTableWidget()).setEmptyResultMessage("VO has no members.");
 						searchButton.setEnabled(true);
 						searchBox.getTextBox().setEnabled(true);
 					}
@@ -287,7 +221,6 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 					@Override
 					public void onError(PerunError error) {
 						// pass data to table handling callback
-						findMembers.onError(error);
 						searchButton.setEnabled(true);
 						searchBox.getTextBox().setEnabled(true);
 					}
@@ -302,16 +235,19 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 					}
 				}));
 
-		findCandidatesOrUsersToAddToVo.setEvents(JsonCallbackEvents.disableButtonEvents(searchGloballyButton, new JsonCallbackEvents() {
+		findCandidates.setEvents(JsonCallbackEvents.disableButtonEvents(searchButton, new JsonCallbackEvents() {
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				// if found 1 item, select
 				listAllButton.setEnabled(true);
 				searchButton.setEnabled(true);
 				searchBox.getTextBox().setEnabled(true);
-				ArrayList<Candidate> list = JsonUtils.jsoAsList(jso);
-				if (list != null && list.size() == 1) {
-					findCandidatesOrUsersToAddToVo.setSelected(list.get(0));
+				if (findCandidates.getList().size() == 1) {
+					if (findCandidates.getList().get(0).getMember() == null ||
+							findCandidates.getList().get(0).getMember().getSourceGroupId() == 0) {
+						// select first if selectable
+						findCandidates.setSelected(findCandidates.getList().get(0));
+					}
 				}
 			}
 
@@ -341,7 +277,7 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		disabled.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				getAllMembers.excludeDisabled(!disabled.getValue());
-				findMembers.clearTable();
+				getAllMembers.clearTable();
 				getAllMembers.retrieveData();
 			}
 		});
@@ -350,11 +286,10 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				search = false;
-				searchCandidates = false;
 				searchString = "";
 				searchBox.getTextBox().setText("");
-				findMembers.clearTable();
-				findCandidatesOrUsersToAddToVo.clearTable();
+				getAllMembers.clearTable();
+				findCandidates.clearTable();
 				getAllMembers.retrieveData();
 				// remove previous table
 				firstTabPanel.getWidget(2).removeFromParent();
@@ -367,18 +302,21 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		addButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 
-				if (searchCandidates) {
+				if (search) {
 
 					// searched users or candidates
 
-					Candidate candidateToBeAdded = findCandidatesOrUsersToAddToVo.getSelected();
+					MemberCandidate candidateToBeAdded = findCandidates.getSelected();
 					if (candidateToBeAdded == null) {
 						UiElements.cantSaveEmptyListDialogBox(null);
 					} else {
-						if (candidateToBeAdded.getObjectType().equalsIgnoreCase("Candidate")) {
 
-							CreateMember request = new CreateMember(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents() {
-								private Candidate saveSelected;
+						if (candidateToBeAdded.getMember() != null) {
+
+							// person is already member of VO
+
+							AddMember request = new AddMember(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents() {
+								private MemberCandidate saveSelected;
 								@Override
 								public void onFinished(JavaScriptObject jso) {
 									// put names to already added
@@ -386,19 +324,50 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 										GeneralObject go = saveSelected.cast();
 										alreadyAddedList.add(go);
 									}
-									findCandidatesOrUsersToAddToVo.clearTableSelectedSet();
+									findCandidates.clearTableSelectedSet();
 									rebuildAlreadyAddedWidget();
 									// clear search
 									searchBox.getTextBox().setText("");
 								}
 								@Override
 								public void onLoadingStart() {
-									saveSelected = findCandidatesOrUsersToAddToVo.getSelected();
+									saveSelected = findCandidates.getSelected();
 								}
 							}));
-							request.createMember(group.getVoId(), group, candidateToBeAdded);
+							// reconstruct rich member, since call methods requires it
+							RichMember mem = candidateToBeAdded.getMember().cast();
+							mem.setUser(candidateToBeAdded.getRichUser());
+							mem.setObjectType("RichMember");
+							request.addMemberToGroup(group, mem);
+
+						} else if (candidateToBeAdded.getCandidate() != null) {
+
+							// person is not in Perun or candidate was found for existing user (not yet member of VO)
+
+							CreateMember request = new CreateMember(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents() {
+								private MemberCandidate saveSelected;
+								@Override
+								public void onFinished(JavaScriptObject jso) {
+									// put names to already added
+									if (saveSelected != null) {
+										GeneralObject go = saveSelected.cast();
+										alreadyAddedList.add(go);
+									}
+									findCandidates.clearTableSelectedSet();
+									rebuildAlreadyAddedWidget();
+									// clear search
+									searchBox.getTextBox().setText("");
+								}
+								@Override
+								public void onLoadingStart() {
+									saveSelected = findCandidates.getSelected();
+								}
+							}));
+							request.createMember(group.getVoId(), group, candidateToBeAdded.getCandidate());
 
 						} else {
+
+							// person is already user in Perun, no candidate was found
 
 							CreateMember request = new CreateMember(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
 								private User saveSelected;
@@ -408,7 +377,7 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 									if (saveSelected != null) {
 										GeneralObject go = saveSelected.cast();
 										alreadyAddedList.add(go);
-										findCandidatesOrUsersToAddToVo.clearTableSelectedSet();
+										findCandidates.clearTableSelectedSet();
 										rebuildAlreadyAddedWidget();
 										// clear search
 										searchBox.getTextBox().setText("");
@@ -416,22 +385,21 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 								}
 								@Override
 								public void onLoadingStart(){
-									Candidate cand = findCandidatesOrUsersToAddToVo.getSelected();
-									saveSelected = cand.cast();
+									MemberCandidate cand = findCandidates.getSelected();
+									saveSelected = cand.getRichUser();
 								}
 							}));
-							User user = candidateToBeAdded.cast();
+							User user = candidateToBeAdded.getRichUser();
 							request.createMember(group.getVoId(), group, user);
 
 						}
 
 					}
 
-
 				} else {
 
 					// searched members / all members
-					final ArrayList<RichMember> membersToAdd = findMembers.getTableSelectedList();
+					final ArrayList<RichMember> membersToAdd = getAllMembers.getTableSelectedList();
 					if (UiElements.cantSaveEmptyListDialogBox(membersToAdd)) {
 						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
 						for (int i = 0; i < membersToAdd.size(); i++) {
@@ -441,7 +409,7 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 								@Override
 								public void onFinished(JavaScriptObject jso) {
 									// unselect added person
-									findMembers.getSelectionModel().setSelected(saveSelected, false);
+									getAllMembers.getSelectionModel().setSelected(saveSelected, false);
 									// put names to already added
 									GeneralObject go = saveSelected.cast();
 									alreadyAddedList.add(go);
@@ -462,7 +430,6 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-		tabMenu.addWidget(searchGloballyButton);
 		tabMenu.addWidget(listAllButton);
 		tabMenu.addWidget(addButton);
 		tabMenu.addWidget(inviteButton);
@@ -471,46 +438,46 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 			@Override
 			public void onClick(ClickEvent event) {
 
-				if (searchCandidates) {
+				if (search) {
 
 					// we expect, that candidate is always single
-					Candidate candid = findCandidatesOrUsersToAddToVo.getSelected();
+					MemberCandidate candid = findCandidates.getSelected();
 					if (candid != null) {
 
-						if (candid.getObjectType().equalsIgnoreCase("Candidate")) {
+						if (candid.getCandidate() != null) {
 							SendInvitation invite = new SendInvitation(group.getVoId(), groupId);
 							invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteButton, new JsonCallbackEvents() {
 								@Override
 								public void onFinished(JavaScriptObject jso) {
-									findCandidatesOrUsersToAddToVo.clearTableSelectedSet();
+									findCandidates.clearTableSelectedSet();
 								}
 							}));
-							invite.inviteUser(candid);
+							invite.inviteUser(candid.getCandidate());
 						} else {
 							SendInvitation invite = new SendInvitation(group.getVoId(), groupId);
 							invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteButton, new JsonCallbackEvents() {
 								@Override
 								public void onFinished(JavaScriptObject jso) {
-									findCandidatesOrUsersToAddToVo.clearTableSelectedSet();
+									findCandidates.clearTableSelectedSet();
 								}
 							}));
-							User user = candid.cast();
+							User user = candid.getRichUser();
 							invite.inviteUser(user);
 						}
 					}
 
 				} else {
 
-					// members / all members
+					// all members
 
 					SendInvitation invite = new SendInvitation(group.getVoId(), groupId);
-					ArrayList<RichMember> usrs = findMembers.getTableSelectedList();
+					ArrayList<RichMember> usrs = getAllMembers.getTableSelectedList();
 					for (int i = 0; i < usrs.size(); i++) {
 						if (i == usrs.size() - 1) {
 							invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteButton, new JsonCallbackEvents() {
 								@Override
 								public void onFinished(JavaScriptObject jso) {
-									findMembers.clearTableSelectedSet();
+									getAllMembers.clearTableSelectedSet();
 								}
 							}));
 						} else {
@@ -537,11 +504,11 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.add(alreadyAdded);
 
 		addButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(findMembers, table, addButton);
 		inviteButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(findMembers, table, inviteButton);
-		JsonUtils.addTableManagedButton(findCandidatesOrUsersToAddToVo, candidatesTable, addButton);
-		JsonUtils.addTableManagedButton(findCandidatesOrUsersToAddToVo, candidatesTable, inviteButton);
+		JsonUtils.addTableManagedButton(getAllMembers, table, addButton);
+		JsonUtils.addTableManagedButton(getAllMembers, table, inviteButton);
+		JsonUtils.addTableManagedButton(findCandidates, candidatesTable, addButton);
+		JsonUtils.addTableManagedButton(findCandidates, candidatesTable, inviteButton);
 
 		table.addStyleName("perun-table");
 		sp.setWidget(table);
@@ -557,13 +524,11 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
 		// if not empty - start searching
 		if (search) {
-			findMembers.searchFor(searchString);
-			firstTabPanel.add(sp);
-		} else if (searchCandidates) {
-			findCandidatesOrUsersToAddToVo.searchFor(searchString);
+			findCandidates.searchFor(searchString);
 			firstTabPanel.add(sp2);
 		} else {
 			getAllMembers.excludeDisabled(!disabled.getValue());
+			getAllMembers.clearTable();
 			getAllMembers.retrieveData();
 			firstTabPanel.add(sp);
 		}
@@ -582,9 +547,13 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
 		alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
 		for (int i = 0; i < alreadyAddedList.size(); i++) {
-			if (alreadyAddedList.get(i).getObjectType().equals("Candidate")) {
-				Candidate c = alreadyAddedList.get(i).cast();
-				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + c.getFullName());
+			if (alreadyAddedList.get(i).getObjectType().equals("MemberCandidate")) {
+				MemberCandidate c = alreadyAddedList.get(i).cast();
+				if (c.getCandidate() != null) {
+					alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + c.getCandidate().getFullName());
+				} else {
+					alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + c.getRichUser().getFullName());
+				}
 			} else if (alreadyAddedList.get(i).getObjectType().equals("User") || alreadyAddedList.get(i).getObjectType().equals("RichUser")) {
 				User u = alreadyAddedList.get(i).cast();
 				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + u.getFullName());
