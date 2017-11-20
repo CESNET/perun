@@ -7,7 +7,9 @@ import java.util.Set;
 
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichUser;
@@ -240,6 +242,51 @@ public class VosManagerEntry implements VosManager {
 		}
 
 		return vosManagerBl.findCandidates(sess, group, searchString);
+	}
+
+	@Override
+	public List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString) throws InternalErrorException, VoNotExistsException, PrivilegeException {
+		Utils.notNull(searchString, "searchString");
+		Utils.notNull(sess, "sess");
+		Utils.notNull(vo, "vo");
+		Utils.notNull(attrNames, "attrNames");
+
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+			throw new PrivilegeException(sess, "getCompleteCandidates");
+		}
+
+		return vosManagerBl.getCompleteCandidates(sess, vo, attrNames, searchString);
+	}
+
+	@Override
+	public List<MemberCandidate> getCompleteCandidates(PerunSession sess, Group group, List<String> attrNames, String searchString) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
+		Utils.notNull(searchString, "searchString");
+		Utils.notNull(sess, "sess");
+		Utils.notNull(group, "group");
+		Utils.notNull(attrNames, "attrNames");
+
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+		List<ExtSource> extSources;
+
+		Vo vo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
+
+		// Authorization
+		if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)) {
+			extSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
+
+			// null the vo so users are searched in whole perun
+			vo = null;
+		} else if (AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			extSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
+		} else {
+			throw new PrivilegeException(sess, "getCompleteCandidates");
+		}
+
+		return vosManagerBl.getCompleteCandidates(sess, vo, group, attrNames, searchString, extSources);
 	}
 
 	public void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, PrivilegeException, AlreadyAdminException, VoNotExistsException, UserNotExistsException {

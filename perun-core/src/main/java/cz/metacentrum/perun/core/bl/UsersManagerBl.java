@@ -925,6 +925,17 @@ public interface UsersManagerBl {
 	List<RichUser> convertUsersToRichUsersWithAttributesByNames(PerunSession sess, List<User> users, List<String> attrNames) throws InternalErrorException;
 
 	/**
+	 * From User make Rich user (with attributes by names)
+	 *
+	 * @param sess session
+	 * @param user user to be converted
+	 * @param attrNames list of Strings with attribute names
+	 * @return RichUser with attributes
+	 * @throws InternalErrorException internal error
+	 */
+	RichUser convertUserToRichUserWithAttributesByNames(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException;
+
+	/**
 	 * For richUser filter all his user attributes and remove all which principal has no access to.
 	 *
 	 * @param sess

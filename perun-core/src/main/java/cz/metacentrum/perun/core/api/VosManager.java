@@ -164,6 +164,35 @@ public interface VosManager {
 	List<Candidate> findCandidates(PerunSession sess, Group group, String searchString) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 
 	/**
+	 * Finds MemberCandidates who can join the Vo.
+	 *
+	 * @param sess session
+	 * @param vo vo to be used
+	 * @param attrNames names of attributes that will be found
+	 * @param searchString depends on the extSource of the Group, could by part of the name, email or something like that.
+	 * @return list of MemberCandidates for given vo.
+	 * @throws InternalErrorException internal error
+	 * @throws VoNotExistsException when vo does not exist
+	 * @throws PrivilegeException privilege exception
+	 */
+	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Vo vo, List<String> attrNames, String searchString) throws InternalErrorException, VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Finds MemberCandidates who can join the Group.
+	 *
+	 * @param sess session
+	 * @param group group to be used
+	 * @param attrNames names of attributes that will be found
+	 * @param searchString depends on the extSource of the Group, could by part of the name, email or something like that.
+	 * @return list of MemberCandidates for given vo.
+	 * @throws InternalErrorException internal error
+	 * @throws GroupNotExistsException when group does not exist
+	 * @throws PrivilegeException privilege exception
+	 */
+	List<MemberCandidate> getCompleteCandidates(PerunSession sess, Group group, List<String> attrNames, String searchString) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
+
+
+	/**
 	 * Add a user administrator to the VO.
 	 *
 	 * @param perunSession

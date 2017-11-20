@@ -180,6 +180,47 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Find MemberCandidates for VO. MemberCandidates can be used to create new members. They are made of Candidate,
+	 * RichUser and Member objects. Candidates are searched in VO's external sources (if available). RichUsers are
+	 * searched in given VO and are associated with appropriate candidate and member. RichUsers for MemberCandidates
+	 * may also be searched in the whole Perun.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param attrNames List<String> list with names of attributes that should be find.
+	 * @param searchString String Text to search by
+	 * @throw VoNotExistsException When <code>id</code> of VO doesn't match any existing VO.
+	 * @return List<MemberCandidate> List of MemberCandidates
+	 */
+	/*#
+	 * Find MemberCandidates for GROUP. MemberCandidates can be used to create new members. They are made of Candidate,
+	 * RichUser and Member objects. Candidates are searched in VO's or GROUP's (depends on privileges) external sources
+	 * (if available). RichUsers are searched in given VO and are associated with appropriate candidate and member.
+	 * RichUsers for appropriate Candidate are also searched in the whole Perun.
+	 *
+	 * @param group int GROUP <code>id</code>
+	 * @param attrNames List<String> list with names of attributes that should be find.
+	 * @param searchString String Text to search by
+	 * @throw GroupNotExistsException When <code>id</code> of GROUP doesn't match any existing GROUP.
+	 * @return List<MemberCandidate> List of MemberCandidates
+	 */
+	getCompleteCandidates {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("vo")) {
+				return ac.getVosManager().getCompleteCandidates(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						parms.readList("attrNames", String.class),
+						parms.readString("searchString"));
+			} else {
+				return ac.getVosManager().getCompleteCandidates(ac.getSession(),
+						ac.getGroupById(parms.readInt("group")),
+						parms.readList("attrNames", String.class),
+						parms.readString("searchString"));
+			}
+		}
+	},
+
+	/*#
 	 * Gets count of all vos.
 
 	 * @return int vos count
