@@ -16,7 +16,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.membersManager.CreateMember;
 import cz.metacentrum.perun.webgui.json.registrarManager.SendInvitation;
-import cz.metacentrum.perun.webgui.json.vosManager.FindCandidatesOrUsersToAddToVo;
+import cz.metacentrum.perun.webgui.json.vosManager.GetCompleteCandidates;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.MembersTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -61,7 +61,7 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 	private String searchString = "";
 	private CustomButton addCandidatesButton;
 	private CustomButton inviteCandidatesButton;
-	private ArrayList<GeneralObject> alreadyAddedList = new ArrayList<GeneralObject>();
+	private ArrayList<MemberCandidate> alreadyAddedList = new ArrayList<MemberCandidate>();
 	private SimplePanel alreadyAdded = new SimplePanel();
 
 	/**
@@ -110,11 +110,11 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 		addCandidatesButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedCandidateToVo());
 		inviteCandidatesButton = new CustomButton("Invite selected", SmallIcons.INSTANCE.emailIcon());
 
-		final FindCandidatesOrUsersToAddToVo findAll = new FindCandidatesOrUsersToAddToVo(voId, 0, "");
+		final GetCompleteCandidates findAll = new GetCompleteCandidates(voId, 0, "");
 
 		final CustomButton searchButton = new CustomButton("Search", SmallIcons.INSTANCE.findIcon());
 
-		final CellTable<Candidate> candidatesTable = findAll.getEmptyTable();
+		final CellTable<MemberCandidate> candidatesTable = findAll.getEmptyTable();
 		final ScrollPanel scrollPanel = new ScrollPanel();
 
 		final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
@@ -133,7 +133,10 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 				searchBox.getTextBox().setEnabled(true);
 				// check in candidates table
 				if (findAll.getList().size() == 1) {
-					findAll.setSelected(findAll.getList().get(0));
+						if (findAll.getList().get(0).getMember() == null) {
+							// select first if selectable
+							findAll.setSelected(findAll.getList().get(0));
+						}
 				}
 				tabMenu.addWidget(2, addCandidatesButton);
 			}
@@ -157,10 +160,10 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 			public void onClick(ClickEvent event) {
 
 				// we expect, that candidate is always single
-				Candidate candid = findAll.getSelected();
+				MemberCandidate candid = findAll.getSelected();
 				if (candid != null) {
 
-					if (candid.getObjectType().equalsIgnoreCase("Candidate")) {
+					if (candid.getCandidate() != null) {
 						SendInvitation invite = new SendInvitation(voId, 0);
 						invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteCandidatesButton, new JsonCallbackEvents() {
 							@Override
@@ -168,7 +171,7 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 								findAll.clearTableSelectedSet();
 							}
 						}));
-						invite.inviteUser(candid);
+						invite.inviteUser(candid.getCandidate());
 					} else {
 						SendInvitation invite = new SendInvitation(voId, 0);
 						invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteCandidatesButton, new JsonCallbackEvents() {
@@ -177,7 +180,7 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 								findAll.clearTableSelectedSet();
 							}
 						}));
-						User user = candid.cast();
+						User user = candid.getRichUser();
 						invite.inviteUser(user);
 					}
 				}
@@ -195,21 +198,20 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 		// add candidate button
 		addCandidatesButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				Candidate candidateToBeAdded = findAll.getSelected();
+				MemberCandidate candidateToBeAdded = findAll.getSelected();
 				if (candidateToBeAdded == null) {
 					UiElements.cantSaveEmptyListDialogBox(null);
 				} else {
-					if (candidateToBeAdded.getObjectType().equalsIgnoreCase("Candidate")) {
+					if (candidateToBeAdded.getCandidate() != null) {
 
 						CreateMember request = new CreateMember(JsonCallbackEvents.disableButtonEvents(addCandidatesButton, new JsonCallbackEvents() {
-							private Candidate saveSelected;
+							private MemberCandidate saveSelected;
 
 							@Override
 							public void onFinished(JavaScriptObject jso) {
 								// put names to already added
 								if (saveSelected != null) {
-									GeneralObject go = saveSelected.cast();
-									alreadyAddedList.add(go);
+									alreadyAddedList.add(saveSelected);
 								}
 								findAll.clearTableSelectedSet();
 								rebuildAlreadyAddedWidget();
@@ -222,18 +224,17 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 								saveSelected = findAll.getSelected();
 							}
 						}));
-						request.createMember(voId, candidateToBeAdded);
+						request.createMember(voId, candidateToBeAdded.getCandidate());
 
 					} else {
 
 						CreateMember request = new CreateMember(JsonCallbackEvents.disableButtonEvents(addCandidatesButton, new JsonCallbackEvents(){
-							private User saveSelected;
+							private MemberCandidate saveSelected;
 							@Override
 							public void onFinished(JavaScriptObject jso) {
 								// put names to already added
 								if (saveSelected != null) {
-									GeneralObject go = saveSelected.cast();
-									alreadyAddedList.add(go);
+									alreadyAddedList.add(saveSelected);
 									findAll.clearTableSelectedSet();
 									rebuildAlreadyAddedWidget();
 									// clear search
@@ -242,11 +243,10 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 							}
 							@Override
 							public void onLoadingStart(){
-								Candidate cand = findAll.getSelected();
-								saveSelected = cand.cast();
+								saveSelected = findAll.getSelected();
 							}
 						}));
-						User user = candidateToBeAdded.cast();
+						User user = candidateToBeAdded.getRichUser();
 						request.createMember(voId, user);
 
 					}
@@ -289,13 +289,11 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 		alreadyAdded.setVisible(!alreadyAddedList.isEmpty());
 		alreadyAdded.setWidget(new HTML("<strong>Already added: </strong>"));
 		for (int i=0; i<alreadyAddedList.size(); i++) {
-
-			if (alreadyAddedList.get(i).getObjectType().equals("Candidate")) {
-				Candidate c = alreadyAddedList.get(i).cast();
-				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + c.getFullName());
+			MemberCandidate c = alreadyAddedList.get(i).cast();
+			if (c.getRichUser() != null) {
+				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + c.getRichUser().getFullName());
 			} else {
-				User u = alreadyAddedList.get(i).cast();
-				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + u.getFullName());
+				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + c.getCandidate().getFullName());
 			}
 		}
 

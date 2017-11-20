@@ -187,6 +187,17 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 			}
 		}
 
+		// member candidate is member or member of group (faked as editable)
+		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("MemberCandidate")) {
+			if(((MemberCandidate)value).getMember() != null && ((MemberCandidate)value).getMember().getSourceGroupId() != 0 && !editable){
+				sb.append(INPUT_DISABLED);
+				return;
+			} else if(((MemberCandidate)value).getMember() != null && editable){
+				sb.append(INPUT_DISABLED);
+				return;
+			}
+		}
+
 		// Get the view data.
 		Object key = context.getKey();
 		Boolean viewData = getViewData(key);
