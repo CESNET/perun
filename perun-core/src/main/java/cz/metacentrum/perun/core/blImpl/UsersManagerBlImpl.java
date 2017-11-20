@@ -809,6 +809,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		getUsersManagerImpl().checkUserExtSourceExists(sess, userExtSource);
 	}
 
+	public boolean checkUserExtSourceExistsById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
+		return getUsersManagerImpl().checkUserExtSourceExistsById(sess, id);
+	}
+
 	public boolean userExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
 		return getUsersManagerImpl().userExtSourceExists(sess, userExtSource);
 	}

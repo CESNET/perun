@@ -388,7 +388,7 @@ public interface UsersManagerImplApi {
 	boolean userExtSourceExists(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;
 
 	/**
-	 * Check if userExtSource exists in underlaying data source.
+	 * Check if userExtSource exists in underlaying data source by identity (login/extSource combination)
 	 *
 	 * @param perunSession
 	 * @param userExtSource
@@ -396,6 +396,15 @@ public interface UsersManagerImplApi {
 	 * @throws UserExtSourceNotExistsException
 	 */
 	void checkUserExtSourceExists(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException;
+
+	/**
+	 * Check if userExtSource exists in underlaying data source by its ID.
+	 *
+	 * @param perunSession
+	 * @param id
+	 * @throws InternalErrorException
+	 */
+	boolean checkUserExtSourceExistsById(PerunSession perunSession, int id) throws InternalErrorException;
 
 	/**
 	 * Returns list of VOs, where the user is an Administrator.

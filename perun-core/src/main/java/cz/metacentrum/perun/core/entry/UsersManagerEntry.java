@@ -362,9 +362,12 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "updateUserExtSource");
 		}
 
-		getUsersManagerBl().checkUserExtSourceExists(sess, userExtSource);
+		if (getUsersManagerBl().checkUserExtSourceExistsById(sess, userExtSource.getId())) {
+			return getUsersManagerBl().updateUserExtSource(sess, userExtSource);
+		} else {
+			throw new UserExtSourceNotExistsException("UserExtSource: " + userExtSource);
+		}
 
-		return getUsersManagerBl().updateUserExtSource(sess, userExtSource);
 	}
 
 	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {

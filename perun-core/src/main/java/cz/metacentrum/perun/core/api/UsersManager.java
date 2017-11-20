@@ -312,6 +312,7 @@ public interface UsersManager {
 
 	/**
 	 *  Updates user's userExtSource in DB.
+	 *  Login and LoA can be updated this way.
 	 *
 	 * @param perunSession
 	 * @param userExtSource

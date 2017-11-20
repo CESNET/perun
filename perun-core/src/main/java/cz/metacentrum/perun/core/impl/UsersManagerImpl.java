@@ -916,6 +916,16 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		if(!userExtSourceExists(sess, userExtSource)) throw new UserExtSourceNotExistsException("UserExtSource: " + userExtSource);
 	}
 
+	public boolean checkUserExtSourceExistsById(PerunSession sess, int id) throws InternalErrorException {
+
+		try {
+			return 1 == jdbc.queryForInt("select 1 from user_ext_sources where id=?", id);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+	}
+
 	public void checkReservedLogins(PerunSession sess, String namespace, String login) throws InternalErrorException, AlreadyReservedLoginException {
 		if(isLoginReserved(sess, namespace, login)) throw new AlreadyReservedLoginException(namespace, login);
 	}
@@ -939,32 +949,17 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		Utils.notNull(userExtSource.getLogin(), "userExtSource.getLogin");
 		Utils.notNull(userExtSource.getExtSource(), "userExtSource.getExtSource");
 
-		boolean exists = false;
 		try {
 
 			// check by ext identity (login/ext source ID)
 			if (userExtSource.getUserId() >= 0) {
-				exists = 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=? and user_id=?",
+				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=? and user_id=?",
 						userExtSource.getLogin(), userExtSource.getExtSource().getId(), userExtSource.getUserId());
 			} else {
-				exists = 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=?",
+				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=?",
 						userExtSource.getLogin(), userExtSource.getExtSource().getId());
 			}
 
-		} catch(EmptyResultDataAccessException ex) {
-			exists = false;
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-
-		try {
-			// check by UES ID if present in object
-			if (!exists && userExtSource.getId() > 0) {
-				exists = 1 == jdbc.queryForInt("select 1 from user_ext_sources where id=?",
-						userExtSource.getId());
-			}
-
-			return exists;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {

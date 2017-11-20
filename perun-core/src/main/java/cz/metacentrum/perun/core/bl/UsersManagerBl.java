@@ -891,6 +891,8 @@ public interface UsersManagerBl {
 
 	void checkUserExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException;
 
+	boolean checkUserExtSourceExistsById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException;
+
 	boolean userExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException;
 
 	/**
