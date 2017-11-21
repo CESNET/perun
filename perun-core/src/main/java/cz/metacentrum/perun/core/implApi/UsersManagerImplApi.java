@@ -403,8 +403,9 @@ public interface UsersManagerImplApi {
 	 * @param perunSession
 	 * @param id
 	 * @throws InternalErrorException
+	 * @throws UserExtSourceNotExistsException
 	 */
-	boolean checkUserExtSourceExistsById(PerunSession perunSession, int id) throws InternalErrorException;
+	void checkUserExtSourceExistsById(PerunSession perunSession, int id) throws InternalErrorException, UserExtSourceNotExistsException;
 
 	/**
 	 * Returns list of VOs, where the user is an Administrator.

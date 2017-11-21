@@ -916,10 +916,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		if(!userExtSourceExists(sess, userExtSource)) throw new UserExtSourceNotExistsException("UserExtSource: " + userExtSource);
 	}
 
-	public boolean checkUserExtSourceExistsById(PerunSession sess, int id) throws InternalErrorException {
+	public void checkUserExtSourceExistsById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
 
 		try {
-			return 1 == jdbc.queryForInt("select 1 from user_ext_sources where id=?", id);
+			boolean exists = 1 == jdbc.queryForInt("select 1 from user_ext_sources where id=?", id);
+			if (!exists) throw new UserExtSourceNotExistsException("UserExtSource with ID=" + id + " doesn't exists.");
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

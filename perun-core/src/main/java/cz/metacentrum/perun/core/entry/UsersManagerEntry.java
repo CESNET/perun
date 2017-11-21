@@ -362,11 +362,9 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "updateUserExtSource");
 		}
 
-		if (getUsersManagerBl().checkUserExtSourceExistsById(sess, userExtSource.getId())) {
-			return getUsersManagerBl().updateUserExtSource(sess, userExtSource);
-		} else {
-			throw new UserExtSourceNotExistsException("UserExtSource: " + userExtSource);
-		}
+		getUsersManagerBl().checkUserExtSourceExistsById(sess, userExtSource.getId());
+
+		return getUsersManagerBl().updateUserExtSource(sess, userExtSource);
 
 	}
 
