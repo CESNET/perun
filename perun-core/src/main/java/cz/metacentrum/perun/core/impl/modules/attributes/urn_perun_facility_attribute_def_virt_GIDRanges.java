@@ -1,0 +1,96 @@
+package cz.metacentrum.perun.core.impl.modules.attributes;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleImplApi;
+
+/**
+ * GID Ranges computed for specific namespace on chosen facility
+ *
+ * @author Michal Stava <stavamichal@gmail.com>
+ */
+public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVirtualAttributesModuleAbstract implements FacilityVirtualAttributesModuleImplApi {
+
+	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		try {
+			Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
+			if(gidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, gidNamespaceAttribute, "There is missing GID namespace on the facility.");
+			Attribute namespaceGIDRangesAttribute = getNamespaceGIDRangesAttribute(sess, (String) gidNamespaceAttribute.getValue());
+			sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, (String) gidNamespaceAttribute.getValue(), namespaceGIDRangesAttribute);
+		} catch(WrongReferenceAttributeValueException ex) {
+			throw new WrongReferenceAttributeValueException(attribute, ex.getReferenceAttribute());
+		}
+	}
+
+	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
+		Attribute attribute = new Attribute(attributeDefinition);
+		Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
+		if(gidNamespaceAttribute.getValue() == null) return attribute;
+		Attribute namespaceGIDRangesAttribute = getNamespaceGIDRangesAttribute(sess, (String) gidNamespaceAttribute.getValue());
+		attribute = Utils.copyAttributeToVirtualAttributeWithValue(namespaceGIDRangesAttribute, attribute);
+		return attribute;
+	}
+
+	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
+		if(gidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, gidNamespaceAttribute, "There is missing GID namespace on the facility.");
+		Attribute namespaceGIDRangesAttribute = getNamespaceGIDRangesAttribute(sess, (String) gidNamespaceAttribute.getValue());
+		if(! (attribute.getValue() == null ? namespaceGIDRangesAttribute.getValue() == null : attribute.getValue().equals(namespaceGIDRangesAttribute.getValue()))) {
+			//attribute from param have other value then physical attribute
+			throw new WrongReferenceAttributeValueException(attribute, namespaceGIDRangesAttribute, "You can't change attribute value of GID Ranges by changing value of virtual attribute.");
+		}
+		return false;
+	}
+
+	private Attribute getNamespaceGIDRangesAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException {
+		try {
+			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
+		} catch(AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	private Attribute getUnixGIDNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
+		try {
+			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+		} catch(AttributeNotExistsException ex) {
+			throw new InternalErrorException(ex);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> strongDependencies = new ArrayList<String>();
+		strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+		strongDependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
+		return strongDependencies;
+	}
+
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_VIRT);
+		attr.setFriendlyName("GIDRanges");
+		attr.setDisplayName("GID ranges in set namespace for the Facility");
+		attr.setType(List.class.getName());
+		attr.setDescription("Computed GID ranges in set namespace for the facility");
+		return attr;
+	}
+}
