@@ -56,12 +56,6 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_muTes
 		assertThat(attributeValue, equalTo(adName + "@group.muni.cz"));
 	}
 
-	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckNull() throws Exception {
-		System.out.println("testCheckNull()");
-		attributeToCheck.setValue(null);
-		classInstance.checkAttributeValue(session, resource, group, attributeToCheck);
-	}
 
 	@Test(expected = WrongAttributeValueException.class)
 	public void testCheckType() throws Exception {
@@ -83,6 +77,25 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_muTes
 		attributeToCheck.setValue(Arrays.asList("my@example.com", "aaa@bbb.com", "my@example.com"));
 		classInstance.checkAttributeValue(session, resource, group, attributeToCheck);
 	}
+
+	@Test(expected = WrongAttributeValueException.class)
+	public void testCheckValueExistIfAdNameSetWithNull() throws Exception {
+		System.out.println("testCheckValueExistIfAdNameSetWithNull()");
+		attributeToCheck.setValue(null);
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, resource, group, ADNAME_ATTRIBUTE).getValue())
+				.thenReturn(adName);
+		classInstance.checkAttributeValue(session, resource, group, attributeToCheck);
+	}
+
+	@Test
+	public void testCheckNullForNullAdName() throws Exception {
+		System.out.println("testCheckNullForNullAdName()");
+		attributeToCheck.setValue(null);
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, resource, group, ADNAME_ATTRIBUTE).getValue())
+				.thenReturn(null);
+		classInstance.checkAttributeValue(session, resource, group, attributeToCheck);
+	}
+
 
 	@Test(expected = WrongAttributeValueException.class)
 	public void testCheckValueExistIfAdNameSet() throws Exception {

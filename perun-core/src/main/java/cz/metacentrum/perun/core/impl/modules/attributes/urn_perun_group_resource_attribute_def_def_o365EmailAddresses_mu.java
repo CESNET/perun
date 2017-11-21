@@ -13,11 +13,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 
@@ -27,15 +27,15 @@ import static cz.metacentrum.perun.core.impl.Utils.hasDuplicate;
 /**
  * Module for email addresses for Office365 at Masaryk University.
  * Implements checks for attribute urn:perun:group-resource:attribute-def:def:o365EmailAddresses_mu.
- *
+ * <p>
  * Requirements:
  * <ul>
- *     <li>type is list</li>
- *     <li>all values are email addresses</li>
- *     <li>must contain at least one value if urn:perun:group-resource:attribute-def:def:adName is set</li>
- *     <li>no duplicates among the list values</li>
- *     <li>no duplicates among all values of this attribute and all values of
- *     attribute urn:perun:member:attribute-def:def:o365EmailAddresses:mu</li>
+ * <li>type is list</li>
+ * <li>all values are email addresses</li>
+ * <li>must contain at least one value if urn:perun:group-resource:attribute-def:def:adName is set</li>
+ * <li>no duplicates among the list values</li>
+ * <li>no duplicates among all values of this attribute and all values of
+ * attribute urn:perun:member:attribute-def:def:o365EmailAddresses:mu</li>
  * </ul>
  *
  * @author Martin Kuba &lt;makub@ics.muni.cz>
@@ -52,13 +52,14 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 		//get values
 		Object value = attribute.getValue();
 		if (value == null) {
-			throw new WrongAttributeValueException(attribute, resource, group, "can't be null.");
-		} else if (!(value instanceof List)) {
-			throw new WrongAttributeValueException(attribute, resource, group, "is of type " + value.getClass() + ", but should be ArrayList");
-		} else {
+			emails = Collections.emptyList();
+		} else if (value instanceof List) {
 			//noinspection unchecked
 			emails = (List<String>) value;
+		} else {
+			throw new WrongAttributeValueException(attribute, resource, group, "is of type " + value.getClass() + ", but should be ArrayList");
 		}
+		
 		//check syntax of all values
 		for (String email : emails) {
 			Matcher emailMatcher = emailPattern.matcher(email);
@@ -94,8 +95,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 		if (!NAMESPACE.equals(attrDef.getNamespace())) throw new WrongAttributeAssignmentException(attrDef);
 		try {
 			Attribute result = new Attribute(attrDef);
-			Object adName =
-					sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, ADNAME_ATTRIBUTE).getValue();
+			Object adName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, ADNAME_ATTRIBUTE).getValue();
 			if (adName != null && adName instanceof String) {
 				result.setValue(adName + "@group.muni.cz");
 			}
@@ -104,7 +104,6 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 			throw new InternalErrorException(e.getMessage(), e);
 		}
 	}
-
 
 
 	@Override
