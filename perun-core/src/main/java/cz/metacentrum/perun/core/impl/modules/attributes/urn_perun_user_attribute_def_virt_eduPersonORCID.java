@@ -27,7 +27,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCID extends UserVirtua
 	}
 
 	@Override
-	public String modifyValue(String value) {
+	public String modifyValue(ModifyValueContext ctx, String value) {
 		if(value.endsWith("@orcid")) {
 			return "http://orcid.org/"+StringUtils.substringBefore(value,"@");
 		} else {
