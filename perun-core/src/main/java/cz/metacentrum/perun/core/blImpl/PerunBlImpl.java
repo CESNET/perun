@@ -29,6 +29,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsExcepti
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -163,8 +164,8 @@ public class PerunBlImpl implements PerunBl {
 						}
 					}
 				}
-			} catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException e) {
-				// OK - We don't know user yet
+			} catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException | UserExtSourceExistsException e) {
+				// OK - We don't know user yet or we are modifying more than a LoA and we shouldn't !!
 			}
 		}
 		return perunSession;

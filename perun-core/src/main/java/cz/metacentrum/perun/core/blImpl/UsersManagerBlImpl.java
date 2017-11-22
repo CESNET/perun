@@ -460,7 +460,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return afterUpdatingUser;
 	}
 
-	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
+	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
 		getPerunBl().getAuditer().log(sess, "{} updated.", userExtSource);
 		return getUsersManagerImpl().updateUserExtSource(sess, userExtSource);
 	}
