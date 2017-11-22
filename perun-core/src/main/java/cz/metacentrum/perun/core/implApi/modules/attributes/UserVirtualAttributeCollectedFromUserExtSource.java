@@ -1,16 +1,12 @@
 package cz.metacentrum.perun.core.implApi.modules.attributes;
 
-import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_schacHomeOrganizations;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,16 +63,45 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource extends Use
 	 * Override this method if you need to modify the original values. The default implementation makes no modification.
 	 * Return null if the value should be skipped.
 	 *
+	 * @param ctx
 	 * @param value of userExtSource attribute
 	 * @return modified value or null to skip the value
 	 */
-	public String modifyValue(String value) {
+	public String modifyValue(ModifyValueContext ctx, String value) {
 		return value;
+	}
+
+	public static class ModifyValueContext {
+		private final PerunSessionImpl session;
+		private final User user;
+		private final AttributeDefinition destinationAttributeDefinition;
+
+		public ModifyValueContext(PerunSessionImpl session, User user, AttributeDefinition destinationAttributeDefinition) {
+			this.session = session;
+			this.user = user;
+			this.destinationAttributeDefinition = destinationAttributeDefinition;
+		}
+
+		public PerunSessionImpl getSession() {
+			return session;
+		}
+
+		public User getUser() {
+			return user;
+		}
+
+		public AttributeDefinition getDestinationAttributeDefinition() {
+			return destinationAttributeDefinition;
+		}
+	}
+
+	protected ModifyValueContext initModifyValueContext(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
+		return new ModifyValueContext(sess,user,destinationAttributeDefinition);
 	}
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
-
+		ModifyValueContext ctx = initModifyValueContext(sess,user,destinationAttributeDefinition);
 		Attribute destinationAttribute = new Attribute(destinationAttributeDefinition);
 		//for values use set because of avoiding duplicities
 		Set<String> valuesWithoutDuplicities = new HashSet<>();
@@ -93,7 +118,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource extends Use
 					//Apache mod_shib joins multiple values with ';', split them again
 					String[] rawValues = ((String) value).split(";");
 					//add non-null values returned by modifyValue()
-					Arrays.stream(rawValues).map(this::modifyValue).filter(Objects::nonNull).forEachOrdered(valuesWithoutDuplicities::add);
+					Arrays.stream(rawValues).map(v -> modifyValue(ctx, v)).filter(Objects::nonNull).forEachOrdered(valuesWithoutDuplicities::add);
 				}
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 				log.error("cannot read " + sourceAttributeFriendlyName + " from userExtSource " + userExtSource.getId() + " of user " + user.getId(), e);
