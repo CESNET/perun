@@ -50,8 +50,9 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 	@SuppressWarnings("unused")
 	@PostConstruct
 	private void init() throws Exception {
-
-		perunNotifPoolMessageDao.setAllCreatedToNow();
+		if (!perun.isPerunReadOnly()) {
+			perunNotifPoolMessageDao.setAllCreatedToNow();
+		}
 		session = NotifUtils.getPerunSession(perun);
 	}
 
