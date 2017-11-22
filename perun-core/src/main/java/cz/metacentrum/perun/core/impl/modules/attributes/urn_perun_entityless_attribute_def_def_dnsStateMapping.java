@@ -27,19 +27,19 @@ public class urn_perun_entityless_attribute_def_def_dnsStateMapping extends Enti
 	static String KEY = "config";
 
 	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		if(!KEY.equals(key)) {
+			throw new WrongAttributeValueException(attribute, key, "entityless key for this attribute must be " + KEY);
+		}
+
 		if(attribute.getValue() == null) return;
 		LinkedHashMap<String, String> map = (LinkedHashMap<String, String>) attribute.getValue();
 		if(map.isEmpty()) return;
 
-		if(!KEY.equals(key)) {
-			throw new WrongAttributeValueException(attribute, key, "entityless key for this attribute must be " + KEY);
-		}
 		//check keys and values
 		Set<String> mapKeys = map.keySet();
 		for(String mapKey : mapKeys) {
 			//check keys
 			if(mapKey == null) throw new WrongAttributeValueException(attribute, key, "Key in dnsStateMapping map can not be null.");
-			if(!mapKey.startsWith(".")) throw new WrongAttributeValueException(attribute, key, "Key in dnsStateMapping map must start with dot symbol ('.').");
 
 			//check values
 			String value = map.get(mapKey);
