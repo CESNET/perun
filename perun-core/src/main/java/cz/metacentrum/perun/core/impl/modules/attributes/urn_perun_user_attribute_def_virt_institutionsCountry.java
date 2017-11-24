@@ -30,7 +30,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountry extends UserV
 
 	@Override
 	public String getSourceAttributeFriendlyName() {
-		return "schacHomeOrganisation";
+		return "schacHomeOrganization";
 	}
 
 	@Override
