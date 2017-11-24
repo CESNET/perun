@@ -15,18 +15,20 @@ import java.util.Map;
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_dnsStateMapping.KEY;
 
 /**
- * Virtual user's attribute for 'converting' TLD/DNS name to specific country name.
+ * Virtual user's attribute for converting schacHomeOrganization names to country names.
  * Using help of entityless attribute dnsStateMapping for conversion.
  * Using the greedy approach -> always taking the longest match from the available ones.
+ * Returns only non-empty values.
  *
  * <BR>Examples:
  * <BR>muni.cz -> Czech Republic
  * <BR>oxford.ac.uk -> United Kingdom
- * <BR>.ebi.ac.uk -> ""
+ * <BR>.ebi.ac.uk -> null
  *
  * @author Vladimir Mecko vladimir.mecko@gmail.com
  */
-public class urn_perun_user_attribute_def_virt_institutionsCountry extends UserVirtualAttributeCollectedFromUserExtSource {
+@SuppressWarnings("unused")
+public class urn_perun_user_attribute_def_virt_institutionsCountries extends UserVirtualAttributeCollectedFromUserExtSource {
 
 	@Override
 	public String getSourceAttributeFriendlyName() {
@@ -35,7 +37,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountry extends UserV
 
 	@Override
 	public String getDestinationAttributeFriendlyName() {
-		return "institutionsCountry";
+		return "institutionsCountries";
 	}
 
 	@Override
@@ -46,23 +48,22 @@ public class urn_perun_user_attribute_def_virt_institutionsCountry extends UserV
 	private static class MyCtx extends ModifyValueContext {
 		Map<String, String> dnsMap;
 
-		public Map<String, String> getDnsMap() {
+		Map<String, String> getDnsMap() {
 			return dnsMap;
 		}
 
 		MyCtx(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
 			super(sess, user, destinationAttributeDefinition);
 			AttributesManagerBl am = sess.getPerunBl().getAttributesManagerBl();
-			Attribute dnsStateMapping = null;
 			try {
-				dnsStateMapping = am.getAttribute(sess, KEY, new urn_perun_entityless_attribute_def_def_dnsStateMapping().getAttributeDefinition().getName());
+				String dnsStateMappingName = new urn_perun_entityless_attribute_def_def_dnsStateMapping().getAttributeDefinition().getName();
+				Attribute dnsStateMapping = am.getAttribute(sess, KEY, dnsStateMappingName);
+				//noinspection unchecked
+				dnsMap = (Map<String, String>) dnsStateMapping.getValue();
 			} catch (InternalErrorException | AttributeNotExistsException | WrongAttributeAssignmentException e) {
 				throw new InternalErrorException(e);
 			}
-			//noinspection unchecked
-			dnsMap = (Map<String, String>) dnsStateMapping.getValue();
 		}
-
 	}
 
 	@Override
@@ -73,6 +74,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountry extends UserV
 	@Override
 	public String modifyValue(ModifyValueContext ctx, String value) {
 		Map<String, String> dnsMap = ((MyCtx) ctx).getDnsMap();
+		//find the longest matching key
 		int matchLength = 0;
 		String match = null;
 		for (String mapkey : dnsMap.keySet()) {
@@ -81,6 +83,10 @@ public class urn_perun_user_attribute_def_virt_institutionsCountry extends UserV
 				match = mapkey;
 			}
 		}
-		return match == null ? "" : dnsMap.get(match);
+		//not found, return null to skip the value
+		if (match == null) return null;
+		//for empty country names, return null to skip the value
+		String country = dnsMap.get(match);
+		return "".equals(country) ? null : country;
 	}
 }
