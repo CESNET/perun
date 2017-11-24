@@ -427,4 +427,33 @@ public interface ModulesUtilsBl {
 	 */
 	User getUserFromMessage(PerunSessionImpl sess, String message) throws InternalErrorException;
 
+	/**
+	 * Take attribute with gidRanges value (map of strings) and check if all records of this value are valid ranges.
+	 * Valid range is from minimum to maximum where minimum must be less or equal to maximum. If minimum and maximum
+	 * are equal, the interval has exactly one element. If all ranges are valid, it also checks if there is any
+	 * overlap between ranges. If yes, it throws an error.
+	 *
+	 * If every check is ok, it will return map of integer values where records are ranges, in keys are minimums of
+	 * these ranges, in values are maximum of these ranges and there are no overlaps between any two ranges in map.
+	 *
+	 * Attribute in parameter of this method can't be null but can have null value which returns empty map.
+	 *
+	 * If there are empty or null elements (value or key) in map it will throw an exception.
+	 * If any of minimums and maximums is not a number (convertible to Java Integer) it will throw an exception.
+	 * If any of minimums is less than 1 it also throw an exception.
+	 * If one of ranges is not correct range (minimum is not less or equal to maximum) it will throw an exception.
+	 * If there are any overlaps between two or more ranges, it will throw an exception - ex. 100-102 and 101-103.
+	 *
+	 * Example of valid format of range:
+	 * key='100', value='1000' - range from 100 to 1000 included
+	 * key='1', value ='1' - range with exactly one gid with number "1"
+	 *
+	 * @param gidRangesAttribute attribute with gid ranges value (map of ranges as strings)
+	 *
+	 * @return map of valid ranges without overlaps
+	 *
+	 * @throws InternalErrorException if attribute in parameter of method is null
+	 * @throws WrongAttributeValueException if value of attribute in parameter does not contain valid ranges without overlaps
+	 */
+	Map<Integer, Integer> checkAndConvertGIDRanges(Attribute gidRangesAttribute) throws InternalErrorException, WrongAttributeValueException;
 }
