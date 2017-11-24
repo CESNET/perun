@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
@@ -1035,6 +1036,56 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		}
 
 		return user;
+	}
+
+	public Map<Integer, Integer> checkAndConvertGIDRanges(Attribute gidRangesAttribute) throws InternalErrorException, WrongAttributeValueException {
+		//Prepare structure for better working with GID Ranges
+		Map<Integer, Integer> convertedRanges = new HashMap<>();
+
+		//For null attribute throw an exception
+		if(gidRangesAttribute == null) throw new InternalErrorException("Can't get value from null attribute!");
+
+		Map<String, String> gidRanges = (LinkedHashMap) gidRangesAttribute.getValue();
+
+		//Return empty map if there is empty input of gidRanges in method parameters
+		if(gidRanges == null || gidRanges.isEmpty()) return convertedRanges;
+
+		//Check every range if it is in correct format and it is valid range
+		for(String minimumOfRange: gidRanges.keySet()) {
+			//Check not null
+			if(minimumOfRange == null || minimumOfRange.isEmpty()) throw new WrongAttributeValueException(gidRangesAttribute, "Minimum in one of gid ranges is empty!");
+			String maximumOfRange = gidRanges.get(minimumOfRange);
+			if(maximumOfRange == null || maximumOfRange.isEmpty()) throw new WrongAttributeValueException(gidRangesAttribute, "Maximum in one of gid ranges is empty!");
+
+			//Transfer string to numbers
+			Integer minimum;
+			Integer maximum;
+
+			try {
+				minimum = Integer.valueOf(minimumOfRange);
+				maximum = Integer.valueOf(maximumOfRange);
+			} catch (NumberFormatException ex) {
+				throw new WrongAttributeValueException(gidRangesAttribute, "Min or max value of some range is not correct number format.");
+			}
+
+			//Check if min value from range is bigger than 0
+			if(minimum < 1) throw new WrongAttributeValueException(gidRangesAttribute, "Minimum of one of gid ranges is less than 0.");
+
+			//Check if it is correct range
+			if(minimum>maximum) throw new WrongAttributeValueException(gidRangesAttribute, "One of gid ranges is not correct range. Minimum of this range is bigger then it's maximum.");
+
+			//Put this valid range to the map of correct gid ranges
+			convertedRanges.put(minimum, maximum);
+		}
+
+		//Check gid ranges overlaps (there should be no overlaps)
+		Integer lastMaxValue = 0;
+		for(Integer minValue: convertedRanges.keySet().stream().sorted().collect(Collectors.toList())) {
+			if(minValue <= lastMaxValue) throw new WrongAttributeValueException(gidRangesAttribute, "There is an overlap between two gid ranges.");
+			lastMaxValue = convertedRanges.get(minValue);
+		}
+
+		return convertedRanges;
 	}
 
 	public PerunBl getPerunBl() {

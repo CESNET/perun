@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -545,7 +547,140 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		modulesUtilsBl.checkFormatOfShell(shell, attr);
 	}
 
+	@Test
+	public void checkAndConvertGIDRangesWhenAllIsOK() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenAllIsOK");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		Map<Integer, Integer> convertedMap = modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+		assertEquals(value.size(), convertedMap.size());
+		for(Integer minimum : convertedMap.keySet()) {
+			assertTrue(value.containsKey(minimum.toString()));
+			assertEquals(value.get(minimum.toString()), convertedMap.get(minimum).toString());
+		}
+	}
+
+	@Test(expected=InternalErrorException.class)
+	public void checkAndConvertGIDRangesWhenNullAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenNullAttribute");
+		modulesUtilsBl.checkAndConvertGIDRanges(null);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkAndConvertGIDRangesWhenEmptyValue() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenEmptyValue");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		value.put("7", "");
+		attribute.setValue(value);
+		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkAndConvertGIDRangesWhenNullValue() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenNullValue");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		value.put("7", null);
+		attribute.setValue(value);
+		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkAndConvertGIDRangesWhenEmptyKey() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenEmptyKey");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		value.put("", "7");
+		attribute.setValue(value);
+		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkAndConvertGIDRangesWhenNullKey() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenNullKey");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		value.put(null, "7");
+		attribute.setValue(value);
+		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkAndConvertGIDRangesWhenBadMinimum1() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenBadMinimum1");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		value.put("0", "0");
+		attribute.setValue(value);
+		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkAndConvertGIDRangesWhenBadMinimum2() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenBadMinimum2");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		value.put("-5", "-1");
+		attribute.setValue(value);
+		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkAndConvertGIDRangesWhenMaximumLessThanMinimum() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenMaximumLessThanMinimum");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		value.put("9", "8");
+		attribute.setValue(value);
+		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkAndConvertGIDRangesWhenKeyIsNotNumber() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenKeyIsNotNumber");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		value.put("6s", "7");
+		attribute.setValue(value);
+		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkAndConvertGIDRangesWhenValueIsNotNumber() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenValueIsNotNumber");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		value.put("6", "s7");
+		attribute.setValue(value);
+		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkAndConvertGIDRangesWhenOverlapExist() throws Exception {
+		System.out.println(CLASS_NAME + "checkAndConvertGIDRangesWhenValueIsNotNumber");
+		Attribute attribute = getGIDRangesAttributeWithValidValue();
+		Map<String, String> value = (LinkedHashMap) attribute.getValue();
+		value.put("2000", "3000");
+		attribute.setValue(value);
+		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
+	}
+
 	// private methods ------------------------------------------------------------------
+
+	private Attribute getGIDRangesAttributeWithValidValue() {
+
+		Attribute attribute = new Attribute((new urn_perun_entityless_attribute_def_def_namespace_GIDRanges()).getAttributeDefinition());
+
+		Map<String, String> gidRanges = new LinkedHashMap<>();
+		gidRanges.put("1000", "10000");
+		gidRanges.put("10001", "10002");
+		gidRanges.put("5", "5");
+		gidRanges.put("1", "1");
+		attribute.setValue(gidRanges);
+
+		return attribute;
+	}
 
 	private Vo setUpVo() throws Exception {
 
