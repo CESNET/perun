@@ -99,8 +99,9 @@ public class VosManagerImpl implements VosManagerImplApi {
 		Utils.notNull(vo.getShortName(), "vo.getShortName()");
 
 
-		// Check if the Vo already exists
+		// Check if the Vo already exists (first check by ID, second by shortName attribute
 		if (this.voExists(sess, vo)) throw new VoExistsException(vo.toString());
+		if (this.shortNameForVoExists(sess, vo)) throw new VoExistsException(vo.toString());
 
 		// Get VO ID
 		int voId;
@@ -251,6 +252,17 @@ public class VosManagerImpl implements VosManagerImplApi {
 		Utils.notNull(vo, "vo");
 		try {
 			return 1 == jdbc.queryForInt("select 1 from vos where id=?", vo.getId());
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public boolean shortNameForVoExists(PerunSession sess, Vo vo) throws InternalErrorException {
+		Utils.notNull(vo, "vo");
+		try{
+			return 1 == jdbc.queryForInt("select 1 from vos where short_name=?", vo.getShortName());
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
