@@ -25,6 +25,7 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.CreateGroupTabItem;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.GroupDetailTabItem;
+import cz.metacentrum.perun.webgui.tabs.groupstabs.MoveGroupsTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
@@ -140,6 +141,15 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		});
 		menu.addWidget(removeButton);
 
+		CustomButton moveButton = TabMenu.getPredefinedButton(ButtonType.MOVE, true, ButtonTranslation.INSTANCE.moveGroup(), new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				final ArrayList<RichGroup> groupsToMove = groups.getTableSelectedList();
+				session.getTabManager().addTabToCurrentTab(new MoveGroupsTabItem(vo, groupsToMove));
+			}
+		});
+		if (!session.isVoAdmin(voId)) moveButton.setEnabled(false);
+		menu.addWidget(moveButton);
+
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
 			public void searchFor(String text) {
@@ -166,6 +176,7 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 
 		removeButton.setEnabled(false);
 		if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(groups, table, removeButton);
+		if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(groups, table, moveButton);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 

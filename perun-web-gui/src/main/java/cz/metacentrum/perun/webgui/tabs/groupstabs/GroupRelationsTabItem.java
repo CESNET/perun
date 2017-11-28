@@ -256,7 +256,7 @@ public class GroupRelationsTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupGoIcon();
+		return SmallIcons.INSTANCE.groupLinkIcon();
 	}
 
 	@Override

@@ -34,6 +34,9 @@ public interface ButtonTranslation extends Messages {
 	@DefaultMessage("Remove{0}")
 	String removeButtonWhat(String what);
 
+	@DefaultMessage("Move")
+	String moveButton();
+
 	@DefaultMessage("Delete")
 	String deleteButton();
 
@@ -431,6 +434,9 @@ public interface ButtonTranslation extends Messages {
 
 	@DefaultMessage("Delete selected sub-groups")
 	String deleteSubGroup();
+
+	@DefaultMessage("Move selected groups")
+	String moveGroup();
 
 	@DefaultMessage("Filter groups by name")
 	String filterGroup();

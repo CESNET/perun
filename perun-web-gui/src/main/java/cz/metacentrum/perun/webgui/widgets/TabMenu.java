@@ -381,6 +381,8 @@ public class TabMenu extends Composite {
 			return translation.removeButton();
 		} else if (ButtonType.DELETE.equals(type)) {
 			return translation.deleteButton();
+		} else if (ButtonType.MOVE.equals(type)) {
+			return translation.moveButton();
 		} else if (ButtonType.SAVE.equals(type)) {
 			return translation.saveButton();
 		} else if (ButtonType.SEARCH.equals(type)) {
@@ -443,6 +445,8 @@ public class TabMenu extends Composite {
 			return icons.deleteIcon();
 		} else if (ButtonType.DELETE.equals(type)) {
 			return icons.deleteIcon();
+		} else if (ButtonType.MOVE.equals(type)) {
+			return icons.arrowRightIcon();
 		} else if (ButtonType.SAVE.equals(type)) {
 			return icons.diskIcon();
 		} else if (ButtonType.SEARCH.equals(type)) {
