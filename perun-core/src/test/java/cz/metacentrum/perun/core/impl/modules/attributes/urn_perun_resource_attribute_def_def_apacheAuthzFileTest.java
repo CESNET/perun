@@ -44,4 +44,12 @@ public class urn_perun_resource_attribute_def_def_apacheAuthzFileTest {
 		attr.setValue("pathToFile");
 		authzFileAttr.checkAttributeValue(ps, new Resource(), attr);
 	}
+
+	@Test(expected = WrongAttributeValueException.class)
+	public void checkAttributeEndingWithSlash() throws Exception {
+		System.out.println("checkAttributeEndingWithSlash()");
+		final Attribute attr = new Attribute();
+		attr.setValue("/ending/with/slash/");
+		authzFileAttr.checkAttributeValue(ps, new Resource(), attr);
+	}
 }
