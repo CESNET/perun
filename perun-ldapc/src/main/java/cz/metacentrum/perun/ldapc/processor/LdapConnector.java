@@ -88,6 +88,16 @@ public interface LdapConnector {
 	 */
 	public void addGroupAsSubGroup(Group group, Group parentGroup) throws InternalErrorException;
 
+	/**
+	 * Return true if group attribute with ldapAttributeName in ldap exists - it is set for group.
+	 *
+	 * @param group group in perun
+	 * @param ldapAttributeName name of group ldap attribute
+	 * @return true if attribute in ldap exists, false if not
+	 * @throws InternalErrorException if ldapAttributeName is null
+	 */
+	public boolean groupAttributeExist(Group group, String ldapAttributeName) throws InternalErrorException;
+
 	//-----------------------------MEMBER METHODS---------------------------------
 	/**
 	 * Add member to group in LDAP.

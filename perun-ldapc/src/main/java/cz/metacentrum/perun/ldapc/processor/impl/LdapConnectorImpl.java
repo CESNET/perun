@@ -380,7 +380,7 @@ public class LdapConnectorImpl implements LdapConnector {
 		Object o = null;
 		try {
 			setLdapAttributeName(ldapAttributeName);
-			o = ldapTemplate.lookup(getUserDN(String.valueOf(user.getId())), new UserPerunUserAttributeContextMapper());
+			o = ldapTemplate.lookup(getUserDN(String.valueOf(user.getId())), new AttributeContextMapper());
 		} catch (NameNotFoundException ex) {
 			return false;
 		}
@@ -393,7 +393,19 @@ public class LdapConnectorImpl implements LdapConnector {
 		Object o = null;
 		try {
 			setLdapAttributeName(ldapAttributeName);
-			o = ldapTemplate.lookup(getResourceDN(String.valueOf(resource.getVoId()), String.valueOf(resource.getId())), new ResourcePerunResourceAttributeContextMapper());
+			o = ldapTemplate.lookup(getResourceDN(String.valueOf(resource.getVoId()), String.valueOf(resource.getId())), new AttributeContextMapper());
+		} catch (NameNotFoundException ex) {
+			return false;
+		}
+		if(o == null) return false;
+		return true;
+	}
+
+	public boolean groupAttributeExist(Group group, String ldapAttributeName) throws InternalErrorException {
+		Object o = null;
+		try {
+			setLdapAttributeName(ldapAttributeName);
+			o = ldapTemplate.lookup(getGroupDN(String.valueOf(group.getVoId()), String.valueOf(group.getId())), new AttributeContextMapper());
 		} catch (NameNotFoundException ex) {
 			return false;
 		}
@@ -543,19 +555,6 @@ public class LdapConnectorImpl implements LdapConnector {
 	}
 
 	/**
-	 * User attribute 'any' context Mapper (the name of attribute is in variable 'ldapAttributeName'
-	 *
-	 * Context mapper is used for choosing concrete attribute.
-	 */
-	private class UserPerunUserAttributeContextMapper implements ContextMapper {
-		public String mapFromContext(Object ctx) {
-			DirContextAdapter context = (DirContextAdapter)ctx;
-			String s=context.getStringAttribute(getLdapAttributeName());
-			return s;
-		}
-	}
-
-	/**
 	 * User attribute 'perunUserId' context Mapper
 	 *
 	 * Context mapper is used for choosing concrete attribute.
@@ -595,11 +594,11 @@ public class LdapConnectorImpl implements LdapConnector {
 	}
 
 	/**
-	 * Resource attribute 'any' context Mapper (the name of attribute is in variable 'ldapAttributeName'
+	 * Any attribute context Mapper (the name of attribute is in variable 'ldapAttributeName'
 	 *
-	 * Context mapper is used for choosing concrete attribute.
+	 * Context mapper is used for choosing concrete attribute from existing LDAP object
 	 */
-	private class ResourcePerunResourceAttributeContextMapper implements ContextMapper {
+	private class AttributeContextMapper implements ContextMapper {
 		public String mapFromContext(Object ctx) {
 			DirContextAdapter context = (DirContextAdapter)ctx;
 			String s=context.getStringAttribute(getLdapAttributeName());
