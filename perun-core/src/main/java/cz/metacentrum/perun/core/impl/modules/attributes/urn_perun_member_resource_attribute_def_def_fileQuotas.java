@@ -4,16 +4,24 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberAttributesModuleImplApi;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +30,8 @@ import java.util.Map;
  * @author Michal Stava stavamichal@gmail.com
  */
 public class urn_perun_member_resource_attribute_def_def_fileQuotas extends ResourceMemberAttributesModuleAbstract implements ResourceMemberAttributesModuleImplApi {
+
+	public static final String A_R_maxUserFileQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":maxUserFileQuotas";
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
@@ -32,7 +42,41 @@ public class urn_perun_member_resource_attribute_def_def_fileQuotas extends Reso
 
 		//Check if every part of this map has the right pattern
 		//And also check if every quota part has right settings (softQuota<=hardQuota)
-		perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, member, resource, false);
+		Map<String, Pair<BigDecimal, BigDecimal>> fileQuotasForMemberOnResource = perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(attribute, resource, member, false);
+
+		//If there are no values after converting quota, we can skip testing against maxUserFileQuota attribute, because there is nothing to check
+		if (fileQuotasForMemberOnResource == null || fileQuotasForMemberOnResource.isEmpty()) return;
+
+		//Get maxUserFileQuotas value on this resource
+		Attribute maxUserFileQuotasAttribute;
+		try {
+			maxUserFileQuotasAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_maxUserFileQuotas);
+		} catch (AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException(ex);
+		}
+
+		//Check and transfer maxUserFileQuotasForResource
+		Map<String, Pair<BigDecimal, BigDecimal>> maxUserFileQuotasForResource;
+		try {
+			maxUserFileQuotasForResource = perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(maxUserFileQuotasAttribute, resource, null, false);
+		} catch (WrongAttributeValueException | InternalErrorException ex) {
+			throw new WrongReferenceAttributeValueException(attribute, maxUserFileQuotasAttribute, resource, member, resource, null,
+					"Can't set fileQuotas for member on resource, because maxUserQuota is not in correct format. Please fix it first!", ex);
+		}
+
+		try {
+			perunSession.getPerunBl().getModulesUtilsBl().checkIfQuotasIsInLimit(fileQuotasForMemberOnResource, maxUserFileQuotasForResource);
+		} catch (QuotaNotInAllowedLimitException ex) {
+			throw new WrongReferenceAttributeValueException(attribute, maxUserFileQuotasAttribute, member, resource, resource, null,
+					"FileQuotas for member on resource is not in limit of maxUserQuota!", ex);
+		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<String>();
+		dependencies.add(A_R_maxUserFileQuotas);
+		return dependencies;
 	}
 
 	@Override

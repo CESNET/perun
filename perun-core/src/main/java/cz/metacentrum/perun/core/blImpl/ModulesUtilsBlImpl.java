@@ -651,6 +651,39 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
+	public void checkIfQuotasIsInLimit(Map<String, Pair<BigDecimal, BigDecimal>> quotaToCheck, Map<String, Pair<BigDecimal, BigDecimal>> limitQuota) throws QuotaNotInAllowedLimitException, InternalErrorException {
+		if(quotaToCheck == null) throw new InternalErrorException("Quota to check can't be null.");
+		if(limitQuota == null) throw new InternalErrorException("Limit quota can't be null.");
+
+		//If there is no value to check, then everything is in limit (we don't need to limit anything)
+		if(quotaToCheck.isEmpty()) return;
+
+		//test every record of quotaToCheck against record in limitQuota
+		for(String volumeToCheck: quotaToCheck.keySet()) {
+			if(!limitQuota.containsKey(volumeToCheck)) {
+				throw new QuotaNotInAllowedLimitException(quotaToCheck, limitQuota, "Volume " + volumeToCheck + " is missing in limitQuota.");
+			}
+
+			Pair<BigDecimal, BigDecimal> volumeToCheckQuotas = quotaToCheck.get(volumeToCheck);
+			Pair<BigDecimal, BigDecimal> volumeToCheckLimitQuotas = limitQuota.get(volumeToCheck);
+
+			//Check limit of softQuota, zero limit means unlimited so no need for testing
+			if(volumeToCheckLimitQuotas.getLeft().compareTo(BigDecimal.ZERO) != 0) {
+				if (volumeToCheckQuotas.getLeft().compareTo(BigDecimal.ZERO) == 0 || volumeToCheckQuotas.getLeft().compareTo(volumeToCheckLimitQuotas.getLeft()) > 0) {
+					throw new QuotaNotInAllowedLimitException(quotaToCheck, limitQuota, "SoftQuota of volume " + volumeToCheck + " is bigger than limit.");
+				}
+			}
+
+			//Check limit of hardQuota, zero limit means unlimited so no need for testing
+			if(volumeToCheckLimitQuotas.getRight().compareTo(BigDecimal.ZERO) != 0) {
+				if (volumeToCheckQuotas.getRight().compareTo(BigDecimal.ZERO) == 0 || volumeToCheckQuotas.getRight().compareTo(volumeToCheckLimitQuotas.getRight()) > 0) {
+					throw new QuotaNotInAllowedLimitException(quotaToCheck, limitQuota, "HardQuota of volume " + volumeToCheck + " is bigger than limit.");
+				}
+			}
+		}
+	}
+
+	@Override
 	public Map<String, Pair<BigDecimal, BigDecimal>> checkAndTransferQuotas(Attribute quotasAttribute, PerunBean firstPlaceholder, PerunBean secondPlaceholder, boolean withMetrics) throws InternalErrorException, WrongAttributeValueException {
 		//firstPlaceholder can't be null
 		if(firstPlaceholder == null) throw new InternalErrorException("Missing first mandatory placeHolder (PerunBean).");
@@ -835,48 +868,31 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public Map<String,Pair<BigDecimal, BigDecimal>> mergeMemberAndResourceTransferedQuotas(Map<String, Pair<BigDecimal, BigDecimal>> firstQuotas, Map<String, Pair<BigDecimal, BigDecimal>> secondQuotas) {
-		//if one of them is empty, return the other one (even if it is empty too)
-		if(firstQuotas.isEmpty()) return secondQuotas;
-		if(secondQuotas.isEmpty()) return firstQuotas;
-
+	public Map<String,Pair<BigDecimal, BigDecimal>> mergeMemberAndResourceTransferredQuotas(Map<String, Pair<BigDecimal, BigDecimal>> resourceQuotas, Map<String, Pair<BigDecimal, BigDecimal>> memberResourceQuotas, Map<String, Pair<BigDecimal, BigDecimal>> quotasOverride) {
 		Map<String,Pair<BigDecimal, BigDecimal>> mergedTransferedQuotas = new HashMap<>();
-		//first go through firstQuotas values
-		for(String path: firstQuotas.keySet()) {
-			Pair<BigDecimal, BigDecimal> newValue;
-			Pair<BigDecimal, BigDecimal> firstQuotasValue = firstQuotas.get(path);
-			Pair<BigDecimal, BigDecimal> secondQuotasValue = secondQuotas.get(path);
 
-			//if there is no values for merge, use them
-			if(secondQuotasValue == null) {
-				newValue = firstQuotasValue;
-				mergedTransferedQuotas.put(path, newValue);
-			//if there are values to merge, merge them
+		//first go through member-resource quotas values
+		for(String path: memberResourceQuotas.keySet()) {
+			//override has the highest priority
+			if (quotasOverride.containsKey(path)) {
+				mergedTransferedQuotas.put(path, quotasOverride.get(path));
+			//if override not exists, take the original value
 			} else {
-				BigDecimal softQuota;
-				BigDecimal hardQuota;
-				//merge softQuota
-				if(firstQuotasValue.getLeft().compareTo(new BigDecimal("0")) == 0 || secondQuotasValue.getLeft().compareTo(new BigDecimal("0")) == 0) softQuota = new BigDecimal("0");
-				else {
-					if(firstQuotasValue.getLeft().compareTo(secondQuotasValue.getLeft()) >= 0) softQuota = firstQuotasValue.getLeft();
-					else softQuota = secondQuotasValue.getLeft();
-				}
-				//merge hardQuota
-				if(firstQuotasValue.getRight().compareTo(new BigDecimal("0")) == 0 || secondQuotasValue.getRight().compareTo(new BigDecimal("0")) == 0) hardQuota = new BigDecimal("0");
-				else {
-					if(firstQuotasValue.getRight().compareTo(secondQuotasValue.getRight()) >= 0) hardQuota = firstQuotasValue.getRight();
-					else hardQuota = secondQuotasValue.getRight();
-				}
-				//set new merged values
-				newValue = new Pair(softQuota, hardQuota);
-				mergedTransferedQuotas.put(path, newValue);
-				//remove them from second quotas (they are not unique)
-				secondQuotas.remove(path);
+				mergedTransferedQuotas.put(path, memberResourceQuotas.get(path));
 			}
 		}
-		//save rest of values from secondQuotas (only unique in second quotas are still there, not exists in first quotas)
-		for(String path: secondQuotas.keySet()) {
-			mergedTransferedQuotas.put(path, secondQuotas.get(path));
+
+		//save unique values from resource quotas (not exists in member-resource quotas)
+		for(String path: resourceQuotas.keySet()) {
+			//skip already saved values, they are not unique
+			if(mergedTransferedQuotas.containsKey(path)) continue;
+
+			//take override if exists
+			if(quotasOverride.containsKey(path)) {
+				mergedTransferedQuotas.put(path, quotasOverride.get(path));
+			} else {
+				mergedTransferedQuotas.put(path, resourceQuotas.get(path));
+			}
 		}
 
 		return mergedTransferedQuotas;
