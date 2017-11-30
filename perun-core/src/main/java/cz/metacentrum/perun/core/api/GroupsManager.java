@@ -902,4 +902,17 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 */
 	List<Group> getGroupUnions(PerunSession sess, Group group, boolean reverseDirection) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Move one group structure under another group in same vo or as top level group
+	 *
+	 * @param sess perun session
+	 * @param destinationGroup group to which is moving group moved, if it's null group will be moved as top level group
+	 * @param movingGroup group which is moved to destination group
+	 *
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 * @throws PrivilegeException
+	 */
+	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException;
 }

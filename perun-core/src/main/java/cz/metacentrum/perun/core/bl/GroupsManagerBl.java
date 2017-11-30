@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
@@ -195,6 +196,20 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	Group updateGroup(PerunSession perunSession, Group group) throws InternalErrorException;
+
+	/**
+	 * Updates parentGroupId.
+	 *
+	 * !! IMPORTANT This method allows to change parentGroupId, but it doesn't update group and subGroup names !!
+	 *
+	 * @param perunSession
+	 * @param group to update
+	 *
+	 * @return group with updated parentGroupId
+	 *
+	 * @throws InternalErrorException
+	 */
+	Group updateParentGroupId(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
 	 * Search for the group with specified id in all VOs.
@@ -1170,6 +1185,7 @@ public interface GroupsManagerBl {
 	 * 2) added or removed member
 	 * 3) group creation
 	 * 4) group removal
+	 * 5) group movement
 	 *
 	 * @param sess perun session
 	 * @param resultGroup group to which members are added or removed from
@@ -1226,4 +1242,16 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getGroupUnions(PerunSession sess, Group group, boolean reverseDirection) throws InternalErrorException;
+
+	/**
+	 * Move one group structure under another group in same vo or as top level group
+	 *
+	 * @param sess perun session
+	 * @param destinationGroup group to which is moving group moved, if it's null group will be moved as top level group
+	 * @param movingGroup group which is moved to destination group
+	 *
+	 * @throws InternalErrorException
+	 * @throws GroupMoveNotAllowedException
+	 */
+	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException;
 }

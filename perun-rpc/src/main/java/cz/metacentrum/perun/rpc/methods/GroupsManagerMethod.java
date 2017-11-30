@@ -174,6 +174,33 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Moves "movingGroup" (including subGroups) under "destinationGroup" as subGroup within same Vo.
+	 * In case of null "destinationGroup", "movingGroup" is moved as top level group.
+	 * During movement are also processed indirect members.
+	 *
+	 * @param destinationGroup int <code>id</code> of Group to have "movingGroup" as subGroup
+	 * @param movingGroup int <code>id</code> of Group to be moved under "destinationGroup"
+	 */
+	moveGroup {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			if(parms.contains("destinationGroup")) {
+				ac.getGroupsManager().moveGroup(ac.getSession(),
+						ac.getGroupById(parms.readInt("destinationGroup")),
+						ac.getGroupById(parms.readInt("movingGroup")));
+			} else {
+				ac.getGroupsManager().moveGroup(ac.getSession(),
+						null,
+						ac.getGroupById(parms.readInt("movingGroup")));
+			}
+			return null;
+		}
+	},
+
+	/*#
 	 * Returns a group by <code>id</code>.
 	 *
 	 * @param id int Group <code>id</code>

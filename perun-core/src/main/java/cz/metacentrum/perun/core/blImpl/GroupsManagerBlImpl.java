@@ -408,6 +408,187 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return group;
 	}
 
+	public Group updateParentGroupId(PerunSession sess, Group group) throws InternalErrorException {
+		if(group == null) throw new InternalErrorException("Group can't be null.");
+
+		//return group with updated parentGroupId
+		group = getGroupsManagerImpl().updateParentGroupId(sess, group);
+
+		return group;
+	}
+
+	public void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException {
+
+		// check if moving group is null
+		if (movingGroup == null) {
+			throw new GroupMoveNotAllowedException("Moving group: " + movingGroup + " cannot be null.", movingGroup, destinationGroup);
+		}
+
+		// check if moving group is members group
+		if (movingGroup.getName().equals(VosManager.MEMBERS_GROUP)) {
+			throw new GroupMoveNotAllowedException("It is not possible to move Members group.", movingGroup, destinationGroup);
+		}
+
+		//if destination group is null, it means group will be moved as top level group
+		if (destinationGroup != null) {
+
+			// check if both groups are from same VO
+			if (destinationGroup.getVoId() != movingGroup.getVoId()) {
+				throw new GroupMoveNotAllowedException("Groups are not from same VO. Moving group: " + movingGroup + " has VO:" + movingGroup.getVoId() + " and destination group: " + destinationGroup + " has VO:" + movingGroup.getVoId() + ".", movingGroup, destinationGroup);
+			}
+
+			// check if moving group is the same as destination group
+			if (destinationGroup.getId() == movingGroup.getId()) {
+				throw new GroupMoveNotAllowedException("Moving group: " + movingGroup + " cannot be the same as destination group: " + destinationGroup + ".", movingGroup, destinationGroup);
+			}
+
+			// check if destination group is members group
+			if (destinationGroup.getName().equals(VosManager.MEMBERS_GROUP)) {
+				throw new GroupMoveNotAllowedException("It is not possible to move group under Members group.", movingGroup, destinationGroup);
+			}
+
+			// check if moving group is already under destination group
+			if (movingGroup.getParentGroupId() != null && destinationGroup.getId() == movingGroup.getParentGroupId()) {
+				throw new GroupMoveNotAllowedException("Moving group: " + movingGroup + " is already under destination group: " + destinationGroup + " as subGroup.", movingGroup, destinationGroup);
+			}
+
+			List<Group> movingGroupAllSubGroups = getAllSubGroups(sess, movingGroup);
+
+			// check if destination group exists as subGroup in moving group subGroups
+			if (movingGroupAllSubGroups.contains(destinationGroup)) {
+				throw new GroupMoveNotAllowedException("Destination group: " + destinationGroup + " is subGroup of Moving group: " + movingGroup + ".", movingGroup, destinationGroup);
+			}
+
+			// check if this operation would create cycle
+			if (checkGroupsCycle(sess, destinationGroup.getId(), movingGroup.getId())) {
+				throw new GroupMoveNotAllowedException("There would be cycle created after moving group: " + movingGroup + " under destination group: " + destinationGroup + ".", movingGroup, destinationGroup);
+			}
+
+			List<Group> destinationGroupSubGroups = getSubGroups(sess, destinationGroup);
+
+			// check if under destination group is group with same short name as Moving group short name
+			for (Group group: destinationGroupSubGroups) {
+				if(movingGroup.getShortName().equals(group.getShortName())){
+					throw new GroupMoveNotAllowedException("Under destination group: " + destinationGroup + " is group with the same name as moving group: " + movingGroup + ".", movingGroup, destinationGroup);
+				}
+			}
+
+			//First we have to move indirect members
+			List<Member> members = getGroupMembers(sess, movingGroup);
+
+			try {
+				//Removing indirect members from old position just if moving group is not top level group
+				if (movingGroup.getParentGroupId() != null) {
+					processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, movingGroup.getParentGroupId()), members, movingGroup.getId(), false);
+				}
+				//Adding indirect members to new position
+				processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, destinationGroup.getId()), members, movingGroup.getId(), true);
+			} catch (GroupOperationsException e) {
+				throw new InternalErrorException("Some operation was not allowed during processing members relations", e);
+			} catch (GroupNotExistsException e) {
+				throw new InternalErrorException("Some group does not exists...", e);
+			}
+
+			// We can move whole moving group tree under destination group
+			movingGroup.setParentGroupId(destinationGroup.getId());
+			movingGroup.setName(destinationGroup.getName() + ":" + movingGroup.getShortName());
+			//we have to update group name in database
+			getGroupsManagerImpl().updateGroupName(sess, movingGroup);
+
+			List<Group> subGroups = getSubGroups(sess, movingGroup);
+			List<Group> levelSubGroups = new ArrayList<>();
+
+			// We have to properly set all subGroups names level by level
+			while (!subGroups.isEmpty()) {
+				levelSubGroups.clear();
+				for (Group gr : subGroups) {
+					try {
+						gr.setName(getParentGroup(sess, gr).getName() + ":" + gr.getShortName());
+					} catch (ParentGroupNotExistsException ex) {
+						//that should never happen
+						throw new InternalErrorException("Parent group does not exists for group " + gr);
+					}
+					//we have to update each subGroup name in database
+					getGroupsManagerImpl().updateGroupName(sess, gr);
+
+					// create auditer message for every updated group
+					getPerunBl().getAuditer().log(sess, "{} updated.", gr);
+
+					levelSubGroups.addAll(getSubGroups(sess, gr));
+				}
+				subGroups.clear();
+				subGroups.addAll(levelSubGroups);
+			}
+
+			// And finally update parentGroupId for moving group in database
+			this.updateParentGroupId(sess, movingGroup);
+
+		} else {
+
+			// check if moving group is already under destination group
+			if (movingGroup.getParentGroupId() == null) {
+				throw new GroupMoveNotAllowedException("Moving group: " + movingGroup + " is already top level group.", movingGroup, destinationGroup);
+			}
+
+			List<Group> destinationGroupSubGroups = getGroups(sess, getVo(sess, movingGroup));
+
+			// check if under destination group is group with same short name as Moving group short name
+			for (Group group: destinationGroupSubGroups) {
+				if(movingGroup.getShortName().equals(group.getName())){
+					throw new GroupMoveNotAllowedException("There is already top level group with the same name as moving group: " + movingGroup + ".", movingGroup, destinationGroup);
+				}
+			}
+
+			//After that, we have to remove indirect members from old position
+			List<Member> members = getGroupMembers(sess, movingGroup);
+
+			try {
+				//Removing indirect members from old position
+				processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, movingGroup.getParentGroupId()), members, movingGroup.getId(), false);
+			} catch (GroupOperationsException e) {
+				throw new InternalErrorException("Some operation was not allowed during processing members relations", e);
+			} catch (GroupNotExistsException e) {
+				throw new InternalErrorException("Some group does not exists...", e);
+			}
+
+			// We can move whole moving group tree as top level group in vo
+			movingGroup.setParentGroupId(null);
+			movingGroup.setName(movingGroup.getShortName());
+			//we have to update group name in database
+			getGroupsManagerImpl().updateGroupName(sess, movingGroup);
+
+			List<Group> subGroups = getSubGroups(sess, movingGroup);
+			List<Group> levelSubGroups = new ArrayList<>();
+
+			// We have to properly set all subGroups names level by level
+			while (!subGroups.isEmpty()) {
+				levelSubGroups.clear();
+				for (Group gr : subGroups) {
+					try {
+						gr.setName(getParentGroup(sess, gr).getName() + ":" + gr.getShortName());
+					} catch (ParentGroupNotExistsException ex) {
+						//that should never happen
+						throw new InternalErrorException("Parent group does not exists for group " + gr);
+					}
+					//we have to update each subGroup name in database
+					getGroupsManagerImpl().updateGroupName(sess, gr);
+
+					// create auditer message for every updated group
+					getPerunBl().getAuditer().log(sess, "{} updated.", gr);
+
+					levelSubGroups.addAll(getSubGroups(sess, gr));
+				}
+				subGroups.clear();
+				subGroups.addAll(levelSubGroups);
+			}
+
+			// And finally update parentGroupId for moving group in database
+			this.updateParentGroupId(sess, movingGroup);
+
+		}
+		getPerunBl().getAuditer().log(sess, "Group {} was moved.", movingGroup);
+	}
+
 	public Group getGroupById(PerunSession sess, int id) throws InternalErrorException, GroupNotExistsException {
 		return getGroupsManagerImpl().getGroupById(sess, id);
 	}

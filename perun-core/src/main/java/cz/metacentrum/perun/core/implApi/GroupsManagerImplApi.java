@@ -113,6 +113,20 @@ public interface GroupsManagerImplApi {
 	Group updateGroupName(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
+	 * Updates parentGroupId.
+	 *
+	 * !! IMPORTANT This method allows to change parentGroupId, but it doesn't update group and subGroup names !!
+	 *
+	 * @param perunSession
+	 * @param group to update
+	 *
+	 * @return group with updated parentGroupId
+	 *
+	 * @throws InternalErrorException
+	 */
+	Group updateParentGroupId(PerunSession perunSession, Group group) throws InternalErrorException;
+
+	/**
 	 * Search for the group with specified id in all VOs.
 	 *
 	 * @param id
