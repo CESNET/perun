@@ -67,6 +67,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -1474,6 +1475,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"left join    entityless_attr_values     on id=entityless_attr_values.attr_id     and   subject=? " +
 							"where attr_name=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, null), key, attributeName);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		try {
+			Map<String,String> map = new HashMap<>();
+			jdbc.query("select subject, attr_value " +
+							" from attr_names join entityless_attr_values on id=attr_id " +
+							" where type='java.lang.String' and attr_name=?",
+					rs -> { map.put(rs.getString(1), rs.getString(2)); }, attributeName);
+			return map;
 		} catch (EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {

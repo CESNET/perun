@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 /**
- * Entityless attribute for mapping values of DNS address to specific state (or empty string).
+ * Entityless attribute for mapping values of DNS address to specific state (or empty string). The DNS domain is in key, state is in String value.
  *
  * Examples:
  * <BR>.cz = “Czech Republic”
@@ -20,30 +20,20 @@ import java.util.Set;
  * <BR>.ebi.ac.uk = “”
  *
  * @author Vladimir Mecko vladimir.mecko@gmail.com
+ * @author Martin Kuba makub@ics.muni.cz
  */
 @SuppressWarnings("unchecked")
 public class urn_perun_entityless_attribute_def_def_dnsStateMapping extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
-	static String KEY = "config";
 
 	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		if(!KEY.equals(key)) {
-			throw new WrongAttributeValueException(attribute, key, "entityless key for this attribute must be " + KEY);
+		if(key==null) {
+			throw new WrongAttributeValueException(attribute, "null", "key for this entityless attribute must not be null");
 		}
 
 		if(attribute.getValue() == null) return;
-		LinkedHashMap<String, String> map = (LinkedHashMap<String, String>) attribute.getValue();
-		if(map.isEmpty()) return;
-
-		//check keys and values
-		Set<String> mapKeys = map.keySet();
-		for(String mapKey : mapKeys) {
-			//check keys
-			if(mapKey == null) throw new WrongAttributeValueException(attribute, key, "Key in dnsStateMapping map can not be null.");
-
-			//check values
-			String value = map.get(mapKey);
-			if(value == null) throw new WrongAttributeValueException(attribute, key, "Value in dnsStateMapping map can not be null.");
+		if(!(attribute.getValue() instanceof String)) {
+			throw new WrongAttributeValueException(attribute, key, "value must be of type String");
 		}
 	}
 
@@ -52,7 +42,7 @@ public class urn_perun_entityless_attribute_def_def_dnsStateMapping extends Enti
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
 		attr.setFriendlyName("dnsStateMapping");
 		attr.setDisplayName("mapping of DNS address to specific state");
-		attr.setType(LinkedHashMap.class.getName());
+		attr.setType(String.class.getName());
 		attr.setDescription("Maps together pairs of DNS address and state.");
 		return attr;
 	}

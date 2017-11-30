@@ -1,6 +1,10 @@
 package cz.metacentrum.perun.core.implApi.modules.attributes;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -16,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -29,11 +32,13 @@ import java.util.regex.Pattern;
  *
  * @author Martin Kuba makub@ics.muni.cz
  */
-public abstract class UserVirtualAttributeCollectedFromUserExtSource extends UserVirtualAttributesModuleAbstract {
+public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends UserVirtualAttributeCollectedFromUserExtSource.ModifyValueContext> extends UserVirtualAttributesModuleAbstract {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final Pattern allAttributesRemovedForUserExtSource = Pattern.compile("All attributes removed for UserExtSource:\\[(.*)\\]");
+	private final Pattern allAttributesRemovedForUserExtSource = Pattern.compile("All attributes removed for UserExtSource:\\[(.*)]");
+	private final Pattern removeUserExtSourceAttribute = Pattern.compile("AttributeDefinition:\\[(.*)" + getSourceAttributeFriendlyName() + "(.*)] removed for UserExtSource:\\[(.*)]");
+	private final Pattern setUserExtSourceAttribute = Pattern.compile("Attribute:\\[(.*)" + getSourceAttributeFriendlyName() + "(.*)] set for UserExtSource:\\[(.*)]");
 
 	/**
 	 * Specifies friendly (short) name of attribute from namespace urn:perun:ues:attribute-def:def
@@ -44,12 +49,28 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource extends Use
 	public abstract String getSourceAttributeFriendlyName();
 
 	/**
+	 * Gets full URN of the UserExtSource attribute used for computing rhis attribute value.
+	 * @return full source attribute URN
+	 */
+	public final String getSourceAttributeName() {
+		return AttributesManager.NS_UES_ATTR_DEF + ":" + getSourceAttributeFriendlyName();
+	}
+
+	/**
 	 * Specifies friendly (short) name of attribute from namespace urn:perun:user:attribute-def:virt
 	 * where values will be stored
 	 *
 	 * @return short name of user attribute which is destination for collected values
 	 */
 	public abstract String getDestinationAttributeFriendlyName();
+
+	/**
+	 * Gets full URN of this virtual user attribute.
+	 * @return full destination attribute URN
+	 */
+	public final String getDestinationAttributeName() {
+		return AttributesManager.NS_USER_ATTR_VIRT + ":" + getDestinationAttributeFriendlyName();
+	}
 
 	public String getDestinationAttributeDisplayName() {
 		return getDestinationAttributeFriendlyName();
@@ -63,11 +84,11 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource extends Use
 	 * Override this method if you need to modify the original values. The default implementation makes no modification.
 	 * Return null if the value should be skipped.
 	 *
-	 * @param ctx
+	 * @param ctx context initialized in initModifyValueContext method
 	 * @param value of userExtSource attribute
 	 * @return modified value or null to skip the value
 	 */
-	public String modifyValue(ModifyValueContext ctx, String value) {
+	public String modifyValue(T ctx, String value) {
 		return value;
 	}
 
@@ -90,18 +111,20 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource extends Use
 			return user;
 		}
 
+		@SuppressWarnings("unused")
 		public AttributeDefinition getDestinationAttributeDefinition() {
 			return destinationAttributeDefinition;
 		}
 	}
 
-	protected ModifyValueContext initModifyValueContext(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
-		return new ModifyValueContext(sess,user,destinationAttributeDefinition);
+	protected T initModifyValueContext(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
+		//noinspection unchecked
+		return (T) new ModifyValueContext(sess, user, destinationAttributeDefinition);
 	}
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
-		ModifyValueContext ctx = initModifyValueContext(sess,user,destinationAttributeDefinition);
+		T ctx = initModifyValueContext(sess, user, destinationAttributeDefinition);
 		Attribute destinationAttribute = new Attribute(destinationAttributeDefinition);
 		//for values use set because of avoiding duplicities
 		Set<String> valuesWithoutDuplicities = new HashSet<>();
@@ -112,7 +135,8 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource extends Use
 
 		for (UserExtSource userExtSource : userExtSources) {
 			try {
-				Attribute a = am.getAttribute(sess, userExtSource, AttributesManager.NS_UES_ATTR_DEF + ":" + sourceAttributeFriendlyName);
+				String sourceAttributeName = getSourceAttributeName();
+				Attribute a = am.getAttribute(sess, userExtSource, sourceAttributeName);
 				Object value = a.getValue();
 				if (value != null && value instanceof String) {
 					//Apache mod_shib joins multiple values with ';', split them again
@@ -133,23 +157,18 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource extends Use
 
 	@Override
 	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		List<String> resolvingMessages = new ArrayList<String>();
-		if(message == null) return resolvingMessages;
+		List<String> resolvingMessages = new ArrayList<>();
+		if (message == null) return resolvingMessages;
 
-		Matcher allAttributesRemovedMatcher = allAttributesRemovedForUserExtSource.matcher(message);
-		Pattern removeUserExtSourceAttribute = Pattern.compile("AttributeDefinition:\\[(.*)" + getSourceAttributeFriendlyName() + "(.*)\\] removed for UserExtSource:\\[(.*)\\]");
-		Pattern setUserExtSourceAttribute = Pattern.compile("Attribute:\\[(.*)" + getSourceAttributeFriendlyName() + "(.*)\\] set for UserExtSource:\\[(.*)\\]");
-
-		Matcher removeUESAttributeMatcher = removeUserExtSourceAttribute.matcher(message);
-		Matcher setUESAttributeMatcher = setUserExtSourceAttribute.matcher(message);
-
-		if(allAttributesRemovedMatcher.find() || removeUESAttributeMatcher.find() || setUESAttributeMatcher.find()) {
+		if (allAttributesRemovedForUserExtSource.matcher(message).find() ||
+				removeUserExtSourceAttribute.matcher(message).find() ||
+				setUserExtSourceAttribute.matcher(message).find()) {
 			User user = perunSession.getPerunBl().getModulesUtilsBl().getUserFromMessage(perunSession, message);
-			if(user != null) {
-				Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":" + getDestinationAttributeFriendlyName());
-				List<String> attributeValue = (ArrayList<String>) attribute.getValue();
+			if (user != null) {
+				Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, getDestinationAttributeName());
+				@SuppressWarnings("unchecked") List<String> attributeValue = (ArrayList<String>) attribute.getValue();
 				String messageAttributeSet;
-				if(attributeValue == null || attributeValue.isEmpty()) {
+				if (attributeValue == null || attributeValue.isEmpty()) {
 					AttributeDefinition attributeDefinition = new AttributeDefinition(attribute);
 					messageAttributeSet = attributeDefinition.serializeToString() + " removed for " + user.serializeToString() + ".";
 				} else {

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
  * UsersManager manages users.
@@ -1173,4 +1174,18 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	void removeAllUserExtSources(PerunSession sess, User user) throws InternalErrorException;
+
+
+	/**
+	 * Finds users with UserExtSource with attribute value that ends with specified string but not with specified exclude strings.
+	 * This method is written to find all users with schacHomeOrganization domains ending with valueEnd, but not with exludeValueEnds.
+	 *
+	 * @param sess session
+	 * @param attributeName UserExtSource attribute name
+	 * @param valueEnd required attribute value ending
+	 * @param excludeValueEnds exclude these attribute value endings
+	 * @return list of users
+	 */
+	List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws AttributeNotExistsException, InternalErrorException;
+
 }
