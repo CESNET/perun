@@ -22,10 +22,12 @@ import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.MemberCandidate;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunCheckboxCell;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunStatusCell;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -216,12 +218,26 @@ public class GetCompleteCandidates implements JsonCallback, JsonCallbackTable<Me
 			public String getValue(MemberCandidate candidate) {
 
 				if (groupId == 0) {
-					if (candidate.getMember() != null) return "Already member";
+					if (candidate.getMember() != null) return "Member of VO";
 				} else {
-					if (candidate.getMember() != null && candidate.getMember().getSourceGroupId() != 0) return "Already member";
+					if (candidate.getMember() != null && candidate.getMember().getSourceGroupId() != 0) return "Member of Group";
+					if (candidate.getMember() != null) return "Member of VO";
 				}
 				return "";
 
+			}
+		};
+
+		// Status column
+		final Column<MemberCandidate, String> statusColumn = new Column<MemberCandidate, String>(
+				new PerunStatusCell()) {
+			@Override
+			public String getValue(MemberCandidate object) {
+				if (object.getMember() != null) {
+					return object.getMember().getStatus();
+				} else {
+					return null;
+				}
 			}
 		};
 
@@ -272,7 +288,29 @@ public class GetCompleteCandidates implements JsonCallback, JsonCallbackTable<Me
 		alreadyInPerunColumn.setSortable(true);
 		columnSortHandler.setComparator(alreadyInPerunColumn, new Comparator<MemberCandidate>() {
 			public int compare(MemberCandidate o1, MemberCandidate o2) {
-				return o1.getObjectType().compareTo(o2.getObjectType());
+				String o1Val = "External identity";
+				String o2Val = "External identity";
+				if (o1.getRichUser() != null) {
+					o1Val = "Local";
+				}
+				if (o2.getRichUser() != null) {
+					o2Val = "Local";
+				}
+				return o1Val.compareTo(o2Val);
+			}
+		});
+
+		memberColumn.setSortable(true);
+		columnSortHandler.setComparator(memberColumn, new Comparator<MemberCandidate>() {
+			public int compare(MemberCandidate o1, MemberCandidate o2) {
+				String o1Val = "1";
+				String o2Val = "1";
+				if (o1.getMember() != null) o1Val = "0";
+				if (o2.getMember() != null) o2Val = "0";
+				o1Val += getFullNameColumnValue(o1);
+				o2Val += getFullNameColumnValue(o2);
+
+				return o1Val.compareTo(o2Val);
 			}
 		});
 
@@ -307,6 +345,7 @@ public class GetCompleteCandidates implements JsonCallback, JsonCallbackTable<Me
 		table.addColumnSortHandler(columnSortHandler);
 
 		// Add the columns.
+		table.addColumn(statusColumn, "Status");
 		table.addColumn(fullNameColumn, "Full name");
 		table.addColumn(extSourceColumn, "Organization or Ext source");
 		table.addColumn(emailColumn, "E-mail");
@@ -331,7 +370,7 @@ public class GetCompleteCandidates implements JsonCallback, JsonCallbackTable<Me
 	 * Sorts table by objects Names
 	 */
 	public void sortTable() {
-		list = new TableSorter<MemberCandidate>().sortByName(getList());
+		list = new TableSorter<MemberCandidate>().sortByStatusAndName(getList());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
