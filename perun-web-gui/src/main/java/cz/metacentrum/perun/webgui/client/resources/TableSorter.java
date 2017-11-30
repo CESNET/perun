@@ -73,6 +73,25 @@ public class TableSorter<T> {
 	 * Returns sorted list of objects
 	 *
 	 * @param list of objects to be sorted
+	 * @return ArrayList<T> sorted list of objects by their Status and Names
+	 * or FullNames (for Member/User/RichMember)
+	 */
+	public ArrayList<T> sortByStatusAndName(ArrayList<T> list){
+		if(list == null) return null;
+		Collections.sort(list, new Comparator<T>(){
+			public int compare(T o1, T o2) {
+				Collator customCollator = Collator.getInstance();
+				return customCollator.compare(getStatusAndName(o1), getStatusAndName(o2));
+			}
+		});
+		return list;
+
+	}
+
+	/**
+	 * Returns sorted list of objects
+	 *
+	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their FriendlyName (attributes)
 	 */
 	public ArrayList<T> sortByFriendlyName(ArrayList<T> list){
@@ -341,6 +360,20 @@ public class TableSorter<T> {
 			}
 		});
 		return list;
+
+	}
+
+	private String getStatusAndName(T value) {
+
+		if (value instanceof MemberCandidate) {
+			if (((MemberCandidate) value).getMember() != null) {
+				return "0" + getName(value);
+			} else {
+				return "1" + getName(value);
+			}
+		} else {
+			return getName(value);
+		}
 
 	}
 

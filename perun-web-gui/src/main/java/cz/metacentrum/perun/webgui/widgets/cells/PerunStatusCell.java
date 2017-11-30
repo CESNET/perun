@@ -36,7 +36,11 @@ public class PerunStatusCell extends ClickableTextCell {
 		// selects the image according to the status
 		ImageResource ir = null;
 
-		if(status.equalsIgnoreCase("VALID")){
+		if (status == null) {
+			sb.appendHtmlConstant("<div class=\"" + "customClickableTextCell" + "\">");
+			sb.appendHtmlConstant("</div>");
+			return;
+		} else if(status.equalsIgnoreCase("VALID")){
 			ir = VALID;
 		} else if (status.equalsIgnoreCase("INVALID")){
 			ir = INVALID;
