@@ -963,43 +963,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		}
 
 		//If all is correct, can execute operations on attributes
-		List<ModificationItem> listOfItemsToModify = new ArrayList<ModificationItem>();
-
-		//For all attributes with operation ADD (1)
-		if(mapOfAttributes.containsKey(LdapOperation.ADD_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.ADD_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.ADD_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
-
-		//For all attributes with operation REPLACE (2)
-		if(mapOfAttributes.containsKey(LdapOperation.REPLACE_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REPLACE_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.REPLACE_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
-
-		//For all attributes with operation REMOVE (3)
-		if(mapOfAttributes.containsKey(LdapOperation.REMOVE_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REMOVE_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.REMOVE_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
+		List<ModificationItem> listOfItemsToModify = getListOfModificationItems(mapOfAttributes);
 
 		//Execute all changes on the notEmpty list of items
 		if(!listOfItemsToModify.isEmpty()) {
@@ -1061,43 +1025,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		}
 
 		//If all is correct, can execute operations on attributes
-		List<ModificationItem> listOfItemsToModify = new ArrayList<ModificationItem>();
-
-		//For all attributes with operation ADD (1)
-		if(mapOfAttributes.containsKey(LdapOperation.ADD_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.ADD_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.ADD_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
-
-		//For all attributes with operation REPLACE (2)
-		if(mapOfAttributes.containsKey(LdapOperation.REPLACE_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REPLACE_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.REPLACE_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
-
-		//For all attributes with operation REMOVE (3)
-		if(mapOfAttributes.containsKey(LdapOperation.REMOVE_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REMOVE_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.REMOVE_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
+		List<ModificationItem> listOfItemsToModify = getListOfModificationItems(mapOfAttributes);
 
 		//Execute all changes on the notEmpty list of items
 		if(!listOfItemsToModify.isEmpty()) {
@@ -1132,8 +1060,12 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			listAttributesToBeReplaced.add(new Pair(ldapAttrPerunParentGroupId, group.getParentGroupId().toString()));
 		} else {
 			//group is moved as top group
-			listAttributesToBeRemoved.add(new Pair(ldapAttrPerunParentGroup, null ));
-			listAttributesToBeRemoved.add(new Pair(ldapAttrPerunParentGroupId, null ));
+			if(ldapConnector.groupAttributeExist(group, ldapAttrPerunParentGroup)) {
+				listAttributesToBeRemoved.add(new Pair(ldapAttrPerunParentGroup, null));
+			}
+			if(ldapConnector.groupAttributeExist(group, ldapAttrPerunParentGroupId)) {
+				listAttributesToBeRemoved.add(new Pair(ldapAttrPerunParentGroupId, null ));
+			}
 		}
 
 		//Add all attributes which will be replaced for the group (that also mean added if not exists yet)
@@ -1166,7 +1098,9 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		if(group.getDescription() != null && !group.getDescription().isEmpty()) {
 			listAttributesToBeReplaced.add(new Pair(ldapAttrDescription, this.group.getDescription()));
 		} else {
-			listAttributesToBeRemoved.add(new Pair(ldapAttrDescription, null));
+			if(ldapConnector.groupAttributeExist(group, ldapAttrDescription)) {
+				listAttributesToBeRemoved.add(new Pair(ldapAttrDescription, null));
+			}
 		}
 
 		//Add all attributes which will be replaced for the group (that also mean added if not exists yet)
@@ -1231,43 +1165,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		}
 
 		//If all is correct, can execute operations on attributes
-		List<ModificationItem> listOfItemsToModify = new ArrayList<ModificationItem>();
-
-		//For all attributes with operation ADD (1)
-		if(mapOfAttributes.containsKey(LdapOperation.ADD_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.ADD_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.ADD_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
-
-		//For all attributes with operation REPLACE (2)
-		if(mapOfAttributes.containsKey(LdapOperation.REPLACE_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REPLACE_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.REPLACE_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
-
-		//For all attributes with operation REMOVE (3)
-		if(mapOfAttributes.containsKey(LdapOperation.REMOVE_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REMOVE_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.REMOVE_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
+		List<ModificationItem> listOfItemsToModify = getListOfModificationItems(mapOfAttributes);
 
 		//Execute all changes on the notEmpty list of items
 		if(!listOfItemsToModify.isEmpty()) {
@@ -1329,49 +1227,78 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		}
 
 		//If all is correct, can execute operations on attributes
-		List<ModificationItem> listOfItemsToModify = new ArrayList<ModificationItem>();
-
-		//For all attributes with operation ADD (1)
-		if(mapOfAttributes.containsKey(LdapOperation.ADD_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.ADD_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.ADD_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
-
-		//For all attributes with operation REPLACE (2)
-		if(mapOfAttributes.containsKey(LdapOperation.REPLACE_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REPLACE_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.REPLACE_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
-
-		//For all attributes with operation REMOVE (3)
-		if(mapOfAttributes.containsKey(LdapOperation.REMOVE_ATTRIBUTE)) {
-			List<Pair<String,String>> listOfAddingAttributes = mapOfAttributes.get(LdapOperation.REMOVE_ATTRIBUTE);
-			for(Pair<String,String> pair: listOfAddingAttributes) {
-				Attribute attribute;
-				if(pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
-				else attribute = new BasicAttribute(pair.getRight());
-				ModificationItem attributeItem =  new ModificationItem(LdapOperation.REMOVE_ATTRIBUTE.getCode(), attribute);
-				listOfItemsToModify.add(attributeItem);
-			}
-		}
+		List<ModificationItem> listOfItemsToModify = getListOfModificationItems(mapOfAttributes);
 
 		//Execute all changes on the notEmpty list of items
 		if(!listOfItemsToModify.isEmpty()) {
 			ModificationItem[] items = Arrays.copyOf(listOfItemsToModify.toArray(), listOfItemsToModify.toArray().length, ModificationItem[].class);
 			ldapConnector.updateVo(vo, items);
 		}
+	}
+
+	/**
+	 * Take map of operations and associated items to be add, replaced or removed from LDAP. Then convert this map to
+	 * list of ModificationItems (Modification Item is attribute in LDAP with new value and operation which will be
+	 * processed for it. Return this map.
+	 *
+	 * Possible Operations:
+	 * 1 - ADD_ATTRIBUTE
+	 * 2 - REPLACE_ATTRIBUTE
+	 * 3 - REMOVE_ATTRIBUTES
+	 *
+	 * Skip not existing operations in map. If map is null, return empty list. If list of operations under operation is
+	 * null, skipt it too.
+	 *
+	 * @param mapOfAttributes map of operations and associated items with new values to be processed
+	 * @return list of modificationItems to be processed
+	 */
+	private List<ModificationItem> getListOfModificationItems(Map<LdapOperation, List<Pair<String, String>>> mapOfAttributes) {
+		List<ModificationItem> listOfItemsToModify = new ArrayList<>();
+		if(mapOfAttributes == null) return listOfItemsToModify;
+
+		//For all attributes with operation ADD (1)
+		if(mapOfAttributes.containsKey(LdapOperation.ADD_ATTRIBUTE)) {
+			List<Pair<String,String>> listOfAttributesToAdd = mapOfAttributes.get(LdapOperation.ADD_ATTRIBUTE);
+			if(listOfAttributesToAdd != null) {
+				for (Pair<String, String> pair : listOfAttributesToAdd) {
+					Attribute attribute;
+					if (pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
+					else attribute = new BasicAttribute(pair.getLeft());
+					ModificationItem attributeItem = new ModificationItem(LdapOperation.ADD_ATTRIBUTE.getCode(), attribute);
+					listOfItemsToModify.add(attributeItem);
+				}
+			}
+		}
+
+		//For all attributes with operation REPLACE (2)
+		if(mapOfAttributes.containsKey(LdapOperation.REPLACE_ATTRIBUTE)) {
+			List<Pair<String,String>> listOfAttributesToReplace = mapOfAttributes.get(LdapOperation.REPLACE_ATTRIBUTE);
+			if(listOfAttributesToReplace != null) {
+				for (Pair<String, String> pair : listOfAttributesToReplace) {
+					Attribute attribute;
+					if (pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
+					else attribute = new BasicAttribute(pair.getLeft());
+					ModificationItem attributeItem = new ModificationItem(LdapOperation.REPLACE_ATTRIBUTE.getCode(), attribute);
+					listOfItemsToModify.add(attributeItem);
+				}
+			}
+		}
+
+		//For all attributes with operation REMOVE (3)
+		if(mapOfAttributes.containsKey(LdapOperation.REMOVE_ATTRIBUTE)) {
+			List<Pair<String,String>> listOfAttributesToRemove = mapOfAttributes.get(LdapOperation.REMOVE_ATTRIBUTE);
+			if(listOfAttributesToRemove != null) {
+				for (Pair<String, String> pair : listOfAttributesToRemove) {
+					Attribute attribute;
+					if (pair.getRight() != null) attribute = new BasicAttribute(pair.getLeft(), pair.getRight());
+					else attribute = new BasicAttribute(pair.getLeft());
+					ModificationItem attributeItem = new ModificationItem(LdapOperation.REMOVE_ATTRIBUTE.getCode(), attribute);
+					listOfItemsToModify.add(attributeItem);
+				}
+			}
+		}
+
+		return listOfItemsToModify;
 	}
 
 	/**
