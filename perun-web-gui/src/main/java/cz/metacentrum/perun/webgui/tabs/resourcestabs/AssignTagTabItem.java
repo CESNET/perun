@@ -159,7 +159,7 @@ public class AssignTagTabItem implements TabItem {
 	}
 
 	public ImageResource getIcon() {
-		return SmallIcons.INSTANCE.groupGoIcon();
+		return SmallIcons.INSTANCE.addIcon();
 	}
 
 	@Override

@@ -594,6 +594,16 @@ public class JsonErrorHandler {
 
 			return "Action is not permitted, since it violates group arithmetic rules.";
 
+		} else if ("GroupMoveNotAllowedException".equalsIgnoreCase(errorName)) {
+
+			Group movingGroup = error.getMovingGroup();
+			Group destinationGroup = error.getDestinationGroup();
+
+			String movingGroupName = (movingGroup != null) ? ("<b>" + movingGroup.getName() + "</b>") : "Group";
+			String destinationGroupName = (destinationGroup != null) ?("under <b>" + destinationGroup.getName() + "</b>") : " to top-level";
+
+			return movingGroupName + " can't be moved " + destinationGroupName + ".<p>Reason: "+error.getErrorInfo();
+
 		} else if ("GroupRelationAlreadyExists".equalsIgnoreCase(errorName)) {
 
 			return "Groups are already in a relation. Please refresh your view/table to see current state.";

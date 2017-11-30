@@ -171,6 +171,30 @@ public class PerunError extends JavaScriptObject {
 	}-*/;
 
 	/**
+	 * Get moving Group related to error message
+	 *
+	 * @return Group object or null if not present
+	 */
+	public final native Group getMovingGroup() /*-{
+		if (!this.movingGroup) {
+			return null;
+		}
+		return this.movingGroup;
+	}-*/;
+
+	/**
+	 * Get destination Group related to error message
+	 *
+	 * @return Group object or null if not present
+	 */
+	public final native Group getDestinationGroup() /*-{
+		if (!this.destinationGroup) {
+			return null;
+		}
+		return this.destinationGroup;
+	}-*/;
+
+	/**
 	 * Get referenced Resource related to error message
 	 *
 	 * @return Resource object or null if not present

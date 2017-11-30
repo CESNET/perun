@@ -3815,8 +3815,8 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/group_key.png")
 	//ImageResource groupKeyIcon();
 
-	//@Source("icons/16x16/group_link.png")
-	//ImageResource groupLinkIcon();
+	@Source("icons/16x16/group_link.png")
+	ImageResource groupLinkIcon();
 
 	//@Source("icons/16x16/hammer.png")
 	//ImageResource hammerIcon();

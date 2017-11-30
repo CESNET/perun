@@ -153,6 +153,16 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		});
 		menu.addWidget(removeButton);
 
+		// move button
+		CustomButton moveButton = TabMenu.getPredefinedButton(ButtonType.MOVE, true, ButtonTranslation.INSTANCE.moveGroup(), new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				final ArrayList<RichGroup> groupsToMove = subgroups.getTableSelectedList();
+				session.getTabManager().addTabToCurrentTab(new MoveGroupsTabItem(group, groupsToMove));
+			}
+		});
+		if (!session.isVoAdmin(group.getVoId())) moveButton.setEnabled(false);
+		menu.addWidget(moveButton);
+
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(subgroups.getOracle()), new PerunSearchEvent() {
 			public void searchFor(String text) {
@@ -173,6 +183,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 
 		removeButton.setEnabled(false);
 		if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, removeButton);
+		if (session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, moveButton);
 
 		// adds the table into the panel
 		table.addStyleName("perun-table");
