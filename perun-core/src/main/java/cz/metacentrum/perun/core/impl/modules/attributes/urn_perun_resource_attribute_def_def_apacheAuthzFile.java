@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * @author Vladimir Mecko vladimir.mecko@gmail.com
  */
 public class urn_perun_resource_attribute_def_def_apacheAuthzFile extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
-	private Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
+	private Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9.?*+$%]+)+$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
