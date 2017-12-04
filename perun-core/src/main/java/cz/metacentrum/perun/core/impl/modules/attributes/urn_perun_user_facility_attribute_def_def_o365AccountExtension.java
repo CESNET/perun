@@ -41,7 +41,7 @@ public class urn_perun_user_facility_attribute_def_def_o365AccountExtension exte
 		attr.setFriendlyName("o365AccountExtension");
 		attr.setDisplayName("o365 Account Extension");
 		attr.setType(String.class.getName());
-		attr.setDescription("Extends validity of o365 account, format YYYY-MM-DD.");
+		attr.setDescription("Expiration date of manually extended account in o365 (format yyyy-mm-dd).");
 		return attr;
 	}
 }
