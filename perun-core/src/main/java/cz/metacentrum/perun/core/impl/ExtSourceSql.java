@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -276,6 +277,114 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 				this.con = null;
 			} catch (SQLException e) {
 				throw new InternalErrorException(e);
+			}
+		}
+	}
+
+	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		String sqlQueryForGroup = attributes.get(GroupsManager.GROUPSQUERY_ATTRNAME);
+
+		return this.groupQuery(sqlQueryForGroup, null, 0);
+	}
+
+	/**
+	 * Get subject groups from external source
+	 *
+	 * 1. Check extSource attributes (url and driver)
+	 * 2. Register driver
+	 * 3. Check if there is an existing connection. In case of Oracle also checks the connection validity
+	 * 4. Prepare query statement
+	 * 5. Substitute the ? in the query by the searchString
+	 * 6. Limit results by maxResults
+	 * 7. Execute query and for each result process subject and put its attributes into map
+	 * 8. Return subjects
+	 * 9. Close connections
+	 *
+	 * @param query to select subject groups
+	 * @param searchString by which will be ? in query replaced
+	 * @param maxResults maximum subjects to get
+	 * @return list of subjects
+	 * @throws InternalErrorException
+	 */
+	protected List<Map<String,String>> groupQuery(String query, String searchString, int maxResults) throws InternalErrorException {
+		PreparedStatement st = null;
+		ResultSet rs = null;
+
+		if (getAttributes().get("url") == null) {
+			throw new InternalErrorException("url attribute is required");
+		}
+
+		log.debug("Searching for '{}' in external source 'url:{}'", searchString, getAttributes().get("url"));
+
+		if (getAttributes().get("driver") != null) {
+			try {
+				Class.forName(getAttributes().get("driver"));
+			} catch (ClassNotFoundException e) {
+				throw new InternalErrorException("Driver " + getAttributes().get("driver") + " cannot be registered", e);
+			}
+		}
+
+		try {
+			if (this.con == null || (this.isOracle && !this.con.isValid(0))) {
+				this.createConnection();
+			}
+
+			st = this.con.prepareStatement(query);
+
+			if (searchString != null && !searchString.isEmpty()) {
+				for (int i = st.getParameterMetaData().getParameterCount(); i > 0; i--) {
+					st.setString(i, searchString);
+				}
+			}
+
+			if (maxResults > 0) {
+				st.setMaxRows(maxResults);
+
+			}
+			rs = st.executeQuery();
+
+			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+
+			log.trace("Query {}", query);
+
+			while (rs.next()) {
+				Map<String, String> map = new HashMap<String, String>();
+
+				try {
+					map.put("groupName", rs.getString("groupName"));
+				} catch (SQLException e) {
+					// If the column doesn't exists, ignore it
+					map.put("groupName", null);
+				}
+				try {
+					map.put("parentGroupName", rs.getString("parentGroupName"));
+				} catch (SQLException e) {
+					// If the column doesn't exists, ignore it
+					map.put("parentGroupName", null);
+				}
+				try {
+					map.put("description", rs.getString("description"));
+				} catch (SQLException e) {
+					// If the column doesn't exists, ignore it
+					map.put("groupDescription", null);
+				}
+
+				subjects.add(map);
+			}
+			log.debug("Returning {} subjects from external source {} for searchString {}", subjects.size(), this, searchString);
+			return subjects;
+
+		} catch (SQLException e) {
+			log.error("SQL exception during searching for subject '{}'", query);
+			throw new InternalErrorRuntimeException(e);
+		} finally {
+			try {
+				if (rs != null) rs.close();
+				if (st != null) st.close();
+			} catch (SQLException e) {
+				log.error("SQL exception during closing the resultSet or statement, while searching for subject '{}'", query);
+				throw new InternalErrorRuntimeException(e);
 			}
 		}
 	}

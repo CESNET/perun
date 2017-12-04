@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import static cz.metacentrum.perun.core.impl.ExtSourceLdap.log;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
@@ -60,6 +61,11 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 		}
 
 		return subjects;
+	}
+
+	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override

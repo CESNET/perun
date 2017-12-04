@@ -63,6 +63,11 @@ public class ExtSourceISXML extends ExtSourceXML {
 	}
 
 	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	@Override
 	protected InputStream createTwoWaySSLConnection(String uri) throws IOException, InternalErrorException {
 		//prepare sslFactory
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();

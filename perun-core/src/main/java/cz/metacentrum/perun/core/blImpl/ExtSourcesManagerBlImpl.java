@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.CandidateGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -453,6 +454,39 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		candidate.setAttributes(attributes);
 
 		return candidate;
+	}
+
+	@Override
+	public CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source) throws InternalErrorException {
+		if(groupSubjectData == null || groupSubjectData.isEmpty()) throw new InternalErrorException(" Group subject data can't be null or empty, at least group name has to exists.");
+
+		CandidateGroup candidateGroup = new CandidateGroup();
+
+		candidateGroup.setExtSource(source);
+
+		candidateGroup.asGroup().setName(groupSubjectData.get("groupName"));
+		if(candidateGroup.asGroup().getName() != null) {
+			Matcher name = namePattern.matcher(candidateGroup.asGroup().getName());
+			if(!name.matches()) throw new InternalErrorException("Group subject data has to contains valid group name!");
+		} else {
+			throw new InternalErrorException("group name cannot be null in Group subject data!");
+		}
+
+		candidateGroup.setParentGroupName(groupSubjectData.get("parentGroupName"));
+		candidateGroup.asGroup().setDescription(groupSubjectData.get("description"));
+
+		return candidateGroup;
+	}
+
+	@Override
+	public List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> subjectsData, ExtSource source) throws InternalErrorException {
+		List<CandidateGroup> candidateGroups= new ArrayList<>();
+
+		for (Map<String, String> subjectData : subjectsData) {
+			candidateGroups.add(generateCandidateGroup(perunSession, subjectData, source));
+		}
+
+		return candidateGroups;
 	}
 
 	@Override

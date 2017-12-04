@@ -1666,6 +1666,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	@Test
 	public void deletesGroups() throws Exception {
 		System.out.println(CLASS_NAME + "deletesGroups");
+
 		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
 		newVo = perun.getVosManagerBl().createVo(sess, newVo);
 		List<Group> groups = setUpGroupsWithSubgroups(newVo);
@@ -1676,6 +1677,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	@Test (expected=RelationExistsException.class)
 	public void deleteGroupsWithSubgroupAndNoForceDelete() throws Exception {
 		System.out.println(CLASS_NAME + "deleteGroupsWithSubgroupAndNoForceDelete");
+
 		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
 		newVo = perun.getVosManagerBl().createVo(sess, newVo);
 		List<Group> groups = setUpGroupsWithSubgroups(newVo);
@@ -1691,6 +1693,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	@Test
 	public void deleteGroupsWithSubgroupAndForceDelete() throws Exception {
 		System.out.println(CLASS_NAME + "deleteGroupsWithSubgroupAndForceDelete");
+
 		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
 		newVo = perun.getVosManagerBl().createVo(sess, newVo);
 		List<Group> groups = setUpGroupsWithSubgroups(newVo);

@@ -491,6 +491,11 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		if(con != null) con.disconnect();
 	}
 
+	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
 	@JsonIgnore
 	public HttpURLConnection getCon() {
 		return con;

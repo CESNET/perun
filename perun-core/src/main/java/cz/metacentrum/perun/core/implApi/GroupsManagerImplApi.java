@@ -474,6 +474,15 @@ public interface GroupsManagerImplApi {
 	List<Group> getGroupsToSynchronize(PerunSession sess) throws InternalErrorException;
 
 	/**
+	 * Gets all groups which have enabled group structure synchronization.
+	 *
+	 * @param sess
+	 * @return list of groups structures to synchronize
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsStructuresToSynchronize(PerunSession sess) throws InternalErrorException;
+
+	/**
 	 * Returns all groups which have set the attribute with the value. Searching only def and opt attributes.
 	 *
 	 * @param sess

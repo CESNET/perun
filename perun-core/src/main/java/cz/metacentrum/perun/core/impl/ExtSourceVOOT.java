@@ -363,4 +363,9 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     protected Map<String, String> getAttributes() throws InternalErrorException {
         return perunBl.getExtSourcesManagerBl().getAttributes(this);
     }
+
+	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
 }

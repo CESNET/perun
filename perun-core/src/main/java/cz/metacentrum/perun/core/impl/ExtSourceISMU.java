@@ -168,6 +168,11 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		throw new ExtSourceUnsupportedOperationException("Using this method is not supported for ISMU");
 	}
 
+	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+        throw new ExtSourceUnsupportedOperationException();
+	}
+
 	protected Map<String,String> getAttributes() throws InternalErrorException {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}

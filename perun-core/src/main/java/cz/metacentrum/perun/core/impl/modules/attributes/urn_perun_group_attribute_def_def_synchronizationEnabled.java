@@ -15,6 +15,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
 
+import java.util.Objects;
+
 /**
  * Synchronization enabled
  *
@@ -27,7 +29,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModul
 public class urn_perun_group_attribute_def_def_synchronizationEnabled extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 
@@ -56,6 +58,19 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
 			} catch (AttributeNotExistsException e) {
 				throw new ConsistencyErrorException(e);
 			}
+
+		Attribute structureSynchronizeEnabled = null;
+		try {
+			structureSynchronizeEnabled = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSSTRUCTURESYNCHROENABLED_ATTRNAME);
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
+		if (Objects.equals(true, structureSynchronizeEnabled.getValue())) {
+			throw new WrongReferenceAttributeValueException("There is already enabled group structure synchronization for this group.");
+		}
+		if(sess.getPerunBl().getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
+			throw new InternalErrorException("There is already enabled group structure synchronization for one of the parent groups.");
+		}
 	}
 
 	@Override

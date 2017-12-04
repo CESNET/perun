@@ -831,6 +831,22 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Forces group structure synchronization.
+	 *
+	 * @param group int Group <code>id</code>
+	 */
+	forceGroupStructureSynchronization {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			ac.getGroupsManager().forceGroupStructureSynchronization(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")));
+			return null;
+		}
+	},
+
+	/*#
 	 * Returns parent VO of a group.
 	 *
 	 * @param group int Group <code>id</code>

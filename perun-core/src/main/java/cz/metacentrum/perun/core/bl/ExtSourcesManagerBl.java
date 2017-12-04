@@ -6,6 +6,7 @@ package cz.metacentrum.perun.core.bl;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.CandidateGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -253,4 +254,46 @@ public interface ExtSourcesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	Map<String, String> getAttributes(ExtSource extSource) throws InternalErrorException;
+
+	/**
+	 * Get the candidate group from subjectData.
+	 *
+	 * 1. Create new candidate group object
+	 * 2. Set extSource to the candidate group
+	 * 3. Set groupName to the candidate group
+	 * 	  (If first name of candidate is not in correct format of name, set null instead)
+	 * 4. Set parentGroupName to the candidate group
+	 * 5. Set description to the candidate group
+	 *
+	 * IMPORTANT: expected, that these subjectData was get from the ExtSource before using.
+	 *
+	 * 	 * Method used by group structure synchronization
+	 *
+	 * @param perunSession
+	 * @param groupSubjectData
+	 * @param source
+	 *
+	 * @return Candidate group object
+	 * @throws InternalErrorException
+	 */
+	CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source) throws InternalErrorException;
+
+	/**
+	 * Get the candidate groups from subjectData.
+	 *
+	 * 1. For each groupSubjectsData call method get CandidateGroup and then add result to List
+	 *
+	 * IMPORTANT: expected, that these subjectData was get from the ExtSource before using.
+	 *
+	 * Method used by group structure synchronization
+	 *
+	 * @param perunSession
+	 * @param groupSubjectsData
+	 * @param source
+	 *
+	 * @return Candidate group objects
+	 * @throws InternalErrorException
+	 */
+	List<CandidateGroup> generateCandidateGroups(PerunSession perunSession, List<Map<String,String>> groupSubjectsData, ExtSource source) throws InternalErrorException;
+
 }
