@@ -12,15 +12,18 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	<beans profile="production">
 		<task:scheduled-tasks scheduler="scheduler">
 			<task:scheduled ref="synchronizer" method="synchronizeGroups" cron="0 0/5 * * * ?"/> <!-- every 5 minutes -->
-			<task:scheduled ref="synchronizer" method="checkMembersState" cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
 			<task:scheduled ref="synchronizer" method="removeAllExpiredBans" cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
+			<!-- moved to ExpirationNotifScheduler in perun-registrar-lib project -->
+			<!--<task:scheduled ref="synchronizer" method="checkMembersState" cron="0 5 0 * * ?"/> --> <!-- every day at 00:05 -->
 		</task:scheduled-tasks>
 	</beans>
 
-	<beans profile="devel">
-		<task:scheduled-tasks scheduler="scheduler">
-			<task:scheduled ref="synchronizer" method="checkMembersState" cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
+	<!-- moved to ExpirationNotifScheduler in perun-registrar-lib project
+		<beans profile="devel">
+			<task:scheduled-tasks scheduler="scheduler">
+				<task:scheduled ref="synchronizer" method="checkMembersState" cron="0 5 0 * * ?"/> every day at 00:05
 		</task:scheduled-tasks>
 	</beans>
+	-->
 
 </beans>
