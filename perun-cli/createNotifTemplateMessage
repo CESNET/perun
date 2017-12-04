@@ -5,6 +5,8 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
 use Perun::Common qw(printMessage);
+use Encode qw(decode_utf8);
+@ARGV = map { decode_utf8($_, 1) } @ARGV;
 
 sub help {
 	return qq{
@@ -42,6 +44,7 @@ if (defined($message) and defined($messageFile)) {warn "WARNING: if message and 
 
 if (defined($messageFile) and !defined($message)) {
 	open MSG, $messageFile or die "ERROR: MessageFile cannot be opened\n";
+	binmode MSG,":utf8";
 	my $lin;
 	while ($lin = <MSG>) {
 		$message = $message.$lin;
