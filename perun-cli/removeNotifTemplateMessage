@@ -8,13 +8,13 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-Removes NotifTemplateMessage from db by id. Id is required field.
-------------------------------------
-Available options:
- --NotifTemplateMessageId        | -i id of the NotifTemplateMessage
- --batch                         | -b batch
- --help                          | -h prints this help
- 
+	Removes NotifTemplateMessage from db by id. Id is required field.
+	------------------------------------
+	Available options:
+	--NotifTemplateMessageId        | -i id of the NotifTemplateMessage
+	--batch                         | -b batch
+	--help                          | -h prints this help
+
 };
 }
 

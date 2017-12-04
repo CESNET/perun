@@ -460,7 +460,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return afterUpdatingUser;
 	}
 
-	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
+	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
 		getPerunBl().getAuditer().log(sess, "{} updated.", userExtSource);
 		return getUsersManagerImpl().updateUserExtSource(sess, userExtSource);
 	}
@@ -807,6 +807,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	public void checkUserExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException {
 		getUsersManagerImpl().checkUserExtSourceExists(sess, userExtSource);
+	}
+
+	public void checkUserExtSourceExistsById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
+		getUsersManagerImpl().checkUserExtSourceExistsById(sess, id);
 	}
 
 	public boolean userExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {

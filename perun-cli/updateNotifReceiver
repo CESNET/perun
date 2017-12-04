@@ -8,16 +8,16 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-Updates NotifReceiver. Id is required field.
---------------------------------------
-Available options:
- --NotifReceiverId      | -i id of the NotifReceiver 
- --target               | -r target 
- --typeOfReceiver       | -t type of receiver (EMAIL_USER / EMAIL_GROUP / JABBER)
- --templateId           | -p template id (template has to exist)
- --locale 		| -l locale
- --batch                | -b batch
- --help                 | -h prints this help
+	Updates NotifReceiver. Id is required field.
+	--------------------------------------
+	Available options:
+	--NotifReceiverId      | -i id of the NotifReceiver
+	--target               | -r target
+	--typeOfReceiver       | -t type of receiver (EMAIL_USER / EMAIL_GROUP / JABBER)
+	--templateId           | -p template id (template has to exist)
+	--locale 		       | -l locale
+	--batch                | -b batch
+	--help                 | -h prints this help
 
 };
 }

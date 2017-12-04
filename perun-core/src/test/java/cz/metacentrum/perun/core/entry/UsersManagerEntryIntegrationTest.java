@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Integration tests of UsersManager.
@@ -405,6 +407,47 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void updateUserExtSource() throws Exception {
+		System.out.println(CLASS_NAME + "updateUserExtSource");
+
+		ExtSource ext1 = new ExtSource("test1", ExtSourcesManagerEntry.EXTSOURCE_IDP);
+		ext1 = perun.getExtSourcesManagerBl().createExtSource(sess, ext1, null);
+
+		UserExtSource ues1 = new UserExtSource(ext1, 1, "testExtLogin@test");
+		ues1 = usersManager.addUserExtSource(sess, user, ues1);
+
+		ues1.setLoa(2);
+		usersManager.updateUserExtSource(sess, ues1);
+
+		UserExtSource retrievedUes = usersManager.getUserExtSourceById(sess, ues1.getId());
+		Assert.assertTrue("LoA was not updated", retrievedUes.getLoa() == ues1.getLoa());
+
+		ues1.setLogin("changedTestExtLogin@test");
+		usersManager.updateUserExtSource(sess, ues1);
+
+		retrievedUes = usersManager.getUserExtSourceById(sess, ues1.getId());
+		Assert.assertTrue("Login was not updated", Objects.equals(retrievedUes.getLogin(),ues1.getLogin()));
+
+	}
+
+	@Test (expected = UserExtSourceExistsException.class)
+	public void updateUserExtSourceWhenExists() throws Exception {
+		System.out.println(CLASS_NAME + "updateUserExtSourceWhenExists");
+
+		ExtSource ext1 = new ExtSource("test1", ExtSourcesManagerEntry.EXTSOURCE_IDP);
+		ext1 = perun.getExtSourcesManagerBl().createExtSource(sess, ext1, null);
+
+		UserExtSource ues1 = new UserExtSource(ext1, 1, "testExtLogin@test");
+		ues1 = usersManager.addUserExtSource(sess, user, ues1);
+		UserExtSource ues2 = new UserExtSource(ext1, 1, "testExtLogin2@test");
+		ues2 = usersManager.addUserExtSource(sess, user, ues2);
+
+		ues2.setLogin("testExtLogin@test");
+		usersManager.updateUserExtSource(sess, ues2);
+
+	}
+
+	@Test
 	public void getUserByUserExtSource() throws Exception {
 		System.out.println(CLASS_NAME + "getUserByUserExtSource");
 
@@ -564,7 +607,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	@Test
 	public void moveUserExtSource() throws Exception {
 		System.out.println(CLASS_NAME + "removeUserExtSourceWithAttribute");
-		
+
 		//TargetUser
 		User targetUser = setUpEmptyUser();
 

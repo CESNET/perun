@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -442,7 +443,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
+	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
 		try {
 			UserExtSource userExtSourceDb = jdbc.queryForObject("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
 					" from user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id where" +
@@ -457,8 +458,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 						userExtSource.getLoa(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), userExtSource.getId());
 			}
 			if (userExtSource.getLogin() != null && !userExtSourceDb.getLogin().equals(userExtSource.getLogin())) {
-				jdbc.update("update user_ext_sources set login_ext=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
-						userExtSource.getLogin(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), userExtSource.getId());
+				try {
+					jdbc.update("update user_ext_sources set login_ext=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
+							userExtSource.getLogin(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), userExtSource.getId());
+				} catch (DuplicateKeyException ex) {
+					throw new UserExtSourceExistsException("UES with same login already exists: " + userExtSource);
+				}
 			}
 
 			return userExtSource;
@@ -916,6 +921,17 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		if(!userExtSourceExists(sess, userExtSource)) throw new UserExtSourceNotExistsException("UserExtSource: " + userExtSource);
 	}
 
+	public void checkUserExtSourceExistsById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
+
+		try {
+			boolean exists = 1 == jdbc.queryForInt("select 1 from user_ext_sources where id=?", id);
+			if (!exists) throw new UserExtSourceNotExistsException("UserExtSource with ID=" + id + " doesn't exists.");
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+	}
+
 	public void checkReservedLogins(PerunSession sess, String namespace, String login) throws InternalErrorException, AlreadyReservedLoginException {
 		if(isLoginReserved(sess, namespace, login)) throw new AlreadyReservedLoginException(namespace, login);
 	}
@@ -940,6 +956,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		Utils.notNull(userExtSource.getExtSource(), "userExtSource.getExtSource");
 
 		try {
+
+			// check by ext identity (login/ext source ID)
 			if (userExtSource.getUserId() >= 0) {
 				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=? and user_id=?",
 						userExtSource.getLogin(), userExtSource.getExtSource().getId(), userExtSource.getUserId());
@@ -947,15 +965,17 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=?",
 						userExtSource.getLogin(), userExtSource.getExtSource().getId());
 			}
+
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+
 	}
 
 	public List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds) throws InternalErrorException {
-		// If usersIds is empty, we can immediatelly return empty results
+		// If usersIds is empty, we can immediately return empty results
 		if (usersIds.size() == 0) {
 			return new ArrayList<User>();
 		}

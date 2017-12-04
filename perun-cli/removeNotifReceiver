@@ -8,13 +8,13 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-Removes NotifReceiver from db by id. Id is required field.
-------------------------------------
-Available options:
- --NotifReceiverId       | -i id of the NotifReceiver
- --batch                 | -b batch
- --help                  | -h prints this help
- 
+	Removes NotifReceiver from db by id. Id is required field.
+	------------------------------------
+	Available options:
+	--NotifReceiverId       | -i id of the NotifReceiver
+	--batch                 | -b batch
+	--help                  | -h prints this help
+
 };
 }
 

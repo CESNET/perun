@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedExcept
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
@@ -233,8 +234,9 @@ public interface UsersManagerImplApi {
 	 * @param userExtSource
 	 * @return updated user
 	 * @throws InternalErrorException
+	 * @throws UserExtSourceExistsException When UES with same login/extSource already exists.
 	 */
-	UserExtSource updateUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;
+	UserExtSource updateUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException;
 
 	/**
 	 *  Updates user's userExtSource last access time in DB.
@@ -388,7 +390,7 @@ public interface UsersManagerImplApi {
 	boolean userExtSourceExists(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;
 
 	/**
-	 * Check if userExtSource exists in underlaying data source.
+	 * Check if userExtSource exists in underlaying data source by identity (login/extSource combination)
 	 *
 	 * @param perunSession
 	 * @param userExtSource
@@ -396,6 +398,16 @@ public interface UsersManagerImplApi {
 	 * @throws UserExtSourceNotExistsException
 	 */
 	void checkUserExtSourceExists(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException;
+
+	/**
+	 * Check if userExtSource exists in underlaying data source by its ID.
+	 *
+	 * @param perunSession
+	 * @param id
+	 * @throws InternalErrorException
+	 * @throws UserExtSourceNotExistsException
+	 */
+	void checkUserExtSourceExistsById(PerunSession perunSession, int id) throws InternalErrorException, UserExtSourceNotExistsException;
 
 	/**
 	 * Returns list of VOs, where the user is an Administrator.

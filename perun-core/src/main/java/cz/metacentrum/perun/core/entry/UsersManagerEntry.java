@@ -354,7 +354,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().updateNameTitles(sess, user);
 	}
 
-	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, PrivilegeException {
+	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, UserExtSourceExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -362,9 +362,16 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "updateUserExtSource");
 		}
 
-		getUsersManagerBl().checkUserExtSourceExists(sess, userExtSource);
+		getUsersManagerBl().checkUserExtSourceExistsById(sess, userExtSource.getId());
+
+		try {
+			getUsersManagerBl().checkUserExtSourceExists(sess, userExtSource);
+		} catch (UserExtSourceNotExistsException ex) {
+			// silently skip, since it's expected, that new value is not taken already
+		}
 
 		return getUsersManagerBl().updateUserExtSource(sess, userExtSource);
+
 	}
 
 	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {

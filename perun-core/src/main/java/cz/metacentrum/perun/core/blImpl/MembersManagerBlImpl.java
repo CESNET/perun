@@ -398,6 +398,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					} catch (UserExtSourceExistsException e1) {
 						throw new ConsistencyErrorException("Adding userExtSource which already exists: " + userExtSource);
 					}
+				} catch (UserExtSourceExistsException e1) {
+					throw new ConsistencyErrorException("Updating login of userExtSource to value which already exists: " + userExtSource);
 				}
 			}
 		}

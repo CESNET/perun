@@ -13,7 +13,7 @@ sub help {
 	Available options:
 	--groupId     | -g group id
 	--name        | -n new name for the group
-        --dsc         | -d new description for the group
+	--dsc         | -d new description for the group
 	--batch       | -b batch
 	--help        | -h prints this help
 

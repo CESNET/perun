@@ -73,9 +73,19 @@ sub removeUserExtSource
 	return Perun::Common::callManagerMethod('removeUserExtSource', 'null', @_);
 }
 
+sub updateUserExtSource
+{
+	return Perun::Common::callManagerMethod('updateUserExtSource', 'UserExtSource', @_);
+}
+
 sub getUserExtSourceByExtLogin
 {
 	return Perun::Common::callManagerMethod('getUserExtSourceByExtLogin', 'UserExtSource', @_);
+}
+
+sub getUserExtSourceById
+{
+	return Perun::Common::callManagerMethod('getUserExtSourceById', 'UserExtSource', @_);
 }
 
 sub getVosWhereUserIsAdmin

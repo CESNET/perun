@@ -312,15 +312,17 @@ public interface UsersManager {
 
 	/**
 	 *  Updates user's userExtSource in DB.
+	 *  Login and LoA can be updated this way.
 	 *
 	 * @param perunSession
 	 * @param userExtSource
 	 * @return updated userExtSource
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws UserExtSourceNotExistsException
+	 * @throws UserExtSourceExistsException When UES with same login/extSource already exists.
+	 * @throws UserExtSourceNotExistsException When UES by its ID doesn't exists
 	 */
-	UserExtSource updateUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, PrivilegeException;
+	UserExtSource updateUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, UserExtSourceExistsException, PrivilegeException;
 
 	/**
 	 * Gets list of all user's external sources of the user.
