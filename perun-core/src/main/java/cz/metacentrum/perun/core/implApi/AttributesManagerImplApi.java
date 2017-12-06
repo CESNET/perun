@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.ActionType;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -629,6 +630,14 @@ public interface AttributesManagerImplApi {
 	 * @throws AttributeNotExistsException  if the attribute doesn't exists in the underlaying data source
 	 */
 	Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+
+	/**
+	 * Gets map from keys to string values for an entityless attribute.
+	 * @param sess not used
+	 * @param attributeName full attribute name
+	 * @return unordered hashmap
+	 */
+	Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the User External Source.

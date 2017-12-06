@@ -1248,4 +1248,26 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
+
+	@Override
+	public List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws InternalErrorException {
+		try {
+			StringBuilder sb = new StringBuilder("SELECT DISTINCT " + userMappingSelectQuery + " FROM users " +
+					"  JOIN user_ext_sources ues ON users.id = ues.user_id " +
+					"  JOIN user_ext_source_attr_values v ON ues.id = v.user_ext_source_id" +
+					"  JOIN attr_names a ON (v.attr_id = a.id AND a.attr_name=?)" +
+					"  WHERE v.attr_value LIKE ? ");
+			List<String> args = new ArrayList<>();
+			args.add(attributeName);
+			args.add("%"+valueEnd);
+			for(String excl : excludeValueEnds) {
+				sb.append(" AND v.attr_value NOT LIKE ?");
+				args.add("%"+excl);
+			}
+			return jdbc.query(sb.toString(), USER_MAPPER, args.toArray());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+	}
 }

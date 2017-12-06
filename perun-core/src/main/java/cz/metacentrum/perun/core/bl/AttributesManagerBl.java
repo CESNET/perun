@@ -1075,6 +1075,14 @@ public interface AttributesManagerBl {
 	Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
+	 * Gets map from keys to string values for an entityless attribute.
+	 * @param sess session
+	 * @param attributeName full attribute name
+	 * @return unordered hashmap
+	 */
+	Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws WrongAttributeAssignmentException, AttributeNotExistsException, InternalErrorException;
+
+	/**
 	 * Get particular attribute for the User External Source.
 	 *
 	 * @param sess

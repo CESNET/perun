@@ -43,7 +43,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCIDTest {
 				Arrays.asList(ues1, ues2)
 		);
 
-		String attributeName = "urn:perun:ues:attribute-def:def:" + classInstance.getSourceAttributeFriendlyName();
+		String attributeName = classInstance.getSourceAttributeName();
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, ues1, attributeName)).thenReturn(
 				att1
 		);

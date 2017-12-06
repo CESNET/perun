@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedExcep
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 
 /**
@@ -730,4 +731,9 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	void deleteSponsorLinks(PerunSession sess, User sponsor) throws InternalErrorException;
+
+	/**
+	 * Implements search for #UsersManagerBl.findUsersWithExtSourceAttributeValueEnding().
+	 */
+	List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws InternalErrorException;
 }
