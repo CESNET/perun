@@ -27,7 +27,6 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	//http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private static JdbcPerunTemplate jdbc;
 
-	private Perun perun;
 	private final static Pattern patternForExtractingPerunBean = Pattern.compile("^pb_([a-z_]+)_id$");
 
 	private final static String authzRoleMappingSelectQuery = " authz.user_id as authz_user_id, authz.role_id as authz_role_id," +
@@ -131,15 +130,15 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 	public void initialize() throws InternalErrorException {
 
-		if(perun.isPerunReadOnly()) log.debug("Loading authzresolver manager init in readOnly version.");
+		if(BeansUtils.isPerunReadOnly()) log.debug("Loading authzresolver manager init in readOnly version.");
 
 		// Check if all roles defined in class Role exists in the DB
 		for (Role role: Role.values()) {
 			try {
 				if (0 == jdbc.queryForInt("select count(*) from roles where name=?", role.getRoleName())) {
 					//Skip creating not existing roles for read only Perun
-					if(perun.isPerunReadOnly()) {
-						throw new InternalErrorException("One of deafult roles not exists in DB - " + role);
+					if(BeansUtils.isPerunReadOnly()) {
+						throw new InternalErrorException("One of default roles not exists in DB - " + role);
 					} else {
 						int newId = Utils.getNewId(jdbc, "roles_id_seq");
 						jdbc.update("insert into roles (id, name) values (?,?)", newId, role.getRoleName());
@@ -547,7 +546,4 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
-	public void setPerun(Perun perun) {
-		this.perun = perun;
-	}
 }
