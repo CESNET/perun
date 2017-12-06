@@ -78,7 +78,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 		String value = null;
 		if(attribute.getValue() != null) value = (String) attribute.getValue();
 		//If there is some value and member is in status expired or disabled
-		if(value != null && (member.getStatus().equals(Status.EXPIRED) || member.getStatus().equals(Status.DISABLED))) {
+		if(value != null && (member.getStatus().equals(Status.EXPIRED))) {
 			Date expirationDate = null;
 			try {
 				expirationDate = BeansUtils.getDateFormatterWithoutTime().parse(value);
