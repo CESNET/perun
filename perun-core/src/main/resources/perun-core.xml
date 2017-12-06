@@ -279,7 +279,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="perunBl" ref="perun"/>
 		<constructor-arg ref="extSourcesManagerImpl" />
 	</bean>
-	<bean id="attributesManagerBl" class="cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
+	<bean id="attributesManagerBl" class="cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl" scope="singleton" init-method="initialize" depends-on="authzResolverImpl">
+		<!-- depend on authz resolver impl to make sure roles are inserted in DB before attribute authz is set -->
 		<property name="perunBl" ref="perun"/>
 		<constructor-arg ref="attributesManagerImpl" />
 	</bean>
@@ -353,7 +354,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="authzResolverImpl" class="cz.metacentrum.perun.core.impl.AuthzResolverImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
-		<property name="perun" ref="perun"/>
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="searcherImpl" class="cz.metacentrum.perun.core.impl.SearcherImpl" scope="singleton" depends-on="databaseManagerBl">
