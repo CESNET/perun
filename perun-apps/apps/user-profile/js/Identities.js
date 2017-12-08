@@ -1,4 +1,4 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -51,7 +51,7 @@ function fillExtSources(extSources) {
 
 function fillFederations(federations) {
     if (!federations) {
-        (flowMessager.newMessage("Federations", "can't be fill", "danger")).draw();
+        (flowMessager.newMessage("Federations", "can't be filled", "danger")).draw();
         return;
     }
 
@@ -59,7 +59,7 @@ function fillFederations(federations) {
     for (var id in federations) {
         federationsFriendly[id] = {};
         federationsFriendly[id]["id"] = federations[id].id;
-        federationsFriendly[id]["name"] = federations[id].extSource.name;   //default 
+        federationsFriendly[id]["name"] = federations[id].extSource.name;   //default
         federationsFriendly[id]["login"] = federations[id].login;           //default
         if (federations[id].extSource.name.split("/")[2] == 'extidp.cesnet.cz') {   //if is extIdp
             var login = federations[id].login.split('@')[0];
@@ -93,6 +93,10 @@ function fillFederations(federations) {
             loadIdentities(user);
             loadImage.hide();
             (flowMessager.newMessage("Federated identity", "was removed successfully", "success")).draw();
+        }, function(perunError) {
+	        loadIdentities(user);
+	        loadImage.hide();
+	        (flowMessager.newMessage("Federated identity", "was not removed. " + perunError.message, "danger")).draw();
         });
     });
 }
