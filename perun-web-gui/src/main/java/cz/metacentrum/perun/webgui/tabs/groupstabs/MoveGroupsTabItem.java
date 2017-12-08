@@ -121,17 +121,44 @@ public class MoveGroupsTabItem implements TabItem {
 		final CustomButton moveButton = TabMenu.getPredefinedButton(ButtonType.MOVE, buttonTranslation.moveGroup());
 		moveButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				Group destinationGroup = vosGroups.getSelectedObject();
+				final Group destinationGroup = vosGroups.getSelectedObject();
+				final MoveGroup request = new MoveGroup();
 
-				for (int i=0; i<groups.size(); i++ ) {
-					MoveGroup request;
-					if (i == groups.size() - 1) {
-						request = new MoveGroup(JsonCallbackEvents.closeTabDisableButtonEvents(moveButton, tab));
-					} else {
-						request = new MoveGroup(JsonCallbackEvents.disableButtonEvents(moveButton));
+				final JsonCallbackEvents nextEvent = JsonCallbackEvents.disableButtonEvents(moveButton, new JsonCallbackEvents() {
+					int groupsCounter = 0;
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						if (groups.size() - 1 == groupsCounter) {
+							// there is another group to move
+							request.setEvents(JsonCallbackEvents.closeTabDisableButtonEvents(moveButton, tab));
+							request.moveGroup(groups.get(groupsCounter),destinationGroup);
+						} else if (groups.size() - 1 > groupsCounter) {
+							request.moveGroup(groups.get(groupsCounter), destinationGroup);
+						}
+						// done
 					}
-					request.moveGroup(groups.get(i), destinationGroup);
+
+					@Override
+					public void onError(PerunError error) {
+						// close tab if failed
+						moveButton.setProcessing(false);
+						session.getTabManager().closeTab(tab);
+					}
+
+					@Override
+					public void onLoadingStart() {
+						groupsCounter++;
+
+					}
+				});
+				if (groups.size() == 1) {
+					// single group
+					request.setEvents(JsonCallbackEvents.closeTabDisableButtonEvents(moveButton, tab));
+				} else {
+					// iterate over more groups
+					request.setEvents(nextEvent);
 				}
+				request.moveGroup(groups.get(0), destinationGroup);
 			}
 		});
 
@@ -279,9 +306,13 @@ public class MoveGroupsTabItem implements TabItem {
 
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin((vo != null) ? vo.getId() : group.getVoId())) {
+		// FIXME - temporary only for perun admin
+		if (session.isPerunAdmin()){
 			return true;
-		} else {
+		}/*
+		else if (session.isVoAdmin((vo != null) ? vo.getId() : group.getVoId())) {
+			return true;
+		}*/ else {
 			return false;
 		}
 

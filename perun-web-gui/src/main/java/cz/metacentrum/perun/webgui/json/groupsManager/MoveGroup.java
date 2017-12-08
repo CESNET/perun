@@ -122,4 +122,7 @@ public class MoveGroup {
 		return result;
 	}
 
+	public void setEvents(JsonCallbackEvents events) {
+		this.events = events;
+	}
 }

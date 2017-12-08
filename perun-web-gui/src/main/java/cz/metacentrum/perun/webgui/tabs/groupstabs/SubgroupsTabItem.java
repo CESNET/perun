@@ -160,8 +160,12 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 				session.getTabManager().addTabToCurrentTab(new MoveGroupsTabItem(group, groupsToMove));
 			}
 		});
-		if (!session.isVoAdmin(group.getVoId())) moveButton.setEnabled(false);
-		menu.addWidget(moveButton);
+
+		if (session.isPerunAdmin()) {
+			// FIXME - temporary for perun admin
+			if (!session.isVoAdmin(group.getVoId())) moveButton.setEnabled(false);
+			menu.addWidget(moveButton);
+		}
 
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(subgroups.getOracle()), new PerunSearchEvent() {
@@ -183,7 +187,9 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 
 		removeButton.setEnabled(false);
 		if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, removeButton);
-		if (session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, moveButton);
+		// FIXME - temporary for perun admin
+		if (session.isPerunAdmin()) JsonUtils.addTableManagedButton(subgroups, table, moveButton);
+		//if (session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, moveButton);
 
 		// adds the table into the panel
 		table.addStyleName("perun-table");

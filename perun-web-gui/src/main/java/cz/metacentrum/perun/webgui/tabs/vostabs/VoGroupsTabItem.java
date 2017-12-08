@@ -147,8 +147,11 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 				session.getTabManager().addTabToCurrentTab(new MoveGroupsTabItem(vo, groupsToMove));
 			}
 		});
-		if (!session.isVoAdmin(voId)) moveButton.setEnabled(false);
-		menu.addWidget(moveButton);
+		if (session.isPerunAdmin()) {
+			// FIXME - temporary for perun admin
+			if (!session.isVoAdmin(voId)) moveButton.setEnabled(false);
+			menu.addWidget(moveButton);
+		}
 
 		// filter box
 		menu.addFilterWidget(new ExtendedSuggestBox(groups.getOracle()), new PerunSearchEvent() {
@@ -176,7 +179,8 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 
 		removeButton.setEnabled(false);
 		if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(groups, table, removeButton);
-		if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(groups, table, moveButton);
+		// fixme - temporary only for perun admin
+		if (session.isPerunAdmin()) JsonUtils.addTableManagedButton(groups, table, moveButton);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
