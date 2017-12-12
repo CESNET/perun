@@ -452,7 +452,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return group;
 	}
 
-	public void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException {
+	public void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		// check if moving group is null
 		if (movingGroup == null) {
@@ -508,21 +508,40 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			}
 
-			//First we have to move indirect members
-			List<Member> members = getGroupMembers(sess, movingGroup);
+			//check if there is union between destination group and moving group
+			if(groupsManagerImpl.isOneWayRelationBetweenGroups(destinationGroup, movingGroup)) {
+				throw new GroupMoveNotAllowedException("There is already group union between moving group: " + movingGroup + " and destination group: " + destinationGroup + ".", movingGroup, destinationGroup);
+			}
 
-			try {
-				//Removing indirect members from old position just if moving group is not top level group
-				if (movingGroup.getParentGroupId() != null) {
-					removeRelationMembers(sess, groupsManagerImpl.getGroupById(sess,movingGroup.getParentGroupId()), members, movingGroup.getId());
+			//We have to remove old group relation, if moving group is not top level group
+			if(movingGroup.getParentGroupId() != null){
+				try {
+					removeGroupUnion(sess, getParentGroup(sess, movingGroup), movingGroup,true );
+				} catch (GroupRelationDoesNotExist e) {
+					//that should never happened
+					throw new InternalErrorException("Group relation does not exists between group " + movingGroup + "and its parent group.");
+				} catch (GroupRelationCannotBeRemoved e) {
+					//that should never happened
+					throw new InternalErrorException("Group relation cannot be removed between group " + movingGroup + "and its parent group.");
+				} catch (ParentGroupNotExistsException e) {
+					//That should never happened
+					throw new InternalErrorException("Parent group does not exists for group " + movingGroup);
+				} catch (GroupNotExistsException e) {
+					throw new ConsistencyErrorException("Some group does not exists while removing group union.", e);
 				}
-				//Adding indirect members to new position
-				addRelationMembers(sess, groupsManagerImpl.getGroupById(sess, destinationGroup.getId()), members, movingGroup.getId());
+			}
 
-			} catch (WrongReferenceAttributeValueException | NotGroupMemberException | AlreadyMemberException | WrongAttributeValueException e ) {
-				throw new InternalErrorException("Some operation was not allowed during processing members relations", e);
+			//we have to create new group relation
+			try {
+				createGroupUnion(sess, destinationGroup, movingGroup, true);
+			} catch (GroupRelationAlreadyExists e) {
+				//that should noever happened
+				throw new InternalErrorException("Group relation already exists between destination group "  + destinationGroup + " and moving group " + movingGroup + ".");
+			} catch (GroupRelationNotAllowed e) {
+				//that should never happened
+				throw new InternalErrorException("Group relation cannot be created between destination group "  + destinationGroup + " and moving group " + movingGroup + ".");
 			} catch (GroupNotExistsException e) {
-				throw new InternalErrorException("Some group does not exists...", e);
+				throw new ConsistencyErrorException("Some group does not exists while creating group union.", e);
 			}
 
 			// We can move whole moving group tree under destination group
@@ -561,30 +580,36 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		} else {
 
-			// check if moving group is already under destination group
+			// check if moving group is already top level group
 			if (movingGroup.getParentGroupId() == null) {
 				throw new GroupMoveNotAllowedException("Moving group: " + movingGroup + " is already top level group.", movingGroup, destinationGroup);
 			}
 
 			List<Group> destinationGroupSubGroups = getGroups(sess, getVo(sess, movingGroup));
 
-			// check if under destination group is group with same short name as Moving group short name
+			// check if there is top level group with same short name as Moving group short name
 			for (Group group: destinationGroupSubGroups) {
 				if(movingGroup.getShortName().equals(group.getName())){
 					throw new GroupMoveNotAllowedException("There is already top level group with the same name as moving group: " + movingGroup + ".", movingGroup, destinationGroup);
 				}
 			}
 
-			//After that, we have to remove indirect members from old position
-			List<Member> members = getGroupMembers(sess, movingGroup);
-
-			try {
-				//Removing indirect members from old position
-				removeRelationMembers(sess, groupsManagerImpl.getGroupById(sess, movingGroup.getParentGroupId()), members, movingGroup.getId());
-			} catch (WrongReferenceAttributeValueException | NotGroupMemberException | WrongAttributeValueException e) {
-				throw new InternalErrorException("Some operation was not allowed during removing members relations", e);
-			} catch (GroupNotExistsException e) {
-				throw new InternalErrorException("Some group does not exists...", e);
+			//We have to remove old group relation, if moving group is not top level group
+			if(movingGroup.getParentGroupId() != null){
+				try {
+					removeGroupUnion(sess, getParentGroup(sess, movingGroup), movingGroup,true );
+				} catch (GroupRelationDoesNotExist e) {
+					//that should never happened
+					throw new InternalErrorException("Group relation does not exists between group " + movingGroup + "and its parent group.");
+				} catch (GroupRelationCannotBeRemoved e) {
+					//that should never happened
+					throw new InternalErrorException("Group relation cannot be removed between group " + movingGroup + "and its parent group.");
+				} catch (ParentGroupNotExistsException e) {
+					//That should never happened
+					throw new InternalErrorException("Parent group does not exists for group " + movingGroup);
+				} catch (GroupNotExistsException e) {
+					throw new ConsistencyErrorException("Some group does not exists while removing group union.", e);
+				}
 			}
 
 			// We can move whole moving group tree as top level group in vo

@@ -1265,6 +1265,8 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupMoveNotAllowedException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
 	 */
-	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException;
+	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 }

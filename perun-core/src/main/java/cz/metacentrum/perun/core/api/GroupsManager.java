@@ -909,6 +909,8 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
 	 */
-	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException;
+	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 }
