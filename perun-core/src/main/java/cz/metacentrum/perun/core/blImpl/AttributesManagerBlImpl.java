@@ -5724,7 +5724,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//User.displayName
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
-		attr.setType(Integer.class.getName());
+		attr.setType(String.class.getName());
 		attr.setFriendlyName("displayName");
 		attr.setDisplayName("Display name");
 		attr.setDescription("Displayed user's name.");
@@ -5912,7 +5912,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("membershipExpirationRules");
 		attr.setNamespace("urn:perun:vo:attribute-def:def");
 		attr.setDescription("Set of rules to determine date of membership expiration. If not set, membership is not limited.");
-		attr.setType(String.class.getName());
+		attr.setType(LinkedHashMap.class.getName());
 		//set attribute rights (with dummy id of attribute - not known yet)
 		rights = new ArrayList<>();
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
@@ -6013,7 +6013,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//urn:perun:group:attribute-def:def:lightweightSynchronization
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-		attr.setType(String.class.getName());
+		attr.setType(Boolean.class.getName());
 		attr.setFriendlyName("lightweightSynchronization");
 		attr.setDisplayName("Lightweight Synchronization");
 		attr.setDescription("If true, then do not update actual members.");
@@ -6039,7 +6039,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//urn:perun:group:attribute-def:def:authoritativeGroup
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-		attr.setType(String.class.getName());
+		attr.setType(Integer.class.getName());
 		attr.setFriendlyName("authoritativeGroup");
 		attr.setDisplayName("Authoritative Group");
 		attr.setDescription("If group is authoritative for member. (for synchronization)");
