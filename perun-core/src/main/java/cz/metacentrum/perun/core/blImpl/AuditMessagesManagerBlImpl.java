@@ -17,7 +17,7 @@ import java.util.Map;
  * @author Michal Stava
  */
 public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
-	
+
 	private Auditer auditer;
 	private PerunBl perunBl;
 
@@ -69,7 +69,7 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 
 	public void createAuditerConsumer(String consumerName) throws InternalErrorException {
 
-		createAuditerConsumer(consumerName);
+		perunBl.getAuditer().createAuditerConsumer(consumerName);
 	}
 
 	public void log(PerunSession perunSession, String message) throws InternalErrorException {
@@ -91,7 +91,7 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 
 		perunBl.getAuditer().setLastProcessedId(consumerName, lastProcessedId);
 	}
-	
+
 	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException {
 		return perunBl.getAuditer().getAuditerMessagesCount(perunSession);
 	}
