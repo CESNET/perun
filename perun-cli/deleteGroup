@@ -51,7 +51,7 @@ if (!defined($groupId)) {
 
 if (defined($force)) {
 	my $forcevalue = 1;
-	$groupsAgent->deleteGroup( group => $groupId, forceDelete => $forcevalue );
+	$groupsAgent->deleteGroup( group => $groupId, force => $forcevalue );
 } else {
 	$groupsAgent->deleteGroup( group => $groupId );
 }
