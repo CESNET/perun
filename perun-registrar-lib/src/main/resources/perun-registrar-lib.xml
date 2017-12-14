@@ -41,7 +41,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="registrarManager" ref="registrarManager"/>
 	</bean>
 
-	<bean id="registrarScheduler" class="cz.metacentrum.perun.registrar.impl.ExpirationNotifScheduler" init-method="initialize">
+	<bean id="expirationNotifScheduler" class="cz.metacentrum.perun.registrar.impl.ExpirationNotifScheduler" init-method="initialize">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="perun" ref="perun"/>
 	</bean>

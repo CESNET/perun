@@ -130,7 +130,12 @@ public class ExpirationNotifScheduler {
 				} catch (ExtendMembershipException ex) {
 					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
 						// we don't care about other reasons (LoA), user can update it later
-						getPerun().getAuditer().log(sess, "{} will expire in a month in {}.", m, vosMap.get(m.getVoId()));
+						if (didntSubmitExtensionApplication(m)) {
+							// still didn't apply for extension
+							getPerun().getAuditer().log(sess, "{} will expire in a month in {}.", m, vosMap.get(m.getVoId()));
+						} else {
+							log.debug("{} not notified about expiration, has submitted - pending application.", m);
+						}
 					}
 				}
 			}
@@ -155,7 +160,12 @@ public class ExpirationNotifScheduler {
 				} catch (ExtendMembershipException ex) {
 					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
 						// we don't care about other reasons (LoA), user can update it later
-						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 14, vosMap.get(m.getVoId()));
+						if (didntSubmitExtensionApplication(m)) {
+							// still didn't apply for extension
+							getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 14, vosMap.get(m.getVoId()));
+						} else {
+							log.debug("{} not notified about expiration, has submitted - pending application.", m);
+						}
 					}
 				}
 			}
@@ -180,7 +190,12 @@ public class ExpirationNotifScheduler {
 				} catch (ExtendMembershipException ex) {
 					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
 						// we don't care about other reasons (LoA), user can update it later
-						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 7, vosMap.get(m.getVoId()));
+						if (didntSubmitExtensionApplication(m)) {
+							// still didn't apply for extension
+							getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 7, vosMap.get(m.getVoId()));
+						} else {
+							log.debug("{} not notified about expiration, has submitted - pending application.", m);
+						}
 					}
 				}
 			}
@@ -205,7 +220,12 @@ public class ExpirationNotifScheduler {
 				} catch (ExtendMembershipException ex) {
 					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
 						// we don't care about other reasons (LoA), user can update it later
-						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 1, vosMap.get(m.getVoId()));
+						if (didntSubmitExtensionApplication(m)) {
+							// still didn't apply for extension
+							getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 1, vosMap.get(m.getVoId()));
+						} else {
+							log.debug("{} not notified about expiration, has submitted - pending application.", m);
+						}
 					}
 				}
 			}

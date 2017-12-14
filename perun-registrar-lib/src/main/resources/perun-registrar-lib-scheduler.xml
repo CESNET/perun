@@ -7,17 +7,17 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
 ">
 
-	<task:scheduler id="scheduler" pool-size="1"/>
+	<task:scheduler id="registrarScheduler" pool-size="1"/>
 
 	<beans profile="production">
-		<task:scheduled-tasks scheduler="scheduler">
-			<task:scheduled ref="registrarScheduler" method="checkMembersState" cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
+		<task:scheduled-tasks scheduler="registrarScheduler">
+			<task:scheduled ref="expirationNotifScheduler" method="checkMembersState" cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
 		</task:scheduled-tasks>
 	</beans>
 
 	<beans profile="devel">
-		<task:scheduled-tasks scheduler="scheduler">
-			<task:scheduled ref="registrarScheduler" method="checkMembersState" cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
+		<task:scheduled-tasks scheduler="registrarScheduler">
+			<task:scheduled ref="expirationNotifScheduler" method="checkMembersState" cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
 		</task:scheduled-tasks>
 	</beans>
 
