@@ -8,7 +8,9 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_o365EmailAddresses_mu.UCO_ATTRIBUTE;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -50,7 +52,9 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_muTest {
 		Attribute attribute = classInstance.fillAttribute(session, member, classInstance.getAttributeDefinition());
 		Object attributeValue = attribute.getValue();
 		assertThat(attributeValue, is(notNullValue()));
-		assertThat(attributeValue, equalTo(uco + "@muni.cz"));
+		List<String> expectedValue = new ArrayList<>();
+		expectedValue.add(uco + "@muni.cz");
+		assertThat(attributeValue, equalTo(expectedValue));
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
