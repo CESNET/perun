@@ -68,6 +68,8 @@ public class urn_perun_group_resource_attribute_def_def_adName extends ResourceG
 		}
 
 		List<Group> groupsWithSameADNameInSameOu = sess.getPerunBl().getSearcherBl().getGroupsByGroupResourceSetting(sess, attribute, resourceAdOuName);
+		//Remove itself from the list of groups with the same ad name in same ou
+		groupsWithSameADNameInSameOu.remove(group);
 		if(!groupsWithSameADNameInSameOu.isEmpty()) {
 			throw new WrongReferenceAttributeValueException(attribute, resourceAdOuName, group, resource, resource, null,
 					"Attribute AD Name can't be set for group and resource in this OU, because this value is already " +
