@@ -156,12 +156,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						}
 					}));
 
-			for (Group g : subGroups) {
+			for (Group subGroup : subGroups) {
 				//For auditer
-				List<Resource> subGroupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, g);
+				List<Resource> subGroupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, subGroup);
 				for(Resource resource : subGroupResources) {
 					try {
-						getPerunBl().getResourcesManagerBl().removeGroupFromResource(sess, g, resource);
+						getPerunBl().getResourcesManagerBl().removeGroupFromResource(sess, subGroup, resource);
 					} catch(GroupNotDefinedOnResourceException ex) {
 						throw new ConsistencyErrorException(ex);
 					}
@@ -169,13 +169,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 				//remove subgroups' attributes
 				try {
-					getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, g);
+					getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, subGroup);
 				} catch(AttributeValueException ex) {
 					throw new ConsistencyErrorException("All resources was removed from this group. So all attributes values can be removed.", ex);
 				}
 
 				// delete all sub-groups reserved logins from KDC
-				List<Integer> list = getGroupsManagerImpl().getGroupApplicationIds(sess, group);
+				List<Integer> list = getGroupsManagerImpl().getGroupApplicationIds(sess, subGroup);
 				for (Integer appId : list) {
 					// for each application
 					for (Pair<String, String> login : getGroupsManagerImpl().getApplicationReservedLogins(appId)) {
@@ -191,46 +191,56 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					}
 				}
 				// delete all Groups reserved logins from DB
-				getGroupsManagerImpl().deleteGroupReservedLogins(sess, group);
+				getGroupsManagerImpl().deleteGroupReservedLogins(sess, subGroup);
 
 				//Remove all information about group on facilities (facilities contacts)
-				List<ContactGroup> groupContactGroups = getPerunBl().getFacilitiesManagerBl().getFacilityContactGroups(sess, group);
+				List<ContactGroup> groupContactGroups = getPerunBl().getFacilitiesManagerBl().getFacilityContactGroups(sess, subGroup);
 				if(!groupContactGroups.isEmpty()) {
-					getPerunBl().getFacilitiesManagerBl().removeAllGroupContacts(sess, group);
+					getPerunBl().getFacilitiesManagerBl().removeAllGroupContacts(sess, subGroup);
 				}
 
 				//remove all assigned ExtSources to this group
-				List<ExtSource> assignedSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
+				List<ExtSource> assignedSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, subGroup);
 				for(ExtSource source: assignedSources) {
 					try {
-						getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
+						getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, subGroup, source);
 					} catch (ExtSourceNotAssignedException | ExtSourceAlreadyRemovedException ex) {
 						//Just log this, because if method can't remove it, it is probably not assigned now
-						log.error("Try to remove not existing extSource {} from group {} when deleting group.", source, group);
+						log.error("Try to remove not existing extSource {} from group {} when deleting group.", source, subGroup);
 					}
 				}
 
 				// 1. remove all relations with group g as an operand group.
 				// this removes all relations that depend on this group
-				List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, g.getId());
+				List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, subGroup.getId());
 				for (Integer groupId : relations) {
-					removeGroupUnion(sess, groupsManagerImpl.getGroupById(sess, groupId), g, true);
+					removeGroupUnion(sess, groupsManagerImpl.getGroupById(sess, groupId), subGroup, true);
 				}
 
 				// 2. remove all relations with group as a result group
 				// We can remove relations without recalculation (@see processRelationMembers)
 				// because all dependencies of group were deleted in step 1.
-				groupsManagerImpl.removeResultGroupRelations(sess, g);
+				groupsManagerImpl.removeResultGroupRelations(sess, subGroup);
 
 				// Group applications, submitted data and app_form are deleted on cascade with "deleteGroup()"
 
-				List<Member> membersFromDeletedGroup = getGroupMembers(sess, g);
+				List<Member> membersFromDeletedGroup = getGroupMembers(sess, subGroup);
+
+				// delete all member-group attributes
+				for (Member member : membersFromDeletedGroup) {
+					try {
+						perunBl.getAttributesManagerBl().removeAllAttributes(sess, member, subGroup);
+					} catch (AttributeValueException | WrongAttributeAssignmentException ex) {
+						throw new ConsistencyErrorException("All resources were removed from this group. So all member-group attribute values can be removed.", ex);
+					}
+				}
+
 				// Deletes also all direct and indirect members of the group
-				getGroupsManagerImpl().deleteGroup(sess, vo, g);
+				getGroupsManagerImpl().deleteGroup(sess, vo, subGroup);
 
-				logTotallyRemovedMembers(sess, g.getParentGroupId(), membersFromDeletedGroup);
+				logTotallyRemovedMembers(sess, subGroup.getParentGroupId(), membersFromDeletedGroup);
 
-				getPerunBl().getAuditer().log(sess, "{} deleted.", g);
+				getPerunBl().getAuditer().log(sess, "{} deleted.", subGroup);
 
 			}
 		}
@@ -305,6 +315,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		// Group applications, submitted data and app_form are deleted on cascade with "deleteGroup()"
 		List<Member> membersFromDeletedGroup = getGroupMembers(sess, group);
+
+		// delete all member-group attributes
+		for (Member member : membersFromDeletedGroup) {
+			try {
+				perunBl.getAttributesManagerBl().removeAllAttributes(sess, member, group);
+			} catch (AttributeValueException | WrongAttributeAssignmentException ex) {
+				throw new ConsistencyErrorException("All resources were removed from this group. So all member-group attribute values can be removed.", ex);
+			}
+		}
+
 		// Deletes also all direct and indirect members of the group
 		getGroupsManagerImpl().deleteGroup(sess, vo, group);
 
