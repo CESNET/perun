@@ -95,7 +95,9 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 			throws InternalErrorException, WrongAttributeAssignmentException {
 		if (!NAMESPACE.equals(attrDef.getNamespace())) throw new WrongAttributeAssignmentException(attrDef);
 		Attribute result = new Attribute(attrDef);
-		result.setValue(getUserUcoEmail(sess, member));
+		List<String> newValue = new ArrayList<>();
+		newValue.add(getUserUcoEmail(sess, member));
+		result.setValue(newValue);
 		return result;
 	}
 
