@@ -384,7 +384,7 @@ public interface ModulesUtilsBl {
 	 *
 	 * @return map with path in key and pair with <softQuota, hardQuota> in big decimal
 	 *
-	 * @throws InternalErrorException if attribute or his value is null
+	 * @throws InternalErrorException if first mandatory placeholder is null
 	 * @throws WrongAttributeValueException if something is wrong in format of attribute
 	 */
 	Map<String, Pair<BigDecimal, BigDecimal>> checkAndTransferQuotas(Attribute quotasAttribute, PerunBean firstPlaceholder, PerunBean secondPlaceholder, boolean withMetrics) throws InternalErrorException, WrongAttributeValueException;

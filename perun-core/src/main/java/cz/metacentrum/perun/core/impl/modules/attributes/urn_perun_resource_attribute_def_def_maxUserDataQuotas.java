@@ -41,9 +41,9 @@ public class urn_perun_resource_attribute_def_def_maxUserDataQuotas extends Reso
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("maxUserDataQuotas");
-		attr.setDisplayName("Maximum of data quotas of User on any volumes.");
+		attr.setDisplayName("Maximum of data quotas of user on any volumes.");
 		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("This is Facility manager maximum set for Resource on defined volumes. " +
+		attr.setDescription("Maximum data quota for each user on this resource. " +
 				"Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota' in (M, G, T, ...), G is default. Example: '10G:20T'.");
 		return attr;
 	}

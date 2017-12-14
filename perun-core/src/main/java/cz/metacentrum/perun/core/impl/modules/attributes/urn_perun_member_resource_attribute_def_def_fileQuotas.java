@@ -59,7 +59,7 @@ public class urn_perun_member_resource_attribute_def_def_fileQuotas extends Reso
 		Map<String, Pair<BigDecimal, BigDecimal>> maxUserFileQuotasForResource;
 		try {
 			maxUserFileQuotasForResource = perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(maxUserFileQuotasAttribute, resource, null, false);
-		} catch (WrongAttributeValueException | InternalErrorException ex) {
+		} catch (WrongAttributeValueException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, maxUserFileQuotasAttribute, resource, member, resource, null,
 					"Can't set fileQuotas for member on resource, because maxUserQuota is not in correct format. Please fix it first!", ex);
 		}

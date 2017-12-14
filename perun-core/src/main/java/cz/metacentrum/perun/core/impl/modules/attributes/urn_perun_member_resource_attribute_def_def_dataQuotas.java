@@ -59,7 +59,7 @@ public class urn_perun_member_resource_attribute_def_def_dataQuotas extends Reso
 		Map<String, Pair<BigDecimal, BigDecimal>> maxUserDataQuotasForResource;
 		try {
 			maxUserDataQuotasForResource = perunSession.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(maxUserDataQuotasAttribute, resource, null, true);
-		} catch (WrongAttributeValueException | InternalErrorException ex) {
+		} catch (WrongAttributeValueException ex) {
 			throw new WrongReferenceAttributeValueException(attribute, maxUserDataQuotasAttribute, resource, member, resource, null,
 					"Can't set dataQuotas for member on resource, because maxUserQuota is not in correct format. Please fix it first!", ex);
 		}

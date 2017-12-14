@@ -687,8 +687,8 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public Map<String, Pair<BigDecimal, BigDecimal>> checkAndTransferQuotas(Attribute quotasAttribute, PerunBean firstPlaceholder, PerunBean secondPlaceholder, boolean withMetrics) throws InternalErrorException, WrongAttributeValueException {
 		//firstPlaceholder can't be null
 		if(firstPlaceholder == null) throw new InternalErrorException("Missing first mandatory placeHolder (PerunBean).");
-		//Quotas attribute must exists with not null value
-		if(quotasAttribute == null || quotasAttribute.getValue() == null) throw new InternalErrorException("Attribute quotas for checking and transfering can't be null.");
+		//If quotas attribute is null or it's value is empty, return empty hash map
+		if(quotasAttribute == null || quotasAttribute.getValue() == null) return new HashMap<>();
 
 		//Prepare result container and value of attribute
 		Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotas = new HashMap<>();
@@ -876,8 +876,8 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			//override has the highest priority
 			if (quotasOverride.containsKey(path)) {
 				mergedTransferedQuotas.put(path, quotasOverride.get(path));
-			//if override not exists, take the original value
 			} else {
+				//if override not exists, take the original value
 				mergedTransferedQuotas.put(path, memberResourceQuotas.get(path));
 			}
 		}
