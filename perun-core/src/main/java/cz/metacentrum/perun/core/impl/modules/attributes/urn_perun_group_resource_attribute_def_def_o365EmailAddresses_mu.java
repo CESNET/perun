@@ -59,7 +59,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 		} else {
 			throw new WrongAttributeValueException(attribute, resource, group, "is of type " + value.getClass() + ", but should be ArrayList");
 		}
-		
+
 		//check syntax of all values
 		for (String email : emails) {
 			Matcher emailMatcher = emailPattern.matcher(email);
@@ -97,7 +97,9 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 			Attribute result = new Attribute(attrDef);
 			Object adName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, ADNAME_ATTRIBUTE).getValue();
 			if (adName != null && adName instanceof String) {
-				result.setValue(adName + "@group.muni.cz");
+				List<String> newValue = new ArrayList<>();
+				newValue.add(adName + "@group.muni.cz");
+				result.setValue(newValue);
 			}
 			return result;
 		} catch (GroupResourceMismatchException | AttributeNotExistsException e) {
