@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,9 +30,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -147,7 +145,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountriesTest {
 		Attribute newval = new Attribute(new urn_perun_entityless_attribute_def_def_dnsStateMapping().getAttributeDefinition());
 		newval.setValue(czech_republic);
 
-		when(sess.getPerunBl().getUsersManagerBl().findUsersWithExtSourceAttributeValueEnding(eq(sess), eq(SCHAC_HOME_ATTR_NAME), eq(".cz"), anyObject()))
+		when(sess.getPerunBl().getUsersManagerBl().findUsersWithExtSourceAttributeValueEnding(eq(sess), eq(SCHAC_HOME_ATTR_NAME), eq(".cz"), any()))
 				.thenReturn(Collections.singletonList(user));
 		String message = newval.serializeToString() + " set for .cz.";
 		List<String> msgs = classInstance.resolveVirtualAttributeValueChange(sess, message);
