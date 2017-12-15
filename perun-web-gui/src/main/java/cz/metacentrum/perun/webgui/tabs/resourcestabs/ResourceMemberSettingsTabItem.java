@@ -471,7 +471,9 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 				ids.put("resource", resourceId);
 				ids.put("member", memberListBox.getSelectedObject().getId());
 				ids.put("user", memberListBox.getSelectedObject().getUserId());
-				ids.put("group", groupListBox.getSelectedObject().getId());
+				if (groupListBox.getSelectedIndex() != 0) {
+					ids.put("group", groupListBox.getSelectedObject().getId());
+				}
 				ids.put("facility", resource.getFacilityId());
 				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, resReqAttrs.getList()), true);
 			}
@@ -495,7 +497,9 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 					ids.put("member", memberListBox.getSelectedObject().getId());
 					ids.put("facility", resource.getFacilityId());
 					ids.put("user", memberListBox.getSelectedObject().getUserId());
-					ids.put("group", groupListBox.getSelectedObject().getId());
+					if (groupListBox.getSelectedIndex() != 0) {
+						ids.put("group", groupListBox.getSelectedObject().getId());
+					}
 					RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
 					request.removeAttributes(ids, list);
 				}
