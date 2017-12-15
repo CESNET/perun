@@ -21,11 +21,12 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttribut
 /**
  * Module for virtual group attribute.
  *
- * Return login-namespace:elixir-persistent, preferredMail and login for all user in group as JSON.
+ * Return login-namespace:userId, elixir-persistent, preferredMail and login for all user in group as JSON.
  * @author Pavel Vyskocil <vyskocilpavel@muni.cz>
  */
 public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends GroupVirtualAttributesModuleAbstract implements GroupVirtualAttributesModuleImplApi  {
 
+	public static final String USER_ID = "urn:perun:user:attribute-def:core:id";
 	public static final String ELIXIR_PERSISTENT = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";
 	public static final String PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
 	public static final String ELIXIR_LOGIN = "urn:perun:user:attribute-def:def:login-namespace:elixir";
@@ -37,6 +38,9 @@ public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends Grou
 		for (User user: users) {
 			JSONObject jsonUser = new JSONObject();
 			try{
+				Attribute userId = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, USER_ID);
+				jsonUser.put(userId.getFriendlyName(), userId.getValue());
+
 				Attribute elixirPersistent = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, ELIXIR_PERSISTENT);
 				jsonUser.put(elixirPersistent.getFriendlyName(), elixirPersistent.getValue());
 
