@@ -68,7 +68,8 @@
 		<postgresql.version>42.0.0</postgresql.version>
 		<hsqldb.version>2.3.2</hsqldb.version> <!-- 2.3.3 fails GroupsManagerEntryIntegrationTest.addAdminWhenAlreadyAdmin test -->
 		<javax-validation.version>1.0.0.GA</javax-validation.version>
-
+		<mockito.version>2.13.0</mockito.version>
+		
 		<!-- versions of libraries not defined by the Spring platform-->
 		<cglib-nodep.version>2.2.2</cglib-nodep.version>
 		<dumbster.version>1.6</dumbster.version>
@@ -81,7 +82,6 @@
 		<netty.version>3.2.1.Final</netty.version>
 		<opencsv.version>3.3</opencsv.version>
 		<oracle.version>12.2.0.1.0</oracle.version>
-		<powermock.version>1.4.8</powermock.version>
 		<recaptcha4j.version>0.0.7</recaptcha4j.version>
 		<smack.version>3.1.0</smack.version>
 	</properties>
@@ -332,18 +332,6 @@
 				<groupId>com.oracle</groupId>
 				<artifactId>orai18n</artifactId>
 				<version>${oracle.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.powermock</groupId>
-				<artifactId>powermock-module-junit4</artifactId>
-				<version>${powermock.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.powermock</groupId>
-				<artifactId>powermock-api-mockito</artifactId>
-				<version>${powermock.version}</version>
 			</dependency>
 
 			<dependency>
