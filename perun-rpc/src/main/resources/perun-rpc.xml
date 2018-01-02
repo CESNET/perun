@@ -17,6 +17,7 @@
 	<import resource="classpath:perun-core-synchronizers.xml"/>
 	<import resource="classpath:perun-cabinet.xml"/>
 	<import resource="classpath:perun-registrar-lib.xml"/>
+	<import resource="classpath:perun-registrar-lib-scheduler.xml"/>
 	<import resource="classpath:perun-notification.xml"/>
 	<import resource="classpath:perun-notification-scheduler.xml"/>
 	<import resource="classpath:perun-dispatcher.xml"/>
