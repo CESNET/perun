@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Objects;
 
 import static cz.metacentrum.perun.cabinet.bl.ErrorCodes.NOT_AUTHORIZED;
 
@@ -293,7 +294,7 @@ public class CabinetManagerImpl implements CabinetManager {
 	}
 
 	@Override
-	public List<Author> getAuthorsByPublicationId(PerunSession session, int id) throws InternalErrorException, PrivilegeException {
+	public List<Author> getAuthorsByPublicationId(PerunSession session, int id) throws InternalErrorException, PrivilegeException, CabinetException {
 
 		List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(id);
 		boolean oneOfAuthors = false;
@@ -304,7 +305,14 @@ public class CabinetManagerImpl implements CabinetManager {
 			}
 		}
 		if (AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) oneOfAuthors = true;
-		if (!oneOfAuthors) throw new PrivilegeException("You are not allowed to see authors of publications you didn't created.");
+		if (!oneOfAuthors) {
+			// not author, but check if user created publication, then he can list current authors
+			Publication publication = getPublicationManagerBl().getPublicationById(id);
+			if ((publication.getCreatedByUid() != session.getPerunPrincipal().getUserId()) &&
+					!(Objects.equals(publication.getCreatedBy(), session.getPerunPrincipal().getActor()))) {
+				throw new PrivilegeException("You are not allowed to see authors of publications you didn't created.");
+			}
+		}
 
 		return authors;
 
@@ -398,7 +406,7 @@ public class CabinetManagerImpl implements CabinetManager {
 	public void lockPublications(PerunSession sess, boolean lockState, List<Publication> publications) throws InternalErrorException, PrivilegeException {
 
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-				throw new PrivilegeException("lockPublications");
+			throw new PrivilegeException("lockPublications");
 		}
 
 		// check input
