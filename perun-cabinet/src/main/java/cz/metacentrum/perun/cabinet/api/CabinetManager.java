@@ -341,7 +341,7 @@ public interface CabinetManager {
 	 * @return List of Authors of Publication specified its ID. Empty list of none found.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<Author> getAuthorsByPublicationId(PerunSession session, int id) throws InternalErrorException, PrivilegeException;
+	List<Author> getAuthorsByPublicationId(PerunSession session, int id) throws InternalErrorException, PrivilegeException, CabinetException;
 
 	/**
 	 * Return all Authors of Publication specified by Authorships ID. Empty list of none found.
