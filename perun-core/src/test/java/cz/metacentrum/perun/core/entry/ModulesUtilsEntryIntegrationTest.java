@@ -5,11 +5,20 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_def_dataQuotasOverride;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_def_fileQuotasOverride;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_defaultDataQuotas;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_defaultFileQuotas;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_maxUserDataQuotas;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_maxUserFileQuotas;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -666,7 +675,251 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		modulesUtilsBl.checkAndConvertGIDRanges(attribute);
 	}
 
+	@Test
+	public void checkIfQuotasIsInLimit() throws Exception {
+		System.out.println(CLASS_NAME + "checkIfQuotasIsInLimit");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute fileQuotasAttribute = getFileQuotasAttribute();
+		Attribute maxFileQuotasAttribute = getMaxFileQuotasAttribute();
+		modulesUtilsBl.checkIfQuotasIsInLimit(
+				modulesUtilsBl.checkAndTransferQuotas(fileQuotasAttribute, resource, null, false),
+				modulesUtilsBl.checkAndTransferQuotas(maxFileQuotasAttribute, resource, null, false));
+		Attribute dataQuotasAttribute = getDataQuotasAttribute();
+		Attribute maxDataQuotasAttribute = getMaxDataQuotasAttribute();
+		modulesUtilsBl.checkIfQuotasIsInLimit(
+				modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true),
+				modulesUtilsBl.checkAndTransferQuotas(maxDataQuotasAttribute, resource, null, true));
+	}
+
+	@Test(expected= QuotaNotInAllowedLimitException.class)
+	public void checkIfFileQuotasIsNotInLimit() throws Exception {
+		System.out.println(CLASS_NAME + "QuotaNotInAllowedLimitException");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute fileQuotasAttribute = getFileQuotasAttribute();
+		Attribute maxFileQuotasAttribute = getMaxFileQuotasAttribute();
+		((LinkedHashMap) maxFileQuotasAttribute.getValue()).put("/var/log/test/", "1000:2000");
+		modulesUtilsBl.checkIfQuotasIsInLimit(
+				modulesUtilsBl.checkAndTransferQuotas(fileQuotasAttribute, resource, null, false),
+				modulesUtilsBl.checkAndTransferQuotas(maxFileQuotasAttribute, resource, null, false));
+	}
+
+	@Test(expected= QuotaNotInAllowedLimitException.class)
+	public void checkIfDataQuotasIsNotInLimit() throws Exception {
+		System.out.println(CLASS_NAME + "QuotaNotInAllowedLimitException");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute dataQuotasAttribute = getDataQuotasAttribute();
+		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/var/log/test/", "1G:0");
+		Attribute maxDataQuotasAttribute = getMaxDataQuotasAttribute();
+		modulesUtilsBl.checkIfQuotasIsInLimit(
+				modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true),
+				modulesUtilsBl.checkAndTransferQuotas(maxDataQuotasAttribute, resource, null, true));
+	}
+
+	@Test
+	public void checkQuotas() throws Exception {
+		System.out.println(CLASS_NAME + "checkQuotas");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute fileQuotasAttribute = getFileQuotasAttribute();
+		Attribute dataQuotasAttribute = getDataQuotasAttribute();
+		modulesUtilsBl.checkAndTransferQuotas(fileQuotasAttribute, resource, null, false);
+		modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkQuotasErrorInMetric() throws Exception {
+		System.out.println(CLASS_NAME + "checkQuotasErrorInMetric");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute dataQuotasAttribute = getDataQuotasAttribute();
+		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/new/path/", "1Z:1");
+		modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true);
+	}
+
+	@Test(expected=WrongAttributeValueException.class)
+	public void checkQuotasErrorInValue() throws Exception {
+		System.out.println(CLASS_NAME + "WrongAttributeValueException");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute dataQuotasAttribute = getDataQuotasAttribute();
+		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/new/path/", "b20:1");
+		modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true);
+	}
+
+	@Test(expected= QuotaNotInAllowedLimitException.class)
+	public void checkIfQuotasContainsDifferentPathThanMaxQuotas() throws Exception {
+		System.out.println(CLASS_NAME + "checkIfQuotasContainsDifferentPathThanMaxQuotas");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute dataQuotasAttribute = getDataQuotasAttribute();
+		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/new/path/", "1:1");
+		Attribute maxDataQuotasAttribute = getMaxDataQuotasAttribute();
+		modulesUtilsBl.checkIfQuotasIsInLimit(
+				modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true),
+				modulesUtilsBl.checkAndTransferQuotas(maxDataQuotasAttribute, resource, null, true));
+	}
+
+	@Test
+	public void transferQuotasBackToAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "transferQuotasBackToAttributeValue");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute fileQuotasAttribute = getFileQuotasAttribute();
+		assertEquals(
+				fileQuotasAttribute.getValue(),
+				modulesUtilsBl.transferQuotasBackToAttributeValue(modulesUtilsBl.checkAndTransferQuotas(fileQuotasAttribute, resource, null, false), false));
+		Attribute dataQuotasAttribute = getDataQuotasAttribute();
+		assertEquals(
+				dataQuotasAttribute.getValue(),
+				modulesUtilsBl.transferQuotasBackToAttributeValue(modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true), true));
+	}
+
+	@Test
+	public void mergeMemberAndResourceTransferredQuotas() throws Exception {
+		System.out.println(CLASS_NAME + "mergeMemberAndResourceTransferredQuotas");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute resourceFileQuotasAttribute = getFileQuotasAttribute();
+		Attribute memberResourceFileQuotasAttribute = getMaxFileQuotasAttribute();
+		Attribute fileQuotasOverrideAttribute = getOverrideFileQuotasAttribute();
+		//Override has the highest priority, then member-resource settings and the last priority has resource settings
+		Map<String, String> mergedMapOfQuotas = modulesUtilsBl.transferQuotasBackToAttributeValue(
+				modulesUtilsBl.mergeMemberAndResourceTransferredQuotas(
+						modulesUtilsBl.checkAndTransferQuotas(resourceFileQuotasAttribute, resource, null, false),
+						modulesUtilsBl.checkAndTransferQuotas(memberResourceFileQuotasAttribute, resource, null, false),
+						modulesUtilsBl.checkAndTransferQuotas(fileQuotasOverrideAttribute, resource, null, false)),
+				false );
+		Map<String, String> expectedResult = new HashMap<>((HashMap) memberResourceFileQuotasAttribute.getValue());
+		expectedResult.put("/var/log/test/","1:0");
+		assertEquals(expectedResult, mergedMapOfQuotas);
+	}
+
+	@Test
+	public void countUserFacilityQuotas() throws Exception {
+		System.out.println(CLASS_NAME + "countUserFacilityQuotas");
+		Resource resource = new Resource(10, "test", "test", 10, 10);
+		Attribute resourceFileQuotasAttribute = getFileQuotasAttribute();
+		Attribute memberResourceFileQuotasAttribute = getMaxFileQuotasAttribute();
+		Attribute fileQuotasOverrideAttribute = getOverrideFileQuotasAttribute();
+		//All quotas will be the sum for every unique path in any map
+		List<Map<String, Pair<BigDecimal, BigDecimal>>> countOfQuotas = new ArrayList<>();
+		countOfQuotas.add(modulesUtilsBl.checkAndTransferQuotas(resourceFileQuotasAttribute, resource, null, false));
+		countOfQuotas.add(modulesUtilsBl.checkAndTransferQuotas(memberResourceFileQuotasAttribute, resource, null, false));
+		countOfQuotas.add(modulesUtilsBl.checkAndTransferQuotas(fileQuotasOverrideAttribute, resource, null, false));
+		Map<String, String> result = modulesUtilsBl.transferQuotasBackToAttributeValue(modulesUtilsBl.countUserFacilityQuotas(countOfQuotas), false);
+		Map<String, String> expectedResult = new HashMap<>();
+		expectedResult.put("/var/log/test/", "3001:0");
+		expectedResult.put("/etc/test/", "11000:110000");
+		expectedResult.put("/usr/test/", "300:0");
+		expectedResult.put("/home/test/", "0:0");
+		expectedResult.put("/tmp/test/", "2:3");
+		expectedResult.put("/dev/zero/", "0:0");
+		assertEquals(expectedResult, result);
+	}
+
 	// private methods ------------------------------------------------------------------
+
+	private Attribute getOverrideFileQuotasAttribute() {
+		Attribute attribute = new Attribute((new urn_perun_member_resource_attribute_def_def_fileQuotasOverride()).getAttributeDefinition());
+		Map<String, String> value = new LinkedHashMap<>();
+		String path1 = "/var/log/test/";
+		String value1 = "1:0";
+		String path2 = "/dev/zero";
+		String value2 = "0:0";
+		value.put(path1, value1);
+		value.put(path2, value2);
+		attribute.setValue(value);
+		return attribute;
+	}
+
+	private Attribute getOverrideDataQuotasAttribute() {
+		Attribute attribute = new Attribute((new urn_perun_member_resource_attribute_def_def_dataQuotasOverride()).getAttributeDefinition());
+		Map<String, String> value = new LinkedHashMap<>();
+		String path1 = "/var/log/test/";
+		String value1 = "1:0";
+		String path2 = "/dev/zero";
+		String value2 = "0:0";
+		value.put(path1, value1);
+		value.put(path2, value2);
+		attribute.setValue(value);
+		return attribute;
+	}
+
+	private Attribute getFileQuotasAttribute() {
+		Attribute attribute = new Attribute((new urn_perun_resource_attribute_def_def_defaultFileQuotas()).getAttributeDefinition());
+		Map<String, String> value = new LinkedHashMap<>();
+		String path1 = "/var/log/test/";
+		String path2 = "/etc/test/";
+		String path3 = "/usr/test/";
+		String path4 = "/home/test/";
+		String value1 = "1000:10000";
+		String value2 = "5000:50000";
+		String value3 = "100:0";
+		String value4 = "0:0";
+		value.put(path1, value1);
+		value.put(path2, value2);
+		value.put(path3, value3);
+		value.put(path4, value4);
+		attribute.setValue(value);
+		return attribute;
+	}
+
+	private Attribute getMaxFileQuotasAttribute() {
+		Attribute attribute = new Attribute((new urn_perun_resource_attribute_def_def_maxUserFileQuotas()).getAttributeDefinition());
+		Map<String, String> value = new LinkedHashMap<>();
+		String path1 = "/var/log/test/";
+		String path2 = "/etc/test/";
+		String path3 = "/usr/test/";
+		String path4 = "/home/test/";
+		String path5 = "/tmp/test/";
+		String value1 = "2000:11000";
+		String value2 = "6000:60000";
+		String value3 = "200:0";
+		String value4 = "0:0";
+		String value5 = "2:3";
+		value.put(path1, value1);
+		value.put(path2, value2);
+		value.put(path3, value3);
+		value.put(path4, value4);
+		value.put(path5, value5);
+		attribute.setValue(value);
+		return attribute;
+	}
+
+	private Attribute getDataQuotasAttribute() {
+		Attribute attribute = new Attribute((new urn_perun_resource_attribute_def_def_defaultDataQuotas()).getAttributeDefinition());
+		Map<String, String> value = new LinkedHashMap<>();
+		String path1 = "/var/log/test/";
+		String path2 = "/etc/test/";
+		String path3 = "/usr/test/";
+		String path4 = "/home/test/";
+		String value1 = "1G:10G";
+		String value2 = "5G:50G";
+		String value3 = "100K:0";
+		String value4 = "0:0";
+		value.put(path1, value1);
+		value.put(path2, value2);
+		value.put(path3, value3);
+		value.put(path4, value4);
+		attribute.setValue(value);
+		return attribute;
+	}
+
+	private Attribute getMaxDataQuotasAttribute() {
+		Attribute attribute = new Attribute((new urn_perun_resource_attribute_def_def_maxUserDataQuotas()).getAttributeDefinition());
+		Map<String, String> value = new LinkedHashMap<>();
+		String path1 = "/var/log/test/";
+		String path2 = "/etc/test/";
+		String path3 = "/usr/test/";
+		String path4 = "/home/test/";
+		String path5 = "/tmp/test/";
+		String value1 = "2G:11G";
+		String value2 = "6G:51G";
+		String value3 = "101K:0";
+		String value4 = "0:0";
+		String value5 = "2T:3T";
+		value.put(path1, value1);
+		value.put(path2, value2);
+		value.put(path3, value3);
+		value.put(path4, value4);
+		value.put(path5, value5);
+		attribute.setValue(value);
+		return attribute;
+	}
 
 	private Attribute getGIDRangesAttributeWithValidValue() {
 

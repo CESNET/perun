@@ -30,7 +30,8 @@ import java.util.Map;
 public class urn_perun_user_facility_attribute_def_virt_dataQuotas extends FacilityUserVirtualAttributesModuleAbstract {
 	public static final String A_R_defaultDataQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultDataQuotas";
 	public static final String A_MR_dataQuotas = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":dataQuotas";
-	
+	public static final String A_MR_dataQuotasOverride = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":dataQuotasOverride";
+
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
@@ -54,7 +55,7 @@ public class urn_perun_user_facility_attribute_def_virt_dataQuotas extends Facil
 			} catch (MemberNotExistsException ex) {
 				throw new ConsistencyErrorException("User should have member in this VO, because he was listed in allowed assigned resources " + user + ", " + membersVo + " , " + resource);
 			}
-			
+
 			//get resource quotas
 			Map<String, Pair<BigDecimal, BigDecimal>> resourceTransferedQuotas;
 			Attribute resourceQuotas;
@@ -95,8 +96,29 @@ public class urn_perun_user_facility_attribute_def_virt_dataQuotas extends Facil
 				}
 			}
 
+			//get members quotas override
+			Map<String, Pair<BigDecimal, BigDecimal>> memberTransferedQuotasOverride;
+			Attribute memberQuotasOverride;
+			try {
+				memberQuotasOverride = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberOnResource, A_MR_dataQuotasOverride);
+			} catch (AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch (WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
+			} catch (MemberResourceMismatchException ex) {
+				throw new InternalErrorException(ex);
+			}
+			if(memberQuotasOverride == null || memberQuotasOverride.getValue() == null) memberTransferedQuotasOverride = new HashMap<>();
+			else {
+				try {
+					memberTransferedQuotasOverride = sess.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(memberQuotasOverride, resource, memberOnResource, true);
+				} catch (WrongAttributeValueException ex) {
+					throw new ConsistencyErrorException("Override quotas on resource " + resource + " for member " + memberOnResource + " are in bad format.", ex);
+				}
+			}
+
 			//merge quotas and add them to the big map by resources
-			mergedMemberResourceQuotas.add(sess.getPerunBl().getModulesUtilsBl().mergeMemberAndResourceTransferedQuotas(memberTransferedQuotas, resourceTransferedQuotas));
+			mergedMemberResourceQuotas.add(sess.getPerunBl().getModulesUtilsBl().mergeMemberAndResourceTransferredQuotas(resourceTransferedQuotas, memberTransferedQuotas, memberTransferedQuotasOverride));
 		}
 
 		//now we have all resource and member merged quotas, so we need to create 1 transfered map with sum of values

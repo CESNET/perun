@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -337,6 +338,34 @@ public interface ModulesUtilsBl {
 	void checkAttributeRegex(Attribute attribute, String defaultRegex) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
+	 * Check if quotaToCheck is in limit of limitQuota.
+	 * That means that every key of quotaToCheck map must exist in limitQuota and if such key exists, softQuota (left value)
+	 * of quotaToCheck map need to be lower or same as softQuota in limitQuota of the same key and the same must be in effect
+	 * for hardQuota (right value) of both maps.
+	 *
+	 * It uses transferred quotas so it can be used for files and data same way. 0 means unlimited. If no quota is allowed,
+	 * the value for volume shouldn't be in limit quota at all.
+	 *
+	 * Example of possible limitations:
+	 * quotaToCheck -> ( '/var/log/something' => '10000:50000', '/sys/something' => '0:0', '/tmp/something' => '0:0' )
+	 * quotaToLimit -> ( '/var/log/something' => '10000:50000', '/sys/something' => '50:0', '/cache/something' => '0:0' )
+	 * ---------------
+	 * '/var/log/something' => '10000:50000' -- this value is correct, exists in limit quota and both quotas are in limit
+	 * '/sys/something' => '0:0' -- this is not correct, 0 means unlimited quota and we have limit 50 for softQuota (not in limit)
+	 * '/tmp/something' => '0:0' -- this value is not correct, because this path is not set in limit quota at all
+	 * '/cache/something' => '0:0' -- there is no problem, that limit quota has some limited values which are not in quotasToCheck
+	 *
+	 * @param quotaToCheck map of volumes (as keys) and pairs of soft quota (left value) and hard quota (right value) for this volume
+	 *                     we want to check this map against the limit one
+	 * @param limitQuota map of volumes (as keys) and pairs of soft quota (left value) and hard quota (right value) for this volume
+	 *                   we want to use this map as limit one
+	 *
+	 * @throws QuotaNotInAllowedLimitException throw this exception, if check quota is not in limit of limit quota
+	 * @throws InternalErrorException if any of inputs is in unexpected format
+	 */
+	void checkIfQuotasIsInLimit(Map<String, Pair<BigDecimal, BigDecimal>> quotaToCheck, Map<String, Pair<BigDecimal, BigDecimal>> limitQuota) throws QuotaNotInAllowedLimitException, InternalErrorException;
+
+	/**
 	 * Check if value in quotas attribute are in the right format.
 	 * Also transfer and return data in suitable container.
 	 *
@@ -355,7 +384,7 @@ public interface ModulesUtilsBl {
 	 *
 	 * @return map with path in key and pair with <softQuota, hardQuota> in big decimal
 	 *
-	 * @throws InternalErrorException if attribute or his value is null
+	 * @throws InternalErrorException if first mandatory placeholder is null
 	 * @throws WrongAttributeValueException if something is wrong in format of attribute
 	 */
 	Map<String, Pair<BigDecimal, BigDecimal>> checkAndTransferQuotas(Attribute quotasAttribute, PerunBean firstPlaceholder, PerunBean secondPlaceholder, boolean withMetrics) throws InternalErrorException, WrongAttributeValueException;
@@ -376,16 +405,21 @@ public interface ModulesUtilsBl {
 	Map<String, String> transferQuotasBackToAttributeValue(Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotasMap, boolean withMetrics) throws InternalErrorException;
 
 	/**
-	 * Merge two transfered Quotas together.
+	 * Merge resource default quotas and member-resource specific quotas together. Use override if exists instead.
 	 * Paths are always unique, quotas are merged. (soft together and hard together)
-	 * Together means = bigger is better, 0 means unlimited so it is always bigger
 	 *
-	 * @param firstQuotas  first transfered map with quotas
-	 * @param secondQuotas second transfered map with quotas
+	 * Together means by priority:
+	 * - override has the highest priority but is it used only if path exists in resource or resource-member quotas
+	 * - member-resource quotas has the second highest priority if override not exists
+	 * - resource quotas are used only if contain unique path (path not exists as member-resource or as override)
 	 *
-	 * @return merged quotas transfered map
+	 * @param resourceQuotas transferred map with default resource quotas
+	 * @param memberResourceQuotas transferred map with member-resource specific quotas
+	 * @param quotasOverride transfered map with all manual overrides of quotas
+	 *
+	 * @return merged quotas transferred map
 	 */
-	Map<String,Pair<BigDecimal, BigDecimal>> mergeMemberAndResourceTransferedQuotas(Map<String, Pair<BigDecimal, BigDecimal>> firstQuotas, Map<String, Pair<BigDecimal, BigDecimal>> secondQuotas);
+	Map<String,Pair<BigDecimal, BigDecimal>> mergeMemberAndResourceTransferredQuotas(Map<String, Pair<BigDecimal, BigDecimal>> resourceQuotas, Map<String, Pair<BigDecimal, BigDecimal>> memberResourceQuotas, Map<String, Pair<BigDecimal, BigDecimal>> quotasOverride);
 
 	/**
 	 * Count all quotas for user.
