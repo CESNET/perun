@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -187,6 +188,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
+			throw new InternalErrorException("Moving groups is temporary disabled.");
+			/*
 			if(parms.contains("destinationGroup")) {
 				ac.getGroupsManager().moveGroup(ac.getSession(),
 						ac.getGroupById(parms.readInt("destinationGroup")),
@@ -197,6 +200,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 						ac.getGroupById(parms.readInt("movingGroup")));
 			}
 			return null;
+			*/
 		}
 	},
 
