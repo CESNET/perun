@@ -569,6 +569,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		final ListBox namespace = new ListBox(false);
 		namespace.addItem("Prezentator (MU)", "mu");
 		namespace.addItem("OBD 3.0 (ZČU)", "zcu");
+		namespace.addItem("OBD 3.0 (UK)", "uk");
 		namespace.addItem("Europe PMC", "europepmc");
 		namespace.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event) {
