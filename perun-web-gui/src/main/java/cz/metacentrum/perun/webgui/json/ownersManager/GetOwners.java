@@ -19,6 +19,7 @@ import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Ajax query to get all owners
@@ -46,6 +47,7 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 	private boolean checkable = true;
 	private ArrayList<Owner> backupList = new ArrayList<Owner>();
 	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" .@");
+	private List<String> filterByNames = new ArrayList<>();
 
 	/**
 	 * New instance of get owners
@@ -228,14 +230,27 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 	 * Called when loading successfully finishes.
 	 */
 	public void onFinished(JavaScriptObject jso) {
-		if (type.isEmpty()) {
+		if (type.isEmpty() && filterByNames.isEmpty()) {
 			// don't filter
 			setList(JsonUtils.<Owner>jsoAsList(jso));
 		} else {
-			// filter
-			for (Owner o : JsonUtils.<Owner>jsoAsList(jso)) {
-				if (type.equalsIgnoreCase(o.getType())) {
-					addToTable(o);
+			if (!filterByNames.isEmpty() && type.isEmpty()) {
+				for (Owner o : JsonUtils.<Owner>jsoAsList(jso)) {
+					if (filterByNames.contains(o.getName())) {
+						addToTable(o);
+					}
+				}
+			} else if (!filterByNames.isEmpty() && !type.isEmpty()) {
+				for (Owner o : JsonUtils.<Owner>jsoAsList(jso)) {
+					if (filterByNames.contains(o.getName()) && type.equalsIgnoreCase(o.getType())) {
+						addToTable(o);
+					}
+				}
+			} else {
+				for (Owner o : JsonUtils.<Owner>jsoAsList(jso)) {
+					if (type.equalsIgnoreCase(o.getType())) {
+						addToTable(o);
+					}
 				}
 			}
 		}
@@ -336,6 +351,14 @@ public class GetOwners implements JsonCallback, JsonCallbackTable<Owner>, JsonCa
 	@Override
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
+	}
+
+	public List<String> getFilterByNames() {
+		return filterByNames;
+	}
+
+	public void setFilterByNames(List<String> filterByNames) {
+		this.filterByNames = filterByNames;
 	}
 
 }
