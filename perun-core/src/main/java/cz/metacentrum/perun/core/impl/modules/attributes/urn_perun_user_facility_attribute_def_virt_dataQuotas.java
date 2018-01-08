@@ -1,6 +1,14 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -28,14 +36,11 @@ import java.util.Map;
  * @author Michal Stava stavamichal@gmail.com
  */
 public class urn_perun_user_facility_attribute_def_virt_dataQuotas extends FacilityUserVirtualAttributesModuleAbstract {
-	public static final String A_R_defaultDataQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultDataQuotas";
-	public static final String A_MR_dataQuotas = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":dataQuotas";
-	public static final String A_MR_dataQuotasOverride = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":dataQuotasOverride";
+	public static final String A_MR_V_dataQuotas = AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":dataQuotas";
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		Map<String, String> countedQuotas = new HashMap<>();
 
 		//merge attribute settings for every allowed resource
 		List<Map<String,Pair<BigDecimal, BigDecimal>>> mergedMemberResourceQuotas = new ArrayList<>();
@@ -56,69 +61,28 @@ public class urn_perun_user_facility_attribute_def_virt_dataQuotas extends Facil
 				throw new ConsistencyErrorException("User should have member in this VO, because he was listed in allowed assigned resources " + user + ", " + membersVo + " , " + resource);
 			}
 
-			//get resource quotas
-			Map<String, Pair<BigDecimal, BigDecimal>> resourceTransferedQuotas;
-			Attribute resourceQuotas;
+			//Get member-resource final counted quotas for the member on the resource
+			Map<String, Pair<BigDecimal, BigDecimal>> memberResourceFinalDataQuotas;
+			Attribute memberResourceFinalDataQuotasAttribute;
 			try {
-				resourceQuotas = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_defaultDataQuotas);
+				memberResourceFinalDataQuotasAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberOnResource, A_MR_V_dataQuotas);
+			} catch (MemberResourceMismatchException | WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
-			} catch (WrongAttributeAssignmentException ex) {
-				throw new InternalErrorException(ex);
 			}
-			if(resourceQuotas == null || resourceQuotas.getValue() == null) resourceTransferedQuotas = new HashMap<>();
+
+			if(memberResourceFinalDataQuotasAttribute == null || memberResourceFinalDataQuotasAttribute.getValue() == null) memberResourceFinalDataQuotas = new HashMap<>();
 			else {
 				try {
-					resourceTransferedQuotas = sess.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(resourceQuotas, resource, null, true);
+					memberResourceFinalDataQuotas = sess.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(memberResourceFinalDataQuotasAttribute, resource, memberOnResource, true);
 				} catch (WrongAttributeValueException ex) {
-					throw new ConsistencyErrorException("Quotas on resource " + resource + " are in bad format.", ex);
+					throw new ConsistencyErrorException("Final counted quotas on " + resource + " for member " + memberOnResource + " are in bad format.", ex);
 				}
 			}
 
-			//get members quotas
-			Map<String, Pair<BigDecimal, BigDecimal>> memberTransferedQuotas;
-			Attribute memberQuotas;
-			try {
-				memberQuotas = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberOnResource, A_MR_dataQuotas);
-			} catch (AttributeNotExistsException ex) {
-				throw new ConsistencyErrorException(ex);
-			} catch (WrongAttributeAssignmentException ex) {
-				throw new InternalErrorException(ex);
-			} catch (MemberResourceMismatchException ex) {
-				throw new InternalErrorException(ex);
-			}
-			if(memberQuotas == null || memberQuotas.getValue() == null) memberTransferedQuotas = new HashMap<>();
-			else {
-				try {
-					memberTransferedQuotas = sess.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(memberQuotas, resource, memberOnResource, true);
-				} catch (WrongAttributeValueException ex) {
-					throw new ConsistencyErrorException("Quotas on resource " + resource + " for member " + memberOnResource + " are in bad format.", ex);
-				}
-			}
-
-			//get members quotas override
-			Map<String, Pair<BigDecimal, BigDecimal>> memberTransferedQuotasOverride;
-			Attribute memberQuotasOverride;
-			try {
-				memberQuotasOverride = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberOnResource, A_MR_dataQuotasOverride);
-			} catch (AttributeNotExistsException ex) {
-				throw new ConsistencyErrorException(ex);
-			} catch (WrongAttributeAssignmentException ex) {
-				throw new InternalErrorException(ex);
-			} catch (MemberResourceMismatchException ex) {
-				throw new InternalErrorException(ex);
-			}
-			if(memberQuotasOverride == null || memberQuotasOverride.getValue() == null) memberTransferedQuotasOverride = new HashMap<>();
-			else {
-				try {
-					memberTransferedQuotasOverride = sess.getPerunBl().getModulesUtilsBl().checkAndTransferQuotas(memberQuotasOverride, resource, memberOnResource, true);
-				} catch (WrongAttributeValueException ex) {
-					throw new ConsistencyErrorException("Override quotas on resource " + resource + " for member " + memberOnResource + " are in bad format.", ex);
-				}
-			}
-
-			//merge quotas and add them to the big map by resources
-			mergedMemberResourceQuotas.add(sess.getPerunBl().getModulesUtilsBl().mergeMemberAndResourceTransferredQuotas(resourceTransferedQuotas, memberTransferedQuotas, memberTransferedQuotasOverride));
+			//Add merged quotas to the big map by resources
+			mergedMemberResourceQuotas.add(memberResourceFinalDataQuotas);
 		}
 
 		//now we have all resource and member merged quotas, so we need to create 1 transfered map with sum of values
@@ -133,16 +97,15 @@ public class urn_perun_user_facility_attribute_def_virt_dataQuotas extends Facil
 	@Override
 	public List<String> getStrongDependencies() {
 		List<String> strongDependencies = new ArrayList<String>();
-		strongDependencies.add(A_R_defaultDataQuotas);
-		strongDependencies.add(A_MR_dataQuotas);
+		strongDependencies.add(A_MR_V_dataQuotas);
 		return strongDependencies;
 	}
 
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
 		attr.setFriendlyName("dataQuotas");
-		attr.setDisplayName("Computed data quotas");
+		attr.setDisplayName("Computed data quotas for a user on a facility");
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Every record is the path (to volume) and the quota in format 'SoftQuota:HardQuota' in (M, G, T, ...), G is default. Example: '10G:20T'. Is counted from all member-resource and resource settings of the user on the facility.");
 		return attr;
