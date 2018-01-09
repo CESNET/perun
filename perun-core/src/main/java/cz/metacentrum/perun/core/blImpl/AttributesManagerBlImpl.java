@@ -1690,7 +1690,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		boolean changed;
 		if (isVirtAttribute(sess, attribute)) {
-			throw new InternalErrorException("Virtual attribute can't be set this way yet. Please set physical attribute instead.");
+			try {
+				changed = getAttributesManagerImpl().setVirtualAttribute(sess, group, attribute);
+			} catch (WrongReferenceAttributeValueException ex) {
+				throw new InternalErrorException(ex);
+			}
 		} else {
 			changed = getAttributesManagerImpl().setAttribute(sess, group, attribute);
 		}
