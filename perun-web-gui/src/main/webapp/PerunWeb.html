@@ -30,6 +30,13 @@
 	<!--  RPC definition -->
 	<script type="text/javascript" language="javascript" >
 		RPC_SERVER = window.location.pathname.split("/")[1];
+
+		<!-- Fix Windows+Chrome+Kerberos authz - chrome doesn`t trust whole domain, we must call most top-level path -->
+		$.ajax({
+			url: "/" + window.location.pathname.split("/")[1] + "/rpc/",
+			type: "get"
+		});
+
 	</script>
 
 	<!--  Set language -->
