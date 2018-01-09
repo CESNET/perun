@@ -1954,6 +1954,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		return getResourceVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, resource, attribute);
 	}
 
+	public boolean setVirtualAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		return getGroupVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, group, attribute);
+	}
+
 	public boolean setVirtualAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		return getFacilityUserVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, facility, user, attribute);
 	}

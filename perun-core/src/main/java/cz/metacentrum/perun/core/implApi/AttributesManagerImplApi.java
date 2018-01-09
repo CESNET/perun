@@ -914,6 +914,20 @@ public interface AttributesManagerImplApi {
 	boolean setVirtualAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
+	 * Store the particular virtual attribute associated with the group.
+	 *
+	 * @param sess perun session
+	 * @param group
+	 * @param attribute attribute to set
+	 * @return true if attribute was really changed
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws ModuleNotExistsException
+	 * @throws WrongModuleTypeException
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	boolean setVirtualAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+
+	/**
 	 * Store the particular virtual attribute associated with the facility and user combination.
 	 *
 	 * @param sess perun session
