@@ -161,7 +161,7 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 			return result;
 
 			// PROCESS ZCU 3.0 PUB SYS
-		} else if (ps.getLoginNamespace().equalsIgnoreCase("zcu")) {
+		} else if (ps.getLoginNamespace().equalsIgnoreCase("zcu") || ps.getLoginNamespace().equalsIgnoreCase("uk") ) {
 
 			// search is based on "lastName,firstName"
 			String authorId = user.getLastName()+","+user.getFirstName();
