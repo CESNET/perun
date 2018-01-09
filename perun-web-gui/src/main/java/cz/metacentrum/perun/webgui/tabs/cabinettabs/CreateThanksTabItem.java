@@ -26,6 +26,8 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -105,6 +107,9 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 
 		// CALLBACK
 		final GetOwners owners = new GetOwners();
+		// FIXME - maybe make it configurable in a future
+		List<String> names = Arrays.asList("MetaCentrum", "CERIT-SC", "ELIXIR");
+		owners.setFilterByNames(names);
 
 		// MENU
 		TabMenu menu = new TabMenu();
