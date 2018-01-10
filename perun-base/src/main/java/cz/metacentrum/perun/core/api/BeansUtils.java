@@ -187,6 +187,25 @@ public class BeansUtils {
 		return attrNew.toString();
 	}
 
+	/**
+	 * Converts attribute value to string (serialize object to string).
+	 * This is a wrapper for passing value and type only for specific use.
+	 * @see #attributeValueToString(Attribute)
+	 *
+	 * @param attributeValue value of the attribute
+	 * @param type type of resulting attribute
+	 * @return string representation of the value
+	 *
+	 * @throws InternalErrorException
+	 */
+	@SuppressWarnings("unchecked")
+	public static String attributeValueToString(Object attributeValue, String type) throws InternalErrorException {
+		Attribute a = new Attribute();
+		a.setType(type);
+		a.setValue(attributeValue);
+		return attributeValueToString(a);
+	}
+
 
 	/**
 	 * Converts attribute value to string (for storing into DB)
