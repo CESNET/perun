@@ -10,6 +10,7 @@ import java.util.*;
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
@@ -1008,6 +1009,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
+		// store user-ext-source attributes from session to application object
+		LinkedHashMap<String,String> map = new LinkedHashMap<>();
+		map.putAll(session.getPerunPrincipal().getAdditionalInformations());
+		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
+		application.setFedInfo(additionalAttrs);
+
 		Application app = null;
 		try {
 
@@ -1637,6 +1644,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					// via setAttributes() method so core attributes are skipped
 					// ==> updateNameTitles() in case of change in appForm.
 					updateUserNameTitles(app);
+				} else {
+					// user originally not known -> set UserExtSource attributes from source identity for new User and UES
+					ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, app.getExtSourceName());
+					UserExtSource ues = perun.getUsersManagerBl().getUserExtSourceByExtLogin(sess, es, app.getCreatedBy());
+					// we have historical data in "fedInfo" item, hence we must safely ignore any parsing errors.
+					try {
+						LinkedHashMap<String, String> additionalAttributes = (LinkedHashMap<String, String>)BeansUtils.stringToAttributeValue(app.getFedInfo(), LinkedHashMap.class.getName());
+						((PerunBlImpl)perun).setUserExtSourceAttributes(sess, ues, additionalAttributes);
+					} catch (Exception ex) {
+						log.error("Unable to store UES attributes from application ID: {}, attributes: {}, with exception: {}", appId, app.getFedInfo(), ex);
+					}
 				}
 
 				// set NEW user id back to application

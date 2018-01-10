@@ -58,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -137,38 +138,56 @@ public class PerunBlImpl implements PerunBl {
 					usersManagerBl.updateUserExtSourceLastAccess(internalSession, ues);
 
 					// update selected attributes for given extsourcetype
-					List<AttributeDefinition> attrs = coreConfig.getAttributesForUpdate().get(principal.getExtSourceType());
-					if (attrs != null) {
-						for (AttributeDefinition attr : attrs) {
-							//get value from authentication
-							String attrValue = principal.getAdditionalInformations().get(attr.getFriendlyName());
-							if ("".equals(attrValue)) attrValue = null;
-							//save the value to attribute (create the attribute if it does not exist)
-							try {
-								Attribute attributeWithValue;
-								try {
-									attributeWithValue = attributesManagerBl.getAttribute(perunSession, ues, attr.getName());
-								} catch (AttributeNotExistsException ex) {
-									try {
-										attributeWithValue = new Attribute(attributesManagerBl.createAttribute(perunSession, attr));
-									} catch (AttributeDefinitionExistsException e) {
-										attributeWithValue = attributesManagerBl.getAttribute(perunSession, ues, attr.getName());
-									}
-								}
-								attributeWithValue.setValue(attrValue);
-								log.debug("storing attribute {}='{}' for user {}", attributeWithValue.getFriendlyName(), attrValue, principal.getActor());
-								attributesManagerBl.setAttribute(perunSession, ues, attributeWithValue);
-							} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-								log.error("Attribute " + attr.getName() + " with value '" + attrValue + "' cannot be saved", e);
-							}
-						}
-					}
+					setUserExtSourceAttributes(perunSession, ues, principal.getAdditionalInformations());
+
 				}
 			} catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException | UserExtSourceExistsException e) {
 				// OK - We don't know user yet or we are modifying more than a LoA and we shouldn't !!
 			}
 		}
 		return perunSession;
+	}
+
+	/**
+	 * Store values from map "additionalAttributes" as UserExtSource attributes to specified UES.
+	 * Used internally when session is initialized and when user is self-created through registration.
+	 * Only specific map keys are stored, based on Perun config for UES type.
+	 *
+	 * @param session PerunSession for authorization
+	 * @param ues UserExtSource to store attributes for
+	 * @param additionalAttributes Map of attribute names=values
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public void setUserExtSourceAttributes(PerunSession session, UserExtSource ues, Map<String, String> additionalAttributes) throws InternalErrorException {
+
+		// update selected attributes for given extsourcetype
+		List<AttributeDefinition> attrs = coreConfig.getAttributesForUpdate().get(ues.getExtSource().getType());
+		if (attrs != null) {
+			for (AttributeDefinition attr : attrs) {
+				//get value from authentication
+				String attrValue = additionalAttributes.get(attr.getFriendlyName());
+				if ("".equals(attrValue)) attrValue = null;
+				//save the value to attribute (create the attribute if it does not exist)
+				try {
+					Attribute attributeWithValue;
+					try {
+						attributeWithValue = attributesManagerBl.getAttribute(session, ues, attr.getName());
+					} catch (AttributeNotExistsException ex) {
+						try {
+							attributeWithValue = new Attribute(attributesManagerBl.createAttribute(session, attr));
+						} catch (AttributeDefinitionExistsException e) {
+							attributeWithValue = attributesManagerBl.getAttribute(session, ues, attr.getName());
+						}
+					}
+					attributeWithValue.setValue(attrValue);
+					log.debug("storing attribute {}='{}' for user {}", attributeWithValue.getFriendlyName(), attrValue, ues.getLogin());
+					attributesManagerBl.setAttribute(session, ues, attributeWithValue);
+				} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+					log.error("Attribute " + attr.getName() + " with value '" + attrValue + "' cannot be saved", e);
+				}
+			}
+		}
+
 	}
 
 	/**
