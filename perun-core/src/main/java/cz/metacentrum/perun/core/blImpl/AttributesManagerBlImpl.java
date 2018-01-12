@@ -6137,7 +6137,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (AttributeDefinition ad : allAttributesDef) {
 			AttributesModuleImplApi module;
 			List<String> depList;
-			List<String> strongDepList;
+			List<String> strongDepList = new ArrayList<>();
 			Set<AttributeDefinition> depSet = new HashSet<>();
 			Set<AttributeDefinition> strongDepSet = new HashSet<>();
 
@@ -6148,7 +6148,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			if (attributeModule != null) {
 				module = (AttributesModuleImplApi) attributeModule;
 				depList = module.getDependencies();
-				strongDepList = module.getStrongDependencies();
+				if(attributeModule instanceof VirtualAttributesModuleImplApi) {
+					strongDepList = ((VirtualAttributesModuleImplApi) module).getStrongDependencies();
+				}
 				//Fill Set of dependencies
 				for (String s : depList) {
 					if (!s.endsWith("*")) {

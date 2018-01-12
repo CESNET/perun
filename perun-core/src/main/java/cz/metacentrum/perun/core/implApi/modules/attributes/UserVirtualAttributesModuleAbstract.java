@@ -43,4 +43,10 @@ public abstract class UserVirtualAttributesModuleAbstract extends UserAttributes
 	public List<User> searchInAttributesValues(PerunSessionImpl perunSession, String attribute) throws InternalErrorException{
 		return null;
 	}
+
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> dependecies = new ArrayList<>();
+		return dependecies;
+	}
 }
