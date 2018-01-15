@@ -17,11 +17,6 @@ public abstract class AttributesModuleAbstract implements AttributesModuleImplAp
 		return dependecies;
 	}
 
-	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<String>();
-		return dependecies;
-	}
-
 	public List<Role> getAuthorizedRoles() {
 		List<Role> roles = new ArrayList<Role>();
 		return roles;

@@ -39,4 +39,10 @@ public abstract class FacilityUserVirtualAttributesModuleAbstract extends Facili
 	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException{
 		return new ArrayList<String>();
 	}
+
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> dependecies = new ArrayList<>();
+		return dependecies;
+	}
 }

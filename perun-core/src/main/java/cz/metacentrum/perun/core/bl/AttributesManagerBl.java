@@ -3836,11 +3836,27 @@ public interface AttributesManagerBl {
 			WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
-	 * This method checkValue on all possible dependent attributes for richAttr.
-	 * RichAttribute is needed for useful objects which are in holders.
+	 * This method check validity of value on all attributes which depends on the attributes in richAttr object.
+	 *
+	 * There are two types of dependency "normal" and "strong" and every non-virtual attribute can have some "normal"
+	 * dependencies and every virtual attribute can have some "normal" and some "strong" dependencies.
+	 *
+	 * Normal dependency means that if we have attributes A and B and attribute A is dependent on attribute B, then if
+	 * value of attribute B has been changed, we need to check that value of attribute A is still valid.
+	 * In other words: If '->' means depends on, then in case that A -> B, if value of B has been changed, we need to check
+	 * that value of A is still valid.
+	 *
+	 * Strong dependency means that if we have attribute A and B and attribute A is strongly dependent on attribute B,
+	 * then if value of attribute B has been changed, it can affect value of attribute A too therefore we need to check
+	 * value of attribute A and also check all attributes which depend on attribute A.
+	 * In other words: If '=>' means strongly depends on and '->' means depends on, then in case that A => B and C -> A,
+	 * if value of B has been changed, we need to check not only A, but also C, because validity of attribute C could
+	 * been affected but change of attribute A.
+	 *
+	 * RichAttribute is needed because it contains useful objects in holders.
 	 *
 	 * @param sess
-	 * @param richAttr
+	 * @param richAttr RichAttribute with attribute an its' holders
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongAttributeAssignmentException

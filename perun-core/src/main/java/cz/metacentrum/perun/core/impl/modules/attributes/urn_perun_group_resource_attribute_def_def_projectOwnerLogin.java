@@ -64,7 +64,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 	}
 
 	@Override
-	public List<String> getStrongDependencies() {
+	public List<String> getDependencies() {
 		List<String> strongDependencies = new ArrayList<String>();
 		strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login");
 		return strongDependencies;

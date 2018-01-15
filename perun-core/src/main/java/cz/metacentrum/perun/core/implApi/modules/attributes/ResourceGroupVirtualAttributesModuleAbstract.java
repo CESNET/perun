@@ -40,4 +40,9 @@ public abstract class ResourceGroupVirtualAttributesModuleAbstract extends Resou
 		return new ArrayList<String>();
 	}
 
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> dependecies = new ArrayList<>();
+		return dependecies;
+	}
 }

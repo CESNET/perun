@@ -43,4 +43,10 @@ public abstract class MemberGroupVirtualAttributesModuleAbstract extends MemberG
 	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		return new ArrayList<>();
 	}
+
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> dependecies = new ArrayList<>();
+		return dependecies;
+	}
 }
