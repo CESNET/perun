@@ -64,7 +64,8 @@ public class CreateFormItemTabItem implements TabItem {
 		aMap.put("TEXTAREA", "Input text multi-line field");
 		aMap.put("SELECTIONBOX", "Single value selection from list");
 		aMap.put("COMBOBOX", "Single value selection with opt. custom value");
-		aMap.put("CHECKBOX", "Checkbox");
+		aMap.put("CHECKBOX", "Checkbox (multiple selection)");
+		aMap.put("RADIO", "Radio (single selection)");
 		aMap.put("USERNAME", "Input text field for username");
 		aMap.put("PASSWORD", "Input text field for password");
 		aMap.put("VALIDATED_EMAIL", "Input text field for email");
@@ -178,6 +179,8 @@ public class CreateFormItemTabItem implements TabItem {
 					layout.setHTML(3,0, "Selection box with defined custom values and one special option: \"--custom value--\", which allows users to input own text (as simple text field).");
 				} else if (type.equals("CHECKBOX")) {
 					layout.setHTML(3,0,"List of defined custom options with checkboxes. Selected values are gathered as comma separated string.");
+				} else if (type.equals("RADIO")) {
+					layout.setHTML(3,0,"List of defined custom options with radio buttons. Single selection model. Value is stored as string.");
 				} else if (type.equals("USERNAME")) {
 					layout.setHTML(3,0,"Special text field to gather user`s login. It checks login availability on user input.");
 				} else if (type.equals("PASSWORD")) {
