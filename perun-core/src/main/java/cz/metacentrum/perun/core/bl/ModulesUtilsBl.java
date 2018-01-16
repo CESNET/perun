@@ -105,12 +105,11 @@ public interface ModulesUtilsBl {
 	 * @param user handler of atribute
 	 *
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException if minGid or maxGid is null
 	 * @throws WrongAttributeAssignmentException
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeValueException
 	 */
-	void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
+	void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
 
 	/**
 	 * This method is looking for exactly one commonGID for all objects in list.
