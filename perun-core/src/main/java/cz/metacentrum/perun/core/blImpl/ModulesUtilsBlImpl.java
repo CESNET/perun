@@ -28,8 +28,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	private PerunBl perunBl;
 	Map<String,String> perunNamespaces = null;
 
-	public static final String A_E_namespace_minGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID";
-	public static final String A_E_namespace_maxGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID";
+	public static final String A_E_namespace_GIDRanges = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges";
 	public static final String A_G_unixGID_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace";
 	public static final String A_G_unixGroupName_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace";
 	public static final String A_R_unixGID_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace";
@@ -178,39 +177,27 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return false;
 	}
 
-	public Pair<Integer, Integer> getMinAndMaxGidForNamespace(PerunSessionImpl sess, String namespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		Utils.notNull(sess, "perunSessionImpl");
-		Utils.notNull(namespace, "namespace");
-		Attribute minGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, namespace, A_E_namespace_minGID);
-		Integer minGid = null;
-		if(minGidAttribute.getValue() != null) minGid = (Integer) minGidAttribute.getValue();
+	/**
+	 * Return true if gid is valid in ranges defined by Map of ranges, false otherwise.
+	 * Keys in gidRanges map are minimums of one range and values are maximums.
+	 * If minimum is same as maximum, such range has only one element.
+	 *
+	 * @param gidRanges map of gid ranges (keys = minimums, values = maximums)
+	 * @param gid gid which need to be checked if it is in ranges
+	 * @return
+	 */
+	private boolean isGIDWithinRanges(Map<Integer,Integer> gidRanges, Integer gid) {
+		if(gid == null) return false;
+		if(gidRanges == null | gidRanges.isEmpty()) return false;
 
-		Attribute maxGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, namespace, A_E_namespace_maxGID);
-		Integer maxGid = null;
-		if(maxGidAttribute.getValue() != null) maxGid = (Integer) maxGidAttribute.getValue();
-
-		return new Pair(minGid, maxGid);
-	}
-
-	public Integer getFirstFreeGidForResourceOrGroup(PerunSessionImpl sess, String namespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		Utils.notNull(sess, "perunSessionImpl");
-		Utils.notNull(namespace, "namespace");
-		Pair<Integer, Integer> minAndMaxGid = this.getMinAndMaxGidForNamespace(sess, namespace);
-
-		//If there is no min or max gid, return null instead of number, its same like no free gid was able
-		if(minAndMaxGid == null || minAndMaxGid.getLeft() == null || minAndMaxGid.getRight() == null) return null;
-
-		AttributeDefinition resourceUnixGid = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_R_unixGID_namespace + ":" + namespace);
-		List<Object> allGids = sess.getPerunBl().getAttributesManagerBl().getAllValues(sess, resourceUnixGid);
-		AttributeDefinition groupUnixGid = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_G_unixGID_namespace + ":" + namespace);
-		allGids.addAll(sess.getPerunBl().getAttributesManagerBl().getAllValues(sess, groupUnixGid)); //note: it doesn't matter if the group is not active (isUnixGroup attribute != 1)
-
-		for(int i = minAndMaxGid.getLeft(); i < minAndMaxGid.getRight(); i++) {
-			if(!allGids.contains(i)) {
-				return i;
-			}
+		//Test all valid ranges
+		for(Integer minimum: gidRanges.keySet()) {
+			Integer maximum = gidRanges.get(minimum);
+			//Gid is in range, it is ok
+			if(gid >= minimum && gid <= maximum) return true;
 		}
-		return null;
+
+		return false;
 	}
 
 	public void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
@@ -222,38 +209,29 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 		String gidNamespace = attribute.getFriendlyNameParameter();
 
-		Attribute minGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_minGID);
-		if(minGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, minGidAttribute);
-		Integer minGid = (Integer) minGidAttribute.getValue();
+		Attribute gidRangesAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_GIDRanges);
+		Map<Integer, Integer> gidRanges = checkAndConvertGIDRanges(gidRangesAttribute);
 
-		Attribute maxGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_maxGID);
-		if(maxGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, maxGidAttribute);
-		Integer maxGid = (Integer) maxGidAttribute.getValue();
-
-		if ( gid < minGid || gid > maxGid ) {
-			throw new WrongAttributeValueException(attribute,"GID number is not in allowed values min: "+minGid+", max:"+maxGid);
+		//Gid is not in range, throw exception
+		if(!isGIDWithinRanges(gidRanges, gid)) {
+			throw new WrongAttributeValueException(attribute, "GID number is not in allowed ranges " + gidRanges + " for namespace " + gidNamespace);
 		}
 	}
 
-	public void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
+	public void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
 		Utils.notNull(attribute, "attribute");
-		List<String> gIDs = (List<String>)attribute.getValue();
-		if (gIDs != null){
-			for(String sGid : gIDs){
+		List<String> gidsToCheck = (List<String>)attribute.getValue();
+		if (gidsToCheck != null){
+			String gidNamespace = attribute.getFriendlyNameParameter();
+			Attribute gidRangesAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_GIDRanges);
+			Map<Integer, Integer> gidRanges = checkAndConvertGIDRanges(gidRangesAttribute);
+
+			for(String gidToCheck : gidsToCheck){
 				try{
-					Integer gid = new Integer(sGid);
-					String gidNamespace = attribute.getFriendlyNameParameter();
+					Integer gid = new Integer(gidToCheck);
 
-					Attribute minGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_minGID);
-					if(minGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, minGidAttribute, "Attribute minGid cannot be null");
-					Integer minGid = (Integer) minGidAttribute.getValue();
-
-					Attribute maxGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_maxGID);
-					if(maxGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, maxGidAttribute, "Attribute maxGid cannot be null");
-					Integer maxGid = (Integer) maxGidAttribute.getValue();
-
-					if ( gid < minGid || gid > maxGid ) {
-						throw new WrongAttributeValueException(attribute,"GID number is not in allowed values min: "+minGid+", max:"+maxGid);
+					if ( ! isGIDWithinRanges(gidRanges, gid) ) {
+						throw new WrongAttributeValueException(attribute, "GID number is not in allowed ranges " + gidRanges + " for namespace " + gidNamespace);
 					}
 				}catch(NumberFormatException ex){
 					throw new WrongAttributeValueException(attribute ,user,"attribute is not a number", ex);
@@ -266,18 +244,22 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		Utils.notNull(attribute, "attribute");
 		String gidNamespace = attribute.getFriendlyNameParameter();
 
-		Attribute minGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_minGID);
-		if(minGidAttribute.getValue() == null) return 0;
-		Integer minGid = (Integer) minGidAttribute.getValue();
-
-		Attribute maxGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_maxGID);
-		if(maxGidAttribute.getValue() == null) return 0;
-		Integer maxGid = (Integer) maxGidAttribute.getValue();
+		Attribute gidRangesAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_namespace_GIDRanges);
+		if(gidRangesAttribute.getValue() == null) return 0;
+		Map<Integer, Integer> gidRanges;
+		try {
+			gidRanges = checkAndConvertGIDRanges(gidRangesAttribute);
+		} catch (WrongAttributeValueException ex) {
+			throw new InternalErrorException("Value in GID ranges attribute where we are looking for free gid is not in correct format " + gidRangesAttribute, ex);
+		}
+		if(gidRanges.isEmpty()) return 0;
+		List<Integer> allMinimums = gidRanges.keySet().stream().sorted().collect(Collectors.toList());
 
 		List<Integer> allGids = new ArrayList<>();
 		Attribute usedGids = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_usedGids);
 
-		if(usedGids.getValue() == null) return minGid;
+		//return the minimum from all ranges
+		if(usedGids.getValue() == null) return allMinimums.get(0);
 		else {
 			Map<String,String> usedGidsValue = (Map<String, String>) usedGids.getValue();
 			Set<String> keys = usedGidsValue.keySet();
@@ -287,9 +269,12 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			}
 		}
 
-		for(int i = minGid; i < maxGid; i++) {
-			if(!allGids.contains(i)) {
-				return i;
+		for(Integer minimum: allMinimums) {
+			Integer maximum = gidRanges.get(minimum);
+			for (int i = minimum; i <= maximum; i++) {
+				if (!allGids.contains(i)) {
+					return i;
+				}
 			}
 		}
 
