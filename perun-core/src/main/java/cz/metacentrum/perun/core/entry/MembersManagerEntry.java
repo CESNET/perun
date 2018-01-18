@@ -291,20 +291,6 @@ public class MembersManagerEntry implements MembersManager {
 		return getMembersManagerBl().getMemberByUserExtSource(sess, vo, uea);
 	}
 
-	public Member getMemberByUserExtSources(PerunSession sess, Vo vo, List<UserExtSource> ueas) throws InternalErrorException, MemberNotExistsException, VoNotExistsException, PrivilegeException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
-			throw new PrivilegeException(sess, "getMemberByUserExtSources");
-		}
-
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
-		return getMembersManagerBl().getMemberByUserExtSources(sess, vo, ueas);
-	}
-
 	public Member getMemberById(PerunSession sess, int id) throws InternalErrorException, MemberNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

@@ -12,10 +12,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -588,14 +590,32 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	public Member getMemberByUserExtSources(PerunSession sess, Vo vo, List<UserExtSource> ueas) throws InternalErrorException, MemberNotExistsException {
+		if (ueas == null) {
+			throw new InternalErrorException("Given userExtSources are null.");
+		}
+		if (ueas.isEmpty()) {
+			throw new InternalErrorException("Given userExtSources are empty.");
+		}
+
+		Set<Member> foundMembers = new HashSet<>();
+
 		for (UserExtSource ues: ueas) {
 			try {
-				return getMembersManagerImpl().getMemberByUserExtSource(sess, vo, ues);
+				foundMembers.add(getMembersManagerImpl().getMemberByUserExtSource(sess, vo, ues));
 			} catch (MemberNotExistsException e) {
-				// Ignore
+				// ignore
 			}
 		}
-		throw new MemberNotExistsException("Member with userExtSources " + ueas + " doesn't exists.");
+
+		if (foundMembers.isEmpty()) {
+			throw new MemberNotExistsException("Member with userExtSources " + ueas + " doesn't exists.");
+		}
+
+		if (foundMembers.size() > 1) {
+			throw new InternalErrorException("Given userExtSources do not belong to the same member.");
+		} else {
+			return (Member)foundMembers.toArray()[0];
+		}
 	}
 
 	public Member getMemberById(PerunSession sess, int id) throws InternalErrorException, MemberNotExistsException {
