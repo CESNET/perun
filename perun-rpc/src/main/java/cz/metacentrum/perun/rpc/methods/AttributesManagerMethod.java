@@ -646,7 +646,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
@@ -654,21 +654,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param resource int Resource <code>id</code>
@@ -676,7 +676,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param resource int Resource <code>id</code>
@@ -684,14 +684,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
@@ -699,35 +699,35 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param user int User <code>id</code>
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param host int Host <code>id</code>
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
 	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
@@ -735,21 +735,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param resource int Resource <code>id</code>
@@ -757,7 +757,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param resource int Resource <code>id</code>
@@ -765,21 +765,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
@@ -787,28 +787,28 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param user int User <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param host int Host <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 * Returns an Attribute by its name.
 	 *
 	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @param attributeName String Attribute name
