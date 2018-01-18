@@ -33,8 +33,8 @@ public interface VirtualAttributesModuleImplApi extends AttributesModuleImplApi 
 	 * Get list of attributes which this attribute value is computed from.
 	 * In other words attributes whose values change can also directly affect value of this attribute.
 	 *
-	 * An attribute should strongly depend on all attributes used in method "getAttributeValue" defined in attribute
-	 * module for virtual attributes.
+	 * An attribute should strongly depend on all attributes which values are used in method "getAttributeValue"
+	 * defined in attribute module for virtual attributes.
 	 *
 	 * @see cz.metacentrum.perun.core.bl.AttributesManagerBl#checkAttributeDependencies(PerunSession, RichAttribute)
 	 *

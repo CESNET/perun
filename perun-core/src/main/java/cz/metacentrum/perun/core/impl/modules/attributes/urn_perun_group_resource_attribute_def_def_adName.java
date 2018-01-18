@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttribu
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 

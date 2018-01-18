@@ -12,6 +12,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Class for access def:lifescienceid-persistent-shadow attribute. It generates value if you call it for the first time.
  *
@@ -50,6 +53,11 @@ public class urn_perun_user_attribute_def_virt_login_namespace_lifescienceid_per
 		} catch (WrongAttributeValueException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	@Override
+	public List<String> getStrongDependencies() {
+		return Collections.singletonList(SHADOW);
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

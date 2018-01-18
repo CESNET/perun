@@ -277,7 +277,14 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 	@Override
 	public List<String> getDependencies() {
 		List<String> dependencies = new ArrayList<String>();
-		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
+		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
+		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID");
+		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
+		//Disallowed because of crosschecks between modules and performance reason
+		//dependencies.add(A_G_unixGroupName_namespace + ":*");
+		//dependencies.add(A_R_unixGID_namespace + ":*");
+		//dependencies.add(A_R_unixGroupName_namespace + ":*");
 		//Temporary disallowed for performance reason
 		//dependencies.add(A_E_usedGids);
 		return dependencies;

@@ -15,6 +15,10 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  *
  * @author Michal Stava stavamichal@gmail.com
@@ -54,6 +58,11 @@ public class urn_perun_resource_attribute_def_def_defaultFilesQuota extends Reso
 		}else if(defaultFilesLimit != null && defaultFilesLimit != 0) {
 			if(defaultFilesLimit < defaultFilesQuota) throw new WrongReferenceAttributeValueException(attribute, attrDefaultFilesLimit, resource, null, resource, null, attribute + " must be less than or equals " + attrDefaultFilesLimit);
 		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(A_R_defaultFilesLimit);
 	}
 
 	@Override

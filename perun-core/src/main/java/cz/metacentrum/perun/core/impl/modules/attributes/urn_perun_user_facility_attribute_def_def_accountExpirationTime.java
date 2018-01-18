@@ -30,6 +30,8 @@ import java.util.HashMap;
  */
 public class urn_perun_user_facility_attribute_def_def_accountExpirationTime extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
 
+	private static final String A_F_D_accountExpirationTime = AttributesManager.NS_FACILITY_ATTR_DEF + ":accountExpirationTime";
+
 	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer accExpTime = (Integer) attribute.getValue();
 
@@ -45,6 +47,11 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 		if(accExpTime > facilityAccExpTime) {
 			throw new WrongAttributeValueException("this user_facility attribute cannot has higher value than same facility attribute");
 		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(A_F_D_accountExpirationTime);
 	}
 
 	public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
