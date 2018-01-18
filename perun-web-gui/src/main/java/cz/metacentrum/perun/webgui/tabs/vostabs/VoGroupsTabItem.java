@@ -180,7 +180,10 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		removeButton.setEnabled(false);
 		if (session.isVoAdmin(voId)) JsonUtils.addTableManagedButton(groups, table, removeButton);
 		// fixme - temporary only for perun admin
-		if (session.isPerunAdmin()) JsonUtils.addTableManagedButton(groups, table, moveButton);
+		if (session.isPerunAdmin()) {
+			JsonUtils.addTableManagedButton(groups, table, moveButton);
+			moveButton.setEnabled(false);
+		}
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
