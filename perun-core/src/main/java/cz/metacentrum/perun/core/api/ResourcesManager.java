@@ -414,7 +414,8 @@ public interface ResourcesManager {
 	void removeServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException;
 
 	/**
-	 * Get all VO resources.
+	 * Get all VO resources. If called by resourceAdmin it returns
+	 * only those resources of which is he admin.
 	 *
 	 * @param perunSession
 	 * @param vo
@@ -427,7 +428,8 @@ public interface ResourcesManager {
 	List<Resource> getResources(PerunSession perunSession, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
 	/**
-	 * Get all VO rich resources with facility property filled.
+	 * Get all VO rich resources with facility property filled. If called by resourceAdmin
+	 * it returns only those resources of which is he admin.
 	 *
 	 * @param perunSession
 	 * @param vo
