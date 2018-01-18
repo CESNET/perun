@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.entry;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
@@ -464,26 +465,52 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
+		if ((!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) &&
+					!AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN)) {
 			throw new PrivilegeException(sess, "getResources");
 		}
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getResourcesManagerBl().getResources(sess, vo);
+		List<Resource> resources = getResourcesManagerBl().getResources(sess, vo);
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
+			List<Resource> allowedResources = new ArrayList<>();
+			for (Resource resource : resources) {
+				if (AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN, resource)) {
+					allowedResources.add(resource);
+				}
+			}
+			resources = allowedResources;
+		}
+
+		return resources;
 	}
 
 	public List<RichResource> getRichResources(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
+		if ((!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) &&
+					!AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN)) {
 			throw new PrivilegeException(sess, "getRichResources");
 		}
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getResourcesManagerBl().getRichResources(sess, vo);
+		List<RichResource> resources = getResourcesManagerBl().getRichResources(sess, vo);
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
+			List<RichResource> allowedResources = new ArrayList<>();
+			for (RichResource resource : resources) {
+				if (AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN, resource)) {
+					allowedResources.add(resource);
+				}
+			}
+			resources = allowedResources;
+		}
+
+		return resources;
 	}
 
 	public int getResourcesCount(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
