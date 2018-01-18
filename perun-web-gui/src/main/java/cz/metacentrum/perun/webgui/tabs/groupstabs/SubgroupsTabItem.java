@@ -188,7 +188,10 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		removeButton.setEnabled(false);
 		if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, removeButton);
 		// FIXME - temporary for perun admin
-		if (session.isPerunAdmin()) JsonUtils.addTableManagedButton(subgroups, table, moveButton);
+		if (session.isPerunAdmin()) {
+			JsonUtils.addTableManagedButton(subgroups, table, moveButton);
+			moveButton.setEnabled(false);
+		}
 		//if (session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(subgroups, table, moveButton);
 
 		// adds the table into the panel
