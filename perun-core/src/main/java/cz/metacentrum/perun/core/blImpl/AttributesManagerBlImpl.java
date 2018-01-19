@@ -611,11 +611,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
 			if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
-				if (isVirtAttribute(sess, attribute)) {
-					throw new InternalErrorException("Virtual attribute can't be set this way yet. Please set physical attribute.");
-				} else {
-					setAttributeWithoutCheck(sess, group, attribute);
-				}
+				setAttributeWithoutCheck(sess, group, attribute);
 			}
 		}
 		//if checkAttributesValue fails it causes rollback so no attribute will be stored
