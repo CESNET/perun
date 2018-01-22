@@ -3,6 +3,7 @@ package cz.metacentrum.perun.registrar.impl;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -1013,7 +1014,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		LinkedHashMap<String,String> map = new LinkedHashMap<>();
 		map.putAll(session.getPerunPrincipal().getAdditionalInformations());
 		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
-		application.setFedInfo(additionalAttrs);
+		int bytesLength = 0;
+		try {
+			bytesLength = additionalAttrs.getBytes("UTF-8").length;
+		} catch (UnsupportedEncodingException e) {
+			log.error("Unable to get UTF-8 bytes from AdditionalInformations.", e);
+		}
+		if (bytesLength < 4000) {
+			// TODO - we should probably convert fedInfoColumn to (n)clob/text
+			application.setFedInfo(additionalAttrs);
+		} else {
+			log.error("Unable to store UserExtSource attributes: {}", map);
+		}
 
 		Application app = null;
 		try {
