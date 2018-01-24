@@ -402,14 +402,15 @@ public interface MembersManagerBl {
 	Member getMemberByUserExtSource(PerunSession perunSession, Vo vo, UserExtSource userExtSource) throws InternalErrorException, MemberNotExistsException;
 
 	/**
-	 * Get member by one of the userExtSource.
+	 * Get member by its external sources. If the given sources do not belong to a single member
+	 * and exception is thrown.
 	 *
-	 * @param perunSession
-	 * @param vo
-	 * @param userExtSources
+	 * @param perunSession session
+	 * @param vo vo
+	 * @param userExtSources ues
 	 * @return member
-	 * @throws InternalErrorException
-	 * @throws MemberNotExistsException
+	 * @throws InternalErrorException internal error
+	 * @throws MemberNotExistsException member does not exist
 	 */
 	Member getMemberByUserExtSources(PerunSession perunSession, Vo vo, List<UserExtSource> userExtSources) throws InternalErrorException, MemberNotExistsException;
 

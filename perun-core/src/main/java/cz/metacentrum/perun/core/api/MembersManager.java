@@ -384,20 +384,6 @@ public interface MembersManager {
 	Member getMemberByUserExtSource(PerunSession perunSession, Vo vo, UserExtSource userExtSource) throws InternalErrorException, VoNotExistsException, MemberNotExistsException, PrivilegeException;
 
 	/**
-	 * Find member of this Vo by one of his login in external source.
-	 *
-	 * @param perunSession
-	 * @param vo
-	 * @param userExtSources
-	 * @return selected user or throws MemberNotExistsException in case the requested member doesn't exists in this Vo
-	 * @throws InternalErrorException
-	 * @throws MemberNotExistsException
-	 * @throws PrivilegeException
-	 * @throws VoNotExistsException
-	 */
-	Member getMemberByUserExtSources(PerunSession perunSession, Vo vo, List<UserExtSource> userExtSources) throws InternalErrorException, VoNotExistsException, MemberNotExistsException, PrivilegeException;
-
-	/**
 	 * Returns member by his id.
 	 *
 	 * @param sess
