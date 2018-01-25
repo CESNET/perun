@@ -465,7 +465,7 @@ create table application (
 	apptype varchar(128) not null,
 	extSourceName varchar(4000),
 	extSourceType varchar(4000),
-	fed_info varchar(4000),
+	fed_info text,
 	state varchar(128),
 	extSourceLoa integer,
 	group_id integer,
