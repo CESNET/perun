@@ -474,7 +474,7 @@ create table application (
 	apptype nvarchar2(128) not null,
 	extSourceName nvarchar2(4000),
 	extSourceType nvarchar2(4000),
-	fed_info nvarchar2(4000),
+	fed_info clob,
 	state nvarchar2(128),
 	extSourceLoa integer,
 	group_id integer,

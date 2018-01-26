@@ -505,8 +505,8 @@ create table "application" (
 	apptype varchar(128) not null,  --type of application (initial/extension)
 	extSourceName varchar(4000),  --name of external source of users
 	extSourceType varchar(4000),  --type of external source of users (federation...)
-	fed_info varchar(4000),       --data from federation if any
-	state varchar(128),           --state of application (new/verified/approveed/rejected)
+	fed_info text,               --data from federation or cert
+	state varchar(128),           --state of application (new/verified/approved/rejected)
 	extSourceLoa integer,  --level of assurance of user by external source
 	group_id integer,      --identifier of group (groups.id) if application is for group
 	created_at timestamp default statement_timestamp() not null,
