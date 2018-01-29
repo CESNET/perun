@@ -590,10 +590,6 @@ public class JsonErrorHandler {
 
 			return "Group and Resource doesn't belong to the same VO.";
 
-		} else if ("GroupOperationsException".equalsIgnoreCase(errorName)) {
-
-			return "Action is not permitted, since it violates group arithmetic rules.";
-
 		} else if ("GroupMoveNotAllowedException".equalsIgnoreCase(errorName)) {
 
 			Group movingGroup = error.getMovingGroup();

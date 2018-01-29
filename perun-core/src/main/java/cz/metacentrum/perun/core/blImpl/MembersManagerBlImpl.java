@@ -55,7 +55,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		this.membersManagerImpl = membersManagerImpl;
 	}
 
-	public void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException {
+	public void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException {
 		Vo vo = this.getMemberVo(sess, member);
 
 		User user;
@@ -158,17 +158,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getPerunBl().getAuditer().log(sess, "{} deleted.", member);
 	}
 
-	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException {
+	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException {
 		for (Member m: this.getMembers(sess, vo)) {
 			this.deleteMember(sess, m);
 		}
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException, ExtendMembershipException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException, ExtendMembershipException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		return this.createMember(sess, vo, user, null);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws InternalErrorException, AlreadyMemberException, ExtendMembershipException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws InternalErrorException, AlreadyMemberException, ExtendMembershipException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		try {
 			Member member = getMemberByUser(sess, vo, user);
 			throw new AlreadyMemberException(member);
@@ -214,11 +214,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return this.createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, null);
 	}
 
-	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		if(specificUserType.equals(SpecificUserType.SERVICE)) candidate.setFirstName("(Service)");
 
 		//Set organization only if user in sessione exists (in tests there is no user in session)
@@ -262,7 +262,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Deprecated
-	public Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, User owner, Vo vo, int loa) throws InternalErrorException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, UserNotExistsException, ExtSourceNotExistsException, LoginNotExistsException {
+	public Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, User owner, Vo vo, int loa) throws InternalErrorException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, UserNotExistsException, ExtSourceNotExistsException, LoginNotExistsException {
 		String loginNamespaceUri = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + namespace;
 		boolean passwordPresent = params.get("password") != null;
 		if(params.get(loginNamespaceUri) == null) {
@@ -293,11 +293,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return this.createMemberSync(sess, vo, candidate, null);
 	}
 
-	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		Member member = createMember(sess, vo, SpecificUserType.NORMAL, candidate, groups, overwriteUserAttributes);
 
 		//Validate synchronously
@@ -310,15 +310,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return this.createMemberSync(sess, vo, candidate, groups, null);
 	}
 
-	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return this.createSpecificMemberSync(sess, vo, candidate, specificUserOwners, specificUserType, null);
 	}
 
-	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 
 		Member member = createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, groups);
 
@@ -332,20 +332,20 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return createMember(sess, vo, candidate, null);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return createMember(sess, vo, SpecificUserType.NORMAL, candidate, groups, null);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 			return this.createMember(sess, vo, specificUserType, candidate, null, new ArrayList<String>());
 	}
 
 	//MAIN METHOD
-	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		log.debug("Creating member for VO {} from candidate {}", vo, candidate);
 
 		// Get the user
@@ -492,7 +492,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return this.createMember(sess, vo, extSourceName, extSourceType, loa, login, candidate, null);
 	}
 
@@ -500,7 +500,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * This method with support of LoA finally has to call this.createMember(PerunSession sess, Vo vo, UserExtSource userExtSource)
 	 * @see cz.metacentrum.perun.core.api.MembersManager#createMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, java.lang.String, java.lang.String, java.lang.String, cz.metacentrum.perun.core.api.Candidate)
 	 */
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 
 		// Create ExtSource object
 		ExtSource extSource = new ExtSource();
@@ -519,7 +519,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return this.createMember(sess, vo, candidate, groups);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return this.createMember(sess, vo, extSourceName, extSourceType, login, candidate, null);
 	}
 
@@ -527,7 +527,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * This method finally has to call this.createMember(PerunSession sess, Vo vo, UserExtSource userExtSource)
 	 * @see cz.metacentrum.perun.core.api.MembersManager#createMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, java.lang.String, java.lang.String, java.lang.String, cz.metacentrum.perun.core.api.Candidate)
 	 */
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 
 		// Create ExtSource object
 		ExtSource extSource = new ExtSource();
@@ -545,7 +545,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return this.createMember(sess, vo, candidate, groups);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
+	public Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		//First of all get candidate from extSource directly
 		Candidate candidate = null;
 		try {
@@ -1402,7 +1402,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public void insertToMemberGroup(PerunSession sess, Member member, Vo vo) throws InternalErrorException, AlreadyMemberException, GroupOperationsException {
+	public void insertToMemberGroup(PerunSession sess, Member member, Vo vo) throws InternalErrorException, AlreadyMemberException {
 		// Insert member into the members group
 		try {
 			getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -1460,170 +1460,170 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	public Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws InternalErrorException, ExtendMembershipException {
 	  // Check if the VO has set membershipExpirationRules attribute
-    LinkedHashMap<String, String> membershipExpirationRules;
+	LinkedHashMap<String, String> membershipExpirationRules;
 
-    Attribute membershipExpirationRulesAttribute = null;
-    try {
-      membershipExpirationRulesAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
-      membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
-      // If attribute was not filled, then silently exit with null
-      if (membershipExpirationRules == null) return null;
-    } catch (AttributeNotExistsException e) {
-      // No rules set, so leave it as it is
-      return null;
-    } catch (WrongAttributeAssignmentException e) {
-      throw new InternalErrorException("Shouldn't happen.");
-    }
+	Attribute membershipExpirationRulesAttribute = null;
+	try {
+	  membershipExpirationRulesAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
+	  membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
+	  // If attribute was not filled, then silently exit with null
+	  if (membershipExpirationRules == null) return null;
+	} catch (AttributeNotExistsException e) {
+	  // No rules set, so leave it as it is
+	  return null;
+	} catch (WrongAttributeAssignmentException e) {
+	  throw new InternalErrorException("Shouldn't happen.");
+	}
 
-    // Which LOA we won't extend? This is applicable only for members who have already set expiration from the previous period
-    if (membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName) != null) {
-      String[] doNotExtendLoas = membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName).split(",");
+	// Which LOA we won't extend? This is applicable only for members who have already set expiration from the previous period
+	if (membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName) != null) {
+	  String[] doNotExtendLoas = membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName).split(",");
 
-      for (String doNotExtendLoa : doNotExtendLoas) {
-        if (doNotExtendLoa.equals(loa)) {
-          // LOA provided is not allowed for extension
-          throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOA,
-                "Provided LoA " + loa + " doesn't have required level for VO id " + vo.getId() + ".");
-        }
-      }
-    }
+	  for (String doNotExtendLoa : doNotExtendLoas) {
+		if (doNotExtendLoa.equals(loa)) {
+		  // LOA provided is not allowed for extension
+		  throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOA,
+				"Provided LoA " + loa + " doesn't have required level for VO id " + vo.getId() + ".");
+		}
+	  }
+	}
 
-    Calendar calendar = Calendar.getInstance();
+	Calendar calendar = Calendar.getInstance();
 
-    String period = null;
-    // Default extension
-    if (membershipExpirationRules.get(MembersManager.membershipPeriodKeyName) != null) {
-      period = membershipExpirationRules.get(MembersManager.membershipPeriodKeyName);
-    }
+	String period = null;
+	// Default extension
+	if (membershipExpirationRules.get(MembersManager.membershipPeriodKeyName) != null) {
+	  period = membershipExpirationRules.get(MembersManager.membershipPeriodKeyName);
+	}
 
-    // Do we extend particular LoA? Attribute syntax LoA|[period][.]
-    if (membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName) != null) {
-      // Which period
-      String[] membershipPeriodLoa = membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName).split("\\|");
-      String membershipLoa = membershipPeriodLoa[0];
-      String periodLoa = membershipPeriodLoa[1];
-      // Does the user have this LoA?
-      if (membershipLoa.equals(loa)) {
-        period = periodLoa;
-      }
-    }
+	// Do we extend particular LoA? Attribute syntax LoA|[period][.]
+	if (membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName) != null) {
+	  // Which period
+	  String[] membershipPeriodLoa = membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName).split("\\|");
+	  String membershipLoa = membershipPeriodLoa[0];
+	  String periodLoa = membershipPeriodLoa[1];
+	  // Does the user have this LoA?
+	  if (membershipLoa.equals(loa)) {
+		period = periodLoa;
+	  }
+	}
 
-    // Do we extend for x months or for static date?
-    if (period != null) {
-      if (period.startsWith("+")) {
-        // By default do not add nothing
-        int amount = 0;
-        int field;
+	// Do we extend for x months or for static date?
+	if (period != null) {
+	  if (period.startsWith("+")) {
+		// By default do not add nothing
+		int amount = 0;
+		int field;
 
-        // We will add days/months/years
-        Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
-        Matcher m = p.matcher(period);
-        if (m.matches()) {
-          String countString = m.group(1);
-          amount = Integer.valueOf(countString);
+		// We will add days/months/years
+		Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
+		Matcher m = p.matcher(period);
+		if (m.matches()) {
+		  String countString = m.group(1);
+		  amount = Integer.valueOf(countString);
 
-          String dmyString = m.group(2);
-          if (dmyString.equals("d")) {
-            field = Calendar.DAY_OF_YEAR;
-          } else if (dmyString.equals("m")) {
-            field = Calendar.MONTH;
-          } else if (dmyString.equals("y")) {
-            field = Calendar.YEAR;
-          } else {
-            throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
-          }
-        } else {
-          throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
-        }
+		  String dmyString = m.group(2);
+		  if (dmyString.equals("d")) {
+			field = Calendar.DAY_OF_YEAR;
+		  } else if (dmyString.equals("m")) {
+			field = Calendar.MONTH;
+		  } else if (dmyString.equals("y")) {
+			field = Calendar.YEAR;
+		  } else {
+			throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
+		  }
+		} else {
+		  throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
+		}
 
-        // Add days/months/years
-        calendar.add(field, amount);
-      } else {
-        // We will extend to particular date
+		// Add days/months/years
+		calendar.add(field, amount);
+	  } else {
+		// We will extend to particular date
 
-        // Parse date
-        Pattern p = Pattern.compile("([0-9]+).([0-9]+).");
-        Matcher m = p.matcher(period);
-        if (m.matches()) {
-          int day = Integer.valueOf(m.group(1));
-          int month = Integer.valueOf(m.group(2));
+		// Parse date
+		Pattern p = Pattern.compile("([0-9]+).([0-9]+).");
+		Matcher m = p.matcher(period);
+		if (m.matches()) {
+		  int day = Integer.valueOf(m.group(1));
+		  int month = Integer.valueOf(m.group(2));
 
-          // Get current year
-          int year = calendar.get(Calendar.YEAR);
+		  // Get current year
+		  int year = calendar.get(Calendar.YEAR);
 
-          // We must detect if the extension date is in current year or in a next year
-          boolean extensionInNextYear;
-          Calendar extensionCalendar = Calendar.getInstance();
-          extensionCalendar.set(year, month-1, day);
-          Calendar today = Calendar.getInstance();
-          if (extensionCalendar.before(today)) {
-            // Extension date is in a next year
-            extensionInNextYear = true;
-          } else {
-            // Extension is in the current year
-            extensionInNextYear = false;
-          }
+		  // We must detect if the extension date is in current year or in a next year
+		  boolean extensionInNextYear;
+		  Calendar extensionCalendar = Calendar.getInstance();
+		  extensionCalendar.set(year, month-1, day);
+		  Calendar today = Calendar.getInstance();
+		  if (extensionCalendar.before(today)) {
+			// Extension date is in a next year
+			extensionInNextYear = true;
+		  } else {
+			// Extension is in the current year
+			extensionInNextYear = false;
+		  }
 
-          // Set the date to which the membershi should be extended, can be changed if there was grace period, see next part of the code
-          calendar.set(year, month-1, day); // month is 0-based
-          if (extensionInNextYear) {
-            calendar.add(Calendar.YEAR, 1);
-          }
+		  // Set the date to which the membershi should be extended, can be changed if there was grace period, see next part of the code
+		  calendar.set(year, month-1, day); // month is 0-based
+		  if (extensionInNextYear) {
+			calendar.add(Calendar.YEAR, 1);
+		  }
 
-          // ***** GRACE PERIOD *****
-          // Is there a grace period?
-          if (membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName) != null) {
-            String gracePeriod = membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName);
-            // If the extension is requested in period-gracePeriod then extend to next period
+		  // ***** GRACE PERIOD *****
+		  // Is there a grace period?
+		  if (membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName) != null) {
+			String gracePeriod = membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName);
+			// If the extension is requested in period-gracePeriod then extend to next period
 
-            // Get the value of the grace period
-            p = Pattern.compile("([0-9]+)([dmy]?)");
-            m = p.matcher(gracePeriod);
-            if (m.matches()) {
-              String countString = m.group(1);
-              int amount = Integer.valueOf(countString);
+			// Get the value of the grace period
+			p = Pattern.compile("([0-9]+)([dmy]?)");
+			m = p.matcher(gracePeriod);
+			if (m.matches()) {
+			  String countString = m.group(1);
+			  int amount = Integer.valueOf(countString);
 
-              // Set the gracePeriodCalendar to the extension date
-              Calendar gracePeriodCalendar = Calendar.getInstance();
-              gracePeriodCalendar.set(year, month-1, day);
-              if (extensionInNextYear) {
-                gracePeriodCalendar.add(Calendar.YEAR, 1);
-              }
+			  // Set the gracePeriodCalendar to the extension date
+			  Calendar gracePeriodCalendar = Calendar.getInstance();
+			  gracePeriodCalendar.set(year, month-1, day);
+			  if (extensionInNextYear) {
+				gracePeriodCalendar.add(Calendar.YEAR, 1);
+			  }
 
-              int field;
-              String dmyString = m.group(2);
-              if (dmyString.equals("d")) {
-                field = Calendar.DAY_OF_YEAR;
-              } else if (dmyString.equals("m")) {
-                field = Calendar.MONTH;
-              } else if (dmyString.equals("y")) {
-                field = Calendar.YEAR;
-              } else {
-                throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
-              }
-              // subtracts period definition, e.g. 3m
-              gracePeriodCalendar.add(field, -amount);
+			  int field;
+			  String dmyString = m.group(2);
+			  if (dmyString.equals("d")) {
+				field = Calendar.DAY_OF_YEAR;
+			  } else if (dmyString.equals("m")) {
+				field = Calendar.MONTH;
+			  } else if (dmyString.equals("y")) {
+				field = Calendar.YEAR;
+			  } else {
+				throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
+			  }
+			  // subtracts period definition, e.g. 3m
+			  gracePeriodCalendar.add(field, -amount);
 
-              // Check if we are in grace period
-              if (gracePeriodCalendar.before(Calendar.getInstance())) {
-                // We are in grace period, so extend to the next period
-                calendar.add(Calendar.YEAR, 1);
-              }
-            }
-          }
-        } else {
-          throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
-        }
-      }
+			  // Check if we are in grace period
+			  if (gracePeriodCalendar.before(Calendar.getInstance())) {
+				// We are in grace period, so extend to the next period
+				calendar.add(Calendar.YEAR, 1);
+			  }
+			}
+		  }
+		} else {
+		  throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
+		}
+	  }
 
-      // Reset hours, minutes and seconds to 0
-      calendar.set(Calendar.HOUR, 0);
-      calendar.set(Calendar.MINUTE, 0);
-      calendar.set(Calendar.SECOND, 0);
-      calendar.set(Calendar.MILLISECOND, 0);
-    }
+	  // Reset hours, minutes and seconds to 0
+	  calendar.set(Calendar.HOUR, 0);
+	  calendar.set(Calendar.MINUTE, 0);
+	  calendar.set(Calendar.SECOND, 0);
+	  calendar.set(Calendar.MILLISECOND, 0);
+	}
 
-    return calendar.getTime();
+	return calendar.getTime();
 	}
 
 	public Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException {
@@ -2244,7 +2244,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor, boolean asyncValidation) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, ExtendMembershipException, GroupOperationsException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException {
+	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor, boolean asyncValidation) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException {
 		//check that sponsoring user has role SPONSOR for the VO
 		if (!getPerunBl().getVosManagerBl().isUserInRoleForVo(session, sponsor, Role.SPONSOR, vo, true)) {
 			throw new UserNotInRoleException("user " + sponsor.getId() + " is not in role SPONSOR for VO " + vo.getId());
