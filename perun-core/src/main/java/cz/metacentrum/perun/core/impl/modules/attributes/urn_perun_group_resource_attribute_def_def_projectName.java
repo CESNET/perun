@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -118,7 +117,10 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 
 	@Override
 	public List<String> getDependencies() {
-		return Collections.singletonList(A_R_projectsBasePath);
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(A_GR_projectName);
+		dependencies.add(A_R_projectsBasePath);
+		return dependencies;
 	}
 
 

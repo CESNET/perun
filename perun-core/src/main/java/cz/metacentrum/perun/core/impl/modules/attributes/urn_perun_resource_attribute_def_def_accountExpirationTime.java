@@ -46,7 +46,7 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
 		Integer facilityAccExpTime = null;
 		try {
 			//FIXME this can't work (different namespace!!)
-			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, fac, attribute.getName()).getValue();
+			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, fac, A_F_accountExpirationTime).getValue();
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
