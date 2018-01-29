@@ -268,7 +268,7 @@ public interface UsersManagerBl {
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
 	 * @throws GroupOperationsException	           if something went wrong while processing relations
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException;
+	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Deletes user. If forceDelete is true, then removes also associated members.
@@ -283,7 +283,7 @@ public interface UsersManagerBl {
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
 	 * @throws GroupOperationsException	           if something went wrong while processing relations
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Updates users data in DB.

@@ -25,7 +25,7 @@ public interface MembersManagerBl {
 	 * @throws MemberAlreadyRemovedException
 	 * @throws GroupOperationsException
 	 */
-	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException;
+	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
 
 	/**
 	 *  Deletes all VO members.
@@ -36,7 +36,7 @@ public interface MembersManagerBl {
 	 * @throws MemberAlreadyRemovedException
 	 * @throws GroupOperationsException
 	 */
-	void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException;
+	void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Creates a new member from candidate which is prepared for creating specificUser

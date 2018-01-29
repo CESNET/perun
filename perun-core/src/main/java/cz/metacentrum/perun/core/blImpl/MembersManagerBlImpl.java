@@ -55,7 +55,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		this.membersManagerImpl = membersManagerImpl;
 	}
 
-	public void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException {
+	public void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException {
 		Vo vo = this.getMemberVo(sess, member);
 
 		User user;
@@ -96,6 +96,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				getPerunBl().getGroupsManagerBl().removeMemberFromMembersOrAdministratorsGroup(sess, g, member);
 			} catch (NotGroupMemberException e) {
 				throw new ConsistencyErrorException("Member is not in the \"members\" group." + member + "  " + g, e);
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | AlreadyMemberException e) {
+				throw new InternalErrorException(e);
 			}
 		} catch (GroupNotExistsException e) {
 			throw new InternalErrorException(e);
@@ -156,7 +158,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getPerunBl().getAuditer().log(sess, "{} deleted.", member);
 	}
 
-	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException {
+	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException {
 		for (Member m: this.getMembers(sess, vo)) {
 			this.deleteMember(sess, m);
 		}

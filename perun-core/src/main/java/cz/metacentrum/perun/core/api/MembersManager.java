@@ -38,7 +38,7 @@ public interface MembersManager {
 	 * @throws MemberAlreadyRemovedException
 	 * @throws GroupOperationsException
 	 */
-	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, GroupOperationsException;
+	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, GroupOperationsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
 
 	/**
 	 *  Deletes all VO members.
@@ -51,7 +51,7 @@ public interface MembersManager {
 	 * @throws MemberAlreadyRemovedException
 	 * @throws GroupOperationsException
 	 */
-	void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, GroupOperationsException;
+	void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, GroupOperationsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Creates a new member from candidate which is prepared for creating specific User
@@ -484,7 +484,7 @@ public interface MembersManager {
 	 */
 	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
- 	/**
+	/**
 	 * Get all rich members with allowed statuses from specific group. Rich member object contains user, member, userExtSources and member/user attributes.
 	 *
 	 * @param sess
