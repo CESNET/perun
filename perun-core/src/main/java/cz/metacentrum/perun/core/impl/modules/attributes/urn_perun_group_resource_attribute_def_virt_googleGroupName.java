@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -134,7 +133,11 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 
 	@Override
 	public List<String> getDependencies() {
-		return Collections.singletonList(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupNameNamespace");
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupNameNamespace");
+		//Disallowed because it does not affect value of dependent attribute
+		//dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:*");
+		return dependencies;
 	}
 
 	@Override

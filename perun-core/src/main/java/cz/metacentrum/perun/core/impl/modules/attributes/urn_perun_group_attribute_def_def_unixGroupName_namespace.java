@@ -168,6 +168,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 		//Disallowed because of crosschecks between modules and performance reason
 		//dependencies.add(A_G_unixGID_namespace + ":*");
 		//dependencies.add(A_R_unixGID_namespace + ":*");
+		//Disallowed because it does not affect value of dependent attribute
 		//dependencies.add(A_R_unixGroupName_namespace + ":*");
 		return dependencies;
 	}
