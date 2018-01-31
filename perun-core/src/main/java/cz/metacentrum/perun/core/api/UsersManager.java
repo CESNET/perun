@@ -570,7 +570,7 @@ public interface UsersManager {
 	 */
 	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException, PrivilegeException;
 
-		/**
+	/**
 	 * Returns list of users who exactly matches the searchString
 	 *
 	 * @param sess

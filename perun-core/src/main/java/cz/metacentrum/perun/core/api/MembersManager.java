@@ -37,10 +37,9 @@ public interface MembersManager {
 	 * @throws PrivilegeException
 	 * @throws MemberAlreadyRemovedException
 	 * @throws WrongAttributeValueException
-	 * @throws AlreadyMemberException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
+	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 *  Deletes all VO members.

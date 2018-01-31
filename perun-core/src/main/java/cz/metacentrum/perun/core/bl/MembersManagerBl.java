@@ -24,10 +24,9 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberAlreadyRemovedException
 	 * @throws WrongAttributeValueException
-	 * @throws AlreadyMemberException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
+	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 *  Deletes all VO members.

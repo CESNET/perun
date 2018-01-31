@@ -90,12 +90,8 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupRelationNotAllowed
 	 * @throws GroupRelationAlreadyExists
-	 * @throws GroupNotExistsException
-	 * @throws AlreadyMemberException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException, GroupRelationNotAllowed, GroupRelationAlreadyExists, GroupNotExistsException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException, GroupRelationNotAllowed, GroupRelationAlreadyExists;
 
 	/**
 	 * Gets all groups which have enabled synchronization.
@@ -123,11 +119,10 @@ public interface GroupsManagerBl {
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 * @throws NotGroupMemberException
-	 * @throws AlreadyMemberException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 */
-	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, NotGroupMemberException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, NotGroupMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Delete all groups in list from perun. (Except members group)
@@ -342,10 +337,9 @@ public interface GroupsManagerBl {
 	 * @throws NotGroupMemberException
 	 * @throws GroupNotExistsException
 	 * @throws WrongAttributeValueException
-	 * @throws AlreadyMemberException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
+	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Removes member from members or administrators group only.
@@ -1231,11 +1225,10 @@ public interface GroupsManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws NotGroupMemberException
 	 * @throws WrongAttributeValueException
-	 * @throws AlreadyMemberException
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	void removeRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId) throws WrongReferenceAttributeValueException, NotGroupMemberException, WrongAttributeValueException, AlreadyMemberException, InternalErrorException, GroupNotExistsException;
+	void removeRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId) throws WrongReferenceAttributeValueException, NotGroupMemberException, WrongAttributeValueException, InternalErrorException, GroupNotExistsException;
 
 	/**
 	 * Performs union operation on two groups. Members from operand group are added to result group as indirect.
@@ -1268,7 +1261,6 @@ public interface GroupsManagerBl {
 	 * @throws GroupRelationCannotBeRemoved
 	 * @throws InternalErrorException
 	 * @throws NotGroupMemberException
-	 * @throws AlreadyMemberException
 	 * @throws GroupNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
