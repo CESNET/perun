@@ -287,7 +287,8 @@ public class CabinetManagerImpl implements CabinetManager {
 	@Override
 	public List<Author> getAllAuthors(PerunSession sess) throws CabinetException, InternalErrorException {
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new CabinetException("You are not authorized to list all authors.", NOT_AUTHORIZED);
 		}
 		return getAuthorshipManagerBl().getAllAuthors();
