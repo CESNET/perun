@@ -329,7 +329,12 @@ public class SchedulingPoolImpl implements SchedulingPool {
 					for (TaskStatus sts : TaskStatus.class.getEnumConstants()) {
 						List<Task> tasklist = pool.get(sts);
 						if(tasklist != null) {
-							local_task = tasklist.get(task.getId());
+							for (Task tsk : tasklist) {
+								if (tsk.getId() == task.getId()) {
+									local_task = tsk;
+									break;
+								}
+							}
 						}
 						if(local_task != null) {
 							local_status = sts;

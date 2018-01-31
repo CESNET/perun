@@ -2,6 +2,7 @@ package cz.metacentrum.perun.dispatcher.scheduling.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
@@ -81,7 +82,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		Date time = new Date(System.currentTimeMillis());
 		DispatcherQueue dispatcherQueue = null;
 
-		if (task.getStatus().equals(TaskStatus.PROCESSING) && !task.isPropagationForced()) {
+		if (Objects.equals(task.getStatus(), TaskStatus.PROCESSING) && !task.isPropagationForced()) {
 			log.debug("Task {} already processing, will not schedule again.",
 					task.toString());
 			return true;
@@ -621,7 +622,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		}
 		log.debug("Fetched destinations: " + ( (destinations == null) ?  "[]" : destinations.toString()));
 		task.setDestinations(destinations);
-		if(task.getExecService().getExecServiceType().equals(ExecServiceType.SEND) && 
+		if(task.getExecService().getExecServiceType().equals(ExecServiceType.SEND) &&
 		   (destinations == null || destinations.isEmpty())) {
 			log.info("Task [] has no destination, setting to error.");
 			task.setEndTime(new Date(System.currentTimeMillis()));
