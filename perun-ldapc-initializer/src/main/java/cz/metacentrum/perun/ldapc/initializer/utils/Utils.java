@@ -173,7 +173,7 @@ public class Utils {
 				cn+= resource.getName();
 				String descriptionValue = resource.getDescription();
 				if(descriptionValue != null) {
-					if(descriptionValue.matches("^[ ]*$")) descriptionValue = null;
+					if(descriptionValue.matches("^\\s*$")) descriptionValue = null;
 				}
 				writer.write(dn + '\n');
 				writer.write(oc1 + '\n');
@@ -237,7 +237,10 @@ public class Utils {
 				dn+= "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz";
 				cn+= group.getName();
 				perunUniqueGroupName+= vo.getShortName() + ":" + group.getName();
-				if(group.getDescription() != null) description+= group.getDescription();
+				String descriptionValue = group.getDescription();
+				if(descriptionValue != null) {
+					if(descriptionValue.matches("^\\s*$")) descriptionValue = null;
+				}
 				if(group.getParentGroupId() != null) {
 					parentGroupId+= group.getParentGroupId();
 					parentGroup+= "perunGroupId=" + group.getParentGroupId()+ ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz";
@@ -250,7 +253,7 @@ public class Utils {
 				writer.write(perunUniqueGroupName + '\n');
 				writer.write(perunGroupId + '\n');
 				writer.write(perunVoId + '\n');
-				if(group.getDescription() != null) writer.write(description + '\n');
+				if(descriptionValue != null) writer.write(description + descriptionValue + '\n');
 				if(group.getParentGroupId() != null) {
 					writer.write(parentGroupId + '\n');
 					writer.write(parentGroup + '\n');
