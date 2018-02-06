@@ -78,7 +78,7 @@ unless (@attributes) {
 }
 foreach my $attr (@attributes) {
 	my $attrName = "urn:perun:";
-	if ($attr =~ /^(\w)\:(\w)\:(\w+)$/) {
+	if ($attr =~ /^(\w)\:(\w)\:([\w\:-]+)$/) {
 		$attrName = $attrName.$entities{$1}.":attribute-def:".$types{$2}.":".$3;
 		$attrShort{$attr} = $attrName;
 	} else {
