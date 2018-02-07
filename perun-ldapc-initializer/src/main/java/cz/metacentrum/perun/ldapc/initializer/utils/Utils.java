@@ -18,12 +18,16 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Base64Coder;
 import cz.metacentrum.perun.ldapc.initializer.beans.PerunInitializer;
 import cz.metacentrum.perun.rpclib.Rpc;
 import cz.metacentrum.perun.rpclib.api.RpcCaller;
 import cz.metacentrum.perun.rpclib.impl.RpcCallerImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -42,6 +46,8 @@ import java.util.Set;
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public class Utils {
+
+	private final static Logger log = LoggerFactory.getLogger(Utils.class);
 
 	/**
 	 * Method to set last processed id for concrete consumer
@@ -157,7 +163,17 @@ public class Utils {
 				try {
 					entityIDAttr = perun.getAttributesManagerBl().getAttribute(perunSession, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":entityID");
 				} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
-					throw new InternalErrorException("Problem with loading entityID attribute of facility " + facility, ex);
+					//entityId attribute not exists or its assignment is wrong, use empty value
+					entityIDAttr = new Attribute();
+					log.error("EntityId attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
+				}
+				Attribute clientIDAttr = null;
+				try {
+					clientIDAttr = perun.getAttributesManagerBl().getAttribute(perunSession, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":OIDCClientID");
+				} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+					//clientIDAttr attribute not exists or its assignment is wrong, use empty value
+					clientIDAttr = new Attribute();
+					log.error("clientIDAttr attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
 				}
 
 				String dn = "dn: ";
@@ -169,6 +185,7 @@ public class Utils {
 				String perunResourceId = "perunResourceId: ";
 				String description = "description:: ";
 				String entityID = "entityID: ";
+				String OIDCClientID = "OIDCClientID: ";
 
 				perunVoId+= String.valueOf(resource.getVoId());
 				perunFacilityId+= String.valueOf(resource.getFacilityId());
@@ -188,6 +205,7 @@ public class Utils {
 				writer.write(perunVoId + '\n');
 				writer.write(perunFacilityId + '\n');
 				if(entityIDAttr.getValue() != null) writer.write(entityID + (String) entityIDAttr.getValue() + '\n');
+				if(clientIDAttr.getValue() != null) writer.write(OIDCClientID + (String) clientIDAttr.getValue() + '\n');
 				//ADD resources which group is assigned to
 				List<Group> associatedGroups = perun.getResourcesManagerBl().getAssignedGroups(perunSession, resource);
 				for(Group g: associatedGroups) {
@@ -339,15 +357,63 @@ public class Utils {
 					}
 				}
 			}
-			//Attribute attrMail = perun.getAttributesManagerBl().getAttribute(perunSession, u, AttributesManager.NS_USER_ATTR_DEF + ":mail");
-			Attribute attrPreferredMail = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
-			Attribute attrOrganization = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":organization");
-			Attribute attrVirtCertDNs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
-			Attribute attrSchacHomeOrganizations = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":schacHomeOrganizations");
-			Attribute attrBonaFideStatus = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":elixirBonaFideStatus");
-			Attribute attrEduPersonScopedAffiliations = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonScopedAffiliations");
-			Attribute attrLibraryIDs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs");
-			Attribute attrPhone = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":phone");
+
+			Attribute attrPreferredMail = null;
+			Attribute attrOrganization = null;
+			Attribute attrVirtCertDNs = null;
+			Attribute attrSchacHomeOrganizations = null;
+			Attribute attrBonaFideStatus = null;
+			Attribute attrEduPersonScopedAffiliations = null;
+			Attribute attrLibraryIDs = null;
+			Attribute attrPhone = null;
+			Attribute attrGroupNames = null;
+			//Check if there is any attribute missing and if so, log it and skip it
+			try {
+				attrPreferredMail = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("Preferred mail attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
+			}
+			try {
+				attrOrganization = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":organization");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("Organization attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
+			}
+			try {
+				attrVirtCertDNs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("Certificate DNs attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
+			}
+			try {
+				attrSchacHomeOrganizations = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":schacHomeOrganizations");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("Schac home organizations attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
+			}
+			try {
+				attrBonaFideStatus = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":elixirBonaFideStatus");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("Bona fide status attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
+			}
+			try {
+				attrEduPersonScopedAffiliations = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonScopedAffiliations");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("Edu person scoped affilations attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
+			}
+			try {
+				attrLibraryIDs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("Library IDs attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
+			}
+			try {
+				attrPhone = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":phone");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("Phone attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
+			}
+			try {
+				attrGroupNames = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":groupNames");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("Group names attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
+			}
+
 			perunUserId+= String.valueOf(user.getId());
 			dn+= "perunUserId=" + user.getId() + "," + branchOuPeople;
 			String firstName = user.getFirstName();
@@ -409,7 +475,7 @@ public class Utils {
 				}
 			}
 			List<String> schacHomeOrganizations = new ArrayList<>();
-			if(attrSchacHomeOrganizations.getValue() != null) {
+			if(attrSchacHomeOrganizations != null && attrSchacHomeOrganizations.getValue() != null) {
 				schacHomeOrganizations = (ArrayList) attrSchacHomeOrganizations.getValue();
 			}
 			if(schacHomeOrganizations != null && !schacHomeOrganizations.isEmpty()) {
@@ -418,7 +484,7 @@ public class Utils {
 				}
 			}
 			List<String> eduPersonScopedAffiliations = new ArrayList<>();
-			if(attrEduPersonScopedAffiliations.getValue() != null) {
+			if(attrEduPersonScopedAffiliations != null && attrEduPersonScopedAffiliations.getValue() != null) {
 				eduPersonScopedAffiliations = (ArrayList) attrEduPersonScopedAffiliations.getValue();
 			}
 			if(eduPersonScopedAffiliations != null && !eduPersonScopedAffiliations.isEmpty()) {
@@ -427,12 +493,21 @@ public class Utils {
 				}
 			}
 			List<String> libraryIDs = new ArrayList<>();
-			if(attrLibraryIDs.getValue() != null) {
+			if(attrLibraryIDs != null && attrLibraryIDs.getValue() != null) {
 				libraryIDs = (ArrayList) attrLibraryIDs.getValue();
 			}
 			if(libraryIDs != null && !libraryIDs.isEmpty()) {
 				for(String id : libraryIDs) {
 					writer.write("libraryIDs: " + id + '\n');
+				}
+			}
+			List<String> groupNames = new ArrayList<>();
+			if(attrGroupNames != null && attrGroupNames.getValue() != null) {
+				groupNames = (ArrayList) attrGroupNames.getValue();
+			}
+			if(groupNames != null && !groupNames.isEmpty()) {
+				for(String groupName : groupNames) {
+					writer.write("groupNames: " + groupName + '\n');
 				}
 			}
 			//GET ALL USERS UIDs

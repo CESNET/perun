@@ -328,30 +328,9 @@ public class LdapConnectorImpl implements LdapConnector {
 		this.updateUserWithUserId(String.valueOf(user.getId()), modificationItems);
 	}
 
-	public void updateUsersCertSubjects(String userId, String[] certSubjects) {
+	public void updateUsersAttributeInLDAP(String userId, String ldapAttrName, String[] records) {
 		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
-		context.setAttributeValues(EventProcessorImpl.ldapAttrUserCertDNs, certSubjects);
-		ldapTemplate.modifyAttributes(context);
-		log.debug("Entry modified in LDAP: UserId {}.", userId);
-	}
-
-	public void updateUsersSchacHomeOrganizations(String userId, String[] organizations) {
-		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
-		context.setAttributeValues(EventProcessorImpl.ldapAttrSchacHomeOrganizations, organizations);
-		ldapTemplate.modifyAttributes(context);
-		log.debug("Entry modified in LDAP: UserId {}.", userId);
-	}
-
-	public void updateUsersEduPersonScopedAffiliations(String userId, String[] affiliations) {
-		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
-		context.setAttributeValues(EventProcessorImpl.ldapAttrEduPersonScopedAffiliations, affiliations);
-		ldapTemplate.modifyAttributes(context);
-		log.debug("Entry modified in LDAP: UserId {}.", userId);
-	}
-
-	public void updateUsersLibraryIds(String userId, String[] libraryIDs) {
-		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
-		context.setAttributeValues(EventProcessorImpl.ldapAttrLibraryIDs, libraryIDs);
+		context.setAttributeValues(ldapAttrName, records);
 		ldapTemplate.modifyAttributes(context);
 		log.debug("Entry modified in LDAP: UserId {}.", userId);
 	}

@@ -220,36 +220,12 @@ public interface LdapConnector {
 	public void deleteUser(User user) throws InternalErrorException;
 
 	/**
-	 * Update all values of user cert subject in ldap.
+	 * Update all values of user attribute
 	 *
 	 * @param userId user id
-	 * @param certSubjects values of cert subjects
+	 * @param records values of attribute
 	 */
-	public void updateUsersCertSubjects(String userId, String[] certSubjects);
-
-	/**
-	 * Update all values of user schac home organizations in ldap
-	 *
-	 * @param userId user id
-	 * @param organizations values of organizations
-	 */
-	public void updateUsersSchacHomeOrganizations(String userId, String[] organizations);
-
-	/**
-	 * Update all values of user edu person scoped affiliations
-	 *
-	 * @param userId user id
-	 * @param affiliations values of affiliations
-	 */
-	public void updateUsersEduPersonScopedAffiliations(String userId, String[] affiliations);
-
-	/**
-	 * Update all values of user library IDs in ldap.
-	 *
-	 * @param userId user id
-	 * @param libraryIDs values of library IDs
-	 */
-	void updateUsersLibraryIds(String userId, String[] libraryIDs);
+	public void updateUsersAttributeInLDAP(String userId, String ldapAttrName, String[] records);
 
 	/**
 	 * Return true if user already exists in ldap.
