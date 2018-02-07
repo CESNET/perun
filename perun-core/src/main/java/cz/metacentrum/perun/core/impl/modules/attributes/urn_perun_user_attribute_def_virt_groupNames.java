@@ -73,7 +73,7 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 				String messageAttributeSet;
 
 				attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_VIRT + ":" + FRIENDLY_NAME);
-				String value = (String) attribute.getValue();
+				List<String> value = (ArrayList) attribute.getValue();
 
 				if (value == null || value.isEmpty()) {
 					AttributeDefinition attributeDefinition = new AttributeDefinition(attribute);
