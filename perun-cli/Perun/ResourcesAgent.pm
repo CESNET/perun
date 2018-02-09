@@ -33,6 +33,11 @@ sub createResource
 	return Perun::Common::callManagerMethod('createResource', 'Resource', @_);
 }
 
+sub updateResource
+{
+	return Perun::Common::callManagerMethod('updateResource', 'Resource', @_);
+}
+
 sub deleteResource
 {
 	return Perun::Common::callManagerMethod('deleteResource', '', @_);
