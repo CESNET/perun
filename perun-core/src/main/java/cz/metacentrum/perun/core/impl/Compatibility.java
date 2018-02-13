@@ -12,15 +12,15 @@ import java.sql.Timestamp;
  */
 public class Compatibility {
 
-	public static boolean isOracle() throws InternalErrorException {
+	public static boolean isOracle() {
 		return "oracle".equals(getDbType());
 	}
 
-	public static boolean isPostgreSql() throws InternalErrorException {
+	public static boolean isPostgreSql() {
 		return "postgresql".equals(getDbType());
 	}
 
-	public static boolean isHSQLDB() throws InternalErrorException {
+	public static boolean isHSQLDB() {
 		return "hsqldb".equals(getDbType());
 	}
 
@@ -64,125 +64,86 @@ public class Compatibility {
 	}
 
 	static String castToVarchar() {
-
-		try {
-			switch (getDbType()) {
-				case "oracle":
-					return "";
-				case "postgresql":
-					return "::varchar(128)";
-				default:
-					return "";
-			}
-		} catch (InternalErrorException ex) {
-			return "";
+		switch (getDbType()) {
+			case "oracle":
+				return "";
+			case "postgresql":
+				return "::varchar(128)";
+			default:
+				return "";
 		}
-
 	}
 
 	static String castToInteger() {
-
-		try {
-			switch (getDbType()) {
-				case "oracle":
-					return "";
-				case "postgresql":
-					return "::integer";
-				default:
-					return "";
-			}
-		} catch (InternalErrorException ex) {
-			return "";
+		switch (getDbType()) {
+			case "oracle":
+				return "";
+			case "postgresql":
+				return "::integer";
+			default:
+				return "";
 		}
-
 	}
 
-	private static String getDbType() throws InternalErrorException {
+	private static String getDbType() {
 		return BeansUtils.getCoreConfig().getDbType();
 	}
 
 	static String getAsAlias(String aliasName) {
-
-		try {
-			String dbType = getDbType();
-			switch (dbType) {
-				case "oracle":
-					return " " + aliasName;
-				case "postgresql":
-					return "as " + aliasName;
-				default:
-					return " " + aliasName;
-			}
-		} catch (InternalErrorException ex) {
-			return "";
+		String dbType = getDbType();
+		switch (dbType) {
+			case "oracle":
+				return " " + aliasName;
+			case "postgresql":
+				return "as " + aliasName;
+			default:
+				return " " + aliasName;
 		}
-
 	}
 
 	static String getRowNumberOver() {
-		try {
-			if ("hsqldb".equals(getDbType())) {
-				return ",row_number() over () as rownumber";
-			} else {
-				return ",row_number() over (ORDER BY id DESC) as rownumber";
-			}
-		} catch (InternalErrorException e) {
+		if ("hsqldb".equals(getDbType())) {
+			return ",row_number() over () as rownumber";
+		} else {
 			return ",row_number() over (ORDER BY id DESC) as rownumber";
 		}
 	}
 
 	static String orderByBinary(String columnName) {
-
-		try {
-			switch (getDbType()) {
-				case "oracle":
-					return "NLSSORT(" + columnName + ",'NLS_SORT=BINARY_AI')";
-				case "postgresql":
-					return columnName + " USING ~<~";
-				default:
-					return columnName;
-			}
-		} catch (InternalErrorException ex) {
-			return columnName;
+		switch (getDbType()) {
+			case "oracle":
+				return "NLSSORT(" + columnName + ",'NLS_SORT=BINARY_AI')";
+			case "postgresql":
+				return columnName + " USING ~<~";
+			default:
+				return columnName;
 		}
-
 	}
 
 	static String convertToAscii(String columnName) {
+		switch (getDbType()) {
+			case "oracle":
+				// convert column type to VARCHAR2 from (N)VARCHAR2 and modify encoding from UTF to US7ASCII
+				return "to_char(convert(" + columnName + ", 'US7ASCII', 'UTF8'))"; // DESTINATION / SOURCE
 
-		try {
-			switch (getDbType()) {
-				case "oracle":
-					// convert column type to VARCHAR2 from (N)VARCHAR2 and modify encoding from UTF to US7ASCII
-					return "to_char(convert(" + columnName + ", 'US7ASCII', 'UTF8'))"; // DESTINATION / SOURCE
-
-				case "postgresql":
-					return "unaccent(" + columnName + ")";
-				case "hsqldb":
-					return "translate(" + columnName + ", 'ÁÇÉÍÓÚÀÈÌÒÙÚÂÊÎÔÛÃÕËÜŮŘřáçéíóúàèìòùâêîôûãõëüů', 'ACEIOUUAEIOUAEIOUAOEUURraceiouaeiouaeiouaoeuu')";
-				default:
-					return "unaccent(" + columnName + ")";
-			}
-		} catch (InternalErrorException ex) {
-			return "unaccent(" + columnName + ")";
+			case "postgresql":
+				return "unaccent(" + columnName + ")";
+			case "hsqldb":
+				return "translate(" + columnName + ", 'ÁÇÉÍÓÚÀÈÌÒÙÚÂÊÎÔÛÃÕËÜŮŘřáçéíóúàèìòùâêîôûãõëüů', 'ACEIOUUAEIOUAEIOUAOEUURraceiouaeiouaeiouaoeuu')";
+			default:
+				return "unaccent(" + columnName + ")";
 		}
-
 	}
 
 	public static String toDate(String value, String format) {
-		try {
-			switch (getDbType()) {
-				case "oracle":
-					return "to_date(" + value + ", " + format + ")";
-				case "postgresql":
-					return "to_timestamp(" + value + ", " + format + ")";
-				default:
-					return "to_date(" + value + ", " + format + ")";
-			}
-		} catch (InternalErrorException ex) {
-			return "to_date(" + value + ", " + format + ")";
+		switch (getDbType()) {
+			case "oracle":
+				return "to_date(" + value + ", " + format + ")";
+			case "postgresql":
+				return "to_timestamp(" + value + ", " + format + ")";
+			default:
+				return "to_date(" + value + ", " + format + ")";
 		}
-
 	}
 
 }

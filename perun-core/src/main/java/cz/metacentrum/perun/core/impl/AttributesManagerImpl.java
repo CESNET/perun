@@ -67,7 +67,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -206,32 +205,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private static final RowMapper<String> ATTRIBUTE_VALUES_MAPPER = (rs, i) -> {
 		String value;
 		String valueText;
-		try {
-			//CLOB in oracle
-			if (Compatibility.isOracle()) {
-				Clob clob = rs.getClob("attr_value_text");
-				char[] cbuf;
-				if (clob == null) {
-					valueText = null;
-				} else {
-					try {
-						cbuf = new char[(int) clob.length()];
-						//noinspection ResultOfMethodCallIgnored
-						clob.getCharacterStream().read(cbuf);
-					} catch (IOException ex) {
-						throw new InternalErrorRuntimeException(ex);
-					}
-					valueText = new String(cbuf);
-				}
+		//CLOB in oracle
+		if (Compatibility.isOracle()) {
+			Clob clob = rs.getClob("attr_value_text");
+			char[] cbuf;
+			if (clob == null) {
+				valueText = null;
 			} else {
-				// POSTGRES READ CLOB AS STRING
-				valueText = rs.getString("attr_value_text");
+				try {
+					cbuf = new char[(int) clob.length()];
+					//noinspection ResultOfMethodCallIgnored
+					clob.getCharacterStream().read(cbuf);
+				} catch (IOException ex) {
+					throw new InternalErrorRuntimeException(ex);
+				}
+				valueText = new String(cbuf);
 			}
-		} catch (InternalErrorException ex) {
-			// WHEN CHECK FAILS TRY TO READ AS POSTGRES
+		} else {
+			// POSTGRES READ CLOB AS STRING
 			valueText = rs.getString("attr_value_text");
 		}
-
 		value = rs.getString("attr_value");
 
 		if (valueText != null) return valueText;
@@ -523,30 +516,24 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			//FIXME use ValueRowMapper
 			String stringValue;
 			if (Utils.isLargeAttribute(sess, attribute)) {
-
-				try {
-					if (Compatibility.isOracle()) {
-						//large attributes
-						Clob clob = rs.getClob("attr_value_text");
-						char[] cbuf;
-						if (clob == null) {
-							stringValue = null;
-						} else {
-							try {
-								cbuf = new char[(int) clob.length()];
-								//noinspection ResultOfMethodCallIgnored
-								clob.getCharacterStream().read(cbuf);
-							} catch (IOException ex) {
-								throw new InternalErrorRuntimeException(ex);
-							}
-							stringValue = new String(cbuf);
-						}
+				if (Compatibility.isOracle()) {
+					//large attributes
+					Clob clob = rs.getClob("attr_value_text");
+					char[] cbuf;
+					if (clob == null) {
+						stringValue = null;
 					} else {
-						// POSTGRES READ CLOB AS STRING
-						stringValue = rs.getString("attr_value_text");
+						try {
+							cbuf = new char[(int) clob.length()];
+							//noinspection ResultOfMethodCallIgnored
+							clob.getCharacterStream().read(cbuf);
+						} catch (IOException ex) {
+							throw new InternalErrorRuntimeException(ex);
+						}
+						stringValue = new String(cbuf);
 					}
-				} catch (InternalErrorException ex) {
-					// WHEN CHECK FAILS TRY TO READ AS POSTGRES
+				} else {
+					// POSTGRES READ CLOB AS STRING
 					stringValue = rs.getString("attr_value_text");
 				}
 			} else {
@@ -604,28 +591,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			String stringValue;
 			if (Utils.isLargeAttribute(sess, attributeDefinition)) {
 				//large attributes
-				try {
-					if (Compatibility.isOracle()) {
-						Clob clob = rs.getClob("attr_value_text");
-						char[] cbuf;
-						if (clob == null) {
-							stringValue = null;
-						} else {
-							try {
-								cbuf = new char[(int) clob.length()];
-								//noinspection ResultOfMethodCallIgnored
-								clob.getCharacterStream().read(cbuf);
-							} catch (IOException ex) {
-								throw new InternalErrorRuntimeException(ex);
-							}
-							stringValue = new String(cbuf);
-						}
+				if (Compatibility.isOracle()) {
+					Clob clob = rs.getClob("attr_value_text");
+					char[] cbuf;
+					if (clob == null) {
+						stringValue = null;
 					} else {
-						// POSTGRES READ CLOB AS STRING
-						stringValue = rs.getString("attr_value_text");
+						try {
+							cbuf = new char[(int) clob.length()];
+							//noinspection ResultOfMethodCallIgnored
+							clob.getCharacterStream().read(cbuf);
+						} catch (IOException ex) {
+							throw new InternalErrorRuntimeException(ex);
+						}
+						stringValue = new String(cbuf);
 					}
-				} catch (InternalErrorException ex) {
-					// WHEN CHECK FAILS TRY TO READ AS POSTGRES
+				} else {
+					// POSTGRES READ CLOB AS STRING
 					stringValue = rs.getString("attr_value_text");
 				}
 			} else {
