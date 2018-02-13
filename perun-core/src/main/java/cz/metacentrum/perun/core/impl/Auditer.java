@@ -1,5 +1,38 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.AuditMessage;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
+import cz.metacentrum.perun.core.implApi.AuditerListener;
+import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
+import net.jcip.annotations.GuardedBy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.LobCreator;
+import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Clob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,47 +41,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import javax.sql.DataSource;
-
-import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.MessageFormatter;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import java.sql.PreparedStatement;
-
-import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
-
-import org.springframework.jdbc.support.lob.DefaultLobHandler;
-import org.springframework.jdbc.support.lob.LobCreator;
-import org.springframework.jdbc.support.lob.LobHandler;
-import org.springframework.jdbc.support.lob.OracleLobHandler;
-
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-import org.springframework.jdbc.core.RowMapper;
-import java.io.IOException;
-import java.sql.Clob;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor;
-
-import cz.metacentrum.perun.core.implApi.AuditerListener;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
-
-import net.jcip.annotations.GuardedBy;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
 
 /**
  * This class is used for logging audit events. It get messages and stored it in asociation with current transaction. If there's no transaction currently running, message is immediateli flushed out.
@@ -98,32 +90,27 @@ public class Auditer {
 		public AuditMessage mapRow(ResultSet rs, int i) throws SQLException {
 
 			String msg;
-			try {
-				if (Compatibility.isOracle()) {
-					Clob clob = rs.getClob("msg");
-					char[] cbuf = null;
-					if(clob == null) {
-						msg = null;
-					} else {
-						try {
-							cbuf = new char[(int) clob.length()];
-							clob.getCharacterStream().read(cbuf);
-						} catch(IOException ex) {
-							throw new InternalErrorRuntimeException(ex);
-						}
-						msg = new String(cbuf);
-					}
+			if (Compatibility.isOracle()) {
+				Clob clob = rs.getClob("msg");
+				char[] cbuf = null;
+				if (clob == null) {
+					msg = null;
 				} else {
-					msg = rs.getString("msg");
+					try {
+						cbuf = new char[(int) clob.length()];
+						clob.getCharacterStream().read(cbuf);
+					} catch (IOException ex) {
+						throw new InternalErrorRuntimeException(ex);
+					}
+					msg = new String(cbuf);
 				}
-			} catch (InternalErrorException ex) {
-				// As backup use postgress way
+			} else {
 				msg = rs.getString("msg");
 			}
 
 			// Get principal User and his ID (null, if no user exist)
 			Integer principalUserId = null;
-			if(rs.getInt("created_by_uid") != 0) principalUserId = rs.getInt("created_by_uid");
+			if (rs.getInt("created_by_uid") != 0) principalUserId = rs.getInt("created_by_uid");
 			AuditMessage auditMessage = new AuditMessage(rs.getInt("id"), msg, rs.getString("actor"), rs.getString("created_at"), principalUserId);
 			return auditMessage;
 		}
@@ -171,13 +158,7 @@ public class Auditer {
 
 	public void setPerunPool(DataSource perunPool) throws InternalErrorException {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
-		if(Compatibility.isOracle()) {
-			OracleLobHandler oracleLobHandler = new OracleLobHandler();
-			oracleLobHandler.setNativeJdbcExtractor(new CommonsDbcpNativeJdbcExtractor());
-			lobHandler = oracleLobHandler;
-		} else {
-			lobHandler = new DefaultLobHandler();
-		}
+		lobHandler = new DefaultLobHandler();
 	}
 
 
