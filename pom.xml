@@ -371,12 +371,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>net.tanesha.recaptcha4j</groupId>
-				<artifactId>recaptcha4j</artifactId>
-				<version>${recaptcha4j.version}</version>
-			</dependency>
-
-			<dependency>
 				<groupId>dumbster</groupId>
 				<artifactId>dumbster</artifactId>
 				<version>${dumbster.version}</version>
@@ -434,6 +428,11 @@
 				<groupId>org.jboss.javaee</groupId>
 				<artifactId>jboss-jms-api</artifactId>
 				<version>${jboss-jms-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
 			</dependency>
 
 		</dependencies>

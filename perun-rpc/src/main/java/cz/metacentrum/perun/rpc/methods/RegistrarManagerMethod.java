@@ -2,6 +2,7 @@ package cz.metacentrum.perun.rpc.methods;
 
 import java.util.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.model.*;
@@ -10,8 +11,9 @@ import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
-import net.tanesha.recaptcha.ReCaptchaImpl;
-import net.tanesha.recaptcha.ReCaptchaResponse;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 public enum RegistrarManagerMethod implements ManagerMethod {
 
@@ -1117,7 +1119,6 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	/*#
 	 *	Verify Captcha answer.
 	 *
-	 *	@param challenge String Captcha challenge
 	 *	@param response String User response
 	 *	@return boolean True if it is valid, False if failed
 	 */
@@ -1126,25 +1127,19 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 		@Override
 		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			ReCaptchaImpl reCaptcha = new ReCaptchaImpl();
+			String secret = BeansUtils.getCoreConfig().getRecaptchaPrivateKey();
+			String response = parms.readString("response");
 
-			reCaptcha.setPrivateKey(BeansUtils.getCoreConfig().getRecaptchaPrivateKey());
-			reCaptcha.setRecaptchaServer(ReCaptchaImpl.HTTPS_SERVER);
+			RestTemplate restTemplate = new RestTemplate();
 
-			// we don't need caller's address since our key is global
-			String remoteAddress = "";
-			ReCaptchaResponse reCaptchaResponse = reCaptcha.checkAnswer(remoteAddress, parms.readString("challenge"), parms.readString("response"));
+			final String verificationUrl = "https://www.google.com/recaptcha/api/siteverify";
 
-			if (reCaptchaResponse.isValid()) {
-				return true;
-			} else {
-				return false;
-			}
+			MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+			map.add("response", response);
+			map.add("secret", secret);
 
-
-
+			return restTemplate.postForObject(verificationUrl, map , JsonNode.class).path("success").asBoolean();
 		}
-
 	},
 
 	/*#
