@@ -142,7 +142,8 @@ public class AssignGroupTabItem implements TabItem {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, false);
+				// fixme - probably should be button for finish and close
+				session.getTabManager().closeTab(tab, true);
 			}
 		}));
 
