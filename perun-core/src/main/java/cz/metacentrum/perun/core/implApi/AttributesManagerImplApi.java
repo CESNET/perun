@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -17,6 +18,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -826,7 +828,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException if the namespace of the attribute does not match the perunBean
 	 */
-	boolean setAttribute(PerunSession sess, Object object, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean setAttribute(PerunSession sess, Object object, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Store the particular attribute associated with the bean1 and bean2. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
@@ -840,7 +842,7 @@ public interface AttributesManagerImplApi {
 	 *         false otherwise (value do not change)
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean setAttribute(PerunSession sess, PerunBean bean1, PerunBean bean2, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean setAttribute(PerunSession sess, PerunBean bean1, PerunBean bean2, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Insert attribute value in DB.
@@ -2375,4 +2377,15 @@ public interface AttributesManagerImplApi {
 	 */
 	public void registerVirtAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
 
+	/**
+	 * Finds ids of PerunBeans that have the attribute's value for the attribute.
+	 *
+	 * See {@link cz.metacentrum.perun.core.bl.AttributesManagerBl#getPerunBeanIdsForUniqueAttributeValue(PerunSession, Attribute)} for details.
+	 */
+	Set<Pair<Integer,Integer>> getPerunBeanIdsForUniqueAttributeValue(PerunSession sess, Attribute attribute);
+
+	/**
+	 * Copies all values of the attribute to table _attr_u_values which has unique constraint.
+	 */
+	void convertAttributeValuesToUnique(PerunSession session, AttributeDefinition attrDef) throws InternalErrorException;
 }

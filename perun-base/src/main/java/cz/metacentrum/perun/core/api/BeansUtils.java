@@ -686,4 +686,22 @@ public class BeansUtils {
 		}
 		return str.toString();
 	}
+
+	public static Pair<Integer, Integer> getSinglePair(Set<Pair<Integer, Integer>> pairs) {
+		if(pairs==null) return null;
+		//noinspection LoopStatementThatDoesntLoop
+		for (Pair<Integer, Integer> pair : pairs) {
+			return pair;
+		}
+		return null;
+	}
+
+	public static Integer getSingleId(Set<Pair<Integer, Integer>> pairs) {
+		if(pairs==null) return null;
+		//noinspection LoopStatementThatDoesntLoop
+		for (Pair<Integer, Integer> pair : pairs) {
+			return pair.getLeft();
+		}
+		return null;
+	}
 }

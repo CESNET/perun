@@ -635,6 +635,7 @@ public class AuditParserTest {
 		attr.setFriendlyName("myTest1");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("");
+		attr.setUnique(true);
 		return attr;
 	}
 

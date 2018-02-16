@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -21,6 +22,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
@@ -3982,5 +3984,47 @@ public interface AttributesManagerBl {
 
 	 */
 	void checkGroupIsFromTheSameVoLikeResource(PerunSession sess, Group group, Resource resource) throws GroupResourceMismatchException, InternalErrorException;
+
+	/**
+	 * Finds ids of PerunBeans that have the attribute's value for the attribute. The attribute must be marked as unique.
+	 *
+	 * This method is intended for finding whether a unique value is already assigned, and if yes, then whether it is the same object
+	 * which is being updated or some other object. This is typically needed in checkAttributeValue() method of attribute modules.
+	 *
+	 * The return type is a set of pairs of ids. It is a set because for collection types (ArrayList and LinkedHashMap)
+	 * each of the entries in the collection may be assigned to a different object. The set contains pairs, because
+	 * some attribute types are attached to a pair of PerunBeans (e.g. group_resource) and some are attached to single beans
+	 * (e.g. group).
+	 *
+	 * If the attribute is attached to a pair of beans, the returned Pairs contain ids of the objects
+	 * in the order of beans as listed in the attribute namespace, e.g. for group_resource attribute the left part of the pair
+	 * contains group id, and the right part contains resource id. If the attribute is attached to a single bean,
+	 * the left part of the pair contains the id, and the right part contains zero.
+	 *
+	 * For simple value types (String, Integer, Boolean), this methods returns either an empty set (if the simple value is not assigned yet),
+	 * or a set containing a single Pair. For collection values types (ArrayList, LinkedHashMap), this method
+	 * returns an empty set, or a set with one or more pairs.
+	 *
+	 * @param sess session
+	 * @param attribute attribute with a filled value that will be checked for uniqueness
+	 * @return a Set of Pairs with ids of PerunBeans that have the attribute value
+	 */
+	Set<Pair<Integer, Integer>> getPerunBeanIdsForUniqueAttributeValue(PerunSession sess, Attribute attribute) throws InternalErrorException;
+
+	/**
+	 * Converts attribute to unique.
+	 *
+	 * Marks the attribute definition as unique, and copies all values to a special table with unique constraint
+	 * that ensures that all values remain unique. Values of type ArrayList and LinkedHashMap are splitted into
+	 * multiple entries, thus each of the entries must be unique. For LinkedHashMap, the unique entries are strings
+	 * in the form of "key=value", thus it is possible to have same values for different keys.
+	 *
+	 * Entityless attributes cannot be converted to unique.
+	 *
+	 * @param session perun session
+	 * @param attrId attribute id
+	 */
+	void convertAttributeToUnique(PerunSession session, int attrId) throws InternalErrorException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException;
+
 }
 

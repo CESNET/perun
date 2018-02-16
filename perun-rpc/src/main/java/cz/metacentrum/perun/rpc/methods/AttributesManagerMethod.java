@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -3234,6 +3238,24 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 			ac.getAttributesManager().setAttributeRights(ac.getSession(),
 					parms.readList("rights", AttributeRights.class));
+			return null;
+		}
+	},
+
+	/*#
+	 * Converts attribute to unique - marks its definition as unique and ensures that all its values are unique.
+	 * Entityless attributes cannot be converted to unique, only attributes attached to PerunBeans or pairs of PerunBeans.
+	 *
+	 * @param attrDefId int AttributeDefinition <code>id</code>
+	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeAlreadymarkedUniqueException When Attribute is already marked as unique.
+	 * @throw InternalErrorException when some attribute values are not unique
+	 */
+	convertAttributeToUnique {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws InternalErrorException, AttributeAlreadyMarkedUniqueException, PrivilegeException, AttributeNotExistsException {
+			ac.stateChangingCheck();
+			ac.getAttributesManager().convertAttributeToUnique(ac.getSession(), parms.readInt("attrDefId"));
 			return null;
 		}
 	};

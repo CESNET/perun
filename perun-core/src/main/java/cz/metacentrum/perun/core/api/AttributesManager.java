@@ -4158,4 +4158,17 @@ public interface AttributesManager {
 	 * @throws AttributeNotExistsException when attribute IDs in rights don't refer to existing attributes
 	 */
 	void setAttributeRights(PerunSession sess, List<AttributeRights> rights) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
+
+	/**
+	 * Converts attribute to unique.
+	 * Marks the attribute definition as unique, and copies all values to a special table with unique constraint
+	 * that ensures that all values remain unique. Values of type ArrayList and LinkedHashMap are splitted into
+	 * multiple values, thus each of the subvalues must be unique.
+	 *
+	 * Entityless attributes cannot be converted to unique, only attributes attached to PerunBeans or pairs of PerunBeans.
+	 * @param session perun session
+	 * @param attrId attribute id
+	 */
+	void convertAttributeToUnique(PerunSession session, int attrId) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException;
+
 }

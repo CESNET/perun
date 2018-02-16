@@ -298,6 +298,7 @@ public class AuditParser {
 		attribute.setNamespace(BeansUtils.eraseEscaping(beanAttr.get("namespace")));
 		attribute.setType(BeansUtils.eraseEscaping(beanAttr.get("type")));
 		attribute.setValue(BeansUtils.stringToAttributeValue(BeansUtils.eraseEscaping(beanAttr.get("value")), attribute.getType()));
+		attribute.setUnique(Boolean.valueOf(beanAttr.get("unique")));
 		return attribute;
 	}
 
@@ -308,6 +309,7 @@ public class AuditParser {
 		attributeDefinition.setFriendlyName(BeansUtils.eraseEscaping(beanAttr.get("friendlyName")));
 		attributeDefinition.setNamespace(BeansUtils.eraseEscaping(beanAttr.get("namespace")));
 		attributeDefinition.setType(BeansUtils.eraseEscaping(beanAttr.get("type")));
+		attributeDefinition.setUnique(Boolean.valueOf(beanAttr.get("unique")));
 		return attributeDefinition;
 	}
 

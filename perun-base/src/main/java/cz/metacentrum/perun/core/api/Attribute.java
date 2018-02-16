@@ -45,6 +45,9 @@ public class Attribute extends AttributeDefinition {
 	public Attribute() {
 	}
 
+	/**
+	 * Creates Attribute instance from an AttributeDefinition with null value.
+	 */
 	public Attribute(AttributeDefinition attributeDefinition) {
 		super(attributeDefinition);
 		this.value = null;
@@ -54,9 +57,40 @@ public class Attribute extends AttributeDefinition {
 		this.valueModifiedBy = null;
 	}
 
+	/**
+	 * Creates Attribute instance from an AttributeDefinition and a value.
+	 */
+	public Attribute(AttributeDefinition attributeDefinition, Object value) {
+		this(attributeDefinition);
+		this.setValue(value);
+	}
+
 	public Object getValue() {
 		return value;
 	}
+
+	public String valueAsString() {
+		return (String) value;
+	}
+
+	public Integer valueAsInteger() {
+		return (Integer) value;
+	}
+
+	public Boolean valueAsBoolean() {
+		return (Boolean) value;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ArrayList<String> valueAsList() {
+		return (ArrayList<String>) value;
+	}
+
+	@SuppressWarnings("unchecked")
+	public LinkedHashMap<String,String> valueAsMap() {
+		return (LinkedHashMap<String,String>) value;
+	}
+
 
 	public String getValueCreatedAt() {
 		return valueCreatedAt;
@@ -162,6 +196,7 @@ public class Attribute extends AttributeDefinition {
 				", friendlyName=<").append(getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())).append(">").append(
 				", namespace=<").append(getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())).append(">").append(
 				", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType())).append(">").append(
+				", unique=<").append(isUnique()).append(">").append(
 				", value=<").append(BeansUtils.createEscaping(stringValue)).append(">").append(
 				']').toString();
 	}
@@ -173,6 +208,7 @@ public class Attribute extends AttributeDefinition {
 				", friendlyName='" + getFriendlyName() + '\'' +
 				", namespace='" + getNamespace() + '\'' +
 				", type='" + getType() + '\'' +
+				", unique='" + isUnique() + '\'' +
 				", value='" + getValue() + '\'' +
 				']';
 	}

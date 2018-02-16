@@ -1,11 +1,13 @@
 package cz.metacentrum.perun.core.entry;
 
+import com.google.common.collect.Lists;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -14,6 +16,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -39,10 +42,14 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
+import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.test.annotation.IfProfileValue;
@@ -50,18 +57,23 @@ import org.springframework.test.annotation.IfProfileValue;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_ATTR;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Integration tests of AttributesManager
@@ -69,6 +81,8 @@ import static org.junit.Assert.assertTrue;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
+
+	private final static Logger log = LoggerFactory.getLogger(AttributesManagerEntryIntegrationTest.class);
 
 	private final static String CLASS_NAME = "AttributesManager.";
 
@@ -3502,7 +3516,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue(attrDefs.contains(attr));
 
 		for(AttributeDefinition ad: attrDefs) {
-			assertTrue(attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_MEMBER_ATTR) ||
+			assertTrue(attributesManager.isFromNamespace(sess, ad, NS_MEMBER_ATTR) ||
 					attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_RESOURCE_ATTR) ||
 					attributesManager.isFromNamespace(sess, ad, AttributesManager.NS_MEMBER_RESOURCE_ATTR));
 			assertTrue(ad.getWritable());
@@ -5209,22 +5223,374 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test
 	public void deleteAttribute() throws Exception {
 		System.out.println(CLASS_NAME + "deleteAttribute");
+		for(String entity: AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.keySet()) {
+			String namespace = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(entity) + ":def";
+			String friendlyName = "test-attr";
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setFriendlyName(friendlyName);
+			attrDef.setNamespace(namespace);
+			attrDef.setDescription("poznamka");
+			attrDef.setType(String.class.getName());
+			attrDef.setUnique(true);
+			assertNotNull("unable to create attribute before deletion",attributesManager.createAttribute(sess, attrDef));
+			attributesManager.deleteAttribute(sess, attrDef);
+			try {
+				attributesManager.getAttributeDefinition(sess, namespace + ":" + friendlyName);
+			} catch (AttributeNotExistsException ignored) {
+				//expected
+			}
+		}
+	}
 
+	@Test
+	public void testConvertingToUniqAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "testConvertingToUniqAttribute");
+		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
+		int counter = 1;
+		for (String bean : AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.keySet()) {
+			for (String type : AttributesManagerImpl.ATTRIBUTE_TYPES) {
+				log.debug("conversion to unique bean {} type {}", bean, type);
+				String namespace = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(bean) + ":def";
+				String friendlyName = "test-conv-attr" + (counter++);
+				String description = "poznamka";
+				AttributeDefinition attrDef = new AttributeDefinition();
+				attrDef.setUnique(false);
+				attrDef.setFriendlyName(friendlyName);
+				attrDef.setNamespace(namespace);
+				attrDef.setDescription(description);
+				attrDef.setType(type);
+				attributesManager.createAttribute(sess, attrDef);
+				AttributeDefinition attributeDefinition = attributesManager.getAttributeDefinition(sess, namespace + ":" + friendlyName);
+				assertFalse("attribute marked unique", attributeDefinition.isUnique());
+				assertTrue("friendly name not loaded correctly", friendlyName.equals(attributeDefinition.getFriendlyName()));
+				assertTrue("namespace not loaded correctly", namespace.equals(attributeDefinition.getNamespace()));
+				assertTrue("description not loaded correctly", description.equals(attributeDefinition.getDescription()));
+
+				//create values
+				Attribute a = new Attribute(attributeDefinition);
+				Attribute b = new Attribute(attributeDefinition);
+				switch (type) {
+					case "java.lang.String":
+					case BeansUtils.largeStringClassName:
+						a.setValue("string1");
+						b.setValue("string2");
+						break;
+					case "java.lang.Integer":
+						a.setValue(Integer.MIN_VALUE);
+						b.setValue(Integer.MAX_VALUE);
+						break;
+					case "java.lang.Boolean":
+						a.setValue(Boolean.FALSE);
+						b.setValue(Boolean.TRUE);
+						break;
+					case "java.util.ArrayList":
+					case BeansUtils.largeArrayListClassName:
+						a.setValue(new ArrayList<>(Arrays.asList("value1","value2")));
+						b.setValue(new ArrayList<>(Arrays.asList("value3","value4")));
+						break;
+					case "java.util.LinkedHashMap":
+						LinkedHashMap<String,String> m1 = new LinkedHashMap<>();
+						m1.put("k1","v1");
+						m1.put("k2","v2");
+						LinkedHashMap<String,String> m2 = new LinkedHashMap<>();
+						m2.put("k4","v4");
+						m2.put("k3","v3");
+						a.setValue(m1);
+						b.setValue(m2);
+						break;
+					default:
+						throw new Exception("unknown type "+type);
+				}
+				switch (bean) {
+						case "user": //
+							attributesManager.setAttribute(sess, user1, a);
+							attributesManager.setAttribute(sess, user2, b);
+							break;
+						case "member": //
+							attributesManager.setAttribute(sess, member1OfUser1, a);
+							attributesManager.setAttribute(sess, member2OfUser1, b);
+							break;
+						case "facility": //
+							attributesManager.setAttribute(sess, facility1, a);
+							attributesManager.setAttribute(sess, facility2, b);
+							break;
+						case "vo": //
+							attributesManager.setAttribute(sess, vo1, a);
+							attributesManager.setAttribute(sess, vo2, b);
+							break;
+						case "host": //
+							attributesManager.setAttribute(sess, host1OnFacility1, a);
+							attributesManager.setAttribute(sess, host2OnFacility2, b);
+							break;
+						case "group": //
+							attributesManager.setAttribute(sess, group1InVo1, a);
+							attributesManager.setAttribute(sess, group2InVo2, b);
+							break;
+						case "resource": //
+							attributesManager.setAttribute(sess, resource1InVo1, a);
+							attributesManager.setAttribute(sess, resource2InVo2, b);
+							break;
+						case "member_resource": //
+							attributesManager.setAttribute(sess, resource1InVo1, member1OfUser1, a);
+							attributesManager.setAttribute(sess, resource2InVo1, member2OfUser2, b);
+							break;
+						case "member_group":
+							attributesManager.setAttribute(sess, member1OfUser1, group1InVo1, a);
+							attributesManager.setAttribute(sess, member2OfUser1, group1InVo1, b);
+							break;
+						case "user_facility":
+							attributesManager.setAttribute(sess, facility1, user1, a);
+							attributesManager.setAttribute(sess, facility2, user2, b);
+							break;
+						case "group_resource":
+							attributesManager.setAttribute(sess, resource1InVo1, group1InVo1, a);
+							attributesManager.setAttribute(sess, resource2InVo2, group2InVo2, b);
+							break;
+						case "user_ext_source":
+							attributesManager.setAttribute(sess, userExtSource1, a);
+							attributesManager.setAttribute(sess, userExtSource2, b);
+							break;
+						default:
+							throw new Exception("unknown entity "+bean);
+				}
+				attributesManager.convertAttributeToUnique(sess,attributeDefinition.getId());
+			}
+		}
+	}
+
+	@Test
+	public void testGetPerunBeanIdsForUniqueAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "testGetPerunBeanIdsForUniqueAttributeValue");
+		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
+		String bean = "group_resource";
+		String type = ArrayList.class.getName();
+		String namespace = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(bean) + ":def";
+		String friendlyName = "test-getPerunBeanIds-attr";
+		String description = "tests getPerunBeanIdsForUniqueAttributeValue() method for ArrayList";
 		AttributeDefinition attrDef = new AttributeDefinition();
-		attrDef.setFriendlyName("attr-def-facility-tests-attr");
-		attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
-		attrDef.setDescription("poznamka");
-		attrDef.setType(String.class.getName());
-		assertNotNull("unable to create attribute before deletion",attributesManager.createAttribute(sess, attrDef));
+		attrDef.setUnique(true);
+		attrDef.setFriendlyName(friendlyName);
+		attrDef.setNamespace(namespace);
+		attrDef.setDescription(description);
+		attrDef.setType(type);
+		attributesManager.createAttribute(sess, attrDef);
+		AttributeDefinition attributeDefinition = attributesManager.getAttributeDefinition(sess, namespace + ":" + friendlyName);
+		//create non-overlaping values for two group-resource pairs
+		Attribute a = new Attribute(attributeDefinition);
+		Attribute b = new Attribute(attributeDefinition);
+		a.setValue(Lists.newArrayList("value1","value2"));
+		b.setValue(Lists.newArrayList("value3","value4"));
+		attributesManager.setAttribute(sess, resource1InVo1, group1InVo1, a);
+		attributesManager.setAttribute(sess, resource2InVo2, group2InVo2, b);
+		//try find id for value made by adding overlapping value
+		a.setValue(Lists.newArrayList("value1","value2","value3"));
+		Set<Pair<Integer, Integer>> pairs = attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, a);
+		Pair<Integer, Integer> first = new Pair<>(group1InVo1.getId(),resource1InVo1.getId());
+		Pair<Integer, Integer> second = new Pair<>(group2InVo2.getId(),resource2InVo2.getId());
+		assertThat("expected two pairs",pairs,equalTo(new HashSet<>(Arrays.asList(first,second))));
+	}
 
-		attributesManager.deleteAttribute(sess, attrDef);
-
-		attributesManager.getAttributeDefinition(sess, "urn:perun:facility:attribute-def:opt:attr-def-facility-tests-attr");
-		// shouldn't find attribute definition in db
-
+	@Test
+	public void testUniqAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "testUniqAttributes");
+		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
+		int counter=1;
+		for(String bean: AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.keySet()) {
+			for(String type: AttributesManagerImpl.ATTRIBUTE_TYPES) {
+				log.debug(" uniqueness check bean {} type {}", bean, type);
+				String namespace = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(bean) + ":def";
+				String friendlyName = "test-attr"+(counter++);
+				String description = "poznamka";
+				AttributeDefinition attrDef = new AttributeDefinition();
+				attrDef.setUnique(true);
+				attrDef.setFriendlyName(friendlyName);
+				attrDef.setNamespace(namespace);
+				attrDef.setDescription(description);
+				attrDef.setType(type);
+				attributesManager.createAttribute(sess, attrDef);
+				AttributeDefinition attributeDefinition = attributesManager.getAttributeDefinition(sess, namespace + ":" + friendlyName);
+				assertTrue("attribute not marked unique", attributeDefinition.isUnique());
+				assertTrue("friendly name not loaded correctly", friendlyName.equals(attributeDefinition.getFriendlyName()));
+				assertTrue("namespace not loaded correctly", namespace.equals(attributeDefinition.getNamespace()));
+				assertTrue("description not loaded correctly", description.equals(attributeDefinition.getDescription()));
+				//test uniqueness check
+				Attribute a = new Attribute(attributeDefinition);
+				Attribute b = new Attribute(attributeDefinition);
+				switch (type) {
+					case "java.lang.String":
+					case BeansUtils.largeStringClassName:
+						a.setValue("samestring");
+						b.setValue("samestring");
+						break;
+					case "java.lang.Integer":
+						a.setValue(Integer.MAX_VALUE);
+						b.setValue(Integer.MAX_VALUE);
+						break;
+					case "java.lang.Boolean":
+						a.setValue(Boolean.TRUE);
+						b.setValue(Boolean.TRUE);
+						break;
+					case "java.util.ArrayList":
+					case BeansUtils.largeArrayListClassName:
+						a.setValue(Lists.newArrayList("value1","value2"));
+						b.setValue(Lists.newArrayList("value3","value2"));
+						break;
+					case "java.util.LinkedHashMap":
+						LinkedHashMap<String,String> m1 = new LinkedHashMap<>();
+						m1.put("k1","v1");
+						m1.put("k2","v2");
+						LinkedHashMap<String,String> m2 = new LinkedHashMap<>();
+						m2.put("k2","v2");
+						m2.put("k3","v3");
+						a.setValue(m1);
+						b.setValue(m2);
+						break;
+					default:
+						throw new Exception("unknown type "+type);
+				}
+				try {
+					switch (bean) {
+						case "user": //
+							attributesManager.setAttribute(sess, user1, a);
+							attributesManager.setAttribute(sess, user2, b);
+							break;
+						case "member": //
+							attributesManager.setAttribute(sess, member1OfUser1, a);
+							attributesManager.setAttribute(sess, member2OfUser1, b);
+							break;
+						case "facility": //
+							attributesManager.setAttribute(sess, facility1, a);
+							attributesManager.setAttribute(sess, facility2, b);
+							break;
+						case "vo": //
+							attributesManager.setAttribute(sess, vo1, a);
+							attributesManager.setAttribute(sess, vo2, b);
+							break;
+						case "host": //
+							attributesManager.setAttribute(sess, host1OnFacility1, a);
+							attributesManager.setAttribute(sess, host2OnFacility2, b);
+							break;
+						case "group": //
+							attributesManager.setAttribute(sess, group1InVo1, a);
+							attributesManager.setAttribute(sess, group2InVo2, b);
+							break;
+						case "resource": //
+							attributesManager.setAttribute(sess, resource1InVo1, a);
+							attributesManager.setAttribute(sess, resource2InVo2, b);
+							break;
+						case "member_resource": //
+							attributesManager.setAttribute(sess, resource1InVo1, member1OfUser1, a);
+							attributesManager.setAttribute(sess, resource2InVo1, member2OfUser2, b);
+							break;
+						case "member_group":
+							attributesManager.setAttribute(sess, member1OfUser1, group1InVo1, a);
+							attributesManager.setAttribute(sess, member2OfUser1, group1InVo1, b);
+							break;
+						case "user_facility":
+							attributesManager.setAttribute(sess, facility1, user1, a);
+							attributesManager.setAttribute(sess, facility2, user2, b);
+							break;
+						case "group_resource":
+							attributesManager.setAttribute(sess, resource1InVo1, group1InVo1, a);
+							attributesManager.setAttribute(sess, resource2InVo2, group2InVo2, b);
+							break;
+						case "user_ext_source":
+							attributesManager.setAttribute(sess, userExtSource1, a);
+							attributesManager.setAttribute(sess, userExtSource2, b);
+							break;
+						default:
+							throw new Exception("unknown entity "+bean);
+					}
+					fail("allowed same values for unique attribute of type " + type + " for bean " + bean);
+				} catch (WrongAttributeValueException ignored) {
+					log.debug("caught expected exception for duplicate values - bean " + bean + " type " + type);
+					log.debug("exceptions message: {}",ignored.getMessage());
+				}
+				switch (bean) {
+					case "user": //
+						Integer userId = BeansUtils.getSingleId(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("user with duplicate value is not the one",userId, is(user1.getId()));
+						attributesManager.removeAttribute(sess, user1, a);
+						attributesManager.setAttribute(sess, user2, b);
+						break;
+					case "member": //
+						Integer memberId = BeansUtils.getSingleId(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("member with duplicate value is not the one",memberId, is(member1OfUser1.getId()));
+						attributesManager.removeAttribute(sess, member1OfUser1, a);
+						attributesManager.setAttribute(sess, member2OfUser1, b);
+						break;
+					case "facility": //
+						Integer facilityId = BeansUtils.getSingleId(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("facility with duplicate value is not the one",facilityId, is(facility1.getId()));
+						attributesManager.removeAttribute(sess, facility1, a);
+						attributesManager.setAttribute(sess, facility2, b);
+						break;
+					case "vo": //
+						Integer voId = BeansUtils.getSingleId(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("vo with duplicate value is not the one",voId, is(vo1.getId()));
+						attributesManager.removeAttribute(sess, vo1, a);
+						attributesManager.setAttribute(sess, vo2, b);
+						break;
+					case "host": //
+						Integer hostId = BeansUtils.getSingleId(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("host with duplicate value is not the one",hostId, is(host1OnFacility1.getId()));
+						attributesManager.removeAttribute(sess, host1OnFacility1, a);
+						attributesManager.setAttribute(sess, host2OnFacility2, b);
+						break;
+					case "group": //
+						Integer groupId = BeansUtils.getSingleId(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("group with duplicate value is not the one",groupId, is(group1InVo1.getId()));
+						attributesManager.removeAttribute(sess, group1InVo1, a);
+						attributesManager.setAttribute(sess, group2InVo2, b);
+						break;
+					case "resource": //
+						Integer resourceId = BeansUtils.getSingleId(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("resource with duplicate value is not the one",resourceId, is(resource1InVo1.getId()));
+						attributesManager.removeAttribute(sess, resource1InVo1, a);
+						attributesManager.setAttribute(sess, resource2InVo2, b);
+						break;
+					case "member_resource":
+						Pair<Integer, Integer> mId_rId = BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("member with duplicate value is not the one",mId_rId.getLeft(), is(member1OfUser1.getId()));
+						assertThat("resource with duplicate value is not the one",mId_rId.getRight(), is(resource1InVo1.getId()));
+						attributesManager.removeAttribute(sess, resource1InVo1, member1OfUser1, a);
+						attributesManager.setAttribute(sess, resource2InVo1, member2OfUser2, b);
+						break;
+					case "member_group":
+						Pair<Integer,Integer> mId_gId = BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("member with duplicate value is not the one",mId_gId.getLeft(), is(member1OfUser1.getId()));
+						assertThat("group with duplicate value is not the one",mId_gId.getRight(), is(group1InVo1.getId()));
+						attributesManager.removeAttribute(sess, member1OfUser1, group1InVo1, a);
+						attributesManager.setAttribute(sess, member2OfUser1, group1InVo1, b);
+						break;
+					case "user_facility":
+						Pair<Integer,Integer> uId_fId = BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("user with duplicate value is not the one",uId_fId.getLeft(), is(user1.getId()));
+						assertThat("facility with duplicate value is not the one",uId_fId.getRight(), is(facility1.getId()));
+						attributesManager.removeAttribute(sess, facility1, user1, a);
+						attributesManager.setAttribute(sess, facility2, user2, b);
+						break;
+					case "group_resource":
+						Pair<Integer,Integer> gId_rId = BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("group with duplicate value is not the one",gId_rId.getLeft(), is(group1InVo1.getId()));
+						assertThat("resource with duplicate value is not the one",gId_rId.getRight(), is(resource1InVo1.getId()));
+						attributesManager.removeAttribute(sess, resource1InVo1, group1InVo1, a);
+						attributesManager.setAttribute(sess, resource2InVo2, group2InVo2, b);
+						break;
+					case "user_ext_source":
+						Integer uesId = BeansUtils.getSingleId(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertThat("ues with duplicate value is not the one",uesId, is(userExtSource1.getId()));
+						attributesManager.removeAttribute(sess, userExtSource1, a);
+						attributesManager.setAttribute(sess, userExtSource2, b);
+						break;
+					default:
+						throw new Exception("unknown entity "+bean);
+				}
+			}
+		}
 	}
 
 	@Test (expected=AttributeNotExistsException.class)
