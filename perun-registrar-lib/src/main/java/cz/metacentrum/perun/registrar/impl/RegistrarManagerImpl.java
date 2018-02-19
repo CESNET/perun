@@ -3,7 +3,6 @@ package cz.metacentrum.perun.registrar.impl;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
-import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -23,6 +22,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -137,6 +138,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private RegistrarManager registrarManager;
 	private PerunSession registrarSession;
 	private JdbcPerunTemplate jdbc;
+	private NamedParameterJdbcTemplate namedJdbc;
 	private AttributesManager attrManager;
 	private MembersManager membersManager;
 	private UsersManager usersManager;
@@ -153,6 +155,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	public void setDataSource(DataSource dataSource) {
 		this.jdbc = new JdbcPerunTemplate(dataSource);
+		this.namedJdbc = new NamedParameterJdbcTemplate(jdbc);
 	}
 
 	public void setRegistrarManager(RegistrarManager registrarManager) {
@@ -1858,7 +1861,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				!AuthzResolver.isAuthorized(userSession, Role.VOOBSERVER, vo)) {
 			throw new PrivilegeException(userSession, "getApplicationsForVo");
 		}
-		if (state == null) {
+		if (state == null || state.isEmpty()) {
 			// list all
 			try {
 				return jdbc.query(APP_SELECT + " where a.vo_id=? order by a.id desc", APP_MAPPER, vo.getId());
@@ -1868,14 +1871,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		} else {
 			// filter by state
 			try {
-				String stateString = "";
-				for (String s : state) {
-					stateString += "'"+s+"',";
-				}
-				if (stateString.length() > 1) {
-					stateString = stateString.substring(0, stateString.length()-1);
-				}
-				return jdbc.query(APP_SELECT + " where a.vo_id=? and state in ("+stateString+") order by a.id desc", APP_MAPPER, vo.getId());
+				MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
+				sqlParameterSource.addValue("voId", vo.getId());
+				sqlParameterSource.addValue("states", state);
+				return namedJdbc.query(APP_SELECT + " where a.vo_id=:voId and state in ( :states ) order by a.id desc", sqlParameterSource, APP_MAPPER);
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<Application>();
 			}
@@ -1892,7 +1891,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				!AuthzResolver.isAuthorized(userSession, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(userSession, "getApplicationsForGroup");
 		}
-		if (state == null) {
+		if (state == null || state.isEmpty()) {
 			// list all
 			try {
 				return jdbc.query(APP_SELECT + " where a.group_id=? order by a.id desc", APP_MAPPER, group.getId());
@@ -1902,14 +1901,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		} else {
 			// filter by state
 			try {
-				String stateString = "";
-				for (String s : state) {
-					stateString += "'"+s+"',";
-				}
-				if (stateString.length() > 1) {
-					stateString = stateString.substring(0, stateString.length()-1);
-				}
-				return jdbc.query(APP_SELECT + " where a.group_id=? and state in ("+stateString+") order by a.id desc", APP_MAPPER, group.getId());
+				MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
+				sqlParameterSource.addValue("groupId", group.getId());
+				sqlParameterSource.addValue("states", state);
+				return namedJdbc.query(APP_SELECT + " where a.group_id=:groupId and state in ( :states ) order by a.id desc", sqlParameterSource, APP_MAPPER);
 			} catch (EmptyResultDataAccessException ex) {
 				return new ArrayList<Application>();
 			}
