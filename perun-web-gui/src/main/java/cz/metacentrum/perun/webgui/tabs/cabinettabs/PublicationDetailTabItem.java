@@ -28,6 +28,7 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -282,17 +283,15 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 			}
 			lock.addClickHandler(new ClickHandler(){
 				public void onClick(ClickEvent event) {
-					UpdatePublication upCall = new UpdatePublication(JsonCallbackEvents.disableButtonEvents(lock, new JsonCallbackEvents(){
+					LockUnlockPublications upCall = new LockUnlockPublications(JsonCallbackEvents.disableButtonEvents(lock, new JsonCallbackEvents(){
 						public void onFinished(JavaScriptObject jso) {
 							// refresh page content
-							Publication p = jso.cast();
-							publication = p;
+							publication.setLocked(!publication.getLocked());
 							draw();
 						}
 					}));
 					Publication p = JsonUtils.clone(publication).cast();
-					p.setLocked(!publication.getLocked());
-					upCall.updatePublication(p);
+					upCall.lockUnlockPublication(!publication.getLocked(), p);
 				}
 			});
 

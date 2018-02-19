@@ -156,9 +156,9 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	@Override
 	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
 		try {
-			int rows = jdbc.update("update cabinet_publications set title=?, year=?, main=?, isbn=?, categoryId=?, rank=?, doi=?, locked=?" +
+			int rows = jdbc.update("update cabinet_publications set title=?, year=?, main=?, isbn=?, categoryId=?, rank=?, doi=?"+
 					" where id=?", publication.getTitle(), publication.getYear(), publication.getMain(), publication.getIsbn(),
-					publication.getCategoryId(), publication.getRank(), publication.getDoi(), (publication.getLocked()) ? 1 : 0, publication.getId());
+					publication.getCategoryId(), publication.getRank(), publication.getDoi(), publication.getId());
 			if(rows == 0) throw new CabinetException(ErrorCodes.PUBLICATION_NOT_EXISTS);
 			if (rows > 1) throw new ConsistencyErrorException("There are multiple Publications with same id: " + publication.getId());
 		} catch (RuntimeException err) {
