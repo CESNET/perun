@@ -76,6 +76,18 @@ public class LockUnlockPublications {
 	 * Attempts to lock / unlock a Publication, it first tests the values and then submits them.
 	 *
 	 * @param lock true = lock / false = unlock
+	 * @param publication publication to update
+	 */
+	public void lockUnlockPublication(final boolean lock, final Publication publication) {
+		ArrayList<Publication> publications = new ArrayList<Publication>();
+		publications.add(publication);
+		lockUnlockPublications(lock, publications);
+	}
+
+	/**
+	 * Attempts to lock / unlock a Publication, it first tests the values and then submits them.
+	 *
+	 * @param lock true = lock / false = unlock
 	 * @param publications list of pubs to update
 	 */
 	public void lockUnlockPublications(final boolean lock, final ArrayList<Publication> publications) {
