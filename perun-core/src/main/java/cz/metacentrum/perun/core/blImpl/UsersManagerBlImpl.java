@@ -311,17 +311,21 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return user;
 	}
 
-	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException {
+	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		this.deleteUser(sess, user, false);
 	}
 
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		if (members != null && (members.size() > 0)) {
 			if (forceDelete) {
 				for (Member member: members) {
-					getPerunBl().getMembersManagerBl().deleteMember(sess, member);
+					try {
+						getPerunBl().getMembersManagerBl().deleteMember(sess, member);
+					} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+						throw new InternalErrorException("Exception raised while deleting member. Cause: {}", ex);
+					}
 				}
 			} else {
 				throw new RelationExistsException("Members exist");

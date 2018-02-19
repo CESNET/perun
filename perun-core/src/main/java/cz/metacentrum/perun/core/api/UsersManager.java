@@ -261,11 +261,8 @@ public interface UsersManager {
 	 * @throws MemberAlreadyRemovedException
 	 * @throws UserAlreadyRemovedException
 	 * @throws SpecificUserAlreadyRemovedException
-	 * @throws WrongAttributeValueException
-	 * @throws AlreadyMemberException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
+	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 *  Deletes user. If forceDelete is true, then removes also associeted members.
@@ -280,11 +277,8 @@ public interface UsersManager {
 	 * @throws MemberAlreadyRemovedException
 	 * @throws UserAlreadyRemovedException
 	 * @throws SpecificUserAlreadyRemovedException
-	 * @throws WrongAttributeValueException
-	 * @throws AlreadyMemberException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 *  Updates users data in DB.

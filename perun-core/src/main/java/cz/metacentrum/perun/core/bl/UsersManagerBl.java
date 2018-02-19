@@ -266,11 +266,8 @@ public interface UsersManagerBl {
 	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
 	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
-	 * @throws WrongAttributeValueException
-	 * @throws AlreadyMemberException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
+	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 * Deletes user. If forceDelete is true, then removes also associated members.
@@ -283,11 +280,8 @@ public interface UsersManagerBl {
 	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
 	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
-	 * @throws WrongAttributeValueException
-	 * @throws AlreadyMemberException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 * Updates users data in DB.
