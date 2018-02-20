@@ -4,6 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -144,7 +145,7 @@ public class AddDependencyTabItem implements TabItem {
 		layout.setHTML(0, 0, "ExecService:");
 		layout.setHTML(1, 0, "Depend On:");
 
-		layout.setHTML(0, 1, execService.getService().getName() + " " + execService.getType());
+		layout.setHTML(0, 1, SafeHtmlUtils.fromString(execService.getService().getName() + " " + execService.getType()).asString());
 		layout.setWidget(1, 1, listBox);
 
 		final JsonCallbackEvents closeTabEvents = JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab);

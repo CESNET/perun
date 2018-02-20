@@ -9,6 +9,7 @@ import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
@@ -392,6 +393,7 @@ public class ApplicationFormPage extends ApplicationPage {
 			if (group != null) {
 				succSendText = ApplicationMessages.INSTANCE.applicationSuccessfullySent(group.getName());
 			}
+			succSendText = SafeHtmlUtils.fromString(succSendText).asString();
 
 			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>"+ succSendText +"</h2>" + validationText + approveText);
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
@@ -406,7 +408,7 @@ public class ApplicationFormPage extends ApplicationPage {
 
 			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
-			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>" + ApplicationMessages.INSTANCE.membershipExtensionSuccessfullySent(vo.getName()) + "</h2>" +
+			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>" + ApplicationMessages.INSTANCE.membershipExtensionSuccessfullySent(SafeHtmlUtils.fromString(vo.getName()).asString()) + "</h2>" +
 					approveText);
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -577,9 +579,9 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		for (Identity user : users) {
 
-			ft.setHTML(i, 0, user.getName());
-			ft.setHTML(i, 1, (user.getEmail() != null && !user.getEmail().isEmpty()) ? user.getEmail() : "N/A");
-			ft.setHTML(i, 2, (user.getOrganization() != null && !user.getOrganization().isEmpty()) ? user.getOrganization() : "N/A");
+			ft.setHTML(i, 0, SafeHtmlUtils.fromString(user.getName()).asString());
+			ft.setHTML(i, 1, (user.getEmail() != null && !user.getEmail().isEmpty()) ? SafeHtmlUtils.fromString(user.getEmail()).asString() : "N/A");
+			ft.setHTML(i, 2, (user.getOrganization() != null && !user.getOrganization().isEmpty()) ? SafeHtmlUtils.fromString(user.getOrganization()).asString() : "N/A");
 
 			/*
 

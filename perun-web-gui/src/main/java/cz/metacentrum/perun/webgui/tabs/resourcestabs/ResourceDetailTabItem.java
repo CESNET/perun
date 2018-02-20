@@ -5,6 +5,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -157,14 +158,14 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 
 		if (facilityId > 0) {
 			// facility admin view
-			menu.setHTML(0, column, "<strong>VO:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getVoId()+" / "+resource.getVo().getShortName()+"</span>");
+			menu.setHTML(0, column, "<strong>VO:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getVoId()+" / "+SafeHtmlUtils.fromString(resource.getVo().getShortName()).asString()+"</span>");
 			column++;
 			menu.setHTML(0, column, "&nbsp;");
 			menu.getFlexCellFormatter().setWidth(0, column, "25px");
 			column++;
 		}
 
-		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getDescription()+"&nbsp;</span>");
+		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+ SafeHtmlUtils.fromString((resource.getDescription() != null) ? resource.getDescription() : "").asString()+"&nbsp;</span>");
 
 		if (session.isFacilityAdmin(resource.getFacilityId())) {
 

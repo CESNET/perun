@@ -6,6 +6,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -234,7 +235,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 					session.getTabManager().addTab(new GroupDetailTabItem(group));
 				} else {
 					// show alert
-					UiElements.generateInfo("You are not VO / Group manager of this group", "You MUST be VO manager or Group manager of group: <strong>"+group.getName()+"</strong> to view it's details.");
+					UiElements.generateInfo("You are not VO / Group manager of this group", "You MUST be VO manager or Group manager of group: <strong>"+SafeHtmlUtils.fromString(group.getName()).asString()+"</strong> to view it's details.");
 				}
 			}
 		});

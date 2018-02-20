@@ -2,6 +2,7 @@ package cz.metacentrum.perun.webgui.json.registrarManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.i18n.client.LocaleInfo;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -159,7 +160,8 @@ public class GetApplicationDataById implements JsonCallback{
 		int i = 0;
 		for(final ApplicationFormItemData item : applFormItems){
 
-			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item.getFormItem(), item.getValue(), locale);
+			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item.getFormItem(),
+					(item.getValue() != null) ? SafeHtmlUtils.fromString(item.getValue()).asString() : null, locale);
 			this.applFormGenerators.add(gen);
 
 			// show only visible items - show also hidden to perun admin and vo/group admin
@@ -184,16 +186,16 @@ public class GetApplicationDataById implements JsonCallback{
 					// 0 = label or shortname
 					if (item.getFormItem().getType().startsWith("FROM_FEDERATION_HIDDEN")) {
 						// hidden
-						ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong><br /><i>(value provided by external source)</i>");
+						ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong><br /><i>(value provided by external source)</i>");
 					} else if (item.getFormItem().getType().startsWith("FROM_FEDERATION_SHOW")) {
 						// show
-						ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong><br /><i>(value provided by external source)</i>");
+						ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong><br /><i>(value provided by external source)</i>");
 					} else {
-						ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong>");
+						ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong>");
 					}
 
 					// 1 = value
-					ft.setWidget(i, 1, new HTML(item.getValue()));
+					ft.setWidget(i, 1, new HTML((item.getValue() != null) ? (SafeHtmlUtils.fromString(item.getValue()).asString()) : null));
 
 					// format
 					fcf.setVerticalAlignment(i, 0, HasVerticalAlignment.ALIGN_TOP);

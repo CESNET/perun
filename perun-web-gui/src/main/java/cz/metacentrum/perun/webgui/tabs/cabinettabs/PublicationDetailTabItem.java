@@ -4,6 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -180,7 +181,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 			// set max length
 			main.getElement().setAttribute("maxlength", "4000");
 
-			ft.setHTML(1, 1, publication.getId()+" / <Strong>Ext. Id: </strong>"+publication.getExternalId()+" <Strong>System: </strong>"+publication.getPublicationSystemName());
+			ft.setHTML(1, 1, publication.getId()+" / <Strong>Ext. Id: </strong>"+publication.getExternalId()+" <Strong>System: </strong>"+ SafeHtmlUtils.fromString(publication.getPublicationSystemName()).asString());
 			ft.setWidget(2, 1, title);
 			ft.setWidget(3, 1, year);
 			ft.setWidget(4, 1, listbox);
@@ -188,13 +189,13 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 				// only perunadmin can change rank
 				ft.setWidget(5, 1, rank);
 			} else {
-				ft.setHTML(5, 1, ""+publication.getRank());
+				ft.setHTML(5, 1, SafeHtmlUtils.fromString(String.valueOf(publication.getRank()) +"").asString());
 			}
 			ft.setWidget(6, 1, isbn);
 			ft.setWidget(7, 1, doi);
 			ft.setWidget(8, 1, main);
-			ft.setHTML(9, 1, String.valueOf(publication.getCreatedBy()));
-			ft.setHTML(10, 1, String.valueOf(publication.getCreatedDate()));
+			ft.setHTML(9, 1, SafeHtmlUtils.fromString((publication.getCreatedBy() != null) ? publication.getCreatedBy() : "").asString());
+			ft.setHTML(10, 1, SafeHtmlUtils.fromString((String.valueOf(publication.getCreatedDate()) != null) ? String.valueOf(publication.getCreatedDate()) : "").asString());
 
 			// update button
 
@@ -255,16 +256,16 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 			}
 			ft.getFlexCellFormatter().setWidth(1, 0, "100px");
 
-			ft.setHTML(1, 1, publication.getId()+" / <Strong>Ext. Id: </strong>"+publication.getExternalId()+" <Strong>System: </strong>"+publication.getPublicationSystemName());
-			ft.setHTML(2, 1, publication.getTitle());
-			ft.setHTML(3, 1, String.valueOf(publication.getYear()));
-			ft.setHTML(4, 1, publication.getCategoryName());
-			ft.setHTML(5, 1, String.valueOf(publication.getRank()) + " (default is 0)");
-			ft.setHTML(6, 1, publication.getIsbn());
-			ft.setHTML(7, 1, publication.getDoi());
-			ft.setHTML(8, 1, publication.getMain());
-			ft.setHTML(9, 1, String.valueOf(publication.getCreatedBy()));
-			ft.setHTML(10, 1, String.valueOf(publication.getCreatedDate()));
+			ft.setHTML(1, 1, publication.getId()+" / <Strong>Ext. Id: </strong>"+publication.getExternalId()+" <Strong>System: </strong>"+SafeHtmlUtils.fromString(publication.getPublicationSystemName()).asString());
+			ft.setHTML(2, 1, SafeHtmlUtils.fromString((publication.getTitle() != null) ? publication.getTitle() : "").asString());
+			ft.setHTML(3, 1, SafeHtmlUtils.fromString((String.valueOf(publication.getYear()) != null) ? String.valueOf(publication.getYear()) : "").asString());
+			ft.setHTML(4, 1, SafeHtmlUtils.fromString((publication.getCategoryName() != null) ? publication.getCategoryName() : "").asString());
+			ft.setHTML(5, 1, SafeHtmlUtils.fromString(String.valueOf(publication.getRank()) + " (default is 0)").asString());
+			ft.setHTML(6, 1, SafeHtmlUtils.fromString((publication.getIsbn() != null) ? publication.getIsbn() : "").asString());
+			ft.setHTML(7, 1, SafeHtmlUtils.fromString((publication.getDoi() != null) ? publication.getDoi() : "").asString());
+			ft.setHTML(8, 1, SafeHtmlUtils.fromString((publication.getMain() != null) ? publication.getMain() : "").asString());
+			ft.setHTML(9, 1, SafeHtmlUtils.fromString((publication.getCreatedBy() != null) ? publication.getCreatedBy() : "").asString());
+			ft.setHTML(10, 1, SafeHtmlUtils.fromString((String.valueOf(publication.getCreatedDate()) != null) ? String.valueOf(publication.getCreatedDate()) : "").asString());
 
 		}
 

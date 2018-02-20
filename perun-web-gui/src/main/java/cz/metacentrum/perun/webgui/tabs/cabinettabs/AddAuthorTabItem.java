@@ -5,6 +5,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -229,7 +230,7 @@ public class AddAuthorTabItem implements TabItem, TabItemWithUrl {
 			text += ", ";
 		}
 
-		text += newlyAdded;
+		text += SafeHtmlUtils.fromString(newlyAdded).asString();
 		alreadyAddedAuthors.setHTML(text);
 	}
 

@@ -6,6 +6,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DatePicker;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -75,12 +76,12 @@ public class MembershipExpirationTabItem implements TabItem {
 		layout.setHTML(0, 0, "Current expiration:");
 		layout.getFlexCellFormatter().setStyleName(0, 0, "itemName");
 
-		layout.setHTML(0, 1, member.getStatus());
+		layout.setHTML(0, 1, SafeHtmlUtils.fromString(member.getStatus()).asString());
 
 		final Attribute expire = member.getAttribute("urn:perun:member:attribute-def:def:membershipExpiration");
 		String expirationValue = null;
 		if (expire != null && !"null".equalsIgnoreCase(expire.getValue())) {
-			layout.setHTML(0, 1, expire.getValue());
+			layout.setHTML(0, 1, SafeHtmlUtils.fromString((expire.getValue() != null) ? expire.getValue() : "").asString());
 			expirationValue = expire.getValue().substring(0, ((expire.getValue().length() > 10) ? 9 : expire.getValue().length()-1));
 		} else {
 			layout.setHTML(0, 1, "<i>never</i>");

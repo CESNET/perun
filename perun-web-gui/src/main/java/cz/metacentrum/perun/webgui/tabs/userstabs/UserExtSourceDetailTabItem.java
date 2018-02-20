@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.tabs.userstabs;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -114,12 +115,12 @@ public class UserExtSourceDetailTabItem implements TabItem, TabItemWithUrl {
 			menu.setHTML(0, column, "&nbsp;");
 			menu.getFlexCellFormatter().setWidth(0, column, "25px");
 			column++;
-			menu.setHTML(0, column, "<strong>ES name:</strong><br/><span class=\"inputFormInlineComment\">"+userExtSource.getExtSource().getName()+"</span>");
+			menu.setHTML(0, column, "<strong>ES name:</strong><br/><span class=\"inputFormInlineComment\">"+ SafeHtmlUtils.fromString((userExtSource.getExtSource().getName() != null) ? userExtSource.getExtSource().getName() : "").asString()+"</span>");
 			column++;
 			menu.setHTML(0, column, "&nbsp;");
 			menu.getFlexCellFormatter().setWidth(0, column, "25px");
 			column++;
-			menu.setHTML(0, column, "<strong>ES type:</strong><br/><span class=\"inputFormInlineComment\">"+userExtSource.getExtSource().getType()+"</span>");
+			menu.setHTML(0, column, "<strong>ES type:</strong><br/><span class=\"inputFormInlineComment\">"+SafeHtmlUtils.fromString((userExtSource.getExtSource().getType() != null) ? userExtSource.getExtSource().getType() : "").asString()+"</span>");
 		}
 
 		dp.add(menu);

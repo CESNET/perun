@@ -9,6 +9,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DatePicker;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -100,7 +101,7 @@ public class SendPasswordResetRequestTabItem implements TabItem {
 					for (Attribute a : logins) {
 						if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
 							namespaces.addItem(a.getFriendlyNameParameter().toUpperCase(), a.getValue());
-							layout.setHTML(1, 1, a.getValue());
+							layout.setHTML(1, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString());
 						}
 					}
 				}

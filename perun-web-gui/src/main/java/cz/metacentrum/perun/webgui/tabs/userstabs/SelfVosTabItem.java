@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -177,7 +178,7 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
 
 		FlexTable voHeader = new FlexTable();
 		voHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.buildingIcon()));
-		voHeader.setHTML(0, 1, "<p class=\"subsection-heading\">"+vo.getName()+"</p>");
+		voHeader.setHTML(0, 1, "<p class=\"subsection-heading\">"+ SafeHtmlUtils.fromString((vo.getName() != null) ? vo.getName() : "").asString()+"</p>");
 
 		final FlexTable voOverview = new FlexTable();
 		voOverview.setStyleName("inputFormFlexTableDark");
@@ -193,19 +194,21 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
 				for (Attribute a : attrs) {
 					if (a.getFriendlyName().equalsIgnoreCase("userManualsLink")) {
 						voOverview.setHTML(i, 0, "User's manuals:");
-						Anchor link = new Anchor(a.getValue(), a.getValue());
+						String val = SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString();
+						Anchor link = new Anchor(val, val);
 						link.getElement().setPropertyString("target", "_blank");
 						voOverview.setWidget(i, 1, link);
 						i++;
 					} else if (a.getFriendlyName().equalsIgnoreCase("dashboardLink")) {
 						voOverview.setHTML(i, 0, "Dashboard:");
-						Anchor link = new Anchor(a.getValue(), a.getValue());
+						String val = SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString();
+						Anchor link = new Anchor(val, val);
 						link.getElement().setPropertyString("target", "_blank");
 						voOverview.setWidget(i, 1, link);
 						i++;
 					} else if (a.getFriendlyName().equalsIgnoreCase("contactEmail")) {
 						voOverview.setHTML(i, 0, "VO contact:");
-						voOverview.setHTML(i, 1, a.getValue());
+						voOverview.setHTML(i, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString());
 						i++;
 					}
 				}
@@ -417,8 +420,8 @@ public class SelfVosTabItem implements TabItem, TabItemWithUrl {
 					groupsTable.setHTML(0, 0, "<strong>Name</strong>");
 					groupsTable.setHTML(0, 1, "<strong>Description</strong>");
 					for (int i=0; i<list.size(); i++){
-						groupsTable.setHTML(i+1, 0, list.get(i).getName());
-						groupsTable.setHTML(i+1, 1, list.get(i).getDescription());
+						groupsTable.setHTML(i+1, 0, SafeHtmlUtils.fromString(list.get(i).getName()).asString());
+						groupsTable.setHTML(i+1, 1, SafeHtmlUtils.fromString(list.get(i).getDescription()).asString());
 					}
 				}
 				});

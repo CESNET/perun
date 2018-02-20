@@ -14,6 +14,7 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -550,16 +551,16 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 			if (alreadyAddedList.get(i).getObjectType().equals("MemberCandidate")) {
 				MemberCandidate c = alreadyAddedList.get(i).cast();
 				if (c.getCandidate() != null) {
-					alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + c.getCandidate().getFullName());
+					alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + SafeHtmlUtils.fromString(c.getCandidate().getFullName()).asString());
 				} else {
-					alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + c.getRichUser().getFullName());
+					alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + SafeHtmlUtils.fromString(c.getRichUser().getFullName()).asString());
 				}
 			} else if (alreadyAddedList.get(i).getObjectType().equals("User") || alreadyAddedList.get(i).getObjectType().equals("RichUser")) {
 				User u = alreadyAddedList.get(i).cast();
-				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + u.getFullName());
+				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + SafeHtmlUtils.fromString(u.getFullName()).asString());
 			} else {
 				RichMember m = alreadyAddedList.get(i).cast();
-				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + m.getUser().getFullName());
+				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + SafeHtmlUtils.fromString(m.getUser().getFullName()).asString());
 			}
 		}
 	}

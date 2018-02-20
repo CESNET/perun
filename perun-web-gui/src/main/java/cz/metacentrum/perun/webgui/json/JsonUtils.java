@@ -13,6 +13,7 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.regexp.shared.SplitResult;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.SimplePager;
@@ -519,9 +520,9 @@ public class JsonUtils {
 	static final public void cantParseIntConfirm(String origin, String value) {
 
 		FlexTable ft = new FlexTable();
-		ft.setHTML(0, 0, "Value \""+value+"\" can't be parsed as number." );
+		ft.setHTML(0, 0, "Value \""+ SafeHtmlUtils.fromString(value).asString()+"\" can't be parsed as number." );
 		if (origin.length() > 0) {
-			ft.setHTML(1, 0, "Input name: "+origin);
+			ft.setHTML(1, 0, "Input name: "+SafeHtmlUtils.fromString(origin).asString());
 		}
 
 		Confirm conf = new Confirm("Can't parse value", ft, true);

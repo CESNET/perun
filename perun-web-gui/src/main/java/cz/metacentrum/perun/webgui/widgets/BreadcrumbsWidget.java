@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.widgets;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
@@ -33,6 +34,9 @@ public class BreadcrumbsWidget extends Composite {
 	}
 
 	public void setLocation(int menuSectionRole, String main, String mainLink, String sub, String subLink) {
+
+		sub = SafeHtmlUtils.fromString(sub).asString();
+		main = SafeHtmlUtils.fromString(main).asString();
 
 		mainWidget.clear();
 
@@ -92,6 +96,8 @@ public class BreadcrumbsWidget extends Composite {
 
 	public void setLocation(VirtualOrganization vo, String subSection, String subSectionLink) {
 
+		subSection = SafeHtmlUtils.fromString(subSection).asString();
+
 		mainWidget.clear();
 
 		Image image = new Image(LargeIcons.INSTANCE.buildingIcon());
@@ -128,6 +134,8 @@ public class BreadcrumbsWidget extends Composite {
 	}
 
 	public void setLocation(Facility facility, String subSection, String subSectionLink) {
+
+		subSection = SafeHtmlUtils.fromString(subSection).asString();
 
 		mainWidget.clear();
 
@@ -166,6 +174,8 @@ public class BreadcrumbsWidget extends Composite {
 
 	public void setLocation(User user, String subSection, String subSectionLink) {
 
+		subSection = SafeHtmlUtils.fromString(subSection).asString();
+
 		mainWidget.clear();
 
 		Image image = new Image(LargeIcons.INSTANCE.userGrayIcon());
@@ -203,6 +213,8 @@ public class BreadcrumbsWidget extends Composite {
 
 	public void setLocation(Group group, String subSection, String subSectionLink) {
 
+		subSection = SafeHtmlUtils.fromString(subSection).asString();
+
 		mainWidget.clear();
 
 		Image image = new Image(LargeIcons.INSTANCE.groupIcon());
@@ -239,6 +251,8 @@ public class BreadcrumbsWidget extends Composite {
 	}
 
 	public void setLocation(SecurityTeam securityTeam, String subSection, String subSectionLink) {
+
+		subSection = SafeHtmlUtils.fromString(subSection).asString();
 
 		mainWidget.clear();
 

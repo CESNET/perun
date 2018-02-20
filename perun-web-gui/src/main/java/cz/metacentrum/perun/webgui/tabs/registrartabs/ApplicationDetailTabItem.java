@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -109,11 +110,11 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 		String text = "<strong>Submitted by:</strong> ";
 		if (app.getUser() != null) {
-			text += app.getUser().getFullNameWithTitles() + " (" + app.getCreatedBy() + ")";
+			text += SafeHtmlUtils.fromString(app.getUser().getFullNameWithTitles() + " (" + app.getCreatedBy() + ")").asString();
 		} else {
-			text += app.getCreatedBy();
+			text += SafeHtmlUtils.fromString(app.getCreatedBy()).asString();
 		}
-		text += " <strong>from External Source:</strong> " + app.getExtSourceName()+" <strong>with Level of Assurance:</strong> " + app.getExtSourceLoa();
+		text += " <strong>from External Source:</strong> " + SafeHtmlUtils.fromString(app.getExtSourceName()).asString()+" <strong>with Level of Assurance:</strong> " + app.getExtSourceLoa();
 		text += " <strong>on: </strong> " + app.getCreatedAt().split("\\.")[0];
 		ft.setHTML(row, 0, text);
 		ft.setCellSpacing(5);
@@ -121,9 +122,9 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 		row++;
 
 		if (app.getGroup() != null) {
-			ft.setHTML(row, 0, "<strong>Application for group: </strong>"+app.getGroup().getName() + "<strong> in VO: </strong>"+app.getVo().getName());
+			ft.setHTML(row, 0, "<strong>Application for group: </strong>"+ SafeHtmlUtils.fromString((app.getGroup().getName() != null) ? app.getGroup().getName() : "").asString() + "<strong> in VO: </strong>"+SafeHtmlUtils.fromString((app.getVo().getName() != null) ? app.getVo().getName() : "").asString());
 		} else {
-			ft.setHTML(row, 0, "<strong>Application for VO: </strong>"+app.getVo().getName());
+			ft.setHTML(row, 0, "<strong>Application for VO: </strong>"+SafeHtmlUtils.fromString((app.getVo().getName() != null) ? app.getVo().getName() : "").asString());
 		}
 
 		if (app.getState().equalsIgnoreCase("APPROVED")) {
@@ -145,7 +146,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 					if (jso != null) {
 						BasicOverlayType basic = jso.cast();
 						row++;
-						ft.setHTML(row, 0, "<strong>New membership expiration:</strong> "+basic.getString());
+						ft.setHTML(row, 0, "<strong>New membership expiration:</strong> "+SafeHtmlUtils.fromString(basic.getString()).asString());
 					}
 				}
 			});
@@ -164,7 +165,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 					if (jso != null) {
 						BasicOverlayType basic = jso.cast();
 						row++;
-						ft.setHTML(row, 0, "<strong>New membership expiration:</strong> "+basic.getString());
+						ft.setHTML(row, 0, "<strong>New membership expiration:</strong> "+SafeHtmlUtils.fromString(basic.getString()).asString());
 					}
 				}
 			});

@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -38,7 +39,7 @@ public class JsonErrorHandler {
 
 		if (PerunWebSession.getInstance().isPerunAdmin()) {
 			// PERUN ADMIN SEE RAW ERROR MESSAGE
-			UiElements.generateError(error, getCaption(error), "<span style=\"color:red\">" + error.getName() + "</span><p>" + error.getErrorInfo());
+			UiElements.generateError(error, getCaption(error), "<span style=\"color:red\">" + SafeHtmlUtils.fromString(error.getName()).asString() + "</span><p>" + SafeHtmlUtils.fromString(error.getErrorInfo()).asString());
 		} else {
 			// OTHERS SEE TRANSLATED TEXT
 			UiElements.generateError(error, getCaption(error), getText(error.getName(), error));
@@ -289,17 +290,17 @@ public class JsonErrorHandler {
 
 			if (holder != null) {
 				if (!holder.getName().equalsIgnoreCase("undefined")) {
-					text += "<strong>" + holder.getObjectType() + ":</strong>&nbsp;" + holder.getName() + "<br />";
+					text += "<strong>" + SafeHtmlUtils.fromString(holder.getObjectType()).asString() + ":</strong>&nbsp;" + SafeHtmlUtils.fromString(holder.getName()).asString() + "<br />";
 				}
 			}
 			if (secondHolder != null) {
 				if (!secondHolder.getName().equalsIgnoreCase("undefined")) {
-					text += "<strong>" + secondHolder.getObjectType() + ":</strong>&nbsp;" + secondHolder.getName() + "<br />";
+					text += "<strong>" + SafeHtmlUtils.fromString(secondHolder.getObjectType()).asString() + ":</strong>&nbsp;" + SafeHtmlUtils.fromString(secondHolder.getName()).asString() + "<br />";
 				}
 			}
 			if (a != null) {
-				String attrName = a.getDisplayName();
-				String attrValue = a.getValue();
+				String attrName = SafeHtmlUtils.fromString(a.getDisplayName()).asString();
+				String attrValue = SafeHtmlUtils.fromString(a.getValue()).asString();
 				text += "<strong>Attribute:&nbsp;</strong>" + attrName + "<br /><strong>Value:&nbsp;</strong>" + attrValue;
 			} else {
 				text += "<i>Attribute is null</i>";
@@ -315,9 +316,9 @@ public class JsonErrorHandler {
 			Attribute a2 = error.getReferenceAttribute();
 
 			if (a != null) {
-				String attrName = a.getDisplayName();
-				String attrValue = a.getValue();
-				String entity = a.getEntity();
+				String attrName = SafeHtmlUtils.fromString(a.getDisplayName()).asString();
+				String attrValue = SafeHtmlUtils.fromString(a.getValue()).asString();
+				String entity = SafeHtmlUtils.fromString(a.getEntity()).asString();
 				text += "<p><strong>Attribute&nbsp;1:</strong>&nbsp;" + attrName + " (" + entity + ")";
 				text += "<br/><strong>Value&nbsp;1:</strong>&nbsp;" + attrValue;
 			} else {
@@ -325,9 +326,9 @@ public class JsonErrorHandler {
 			}
 
 			if (a2 != null) {
-				String attrName = a2.getDisplayName();
-				String attrValue = a2.getValue();
-				String entity = a2.getEntity();
+				String attrName = SafeHtmlUtils.fromString(a2.getDisplayName()).asString();
+				String attrValue = SafeHtmlUtils.fromString(a2.getValue()).asString();
+				String entity = SafeHtmlUtils.fromString(a2.getEntity()).asString();
 				text += "<p><strong>Attribute&nbsp;2:</strong>&nbsp;" + attrName + " (" + entity + ")";
 				text += "<br/><strong>Value&nbsp;2:</strong>&nbsp;" + attrValue;
 			} else {
@@ -340,7 +341,7 @@ public class JsonErrorHandler {
 
 			Attribute a = error.getAttribute();
 			if (a != null) {
-				return "Attribute definition for attribute <i>" + a.getName() + "</i> doesn't exist.";
+				return "Attribute definition for attribute <i>" + SafeHtmlUtils.fromString(a.getName()).asString() + "</i> doesn't exist.";
 			} else {
 				return "Attribute definition for attribute <i>null</i> doesn't exist.";
 			}
@@ -360,18 +361,18 @@ public class JsonErrorHandler {
 
 			String text = "";
 			if (error.getUser() != null) {
-				text = error.getUser().getFullName();
+				text = SafeHtmlUtils.fromString(error.getUser().getFullName()).asString();
 			} else {
 				text = "User";
 			}
 			if (error.getVo() != null) {
-				text += " is already manager of VO: " + error.getVo().getName();
+				text += " is already manager of VO: " + SafeHtmlUtils.fromString(error.getVo().getName()).asString();
 			} else if (error.getFacility() != null) {
-				text += " is already manager of Facility: " + error.getFacility().getName();
+				text += " is already manager of Facility: " + SafeHtmlUtils.fromString(error.getFacility().getName()).asString();
 			} else if (error.getGroup() != null) {
-				text += " is already manager of Group: " + error.getGroup().getName();
+				text += " is already manager of Group: " + SafeHtmlUtils.fromString(error.getGroup().getName()).asString();
 			} else if (error.getSecurityTeam() != null) {
-				text += " is already manager of SecurityTeam: " + error.getSecurityTeam().getName();
+				text += " is already manager of SecurityTeam: " + SafeHtmlUtils.fromString(error.getSecurityTeam().getName()).asString();
 			}
 			return text;
 
@@ -384,16 +385,16 @@ public class JsonErrorHandler {
 
 			String text = "";
 			if (error.getLogin() != null) {
-				text += "Login: " + error.getLogin();
+				text += "Login: " + SafeHtmlUtils.fromString(error.getLogin()).asString();
 				if (error.getNamespace() != null) {
-					text += " in namespace: " + error.getNamespace() + " is already reserved.";
+					text += " in namespace: " + SafeHtmlUtils.fromString(error.getNamespace()).asString() + " is already reserved.";
 				} else {
 					text += " is already reserved.";
 				}
 			} else {
 				text += "Login";
 				if (error.getNamespace() != null) {
-					text += " in namespace: " + error.getNamespace() + " is already reserved.";
+					text += " in namespace: " + SafeHtmlUtils.fromString(error.getNamespace()).asString() + " is already reserved.";
 				} else {
 					text += " is already reserved in selected namespace.";
 				}
@@ -403,7 +404,7 @@ public class JsonErrorHandler {
 		} else if ("AttributeAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getAttribute() != null) {
-				return "Attribute <i>" + error.getAttribute().getDisplayName() + "</i> is already set as required by service.";
+				return "Attribute <i>" + SafeHtmlUtils.fromString(error.getAttribute().getDisplayName()).asString() + "</i> is already set as required by service.";
 			} else {
 				return "Attribute is already set as required by service.";
 			}
@@ -415,7 +416,7 @@ public class JsonErrorHandler {
 		} else if ("AttributeNotAssignedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getAttribute() != null) {
-				return "Attribute <i>" + error.getAttribute().getDisplayName() + "</i> is already NOT required by service.";
+				return "Attribute <i>" + SafeHtmlUtils.fromString(error.getAttribute().getDisplayName()).asString() + "</i> is already NOT required by service.";
 			} else {
 				return "Attribute is already NOT required by service.";
 			}
@@ -423,12 +424,12 @@ public class JsonErrorHandler {
 		} else if ("AttributeNotExistsException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - attribute object inside is never used, but has good description
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("AttributeValueException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - core always uses extensions of this exception
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("ApplicationNotCreatedException".equalsIgnoreCase(errorName)) {
 
@@ -449,7 +450,7 @@ public class JsonErrorHandler {
 		} else if ("DestinationAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getDestination() != null) {
-				return "Destination <i>" + error.getDestination().getDestination() + "</i> already exists for facility/service.";
+				return "Destination <i>" + SafeHtmlUtils.fromString(error.getDestination().getDestination()).asString() + "</i> already exists for facility/service.";
 			} else {
 				return "Same destination already exists for facility/service combination.";
 			}
@@ -457,7 +458,7 @@ public class JsonErrorHandler {
 		} else if ("DestinationAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getDestination() != null) {
-				return "Destination <i>" + error.getDestination().getDestination() + "</i> already removed for facility/service.";
+				return "Destination <i>" + SafeHtmlUtils.fromString(error.getDestination().getDestination()).asString() + "</i> already removed for facility/service.";
 			} else {
 				return "Destination is already removed from facility/service combination.";
 			}
@@ -473,7 +474,7 @@ public class JsonErrorHandler {
 		} else if ("DiacriticNotAllowedException".equalsIgnoreCase(errorName)) {
 
 			// has meaningful info
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 			// FIXME - ENTITY exceptions are always extended - we will use specific types
 
@@ -495,8 +496,8 @@ public class JsonErrorHandler {
 
 			if (error.getExtSource() != null) {
 				return "Same external source is already assigned to your VO." +
-						"<p><strong>Name:</strong> " + error.getExtSource().getName() + "</br>" +
-						"<strong>Type:</strong> " + error.getExtSource().getType();
+						"<p><strong>Name:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getName()).asString() + "</br>" +
+						"<strong>Type:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getType()).asString();
 			} else {
 				return "Same external source is already assigned to your VO.";
 			}
@@ -505,8 +506,8 @@ public class JsonErrorHandler {
 
 			if (error.getExtSource() != null) {
 				return "Same external source was already removed from your VO." +
-						"<p><strong>Name:</strong> " + error.getExtSource().getName() + "</br>" +
-						"<strong>Type:</strong> " + error.getExtSource().getType();
+						"<p><strong>Name:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getName()).asString() + "</br>" +
+						"<strong>Type:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getType()).asString();
 			} else {
 				return "Same external source was already removed from your VO.";
 			}
@@ -515,8 +516,8 @@ public class JsonErrorHandler {
 
 			if (error.getExtSource() != null) {
 				return "Same external source already exists." +
-						"<p><strong>Name:</strong> " + error.getExtSource().getName() + "</br>" +
-						"<strong>Type:</strong> " + error.getExtSource().getType();
+						"<p><strong>Name:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getName()).asString() + "</br>" +
+						"<strong>Type:</strong> " + SafeHtmlUtils.fromString(error.getExtSource().getType()).asString();
 			} else {
 				return "Same external source already exists.";
 			}
@@ -539,7 +540,7 @@ public class JsonErrorHandler {
 		} else if ("ExtSourceUnsupportedOperationException".equalsIgnoreCase(errorName)) {
 
 			// TODO - probably is never thrown to GUI ??
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("FacilityAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
@@ -561,7 +562,7 @@ public class JsonErrorHandler {
 
 			Group g = error.getGroup();
 			if (g != null) {
-				return "Group: " + g.getName() + " is already assigned to Resource.";
+				return "Group: " + SafeHtmlUtils.fromString(g.getName()).asString() + " is already assigned to Resource.";
 			} else {
 				return "Group is already assigned to Resource.";
 			}
@@ -599,10 +600,10 @@ public class JsonErrorHandler {
 			Group movingGroup = error.getMovingGroup();
 			Group destinationGroup = error.getDestinationGroup();
 
-			String movingGroupName = (movingGroup != null) ? ("<b>" + movingGroup.getName() + "</b>") : "Group";
-			String destinationGroupName = (destinationGroup != null) ?("under <b>" + destinationGroup.getName() + "</b>") : " to top-level";
+			String movingGroupName = (movingGroup != null) ? ("<b>" + SafeHtmlUtils.fromString(movingGroup.getName()).asString() + "</b>") : "Group";
+			String destinationGroupName = (destinationGroup != null) ?("under <b>" + SafeHtmlUtils.fromString(destinationGroup.getName()).asString() + "</b>") : " to top-level";
 
-			return movingGroupName + " can't be moved " + destinationGroupName + ".<p>Reason: "+error.getErrorInfo();
+			return movingGroupName + " can't be moved " + destinationGroupName + ".<p>Reason: "+SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("GroupRelationAlreadyExists".equalsIgnoreCase(errorName)) {
 
@@ -656,7 +657,7 @@ public class JsonErrorHandler {
 		} else if ("MaxSizeExceededException".equalsIgnoreCase(errorName)) {
 
 			// has meaningfull message
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("MemberAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
@@ -681,7 +682,7 @@ public class JsonErrorHandler {
 
 		} else if ("MessageParsingFailException".equalsIgnoreCase(errorName)) {
 
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("ModuleNotExistsException".equalsIgnoreCase(errorName)) {
 
@@ -697,11 +698,11 @@ public class JsonErrorHandler {
 
 		} else if ("NumberNotInRangeException".equalsIgnoreCase(errorName)) {
 
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("NumbersNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("OwnerAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
@@ -746,12 +747,12 @@ public class JsonErrorHandler {
 		} else if ("RelationExistsException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - better text on core side
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("RelationNotExistsException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - better text on core side
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("ResourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
@@ -759,7 +760,7 @@ public class JsonErrorHandler {
 
 		} else if ("ResourceExistsException".equalsIgnoreCase(errorName)) {
 
-			return "Resource with same name \"" + error.getResource().getName() + "\" already exists with id="+error.getResource().getId()+".";
+			return "Resource with same name \"" + SafeHtmlUtils.fromString(error.getResource().getName()).asString() + "\" already exists with id="+SafeHtmlUtils.fromString(error.getResource().getId()+"").asString()+".";
 
 		} else if ("ResourceNotExistsException".equalsIgnoreCase(errorName)) {
 
@@ -778,12 +779,12 @@ public class JsonErrorHandler {
 		} else if ("ResourceTagNotExistsException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - must contain also resource
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("SecurityTeamAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getSecurityTeam() != null) {
-				return "SecurityTeam <i>" + error.getSecurityTeam().getName() + "</i> is already assigned to facility.";
+				return "SecurityTeam <i>" + SafeHtmlUtils.fromString(error.getSecurityTeam().getName()).asString() + "</i> is already assigned to facility.";
 			} else {
 				return "Same SecurityTeam is already assigned to facility.";
 			}
@@ -792,7 +793,7 @@ public class JsonErrorHandler {
 
 			// FIXME - must contain also resource
 			if (error.getService() != null) {
-				return "Service " + error.getService().getName() + " is already assigned to resource.";
+				return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() + " is already assigned to resource.";
 			} else {
 				return "Same service is already assigned to resource.";
 			}
@@ -800,7 +801,7 @@ public class JsonErrorHandler {
 		} else if ("ServiceAlreadyBannedException".equalsIgnoreCase(errorName)) {
 
 			if (error.getService() != null && error.getFacility() != null) {
-				return "Service " + error.getService().getName() + " is already banned on facility "+error.getFacility().getName()+".";
+				return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() + " is already banned on facility "+SafeHtmlUtils.fromString(error.getFacility().getName()).asString()+".";
 			} else {
 				return "Same service is already banned on facility.";
 			}
@@ -808,7 +809,7 @@ public class JsonErrorHandler {
 		} else if ("ServiceExistsException".equalsIgnoreCase(errorName)) {
 
 			if (error.getService() != null) {
-				return "Service " + error.getService().getName() + " already exists in Perun. Choose different name.";
+				return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() + " already exists in Perun. Choose different name.";
 			} else {
 				return "Service with same name already exists in Perun.";
 			}
@@ -817,7 +818,7 @@ public class JsonErrorHandler {
 
 			// FIXME - must contain also resource
 			if (error.getService() != null) {
-				return "Service " + error.getService().getName() + " is not assigned to resource.";
+				return "Service " + SafeHtmlUtils.fromString(error.getService().getName()).asString() + " is not assigned to resource.";
 			} else {
 				return "Service is not assigned to resource.";
 			}
@@ -833,7 +834,7 @@ public class JsonErrorHandler {
 		} else if ("ServicesPackageExistsException".equalsIgnoreCase(errorName)) {
 
 			// TODO - we don't support service packages yet
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("ServiceAlreadyRemovedFromServicePackageException".equalsIgnoreCase(errorName)) {
 
@@ -861,15 +862,15 @@ public class JsonErrorHandler {
 
 		} else if ("SpaceNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("SpecialCharsNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return error.getErrorInfo() + " You can use only letters, numbers and spaces.";
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString() + " You can use only letters, numbers and spaces.";
 
 		} else if ("SpecialCharsNotAllowedException".equalsIgnoreCase(errorName)) {
 
-			return error.getErrorInfo() + " You can use only letters, numbers and spaces.";
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString() + " You can use only letters, numbers and spaces.";
 
 		} else if ("SubGroupCannotBeRemovedException".equalsIgnoreCase(errorName)) {
 
@@ -919,16 +920,16 @@ public class JsonErrorHandler {
 
 		} else if ("WrongModuleTypeException".equalsIgnoreCase(errorName)) {
 
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("WrongRangeOfCountException".equalsIgnoreCase(errorName)) {
 
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("WrongPatternException".equalsIgnoreCase(errorName)) {
 
 			// meaningful message
-			return error.getErrorInfo();
+			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();
 
 		} else if ("MissingRequiredDataException".equalsIgnoreCase(errorName)) {
 
@@ -938,7 +939,7 @@ public class JsonErrorHandler {
 			if (error.getFormItems() != null) {
 				for (int i = 0; i < error.getFormItems().length(); i++) {
 					missingItems += "<strong>Missing attribute: </strong>";
-					missingItems += error.getFormItems().get(i).getFormItem().getFederationAttribute();
+					missingItems += SafeHtmlUtils.fromString(error.getFormItems().get(i).getFormItem().getFederationAttribute()).asString();
 					missingItems += "<br />";
 				}
 			}

@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.json.registrarManager;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
@@ -178,7 +179,7 @@ public class GetApplicationForm implements JsonCallback {
 			button.addClickHandler(ch);
 
 			String appStyle = "<strong>Approval style: </strong>";
-			String module = "</br><strong>Module name: </strong>" + form.getModuleClassName();
+			String module = "</br><strong>Module name: </strong>" + SafeHtmlUtils.fromString(form.getModuleClassName()).asString();
 
 			if (form.getAutomaticApproval()==true) {
 				appStyle = appStyle + "<span style=\"color:red;\">Automatic</span> (INITIAL)";

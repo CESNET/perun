@@ -5,6 +5,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -195,7 +196,7 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 					if (session.isSelf(user.getId())) {
 						session.getTabManager().addTab(new SelfDetailTabItem(user));
 					} else {
-						UiElements.generateAlert("You are not authorized", "You are not authorized to view personal details of user "+user.getFullNameWithTitles()+".");
+						UiElements.generateAlert("You are not authorized", "You are not authorized to view personal details of user "+ SafeHtmlUtils.fromString(user.getFullNameWithTitles()).asString()+".");
 					}
 				}
 			});

@@ -4,6 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -161,7 +162,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 						loginsTable.setHTML(row, 0, "Login in "+a.getFriendlyNameParameter().toUpperCase()+":");
 						loginsTable.getFlexCellFormatter().setWidth(row, 0, "150px");
 						loginsTable.getFlexCellFormatter().addStyleName(row, 0, "itemName");
-						loginsTable.setHTML(row, 1, a.getValue());
+						loginsTable.setHTML(row, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString());
 						loginsTable.getFlexCellFormatter().setWidth(row, 1, "150px");
 						// change password if possible
 						if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
@@ -228,8 +229,8 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 					for (final UserExtSource a : list) {
 						if (a.getExtSource().getType().equals("cz.metacentrum.perun.core.impl.ExtSourceX509")) {
 							found = true;
-							tab.setHTML(i++, 0, "<strong>"+a.getLogin()+"</strong>");
-							tab.setHTML(i++, 0, "Issuer: " + a.getExtSource().getName());
+							tab.setHTML(i++, 0, "<strong>"+SafeHtmlUtils.fromString((a.getLogin() != null) ? a.getLogin() : "").asString()+"</strong>");
+							tab.setHTML(i++, 0, "Issuer: " + SafeHtmlUtils.fromString((a.getExtSource().getName() != null) ? a.getExtSource().getName() : "").asString());
 							if (!a.isPersistent()) {
 								CustomButton removeButton = new CustomButton("Remove", SmallIcons.INSTANCE.deleteIcon(), new ClickHandler() {
 									@Override

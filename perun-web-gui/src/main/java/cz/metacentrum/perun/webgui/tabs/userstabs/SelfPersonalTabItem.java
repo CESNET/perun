@@ -5,6 +5,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -323,7 +324,7 @@ public class SelfPersonalTabItem implements TabItem {
 										}
 										if (resultText.length() >= 2) resultText = resultText.substring(0, resultText.length()-2);
 
-										settingsTable.setHTML(2, 0, "You have pending change request. Please check inbox of: "+resultText+" for validation email.");
+										settingsTable.setHTML(2, 0, "You have pending change request. Please check inbox of: "+ SafeHtmlUtils.fromString(resultText).asString()+" for validation email.");
 										settingsTable.getFlexCellFormatter().setStyleName(2, 0, "inputFormInlineComment serverResponseLabelError");
 									}
 
@@ -346,7 +347,7 @@ public class SelfPersonalTabItem implements TabItem {
 													((!resultText.isEmpty()) ? "<p><span class=\"serverResponseLabelError\">You have pending change request. Please check inbox of: "+resultText+" for validation email.</span>" : ""));
 											settingsTable.getFlexCellFormatter().setStyleName(2, 0, "inputFormInlineComment");
 										} else {
-											settingsTable.setHTML(2, 0, (!resultText.isEmpty()) ? "You have pending change request. Please check inbox of: "+resultText+" for validation email." : "");
+											settingsTable.setHTML(2, 0, (!resultText.isEmpty()) ? "You have pending change request. Please check inbox of: "+SafeHtmlUtils.fromString(resultText).asString()+" for validation email." : "");
 											settingsTable.getFlexCellFormatter().setStyleName(2, 0, "inputFormInlineComment serverResponseLabelError");
 										}
 										preferredEmail.setOk();

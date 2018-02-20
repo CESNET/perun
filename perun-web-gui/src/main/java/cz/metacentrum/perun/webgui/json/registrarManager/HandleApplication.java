@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -203,12 +204,12 @@ public class HandleApplication {
 					layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.errorIcon())));
 
 					if ("NOT_ACADEMIC".equals(error.getReason())) {
-						layout.setHTML(0, 1, "<p>User is not active academia member and application shouldn't be approved.<p><b>LoA:</b> " + app.getExtSourceLoa() +
-								"</br><b>IdP category:</b> " + (!(error.getCategory().equals("")) ? error.getCategory() : "N/A") +
-								"</br><b>Affiliation:</b> " + (!(error.getAffiliation().equals("")) ? error.getAffiliation().replace(";", ", ") : "N/A") +
+						layout.setHTML(0, 1, "<p>User is not active academia member and application shouldn't be approved.<p><b>LoA:</b> " + SafeHtmlUtils.fromString(app.getExtSourceLoa()+"").asString() +
+								"</br><b>IdP category:</b> " + (!(error.getCategory().equals("")) ? SafeHtmlUtils.fromString(error.getCategory()).asString() : "N/A") +
+								"</br><b>Affiliation:</b> " + (!(error.getAffiliation().equals("")) ? SafeHtmlUtils.fromString(error.getAffiliation().replace(";", ", ")).asString() : "N/A") +
 								((error.isSoft()) ? "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
 					} else {
-						layout.setHTML(0, 1, "<p>" + error.getErrorInfo() + ((error.isSoft()) ? "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
+						layout.setHTML(0, 1, "<p>" + SafeHtmlUtils.fromString(error.getErrorInfo()).asString() + ((error.isSoft()) ? "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
 					}
 
 					layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
@@ -283,16 +284,16 @@ public class HandleApplication {
 
 								for (Identity user : users) {
 
-									ft.setHTML(i, 0, user.getName());
+									ft.setHTML(i, 0, SafeHtmlUtils.fromString(user.getName()).asString());
 
 									if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-										ft.setHTML(i, 1, user.getEmail());
+										ft.setHTML(i, 1, SafeHtmlUtils.fromString(user.getEmail()).asString());
 									} else {
 										ft.setHTML(i, 1, "N/A");
 									}
 
 									if (user.getOrganization() != null && !user.getOrganization().isEmpty()) {
-										ft.setHTML(i, 2, user.getOrganization());
+										ft.setHTML(i, 2, SafeHtmlUtils.fromString(user.getOrganization()).asString());
 									} else {
 										ft.setHTML(i, 2, "N/A");
 									}

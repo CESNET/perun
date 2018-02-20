@@ -5,6 +5,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -149,7 +150,7 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 			menu.getFlexCellFormatter().setWidth(0, column, "25px");
 			column++;
 
-			menu.setHTML(0, column, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+vo.getShortName()+"</span>");
+			menu.setHTML(0, column, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+ SafeHtmlUtils.fromString((vo.getShortName() != null) ? vo.getShortName() : "").asString()+"</span>");
 
 		}
 

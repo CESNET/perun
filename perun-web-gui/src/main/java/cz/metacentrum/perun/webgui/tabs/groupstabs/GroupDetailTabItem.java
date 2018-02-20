@@ -5,6 +5,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -162,7 +163,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		column++;
 		*/
 
-		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+group.getDescription()+"&nbsp;</span>");
+		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+ SafeHtmlUtils.fromString((group.getDescription() != null) ? group.getDescription() : "").asString()+"&nbsp;</span>");
 
 		dp.add(menu);
 		vp.add(dp);
