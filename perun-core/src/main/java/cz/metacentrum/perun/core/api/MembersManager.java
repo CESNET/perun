@@ -36,10 +36,8 @@ public interface MembersManager {
 	 * @throws MemberNotExistsException
 	 * @throws PrivilegeException
 	 * @throws MemberAlreadyRemovedException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException;
 
 	/**
 	 *  Deletes all VO members.
@@ -50,10 +48,8 @@ public interface MembersManager {
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
 	 * @throws MemberAlreadyRemovedException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException;
 
 	/**
 	 * Creates a new member from candidate which is prepared for creating specific User

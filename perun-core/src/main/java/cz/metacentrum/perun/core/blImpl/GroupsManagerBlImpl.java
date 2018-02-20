@@ -1246,7 +1246,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * This method run in separate transaction.
 	 */
-	public List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException, AlreadyMemberException {
+	public List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException {
 		//needed variables for whole method
 		List<String> skippedMembers = new ArrayList<>();
 		ExtSource source = null;
@@ -1478,8 +1478,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
 			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | InternalErrorException |
-					WrongAttributeAssignmentException | MemberAlreadyRemovedException | GroupNotExistsException |
-					AttributeNotExistsException | AlreadyMemberException | ExtSourceNotExistsException e) {
+					WrongAttributeAssignmentException  | GroupNotExistsException |
+					AttributeNotExistsException  | ExtSourceNotExistsException e) {
 				failedDueToException = true;
 				exceptionMessage = "Cannot synchronize group ";
 				log.error(exceptionMessage + group, e);
@@ -2617,9 +2617,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 * @throws WrongAttributeAssignmentException if there is some problem with assignment of attribute
-	 * @throws MemberAlreadyRemovedException if member is already out of group when we trying to do this by synchronization
 	 */
-	private void removeFormerMembersWhileSynchronization(PerunSession sess, Group group, List<RichMember> membersToRemove) throws InternalErrorException, WrongAttributeAssignmentException, MemberAlreadyRemovedException, GroupNotExistsException, WrongAttributeValueException, AlreadyMemberException, WrongReferenceAttributeValueException {
+	private void removeFormerMembersWhileSynchronization(PerunSession sess, Group group, List<RichMember> membersToRemove) throws InternalErrorException, WrongAttributeAssignmentException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//First get information if this group is authoritative group
 		boolean thisGroupIsAuthoritativeGroup = false;
 		try {

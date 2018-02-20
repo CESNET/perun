@@ -321,11 +321,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		if (members != null && (members.size() > 0)) {
 			if (forceDelete) {
 				for (Member member: members) {
-					try {
-						getPerunBl().getMembersManagerBl().deleteMember(sess, member);
-					} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-						throw new InternalErrorException("Exception raised while deleting member. Cause: {}", ex);
-					}
+					getPerunBl().getMembersManagerBl().deleteMember(sess, member);
 				}
 			} else {
 				throw new RelationExistsException("Members exist");

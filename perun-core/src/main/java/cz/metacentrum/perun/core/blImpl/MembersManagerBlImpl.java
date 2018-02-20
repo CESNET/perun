@@ -55,7 +55,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		this.membersManagerImpl = membersManagerImpl;
 	}
 
-	public void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException {
 		Vo vo = this.getMemberVo(sess, member);
 
 		User user;
@@ -158,7 +158,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getPerunBl().getAuditer().log(sess, "{} deleted.", member);
 	}
 
-	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException {
 		for (Member m: this.getMembers(sess, vo)) {
 			this.deleteMember(sess, m);
 		}

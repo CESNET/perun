@@ -31,7 +31,7 @@ public class MembersManagerEntry implements MembersManager {
 	public MembersManagerEntry() {
 	}
 
-	public void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		getMembersManagerBl().checkMemberExists(sess, member);
@@ -45,7 +45,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().deleteMember(sess, member);
 	}
 
-	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

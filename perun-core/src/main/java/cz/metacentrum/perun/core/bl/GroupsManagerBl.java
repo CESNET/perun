@@ -840,16 +840,14 @@ public interface GroupsManagerBl {
 	 * @param group
 	 * @return List of strings with skipped users with reasons why were skipped
 	 * @throws InternalErrorException
-	 * @throws MemberAlreadyRemovedException
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws ExtSourceNotExistsException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupNotExistsException
-	 * @throws AlreadyMemberException
 	 */
-	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException, AlreadyMemberException;
+	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Synchronize the group with external group. It checks if the synchronization of the same group is already in progress.
