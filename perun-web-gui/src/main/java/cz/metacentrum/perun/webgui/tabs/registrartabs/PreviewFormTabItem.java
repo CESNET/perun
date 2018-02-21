@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.tabs.registrartabs;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -191,10 +192,10 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 				// 0 = label
 				if (item.isRequired() == true) {
 					// required
-					ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "*</strong>");
+					ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "*</strong>");
 				} else {
 					// optional
-					ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong>");
+					ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong>");
 				}
 
 				// 1 = widget

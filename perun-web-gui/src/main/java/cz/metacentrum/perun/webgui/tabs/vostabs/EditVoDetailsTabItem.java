@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.tabs.vostabs;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -121,7 +122,7 @@ public class EditVoDetailsTabItem implements TabItem {
 
 		// Add some standard form options
 		layout.setHTML(0, 0, "Short name:");
-		layout.setHTML(0, 1, vo.getShortName());
+		layout.setHTML(0, 1, SafeHtmlUtils.fromString((vo.getShortName() != null) ? vo.getShortName() : "").asString());
 		layout.setHTML(1, 0, "Name:");
 		layout.setWidget(1, 1, nameTextBox);
 

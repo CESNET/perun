@@ -5,6 +5,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -155,7 +156,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 						for (int i=0; i<list.size(); i++) {
 							if (list.get(i).getLocked() && !session.isPerunAdmin()) {
 								// skip locked pubs
-								UiElements.generateAlert("Publication locked", "Publication <strong>" + list.get(i).getTitle() + "</strong> is locked by " +
+								UiElements.generateAlert("Publication locked", "Publication <strong>" + SafeHtmlUtils.fromString(list.get(i).getTitle()).asString() + "</strong> is locked by " +
 									"administrator and can't be deleted. Please notify administrator about your request.");
 								continue;
 							} else {

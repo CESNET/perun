@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -281,7 +282,7 @@ public class AddMemberToResourceTabItem implements TabItem  {
 					ArrayList<Service> servList = JsonUtils.jsoAsList(jso);
 					servList = new TableSorter<Service>().sortByName(servList);
 					for (Service s : servList){
-						services.setHTML(services.getHTML().concat(s.getName() + "</br>"));
+						services.setHTML(services.getHTML().concat(SafeHtmlUtils.fromString(s.getName()).asString() + "</br>"));
 					}
 				}
 				@Override

@@ -5,6 +5,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
@@ -235,15 +236,15 @@ public class GetAllRichSubGroups implements JsonCallback, JsonCallbackTable<Rich
 							authGroup = "No";
 						}
 
-						String html = "Group name: <b>"+name+"</b><br>";
-						html += "Synchronization: <b>"+syncEnabled+"</b><br>";
+						String html = "Group name: <b>"+ SafeHtmlUtils.fromString(name).asString()+"</b><br>";
+						html += "Synchronization: <b>"+SafeHtmlUtils.fromString(syncEnabled).asString()+"</b><br>";
 
 						if (object.isSyncEnabled()) {
-							html += "Last sync. state: <b>"+syncState+"</b><br>";
-							html += "Last sync. timestamp: <b>"+syncTimestamp+"</b><br>";
-							html += "Last successful sync. timestamp: <b>"+syncSuccessTimestamp+"</b><br>";
-							html += "Sync. Interval: <b>"+syncInterval+"</b><br>";
-							html += "Authoritative group: <b>"+authGroup+"</b><br>";
+							html += "Last sync. state: <b>"+SafeHtmlUtils.fromString(syncState).asString()+"</b><br>";
+							html += "Last sync. timestamp: <b>"+SafeHtmlUtils.fromString(syncTimestamp).asString()+"</b><br>";
+							html += "Last successful sync. timestamp: <b>"+SafeHtmlUtils.fromString(syncSuccessTimestamp).asString()+"</b><br>";
+							html += "Sync. Interval: <b>"+SafeHtmlUtils.fromString(syncInterval).asString()+"</b><br>";
+							html += "Authoritative group: <b>"+SafeHtmlUtils.fromString(authGroup).asString()+"</b><br>";
 						}
 
 						FlexTable layout = new FlexTable();

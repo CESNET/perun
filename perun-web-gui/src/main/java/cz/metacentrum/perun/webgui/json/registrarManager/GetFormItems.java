@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -256,7 +257,7 @@ public class GetFormItems implements JsonCallback {
 			if (item.isRequired() == true) {
 				label += "*";
 			}
-			ft.setHTML(i, 0, label);
+			ft.setHTML(i, 0, SafeHtmlUtils.fromString(label).asString());
 
 			// 1 = type
 			Label type_label = new Label(CreateFormItemTabItem.inputTypes.get(item.getType()));
@@ -587,7 +588,7 @@ public class GetFormItems implements JsonCallback {
 			if(gen.isLabelShown()){
 
 				// 0 = label
-				ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong>");
+				ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong>");
 
 				// 1 = widget
 				Widget w = gen.getWidget();

@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.widgets;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -146,11 +147,11 @@ public class AddRemoveItemsTable<T extends JavaScriptObject> extends Composite {
 			});
 
 			if (vertical) {
-				ft.setHTML(row, 0, name);
+				ft.setHTML(row, 0, SafeHtmlUtils.fromString(name).asString());
 				ft.setWidget(row, 1, rb);
 				row++;
 			} else {
-				ft.setHTML(row, column, name);
+				ft.setHTML(row, column, SafeHtmlUtils.fromString(name).asString());
 				ft.setWidget(row, column+1, rb);
 				column = column + 2;
 			}

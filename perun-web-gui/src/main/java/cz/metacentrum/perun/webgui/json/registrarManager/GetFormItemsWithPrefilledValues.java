@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
@@ -185,7 +186,7 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 						missingItems += ApplicationMessages.INSTANCE.cantResolveIDPNameAttribute(fedAttrName);
 					} else {
 						missingItems += ApplicationMessages.INSTANCE.missingIDPAttribute();
-						missingItems += error.getFormItems().get(i).getFormItem().getFederationAttribute();
+						missingItems += SafeHtmlUtils.fromString(error.getFormItems().get(i).getFormItem().getFederationAttribute()).asString();
 					}
 					missingItems += "<br />";
 				}
@@ -349,10 +350,10 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 				// 0 = label
 				if (item.getFormItem().isRequired() == true) {
 					// required
-					ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "*</strong>");
+					ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "*</strong>");
 				} else {
 					// optional
-					ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong>");
+					ft.setHTML(i, 0, "<strong>" + SafeHtmlUtils.fromString(gen.getLabelOrShortname()).asString() + "</strong>");
 				}
 
 				// 1 = widget

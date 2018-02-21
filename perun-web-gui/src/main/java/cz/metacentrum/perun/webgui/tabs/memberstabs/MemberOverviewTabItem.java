@@ -4,6 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -217,7 +218,7 @@ public class MemberOverviewTabItem implements TabItem {
 				ArrayList<Attribute> list = JsonUtils.jsoAsList(jso);
 				if (list != null && !list.isEmpty()) {
 					for (Attribute a : list) {
-						String value = a.getValue();
+						String value = SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString();
 						if (a.getName().equalsIgnoreCase("urn:perun:user:attribute-def:def:organization")) {
 							if (!"null".equals(value)) {
 								personalLayout.setHTML(0, 1, value);

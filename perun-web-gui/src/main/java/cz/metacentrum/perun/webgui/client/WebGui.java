@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
@@ -527,7 +528,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 						body.clear();
 						FlexTable ft = new FlexTable();
 						ft.setSize("100%", "300px");
-						ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>"+ "The email address: <i>"+over.getString()+"</i></h2><h2>was verified and set as your preferred email.</h2>");
+						ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.acceptIcon())+"<h2>"+ "The email address: <i>"+ SafeHtmlUtils.fromString(over.getString())+"</i></h2><h2>was verified and set as your preferred email.</h2>");
 						ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 						ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 						body.add(ft);

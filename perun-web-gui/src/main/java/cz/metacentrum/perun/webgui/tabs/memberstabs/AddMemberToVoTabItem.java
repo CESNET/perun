@@ -4,6 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -291,9 +292,9 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 		for (int i=0; i<alreadyAddedList.size(); i++) {
 			MemberCandidate c = alreadyAddedList.get(i).cast();
 			if (c.getRichUser() != null) {
-				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + c.getRichUser().getFullName());
+				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML()+ ((i!=0) ? ", " : "") + SafeHtmlUtils.fromString(c.getRichUser().getFullName()).asString());
 			} else {
-				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + c.getCandidate().getFullName());
+				alreadyAdded.getWidget().getElement().setInnerHTML(alreadyAdded.getWidget().getElement().getInnerHTML() + ((i != 0) ? ", " : "") + SafeHtmlUtils.fromString(c.getCandidate().getFullName()).asString());
 			}
 		}
 

@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -139,7 +140,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 			column++;
 		}
 
-		menu.setHTML(0, column, "<strong>Type:</strong><br/><span class=\"inputFormInlineComment\">"+execService.getType()+"</span>");
+		menu.setHTML(0, column, "<strong>Type:</strong><br/><span class=\"inputFormInlineComment\">"+ SafeHtmlUtils.fromString(execService.getType()).asString()+"</span>");
 		column++;
 		menu.setHTML(0, column, "&nbsp;");
 		menu.getFlexCellFormatter().setWidth(0, column, "25px");
@@ -151,7 +152,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 		menu.getFlexCellFormatter().setWidth(0, column, "25px");
 		column++;
 
-		menu.setHTML(0, column, "<strong>Script path:</strong><br/><span class=\"inputFormInlineComment\">"+execService.getScriptPath()+"</span>");
+		menu.setHTML(0, column, "<strong>Script path:</strong><br/><span class=\"inputFormInlineComment\">"+SafeHtmlUtils.fromString(execService.getScriptPath()).asString()+"</span>");
 		column++;
 		menu.setHTML(0, column, "&nbsp;");
 		menu.getFlexCellFormatter().setWidth(0, column, "25px");

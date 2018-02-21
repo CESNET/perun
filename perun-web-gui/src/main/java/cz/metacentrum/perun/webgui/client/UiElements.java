@@ -12,6 +12,7 @@ import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
@@ -496,46 +497,46 @@ public class UiElements {
 				GeneralObject go = object.cast();
 				if (go.getObjectType().equalsIgnoreCase("RichMember")) {
 					RichMember rm = go.cast();
-					items = items.concat("<li>" + rm.getUser().getFullName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString((rm.getUser().getFullName() != null) ? rm.getUser().getFullName() : "").asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("User") || go.getObjectType().equalsIgnoreCase("RichUser")) {
 					User u = go.cast();
-					items = items.concat("<li>" + u.getFullName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString(( u.getFullName() != null) ? u.getFullName() : "").asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("RichDestination")) {
 					Destination d = go.cast();
-					items = items.concat("<li>" + d.getDestination() + " / " + d.getType() + " / " + d.getService().getName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString(d.getDestination() + " / " + d.getType() + " / " + d.getService().getName()).asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("Host")) {
 					Host h = go.cast();
-					items = items.concat("<li>" + h.getName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString((h.getName() != null) ? h.getName() : "").asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("Facility") || go.getObjectType().equalsIgnoreCase("RichFacility")) {
 					Facility f = go.cast();
-					items = items.concat("<li>" + f.getName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString((f.getName()!=null) ? f.getName() : "").asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("Attribute") || go.getObjectType().equalsIgnoreCase("AttributeDefinition")) {
 					Attribute a = go.cast();
-					items = items.concat("<li>" + a.getDisplayName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString((a.getDisplayName()!=null) ? a.getDisplayName() : "").asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("ExecService")) {
 					ExecService e = go.cast();
-					items = items.concat("<li>" + e.getService().getName() + " (" + e.getType() + ")</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString(e.getService().getName() + " (" + e.getType()).asString() + ")</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("UserExtSource")) {
 					UserExtSource ues = go.cast();
-					items = items.concat("<li>" + ues.getLogin() + " / " + ues.getExtSource().getName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString(ues.getLogin() + " / " + ues.getExtSource().getName()).asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("ApplicationMail")) {
 					//items = items.concat("<li>"+go.getName()+"</li>");
 					ApplicationMail mail = go.cast();
-					items = items.concat("<li>" + ApplicationMail.getTranslatedMailType(mail.getMailType()) + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString(ApplicationMail.getTranslatedMailType(mail.getMailType())).asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("PublicationForGUI") || go.getObjectType().equalsIgnoreCase("Publication")) {
 					Publication pub = go.cast();
-					items = items.concat("<li>" + pub.getTitle() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString((pub.getTitle()!=null) ? pub.getTitle() : "").asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("ThanksForGUI")) {
 					Thanks th = go.cast();
-					items = items.concat("<li>" + th.getOwnerName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString((th.getOwnerName()!= null) ? th.getOwnerName() : "").asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("Author")) {
 					Author aut = go.cast();
-					items = items.concat("<li>" + aut.getDisplayName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString((aut.getDisplayName()!=null) ? aut.getDisplayName() : "").asString() + "</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("ResourceTag")) {
 					ResourceTag tag = go.cast();
-					items = items.concat("<li>" + tag.getName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString((tag.getName()!=null) ? tag.getName() : "").asString() + "</li>");
 				} else {
-					items = items.concat("<li>" + go.getName() + "</li>");
+					items = items.concat("<li>" + SafeHtmlUtils.fromString((go.getName()!=null) ? go.getName() : "").asString() + "</li>");
 				}
 
 			}
@@ -789,6 +790,8 @@ public class UiElements {
 	 */
 	public void setLogSuccessText(String text) {
 
+		text = SafeHtmlUtils.fromString(text).asString();
+
 		// Add the text to status
 		setStatus(text);
 
@@ -810,6 +813,8 @@ public class UiElements {
 	 * @param text text to be inserted in gui's devel log
 	 */
 	public void setLogErrorText(String text) {
+
+		text = SafeHtmlUtils.fromString(text).asString();
 
 		// sets the log button icon
 		this.prepareToggleLogButton(SmallIcons.INSTANCE.exclamationIcon(), SmallIcons.INSTANCE.exclamationIcon());
@@ -1497,7 +1502,7 @@ public class UiElements {
 
 		if (pp.getUser() != null) {
 			// name
-			nameHyperlink = new Anchor(pp.getUser().getFullNameWithTitles());
+			nameHyperlink = new Anchor(SafeHtmlUtils.fromString(pp.getUser().getFullNameWithTitles()).asString());
 			nameHyperlink.setHTML("<strong>" + nameHyperlink.getHTML() + "</strong>");
 			nameHyperlink.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent arg0) {

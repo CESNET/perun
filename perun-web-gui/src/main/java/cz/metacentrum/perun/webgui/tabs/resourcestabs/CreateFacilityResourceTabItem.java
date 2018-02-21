@@ -4,6 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -134,7 +135,7 @@ public class CreateFacilityResourceTabItem implements TabItem {
 
 		// Add some standard form options
 		layout.setHTML(0, 0, "On facility:");
-		layout.setHTML(0, 1, facility.getName());
+		layout.setHTML(0, 1, SafeHtmlUtils.fromString((facility.getName() != null) ? facility.getName() : "").asString());
 		layout.setHTML(1, 0, "For VO:");
 		layout.setWidget(1, 1, vosDropDown);
 		layout.setHTML(2, 0, "Name:");

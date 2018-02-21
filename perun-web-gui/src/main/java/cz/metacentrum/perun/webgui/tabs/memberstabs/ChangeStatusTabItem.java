@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -74,7 +75,7 @@ public class ChangeStatusTabItem implements TabItem {
 
 		layout.setHTML(0, 0, "Current status:");
 		layout.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-		layout.setHTML(0, 1, member.getStatus());
+		layout.setHTML(0, 1, SafeHtmlUtils.fromString(member.getStatus()).asString());
 
 		if (member.getStatus().equalsIgnoreCase("VALID")) {
 			layout.setHTML(1, 0, "Member is properly configured and have access on provided resources.");

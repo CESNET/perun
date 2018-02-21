@@ -271,7 +271,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		layout.setCellSpacing(6);
 		// Add some standard form options
 		layout.setHTML(0, 0, "<strong>Full&nbsp;name:</strong>");
-		layout.setHTML(0, 1, user.getFullNameWithTitles());
+		layout.setHTML(0, 1, SafeHtmlUtils.fromString((user.getFullNameWithTitles() != null) ? user.getFullNameWithTitles() : "").asString());
 		layout.setWidget(0, 2, change);
 		layout.setHTML(0, 3, "<strong>User&nbsp;ID:</strong>");
 		layout.setHTML(0, 4, String.valueOf(user.getId()));
@@ -570,7 +570,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				entryPanel.setSize("100%", "100%");
 				subContent.setWidget(entryPanel);
 
-				voLabel.setHTML(SafeHtmlUtils.fromSafeConstant("<h2>" + listbox.getSelectedObject().getName() + "</h2>"));
+				voLabel.setHTML(SafeHtmlUtils.fromSafeConstant("<h2>" + SafeHtmlUtils.fromString((listbox.getSelectedObject().getName() != null) ? listbox.getSelectedObject().getName() : "").asString() + "</h2>"));
 				voLabel.setTargetHistoryToken(session.getTabManager().getLinkForTab(new VoDetailTabItem(listbox.getSelectedObject())));
 
 				// detail header
@@ -880,9 +880,9 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 					if (a.getBaseFriendlyName().equalsIgnoreCase("login-namespace")) {
 						if (a.getValueAsObject() != null) {
 							// name
-							innerTable.setHTML(rowCount, 0, "<strong>"+a.getDisplayName()+"</strong>");
+							innerTable.setHTML(rowCount, 0, "<strong>"+SafeHtmlUtils.fromString(a.getDisplayName()).asString()+"</strong>");
 							// value
-							innerTable.setHTML(rowCount, 1, a.getValue());
+							innerTable.setHTML(rowCount, 1, SafeHtmlUtils.fromString(a.getValue()).asString());
 							// change password
 							if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
 								CustomButton cb = new CustomButton("Change password…", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
@@ -993,7 +993,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		entryPanel.setSize("100%", "100%");
 		subContent.setWidget(entryPanel);
 
-		facilityLabel.setHTML(SafeHtmlUtils.fromSafeConstant("<h2>" + listbox.getSelectedObject().getName() + "</h2>"));
+		facilityLabel.setHTML(SafeHtmlUtils.fromSafeConstant("<h2>" + SafeHtmlUtils.fromString((listbox.getSelectedObject().getName() != null) ? listbox.getSelectedObject().getName() : "").asString() + "</h2>"));
 		facilityLabel.setTargetHistoryToken(session.getTabManager().getLinkForTab(new FacilityDetailTabItem(listbox.getSelectedObject())));
 
 		final GetAttributesV2 attributes = new GetAttributesV2();

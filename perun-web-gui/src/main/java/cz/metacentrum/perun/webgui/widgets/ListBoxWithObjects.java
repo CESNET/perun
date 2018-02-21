@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.widgets;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.ListBox;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 
@@ -145,7 +146,8 @@ public class ListBoxWithObjects<T> extends ListBox {
 	 */
 	public void addItem(T value){
 		this.objects.add(value);
-		this.addItem(this.getValueName(value));
+		String val = this.getValueName(value);
+		this.addItem(SafeHtmlUtils.fromString((val != null) ? val : "").asString());
 	}
 
 	/**
@@ -156,7 +158,7 @@ public class ListBoxWithObjects<T> extends ListBox {
 	 */
 	public void addItem(T value, String label){
 		this.objects.add(value);
-		this.addItem(label);
+		this.addItem(SafeHtmlUtils.fromString((label != null) ? label : "").asString());
 	}
 
 	/**
@@ -187,7 +189,8 @@ public class ListBoxWithObjects<T> extends ListBox {
 	 */
 	public void insertItem(T value, int index)
 	{
-		super.insertItem(this.getValueName(value), index);
+		String val = this.getValueName(value);
+		super.insertItem(SafeHtmlUtils.fromString((val != null) ? val : "").asString(), index);
 		this.objects.add(index, value);
 	}
 
@@ -210,7 +213,8 @@ public class ListBoxWithObjects<T> extends ListBox {
 	 */
 	public void setValue(int index, T value)
 	{
-		super.setValue(index,this.getValueName(value));
+		String val = this.getValueName(value);
+		super.setValue(index,SafeHtmlUtils.fromString((val != null) ? val : "").asString());
 		this.objects.set(index, value);
 
 	}

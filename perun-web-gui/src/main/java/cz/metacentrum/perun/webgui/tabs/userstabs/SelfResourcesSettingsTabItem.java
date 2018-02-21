@@ -8,6 +8,7 @@ import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -268,7 +269,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 			// if empty
 			if (resources.isEmpty() || resources == null) {
 				FlexTable ft = new FlexTable();
-				ft.setHTML(0, 0, "<p><strong>VO " + vo.getName() + " doesn't provide any resources to configure.</strong></p>");
+				ft.setHTML(0, 0, "<p><strong>VO " + SafeHtmlUtils.fromString((vo.getName() != null) ? vo.getName() : "").asString() + " doesn't provide any resources to configure.</strong></p>");
 				vp.add(ft);
 				return;
 			}
@@ -388,7 +389,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 								});
 								if (!a.getValue().equalsIgnoreCase("null")) {
 									// FIXME - we can't offer what default would be, since virt value is always same as def value
-									layoutx.setHTML(row, 1, a.getValue());
+									layoutx.setHTML(row, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString());
 									row++;
 									layoutx.setHTML(row, 1, "You are using specific shell for this resource overriding your global preferences.<br />To get back to default use change button.");
 									layoutx.getFlexCellFormatter().setStyleName(row, 1, "inputFormInlineComment");
@@ -399,7 +400,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 										if (a.getValue().equalsIgnoreCase("null") && ia.getValue().equalsIgnoreCase("null")) {
 											layoutx.setHTML(row, 1, "Using default (default: Not set)");
 										} else if (a.getValue().equalsIgnoreCase("null")) {
-											layoutx.setHTML(row, 1, "Using default (default: "+ia.getValue()+")");
+											layoutx.setHTML(row, 1, "Using default (default: "+SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+")");
 											row++;
 											layoutx.setHTML(row, 1, "You are using default shell taken from your global preferences.<br />Use change button to set specific shell for this resource.");
 											layoutx.getFlexCellFormatter().setStyleName(row, 1, "inputFormInlineComment");
@@ -428,7 +429,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 										if (a.getValue().equalsIgnoreCase("null")) {
 											layoutx.setHTML(rowDataLimit, 1, "Using default (default: error while loading)");
 										} else {
-											layoutx.setHTML(rowDataLimit, 1, String.valueOf(a.getValue())+" (default: error while loading)");
+											layoutx.setHTML(rowDataLimit, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: error while loading)");
 										}
 										quotaChangeButton.addClickHandler(new ClickHandler() {
 											public void onClick(ClickEvent event) {
@@ -443,10 +444,10 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 											if (resAttr.getFriendlyName().equalsIgnoreCase("defaultDataLimit")) {
 												if (a.getValue().equalsIgnoreCase("null")) {
 													// null private + default
-													layoutx.setHTML(rowDataLimit, 1, "Using default (default: "+resAttr.getValue()+")");
+													layoutx.setHTML(rowDataLimit, 1, "Using default (default: "+SafeHtmlUtils.fromString((resAttr.getValue() != null) ? resAttr.getValue() : "").asString()+")");
 												} else {
 													// private - default
-													layoutx.setHTML(rowDataLimit, 1, String.valueOf(a.getValue())+" (default: "+resAttr.getValue()+")");
+													layoutx.setHTML(rowDataLimit, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: "+SafeHtmlUtils.fromString((resAttr.getValue() != null) ? resAttr.getValue() : "").asString()+")");
 												}
 												empty = false;
 												quotaChangeButton.addClickHandler(new ClickHandler() {
@@ -461,7 +462,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 											if (a.getValue().equalsIgnoreCase("null")) {
 												layoutx.setHTML(rowDataLimit, 1, "Using default (default: Not set)");
 											} else {
-												layoutx.setHTML(rowDataLimit, 1, String.valueOf(a.getValue())+" (default: Not set)");
+												layoutx.setHTML(rowDataLimit, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: Not set)");
 											}
 											quotaChangeButton.addClickHandler(new ClickHandler() {
 												public void onClick(ClickEvent event) {
@@ -494,7 +495,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 										if (a.getValue().equalsIgnoreCase("null")) {
 											layoutx.setHTML(rowFilesQuota, 1, "Using default (default: error while loading)");
 										} else {
-											layoutx.setHTML(rowFilesQuota, 1, String.valueOf(a.getValue())+" (default: error while loading)");
+											layoutx.setHTML(rowFilesQuota, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: error while loading)");
 										}
 										quotaChangeButton.addClickHandler(new ClickHandler() {
 											public void onClick(ClickEvent event) {
@@ -509,10 +510,10 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 											if (resAttr.getFriendlyName().equalsIgnoreCase("defaultFilesLimit")) {
 												if (a.getValue().equalsIgnoreCase("null")) {
 													// null private + default
-													layoutx.setHTML(rowFilesQuota, 1, "Using default (default: "+resAttr.getValue()+")");
+													layoutx.setHTML(rowFilesQuota, 1, "Using default (default: "+SafeHtmlUtils.fromString((resAttr.getValue() != null) ? resAttr.getValue() : "").asString()+")");
 												} else {
 													// private + default
-													layoutx.setHTML(rowFilesQuota, 1, String.valueOf(a.getValue())+" (default: "+resAttr.getValue()+")");
+													layoutx.setHTML(rowFilesQuota, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: "+SafeHtmlUtils.fromString((resAttr.getValue() != null) ? resAttr.getValue() : "").asString()+")");
 												}
 												empty = false;
 												quotaChangeButton.addClickHandler(new ClickHandler() {
@@ -527,7 +528,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 											if (a.getValue().equalsIgnoreCase("null")) {
 												layoutx.setHTML(rowFilesQuota, 1, "Using default (default: Not set)");
 											} else {
-												layoutx.setHTML(rowFilesQuota, 1, String.valueOf(a.getValue())+" (default: Not set)");
+												layoutx.setHTML(rowFilesQuota, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString()+" (default: Not set)");
 											}
 											quotaChangeButton.addClickHandler(new ClickHandler() {
 												public void onClick(ClickEvent event) {

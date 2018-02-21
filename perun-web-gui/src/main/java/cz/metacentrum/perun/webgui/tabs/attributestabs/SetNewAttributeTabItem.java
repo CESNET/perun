@@ -4,6 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.client.ui.*;
@@ -113,7 +114,7 @@ public class SetNewAttributeTabItem implements TabItem {
 			entityIds = entityIds.concat(" "+item.getKey() + ": "+item.getValue());
 		}
 		HTML helper = new HTML();
-		String helperInside = "<p>Enter new values and press Enter key. Save changes by clicking on \"Save changes\" button. Values will be set for<strong>"+entityIds+".</strong></p>";
+		String helperInside = "<p>Enter new values and press Enter key. Save changes by clicking on \"Save changes\" button. Values will be set for<strong>"+ SafeHtmlUtils.fromString(entityIds).asString()+".</strong></p>";
 		helper.setHTML(helperInside);
 
 		// callback

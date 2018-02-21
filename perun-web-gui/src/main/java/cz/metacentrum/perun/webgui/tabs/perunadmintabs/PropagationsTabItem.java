@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
@@ -168,7 +169,7 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 
 					for (final FacilityState state : clusters) {
 
-						content.setHTML(mainrow, 0, "<strong>" + state.getFacility().getName() + "</strong>");
+						content.setHTML(mainrow, 0, "<strong>" + SafeHtmlUtils.fromString((state.getFacility().getName() != null) ? state.getFacility().getName() : "").asString() + "</strong>");
 
 						final FlowPanel inner = new FlowPanel();
 						content.setWidget(mainrow+1, 0, inner);
@@ -188,7 +189,7 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 
 						for (final String dest : destList) {
 
-							String show = dest.substring(0, dest.indexOf("."));
+							String show = SafeHtmlUtils.fromString(dest.substring(0, dest.indexOf("."))).asString();
 							Anchor hyp = new Anchor();
 							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+show+"</span>");
 							hyp.addClickHandler(new ClickHandler() {
@@ -248,7 +249,7 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 						for (final String dest : destList) {
 
 							Anchor hyp = new Anchor();
-							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+dest+"</span>");
+							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+SafeHtmlUtils.fromString((dest != null) ? dest : "").asString()+"</span>");
 							inner.add(hyp);
 							hyp.addClickHandler(new ClickHandler() {
 								public void onClick(ClickEvent clickEvent) {
@@ -271,7 +272,7 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 
 						if (destList.isEmpty()) {
 							Anchor hyp = new Anchor();
-							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+state.getFacility().getName()+"</span>");
+							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+SafeHtmlUtils.fromString((state.getFacility().getName() != null) ? state.getFacility().getName() : "").asString()+"</span>");
 							inner.add(hyp);
 							hyp.addStyleName("notdetermined");
 							notDeterminedCounter++;

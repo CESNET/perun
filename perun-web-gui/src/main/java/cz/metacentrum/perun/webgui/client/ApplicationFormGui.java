@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
@@ -661,7 +662,7 @@ public class ApplicationFormGui implements EntryPoint {
 			panel.clear();
 			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
-			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>Error: "+ApplicationMessages.INSTANCE.groupMembershipCantBeExtended(group.getName())+"</h2>");
+			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>Error: "+ApplicationMessages.INSTANCE.groupMembershipCantBeExtended(SafeHtmlUtils.fromString(group.getName()).asString())+"</h2>");
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 			panel.add(ft);
@@ -738,7 +739,7 @@ public class ApplicationFormGui implements EntryPoint {
 		ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 		ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_BOTTOM);
 
-		ft.setHTML(1, 0, "<p>"+errorInfo);
+		ft.setHTML(1, 0, "<p>"+ SafeHtmlUtils.fromString(errorInfo).asString());
 		ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
 		ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
 
