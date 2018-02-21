@@ -164,6 +164,23 @@ public class Attribute extends JavaScriptObject {
 		this.writable = write;
 	}-*/;
 
+	/**
+	 * Get TRUE if attribute values supposed to be unique for all attribute entities, FALSE otherwise
+	 *
+	 * @return TRUE fo unique attributes / FALSE otherwise
+	 */
+	public final native boolean isUnique() /*-{
+		return this.unique;
+	}-*/;
+
+	/**
+	 * Set TRUE if attribute values supposed to be unique for all attribute entities, FALSE otherwise
+	 *
+	 * @param unique TRUE fo unique attributes / FALSE otherwise
+	 */
+	public final native void setUnique(boolean unique) /*-{
+		this.unique = unique;
+	}-*/;
 
 	/**
 	 * Gets value of attribute

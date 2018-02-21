@@ -163,6 +163,7 @@ public class SetAttributes {
 			newAttr.put("namespace", namespace);
 			newAttr.put("friendlyName", friendlyName);
 			newAttr.put("displayName", displayName);
+			newAttr.put("unique", attr.get("unique"));
 
 			// put attribute into array
 			array.set(array.size(), newAttr);

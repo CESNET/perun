@@ -346,6 +346,15 @@ public class JsonErrorHandler {
 				return "Attribute definition for attribute <i>null</i> doesn't exist.";
 			}
 
+		} else if ("AttributeAlreadyMarkedUniqueException".equalsIgnoreCase(errorName)) {
+
+			Attribute a = error.getAttribute();
+			if (a != null) {
+				return "Attribute definition of <i>" + SafeHtmlUtils.fromString(a.getName()).asString() + "</i> is already marked as UNIQUE.";
+			} else {
+				return "Attribute definition of <i>null</i> is already marked as UNIQUE.";
+			}
+
 			// ALL CABINET EXCEPTIONS
 		} else if ("CabinetException".equalsIgnoreCase(errorName)) {
 

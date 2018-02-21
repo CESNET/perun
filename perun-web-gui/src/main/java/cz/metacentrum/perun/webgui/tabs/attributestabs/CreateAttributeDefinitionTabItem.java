@@ -51,6 +51,8 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 
 	private ArrayList<AttributeRights> rights = new ArrayList<AttributeRights>();
 
+	private final CheckBox unique = new CheckBox();
+
 	private final CheckBox selfRead = new CheckBox();
 	private final CheckBox selfWrite = new CheckBox();
 	private final CheckBox voRead = new CheckBox();
@@ -180,6 +182,7 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 					String description = attributeDescription.getTextBox().getText().trim();
 					String namespace = entityListBox.getValue(entityListBox.getSelectedIndex())+definitionListBox.getValue(definitionListBox.getSelectedIndex());
 					String type = typeListBox.getValue(typeListBox.getSelectedIndex());
+					boolean isUnique = unique.getValue();
 
 					CreateAttribute request = new CreateAttribute(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents(){
 						@Override
@@ -221,7 +224,7 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 
 						}
 					}));
-					request.createAttributeDefinition(displayName, friendlyName, description, namespace, type);
+					request.createAttributeDefinition(displayName, friendlyName, description, namespace, type, isUnique);
 
 				}
 			}
@@ -241,6 +244,8 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 		layout.setWidget(4, 1, definitionListBox);
 		layout.setHTML(5, 0, "Value type:");
 		layout.setWidget(5, 1, typeListBox);
+		layout.setHTML(6, 0, "Unique:");
+		layout.setWidget(6, 1, unique);
 
 		for (int i=0; i<layout.getRowCount(); i++) {
 			cellFormatter.addStyleName(i, 0, "itemName");

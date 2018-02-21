@@ -4,8 +4,11 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -13,6 +16,7 @@ import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.attributesManager.ConvertAttributeToUnique;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributeRights;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributeRights;
 import cz.metacentrum.perun.webgui.json.attributesManager.UpdateAttribute;
@@ -62,6 +66,8 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 	private final CheckBox groupWrite = new CheckBox();
 	private final CheckBox facilityRead = new CheckBox();
 	private final CheckBox facilityWrite = new CheckBox();
+
+	private final CheckBox unique = new CheckBox();
 
 	/**
 	 * Creates a tab instance
@@ -115,6 +121,47 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 
 		description.setValidator(validator);
 		displayName.setValidator(validatorName);
+
+
+		//unique.setEnabled(false);
+		unique.setValue(def.isUnique());
+
+		unique.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> valueChangeEvent) {
+
+				if (valueChangeEvent.getValue()) {
+					UiElements.generateAlert("Change confirmation", "Changing attribute to UNIQUE might take a lot of time if there is large number of entities with set values. Perun will check uniqueness during the process. If values are not unique, conversion will be stopped.", new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent clickEvent) {
+							ConvertAttributeToUnique convert = new ConvertAttributeToUnique(new JsonCallbackEvents() {
+								@Override
+								public void onFinished(JavaScriptObject jso) {
+									unique.setValue(true);
+									unique.setEnabled(false);
+								}
+
+								@Override
+								public void onError(PerunError error) {
+									unique.setValue(false);
+									unique.setEnabled(true);
+								}
+
+								@Override
+								public void onLoadingStart() {
+									unique.setEnabled(false);
+								}
+							});
+							convert.convertAttributeDefinitionToUnique(def.getId());
+						}
+					});
+				} else {
+					UiElements.generateInfo("Change not allowed", "Once converted to UNIQUE, attributes can't be converted back to non-unique.");
+					unique.setValue(true);
+				}
+
+			}
+		});
 
 		FlexTable attributeDetailTable = new FlexTable();
 		attributeDetailTable.setStyleName("inputFormFlexTable");
@@ -196,6 +243,8 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		attributeDetailTable.setWidget(0, 1, displayName);
 		attributeDetailTable.setHTML(1, 0, "Description:");
 		attributeDetailTable.setWidget(1, 1, description);
+		attributeDetailTable.setHTML(2, 0, "Unique:");
+		attributeDetailTable.setWidget(2, 1, unique);
 		for (int i=0; i<attributeDetailTable.getRowCount(); i++) {
 			attributeDetailTable.getFlexCellFormatter().setStyleName(i, 0, "itemName");
 		}

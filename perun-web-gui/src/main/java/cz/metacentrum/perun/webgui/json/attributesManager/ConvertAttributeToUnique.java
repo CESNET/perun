@@ -11,18 +11,18 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 /**
- * Ajax query which deletes attribute definition
+ * Ajax query which converts attribute definition to unique
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
-public class DeleteAttribute {
+public class ConvertAttributeToUnique {
 
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 
 	// URL to call
-	final String JSON_URL = "attributesManager/deleteAttribute";
+	final String JSON_URL = "attributesManager/convertAttributeToUnique";
 
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
@@ -32,22 +32,22 @@ public class DeleteAttribute {
 	/**
 	 * Creates a new request
 	 */
-	public DeleteAttribute() {}
+	public ConvertAttributeToUnique() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 * @param events external events
 	 */
-	public DeleteAttribute(final JsonCallbackEvents events) {
+	public ConvertAttributeToUnique(final JsonCallbackEvents events) {
 		this.events = events;
 	}
 
 	/**
-	 * Deletes attribute definition from DB - make RPC call
+	 * Converts attribute definition to unique - make RPC call
 	 *
-	 * @param attrDefId - ID of attribute definition which should be deleted
+	 * @param attrDefId - ID of attribute definition which should be converted
 	 */
-	public void deleteAttributeDefinition(final int attrDefId) {
+	public void convertAttributeDefinitionToUnique(final int attrDefId) {
 
 		this.attrDefId = attrDefId;
 
@@ -59,12 +59,12 @@ public class DeleteAttribute {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Deleting attribute definition: " + attrDefId + " failed.");
+				session.getUiElements().setLogErrorText("Converting attribute definition: " + attrDefId + " failed.");
 				events.onError(error);
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Attribute definition: "+ attrDefId +" successfully deleted.");
+				session.getUiElements().setLogSuccessText("Attribute definition: "+ attrDefId +" successfully converted to UNIQUE.");
 				events.onFinished(jso);
 			};
 
@@ -112,7 +112,7 @@ public class DeleteAttribute {
 	private JSONObject prepareJSONObject() {
 
 		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("attribute", new JSONNumber(attrDefId));
+		jsonQuery.put("attrDefId", new JSONNumber(attrDefId));
 		return jsonQuery;
 
 	}
