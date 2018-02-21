@@ -20,7 +20,6 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -961,7 +960,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 	}
 
 
-	private Group setUpGroup(User u0, User u1) throws PrivilegeException, InternalErrorException, UserNotExistsException, AlreadyAdminException, SecurityTeamNotExistsException, VoExistsException, GroupExistsException, VoNotExistsException, GroupNotExistsException, AlreadyMemberException, MemberNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, ExtendMembershipException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException, GroupOperationsException {
+	private Group setUpGroup(User u0, User u1) throws PrivilegeException, InternalErrorException, UserNotExistsException, AlreadyAdminException, SecurityTeamNotExistsException, VoExistsException, GroupExistsException, VoNotExistsException, GroupNotExistsException, AlreadyMemberException, MemberNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, ExtendMembershipException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
 		Vo vo = new Vo();
 		vo.setShortName("testVo");
 		vo.setName("Test VO");

@@ -78,26 +78,39 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return group;
 	}
 
-	public Group createGroup(PerunSession sess, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException, GroupOperationsException, GroupRelationNotAllowed, GroupRelationAlreadyExists {
+	public Group createGroup(PerunSession sess, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException, GroupRelationNotAllowed, GroupRelationAlreadyExists {
 		Vo vo = this.getVo(sess, parentGroup);
 
 		group = getGroupsManagerImpl().createGroup(sess, vo, parentGroup, group);
-		parentGroup = createGroupUnion(sess, parentGroup, group, true);
+		try {
+			parentGroup = createGroupUnion(sess, parentGroup, group, true);
+
+			//We catch those exceptions, but they should never be thrown, so we just log them.
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+			log.info("Exception thrown in createGroup method, while it shouldn't be thrown. Cause:{}",e);
+		} catch (GroupNotExistsException e) {
+			throw new ConsistencyErrorException("Database consistency error while creating group: {}",e);
+		}
 
 		getPerunBl().getAuditer().log(sess, "{} created in {} as subgroup of {}", group, vo, parentGroup);
 
 		return group;
 	}
 
-	public void deleteGroup(PerunSession sess, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
+	public void deleteGroup(PerunSession sess, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
 			throw new java.lang.IllegalArgumentException("Built-in " + group.getName() + " group cannot be deleted separately.");
 		}
-
-		this.deleteAnyGroup(sess, group, forceDelete);
+		try {
+			this.deleteAnyGroup(sess, group, forceDelete);
+		} catch (NotGroupMemberException ex) {
+			throw new ConsistencyErrorException("Database consistency error while deleting group: {}",ex);
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
-	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
+	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		//Use sorting by group names reverse order (first name A:B:c then A:B etc.)
 		Collections.sort(groups, Collections.reverseOrder(
 				new Comparator<Group>() {
@@ -112,7 +125,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
-	public void deleteMembersGroup(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
+	public void deleteMembersGroup(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, NotGroupMemberException {
 		Group group;
 		try {
 			group = getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
@@ -123,6 +136,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			this.deleteAnyGroup(sess, group, true);
 		} catch (RelationExistsException e) {
 			throw new ConsistencyErrorException("Built-in members group cannot have any relation in this stage.",e);
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
@@ -137,7 +152,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws RelationExistsException Raise only if forceDelete is false and the group has any subgroup or member.
 	 * @throws GroupAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	private void deleteAnyGroup(PerunSession sess, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
+	private void deleteAnyGroup(PerunSession sess, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, WrongReferenceAttributeValueException, NotGroupMemberException, WrongAttributeValueException {
 		Vo vo = this.getVo(sess, group);
 
 		if (getGroupsManagerImpl().getSubGroupsCount(sess, group) > 0) {
@@ -218,7 +233,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 
 				// 2. remove all relations with group as a result group
-				// We can remove relations without recalculation (@see processRelationMembers)
+				// We can remove relations without recalculation (@see removeRelationMembers)
 				// because all dependencies of group were deleted in step 1.
 				groupsManagerImpl.removeResultGroupRelations(sess, subGroup);
 
@@ -309,7 +324,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		// 2. remove all relations with group as a result group
-		// We can remove relations without recalculation (@see processRelationMembers)
+		// We can remove relations without recalculation (@see removeRelationMembers)
 		// because all dependencies of group were deleted in step 1.
 		groupsManagerImpl.removeResultGroupRelations(sess, group);
 
@@ -363,7 +378,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
-	public void deleteAllGroups(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
+	public void deleteAllGroups(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		for(Group group: getGroupsManagerImpl().getGroups(sess, vo)) {
 
 			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
@@ -499,11 +514,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			try {
 				//Removing indirect members from old position just if moving group is not top level group
 				if (movingGroup.getParentGroupId() != null) {
-					processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, movingGroup.getParentGroupId()), members, movingGroup.getId(), false);
+					removeRelationMembers(sess, groupsManagerImpl.getGroupById(sess,movingGroup.getParentGroupId()), members, movingGroup.getId());
 				}
 				//Adding indirect members to new position
-				processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, destinationGroup.getId()), members, movingGroup.getId(), true);
-			} catch (GroupOperationsException e) {
+				addRelationMembers(sess, groupsManagerImpl.getGroupById(sess, destinationGroup.getId()), members, movingGroup.getId());
+
+			} catch (WrongReferenceAttributeValueException | NotGroupMemberException | AlreadyMemberException | WrongAttributeValueException e ) {
 				throw new InternalErrorException("Some operation was not allowed during processing members relations", e);
 			} catch (GroupNotExistsException e) {
 				throw new InternalErrorException("Some group does not exists...", e);
@@ -564,9 +580,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			try {
 				//Removing indirect members from old position
-				processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, movingGroup.getParentGroupId()), members, movingGroup.getId(), false);
-			} catch (GroupOperationsException e) {
-				throw new InternalErrorException("Some operation was not allowed during processing members relations", e);
+				removeRelationMembers(sess, groupsManagerImpl.getGroupById(sess, movingGroup.getParentGroupId()), members, movingGroup.getId());
+			} catch (WrongReferenceAttributeValueException | NotGroupMemberException | WrongAttributeValueException e) {
+				throw new InternalErrorException("Some operation was not allowed during removing members relations", e);
 			} catch (GroupNotExistsException e) {
 				throw new InternalErrorException("Some group does not exists...", e);
 			}
@@ -621,7 +637,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return getGroupsManagerImpl().getGroupByName(sess, vo, name);
 	}
 
-	public void addMemberToMembersGroup(PerunSession sess, Group group,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException, GroupOperationsException {
+	public void addMemberToMembersGroup(PerunSession sess, Group group,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException {
 		// Check if the group IS memebers or administrators group
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
 			this.addDirectMember(sess, group, member);
@@ -630,7 +646,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
-	public void addMember(PerunSession sess, Group group, Member member) throws InternalErrorException, WrongReferenceAttributeValueException, GroupOperationsException, AlreadyMemberException, WrongAttributeValueException, GroupNotExistsException {
+	public void addMember(PerunSession sess, Group group, Member member) throws InternalErrorException, WrongReferenceAttributeValueException, AlreadyMemberException, WrongAttributeValueException, GroupNotExistsException {
 		// Check if the group is NOT members or administrators group
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
 			throw new InternalErrorException("Cannot add member directly to the members group.");
@@ -662,9 +678,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupNotExistsException
-	 * @throws GroupOperationsException
 	 */
-	protected void addDirectMember(PerunSession sess, Group group, Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException, GroupOperationsException {
+	protected void addDirectMember(PerunSession sess, Group group, Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException {
 
 		if(this.groupsManagerImpl.isDirectGroupMember(sess, group, member)) throw new AlreadyMemberException(member);
 
@@ -675,12 +690,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		//If member was indirect in group before, we don't need to change anything in other groups
 		if(memberWasIndirectInGroup) return;
-		// check all relations with this group and call processRelationMembers to reflect changes of adding member to group
+		// check all relations with this group and call addRelationMembers to reflect changes of adding member to group
 		List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, group.getId());
 		for (Integer groupId : relations) {
-			processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), Collections.singletonList(member), group.getId(), true);
+			addRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), Collections.singletonList(member), group.getId());
 		}
-
 		setRequiredAttributes(sess, member, group);
 	}
 
@@ -750,7 +764,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param sourceGroupId id of a group from which members originate
 	 * @return list of members that were removed (their only record in the group was deleted)
 	 */
-	private List<Member> removeIndirectMembers(PerunSession sess, Group group, List<Member> members, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
+	private List<Member> removeIndirectMembers(PerunSession sess, Group group, List<Member> members, int sourceGroupId) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
 		List<Member> membersToRemove = new ArrayList<>(members);
 		for (Member member: membersToRemove) {
 			member.setSourceGroupId(sourceGroupId);
@@ -770,16 +784,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return membersToRemove;
 	}
 
-	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, GroupOperationsException {
+	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException {
 		// Check if the group is NOT members or administrators group
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
 			throw new InternalErrorException("Cannot remove member directly from the members group.");
 		} else {
-			this.removeDirectMember(sess, group, member);
+			try {
+				this.removeDirectMember(sess, group, member);
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex){
+				throw new InternalErrorException(ex);
+			}
 		}
 	}
 
-	public void removeMemberFromMembersOrAdministratorsGroup(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, GroupOperationsException {
+	public void removeMemberFromMembersOrAdministratorsGroup(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		// Check if the group IS memebers or administrators group
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
 			this.removeDirectMember(sess, group, member);
@@ -788,7 +806,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
-	private void removeDirectMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, GroupOperationsException {
+	private void removeDirectMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		member.setSourceGroupId(group.getId());
 		getGroupsManagerImpl().removeMember(sess, group, member);
 		if (this.getGroupsManagerImpl().isGroupMember(sess, group, member)) {
@@ -800,10 +818,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", member, group);
 		}
 
-		// check all relations with this group and call processRelationMembers to reflect changes of removing member from group
+		// check all relations with this group and call removeRelationMembers to reflect changes of removing member from group
 		List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, group.getId());
 		for (Integer groupId : relations) {
-			processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), Collections.singletonList(member), group.getId(), false);
+			removeRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), Collections.singletonList(member), group.getId());
 		}
 
 	}
@@ -1228,7 +1246,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * This method run in separate transaction.
 	 */
-	public List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupOperationsException, GroupNotExistsException {
+	public List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException {
 		//needed variables for whole method
 		List<String> skippedMembers = new ArrayList<>();
 		ExtSource source = null;
@@ -1460,8 +1478,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
 			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | InternalErrorException |
-					WrongAttributeAssignmentException | MemberAlreadyRemovedException | GroupNotExistsException |
-					GroupOperationsException | AttributeNotExistsException | ExtSourceNotExistsException e) {
+					WrongAttributeAssignmentException  | GroupNotExistsException |
+					AttributeNotExistsException  | ExtSourceNotExistsException e) {
 				failedDueToException = true;
 				exceptionMessage = "Cannot synchronize group ";
 				log.error(exceptionMessage + group, e);
@@ -2499,7 +2517,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private void addMissingMembersWhileSynchronization(PerunSession sess, Group group, List<Candidate> candidatesToAdd, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<String> skippedMembers) throws InternalErrorException, GroupOperationsException {
+	private void addMissingMembersWhileSynchronization(PerunSession sess, Group group, List<Candidate> candidatesToAdd, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<String> skippedMembers) throws InternalErrorException {
 		// Now add missing members
 		for (Candidate candidate: candidatesToAdd) {
 			Member member = null;
@@ -2599,9 +2617,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 * @throws WrongAttributeAssignmentException if there is some problem with assignment of attribute
-	 * @throws MemberAlreadyRemovedException if member is already out of group when we trying to do this by synchronization
 	 */
-	private void removeFormerMembersWhileSynchronization(PerunSession sess, Group group, List<RichMember> membersToRemove) throws InternalErrorException, WrongAttributeAssignmentException, MemberAlreadyRemovedException, GroupOperationsException, GroupNotExistsException {
+	private void removeFormerMembersWhileSynchronization(PerunSession sess, Group group, List<RichMember> membersToRemove) throws InternalErrorException, WrongAttributeAssignmentException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//First get information if this group is authoritative group
 		boolean thisGroupIsAuthoritativeGroup = false;
 		try {
@@ -2712,33 +2729,39 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public void processRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId, boolean addition) throws GroupOperationsException {
-
+	public void addRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException {
 		List<Member> newMembers;
 
-		try {
-			if (addition) {
-				newMembers = addIndirectMembers(sess, resultGroup, changedMembers, sourceGroupId);
-			} else {
-				newMembers = removeIndirectMembers(sess, resultGroup, changedMembers, sourceGroupId);
-			}
+		newMembers = addIndirectMembers(sess, resultGroup, changedMembers, sourceGroupId);
 
-			if (newMembers.isEmpty()) {
-				return;
-			}
+		if(newMembers.isEmpty()) {
+			return;
+		}
 
-			List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, resultGroup.getId());
-			for (Integer groupId : relations) {
-				processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), newMembers, resultGroup.getId(), addition);
-			}
-		} catch (WrongReferenceAttributeValueException | WrongAttributeValueException | AlreadyMemberException |
-				InternalErrorException | NotGroupMemberException | GroupNotExistsException ex) {
-			throw new GroupOperationsException(ex);
+		List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, resultGroup.getId());
+		for (Integer groupId : relations) {
+			addRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), newMembers, resultGroup.getId());
 		}
 	}
 
 	@Override
-	public Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupOperationsException, InternalErrorException, GroupRelationAlreadyExists, GroupRelationNotAllowed {
+	public void removeRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId) throws WrongReferenceAttributeValueException, NotGroupMemberException, WrongAttributeValueException, InternalErrorException, GroupNotExistsException {
+		List<Member> members;
+
+		members = removeIndirectMembers(sess, resultGroup, changedMembers, sourceGroupId);
+
+		if(members.isEmpty()){
+			return;
+		}
+
+		List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, resultGroup.getId());
+		for (Integer groupId : relations) {
+			removeRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), members, resultGroup.getId());
+		}
+	}
+
+	@Override
+	public Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException, InternalErrorException, GroupRelationAlreadyExists, GroupRelationNotAllowed {
 
 		// block inclusion to members group, since it doesn't make sense
 		// allow inclusion of members group, since we want to delegate privileges on assigning all vo members to some service for group manager.
@@ -2771,19 +2794,28 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		groupsManagerImpl.saveGroupRelation(sess, resultGroup, operandGroup, parentFlag);
 
 		// do the operation logic
-		processRelationMembers(sess, resultGroup, getGroupMembers(sess, operandGroup), operandGroup.getId(), true);
-
+		try {
+			addRelationMembers(sess, resultGroup, getGroupMembers(sess, operandGroup), operandGroup.getId());
+		} catch(AlreadyMemberException ex) {
+			throw new ConsistencyErrorException("AlreadyMemberException caused by DB inconsistency.",ex);
+		}
 		return resultGroup;
 	}
 
 	@Override
-	public void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupOperationsException, InternalErrorException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
+	public void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws InternalErrorException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, GroupNotExistsException {
 		if (!groupsManagerImpl.isOneWayRelationBetweenGroups(resultGroup, operandGroup)) {
 			throw new GroupRelationDoesNotExist("Union does not exist between result group " + resultGroup + " and operand group" + operandGroup + ".");
 		}
 
 		if (parentFlag || groupsManagerImpl.isRelationRemovable(sess, resultGroup, operandGroup)) {
-			processRelationMembers(sess, resultGroup, getGroupMembers(sess, operandGroup), operandGroup.getId(), false);
+			try {
+				removeRelationMembers(sess, resultGroup, getGroupMembers(sess, operandGroup), operandGroup.getId());
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+				throw new InternalErrorException("Removing relation members failed. Cause: {}", ex);
+			} catch (NotGroupMemberException ex) {
+				throw new ConsistencyErrorException("Database inconsistency. Cause: {}", ex);
+			}
 		} else {
 			throw new GroupRelationCannotBeRemoved("Union between result group " + resultGroup + " and operand group" + operandGroup +
 					" cannot be removed, because it's part of the hierarchical structure of the groups.");

@@ -311,11 +311,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return user;
 	}
 
-	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException  {
+	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		this.deleteUser(sess, user, false);
 	}
 
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		if (members != null && (members.size() > 0)) {

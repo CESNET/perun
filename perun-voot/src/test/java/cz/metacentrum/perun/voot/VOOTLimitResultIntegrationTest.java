@@ -59,7 +59,7 @@ public class VOOTLimitResultIntegrationTest extends AbstractVOOTTest {
 	}
 
 	@Override
-	public void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException, GroupOperationsException, GroupNotExistsException, GroupRelationNotAllowed, GroupRelationAlreadyExists {
+	public void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException, GroupNotExistsException, GroupRelationNotAllowed, GroupRelationAlreadyExists {
 		vo1 = perun.getVosManagerBl().createVo(session, new Vo(0, "vo1", "vo1"));
 
 		group1 = perun.getGroupsManagerBl().createGroup(session, vo1, new Group("group1", "group1 in vo1"));

@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
@@ -89,11 +88,10 @@ public interface GroupsManagerBl {
 	 * @return newly created sub group with full group.Name with ":"
 	 * @throws GroupExistsException
 	 * @throws InternalErrorException
-	 * @throws GroupOperationsException
 	 * @throws GroupRelationNotAllowed
 	 * @throws GroupRelationAlreadyExists
 	 */
-	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException, GroupOperationsException, GroupRelationNotAllowed, GroupRelationAlreadyExists;
+	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException, GroupRelationNotAllowed, GroupRelationAlreadyExists;
 
 	/**
 	 * Gets all groups which have enabled synchronization.
@@ -117,12 +115,11 @@ public interface GroupsManagerBl {
 	 * @throws RelationExistsException
 	 * @throws GroupAlreadyRemovedException
 	 * @throws GroupAlreadyRemovedFromResourceException
-	 * @throws GroupOperationsException
 	 * @throws GroupNotExistsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Delete all groups in list from perun. (Except members group)
@@ -144,12 +141,11 @@ public interface GroupsManagerBl {
 	 * @throws GroupAlreadyRemovedException
 	 * @throws RelationExistsException
 	 * @throws GroupAlreadyRemovedFromResourceException
-	 * @throws GroupOperationsException
 	 * @throws GroupNotExistsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Deletes built-in members group.
@@ -159,12 +155,12 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupAlreadyRemovedException
 	 * @throws GroupAlreadyRemovedFromResourceException
-	 * @throws GroupOperationsException
 	 * @throws GroupNotExistsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
+	 * @throws NotGroupMemberException
 	 */
-	void deleteMembersGroup(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteMembersGroup(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, NotGroupMemberException;
 
 	/**
 	 * Deletes all groups under the VO except built-in groups (members, admins groups).
@@ -175,12 +171,11 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupAlreadyRemovedException
 	 * @throws GroupAlreadyRemovedFromResourceException
-	 * @throws GroupOperationsException
 	 * @throws GroupNotExistsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteAllGroups(PerunSession perunSession, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteAllGroups(PerunSession perunSession, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Updates group by ID.
@@ -251,9 +246,8 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupNotExistsException
-	 * @throws GroupOperationsException
 	 */
-	void addMember(PerunSession perunSession, Group group,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException, GroupOperationsException;
+	void addMember(PerunSession perunSession, Group group,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Special addMember which is able to add members into the members and administrators group.
@@ -266,9 +260,8 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupNotExistsException
-	 * @throws GroupOperationsException
 	 */
-	void addMemberToMembersGroup(PerunSession perunSession, Group group,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException, GroupOperationsException;
+	void addMemberToMembersGroup(PerunSession perunSession, Group group,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Return list of assigned groups on the resource (without subgroups unless they are assigned too)
@@ -329,9 +322,8 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws NotGroupMemberException
 	 * @throws GroupNotExistsException
-	 * @throws GroupOperationsException
 	 */
-	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, GroupOperationsException;
+	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException;
 
 	/**
 	 * Removes member from members or administrators group only.
@@ -342,9 +334,10 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws NotGroupMemberException
 	 * @throws GroupNotExistsException
-	 * @throws GroupOperationsException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
 	 */
-	void removeMemberFromMembersOrAdministratorsGroup(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, GroupOperationsException;
+	void removeMemberFromMembersOrAdministratorsGroup(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Return all group members.
@@ -847,16 +840,14 @@ public interface GroupsManagerBl {
 	 * @param group
 	 * @return List of strings with skipped users with reasons why were skipped
 	 * @throws InternalErrorException
-	 * @throws MemberAlreadyRemovedException
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws ExtSourceNotExistsException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws GroupOperationsException
 	 * @throws GroupNotExistsException
 	 */
-	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupOperationsException, GroupNotExistsException;
+	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Synchronize the group with external group. It checks if the synchronization of the same group is already in progress.
@@ -1179,26 +1170,46 @@ public interface GroupsManagerBl {
 	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
 
 	/**
-  	 * Method recalculates all relations between groups. Based on <code>addition</code> parameter
-	 * it recursively adds or removes members from groups and all their relations. The method is called in case of:
-	 * 1) added or removed relation
-	 * 2) added or removed member
+	 * Method recalculates all relations between groups. Method recursively adds members from
+	 * groups and all their relations. The method is called in case of:
+	 * 1) added relation
+	 * 2) added member
 	 * 3) group creation
-	 * 4) group removal
-	 * 5) group movement
+	 * 4) group movement
 	 *
 	 * @param sess perun session
 	 * @param resultGroup group to which members are added or removed from
-	 * @param changedMembers list of changed members which is passed as argument to add/remove indirect members method.
-	 *                          Based on these two types of operations the list contains:
-	 *                       	1) adding indirect (<code>addition</code> true) - records of added indirect members from operand group.
-	 *                       	2) removing indirect (<code>addition</code> false) - records of removed indirect members from operand group.
-	 *
+	 * @param changedMembers list of changed members which is passed as argument to add indirect members method.
+	 *                       List contains records of added indirect members from operand group.
 	 * @param sourceGroupId id of a group from which members originate
-	 * @param addition if true member records are added; if false member records are removed
-	 * @throws GroupOperationsException when any error occurs which prevent operation to finish.
+	 * @throws InternalErrorException
+	 * @throws AlreadyMemberException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 * @throws GroupNotExistsException
 	 */
-	void processRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId, boolean addition) throws GroupOperationsException;
+	void addRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException;
+
+	/**
+	 * Method recalculates all relations between groups. Method recursively removes members from
+	 * groups and all their relations. The method is called in case of:
+	 * 1) removed relation
+	 * 2) removed member
+	 * 3) group removal
+	 * 4) group movement
+	 *
+	 * @param sess perun session
+	 * @param resultGroup group to which members are added or removed from
+	 * @param changedMembers list of changed members which is passed as argument to add indirect members method.
+	 *                       List contains records of removed indirect members from operand group.
+	 * @param sourceGroupId id of a group from which members originate
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws NotGroupMemberException
+	 * @throws WrongAttributeValueException
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 */
+	void removeRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId) throws WrongReferenceAttributeValueException, NotGroupMemberException, WrongAttributeValueException, InternalErrorException, GroupNotExistsException;
 
 	/**
 	 * Performs union operation on two groups. Members from operand group are added to result group as indirect.
@@ -1209,12 +1220,14 @@ public interface GroupsManagerBl {
 	 * @param parentFlag if true union cannot be deleted; false otherwise (it flags relations created by hierarchical structure)
 	 * @return result group
 	 *
-	 * @throws GroupOperationsException
 	 * @throws GroupRelationAlreadyExists
 	 * @throws GroupRelationNotAllowed
 	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 * @throws GroupNotExistsException
 	 */
-	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupOperationsException, InternalErrorException, GroupRelationAlreadyExists, GroupRelationNotAllowed;
+	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws InternalErrorException, GroupRelationAlreadyExists, GroupRelationNotAllowed, WrongReferenceAttributeValueException, WrongAttributeValueException, GroupNotExistsException;
 
 	/**
 	 * Removes a union relation between two groups. All indirect members that originate from operand group are removed from result group.
@@ -1224,12 +1237,12 @@ public interface GroupsManagerBl {
 	 * @param operandGroup group which members are removed from result group
 	 * @param parentFlag if true union cannot be deleted; false otherwise (it flags relations created by hierarchical structure)
 	 *
-	 * @throws GroupOperationsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
 	 */
-	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupOperationsException, InternalErrorException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws InternalErrorException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, GroupNotExistsException;
 
 	/**
 	 * Get list of group unions for specified group.
