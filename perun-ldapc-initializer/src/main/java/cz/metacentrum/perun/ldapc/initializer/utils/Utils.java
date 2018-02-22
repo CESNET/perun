@@ -346,10 +346,11 @@ public class Utils {
 			dn+= "perunUserId=" + user.getId() + ",ou=People,dc=perun,dc=cesnet,dc=cz";
 			String firstName = user.getFirstName();
 			String lastName = user.getLastName();
-			if(firstName == null) firstName = "";
+			if(firstName == null || firstName.isEmpty()) firstName = "";
+			else cn+= firstName + " ";
 			if(lastName == null || lastName.isEmpty()) lastName = "N/A";
 			sn+= lastName;
-			cn+= firstName + " " + lastName;
+			cn+= lastName;
 			if(user.isServiceUser()) isServiceUser+= "1";
 			else isServiceUser+= "0";
 			if(user.isSponsoredUser()) isSponsoredUser+= "1";
