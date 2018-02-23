@@ -164,6 +164,14 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 					}
 				}, tableFieldUpdater);
 
+		// UNIQUE COLUMN
+		final Column<AttributeDefinition, String> uniqueColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<AttributeDefinition, String>() {
+					public String getValue(AttributeDefinition object) {
+						return String.valueOf(object.isUnique());
+					}
+				}, tableFieldUpdater);
+
 		// DESCRIPTION COLUMN
 		final Column<AttributeDefinition, String> descriptionColumn = new Column<AttributeDefinition, String>(new TextInputCell()) {
 			public String getValue(AttributeDefinition attrDef) {
@@ -226,11 +234,19 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 			}
 		});
 
+		uniqueColumn.setSortable(true);
+		columnSortHandler.setComparator(uniqueColumn, new Comparator<AttributeDefinition>() {
+			public int compare(AttributeDefinition o1, AttributeDefinition o2) {
+				return String.valueOf(o1.isUnique()).compareToIgnoreCase(String.valueOf(o2.isUnique()));
+			}
+		});
+
 		// Add the column sort handler.
 		table.setColumnWidth(friendlyNameColumn, 250.0, Unit.PX);
 		table.setColumnWidth(entityColumn, 100.0, Unit.PX);
 		table.setColumnWidth(definitionColumn, 100.0, Unit.PX);
 		table.setColumnWidth(typeColumn, 100.0, Unit.PX);
+		table.setColumnWidth(uniqueColumn, 100.0, Unit.PX);
 
 		// Add the columns.
 		table.addColumn(friendlyNameColumn, "Name");
@@ -238,6 +254,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 		table.addColumn(entityColumn, "Entity");
 		table.addColumn(definitionColumn, "Definition");
 		table.addColumn(typeColumn, "Type");
+		table.addColumn(uniqueColumn, "Unique");
 		if (editable) {
 			table.addColumn(displayNameColumn, "Display name");
 			table.addColumn(descriptionColumn, "Description");

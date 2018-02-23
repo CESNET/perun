@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.json.attributesManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -33,6 +34,7 @@ public class CreateAttribute {
 	private String type = "";
 	private String namespace = "";
 	private String displayName = "";
+	private boolean unique = false;
 
 	/**
 	 * Creates a new request
@@ -55,13 +57,14 @@ public class CreateAttribute {
 	 * @param namespace namespace of new attribute
 	 * @param type type of new attribute (core,def,opt,virt)
 	 */
-	public void createAttributeDefinition(final String displayName, final String friendlyName, final String description, final String namespace, final String type) {
+	public void createAttributeDefinition(final String displayName, final String friendlyName, final String description, final String namespace, final String type, final boolean unique) {
 
 		this.displayName = displayName;
 		this.friendlyName = friendlyName;
 		this.description = description;
 		this.namespace = namespace;
 		this.type = type;
+		this.unique = unique;
 
 		// test arguments
 		if(!this.testCreating()){
@@ -145,6 +148,7 @@ public class CreateAttribute {
 		attributeDef.put("description", new JSONString(description));
 		attributeDef.put("namespace", new JSONString(namespace));
 		attributeDef.put("type", new JSONString(type));
+		attributeDef.put("unique", JSONBoolean.getInstance(unique));
 
 		// create whole JSON query
 		JSONObject jsonQuery = new JSONObject();

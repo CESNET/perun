@@ -148,6 +148,7 @@ public class SetAttribute {
 		newAttr.put("namespace", namespace);
 		newAttr.put("friendlyName", friendlyName);
 		newAttr.put("displayName", attr.get("displayName"));
+		newAttr.put("unique", attr.get("unique"));
 
 		// create whole JSON query
 		JSONObject jsonQuery = new JSONObject();
