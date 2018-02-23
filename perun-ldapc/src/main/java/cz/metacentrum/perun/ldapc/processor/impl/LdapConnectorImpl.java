@@ -288,14 +288,17 @@ public class LdapConnectorImpl implements LdapConnector {
 
 		String firstName = user.getFirstName();
 		String lastName = user.getLastName();
-		if(firstName == null) firstName = "";
+		String commonName = "";
+		if(firstName == null || firstName.isEmpty()) firstName = "";
+		else commonName+= firstName + " ";
 		if(lastName == null || lastName.isEmpty()) lastName = "N/A";
+		commonName+= lastName;
 
 		// Add attributes
 		attributes.put(objClasses);
 		attributes.put(EventProcessorImpl.ldapAttrEntryStatus, "active");
 		attributes.put(EventProcessorImpl.ldapAttrSurname, lastName);
-		attributes.put(EventProcessorImpl.ldapAttrCommonName, firstName + " " + lastName);
+		attributes.put(EventProcessorImpl.ldapAttrCommonName, commonName);
 		if(!firstName.isEmpty()) attributes.put(EventProcessorImpl.ldapAttrGivenName, firstName);
 		attributes.put(EventProcessorImpl.ldapAttrPerunUserId, String.valueOf(user.getId()));
 		if(user.isServiceUser()) attributes.put(EventProcessorImpl.ldapAttrIsServiceUser, "1");
