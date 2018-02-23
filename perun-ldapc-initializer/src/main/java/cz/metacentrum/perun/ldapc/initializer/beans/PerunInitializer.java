@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.ldapc.initializer.beans;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.ldapc.initializer.utils.Utils;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -27,6 +28,7 @@ public class PerunInitializer {
 	private final PerunPrincipal perunPrincipal;
 	private final BufferedWriter outputWriter;
 	private final String consumerName = "ldapcConsumer";
+	private final String ldapcPropertyFile = "/etc/perun/perun-ldapc.properties";
 
 	public PerunInitializer(String outputFileName) throws InternalErrorException, FileNotFoundException {
 		this.perunPrincipal = new PerunPrincipal("perunLdapInitializer", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
@@ -58,6 +60,10 @@ public class PerunInitializer {
 
 	public String getConsumerName() {
 		return consumerName;
+	}
+
+	public String getLdapBase() throws InternalErrorException {
+		return BeansUtils.getPropertyFromCustomConfiguration(ldapcPropertyFile, "ldap.base");
 	}
 
 	public void closeWriter() throws IOException {
