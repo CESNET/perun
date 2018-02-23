@@ -3672,6 +3672,13 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().setAttributeRights(sess, rights);
 	}
 
+	@Override
+	public void convertAttributeToUnique(PerunSession session, int attrId) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException {
+		Utils.checkPerunSession(session);
+		if(!AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) throw new PrivilegeException("This operation can do only PerunAdmin.");
+		getAttributesManagerBl().convertAttributeToUnique(session, attrId);
+	}
+
 	public PerunBl getPerunBl() {
 		return this.perunBl;
 	}

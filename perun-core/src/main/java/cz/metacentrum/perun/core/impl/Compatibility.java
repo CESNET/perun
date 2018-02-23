@@ -24,6 +24,18 @@ public class Compatibility {
 		return "hsqldb".equals(getDbType());
 	}
 
+	static String getLockTable(String tableName) throws InternalErrorException {
+		switch (getDbType()) {
+			case "oracle":
+			case "postgresql":
+				return "LOCK TABLE "+tableName+" IN EXCLUSIVE MODE";
+			case "hsqldb":
+				return "LOCK TABLE "+tableName+" WRITE";
+			default:
+				throw new InternalErrorException("unknown DB type");
+		}
+	}
+
 	public static String getTrue() throws InternalErrorException {
 		switch (getDbType()) {
 			case "oracle":

@@ -1,9 +1,44 @@
+-- This file must exist, because its highest version number is taken as Perun code version, and is compared to
+-- the current DB data version from table configurations, and if they do not match, Perun will refuse to start.
+
 -- Changelog file should have the newest version at the top, the oldest at the bottom.
 -- Versions must be separated by empty lines, version number should consist of three numbers with dots between, f.e. 3.0.1 is ok, 3.1 or 3.1.1.1 is not.
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 -- this update is not supported on hsql since its used only as in-memory db
+
+3.1.46
+ALTER TABLE attr_names ADD COLUMN is_unique BOOLEAN DEFAULT FALSE NOT NULL;
+alter table member_resource_attr_values add constraint memrav_pk primary key(member_id,resource_id,attr_id);
+alter table member_group_attr_values add constraint memgav_pk primary key(member_id,group_id,attr_id);
+alter table user_facility_attr_values add constraint usrfacav_pk primary key(user_id,facility_id,attr_id);
+alter table user_attr_values add constraint usrav_pk primary key(user_id,attr_id);
+CREATE TABLE facility_attr_u_values (facility_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (facility_id,attr_id) REFERENCES facility_attr_values ON DELETE CASCADE);
+CREATE INDEX facility_attr_u_values_idx1 ON facility_attr_u_values (facility_id, attr_id);
+CREATE TABLE group_attr_u_values (group_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),	UNIQUE (attr_id, attr_value),FOREIGN KEY (group_id,attr_id) REFERENCES group_attr_values ON DELETE CASCADE);
+CREATE INDEX group_attr_u_values_idx1 ON group_attr_u_values (group_id, attr_id);
+CREATE TABLE group_resource_attr_u_values (group_id INT NOT NULL,resource_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (group_id,resource_id,attr_id) REFERENCES group_resource_attr_values ON DELETE CASCADE);
+CREATE INDEX group_resource_attr_u_values_idx1 ON group_resource_attr_u_values (group_id, resource_id, attr_id);
+CREATE TABLE host_attr_u_values (host_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (host_id,attr_id) REFERENCES host_attr_values ON DELETE CASCADE);
+CREATE INDEX host_attr_u_values_idx1 ON host_attr_u_values (host_id, attr_id);
+CREATE TABLE member_attr_u_values (member_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (member_id,attr_id) REFERENCES member_attr_values ON DELETE CASCADE);
+CREATE INDEX member_attr_u_values_idx1 ON member_attr_u_values (member_id, attr_id);
+CREATE TABLE member_group_attr_u_values (member_id INT NOT NULL,group_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (member_id,group_id,attr_id) REFERENCES member_group_attr_values ON DELETE CASCADE);
+CREATE INDEX member_group_attr_u_values_idx1 ON member_group_attr_u_values (member_id, group_id, attr_id);
+CREATE TABLE member_resource_attr_u_values (member_id INT NOT NULL,resource_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (member_id,resource_id,attr_id) REFERENCES member_resource_attr_values ON DELETE CASCADE);
+CREATE INDEX member_resource_attr_u_values_idx1 ON member_resource_attr_u_values (member_id, resource_id, attr_id);
+CREATE TABLE resource_attr_u_values (resource_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (resource_id,attr_id) REFERENCES resource_attr_values ON DELETE CASCADE);
+CREATE INDEX resource_attr_u_values_idx1 ON resource_attr_u_values (resource_id, attr_id);
+CREATE TABLE user_attr_u_values (user_id  INT NOT NULL,attr_id  INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (user_id,attr_id) REFERENCES user_attr_values ON DELETE CASCADE);
+CREATE INDEX user_attr_u_values_idx1 ON user_attr_u_values (user_id, attr_id);
+CREATE TABLE user_ext_source_attr_u_values (user_ext_source_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (user_ext_source_id,attr_id) REFERENCES user_ext_source_attr_values ON DELETE CASCADE);
+CREATE INDEX user_ext_source_attr_u_values_idx1 ON user_ext_source_attr_u_values (user_ext_source_id, attr_id);
+CREATE TABLE user_facility_attr_u_values (user_id INT NOT NULL,facility_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (user_id,facility_id,attr_id) REFERENCES user_facility_attr_values ON DELETE CASCADE);
+CREATE INDEX user_facility_attr_u_values_idx1 ON user_facility_attr_u_values (user_id, facility_id, attr_id) ;
+CREATE TABLE vo_attr_u_values (vo_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (vo_id,attr_id) REFERENCES vo_attr_values ON DELETE CASCADE);
+CREATE INDEX vo_attr_u_values_idx1 ON vo_attr_u_values (vo_id, attr_id) ;
+update configurations set value='3.1.46' where property='DATABASE VERSION';
 
 3.1.45
 ALTER TABLE application ALTER COLUMN fed_info TYPE text;

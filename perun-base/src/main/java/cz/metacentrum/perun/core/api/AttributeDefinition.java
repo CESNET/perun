@@ -38,6 +38,14 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 	 */
 	private boolean writable;
 
+	/**
+	 * If the attribute values must be unique. For multivalued types like java.util.ArrayList, each value in the list
+	 * for a given object must be unique among all values for all objects.
+	 *
+	 * Entityless attributes cannot be unique.
+	 */
+	private boolean unique;
+
 	public AttributeDefinition() {
 		this.writable = false;
 	}
@@ -56,6 +64,7 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 		this.type = attributeDefinition.getType();
 		this.displayName = attributeDefinition.getDisplayName();
 		this.writable = attributeDefinition.getWritable();
+		this.unique = attributeDefinition.isUnique();
 	}
 
 
@@ -111,6 +120,14 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 
 	public void setWritable(boolean writable) {
 		this.writable = writable;
+	}
+
+	public boolean isUnique() {
+		return unique;
+	}
+
+	public void setUnique(boolean unique) {
+		this.unique = unique;
 	}
 
 	/**
@@ -186,16 +203,18 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 				", friendlyName=<" + (getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())) + ">" +
 				", namespace=<" + (getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())) + ">" +
 				", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
+				", unique=<" + unique + ">" +
 				']';
 	}
 
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + ":[" +
-				"id='" + getId() + '\'' +
-				", friendlyName='" + friendlyName + '\'' +
-				", namespace='" + namespace + '\'' +
-				", type='" + type + '\'' +
+				"id='" + getId() + "'" +
+				", friendlyName='" + friendlyName + "'" +
+				", namespace='" + namespace + "'" +
+				", type='" + type + "'" +
+				", unique='" + unique + "'" +
 				']';
 	}
 }

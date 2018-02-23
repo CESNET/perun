@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
@@ -24,6 +25,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -40,7 +42,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
-import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
@@ -65,6 +66,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_ENTITYLESS_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_RESOURCE_ATTR;
@@ -2124,6 +2126,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			throw new InternalErrorException("Wrong attribute type", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
+		}
+
+		if(attribute.isUnique() && attribute.getNamespace().startsWith(NS_ENTITYLESS_ATTR)) {
+			throw new InternalErrorException("entityless attributes cannot be marked unique");
 		}
 
 		getPerunBl().getAuditer().log(sess, "{} created.", attribute);
@@ -6396,6 +6402,28 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		if (group.getVoId() != resource.getVoId())
 			throw new GroupResourceMismatchException("Group is not from the same vo like Resource: " + group + " " + resource);
+	}
+
+	@Override
+	public Set<Pair<Integer, Integer>> getPerunBeanIdsForUniqueAttributeValue(PerunSession sess, Attribute attribute) throws InternalErrorException {
+		if(!attribute.isUnique()) {
+			throw new InternalErrorException("attribute definition is not marked as unique: "+attribute);
+		}
+		return attributesManagerImpl.getPerunBeanIdsForUniqueAttributeValue(sess, attribute);
+	}
+
+	@Override
+	public void convertAttributeToUnique(PerunSession session, int attrId) throws InternalErrorException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException {
+		AttributeDefinition attrDef = getAttributeDefinitionById(session, attrId);
+		if(attrDef.isUnique()) throw new AttributeAlreadyMarkedUniqueException("Cannot convert attribute because it is already marked as unique", attrDef);
+		if(attrDef.getNamespace().startsWith(NS_ENTITYLESS_ATTR)) throw new InternalErrorException("entityless atributes cannot be converted to unique");
+		log.info("converting attribute {} to unique",attrDef.getName());
+		attrDef.setUnique(true);
+		this.updateAttributeDefinition(session, attrDef);
+		long startTime = System.currentTimeMillis();
+		attributesManagerImpl.convertAttributeValuesToUnique(session, attrDef);
+		long endTime = System.currentTimeMillis();
+		log.info("attribute {} was converted to unique in {} ms",attrDef.getName(),(endTime-startTime));
 	}
 
 	public Map<AttributeDefinition, Set<AttributeDefinition>> getAllDependencies() {

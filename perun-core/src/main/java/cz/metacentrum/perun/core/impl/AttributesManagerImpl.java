@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import com.google.common.io.CharStreams;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -11,6 +12,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -64,6 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -73,21 +76,25 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_ATTR;
@@ -130,21 +137,43 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private AttributesManagerImplApi self;
 
 	// mapping of the perun bean names to the attribute namespaces
-	private static final Map<String, String> NAMESPACES_BEANS_MAP = new HashMap<>();
+	public static final Map<String, String> BEANS_TO_NAMESPACES_MAP = new LinkedHashMap<>();
+	private static final Map<String, String> ENTITIES_TO_BEANS_MAP = new HashMap<>();
+	private static final List<String> SINGLE_BEAN_ATTRIBUTES = Arrays.asList("user","member","facility","vo","host","group","resource","user_ext_source");
+	private static final List<String> DOUBLE_BEAN_ATTRIBUTES = Arrays.asList("member_resource","member_group","user_facility","group_resource");
+
+	/**
+	 * List of allowed values for attribute type.
+	 * @see cz.metacentrum.perun.core.api.BeansUtils#attributeValueToString(Attribute)
+	 */
+	public static final List<String> ATTRIBUTE_TYPES = Arrays.asList(
+			String.class.getName(),
+			Integer.class.getName(),
+			Boolean.class.getName(),
+			ArrayList.class.getName(),
+			LinkedHashMap.class.getName(),
+			BeansUtils.largeStringClassName,
+			BeansUtils.largeArrayListClassName
+	);
 
 	static {
-		NAMESPACES_BEANS_MAP.put("user", NS_USER_ATTR);
-		NAMESPACES_BEANS_MAP.put("member", NS_MEMBER_ATTR);
-		NAMESPACES_BEANS_MAP.put("facility", NS_FACILITY_ATTR);
-		NAMESPACES_BEANS_MAP.put("vo", NS_VO_ATTR);
-		NAMESPACES_BEANS_MAP.put("host", NS_HOST_ATTR);
-		NAMESPACES_BEANS_MAP.put("group", NS_GROUP_ATTR);
-		NAMESPACES_BEANS_MAP.put("resource", NS_RESOURCE_ATTR);
-		NAMESPACES_BEANS_MAP.put("member_resource", NS_MEMBER_RESOURCE_ATTR);
-		NAMESPACES_BEANS_MAP.put("member_group", NS_MEMBER_GROUP_ATTR);
-		NAMESPACES_BEANS_MAP.put("user_facility", NS_USER_FACILITY_ATTR);
-		NAMESPACES_BEANS_MAP.put("group_resource", NS_GROUP_RESOURCE_ATTR);
-		NAMESPACES_BEANS_MAP.put("user_ext_source", NS_UES_ATTR);
+		//map db table prefixes to attribute namespaces, e.g. user_ext_source -> urn:perun:ues:attribute-def
+		BEANS_TO_NAMESPACES_MAP.put("user", NS_USER_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("member", NS_MEMBER_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("facility", NS_FACILITY_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("vo", NS_VO_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("host", NS_HOST_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("group", NS_GROUP_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("resource", NS_RESOURCE_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("member_resource", NS_MEMBER_RESOURCE_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("member_group", NS_MEMBER_GROUP_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("user_facility", NS_USER_FACILITY_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("group_resource", NS_GROUP_RESOURCE_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("user_ext_source", NS_UES_ATTR);
+		//create reverse mapping, e.g. ues -> user_ext_source
+		for(Map.Entry<String,String> entry : BEANS_TO_NAMESPACES_MAP.entrySet()) {
+			ENTITIES_TO_BEANS_MAP.put(entry.getValue().split(":")[2],entry.getKey());
+		}
 	}
 
 	/**
@@ -157,27 +186,32 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
-	private final static String attributeDefinitionMappingSelectQuery = "attr_names.id as attr_names_id, attr_names.friendly_name as attr_names_friendly_name, " +
-			"attr_names.namespace as attr_names_namespace, attr_names.type as attr_names_type, attr_names.display_name as attr_names_display_name," +
-			"attr_names.created_at as attr_names_created_at, attr_names.created_by as attr_names_created_by, " +
-			"attr_names.modified_by as attr_names_modified_by, attr_names.modified_at as attr_names_modified_at, attr_names.dsc as attr_names_dsc, " +
-			"attr_names.created_by_uid as attr_names_created_by_uid, attr_names.modified_by_uid as attr_names_modified_by_uid";
+	private final static String attributeDefinitionMappingSelectQuery =
+			"attr_names.id as attr_names_id," +
+			"attr_names.friendly_name as attr_names_friendly_name," +
+			"attr_names.namespace as attr_names_namespace," +
+			"attr_names.type as attr_names_type," +
+			"attr_names.display_name as attr_names_display_name," +
+			"attr_names.dsc as attr_names_dsc," +
+			"attr_names.is_unique as attr_names_unique," +
+			"attr_names.created_at as attr_names_created_at," +
+			"attr_names.created_by as attr_names_created_by," +
+			"attr_names.modified_by as attr_names_modified_by," +
+			"attr_names.modified_at as attr_names_modified_at," +
+			"attr_names.created_by_uid as attr_names_created_by_uid," +
+			"attr_names.modified_by_uid as attr_names_modified_by_uid";
 
-	private final static String attributeMappingSelectQuery = attributeDefinitionMappingSelectQuery + ", attr_value";
-
-	private final static String attributeAndTextMappingSelectQuery = attributeMappingSelectQuery + ", attr_value_text";
-
-	private final static String attributeRightSelectQuery = "attributes_authz.attr_id as attr_name_id, roles.name as role_name, "
-			+ "action_types.action_type as action_type";
+	private final static String attributeRightSelectQuery =
+			"attributes_authz.attr_id as attr_name_id," +
+					"roles.name as role_name," +
+					"action_types.action_type as action_type";
 
 	static String getAttributeMappingSelectQuery(String nameOfValueTable) {
-		String selectQuery = "";
-		selectQuery = selectQuery.concat(attributeAndTextMappingSelectQuery);
-		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".created_at as attr_value_created_at");
-		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".created_by as attr_value_created_by");
-		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".modified_at as attr_value_modified_at");
-		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".modified_by as attr_value_modified_by");
-		return selectQuery;
+		return attributeDefinitionMappingSelectQuery + ", attr_value, attr_value_text" +
+				", " + nameOfValueTable + ".created_at as attr_value_created_at" +
+				", " + nameOfValueTable + ".created_by as attr_value_created_by" +
+				", " + nameOfValueTable + ".modified_at as attr_value_modified_at" +
+				", " + nameOfValueTable + ".modified_by as attr_value_modified_by";
 	}
 
 	private static final RowMapper<AttributeDefinition> ATTRIBUTE_DEFINITION_MAPPER = (rs, i) -> {
@@ -188,6 +222,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attribute.setType(rs.getString("attr_names_type"));
 		attribute.setDisplayName(rs.getString("attr_names_display_name"));
 		attribute.setDescription(rs.getString("attr_names_dsc"));
+		attribute.setUnique(rs.getBoolean("attr_names_unique"));
 		attribute.setCreatedAt(rs.getString("attr_names_created_at"));
 		attribute.setCreatedBy(rs.getString("attr_names_created_by"));
 		attribute.setModifiedAt(rs.getString("attr_names_modified_at"));
@@ -233,20 +268,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	static final RowMapper<Attribute> ATTRIBUTE_MAPPER = (rs, i) -> {
 
-		AttributeDefinition attributeDefinition = new AttributeDefinition();
-		attributeDefinition.setId(rs.getInt("attr_names_id"));
-		attributeDefinition.setFriendlyName(rs.getString("attr_names_friendly_name"));
-		attributeDefinition.setNamespace(rs.getString("attr_names_namespace"));
-		attributeDefinition.setType(rs.getString("attr_names_type"));
-		attributeDefinition.setDisplayName("attr_names_display_name");
-		attributeDefinition.setCreatedAt(rs.getString("attr_names_created_at"));
-		attributeDefinition.setCreatedBy(rs.getString("attr_names_created_by"));
-		attributeDefinition.setModifiedAt(rs.getString("attr_names_modified_at"));
-		attributeDefinition.setModifiedBy(rs.getString("attr_names_modified_by"));
-		if (rs.getInt("attr_names_modified_by_uid") == 0) attributeDefinition.setModifiedByUid(null);
-		else attributeDefinition.setModifiedByUid(rs.getInt("attr_names_modified_by_uid"));
-		if (rs.getInt("attr_names_created_by_uid") == 0) attributeDefinition.setCreatedByUid(null);
-		else attributeDefinition.setCreatedByUid(rs.getInt("attr_names_created_by_uid"));
+		AttributeDefinition attributeDefinition = ATTRIBUTE_DEFINITION_MAPPER.mapRow(rs,i);
 
 		Attribute attribute = new Attribute(attributeDefinition);
 		attribute.setValueCreatedAt(rs.getString("attr_value_created_at"));
@@ -657,75 +679,79 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for facility exists.");
 			return new ArrayList<>();
+
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
+	private List<Attribute> getVirtualAttributes(RowMapper<Attribute> rowMapper, String namespace) throws InternalErrorException {
+		try {
+			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names WHERE namespace=?", rowMapper, namespace);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("No virtual attribute for "+(namespace.split(":")[2])+" exists.");
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new SingleBeanAttributeRowMapper<>(sess, this, facility), AttributesManager.NS_FACILITY_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for facility exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, facility), AttributesManager.NS_FACILITY_ATTR_VIRT);
 	}
 
+	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new SingleBeanAttributeRowMapper<>(sess, this, member), AttributesManager.NS_MEMBER_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for member exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, member), AttributesManager.NS_MEMBER_ATTR_VIRT);
 	}
 
+	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new SingleBeanAttributeRowMapper<>(sess, this, vo), AttributesManager.NS_VO_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for vo exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, vo), AttributesManager.NS_VO_ATTR_VIRT);
 	}
 
+	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Group group) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new SingleBeanAttributeRowMapper<>(sess, this, group), AttributesManager.NS_GROUP_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for group exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, group), AttributesManager.NS_GROUP_ATTR_VIRT);
 	}
 
+	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Host host) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new SingleBeanAttributeRowMapper<>(sess, this, host), AttributesManager.NS_HOST_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for host exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return  getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, host), AttributesManager.NS_HOST_ATTR_VIRT);
 	}
+
+	@Override
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, resource), AttributesManager.NS_RESOURCE_ATTR_VIRT);
+	}
+
+	@Override
+	public List<Attribute> getVirtualAttributes(PerunSession sess, User user) throws InternalErrorException {
+		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, user), AttributesManager.NS_USER_ATTR_VIRT);
+	}
+
+	@Override
+	public List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+		return getVirtualAttributes(new SingleBeanAttributeRowMapper<>(sess, this, ues), AttributesManager.NS_UES_ATTR_VIRT);
+	}
+
+	@Override
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
+		return getVirtualAttributes(new ResourceMemberAttributeRowMapper(sess, this, resource, member), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+	}
+
+	@Override
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+		return getVirtualAttributes(new UserFacilityAttributeRowMapper(sess, this, user, facility), AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+	}
+
+	@Override
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		return  getVirtualAttributes(new MemberGroupAttributeRowMapper(sess, this, member, group), AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+	}
+
+
 
 	public List<Attribute> getAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
@@ -781,18 +807,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new SingleBeanAttributeRowMapper<>(sess, this, resource), AttributesManager.NS_RESOURCE_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for resource exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
 
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
 		try {
@@ -805,20 +819,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT);
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("No attribute for member-resource combination exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new ResourceMemberAttributeRowMapper(sess, this, resource, member), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for member-resource combination exists.");
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -1082,32 +1082,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new UserFacilityAttributeRowMapper(sess, this, user, facility), AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for user-facility combination exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new MemberGroupAttributeRowMapper(sess, this, member, group), AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for member-group combination exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
 
 	public List<Attribute> getAttributes(PerunSession sess, User user) throws InternalErrorException {
 		try {
@@ -1146,18 +1120,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public List<Attribute> getVirtualAttributes(PerunSession sess, User user) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new SingleBeanAttributeRowMapper<>(sess, this, user), AttributesManager.NS_USER_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for user exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
+
 
 	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException {
 
@@ -1181,18 +1144,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
-		try {
-			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names " +
-							"WHERE namespace=?",
-					new SingleBeanAttributeRowMapper<>(sess, this, ues), AttributesManager.NS_UES_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("No virtual attribute for user external source exists.");
-			return new ArrayList<>();
-		} catch (RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
 
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException {
 		try {
@@ -1683,7 +1634,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean setAttribute(final PerunSession sess, final Object object, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean setAttribute(final PerunSession sess, final Object object, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		String tableName;
 		String columnName;
 		Object identificator;
@@ -1704,7 +1655,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				name = name.replaceFirst("rich_", "");
 			}
 			// get namespace of the perun bean
-			namespace = NAMESPACES_BEANS_MAP.get(name);
+			namespace = BEANS_TO_NAMESPACES_MAP.get(name);
 			if (namespace == null) {
 				// perun bean is not in the namespace map
 				throw new InternalErrorException(new IllegalArgumentException("Setting attribute for perun bean " + bean + " is not allowed."));
@@ -1719,17 +1670,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		// check that given object is consistent with the attribute
 		checkNamespace(sess, attribute, namespace);
 
-		// create map of parameters for the where clause of the SQL query
-		Map<String, Object> params = new HashMap<>();
-		params.put("attr_id", attribute.getId());
-		params.put(columnName, identificator);
+		// create lists of parameters for the where clause of the SQL query
+		List<String> columnNames = Arrays.asList( "attr_id", columnName);
+		List<Object> columnValues = Arrays.asList( attribute.getId(), identificator);
 
 		// save attribute
-		return setAttributeInDB(sess, attribute, tableName, params);
+		boolean changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues);
+		if(changedDb && attribute.isUnique() && (object instanceof PerunBean)) {
+			setUniqueAttributeValues(attribute, columnNames, columnValues, (PerunBean)object, null);
+		}
+		return changedDb;
 	}
 
 	@Override
-	public boolean setAttribute(final PerunSession sess, final PerunBean bean1, final PerunBean bean2, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean setAttribute(final PerunSession sess, final PerunBean bean1, final PerunBean bean2, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		String tableName;
 		String namespace;
 		Integer identificator1;
@@ -1746,7 +1700,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			name2 = name2.replaceFirst("rich", "");
 		}
 		// get namespace of the perun bean
-		namespace = NAMESPACES_BEANS_MAP.get(name1 + "_" + name2);
+		namespace = BEANS_TO_NAMESPACES_MAP.get(name1 + "_" + name2);
 		identificator1 = bean1.getId();
 		identificator2 = bean2.getId();
 		if (namespace == null) {
@@ -1756,7 +1710,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			name2 = nameTmp;
 			identificator1 = bean2.getId();
 			identificator2 = bean1.getId();
-			namespace = NAMESPACES_BEANS_MAP.get(name1 + "_" + name2);
+			namespace = BEANS_TO_NAMESPACES_MAP.get(name1 + "_" + name2);
 		}
 		if (namespace == null) {
 			// the combination of perun beans is not in the namespace map
@@ -1767,25 +1721,62 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		// check that given object is consistent with the attribute
 		checkNamespace(sess, attribute, namespace);
 
-		// create map of parameters for the where clause of the SQL query
-		Map<String, Object> params = new HashMap<>();
-		params.put("attr_id", attribute.getId());
-		params.put(name1 + "_id", identificator1);
-		params.put(name2 + "_id", identificator2);
+		// create lists of parameters for the where clause of the SQL query
+		List<String> columnNames = Arrays.asList( "attr_id", name1 + "_id", name2 + "_id");
+		List<Object> columnValues = Arrays.asList( attribute.getId(), identificator1, identificator2);
 
 		// save attribute
-		return setAttributeInDB(sess, attribute, tableName, params);
+		boolean changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues);
+		if(changedDb && attribute.isUnique()) {
+			setUniqueAttributeValues(attribute, columnNames, columnValues, bean1, bean2);
+		}
+		return changedDb;
 	}
 
-	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, final Map<String, Object> params) throws InternalErrorException {
-		// get two sorted lists for parameter names and values
-		List<String> columnNames = new ArrayList<>();
-		List<Object> columnValues = new ArrayList<>();
-		for (Entry entry : params.entrySet()) {
-			columnNames.add((String) entry.getKey());
-			columnValues.add(entry.getValue());
+	@SuppressWarnings("unchecked")
+	private void setUniqueAttributeValues(Attribute attribute, List<String> columnNames, List<Object> columnValues, PerunBean pb1, PerunBean pb2) throws WrongAttributeValueException {
+		String tableName = attributeToTablePrefix(attribute) + "_attr_u_values";
+		jdbc.update("delete from " + tableName + " where " + buildParameters(columnNames, "=?", " and "), columnValues.toArray());
+		if(attribute.getValue()==null) return;
+		// prepare correct number of question marks
+		StringBuilder questionMarks = new StringBuilder();
+		for (int i = 0; i < columnValues.size(); i++) {
+			questionMarks.append(",?");
 		}
+		//prepare list of column values for adding attribute value
+		Object[] sqlArgs = new Object[columnValues.size()+1];
+		System.arraycopy(columnValues.toArray(),0,sqlArgs,1,columnValues.size());
+		String sql = "INSERT INTO " + tableName + " (attr_value," + buildParameters(columnNames, "", ", ") + ") VALUES (?" + questionMarks + ")";
+			switch (attribute.getType()) {
+				case "java.util.ArrayList":
+				case BeansUtils.largeArrayListClassName:
+					for (String value : (List<String>) attribute.getValue()) {
+						sqlArgs[0] = value;
+						tryToInsertUniqueValue(sql,sqlArgs, attribute, pb1, pb2);
+					}
+					break;
+				case "java.util.LinkedHashMap":
+					for (Map.Entry<String, String> entry : ((Map<String, String>) attribute.getValue()).entrySet()) {
+						sqlArgs[0] = entry.getKey() + "=" + entry.getValue();
+						tryToInsertUniqueValue(sql,sqlArgs, attribute, pb1, pb2);
+					}
+					break;
+				default:
+					sqlArgs[0] = attribute.getValue().toString();
+					tryToInsertUniqueValue(sql,sqlArgs, attribute, pb1, pb2);
+			}
 
+	}
+
+	private void tryToInsertUniqueValue(String sql, Object[] sqlArgs, Attribute attribute,PerunBean pb1, PerunBean pb2) throws WrongAttributeValueException {
+		try {
+			jdbc.update(sql, sqlArgs);
+		} catch (DuplicateKeyException ex) {
+			throw new WrongAttributeValueException(attribute, pb1, pb2, "value "+sqlArgs[0]+" is not unique");
+		}
+	}
+
+	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
 		try {
 			// deleting the attibute if the given attribute value is null
 			if (attribute.getValue() == null) {
@@ -1968,9 +1959,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			int attributeId = Utils.getNewId(jdbc, "attr_names_id_seq");
 
-			jdbc.update("insert into attr_names (id, attr_name, type, dsc, namespace, friendly_name, display_name, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
-							"values (?,?,?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
-					attributeId, attribute.getName(), attribute.getType(), attribute.getDescription(), attribute.getNamespace(), attribute.getFriendlyName(), attribute.getDisplayName(),
+			jdbc.update("insert into attr_names (id, attr_name, type, dsc, namespace, friendly_name, display_name, is_unique, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
+							"values (?,?,?,?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+					attributeId, attribute.getName(), attribute.getType(), attribute.getDescription(), attribute.getNamespace(), attribute.getFriendlyName(), attribute.getDisplayName(), attribute.isUnique(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			attribute.setId(attributeId);
 			log.info("Attribute created: {}", attribute);
@@ -1984,19 +1975,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	}
 
+	/**
+	 * Converts attribute definition namespace to entity name used as a prefix for database table names.
+	 * E.g. "urn:perun:ues:attribute-def" to "user_ext_source".
+	 *
+	 * @param attributeDefinition attribute definition
+	 * @return entity name
+	 */
+	private static String attributeToTablePrefix(AttributeDefinition attributeDefinition) {
+		return ENTITIES_TO_BEANS_MAP.get(attributeDefinition.getNamespace().split(":")[2]);
+	}
+
 	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		try {
-			jdbc.update("DELETE FROM facility_attr_values WHERE attr_id=?", attribute.getId());
-			jdbc.update("DELETE FROM resource_attr_values WHERE attr_id=?", attribute.getId());
-			jdbc.update("DELETE FROM member_resource_attr_values WHERE attr_id=?", attribute.getId());
-			jdbc.update("DELETE FROM user_facility_attr_values WHERE attr_id=?", attribute.getId());
-			jdbc.update("DELETE FROM user_attr_values WHERE attr_id=?", attribute.getId());
-			jdbc.update("DELETE FROM entityless_attr_values WHERE attr_id=?", attribute.getId());
-			jdbc.update("DELETE FROM host_attr_values WHERE attr_id=?", attribute.getId());
-			jdbc.update("DELETE FROM member_attr_values WHERE attr_id=?", attribute.getId());
-			jdbc.update("DELETE FROM group_attr_values WHERE attr_id=?", attribute.getId());
-			jdbc.update("DELETE FROM vo_attr_values WHERE attr_id=?", attribute.getId());
-			jdbc.update("DELETE FROM group_resource_attr_values WHERE attr_id=?", attribute.getId());
+
+			jdbc.update("DELETE FROM "+ attributeToTablePrefix(attribute)+"_attr_values WHERE attr_id=?", attribute.getId());
 			jdbc.update("DELETE FROM attr_names WHERE id=?", attribute.getId());
 			log.info("Attribute deleted [{}]", attribute);
 		} catch (RuntimeException e) {
@@ -4030,23 +4023,191 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public Set<Pair<Integer,Integer>> getPerunBeanIdsForUniqueAttributeValue(PerunSession sess, Attribute attribute) {
+		if(attribute.getValue()==null) return Collections.emptySet();
+		String beanPrefix = attributeToTablePrefix(attribute);
+		String sql;
+		if(SINGLE_BEAN_ATTRIBUTES.contains(beanPrefix)) {
+			sql = "select "+beanPrefix+"_id, 0 from "+beanPrefix+"_attr_u_values where attr_id=? and attr_value=?";
+		} else if(DOUBLE_BEAN_ATTRIBUTES.contains(beanPrefix)) {
+			String[] s = beanPrefix.split("_");
+			String bean1 = s[0];
+			String bean2 = s[1];
+			sql = "select " + bean1 + "_id," + bean2 + "_id from " + beanPrefix + "_attr_u_values where attr_id=? and attr_value=?";
+		} else {
+			throw new RuntimeException("getPerunBeanIdsForUniqueAttributeValue() cannot be used for "+beanPrefix);
+		}
+		RowMapper<Pair<Integer, Integer>> pairRowMapper = (rs, i) -> new Pair<>(rs.getInt(1), rs.getInt(2));
+		HashSet<Pair<Integer,Integer>> ids = new HashSet<>();
+		switch(attribute.getType()) {
+			case "java.lang.String":
+			case BeansUtils.largeStringClassName:
+			case "java.lang.Integer":
+			case "java.lang.Boolean":
+				ids.addAll(jdbc.query(sql, pairRowMapper, attribute.getId(), attribute.getValue().toString()));
+				break;
+			case "java.util.ArrayList":
+			case BeansUtils.largeArrayListClassName:
+				for(String value : attribute.valueAsList()) {
+					ids.addAll(jdbc.query(sql, pairRowMapper,attribute.getId(),value));
+				}
+				break;
+			case "java.util.LinkedHashMap":
+				for(Map.Entry<String,String> entry : attribute.valueAsMap().entrySet()) {
+					ids.addAll(jdbc.query(sql, pairRowMapper,attribute.getId(),entry.getKey()+"="+entry.getValue()));
+
+				}
+				break;
+			default:
+				throw new RuntimeException("unknown attribute type "+attribute.getType());
+		}
+		return ids;
+	}
+
+	@Override
+	public void convertAttributeValuesToUnique(PerunSession session, AttributeDefinition attrDef) throws InternalErrorException {
+		try {
+			String tablePrefix = attributeToTablePrefix(attrDef);
+			jdbc.update(Compatibility.getLockTable(tablePrefix + "_attr_values"));
+			if (tablePrefix.equals("user_ext_source") || !tablePrefix.contains("_")) {
+				//attribute of a single perun bean, e.g. user
+				@SuppressWarnings("UnnecessaryLocalVariable")
+				String bean = tablePrefix;
+				final AtomicInteger counter = new AtomicInteger(0);
+				jdbc.query("SELECT " + bean + "_id,attr_value,attr_value_text FROM " + tablePrefix + "_attr_values WHERE attr_id=?", rs -> {
+					int beanId = rs.getInt(1);
+					Object value = null;
+					try {
+						value = BeansUtils.stringToAttributeValue(readAttributeValue(session, attrDef, rs), attrDef.getType());
+						switch (attrDef.getType()) {
+							case "java.lang.String":
+							case BeansUtils.largeStringClassName:
+							case "java.lang.Integer":
+							case "java.lang.Boolean":
+								jdbc.update("INSERT INTO " + tablePrefix + "_attr_u_values (" + bean + "_id,attr_id,attr_value) VALUES (?,?,?)", beanId, attrDef.getId(), value.toString());
+								break;
+							case "java.util.ArrayList":
+							case BeansUtils.largeArrayListClassName:
+								@SuppressWarnings("unchecked") ArrayList<String> list = (ArrayList<String>) value;
+								for (String s : list) {
+									jdbc.update("INSERT INTO " + tablePrefix + "_attr_u_values (" + bean + "_id,attr_id,attr_value) VALUES (?,?,?)", beanId, attrDef.getId(), s);
+								}
+								break;
+							case "java.util.LinkedHashMap":
+								@SuppressWarnings("unchecked") LinkedHashMap<String, String> map = (LinkedHashMap<String, String>) value;
+								for (Map.Entry<String, String> entry : map.entrySet()) {
+									jdbc.update("INSERT INTO " + tablePrefix + "_attr_u_values (" + bean + "_id,attr_id,attr_value) VALUES (?,?,?)", beanId, attrDef.getId(), entry.getKey() + "=" + entry.getValue());
+								}
+								break;
+						}
+						int c = counter.addAndGet(1);
+						if(c%1000==0) log.info(""+c+" values of "+attrDef.getName()+" were converted");
+
+					} catch (InternalErrorException e) {
+						throw new InternalErrorRuntimeException(e);
+					} catch (DuplicateKeyException ex) {
+						throw new InternalErrorRuntimeException("value " + value + " of attribute " + attrDef.getName() + " for " + bean + "=" + beanId + " is not unique", ex);
+					}
+				}, attrDef.getId());
+				log.info(""+counter.get()+" values of "+attrDef.getName()+" were converted");
+			} else {
+				//attribute of relation between perun beans, e.g. group_resource
+				String[] ss = tablePrefix.split("_");
+				String bean1 = ss[0];
+				String bean2 = ss[1];
+				jdbc.query("SELECT " + bean1 + "_id," + bean2 + "_id,attr_value,attr_value_text FROM " + tablePrefix + "_attr_values WHERE attr_id=?", rs -> {
+					int bean1Id = rs.getInt(1);
+					int bean2Id = rs.getInt(2);
+					Object value = null;
+					try {
+						value = BeansUtils.stringToAttributeValue(readAttributeValue(session, attrDef, rs), attrDef.getType());
+						switch (attrDef.getType()) {
+							case "java.lang.String":
+							case BeansUtils.largeStringClassName:
+							case "java.lang.Integer":
+							case "java.lang.Boolean":
+								jdbc.update("INSERT INTO " + tablePrefix + "_attr_u_values (" + bean1 + "_id," + bean2 + "_id,attr_id,attr_value) VALUES (?,?,?,?)", bean1Id, bean2Id, attrDef.getId(), value.toString());
+								break;
+							case "java.util.ArrayList":
+							case BeansUtils.largeArrayListClassName:
+								@SuppressWarnings("unchecked") ArrayList<String> list = (ArrayList<String>) value;
+								for (String s : list) {
+									jdbc.update("INSERT INTO " + tablePrefix + "_attr_u_values (" + bean1 + "_id," + bean2 + "_id,attr_id,attr_value) VALUES (?,?,?,?)", bean1Id, bean2Id, attrDef.getId(), s);
+								}
+								break;
+							case "java.util.LinkedHashMap":
+								@SuppressWarnings("unchecked") LinkedHashMap<String, String> map = (LinkedHashMap<String, String>) value;
+								for (Map.Entry<String, String> entry : map.entrySet()) {
+									jdbc.update("INSERT INTO " + tablePrefix + "_attr_u_values (" + bean1 + "_id," + bean2 + "_id,attr_id,attr_value) VALUES (?,?,?,?)", bean1Id, bean2Id, attrDef.getId(), entry.getKey() + "=" + entry.getValue());
+								}
+								break;
+						}
+					} catch (InternalErrorException e) {
+						throw new InternalErrorRuntimeException(e);
+					} catch (DuplicateKeyException ex) {
+						throw new InternalErrorRuntimeException("value " + value + " of attribute " + attrDef.getName() + " for " + bean1 + "=" + bean1Id + "," + bean2 + "=" + bean2Id + " is not unique", ex);
+					}
+				}, attrDef.getId());
+			}
+		} catch (InternalErrorRuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+
+	private static String readAttributeValue(PerunSession session, AttributeDefinition attrDef, ResultSet rs) throws InternalErrorRuntimeException, SQLException {
+		if (Utils.isLargeAttribute(session, attrDef)) {
+			if (Compatibility.isOracle()) {
+				//large attributes
+				Clob clob = rs.getClob("attr_value_text");
+				try(Reader characterStream = clob.getCharacterStream()) {
+					return CharStreams.toString(characterStream);
+				} catch (IOException e) {
+					throw new InternalErrorRuntimeException("cannot read CLOB",e);
+				} finally {
+					clob.free();
+				}
+			} else {
+				// POSTGRES READ CLOB AS STRING
+				return rs.getString("attr_value_text");
+			}
+		} else {
+			return rs.getString("attr_value");
+		}
+	}
+
 	public void setSelf(AttributesManagerImplApi self) {
 		this.self = self;
 	}
 
 	public AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		try {
-			Map<String, Object> map = jdbc.queryForMap("SELECT attr_name, friendly_name, namespace, type, dsc, display_name FROM attr_names WHERE id=?", attributeDefinition.getId());
+			Map<String, Object> map = jdbc.queryForMap("SELECT attr_name, friendly_name, namespace, type, dsc, display_name, is_unique FROM attr_names WHERE id=?", attributeDefinition.getId());
 
+			//update description
 			if (!attributeDefinition.getDescription().equals(map.get("dsc"))) {
 				jdbc.update("update attr_names set dsc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", attributeDefinition.getDescription(), perunSession.getPerunPrincipal().getActor(), perunSession.getPerunPrincipal().getUserId(), attributeDefinition.getId());
 			}
 
+			//update displayName
 			// if stored value was null and new isn't, update
 			// if values not null && not equals, update
 			if ((map.get("display_name") == null && attributeDefinition.getDisplayName() != null) ||
 					(map.get("display_name") != null && !map.get("display_name").equals(attributeDefinition.getDisplayName()))) {
 				jdbc.update("update attr_names set display_name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", attributeDefinition.getDisplayName(), perunSession.getPerunPrincipal().getActor(), perunSession.getPerunPrincipal().getUserId(), attributeDefinition.getId());
+			}
+
+			//update unique
+			boolean uniqueInDb;
+			if (Compatibility.isOracle()) {
+				uniqueInDb = "1".equals(map.get("is_unique"));
+			} else {
+				uniqueInDb = (Boolean) map.get("is_unique");
+			}
+			if (uniqueInDb != attributeDefinition.isUnique()) {
+				jdbc.update("UPDATE attr_names SET is_unique=" + Compatibility.getTrue() + ", modified_by=?, modified_by_uid=?, modified_at="
+						+ Compatibility.getSysdate() + " WHERE id=?", perunSession.getPerunPrincipal().getActor(), perunSession.getPerunPrincipal().getUserId(), attributeDefinition.getId());
 			}
 
 			return attributeDefinition;
