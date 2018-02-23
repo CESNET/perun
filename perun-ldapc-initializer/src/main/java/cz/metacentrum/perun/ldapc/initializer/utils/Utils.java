@@ -300,6 +300,7 @@ public class Utils {
 		PerunBl perun = perunInitializer.getPerunBl();
 		String ldapBase = perunInitializer.getLdapBase();
 		String branchOuPeople = "ou=People," + ldapBase;
+		String loginNamespace = perunInitializer.getLoginNamespace();
 		BufferedWriter writer = perunInitializer.getOutputWriter();
 
 		List<User> users = perun.getUsersManagerBl().getUsers(perunSession);
@@ -450,11 +451,12 @@ public class Utils {
 			List<String> similarLogins = perun.getAttributesManagerBl().getAllSimilarAttributeNames(perunSession, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:");
 			if(similarLogins != null && !similarLogins.isEmpty()) {
 				for(String s: similarLogins) {
-					Attribute loginNamespace = perun.getAttributesManagerBl().getAttribute(perunSession, user, s);
-					if(loginNamespace != null && loginNamespace.getValue() != null) {
-						writer.write("login;x-ns-" + loginNamespace.getFriendlyNameParameter() + ": " + loginNamespace.getValue().toString() + '\n');
-						if(loginNamespace.getFriendlyNameParameter().equals("einfra")) {
-							writer.write(userPassword + "{SASL}" + loginNamespace.getValue().toString()  + '@' + loginNamespace.getFriendlyNameParameter().toUpperCase() + '\n');
+					Attribute loginNamespaceAttribute = perun.getAttributesManagerBl().getAttribute(perunSession, user, s);
+					if(loginNamespace != null && loginNamespaceAttribute.getValue() != null) {
+						String loginNamespaceAttributeValue = (String) loginNamespaceAttribute.getValue();
+						writer.write("login;x-ns-" + loginNamespaceAttribute.getFriendlyNameParameter() + ": " + loginNamespaceAttributeValue + '\n');
+						if(loginNamespaceAttribute.getFriendlyNameParameter().equals(loginNamespace)) {
+							writer.write(userPassword + "{SASL}" + loginNamespaceAttributeValue  + '@' + loginNamespaceAttribute.getFriendlyNameParameter().toUpperCase() + '\n');
 						}
 					}
 				}
