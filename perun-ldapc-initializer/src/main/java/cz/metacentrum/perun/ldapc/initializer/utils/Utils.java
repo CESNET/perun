@@ -84,6 +84,8 @@ public class Utils {
 		if(perunInitializer == null) throw new InternalErrorException("PerunInitializer must be loaded before using in generating methods!");
 		PerunSession perunSession = perunInitializer.getPerunSession();
 		PerunBl perun = perunInitializer.getPerunBl();
+		String ldapBase = perunInitializer.getLdapBase();
+		String branchOuPeople = "ou=People," + ldapBase;
 		BufferedWriter writer = perunInitializer.getOutputWriter();
 
 		//Get list of all vos
@@ -101,7 +103,7 @@ public class Utils {
 			perunVoId+= String.valueOf(vo.getId());
 			o+= vo.getShortName();
 			desc+= vo.getName();
-			dn+= "perunVoId=" + vo.getId() + ",dc=perun,dc=cesnet,dc=cz";
+			dn+= "perunVoId=" + vo.getId() + "," + ldapBase;
 			writer.write(dn + '\n');
 			writer.write(oc1 + '\n');
 			writer.write(oc2 + '\n');
@@ -112,7 +114,7 @@ public class Utils {
 			//Generate all members in member groups of this vo and add them here (only members with status Valid)
 			List<Member> validMembers = perun.getMembersManagerBl().getMembers(perunSession, vo, Status.VALID);
 			for(Member m: validMembers) {
-				writer.write("uniqueMember: perunUserId=" + m.getUserId() + ",ou=People,dc=perun,dc=cesnet,dc=cz" + '\n');
+				writer.write("uniqueMember: perunUserId=" + m.getUserId() + "," + branchOuPeople + '\n');
 			}
 			writer.write('\n');
 		}
@@ -132,6 +134,7 @@ public class Utils {
 		if(perunInitializer == null) throw new InternalErrorException("PerunInitializer must be loaded before using in generating methods!");
 		PerunSession perunSession = perunInitializer.getPerunSession();
 		PerunBl perun = perunInitializer.getPerunBl();
+		String ldapBase = perunInitializer.getLdapBase();
 		BufferedWriter writer = perunInitializer.getOutputWriter();
 
 		//first get all Vos
@@ -169,7 +172,7 @@ public class Utils {
 				perunVoId+= String.valueOf(resource.getVoId());
 				perunFacilityId+= String.valueOf(resource.getFacilityId());
 				perunResourceId+= String.valueOf(resource.getId());
-				dn+= "perunResourceId=" + resource.getId() + ",perunVoId=" + resource.getVoId() + ",dc=perun,dc=cesnet,dc=cz";
+				dn+= "perunResourceId=" + resource.getId() + ",perunVoId=" + resource.getVoId() + "," + ldapBase;
 				cn+= resource.getName();
 				String descriptionValue = resource.getDescription();
 				if(descriptionValue != null) {
@@ -209,6 +212,8 @@ public class Utils {
 		if(perunInitializer == null) throw new InternalErrorException("PerunInitializer must be loaded before using in generating methods!");
 		PerunSession perunSession = perunInitializer.getPerunSession();
 		PerunBl perun = perunInitializer.getPerunBl();
+		String ldapBase = perunInitializer.getLdapBase();
+		String branchOuPeople = "ou=People," + ldapBase;
 		BufferedWriter writer = perunInitializer.getOutputWriter();
 
 		//First get all vos
@@ -234,7 +239,7 @@ public class Utils {
 				members = perun.getGroupsManagerBl().getGroupMembers(perunSession, group, Status.VALID);
 				perunGroupId+= String.valueOf(group.getId());
 				perunVoId+= String.valueOf(group.getVoId());
-				dn+= "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz";
+				dn+= "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapBase;
 				cn+= group.getName();
 				perunUniqueGroupName+= vo.getShortName() + ":" + group.getName();
 				String descriptionValue = group.getDescription();
@@ -243,7 +248,7 @@ public class Utils {
 				}
 				if(group.getParentGroupId() != null) {
 					parentGroupId+= group.getParentGroupId();
-					parentGroup+= "perunGroupId=" + group.getParentGroupId()+ ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz";
+					parentGroup+= "perunGroupId=" + group.getParentGroupId()+ ",perunVoId=" + group.getVoId() + "," + ldapBase;
 				}
 				List<Member> admins = new ArrayList<>();
 				writer.write(dn + '\n');
@@ -260,7 +265,7 @@ public class Utils {
 				}
 				//ADD Group Members
 				for(Member m: members) {
-					writer.write("uniqueMember: " + "perunUserId=" + m.getUserId() + ",ou=People,dc=perun,dc=cesnet,dc=cz");
+					writer.write("uniqueMember: " + "perunUserId=" + m.getUserId() + "," + branchOuPeople);
 					writer.write('\n');
 				}
 				//ADD resources which group is assigned to
@@ -293,6 +298,8 @@ public class Utils {
 		if(perunInitializer == null) throw new InternalErrorException("PerunInitializer must be loaded before using in generating methods!");
 		PerunSession perunSession = perunInitializer.getPerunSession();
 		PerunBl perun = perunInitializer.getPerunBl();
+		String ldapBase = perunInitializer.getLdapBase();
+		String branchOuPeople = "ou=People," + ldapBase;
 		BufferedWriter writer = perunInitializer.getOutputWriter();
 
 		List<User> users = perun.getUsersManagerBl().getUsers(perunSession);
@@ -329,7 +336,7 @@ public class Utils {
 					List<Group> groups;
 					groups = perun.getGroupsManagerBl().getAllMemberGroups(perunSession, member);
 					for(Group group: groups) {
-						membersOf.add("memberOf: " + "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz");
+						membersOf.add("memberOf: " + "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapBase);
 					}
 				}
 			}
@@ -343,13 +350,14 @@ public class Utils {
 			Attribute attrLibraryIDs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs");
 			Attribute attrPhone = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":phone");
 			perunUserId+= String.valueOf(user.getId());
-			dn+= "perunUserId=" + user.getId() + ",ou=People,dc=perun,dc=cesnet,dc=cz";
+			dn+= "perunUserId=" + user.getId() + "," + branchOuPeople;
 			String firstName = user.getFirstName();
 			String lastName = user.getLastName();
-			if(firstName == null) firstName = "";
+			if(firstName == null || firstName.isEmpty()) firstName = "";
+			else cn+= firstName + " ";
 			if(lastName == null || lastName.isEmpty()) lastName = "N/A";
 			sn+= lastName;
-			cn+= firstName + " " + lastName;
+			cn+= lastName;
 			if(user.isServiceUser()) isServiceUser+= "1";
 			else isServiceUser+= "0";
 			if(user.isSponsoredUser()) isSponsoredUser+= "1";

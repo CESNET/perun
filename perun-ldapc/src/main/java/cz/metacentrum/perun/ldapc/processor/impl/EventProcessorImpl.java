@@ -712,10 +712,13 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
 				String firstName = this.user.getFirstName();
 				String lastName = this.user.getLastName();
-				if(firstName == null) firstName = "";
+				String commonName = "";
+				if(firstName == null || firstName.isEmpty()) firstName = "";
+				else commonName+= firstName + " ";
 				if(lastName == null || lastName.isEmpty()) lastName = "N/A";
+				commonName+=lastName;
 				replaceList.add(new Pair(ldapAttrSurname,lastName));
-				replaceList.add(new Pair(ldapAttrCommonName, firstName + " " + lastName));
+				replaceList.add(new Pair(ldapAttrCommonName, commonName));
 				// IF firstName is empty, maybe need to be removed first
 				if(firstName.isEmpty()) {
 					//if first name exists and new one is empty, then remove it, else do nothing

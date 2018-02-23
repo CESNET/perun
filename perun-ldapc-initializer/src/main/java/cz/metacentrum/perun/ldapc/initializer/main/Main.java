@@ -42,8 +42,7 @@ public class Main {
 	 * GroupOfUniqueNames object class is not supported in new instances of perun LDAP
 	 *
 	 * @param fileName if not null, use file for generating. if null use stdout
-	 * @param newLDAPversion if true, then do not use GroupOfUniqueNames object class
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 */
 	public Main(String fileName) throws InternalErrorException {
