@@ -452,7 +452,7 @@ public class Utils {
 					if(loginNamespace != null && loginNamespaceAttribute.getValue() != null) {
 						String loginNamespaceAttributeValue = (String) loginNamespaceAttribute.getValue();
 						writer.write("login;x-ns-" + loginNamespaceAttribute.getFriendlyNameParameter() + ": " + loginNamespaceAttributeValue + '\n');
-						if(loginNamespaceAttribute.getFriendlyNameParameter().equals(loginNamespace)) {
+						if(loginNamespaceAttribute.getFriendlyNameParameter().toLowerCase().equals(loginNamespace.toLowerCase())) {
 							writer.write(userPassword + "{SASL}" + loginNamespaceAttributeValue  + '@' + loginNamespace + '\n');
 						}
 					}
