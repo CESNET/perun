@@ -66,6 +66,10 @@ public class PerunInitializer {
 		return BeansUtils.getPropertyFromCustomConfiguration(ldapcPropertyFile, "ldap.base");
 	}
 
+	public String getLoginNamespace() throws InternalErrorException {
+		return BeansUtils.getPropertyFromCustomConfiguration(ldapcPropertyFile, "ldap.loginNamespace").toLowerCase();
+	}
+
 	public void closeWriter() throws IOException {
 		this.outputWriter.close();
 	}
