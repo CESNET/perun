@@ -274,6 +274,7 @@ public class Utils {
 					writer.write("assignedToResourceId: " + r.getId());
 					writer.write('\n');
 				}
+				writer.write('\n');
 			}
 		}
 	}
