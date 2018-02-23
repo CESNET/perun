@@ -28,7 +28,7 @@ public class PerunInitializer {
 	private final PerunPrincipal perunPrincipal;
 	private final BufferedWriter outputWriter;
 	private final String consumerName = "ldapcConsumer";
-	private final String ldapcPropertyFile = "/etc/perun/perun-ldapc.properties";
+	private final String ldapcPropertyFile = "perun-ldapc.properties";
 
 	public PerunInitializer(String outputFileName) throws InternalErrorException, FileNotFoundException {
 		this.perunPrincipal = new PerunPrincipal("perunLdapInitializer", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
