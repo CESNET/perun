@@ -232,7 +232,6 @@ public class Utils {
 				String parentGroup = "perunParentGroup: ";
 				String parentGroupId = "perunParentGroupId: ";
 				String perunGroupId = "perunGroupId: ";
-				String owner = "owner: ";
 				String description = "description: ";
 				String perunUniqueGroupName = "perunUniqueGroupName: ";
 				List<Member> members;
@@ -275,9 +274,6 @@ public class Utils {
 					writer.write("assignedToResourceId: " + r.getId());
 					writer.write('\n');
 				}
-				//FOR NOW No groups has owner
-				writer.write(owner + '\n');
-				writer.write('\n');
 			}
 		}
 	}
@@ -456,7 +452,7 @@ public class Utils {
 						String loginNamespaceAttributeValue = (String) loginNamespaceAttribute.getValue();
 						writer.write("login;x-ns-" + loginNamespaceAttribute.getFriendlyNameParameter() + ": " + loginNamespaceAttributeValue + '\n');
 						if(loginNamespaceAttribute.getFriendlyNameParameter().equals(loginNamespace)) {
-							writer.write(userPassword + "{SASL}" + loginNamespaceAttributeValue  + '@' + loginNamespaceAttribute.getFriendlyNameParameter().toUpperCase() + '\n');
+							writer.write(userPassword + "{SASL}" + loginNamespaceAttributeValue  + '@' + loginNamespace + '\n');
 						}
 					}
 				}
