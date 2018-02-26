@@ -298,7 +298,7 @@ sub ldap_connect{
 	$base_dn = $lines[3];
 
 	# LDAP connect
-	$ldap = Net::LDAPS->new( "$ldap_location" , onerror => 'die' , timeout => 5 , debug => 0, verify => 'none', port => 636);
+	$ldap = Net::LDAPS->new( "$ldap_location" , onerror => 'die' , timeout => 5 , debug => 0, verify => 'require', clientcert => '/path/to/cert.pem', clientkey => '/path/to/key.pem', cafile=>'/path/to/servercert.pem', port => 636);
 
 	# LDAP log-in
 	if ($ldap) {
