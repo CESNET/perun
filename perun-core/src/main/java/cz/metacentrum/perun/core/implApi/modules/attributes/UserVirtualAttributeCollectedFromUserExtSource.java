@@ -163,6 +163,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 		if (allAttributesRemovedForUserExtSource.matcher(message).find() ||
 				removeUserExtSourceAttribute.matcher(message).find() ||
 				setUserExtSourceAttribute.matcher(message).find()) {
+			log.debug("Resolving virtual attribute value change for attribute " + this.getSourceAttributeFriendlyName() + " and message: " + message);
 			User user = perunSession.getPerunBl().getModulesUtilsBl().getUserFromMessage(perunSession, message);
 			if (user != null) {
 				Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, getDestinationAttributeName());
@@ -176,6 +177,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 				}
 				resolvingMessages.add(messageAttributeSet);
 			}
+			if(!resolvingMessages.isEmpty()) log.debug("These new messages will be generated: " + resolvingMessages);
 		}
 
 		return resolvingMessages;
