@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.Base64Coder;
 import cz.metacentrum.perun.ldapc.initializer.beans.PerunInitializer;
 import cz.metacentrum.perun.rpclib.Rpc;
 import cz.metacentrum.perun.rpclib.api.RpcCaller;
@@ -166,7 +167,7 @@ public class Utils {
 				String perunVoId = "perunVoId: ";
 				String perunFacilityId = "perunFacilityId: ";
 				String perunResourceId = "perunResourceId: ";
-				String description = "description: ";
+				String description = "description:: ";
 				String entityID = "entityID: ";
 
 				perunVoId+= String.valueOf(resource.getVoId());
@@ -183,7 +184,7 @@ public class Utils {
 				writer.write(oc3 + '\n');
 				writer.write(cn + '\n');
 				writer.write(perunResourceId + '\n');
-				if(descriptionValue != null) writer.write(description + descriptionValue + '\n');
+				if(descriptionValue != null) writer.write(description + Base64Coder.encodeString(descriptionValue) + '\n');
 				writer.write(perunVoId + '\n');
 				writer.write(perunFacilityId + '\n');
 				if(entityIDAttr.getValue() != null) writer.write(entityID + (String) entityIDAttr.getValue() + '\n');
@@ -232,7 +233,7 @@ public class Utils {
 				String parentGroup = "perunParentGroup: ";
 				String parentGroupId = "perunParentGroupId: ";
 				String perunGroupId = "perunGroupId: ";
-				String description = "description: ";
+				String description = "description:: ";
 				String perunUniqueGroupName = "perunUniqueGroupName: ";
 				List<Member> members;
 				members = perun.getGroupsManagerBl().getGroupMembers(perunSession, group, Status.VALID);
@@ -257,7 +258,7 @@ public class Utils {
 				writer.write(perunUniqueGroupName + '\n');
 				writer.write(perunGroupId + '\n');
 				writer.write(perunVoId + '\n');
-				if(descriptionValue != null) writer.write(description + descriptionValue + '\n');
+				if(descriptionValue != null) writer.write(description + Base64Coder.encodeString(descriptionValue) + '\n');
 				if(group.getParentGroupId() != null) {
 					writer.write(parentGroupId + '\n');
 					writer.write(parentGroup + '\n');
