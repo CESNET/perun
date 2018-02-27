@@ -1778,6 +1778,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
 		try {
+			//check that attribute definition is current, non-altered by upper tiers
+			getAttributeDefinitionById(sess, attribute.getId()).checkEquality(attribute);
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException("cannot verify attribute definition",e);
+		}
+		try {
 			// deleting the attibute if the given attribute value is null
 			if (attribute.getValue() == null) {
 				int numAffected = jdbc.update("delete from " + tableName + " where " + buildParameters(columnNames, "=?", " and "), columnValues.toArray());

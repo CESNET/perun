@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+
 /**
  * This class represents definition of attribute. All attributes comes from some definition.
  * Attribute definition is attribute without connection to some object.
@@ -194,6 +196,20 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 		final AttributeDefinition other = (AttributeDefinition) obj;
 
 		return this.getId() == other.getId() && (this.friendlyName == null ? other.friendlyName == null : this.friendlyName.equals(other.friendlyName));
+	}
+
+	/**
+	 * Compares this instance to other instance, throws exception if they are different.
+	 * Used to check that Attribute has correct AttributeDefinition fields.
+	 *
+	 * @param a other instance to be checked for equality
+	 * @throws ConsistencyErrorException thrown if any of class attributes differ
+	 */
+	public void checkEquality(AttributeDefinition a) throws ConsistencyErrorException {
+		if (!this.getFriendlyName().equals(a.getFriendlyName())) throw new ConsistencyErrorException("attribute friendlyName is altered");
+		if (!this.getNamespace().equals(a.getNamespace())) throw new ConsistencyErrorException("attribute namespace is altered");
+		if (!this.getType().equals(a.getType())) throw new ConsistencyErrorException("attribute type is altered");
+		if (this.isUnique() != a.isUnique()) throw new ConsistencyErrorException("attribute unique flag is altered");
 	}
 
 	@Override
