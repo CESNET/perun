@@ -6078,6 +6078,36 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		attributes.put(attr, rights);
 
+		//urn:perun:resource:attribute-def:def:userSettingsName
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("userSettingsName");
+		attr.setDisplayName("User settings name");
+		attr.setDescription("Name displayed in user profile resource settings. To display certain resource in user profile settings this attribute value needs to be set.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
+		//urn:perun:resource:attribute-def:def:userSettingsDescription
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("userSettingsDescription");
+		attr.setDisplayName("User settings description");
+		attr.setDescription("Description displayed in user profile resource settings.");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
 		//urn:perun:vo:attribute-def:def:aupLink
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);
