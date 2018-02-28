@@ -32,6 +32,7 @@ import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Detail of Attribute definition
@@ -126,50 +127,59 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		//unique.setEnabled(false);
 		unique.setValue(def.isUnique());
 
-		unique.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> valueChangeEvent) {
+		if (Arrays.asList("core","virt").contains(def.getDefinition())) {
 
-				if (valueChangeEvent.getValue()) {
-					UiElements.generateAlert("Change confirmation", "Changing attribute to UNIQUE might take a lot of time if there is large number of entities with set values. Perun will check uniqueness during the process. If values are not unique, conversion will be stopped.<p style=\"color:red;\">We strongly recommend to refresh whole browser window after conversion is DONE to prevent errors when modyfying attributes from GUI.", new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent clickEvent) {
-							ConvertAttributeToUnique convert = new ConvertAttributeToUnique(new JsonCallbackEvents() {
-								@Override
-								public void onFinished(JavaScriptObject jso) {
-									unique.setValue(true);
-									unique.setEnabled(false);
-									def.setUnique(true);
-								}
+			unique.setEnabled(false);
 
-								@Override
-								public void onError(PerunError error) {
-									unique.setValue(false);
-									unique.setEnabled(true);
-									def.setUnique(false);
-								}
+		} else {
 
-								@Override
-								public void onLoadingStart() {
-									unique.setEnabled(false);
-								}
-							});
-							convert.convertAttributeDefinitionToUnique(def.getId());
-						}
-					}, new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent clickEvent) {
-							// action canceled
-							unique.setValue(false);
-						}
-					});
-				} else {
-					UiElements.generateInfo("Change not allowed", "Once converted to UNIQUE, attributes can't be converted back to non-unique.");
-					unique.setValue(true);
+			unique.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<Boolean> valueChangeEvent) {
+
+					if (valueChangeEvent.getValue()) {
+						UiElements.generateAlert("Change confirmation", "Changing attribute to UNIQUE might take a lot of time if there is large number of entities with set values. Perun will check uniqueness during the process. If values are not unique, conversion will be stopped.<p style=\"color:red;\">We strongly recommend to refresh whole browser window after conversion is DONE to prevent errors when modyfying attributes from GUI.", new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent clickEvent) {
+								ConvertAttributeToUnique convert = new ConvertAttributeToUnique(new JsonCallbackEvents() {
+									@Override
+									public void onFinished(JavaScriptObject jso) {
+										unique.setValue(true);
+										unique.setEnabled(false);
+										def.setUnique(true);
+									}
+
+									@Override
+									public void onError(PerunError error) {
+										unique.setValue(false);
+										unique.setEnabled(true);
+										def.setUnique(false);
+									}
+
+									@Override
+									public void onLoadingStart() {
+										unique.setEnabled(false);
+									}
+								});
+								convert.convertAttributeDefinitionToUnique(def.getId());
+							}
+						}, new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent clickEvent) {
+								// action canceled
+								unique.setValue(false);
+							}
+						});
+					} else {
+						UiElements.generateInfo("Change not allowed", "Once converted to UNIQUE, attributes can't be converted back to non-unique.");
+						unique.setValue(true);
+					}
+
 				}
+			});
 
-			}
-		});
+
+		}
 
 		FlexTable attributeDetailTable = new FlexTable();
 		attributeDetailTable.setStyleName("inputFormFlexTable");
