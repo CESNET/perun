@@ -2128,8 +2128,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			throw new InternalErrorException(ex);
 		}
 
-		if(attribute.isUnique() && attribute.getNamespace().startsWith(NS_ENTITYLESS_ATTR)) {
-			throw new InternalErrorException("entityless attributes cannot be marked unique");
+		if (attribute.isUnique()) {
+			if (attribute.getNamespace().startsWith(NS_ENTITYLESS_ATTR)) {
+				throw new InternalErrorException("entityless attributes cannot be marked unique");
+			}
+			if (!Arrays.asList("def","opt").contains(attribute.getNamespace().split(":")[4])) {
+				throw new InternalErrorException("only 'def' and 'opt' attributes can be unique");
+			}
 		}
 
 		getPerunBl().getAuditer().log(sess, "{} created.", attribute);
@@ -6447,6 +6452,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		AttributeDefinition attrDef = getAttributeDefinitionById(session, attrId);
 		if(attrDef.isUnique()) throw new AttributeAlreadyMarkedUniqueException("Cannot convert attribute because it is already marked as unique", attrDef);
 		if(attrDef.getNamespace().startsWith(NS_ENTITYLESS_ATTR)) throw new InternalErrorException("entityless atributes cannot be converted to unique");
+		if(!Arrays.asList("def","opt").contains(attrDef.getNamespace().split(":")[4])) {
+			throw new InternalErrorException("only 'def' and 'opt' attributes can be converted to unique");
+		}
 		log.info("converting attribute {} to unique",attrDef.getName());
 		attrDef.setUnique(true);
 		this.updateAttributeDefinition(session, attrDef);
