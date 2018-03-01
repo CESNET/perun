@@ -127,7 +127,7 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		//unique.setEnabled(false);
 		unique.setValue(def.isUnique());
 
-		if (Arrays.asList("core","virt").contains(def.getDefinition())) {
+		if (Arrays.asList("core","virt").contains(def.getDefinition()) || def.getEntity().equals("entityless")) {
 
 			unique.setEnabled(false);
 
