@@ -5242,7 +5242,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 			attrDef.setNamespace(namespace);
 			attrDef.setDescription("poznamka");
 			attrDef.setType(String.class.getName());
-			attrDef.setUnique(true);
+
+			if (entity.equals("entityless")) {
+				// entityless attributes can't be unique
+				attrDef.setUnique(false);
+			} else {
+				attrDef.setUnique(true);
+			}
+
 			assertNotNull("unable to create attribute before deletion",attributesManager.createAttribute(sess, attrDef));
 			attributesManager.deleteAttribute(sess, attrDef);
 			try {
@@ -5259,6 +5266,10 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 		int counter = 1;
 		for (String bean : AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.keySet()) {
+
+			// converting entityless is not supported
+			if (bean.equals("entityless")) continue;
+
 			for (String type : AttributesManagerImpl.ATTRIBUTE_TYPES) {
 				log.debug("conversion to unique bean {} type {}", bean, type);
 				String namespace = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(bean) + ":def";
@@ -5407,6 +5418,9 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		attributesManagerBl = getTargetObject(perun.getAttributesManagerBl());
 		int counter=1;
 		for(String bean: AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.keySet()) {
+
+			if (bean.equals("entityless")) continue;
+
 			for(String type: AttributesManagerImpl.ATTRIBUTE_TYPES) {
 				log.debug(" uniqueness check bean {} type {}", bean, type);
 				String namespace = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(bean) + ":def";
