@@ -96,6 +96,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_ENTITYLESS_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_RESOURCE_ATTR;
@@ -170,6 +171,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		BEANS_TO_NAMESPACES_MAP.put("user_facility", NS_USER_FACILITY_ATTR);
 		BEANS_TO_NAMESPACES_MAP.put("group_resource", NS_GROUP_RESOURCE_ATTR);
 		BEANS_TO_NAMESPACES_MAP.put("user_ext_source", NS_UES_ATTR);
+		BEANS_TO_NAMESPACES_MAP.put("entityless", NS_ENTITYLESS_ATTR);
 		//create reverse mapping, e.g. ues -> user_ext_source
 		for(Map.Entry<String,String> entry : BEANS_TO_NAMESPACES_MAP.entrySet()) {
 			ENTITIES_TO_BEANS_MAP.put(entry.getValue().split(":")[2],entry.getKey());

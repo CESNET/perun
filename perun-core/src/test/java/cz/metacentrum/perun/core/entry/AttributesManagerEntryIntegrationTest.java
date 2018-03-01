@@ -1130,6 +1130,14 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test
+	public void createAndDeleteEntitylessAttribute() throws Exception {
+
+		setAttributesForEntitylessTest();
+		perun.getAttributesManager().deleteAttribute(sess, entityless_test_attribute1);
+
+	}
+
 	/*@Test
 		public void checkAttributeDependenciesForAllAttributesInMap() throws Exception {
 		System.out.println(CLASS_NAME + "checkAttributeDependenciesForAllAttributesInMap");
