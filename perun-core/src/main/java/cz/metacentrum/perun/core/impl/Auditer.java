@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -12,6 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException
 import cz.metacentrum.perun.core.implApi.AuditerListener;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import net.jcip.annotations.GuardedBy;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -62,6 +65,7 @@ public class Auditer {
 	public final static String engineForceKeyword = "forceit";
 
 	private final static Logger log = LoggerFactory.getLogger(Auditer.class);
+	private final static Logger transactionLogger = LoggerFactory.getLogger("transactionLogger");
 	private JdbcPerunTemplate jdbc;
 
 	private Map<AuditerListener, ListenerThread> listenersMap = new HashMap<AuditerListener, ListenerThread>();
@@ -69,6 +73,7 @@ public class Auditer {
 	private int lastProcessedId;
 
 	private static final Object LOCK_DB_TABLE_AUDITER_LOG = new Object();
+	private static final Object LOCK_DB_TABLE_AUDITER_LOG_JSON = new Object();
 
 	private static Set<VirtualAttributesModuleImplApi> registeredAttributesModules = new HashSet<>();
 
@@ -110,7 +115,6 @@ public class Auditer {
 			} else {
 				msg = rs.getString("msg");
 			}
-
 			// Get principal User and his ID (null, if no user exist)
 			Integer principalUserId = null;
 			if (rs.getInt("created_by_uid") != 0) principalUserId = rs.getInt("created_by_uid");
@@ -172,6 +176,8 @@ public class Auditer {
 	 * @param message
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
+	//TODO remove and create new version of this method that will accept object of AuditEvent
 	public void log(PerunSession sess, String message) throws InternalErrorException {
 		if(TransactionSynchronizationManager.isActualTransactionActive()) {
 			log.trace("Auditer stores audit message to current transaction. Message: {}.", message);
@@ -191,6 +197,64 @@ public class Auditer {
 	}
 
 	/**
+	 * Log message.
+	 * Takes event object and maps it to JSON string.
+	 *
+	 * @param sess  Perun session
+	 * @param event Audit event to be logged.
+	 * @throws InternalErrorException
+	 * @author Richard Husár 445238@mail.muni.cz
+	 */
+	public void log(PerunSession sess, AuditEvent event) throws InternalErrorException {
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enableDefaultTyping();
+		try {
+			String jsonString = mapper.writeValueAsString(event);
+			log(sess, jsonString);
+
+		} catch (IOException e) {
+			log.error("Could not map event {} to JSON.", event.getClass().getSimpleName());
+		}
+
+	}
+
+	/**
+	 * @param jsonString
+	 * @return message attribute from json formated string
+	 * @author Richard Husár 445238@mail.muni.cz
+	 */
+	public String getMessageFromJsonString(String jsonString) {
+		try {
+			//get everything from in between of next quotes
+			String message;
+			int index = jsonString.indexOf("\"message\":");
+			if (index != -1) {
+				message = jsonString.substring(index + 11);
+				message = message.substring(0, message.indexOf("\""));
+				return message;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("Could not get message from json string: \"{}\".", jsonString);
+		}
+		return "";
+	}
+
+	/**
+	 * removes ',' characters as well as whitespaces and newline characters before message attribute and ',' directly after message attribute
+	 *
+	 * @param jsonString
+	 * @return json string without message attribute
+	 * @author Richard Husár 445238@mail.muni.cz
+	 */
+	//TODO what this method actually do?
+	public String getMessageWithoutMessageAttribute(String jsonString) {
+		return jsonString.replaceAll(",?(\\r\\n|\\r|\\n)?\\s*\"message\":\".*\",?", "");
+	}
+
+
+	/**
 	 * Log mesage. Substitute first {} with arg1.toString().
 	 *
 	 * @param message
@@ -203,26 +267,26 @@ public class Auditer {
 
 	/**
 	 * Log mesage. Substitute first {} with arg1.toString().
-	 *
 	 * IMPORTANT: This method stores the message aside from DB transaction.
 	 *
 	 * @param message
 	 * @param arg1
 	 * @throws InternalErrorException
 	 */
+	//TODO change String to AuditEvent, also tests where this method is used, needs to be updated
 	public void logWithoutTransaction(PerunSession sess, String message, Object arg1) throws InternalErrorException {
 		logWithoutTransaction(sess, message, arg1, null);
 	}
 
 	/**
 	 * Log mesage. Substitute first two {} with arg1.toString() and arg2.toString().
-	 *
 	 * IMPORTANT: This method stores the message aside from DB transaction.
 	 *
 	 * @param message
 	 * @param arg1
 	 * @throws InternalErrorException
 	 */
+	//TODO change String to Audit event
 	public void logWithoutTransaction(PerunSession sess, String message, Object arg1, Object arg2) throws InternalErrorException {
 		message = BeansUtils.createEscaping(message);
 		Object[] objects = new Object[2];
@@ -273,7 +337,6 @@ public class Auditer {
 	 * in the list.
 	 *
 	 * @param arg (object)
-	 *
 	 * @return arg (object)
 	 */
 	private Object serializeObject(Object arg) {
@@ -303,7 +366,6 @@ public class Auditer {
 
 	/**
 	 * Initialize new lists for sotring Audit messages.
-	 *
 	 */
 	public void newTopLevelTransaction() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
@@ -324,7 +386,6 @@ public class Auditer {
 
 	/**
 	 * Creates new list for saving auditer messages of a new nested transactions.
-	 *
 	 */
 	public void newNestedTransaction() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
@@ -336,7 +397,6 @@ public class Auditer {
 	/**
 	 * Flush auditer messages of the last messages to the store of the outer transaction.
 	 * There should be at least one nested transaction.
-	 *
 	 */
 	public void flushNestedTransaction() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
@@ -353,7 +413,6 @@ public class Auditer {
 
 	/**
 	 * Erases the auditer messages for the last transaction.
-	 *
 	 */
 	public void cleanNestedTransation() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
@@ -418,6 +477,14 @@ public class Auditer {
 			log.error("There should be only one list of messages while cleaning.");
 		}
 
+		//log erased transactions to logfile
+		for (List<AuditerMessage> list : transactionChain) {
+			for (AuditerMessage message : list) {
+				transactionLogger.info("Unstored transaction message: {}", message);
+			}
+		}
+
+
 		topLevelTransactions.remove(topLevelTransactions.size() - 1);
 
 		if (topLevelTransactions.isEmpty()) {
@@ -441,6 +508,25 @@ public class Auditer {
 	public List<AuditMessage> getMessages(int count) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
+					AUDITMESSAGE_MAPPER, count);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<AuditMessage>();
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
+	/**
+	 * Gets last count messages from auditer_log_json
+	 *
+	 * @param count
+	 * @return list of last count messages from auditer_log_json
+	 * @throws InternalErrorException
+	 * @author Richard Husár 445238@mail.muni.cz
+	 */
+	public List<AuditMessage> getJSONMessages(int count) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log_json ORDER BY id Desc limit ?) " + Compatibility.getAsAlias("temp"),
 					AUDITMESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<AuditMessage>();
@@ -512,6 +598,7 @@ public class Auditer {
 	 *
 	 * @param auditerMessages list of AuditerMessages
 	 */
+	//TODO how this method differ from storeMessageToDb?
 	public void storeMessagesToDb(final List<AuditerMessage> auditerMessages) {
 		//Avoid working with empty list of auditer-messages
 		if(auditerMessages == null || auditerMessages.isEmpty()) {
@@ -519,6 +606,8 @@ public class Auditer {
 			return;
 		}
 
+		final List<Integer> ids = new ArrayList<>();
+		final List<PubsubMechanizm.Pair<AuditerMessage, Integer>> msgs = new ArrayList<>();
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
 
 			//Add all possible resolving messages to the bulk
@@ -552,11 +641,14 @@ public class Auditer {
 							@Override
 							public void setValues(PreparedStatement ps, int i) throws SQLException {
 								final AuditerMessage auditerMessage = auditerMessages.get(i);
-								final String message = auditerMessage.getMessage();
+								final String message = getMessageFromJsonString(auditerMessage.getMessage());
 								final PerunSession session = auditerMessage.getOriginaterPerunSession();
 								log.info("AUDIT: {}", message);
 								try {
-									ps.setInt(1, Utils.getNewId(jdbc, "auditer_log_id_seq"));
+									final int msgId = Utils.getNewId(jdbc, "auditer_log_id_seq");
+									ps.setInt(1, msgId);
+									ids.add(msgId);
+									msgs.add(new PubsubMechanizm.Pair<AuditerMessage, Integer>(auditerMessage, msgId));
 								} catch (InternalErrorException e) {
 									throw new SQLException("Cannot get unique id for new auditer log message ['" + message + "']", e);
 								}
@@ -576,7 +668,48 @@ public class Auditer {
 				log.error("Could not get system date identifier for the DB", e);
 			}
 		}
+
+		this.storeMessagesToDbJson(msgs);
 	}
+
+	/**
+	 * Stores messages to audit_log_JSON table
+	 *
+	 * @param messages takes pair of auditer message to be stored and id of message from audit_log
+	 * @author Richard Husár 445238@mail.muni.cz
+	 */
+	//TODO how this method differs from storeMessageToDbJson?
+	public void storeMessagesToDbJson(final List<PubsubMechanizm.Pair<AuditerMessage, Integer>> messages) {
+		synchronized (LOCK_DB_TABLE_AUDITER_LOG_JSON) {
+			try {
+				jdbc.batchUpdate("insert into auditer_log_json (id, msg, actor, created_at, created_by_uid) values (?,?,?," + Compatibility.getSysdate() + ",?)",
+						new BatchPreparedStatementSetter() {
+							@Override
+							public void setValues(PreparedStatement ps, int i) throws SQLException {
+								final AuditerMessage auditerMessage = messages.get(i).getLeft();
+								//store message without duplicit message attribute because it is stored in separate table
+								final String message = getMessageWithoutMessageAttribute(auditerMessage.getMessage());
+								final PerunSession session = auditerMessage.getOriginaterPerunSession();
+								log.info("AUDIT: {}", message);
+								ps.setInt(1, messages.get(i).getRight());
+								ps.setString(2, message);
+								ps.setString(3, session.getPerunPrincipal().getActor());
+								ps.setInt(4, session.getPerunPrincipal().getUserId());
+							}
+
+							@Override
+							public int getBatchSize() {
+								return messages.size();
+							}
+						});
+			} catch (RuntimeException e) {
+				log.error("Cannot store auditer log JSON message in batch for list ['{}'], exception: {}", messages, e);
+			} catch (InternalErrorException e) {
+				log.error("Could not get system date identifier for the DB", e);
+			}
+		}
+	}
+
 
 	/**
 	 * Stores the message to the DB.
@@ -587,11 +720,42 @@ public class Auditer {
 	 * @param sess
 	 * @param message
 	 */
+	//TODO edit this method to take AuditEvent instead of String
 	public void storeMessageToDb(final PerunSession sess, final String message) {
 		ArrayList<AuditerMessage> auditerMessages = new ArrayList<>();
 		AuditerMessage auditerMessage = new AuditerMessage(sess, message);
 		auditerMessages.add(auditerMessage);
 		this.storeMessagesToDb(auditerMessages);
+	}
+
+	/**
+	 * Stores message to audit_log_JSON table
+	 *
+	 * @param sess    session
+	 * @param message message to be stored
+	 * @param id      id of message in audit_log
+	 * @author Richard Husár 445238@mail.muni.cz
+	 */
+	public void storeMessageToDbJson(final PerunSession sess, final String message, int id) {
+		synchronized (LOCK_DB_TABLE_AUDITER_LOG_JSON) {
+			try {
+				jdbc.execute("insert into auditer_log_json (id, msg, actor, created_at, created_by_uid) values (?,?,?," + Compatibility.getSysdate() + ",?)",
+						new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
+							public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
+								ps.setInt(1, id);
+								//store message without duplicit message attribute because it is stored in separate table
+								lobCreator.setClobAsString(ps, 2, getMessageWithoutMessageAttribute(message));
+								ps.setString(3, sess.getPerunPrincipal().getActor());
+								ps.setInt(4, sess.getPerunPrincipal().getUserId());
+							}
+						}
+				);
+			} catch (RuntimeException e) {
+				log.error("Cannot store auditer log message ['{}'], exception: {}", message, e);
+			} catch (InternalErrorException e) {
+				log.error("Cannot get unique id for new auditer log message ['{}'], exception: {}", message, e);
+			}
+		}
 	}
 
 	public void createAuditerConsumer(String consumerName) throws InternalErrorException {

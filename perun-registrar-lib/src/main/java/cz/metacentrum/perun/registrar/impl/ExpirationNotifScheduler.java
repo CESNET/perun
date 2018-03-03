@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.registrar.impl;
 
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInDays;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInMonthNotification;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -95,16 +97,16 @@ public class ExpirationNotifScheduler {
 	 */
 	private enum ExpirationPeriod {
 		MONTH(((auditer, sess, member, vo) ->
-			auditer.log(sess, "{} will expire in a month in {}.", member, vo)
+			auditer.log(sess, new MembershipExpirationInMonthNotification(member, vo))
 		)),
 		DAYS_14(((auditer, sess, member, vo) ->
-			auditer.log(sess, "{} will expire in {} days in {}.", member, 14, vo)
+			auditer.log(sess, new MembershipExpirationInDays(member, 14, vo))
 		)),
 		DAYS_7(((auditer, sess, member, vo) ->
-			auditer.log(sess, "{} will expire in {} days in {}.", member, 7, vo)
+			auditer.log(sess, new MembershipExpirationInDays(member, 7, vo))
 		)),
 		DAYS_1(((auditer, sess, member, vo) ->
-			auditer.log(sess, "{} will expire in {} days in {}.", member, 1, vo)
+			auditer.log(sess, new MembershipExpirationInDays(member, 1, vo))
 		));
 
 		private ExpirationAuditAction<Auditer, PerunSession, Member, Vo> expirationAuditAction;

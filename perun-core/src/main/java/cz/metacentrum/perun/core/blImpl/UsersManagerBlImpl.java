@@ -8,6 +8,16 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.*;
 
+import cz.metacentrum.perun.audit.events.UserManagerEvents.AllUserExtSourcesDeletedForUser;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipDisabledForSpecificUser;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipEnabledForSpecificUser;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserAddedToOwnersOfSpecificUser;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserCreated;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserDeleted;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceAddedToUser;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceRemovedFromUser;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceUpdated;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserUpdated;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
@@ -122,7 +132,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new InternalErrorException("Can't remove role of sponsor for user " + user + " and sponsored user " + specificUser);
 		}
 
-		getPerunBl().getAuditer().log(sess, "{} ownership was disabled for specificUser {}.", user, specificUser);
+		getPerunBl().getAuditer().log(sess, new OwnershipDisabledForSpecificUser(user, specificUser));
 		getUsersManagerImpl().disableOwnership(sess, user, specificUser);
 	}
 
@@ -136,9 +146,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		if(getUsersManagerImpl().specificUserOwnershipExists(sess, user, specificUser)) {
 			getUsersManagerImpl().enableOwnership(sess, user, specificUser);
-			getPerunBl().getAuditer().log(sess, "{} ownership was enabled for specificUser {}.", user, specificUser);
+			getPerunBl().getAuditer().log(sess, new OwnershipEnabledForSpecificUser(user, specificUser));
 		} else {
-			getPerunBl().getAuditer().log(sess, "{} was added to owners of {}.", user, specificUser);
+			getPerunBl().getAuditer().log(sess, new UserAddedToOwnersOfSpecificUser(user, specificUser));
 			getUsersManagerImpl().addSpecificUserOwner(sess, user, specificUser);
 		}
 
@@ -315,7 +325,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		if(user.getTitleAfter() != null && user.getTitleAfter().isEmpty()) user.setTitleAfter(null);
 
 		user = getUsersManagerImpl().createUser(sess, user);
-		getPerunBl().getAuditer().log(sess, "{} created.", user);
+		getPerunBl().getAuditer().log(sess, new UserCreated(user));
 
 		// Add default userExtSource
 		ExtSource es;
@@ -371,7 +381,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// First delete all associated external sources to the user
 		removeAllUserExtSources(sess, user);
-		getPerunBl().getAuditer().log(sess, "All user ext sources removed for {}.", user);
+		getPerunBl().getAuditer().log(sess, new AllUserExtSourcesDeletedForUser(user));
 
 		// delete all authorships of users publications
 		getUsersManagerImpl().removeAllAuthorships(sess, user);
@@ -457,7 +467,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		if(user.isSponsoredUser()) AuthzResolverBlImpl.removeAllSponsoredUserAuthz(sess, user);
 		// Finally delete the user
 		getUsersManagerImpl().deleteUser(sess, user);
-		getPerunBl().getAuditer().log(sess, "{} deleted.", user);
+		getPerunBl().getAuditer().log(sess, new UserDeleted(user));
 	}
 
 	@Override
@@ -469,7 +479,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		User afterUpdatingUser = getUsersManagerImpl().updateUser(sess, user);
 
 		//Log only when something is changed
-		if(!beforeUpdatingUser.equals(afterUpdatingUser)) getPerunBl().getAuditer().log(sess, "{} updated.", user);
+		if(!beforeUpdatingUser.equals(afterUpdatingUser))
+			getPerunBl().getAuditer().log(sess, new UserUpdated(user));
 		return afterUpdatingUser;
 	}
 
@@ -483,13 +494,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		//Log only when something is changed
 		// must audit like update user since it changes same object
-		if(!beforeUpdatingUser.equals(afterUpdatingUser)) getPerunBl().getAuditer().log(sess, "{} updated.", user);
+		if(!beforeUpdatingUser.equals(afterUpdatingUser))
+			getPerunBl().getAuditer().log(sess, new UserUpdated(user));
 		return afterUpdatingUser;
 	}
 
 	@Override
 	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
-		getPerunBl().getAuditer().log(sess, "{} updated.", userExtSource);
+		getPerunBl().getAuditer().log(sess, new UserExtSourceUpdated(userExtSource));
 		return getUsersManagerImpl().updateUserExtSource(sess, userExtSource);
 	}
 
@@ -535,7 +547,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		userExtSource = getUsersManagerImpl().addUserExtSource(sess, user, userExtSource);
-		getPerunBl().getAuditer().log(sess, "{} added to {}.", userExtSource, user);
+		getPerunBl().getAuditer().log(sess, new UserExtSourceAddedToUser(userExtSource, user));
 		return userExtSource;
 	}
 
@@ -549,7 +561,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new InternalErrorException("Can't remove userExtSource because there is problem with removing all it's attributes.", ex);
 		}
 		getUsersManagerImpl().removeUserExtSource(sess, user, userExtSource);
-		getPerunBl().getAuditer().log(sess, "{} removed from {}.", userExtSource, user);
+		getPerunBl().getAuditer().log(sess, new UserExtSourceRemovedFromUser(userExtSource, user));
 	}
 
 	@Override

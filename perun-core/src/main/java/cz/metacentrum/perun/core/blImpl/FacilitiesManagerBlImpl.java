@@ -10,6 +10,31 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.RichGroup;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminAddedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminGroupAddedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminGroupRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.AdminRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanSetForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanUpdatedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityCreated;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityDeleted;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityUpdated;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.GroupContactsRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.GroupsAddedToContactGroupOfFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.GroupsRemovedFromContactGroupOfFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostAddedToFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostsAddedToFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.HostsRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.OwnerContactsRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.OwnersAddedToContactGroupOfFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.OwnersRemovedFromContactGroupOfFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.SecurityTeamAssignedToFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.SecurityTeamRemovedFromFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UserContactsRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UsersAddedToContactGroupOfFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UsersRemovedFromContactGroupOfFacility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -271,8 +296,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 		// create facility
 		facility = getFacilitiesManagerImpl().createFacility(sess, facility);
-		getPerunBl().getAuditer().log(sess, "Facility created {}.", facility);
-
+		getPerunBl().getAuditer().log(sess, new FacilityCreated(facility));
 		//set creator as Facility manager
 		if(sess.getPerunPrincipal().getUser() != null) {
 			try {
@@ -337,7 +361,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		// delete facility
 		getFacilitiesManagerImpl().deleteFacilityOwners(sess, facility);
 		getFacilitiesManagerImpl().deleteFacility(sess, facility);
-		getPerunBl().getAuditer().log(sess, "Facility deleted {}.", facility);
+		getPerunBl().getAuditer().log(sess, new FacilityDeleted(facility));
 	}
 
 	@Override
@@ -347,7 +371,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			throw new InternalErrorException(new IllegalArgumentException("Wrong facility name, facility name can contain only a-Z0-9.-_ and space characters"));
 		}
 
-		getPerunBl().getAuditer().log(sess, "{} updated.", facility);
+		getPerunBl().getAuditer().log(sess, new FacilityUpdated(facility));
 		return getFacilitiesManagerImpl().updateFacility(sess, facility);
 	}
 
@@ -499,8 +523,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		for(Host host : hosts) {
 			host = getFacilitiesManagerImpl().addHost(sess, host, facility);
 		}
-
-		getPerunBl().getAuditer().log(sess, "Hosts {} added to cluster {}", hosts, facility);
+		getPerunBl().getAuditer().log(sess, new HostsAddedToFacility(hosts, facility));
 
 		return hosts;
 	}
@@ -538,7 +561,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			getFacilitiesManagerImpl().removeHost(sess, host);
 		}
 
-		getPerunBl().getAuditer().log(sess, "Hosts {} removed from cluster {}", hosts, facility);
+		getPerunBl().getAuditer().log(sess, new HostsRemovedForFacility(hosts, facility));
 	}
 
 	public boolean hostExists(PerunSession sess, Host host) throws InternalErrorException {
@@ -548,7 +571,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	@Override
 	public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
 		AuthzResolverBlImpl.setRole(sess, user, facility, Role.FACILITYADMIN);
-		getPerunBl().getAuditer().log(sess, "{} was added as admin of {}.", user, facility);
+		getPerunBl().getAuditer().log(sess, new AdminAddedForFacility(user, facility));
 	}
 
 	@Override
@@ -557,13 +580,13 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		if (listOfAdmins.contains(group)) throw new AlreadyAdminException(group);
 
 		AuthzResolverBlImpl.setRole(sess, group, facility, Role.FACILITYADMIN);
-		getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", group, facility);
+		getPerunBl().getAuditer().log(sess, new AdminGroupAddedForFacility(group, facility));
 	}
 
 	@Override
 	public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, UserNotAdminException {
 		AuthzResolverBlImpl.unsetRole(sess, user, facility, Role.FACILITYADMIN);
-		getPerunBl().getAuditer().log(sess, "{} was removed from admins of {}.", user, facility);
+		getPerunBl().getAuditer().log(sess, new AdminRemovedForFacility(user, facility));
 	}
 
 	@Override
@@ -572,7 +595,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		if (!listOfAdmins.contains(group)) throw new GroupNotAdminException(group);
 
 		AuthzResolverBlImpl.unsetRole(sess, group, facility, Role.FACILITYADMIN);
-		getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", group, facility);
+		getPerunBl().getAuditer().log(sess, new AdminGroupRemovedForFacility(group, facility));
 	}
 
 	@Override
@@ -664,7 +687,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 	@Override
 	public Host addHost(PerunSession sess, Host host, Facility facility) throws InternalErrorException {
-		getPerunBl().getAuditer().log(sess, "{} added to {}.", host, facility);
+		getPerunBl().getAuditer().log(sess, new HostAddedToFacility(host, facility));
 		return facilitiesManagerImpl.addHost(sess, host, facility);
 	}
 
@@ -676,7 +699,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			throw new InternalErrorException(e);
 		}
 		facilitiesManagerImpl.removeHost(sess, host);
-		getPerunBl().getAuditer().log(sess, "{} removed.", host);
+		getPerunBl().getAuditer().log(sess, new HostRemovedForFacility(host));
 	}
 
 	@Override
@@ -880,7 +903,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 					usersId.add(user.getId());
 					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getName(), user);
 				}
-				sess.getPerun().getAuditer().log(sess, "Users (" + usersId.toString() + ") successfully added to contact group " + contactGroupToAdd.toString() + ".");
+				sess.getPerun().getAuditer().log(sess, new UsersAddedToContactGroupOfFacility(usersId, contactGroupToAdd));
 			}
 
 			if(contactGroupToAdd.getGroups()!= null) {
@@ -889,7 +912,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 					groupsId.add(group.getId());
 					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getName(), group);
 				}
-				sess.getPerun().getAuditer().log(sess, "Groups (" + groupsId.toString() + ") successfully added to contact group " + contactGroupToAdd.toString() + ".");
+				sess.getPerun().getAuditer().log(sess, new GroupsAddedToContactGroupOfFacility(groupsId, contactGroupToAdd));
 			}
 
 			if(contactGroupToAdd.getOwners() != null) {
@@ -898,7 +921,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 					ownersId.add(owner.getId());
 					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getName(), owner);
 				}
-				sess.getPerun().getAuditer().log(sess, "Owners (" + ownersId.toString() + ") successfully added to contact group " + contactGroupToAdd.toString() + ".");
+				sess.getPerun().getAuditer().log(sess, new OwnersAddedToContactGroupOfFacility(ownersId, contactGroupToAdd));
 			}
 		}
 	}
@@ -909,7 +932,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		this.facilitiesManagerImpl.removeAllOwnerContacts(sess, owner);
 
 		for (ContactGroup contactGroup : contactGroups) {
-			sess.getPerun().getAuditer().log(sess, "Owner (" + owner.getId() + ") successfully removed from contact groups " + contactGroup.toString() + ".");
+			sess.getPerun().getAuditer().log(sess, new OwnerContactsRemovedForFacility(owner,contactGroup));
 		}
 	}
 
@@ -919,7 +942,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		this.facilitiesManagerImpl.removeAllUserContacts(sess, user);
 
 		for (ContactGroup contactGroup : contactGroups) {
-			sess.getPerun().getAuditer().log(sess, "User (" + user.getId() + ") successfully removed from contact groups " + contactGroup.toString() + ".");
+			sess.getPerun().getAuditer().log(sess, new UserContactsRemovedForFacility(user,contactGroup));
 		}
 	}
 
@@ -929,7 +952,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		this.facilitiesManagerImpl.removeAllGroupContacts(sess, group);
 
 		for (ContactGroup contactGroup : contactGroups) {
-			sess.getPerun().getAuditer().log(sess, "Group (" + group.getId() + ") successfully removed from contact groups " + contactGroup.toString() + ".");
+			sess.getPerun().getAuditer().log(sess, new GroupContactsRemovedForFacility(group, contactGroup));
 		}
 	}
 
@@ -951,7 +974,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 					usersId.add(user.getId());
 					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getName(), user);
 				}
-				sess.getPerun().getAuditer().log(sess, "Users (" + usersId.toString() + ") successfully removed from contact group " + contactGroupToRemove.toString() + ".");
+				sess.getPerun().getAuditer().log(sess, new UsersRemovedFromContactGroupOfFacility(usersId, contactGroupToRemove));
 			}
 
 			if(contactGroupToRemove.getGroups()!= null) {
@@ -960,7 +983,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 					groupsId.add(group.getId());
 					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getName(), group);
 				}
-				sess.getPerun().getAuditer().log(sess, "Groups (" + groupsId.toString() + ") successfully removed from contact group " + contactGroupToRemove.toString() + ".");
+				sess.getPerun().getAuditer().log(sess, new GroupsRemovedFromContactGroupOfFacility(groupsId, contactGroupToRemove));
 			}
 
 			if(contactGroupToRemove.getOwners() != null) {
@@ -969,7 +992,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 					ownersId.add(owner.getId());
 					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getName(), owner);
 				}
-				sess.getPerun().getAuditer().log(sess, "Owners (" + ownersId.toString() + ") successfully removed from contact group " + contactGroupToRemove.toString() + ".");
+				sess.getPerun().getAuditer().log(sess, new OwnersRemovedFromContactGroupOfFacility(ownersId, contactGroupToRemove));
 			}
 		}
 	}
@@ -987,13 +1010,13 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	@Override
 	public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
 		facilitiesManagerImpl.assignSecurityTeam(sess, facility, securityTeam);
-		getPerunBl().getAuditer().log(sess, "{} was assigned to {}.", securityTeam, facility);
+		getPerunBl().getAuditer().log(sess, new SecurityTeamAssignedToFacility(securityTeam, facility));
 	}
 
 	@Override
 	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
 		facilitiesManagerImpl.removeSecurityTeam(sess, facility, securityTeam);
-		getPerunBl().getAuditer().log(sess, "{} was removed from {}.", securityTeam, facility);
+		getPerunBl().getAuditer().log(sess, new SecurityTeamRemovedFromFacility(securityTeam, facility));
 	}
 
 	@Override
@@ -1020,7 +1043,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, BanAlreadyExistsException {
 		if(this.banExists(sess, banOnFacility.getUserId(), banOnFacility.getFacilityId())) throw new BanAlreadyExistsException(banOnFacility);
 		banOnFacility = getFacilitiesManagerImpl().setBan(sess, banOnFacility);
-		getPerunBl().getAuditer().log(sess, "Ban {} was set for userId {} on facilityId {}.", banOnFacility, banOnFacility.getUserId(), banOnFacility.getFacilityId());
+		getPerunBl().getAuditer().log(sess, new BanSetForFacility(banOnFacility, banOnFacility.getUserId(), banOnFacility.getFacilityId()));
 		return banOnFacility;
 	}
 
@@ -1072,7 +1095,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	@Override
 	public BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException {
 		banOnFacility = getFacilitiesManagerImpl().updateBan(sess, banOnFacility);
-		getPerunBl().getAuditer().log(sess, "Ban {} was updated for userId {} on facilityId {}.",banOnFacility, banOnFacility.getUserId(), banOnFacility.getFacilityId());
+		getPerunBl().getAuditer().log(sess, new BanUpdatedForFacility(banOnFacility, banOnFacility.getUserId(), banOnFacility.getFacilityId()));
 		return banOnFacility;
 	}
 
@@ -1080,14 +1103,14 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
 		BanOnFacility ban = this.getBanById(sess, banId);
 		getFacilitiesManagerImpl().removeBan(sess, banId);
-		getPerunBl().getAuditer().log(sess, "Ban {} was removed for userId {} on facilityId {}.",ban, ban.getUserId(), ban.getFacilityId());
+		getPerunBl().getAuditer().log(sess, new BanRemovedForFacility(ban, ban.getUserId(), ban.getFacilityId()));
 	}
 
 	@Override
 	public void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException {
 		BanOnFacility ban = this.getBan(sess, userId, facilityId);
 		getFacilitiesManagerImpl().removeBan(sess, userId, facilityId);
-		getPerunBl().getAuditer().log(sess, "Ban {} was removed for userId {} on facilityId {}.",ban, userId, facilityId);
+		getPerunBl().getAuditer().log(sess, new BanRemovedForFacility(ban, userId, facilityId));
 	}
 
 	@Override

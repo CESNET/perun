@@ -2,7 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.PerunSession;
 
-public class AuditerMessage {
+public class 	AuditerMessage {
 	private String message;
 	private PerunSession originaterPerunSession;
 
@@ -29,7 +29,7 @@ public class AuditerMessage {
 
 	@Override
 	public String toString() {
-		return "AuditerMessage:[message='" + getMessage() + "]";
+		return "AuditerMessage:[message='" + getMessage() + "']";
 	}
 
 }
