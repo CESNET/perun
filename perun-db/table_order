@@ -31,6 +31,7 @@ authz
 hosts
 host_attr_values
 auditer_consumers
+auditer_subscribers
 security_teams_facilities
 blacklists
 resources_bans
@@ -89,3 +90,4 @@ mailchange
 pwdreset
 configurations
 auditer_log
+auditer_log_json

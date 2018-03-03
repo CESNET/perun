@@ -8,6 +8,13 @@
 
 -- this update is not supported on hsql since its used only as in-memory db
 
+3.1.47
+create table auditer_subscribers (id integer not null, name varchar(256) not null, last_processed_id integer, filters clob, created_at timestamp default statement_timestamp() not null, created_by varchar(1300) default user not null, modified_at timestamp default statement_timestamp() not null, modified_by varchar(1300) default user not null, created_by_uid integer, modified_by_uid integer, constraint audsub_pk primary key (id), constraint audsub_u unique(name) );
+create sequence auditer_subscriers_id_seq start with 10 increment by 1;
+create table auditer_log_json (id integer not null, msg text not null, actor varchar(256) not null, created_at timestamp default statement_timestamp() not null, created_by_uid integer, modified_by_uid integer, constraint audlogjson_pk primary key (id) );
+create sequence auditer_log_json_id_seq start with 10 increment by 1;
+update configurations set value='3.1.47' where property='DATABASE VERSION';
+
 3.1.46
 ALTER TABLE attr_names ADD COLUMN is_unique BOOLEAN DEFAULT FALSE NOT NULL;
 alter table member_resource_attr_values add constraint memrav_pk primary key(member_id,resource_id,attr_id);
