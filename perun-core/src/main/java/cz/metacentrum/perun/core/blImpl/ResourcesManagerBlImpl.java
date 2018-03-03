@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.blImpl;
 
 import java.util.*;
 
+import cz.metacentrum.perun.audit.events.*;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
@@ -45,7 +46,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new ResourceExistsException(existingResource);
 		} catch (ResourceNotExistsException e) {
 			resource = getResourcesManagerImpl().createResource(sess, vo, resource, facility);
-			getPerunBl().getAuditer().log(sess, "{} created.", resource);
+			//getPerunBl().getAuditer().log(sess, "{} created.", resource);
+			getPerunBl().getAuditer().log(sess, new ResourceCreated(resource));
 		}
 
 		return resource;
@@ -116,7 +118,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		// Get the resource VO
 		Vo vo = this.getVo(sess, resource);
 		getResourcesManagerImpl().deleteResource(sess, vo, resource);
-		getPerunBl().getAuditer().log(sess, "{} deleted.#{}. Afected services:{}.", resource, facility, services);
+		//getPerunBl().getAuditer().log(sess, "{} deleted.#{}. Afected services:{}.", resource, facility, services);
+		getPerunBl().getAuditer().log(sess, new ResourceDeleted(resource, facility, services));
 	}
 
 	public void deleteAllResources(PerunSession sess, Vo vo) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
@@ -135,7 +138,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	public void setFacility(PerunSession sess, Resource resource, Facility facility) throws InternalErrorException {
 		getResourcesManagerImpl().setFacility(sess, resource, facility);
-		getPerunBl().getAuditer().log(sess, "{} set for {}", facility, resource);
+		//getPerunBl().getAuditer().log(sess, "{} set for {}", facility, resource);
+		getPerunBl().getAuditer().log(sess, new FacilitySetForResource(facility, resource));
 	}
 
 	public Vo getVo(PerunSession sess, Resource resource) throws InternalErrorException {
@@ -215,7 +219,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		//first we must assign group to resource and then set na check attributes, because methods checkAttributesValue and fillAttribute need actual state to work correctly
 		getResourcesManagerImpl().assignGroupToResource(sess, group, resource);
-		getPerunBl().getAuditer().log(sess, "{} assigned to {}", group, resource);
+		//getPerunBl().getAuditer().log(sess, "{} assigned to {}", group, resource);
+		getPerunBl().getAuditer().log(sess, new GroupAssignedToResource(group, resource));
 
 
 		//fill and check required attributes' values for the group
@@ -287,7 +292,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		// Remove group
 		getResourcesManagerImpl().removeGroupFromResource(sess, group, resource);
-		getPerunBl().getAuditer().log(sess, "{} removed from {}", group, resource);
+		//getPerunBl().getAuditer().log(sess, "{} removed from {}", group, resource);
+		getPerunBl().getAuditer().log(sess, new GroupRemovedFromResource(group, resource));
 
 		// Remove group-resource attributes
 		try {
@@ -380,7 +386,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	public void assignService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getResourcesManagerImpl().assignService(sess, resource, service);
-		getPerunBl().getAuditer().log(sess, "{} asigned to {}", service, resource);
+		//getPerunBl().getAuditer().log(sess, "{} asigned to {}", service, resource);
+		getPerunBl().getAuditer().log(sess, new ServiceAssignedToResource(service, resource));
 
 		AttributesManagerBl attributesManagerBl = getPerunBl().getAttributesManagerBl();
 
@@ -430,7 +437,9 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	public void removeService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceNotAssignedException {
 		getResourcesManagerImpl().removeService(sess, resource, service);
-		getPerunBl().getAuditer().log(sess, "{} removed from {}", service, resource);
+		//getPerunBl().getAuditer().log(sess, "{} removed from {}", service, resource);
+		getPerunBl().getAuditer().log(sess, new ServiceRemovedFromResource(service, resource));
+
 	}
 
 	public void removeServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException {
@@ -574,7 +583,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			// if it is the same resource which is updated but the name stayed the same.
 			if (existingResource.getId() == resource.getId()) {
 				resource = getResourcesManagerImpl().updateResource(sess, resource);
-				getPerunBl().getAuditer().log(sess, "{} updated.", resource);
+				//getPerunBl().getAuditer().log(sess, "{} updated.", resource);
+				getPerunBl().getAuditer().log(sess, new ResourceUpdated(resource));
 				return resource;
 			}
 			// if it is not the same resource - throw the exception. Resource can not be updated,
@@ -582,7 +592,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new ResourceExistsException(existingResource);
 		} catch (ResourceNotExistsException e) {
 			resource = getResourcesManagerImpl().updateResource(sess, resource);
-			getPerunBl().getAuditer().log(sess, "{} updated.", resource);
+			//getPerunBl().getAuditer().log(sess, "{} updated.", resource);
+			getPerunBl().getAuditer().log(sess, new ResourceUpdated(resource));
 		}
 
 		return resource;
@@ -679,7 +690,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	public void addAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, AlreadyAdminException {
 		AuthzResolverBlImpl.setRole(sess, user, resource, Role.RESOURCEADMIN);
-		getPerunBl().getAuditer().log(sess, "{} was added as admin of {}.", user, resource);
+		//getPerunBl().getAuditer().log(sess, "{} was added as admin of {}.", user, resource);
+		getPerunBl().getAuditer().log(sess, new AdminUserAddedForResource(user, resource));
 	}
 
 	public void addAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, AlreadyAdminException {
@@ -687,12 +699,14 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		if (listOfAdmins.contains(group)) throw new AlreadyAdminException(group);
 
 		AuthzResolverBlImpl.setRole(sess, group, resource, Role.RESOURCEADMIN);
-		getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", group, resource);
+		//getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", group, resource);
+		getPerunBl().getAuditer().log(sess, new AdminGroupAddedForResource(group, resource));
 	}
 
 	public void removeAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotAdminException {
 		AuthzResolverBlImpl.unsetRole(sess, user, resource, Role.RESOURCEADMIN);
-		getPerunBl().getAuditer().log(sess, "{} was removed from admins of {}.", user, resource);
+		//getPerunBl().getAuditer().log(sess, "{} was removed from admins of {}.", user, resource);
+		getPerunBl().getAuditer().log(sess, new AdminUserRemovedForResource(user, resource));
 	}
 
 	public void removeAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException {
@@ -700,13 +714,15 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		if (!listOfAdmins.contains(group)) throw new GroupNotAdminException(group);
 
 		AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCEADMIN);
-		getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", group, resource);
+		//getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", group, resource);
+		getPerunBl().getAuditer().log(sess, new AdminGroupRemovedForResource(group, resource));
 	}
 
 	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, BanAlreadyExistsException {
 		if(this.banExists(sess, banOnResource.getMemberId(), banOnResource.getResourceId())) throw new BanAlreadyExistsException(banOnResource);
 		banOnResource = getResourcesManagerImpl().setBan(sess, banOnResource);
-		getPerunBl().getAuditer().log(sess, "Ban {} was set for memberId {} on resourceId {}.", banOnResource, banOnResource.getMemberId(), banOnResource.getResourceId());
+		//getPerunBl().getAuditer().log(sess, "Ban {} was set for memberId {} on resourceId {}.", banOnResource, banOnResource.getMemberId(), banOnResource.getResourceId());
+		getPerunBl().getAuditer().log(sess, new BanSetForResource(banOnResource, banOnResource.getMemberId(), banOnResource.getResourceId()));
 		return banOnResource;
 	}
 
@@ -748,20 +764,23 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException {
 		banOnResource = getResourcesManagerImpl().updateBan(sess, banOnResource);
-		getPerunBl().getAuditer().log(sess, "Ban {} was updated for memberId {} on resourceId {}.",banOnResource, banOnResource.getMemberId(), banOnResource.getResourceId());
+		//getPerunBl().getAuditer().log(sess, "Ban {} was updated for memberId {} on resourceId {}.",banOnResource, banOnResource.getMemberId(), banOnResource.getResourceId());
+		getPerunBl().getAuditer().log(sess, new BanUpdatedForResource(banOnResource, banOnResource.getMemberId(), banOnResource.getResourceId()));
 		return banOnResource;
 	}
 
 	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
 		BanOnResource ban = this.getBanById(sess, banId);
 		getResourcesManagerImpl().removeBan(sess, banId);
-		getPerunBl().getAuditer().log(sess, "Ban {} was removed for memberId {} on resourceId {}.",ban, ban.getMemberId(), ban.getResourceId());
+		//getPerunBl().getAuditer().log(sess, "Ban {} was removed for memberId {} on resourceId {}.",ban, ban.getMemberId(), ban.getResourceId());
+		getPerunBl().getAuditer().log(sess, new BanRemovedForResource(ban, ban.getMemberId(), ban.getResourceId()));
 	}
 
 	public void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
 		BanOnResource ban = this.getBan(sess, memberId, resourceId);
 		getResourcesManagerImpl().removeBan(sess, memberId, resourceId);
-		getPerunBl().getAuditer().log(sess, "Ban {} was removed for memberId {} on resourceId {}.",ban, memberId, resourceId);
+		//getPerunBl().getAuditer().log(sess, "Ban {} was removed for memberId {} on resourceId {}.",ban, memberId, resourceId);
+		getPerunBl().getAuditer().log(sess, new BanRemovedForResource(ban, memberId, resourceId));
 	}
 
 	public void removeAllExpiredBansOnResources(PerunSession sess) throws InternalErrorException {

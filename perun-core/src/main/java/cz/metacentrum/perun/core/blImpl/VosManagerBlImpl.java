@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.VoEvents.VoCreated;
+import cz.metacentrum.perun.audit.events.VoEvents.VoDeleted;
+import cz.metacentrum.perun.audit.events.VoEvents.VoUpdated;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
@@ -126,7 +129,8 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 		// Finally delete the VO
 		getVosManagerImpl().deleteVo(sess, vo);
-		getPerunBl().getAuditer().log(sess, "{} deleted.", vo);
+		//getPerunBl().getAuditer().log(sess, "{} deleted.", vo);
+		getPerunBl().getAuditer().log(sess, new VoDeleted(vo));
 	}
 
 	public void deleteVo(PerunSession sess, Vo vo) throws InternalErrorException, RelationExistsException {
@@ -137,7 +141,8 @@ public class VosManagerBlImpl implements VosManagerBl {
 	public Vo createVo(PerunSession sess, Vo vo) throws VoExistsException, InternalErrorException {
 		// Create entries in the DB and Grouper
 		vo = getVosManagerImpl().createVo(sess, vo);
-		getPerunBl().getAuditer().log(sess, "{} created.", vo);
+		//getPerunBl().getAuditer().log(sess, "{} created.", vo);
+		getPerunBl().getAuditer().log(sess, new VoCreated(vo));
 
 		try {
 			// Create group containing VO members
@@ -168,7 +173,8 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	public Vo updateVo(PerunSession sess, Vo vo) throws InternalErrorException {
-		getPerunBl().getAuditer().log(sess, "{} updated.", vo);
+		//getPerunBl().getAuditer().log(sess, "{} updated.", vo);
+		getPerunBl().getAuditer().log(sess, new VoUpdated(vo));
 		return getVosManagerImpl().updateVo(sess, vo);
 	}
 

@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.OwnerCreated;
+import cz.metacentrum.perun.audit.events.OwnerDeleted;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import java.util.List;
 
@@ -36,7 +38,8 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 	}
 
 	public Owner createOwner(PerunSession sess, Owner owner) throws InternalErrorException {
-		getPerunBl().getAuditer().log(sess, "{} created.", owner);
+		//getPerunBl().getAuditer().log(sess, "{} created.", owner);
+		getPerunBl().getAuditer().log(sess, new OwnerCreated(owner));
 		return getOwnersManagerImpl().createOwner(sess, owner);
 	}
 
@@ -73,7 +76,8 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 		}
 
 		getOwnersManagerImpl().deleteOwner(sess, owner);
-		getPerunBl().getAuditer().log(sess, "{} deleted.", owner);
+		//getPerunBl().getAuditer().log(sess, "{} deleted.", owner);
+		getPerunBl().getAuditer().log(sess, new OwnerDeleted(owner));
 	}
 
 	public Owner getOwnerById(PerunSession sess, int id) throws InternalErrorException, OwnerNotExistsException {

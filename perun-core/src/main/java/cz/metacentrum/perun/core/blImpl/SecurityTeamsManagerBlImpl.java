@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.SecurityTeamsEvents.*;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -70,7 +71,8 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	@Override
 	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException, InternalErrorException {
 		securityTeam = getSecurityTeamsManagerImpl().createSecurityTeam(sess, securityTeam);
-		getPerunBl().getAuditer().log(sess, "{} was created.", securityTeam);
+		//getPerunBl().getAuditer().log(sess, "{} was created.", securityTeam);
+		getPerunBl().getAuditer().log(sess, new SecurityTeamCreated(securityTeam));
 
 		// set creator as security team admin
 		User user = sess.getPerunPrincipal().getUser();
@@ -88,7 +90,8 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	@Override
 	public SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException {
 		securityTeam = getSecurityTeamsManagerImpl().updateSecurityTeam(sess, securityTeam);
-		getPerunBl().getAuditer().log(sess, "{} was updated.", securityTeam);
+		//getPerunBl().getAuditer().log(sess, "{} was updated.", securityTeam);
+		getPerunBl().getAuditer().log(sess, new SecurityTeamUpdated(securityTeam));
 		return securityTeam;
 	}
 
@@ -116,7 +119,8 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 		}
 
 		getSecurityTeamsManagerImpl().deleteSecurityTeam(sess, securityTeam);
-		getPerunBl().getAuditer().log(sess, "{} was deleted.", securityTeam);
+		//getPerunBl().getAuditer().log(sess, "{} was deleted.", securityTeam);
+		getPerunBl().getAuditer().log(sess,new SecurityTeamDeleted(securityTeam));
 	}
 
 	@Override
@@ -146,43 +150,50 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	@Override
 	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException, InternalErrorException {
 		AuthzResolverBlImpl.addAdmin(sess, securityTeam, user);
-		getPerunBl().getAuditer().log(sess, "{} was added as security admin of {}.", user, securityTeam);
+		//getPerunBl().getAuditer().log(sess, "{} was added as security admin of {}.", user, securityTeam);
+		getPerunBl().getAuditer().log(sess, new AdminAddedForSecurityTeam(user, securityTeam));
 	}
 
 	@Override
 	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, AlreadyAdminException {
 		AuthzResolverBlImpl.addAdmin(sess, securityTeam, group);
-		getPerunBl().getAuditer().log(sess, "{} was added as security admins of {}.", group, securityTeam);
+		//getPerunBl().getAuditer().log(sess, "{} was added as security admins of {}.", group, securityTeam);
+		getPerunBl().getAuditer().log(sess, new AdminGroupAddedForSecurityTeam(group, securityTeam));
 	}
 
 	@Override
 	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException, InternalErrorException {
 		AuthzResolverBlImpl.removeAdmin(sess, securityTeam, user);
-		getPerunBl().getAuditer().log(sess, "{} was removed from security admins of {}.", user, securityTeam);
+		//getPerunBl().getAuditer().log(sess, "{} was removed from security admins of {}.", user, securityTeam);
+		getPerunBl().getAuditer().log(sess, new AdminRemovedFromSecurityTeam(user, securityTeam));
 	}
 
 	@Override
 	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, GroupNotAdminException {
 		AuthzResolverBlImpl.removeAdmin(sess, securityTeam, group);
-		getPerunBl().getAuditer().log(sess, "{} was removed from security admins of {}.", group, securityTeam);
+		//getPerunBl().getAuditer().log(sess, "{} was removed from security admins of {}.", group, securityTeam);
+		getPerunBl().getAuditer().log(sess, new AdminGroupRemovedFromSecurityTeam(group, securityTeam));
 	}
 
 	@Override
 	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) throws InternalErrorException {
 		getSecurityTeamsManagerImpl().addUserToBlacklist(sess, securityTeam, user, description);
-		getPerunBl().getAuditer().log(sess, "{} add to blacklist of {} with description '{}'.", user, securityTeam, description);
+		//getPerunBl().getAuditer().log(sess, "{} add to blacklist of {} with description '{}'.", user, securityTeam, description);
+		getPerunBl().getAuditer().log(sess, new UserAddedToBlackListOfSecurityTeam(user, securityTeam, description));
 	}
 
 	@Override
 	public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException {
 		getSecurityTeamsManagerImpl().removeUserFromBlacklist(sess, securityTeam, user);
-		getPerunBl().getAuditer().log(sess, "{} remove from blacklist of {}.", user, securityTeam);
+		//getPerunBl().getAuditer().log(sess, "{} remove from blacklist of {}.", user, securityTeam);
+		getPerunBl().getAuditer().log(sess, new UserRemovedFromBlackListOfSecurityTeam(user, securityTeam));
 	}
 
 	@Override
 	public void removeUserFromAllBlacklists(PerunSession sess, User user) throws InternalErrorException {
 		getSecurityTeamsManagerImpl().removeUserFromAllBlacklists(sess, user);
-		getPerunBl().getAuditer().log(sess, "{} remove from all blacklists.", user);
+		//getPerunBl().getAuditer().log(sess, "{} remove from all blacklists.", user);
+		getPerunBl().getAuditer().log(sess, new UserRemovedFromBlacklists(user));
 	}
 
 	@Override

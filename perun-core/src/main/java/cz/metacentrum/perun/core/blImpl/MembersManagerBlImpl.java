@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.*;
 import cz.metacentrum.perun.core.api.*;
 
 import java.text.DateFormat;
@@ -155,7 +156,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 		// Remove member from the DB
 		getMembersManagerImpl().deleteMember(sess, member);
-		getPerunBl().getAuditer().log(sess, "{} deleted.", member);
+		//getPerunBl().getAuditer().log(sess, "{} deleted.", member);
+		getPerunBl().getAuditer().log(sess, new MemberDeleted(member));
 	}
 
 	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException {
@@ -175,7 +177,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		} catch(MemberNotExistsException IGNORE) {
 		}
 		Member member = getMembersManagerImpl().createMember(sess, vo, user);
-		getPerunBl().getAuditer().log(sess, "{} created.", member);
+		//getPerunBl().getAuditer().log(sess, "{} created.", member);
+		getPerunBl().getAuditer().log(sess, new MemberCreated(member));
 
 		// Set the initial membershipExpiration
 
@@ -416,7 +419,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		// Create the member
 		Member member = getMembersManagerImpl().createMember(sess, vo, user);
-		getPerunBl().getAuditer().log(sess, "{} created.", member);
+		//getPerunBl().getAuditer().log(sess, "{} created.", member);
+		getPerunBl().getAuditer().log(sess,  new MemberCreated(member));
+
 
 		// Create the member's attributes
 		List<Attribute> membersAttributes = new ArrayList<Attribute>();
@@ -1313,7 +1318,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Status oldStatus = member.getStatus();
 		getMembersManagerImpl().setStatus(sess, member, Status.VALID);
 		member.setStatus(Status.VALID);
-		getPerunBl().getAuditer().log(sess, "{} validated.", member);
+		//getPerunBl().getAuditer().log(sess, "{} validated.", member);
+		getPerunBl().getAuditer().log(sess, new MemberValidated(member));
 		if(oldStatus.equals(Status.INVALID) || oldStatus.equals(Status.DISABLED)) {
 			try {
 				getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
@@ -1341,7 +1347,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				} catch(Exception ex) {
 					log.info("validateMemberAsync failed. Cause: {}", ex);
 					try {
-						getPerunBl().getAuditer().log(sess, "Validation of {} failed. He stays in {} state.", member, oldStatus);
+						//getPerunBl().getAuditer().log(sess, "Validation of {} failed. He stays in {} state.", member, oldStatus);
+						getPerunBl().getAuditer().log(sess, new MemberValidatedFailed(member, oldStatus));
 						log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
 					} catch(InternalErrorException internalError) {
 						log.error("Store message to auditer failed. message: Validation of {} failed. He stays in {} state. cause: {}", new Object[] {member, oldStatus, internalError});
@@ -1360,7 +1367,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		getMembersManagerImpl().setStatus(sess, member, Status.INVALID);
 		member.setStatus(Status.INVALID);
-		getPerunBl().getAuditer().log(sess, "{} invalidated.", member);
+		//getPerunBl().getAuditer().log(sess, "{} invalidated.", member);
+		getPerunBl().getAuditer().log(sess, new MemberInvalidated(member));
 		return member;
 	}
 
@@ -1372,7 +1380,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
 		getMembersManagerImpl().setStatus(sess, member, Status.SUSPENDED);
 		member.setStatus(Status.SUSPENDED);
-		getPerunBl().getAuditer().log(sess, "{} suspended #{}.", member, Auditer.engineForceKeyword);
+		//getPerunBl().getAuditer().log(sess, "{} suspended #{}.", member, Auditer.engineForceKeyword);
+		getPerunBl().getAuditer().log(sess, new MemberSuspended(member, Auditer.engineForceKeyword));
 		return member;
 	}
 
@@ -1385,7 +1394,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
 		getMembersManagerImpl().setStatus(sess, member, Status.EXPIRED);
 		member.setStatus(Status.EXPIRED);
-		getPerunBl().getAuditer().log(sess, "{} expired.", member);
+		//getPerunBl().getAuditer().log(sess, "{} expired.", member);
+		getPerunBl().getAuditer().log(sess, new MemberExpired(member));
 		return member;
 	}
 
@@ -1398,7 +1408,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
 		getMembersManagerImpl().setStatus(sess, member, Status.DISABLED);
 		member.setStatus(Status.DISABLED);
-		getPerunBl().getAuditer().log(sess, "{} disabled.", member);
+		//getPerunBl().getAuditer().log(sess, "{} disabled.", member);
+		getPerunBl().getAuditer().log(sess, new MemberDisabled(member));
 		return member;
 	}
 
@@ -2266,8 +2277,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		//create the member in Perun
 		Member sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, sponsoredUser, sponsor);
-		getPerunBl().getAuditer().log(session, "{} created.", sponsoredMember);
-		getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
+		//getPerunBl().getAuditer().log(session, "{} created.", sponsoredMember);
+		getPerunBl().getAuditer().log(session, new MemberCreated(sponsoredMember));
+		//getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
+		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor));
 		extendMembership(session, sponsoredMember);
 		insertToMemberGroup(session, sponsoredMember, vo);
 		if(asyncValidation) {
@@ -2307,7 +2320,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 		// add the sponsor
 		getMembersManagerImpl().addSponsor(session, sponsoredMember, sponsor);
-		getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
+		//getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
+		getPerunBl().getAuditer().log(session, new SponsorshipEstablished(sponsoredMember, sponsor));
 
 		return sponsoredMember;
 	}
@@ -2325,7 +2339,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws InternalErrorException {
 		getMembersManagerImpl().removeSponsor(sess,sponsoredMember, sponsorToRemove);
-		getPerunBl().getAuditer().log(sess, "Sponsorship of {} by {} canceled.", sponsoredMember, sponsorToRemove);
+		//getPerunBl().getAuditer().log(sess, "Sponsorship of {} by {} canceled.", sponsoredMember, sponsorToRemove);
+		getPerunBl().getAuditer().log(sess, new SponsorRemoved(sponsoredMember, sponsorToRemove));
+
 		//check if the user was the last sponsor
 		Vo vo = getMemberVo(sess, sponsoredMember);
 		boolean hasSponsor = false;

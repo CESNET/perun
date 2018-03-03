@@ -9,12 +9,39 @@
 		</encoder>
 	</appender>
 
+
+	<!-- testfile log -->
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>testFile.log</file>
+		<append>true</append>
+		<encoder>
+			<pattern>%d %-5level %file:%line - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="jsonFile" class="ch.qos.logback.core.FileAppender">
+		<file>testJSONFile.log</file>
+		<append>true</append>
+		<layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+			<jsonFormatter
+					class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+				<prettyPrint>true</prettyPrint>
+			</jsonFormatter>
+			<timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
+		</layout>
+	</appender>
+
+
+
 	<root level="error">
 		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
+		<appender-ref ref="jsonFile" />
 	</root>
 
+	<logger name="jsonLogger" level="TRACE"/>
 	<logger name="org.springframework" level="warn"/>
-	<logger name="cz.metacentrum.perun.core.impl.Auditer" level="off"/>
+	<logger name="cz.metacentrum.perun.core.impl.Auditer" level="info"/>
 	<logger name="cz.metacentrum.perun.core.api.exceptions" level="off"/>
 	<logger name="cz.metacentrum.perun.core.blImpl.VosManagerBlImpl" level="off"/>
 	<logger name="cz.metacentrum.perun.cabinet.bl.impl.PublicationSystemManagerBlImpl" level="off"/>

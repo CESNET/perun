@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cz.metacentrum.perun.audit.events.ServicesEvents.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
@@ -35,7 +35,6 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
@@ -75,7 +74,9 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			throw new ServiceExistsException(s);
 		} catch(ServiceNotExistsException ex) { /* OK */ }
 
-		getPerunBl().getAuditer().log(sess, "{} created.", service);
+		//getPerunBl().getAuditer().log(sess, "{} created.", service);
+		getPerunBl().getAuditer().log(sess, new ServiceCreated(service));
+
 		return getServicesManagerImpl().createService(sess, service);
 	}
 
@@ -87,13 +88,15 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		getServicesManagerImpl().removeAllRequiredAttributes(sess, service);
 		getServicesManagerImpl().deleteService(sess, service);
-		getPerunBl().getAuditer().log(sess, "{} deleted.", service);
+		//getPerunBl().getAuditer().log(sess, "{} deleted.", service);
+		getPerunBl().getAuditer().log(sess, new ServiceDeleted(service));
 	}
 
 	public void updateService(PerunSession sess, Service service) throws InternalErrorException {
 		Utils.notNull(service.getName(), "service.name");
 		getServicesManagerImpl().updateService(sess, service);
-		getPerunBl().getAuditer().log(sess, "{} updated.", service);
+		//getPerunBl().getAuditer().log(sess, "{} updated.", service);
+		getPerunBl().getAuditer().log(sess, new ServiceUpdated(service));
 	}
 
 	public Service getServiceById(PerunSession sess, int id) throws InternalErrorException, ServiceNotExistsException {
@@ -397,7 +400,9 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			throw new ServicesPackageExistsException(s);
 		} catch(ServicesPackageNotExistsException ex) { /* OK */ }
 
-		getPerunBl().getAuditer().log(sess, "{} created.", servicesPackage);
+		//getPerunBl().getAuditer().log(sess, "{} created.", servicesPackage);
+		getPerunBl().getAuditer().log(sess, new ServicesPackageCreated(servicesPackage));
+
 		return getServicesManagerImpl().createServicesPackage(sess, servicesPackage);
 	}
 
@@ -405,13 +410,15 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		Utils.notNull(servicesPackage.getDescription(), "servicesPackage.getDescription()");
 		Utils.notNull(servicesPackage.getName(), "servicesPackage.getName()");
 		getServicesManagerImpl().updateServicesPackage(sess, servicesPackage);
-		getPerunBl().getAuditer().log(sess, "{} updated.", servicesPackage);
+		//getPerunBl().getAuditer().log(sess, "{} updated.", servicesPackage);
+		getPerunBl().getAuditer().log(sess, new ServicesPackageUpdated(servicesPackage));
 	}
 
 	public void deleteServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, RelationExistsException {
 		if(getServicesFromServicesPackage(sess, servicesPackage).isEmpty()) {
 			getServicesManagerImpl().deleteServicesPackage(sess, servicesPackage);
-			getPerunBl().getAuditer().log(sess, "{} deleted.", servicesPackage);
+			//getPerunBl().getAuditer().log(sess, "{} deleted.", servicesPackage);
+			getPerunBl().getAuditer().log(sess, new ServicesPackageDeleted(servicesPackage));
 		} else {
 			throw new RelationExistsException("There is one or more services in the services package. ServicesPackage=\"" + servicesPackage + "\"");
 		}
@@ -419,12 +426,14 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyAssignedException {
 		getServicesManagerImpl().addServiceToServicesPackage(sess, servicesPackage, service);
-		getPerunBl().getAuditer().log(sess, "{} added to {}.", service, servicesPackage);
+		//getPerunBl().getAuditer().log(sess, "{} added to {}.", service, servicesPackage);
+		getPerunBl().getAuditer().log(sess, new ServiceAddedToServicePackage(service, servicesPackage));
 	}
 
 	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyRemovedFromServicePackageException {
 		getServicesManagerImpl().removeServiceFromServicesPackage(sess, servicesPackage, service);
-		getPerunBl().getAuditer().log(sess, "{} removed from {}.", service, servicesPackage);
+		//getPerunBl().getAuditer().log(sess, "{} removed from {}.", service, servicesPackage);
+        getPerunBl().getAuditer().log(sess, new ServiceRemovedFromServicesPackage(service, servicesPackage));
 	}
 
 	public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
@@ -437,27 +446,32 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		if(requiredAttributes.contains(attribute)) throw new AttributeAlreadyAssignedException(attribute);
 
 		getServicesManagerImpl().addRequiredAttribute(sess, service, attribute);
-		getPerunBl().getAuditer().log(sess, "{} added to {} as required attribute.", attribute, service);
+		//getPerunBl().getAuditer().log(sess, "{} added to {} as required attribute.", attribute, service);
+		getPerunBl().getAuditer().log(sess,new AttributeAddedAsRequiredToService(attribute, service));
 	}
 
 	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeAlreadyAssignedException {
 		getServicesManagerImpl().addRequiredAttributes(sess, service, attributes);
-		getPerunBl().getAuditer().log(sess, "{} added to {} as required attributes.", attributes, service);
+		//getPerunBl().getAuditer().log(sess, "{} added to {} as required attributes.", attributes, service);
+		getPerunBl().getAuditer().log(sess, new AttributesAddedAsRequiredToService(attributes, service));
 	}
 
 	public void removeRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws InternalErrorException, AttributeNotAssignedException {
 		getServicesManagerImpl().removeRequiredAttribute(sess, service, attribute);
-		getPerunBl().getAuditer().log(sess, "{} removed from {} as required attribute.", attribute, service);
+		//getPerunBl().getAuditer().log(sess, "{} removed from {} as required attribute.", attribute, service);
+		getPerunBl().getAuditer().log(sess, new RequiredAttributeRemovedFromService(attribute, service));
 	}
 
 	public void removeRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotAssignedException {
 		getServicesManagerImpl().removeRequiredAttributes(sess, service, attributes);
-		getPerunBl().getAuditer().log(sess, "{} removed from {} as required attributes.", attributes, service);
+		//getPerunBl().getAuditer().log(sess, "{} removed from {} as required attributes.", attributes, service);
+        getPerunBl().getAuditer().log(sess, new RequiredAttributesRemovedFromService(attributes, service));
 	}
 
 	public void removeAllRequiredAttributes(PerunSession sess, Service service) throws InternalErrorException {
 		getServicesManagerImpl().removeAllRequiredAttributes(sess, service);
-		getPerunBl().getAuditer().log(sess, "All required attributes removed from {}.", service);
+		//getPerunBl().getAuditer().log(sess, "All required attributes removed from {}.", service);
+		getPerunBl().getAuditer().log(sess, new AllRequiredAttributesRemovedFromService(service));
 	}
 
 	public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException {
@@ -480,7 +494,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		if(getServicesManagerImpl().destinationExists(sess, service, facility, destination)) throw new DestinationAlreadyAssignedException(destination);
 
 		getServicesManagerImpl().addDestination(sess, service, facility, destination);
-		getPerunBl().getAuditer().log(sess, "{} added to {} and {}.", destination, service, facility);
+		//getPerunBl().getAuditer().log(sess, "{} added to {} and {}.", destination, service, facility);
+		getPerunBl().getAuditer().log(sess, new DestinationAddedToServiceAndFacility(destination, service, facility));
 		return destination;
 	}
 
@@ -505,7 +520,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		for(Service s: services) {
 			if(!getServicesManagerImpl().destinationExists(perunSession, s, facility, destination)) {
 				getServicesManagerImpl().addDestination(perunSession, s, facility, destination);
-				getPerunBl().getAuditer().log(perunSession, "{} added to {} and {}.", destination, s, facility);
+				//getPerunBl().getAuditer().log(perunSession, "{} added to {} and {}.", destination, s, facility);
+				getPerunBl().getAuditer().log(perunSession, new DestinationAddedToServiceAndFacility(destination, s, facility));
 			}
 		}
 
@@ -534,7 +550,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		if(getServicesManagerImpl().destinationExists(sess, service, facility, destination)) return destination;
 
 		getServicesManagerImpl().addDestination(sess, service, facility, destination);
-		getPerunBl().getAuditer().log(sess, "{} added to {} and {}.", destination, service, facility);
+		//getPerunBl().getAuditer().log(sess, "{} added to {} and {}.", destination, service, facility);
+		getPerunBl().getAuditer().log(sess, new DestinationAddedToServiceAndFacility(destination, service, facility));
 		return destination;
 	}
 
@@ -549,7 +566,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		}
 		getServicesManagerImpl().removeDestination(sess, service, facility, destination);
 		//TODO remove destination from destination taable if is not used anymore
-		getPerunBl().getAuditer().log(sess, "{} removed from {} and {}.", destination, service, facility);
+		//getPerunBl().getAuditer().log(sess, "{} removed from {} and {}.", destination, service, facility);
+		getPerunBl().getAuditer().log(sess, new DestinationRemovedFromService(destination, service, facility));
 	}
 
 	public Destination getDestinationById(PerunSession sess, int id) throws InternalErrorException, DestinationNotExistsException {
@@ -588,12 +606,14 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	public void removeAllDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
 		getServicesManagerImpl().removeAllDestinations(sess, service, facility);
 		//TODO remove destination from destination taable if is not used anymore
-		getPerunBl().getAuditer().log(sess, "All destinations removed from {} and {}.", service, facility);
+		//getPerunBl().getAuditer().log(sess, "All destinations removed from {} and {}.", service, facility);
+		getPerunBl().getAuditer().log(sess, new DestinationsRemovedFromService(service, facility));
 	}
 
 	public void removeAllDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
 		getServicesManagerImpl().removeAllDestinations(perunSession, facility);
-		getPerunBl().getAuditer().log(perunSession, "All destinations removed from {} for all services.", facility);
+		//getPerunBl().getAuditer().log(perunSession, "All destinations removed from {} for all services.", facility);
+		getPerunBl().getAuditer().log(perunSession, new DestinationsRemovedFromAllServices(facility));
 	}
 
 	public void checkServiceExists(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException {
@@ -615,7 +635,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	public Destination createDestination(PerunSession sess, Destination destination) throws InternalErrorException, DestinationExistsException {
 		if(getServicesManagerImpl().destinationExists(sess, destination)) throw new DestinationExistsException(destination);
 		destination = getServicesManagerImpl().createDestination(sess, destination);
-		getPerunBl().getAuditer().log(sess, "{} created.", destination);
+		//getPerunBl().getAuditer().log(sess, "{} created.", destination);
+		getPerunBl().getAuditer().log(sess, new DestinationCreated(destination));
 		return destination;
 	}
 

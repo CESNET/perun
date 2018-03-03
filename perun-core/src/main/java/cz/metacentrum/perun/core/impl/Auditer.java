@@ -59,6 +59,7 @@ public class Auditer {
 	public final static String engineForceKeyword = "forceit";
 
 	private final static Logger log = LoggerFactory.getLogger(Auditer.class);
+	private final static Logger jsonLogger = LoggerFactory.getLogger("jsonLogger");
 	private JdbcPerunTemplate jdbc;
 
 	private Map<AuditerListener, ListenerThread> listenersMap = new HashMap<AuditerListener, ListenerThread>();
@@ -107,7 +108,6 @@ public class Auditer {
 			} else {
 				msg = rs.getString("msg");
 			}
-
 			// Get principal User and his ID (null, if no user exist)
 			Integer principalUserId = null;
 			if (rs.getInt("created_by_uid") != 0) principalUserId = rs.getInt("created_by_uid");
@@ -185,6 +185,17 @@ public class Auditer {
 		} else {
 			this.storeMessageToDb(sess, message);
 		}
+	}
+
+	/**
+	 * Log message.
+	 *
+	 * @param sess Perun session
+	 * @param event Audit event to be logged.
+	 * @throws InternalErrorException
+	 */
+	public void log(PerunSession sess, Object event) throws InternalErrorException {
+		log(sess, event.toString());
 	}
 
 	/**

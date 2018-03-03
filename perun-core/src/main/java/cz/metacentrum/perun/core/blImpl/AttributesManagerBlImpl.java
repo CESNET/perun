@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.AttributeAuthzDeleted;
+import cz.metacentrum.perun.audit.events.AttributeCreated;
+import cz.metacentrum.perun.audit.events.AttributeDeleted;
+import cz.metacentrum.perun.audit.events.FacilityAllAttributesRemoved;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -2132,7 +2136,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			throw new InternalErrorException("entityless attributes cannot be marked unique");
 		}
 
-		getPerunBl().getAuditer().log(sess, "{} created.", attribute);
+		//getPerunBl().getAuditer().log(sess, "{} created.", attribute);
+		getPerunBl().getAuditer().log(sess, new AttributeCreated(attribute));
 		return getAttributesManagerImpl().createAttribute(sess, attribute);
 	}
 
@@ -2150,13 +2155,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//TODO
 
 		//Remove attribute and all it's values
-		getPerunBl().getAuditer().log(sess, "{} deleted.", attribute);
+		getPerunBl().getAuditer().log(sess,new AttributeDeleted(attribute));
+		//getPerunBl().getAuditer().log(sess, "{} deleted.", attribute);
 		this.deleteAllAttributeAuthz(sess, attribute);
 		getAttributesManagerImpl().deleteAttribute(sess, attribute);
 	}
 
 	public void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
-		getPerunBl().getAuditer().log(sess, "All authorization information were deleted for {}.", attribute);
+		//getPerunBl().getAuditer().log(sess, "All authorization information were deleted for {}.", attribute);
+		getPerunBl().getAuditer().log(sess,new AttributeAuthzDeleted(attribute));
 		getAttributesManagerImpl().deleteAllAttributeAuthz(sess, attribute);
 	}
 
@@ -3433,7 +3440,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, facility);
 		getAttributesManagerImpl().removeAllAttributes(sess, facility);
-		getPerunBl().getAuditer().log(sess, "All attributes removed for {}.", facility);
+		getPerunBl().getAuditer().log(sess,new FacilityAllAttributesRemoved(facility));
+		//getPerunBl().getAuditer().log(sess, "All attributes removed for {}.", facility);
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
