@@ -141,7 +141,7 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 	 */
 	private ArrayList<String> getUserUcoEmails(PerunSessionImpl sess, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
 		String uco = getUserUco(sess, member);
-		return Lists.newArrayList(uco + "@mail.muni.cz", uco + "@muni.cz");
+		return Lists.newArrayList(uco + "@muni.cz");
 	}
 
 	public AttributeDefinition getAttributeDefinition() {
