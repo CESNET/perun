@@ -69,13 +69,12 @@ switch ($action) {
 
 		my $entry = getEntry($login, getPassword($pass));
 
-		eval {
-			# timeout 120s kill after 120 more sec.
-			system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
-		};
-		if ( $@ ) {
+		# timeout 120s kill after 120 more sec.
+		my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+		$ret = $ret>>8;  # shift 8 bits to get original return code
+		if ($ret != 0) {
 			# error adding entry
-			edu_log("[PWDM] Change of password for $login failed with return code: ".$@);
+			edu_log("[PWDM] Change of password for $login failed with return code: $ret");
 			exit 3; # setting of new password failed
 		} else {
 			# entry added
@@ -88,13 +87,12 @@ switch ($action) {
 
 		my $entry = getEntry($login, getPassword());
 
-		eval {
-			# timeout 120s kill after 120 more sec.
-			system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
-		};
-		if ( $@ ) {
-			# error adding entry
-			edu_log("[PWDM] Check of password failed for $login with return code: ".$@);
+		# timeout 120s kill after 120 more sec.
+		my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+		$ret = $ret>>8;  # shift 8 bits to get original return code
+		if ($ret != 0) {
+			# error checking entry
+			edu_log("[PWDM] Check of password failed for $login with return code: $ret");
 			exit 6; # checking old password failed
 		} else {
 			# entry added
@@ -115,13 +113,12 @@ switch ($action) {
 
 		my $entry = getEntry($login, getPassword($pass));
 
-		eval {
-			# timeout 120s kill after 120 more sec.
-			system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
-		};
-		if ( $@ ) {
+		# timeout 120s kill after 120 more sec.
+		my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+		$ret = $ret>>8;  # shift 8 bits to get original return code
+		if ($ret != 0) {
 			# error adding entry
-			edu_log("[PWDM] Creation of password for $login failed with return code: ".$@);
+			edu_log("[PWDM] Creation of password for $login failed with return code: $ret");
 			exit 4; # creation of new password failed
 		} else {
 			# entry added
@@ -134,13 +131,12 @@ switch ($action) {
 
 		my $entry = getEntry($login, undef);
 
-		eval {
-			# timeout 120s kill after 120 more sec.
-			system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
-		};
-		if ( $@ ) {
+		# timeout 120s kill after 120 more sec.
+		my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+		$ret = $ret>>8;  # shift 8 bits to get original return code
+		if ($ret != 0) {
 			# error deleting entry
-			edu_log("[PWDM] Deletion of password for $login failed with return code: ". $@);
+			edu_log("[PWDM] Deletion of password for $login failed with return code: $ret");
 			exit 5; # creation of new password failed
 		} else {
 			# entry added
@@ -166,13 +162,12 @@ switch ($action) {
 
 		my $entry = getEntry($login, getPassword($pass));
 
-		eval {
-			# timeout 120s kill after 120 more sec.
-			system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
-		};
-		if ( $@ ) {
+		# timeout 120s kill after 120 more sec.
+		my $ret = system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+		$ret = $ret>>8;  # shift 8 bits to get original return code
+		if ($ret != 0) {
 			# error adding entry
-			edu_log("[PWDM] Creation of random password for $login failed with return code: ".$@);
+			edu_log("[PWDM] Creation of random password for $login failed with return code: $ret");
 			exit 4; # creation of new password failed
 		} else {
 			# entry added

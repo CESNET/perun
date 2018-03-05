@@ -16,7 +16,7 @@
 use strict;
 use warnings FATAL => 'all';
 use Switch;
-use File::Slurp qw(edit_file_lines read_file write_file);
+use File::Slurp qw(read_file write_file);
 use ScriptLock;
 
 ##########
@@ -54,19 +54,21 @@ switch ($action){
 
 		my $changed = 0;
 		my @parts = split( /:=/ , $entry);
-		edit_file_lines sub {
-				if (/^$parts[0].*$/) {
-					s/^$parts[0].*$/$entry/g;
-					$changed = 1;
-				}
-			} , $file_location;
 
-		if ($changed == 0) {
-			# entry to change not found, reserve it instead of error !
-			my @lines = read_file( $file_location );
-			push (@lines, $entry . "\n");
-			write_file ($file_location, @lines);
+		my @lines = read_file( $file_location );
+		foreach my $line (@lines) {
+			if ($line =~ /^$parts[0].*$/) {
+				$line = $entry . "\n";
+				$changed = 1;
+			}
 		}
+		if ($changed == 0) {
+			# entry not found - add as new reservation
+			push (@lines, $entry . "\n");
+		}
+
+		# write back all lines to file
+		write_file ($file_location, @lines);
 		system("touch $touch_file_location");
 		$lock->unlock();
 		exit 0;
@@ -114,21 +116,29 @@ switch ($action){
 
 		my $found = 0;
 		my @parts = split( /:=/ , $entry);
-		edit_file_lines sub {
-				if (/^$parts[0].*$/) {
-					$_ = '';
-					$found = 1;
-				}
-			} , $file_location;
 
+		my @lines = read_file( $file_location );
+		my @newlines;
+		foreach my $line (@lines) {
+			if ($line =~ /^$parts[0].*$/) {
+				$found = 1;
+				# skip entry to delete
+			} else {
+				# push back not affected entries
+				push (@newlines, $line);
+			}
+		}
 		if ($found == 0) {
 			# entry to delete not found
 			$lock->unlock();
 			exit 5; # can't delete password
+		} else {
+			# entry to delete found -> write content without it
+			write_file ($file_location, @newlines);
+			system("touch $touch_file_location");
+			$lock->unlock();
+			exit 0;
 		}
-		system("touch $touch_file_location");
-		$lock->unlock();
-		exit 0;
 
 	}
 
