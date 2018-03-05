@@ -12,7 +12,7 @@ class PerunRpcClient {
 	// Password based authentication
 	const PASSSWORD = "";
 	// Kerberos based authentication, left empty if there is no Kerberos support
-	const KERBEROS_CC = "/tmp/krb5cc_perun";
+	const KERBEROS_CC = "";
 
 	// DO NOT EDIT BELOW THIS LINE
 	// ***************************
