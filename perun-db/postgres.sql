@@ -132,7 +132,7 @@ create table cabinet_thanks (
 -- FACILITIES - sources, devices - includes clusters,hosts,storages...
 create table facilities (
 	id integer not null,
-	name varchar(128) not null, --unique name of service
+	name varchar(128) not null, --unique name of facility
 	dsc varchar(1024),
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
@@ -148,7 +148,7 @@ create table facilities (
 -- RESOURCES - facility assigned to VO
 create table resources (
 	id integer not null,
-	facility_id integer not null, --service identifier (service.id)
+	facility_id integer not null, --facility identifier (facility.id)
 	name varchar(128) not null,   --name of resource
 	dsc varchar(1024),            --purpose and description
 	created_at timestamp default statement_timestamp() not null,
@@ -379,7 +379,7 @@ create table attributes_authz (
 create table hosts (
 	id integer not null,
 	hostname varchar(128) not null,  --full name of machine
-	facility_id integer not null,    --identifier of service containing the host (facilities.id)
+	facility_id integer not null,    --identifier of facility containing the host (facilities.id)
 	dsc varchar(1024),  --description
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
@@ -504,7 +504,7 @@ create table specific_user_users (
 create table service_denials (
 	id integer not null,
 	service_id integer not null,       --identifier of service (services.id)
-	facility_id integer,               --identifier of service (facilities.id)
+	facility_id integer,               --identifier of facility (facilities.id)
 	destination_id integer,            --identifier of destination (destinations.id) if service is not excluded on whole service
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
@@ -514,28 +514,10 @@ create table service_denials (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint srvden_pk primary key (id),
-  constraint srvden_exsrv_fk foreign key (exec_service_id) references exec_services(id),
+  constraint srvden_srv_fk foreign key (service_id) references services(id),
   constraint srvden_fac_fk foreign key (facility_id) references facilities(id),
   constraint srvden_dest_fk foreign key (destination_id) references destinations(id),
-  constraint srvden_u check(exec_service_id is not null and ((facility_id is not null and destination_id is null) or (facility_id is null and destination_id is not null)))
-);
-
--- SERVICE_DEPENDENCIES - dependency of executing one service on finishing of other service
-create table service_dependencies (
-	service_id integer not null,  --identifier of service which must be finished finished first (exec_services.id)
-	dependency_id integer not null,    --identifier of service which can be executed after finishing exec_service_id (exec_services.id)
-	created_at timestamp default statement_timestamp() not null,
-	created_by varchar(1300) default user not null,
-	modified_at timestamp default statement_timestamp() not null,
-	modified_by varchar(1300) default user not null,
-	status char(1) default '0' not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	type varchar(16) default 'SERVICE' not null, --type of dependency (SERVICE/DESTINATION)
-	constraint srvdep_srv_fk foreign key (service_id) references services(id),
-  constraint srvdep_depsrv_fk foreign key (dependency_id) references services(id),
-  constraint srvdep_type_chk check (type in ('SERVICE','DESTINATION')),
-  constraint srvdep_u unique(service_id,dependency_id)
+  constraint srvden_u check(service_id is not null and ((facility_id is not null and destination_id is null) or (facility_id is null and destination_id is not null)))
 );
 
 -- RESOURCE_SERVICES - services assigned to resource
@@ -691,7 +673,7 @@ create table application_reserved_logins (
 -- FACILITY_SERVICE_DESTINATIONS - destinations of services assigned to the facility
 create table facility_service_destinations (
 	service_id integer not null,   --identifier of service (services.id)
-	facility_id integer not null,  --identifier of service (facilities.id)
+	facility_id integer not null,  --identifier of facility (facilities.id)
 	destination_id integer not null, --identifier of destination (destinations.id)
 	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
@@ -987,7 +969,7 @@ CREATE TABLE user_attr_u_values (
 -- USER_FACILITY_ATTR_VALUES - values of attributes assigned to users on facilities
 create table user_facility_attr_values (
 	user_id integer not null,     --identifier of user (users.id)
-	facility_id integer not null, --identifier of service (facilities.id)
+	facility_id integer not null, --identifier of facility (facilities.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),     --attribute value
 	created_at timestamp default statement_timestamp() not null,
@@ -1160,7 +1142,7 @@ create table service_service_packages (
 create table tasks (
 	id integer not null,
 	service_id integer not null,        --identifier of executed service (services.id)
-	facility_id integer not null,      --identifier of target service (facilities.id)
+	facility_id integer not null,      --identifier of target facility (facilities.id)
 	schedule timestamp not null,        --planned time for starting task
 	recurrence integer not null,        --number of repeating of task in case of error
 	delay integer not null,             --delay after next executing in case of error
@@ -1173,8 +1155,8 @@ create table tasks (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint task_pk primary key (id),
-  constraint task_u unique (exec_service_id, facility_id),
-  constraint task_exsrv_fk foreign key (exec_service_id) references exec_services(id),
+  constraint task_u unique (service_id, facility_id),
+  constraint task_srv_fk foreign key (service_id) references services(id),
   constraint task_fac_fk foreign key (facility_id) references facilities(id),
   constraint task_eng_fk foreign key (engine_id) references engines (id),
   constraint task_stat_chk check (status in ('NONE','OPEN','PLANNED','PROCESSING','DONE','ERROR'))
@@ -1579,7 +1561,6 @@ create sequence "attr_names_id_seq";
 create sequence "auditer_consumers_id_seq";
 create sequence "auditer_log_id_seq";
 create sequence "destinations_id_seq";
-create sequence "exec_services_id_seq";
 create sequence "ext_sources_id_seq";
 create sequence "facilities_id_seq";
 create sequence "groups_id_seq";
@@ -1823,7 +1804,6 @@ grant all on user_facility_attr_u_values to perun;
 grant all on tasks to perun;
 grant all on tasks_results to perun;
 grant all on service_denials to perun;
-grant all on service_dependencies to perun;
 grant all on engines to perun;
 grant all on service_required_attrs to perun;
 grant all on resource_services to perun;

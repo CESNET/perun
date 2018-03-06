@@ -114,7 +114,11 @@ public class UpdateService {
 		JSONObject newService = new JSONObject();
 		newService.put("id", new JSONNumber(service.getId()));
 		newService.put("name", new JSONString(service.getName()));
-		newService.put("description", new JSONString(service.getDescription()));
+		if (service.getDescription() != null) {
+			newService.put("description", new JSONString(service.getDescription()));
+		} else {
+			newService.put("description", null);
+		}
 		newService.put("delay", new JSONNumber(service.getDelay()));
 		newService.put("recurrence", new JSONNumber(service.getRecurrence()));
 		newService.put("enabled", JSONBoolean.getInstance(service.isEnabled()));

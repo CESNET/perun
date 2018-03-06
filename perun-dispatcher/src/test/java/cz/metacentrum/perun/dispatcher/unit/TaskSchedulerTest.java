@@ -121,11 +121,6 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 		testTask2.setSourceUpdated(true);
 		schedulingPool.scheduleTask(testTask2, 4);
 		schedulingPool.scheduleTask(testTask1, 4);
-		Thread.sleep(timeLimit / 100);
-		schedulingPool.scheduleTask(testTask1, 4);
-		Thread.sleep((timeLimit / 100) * 8);
-		schedulingPool.scheduleTask(testTask1, 4);
-
 		simpleFutureTask.run();
 		assertFalse(simpleSpy.testFailed);
 	}
@@ -197,15 +192,16 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 
 		@Override
 		protected TaskScheduled sendToEngine(Task task) {
-			if (task.getId() == 2) {
+			if (task.isSourceUpdated() && !task.isPropagationForced()) {
 				testFailed = true;
 				this.task.cancel(true);
 				return TaskScheduled.ERROR;
 			}
 			scheduledCounter += 1;
-			if (scheduledCounter > scheduleLimit) {
+			if (scheduledCounter >= scheduleLimit) {
 				testFailed = false;
 				this.task.cancel(true);
+				stop();
 			}
 			return TaskScheduled.SUCCESS;
 		}

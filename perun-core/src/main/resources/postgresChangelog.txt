@@ -7,7 +7,7 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 3.1.47
-delete from service_dependencies where dependency in (select id from exec_services where exec_services.type='GENERATE');
+delete from service_dependencies where dependency_id in (select id from exec_services where exec_services.type='GENERATE');
 delete from service_denials where exec_service_id in (select id from exec_services where exec_services.type='GENERATE');
 delete from tasks where exec_service_id in (select id from exec_services where exec_services.type='GENERATE');
 delete from exec_services where type='GENERATE';

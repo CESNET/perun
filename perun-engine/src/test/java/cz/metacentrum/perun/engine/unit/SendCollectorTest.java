@@ -41,7 +41,10 @@ public class SendCollectorTest extends AbstractEngineTest {
 		assertEquals(SENT, sendTask2.getStatus());
 		assertEquals(SENT, sendTask3.getStatus());
 		assertEquals(SENT, sendTask4.getStatus());
-		verify(schedulingPoolMock, times(4)).decreaseSendTaskCount(task1.getId(), 1);
+		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask1.getDestination());
+		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask2.getDestination());
+		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask3.getDestination());
+		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask4.getDestination());
 		verify(jmsQueueManagerMock, times(4)).reportTaskResult(null);
 	}
 
@@ -57,7 +60,7 @@ public class SendCollectorTest extends AbstractEngineTest {
 
 		assertEquals(SENT, sendTask1.getStatus());
 		assertEquals(Task.TaskStatus.SENDERROR, task1.getStatus());
-		verify(schedulingPoolMock, times(2)).decreaseSendTaskCount(task1.getId(), 1);
+		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask1.getDestination());
 		verify(jmsQueueManagerMock, times(2)).reportTaskResult(null);
 	}
 }

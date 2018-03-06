@@ -1,6 +1,6 @@
 set database sql syntax PGS true;
 
--- database version 3.1.46 (don't forget to update insert statement at the end of file)
+-- database version 3.1.47 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -515,10 +515,10 @@ create table service_denials (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint srvden_pk primary key (id),
-	constraint srvden_exsrv_fk foreign key (exec_service_id) references exec_services(id),
+	constraint srvden_srv_fk foreign key (service_id) references services(id),
 	constraint srvden_fac_fk foreign key (facility_id) references facilities(id),
 	constraint srvden_dest_fk foreign key (destination_id) references destinations(id),
-	constraint srvden_u check(exec_service_id is not null and ((facility_id is not null and destination_id is null) or (facility_id is null and destination_id is not null)))
+	constraint srvden_u check(service_id is not null and ((facility_id is not null and destination_id is null) or (facility_id is null and destination_id is not null)))
 );
 
 -- RESOURCE_SERVICES - services assigned to resource
@@ -1156,8 +1156,8 @@ create table tasks (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint task_pk primary key (id),
-	constraint task_u unique (exec_service_id, facility_id),
-	constraint task_exsrv_fk foreign key (exec_service_id) references exec_services(id),
+	constraint task_u unique (service_id, facility_id),
+	constraint task_srv_fk foreign key (service_id) references services(id),
 	constraint task_fac_fk foreign key (facility_id) references facilities(id),
 	constraint task_eng_fk foreign key (engine_id) references engines (id),
 	constraint task_stat_chk check (status in ('NONE','OPEN','PLANNED','PROCESSING','DONE','ERROR'))

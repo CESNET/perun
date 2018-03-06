@@ -538,9 +538,6 @@ public class UiElements {
 				} else if (go.getObjectType().equalsIgnoreCase("Attribute") || go.getObjectType().equalsIgnoreCase("AttributeDefinition")) {
 					Attribute a = go.cast();
 					items = items.concat("<li>" + SafeHtmlUtils.fromString((a.getDisplayName()!=null) ? a.getDisplayName() : "").asString() + "</li>");
-				} else if (go.getObjectType().equalsIgnoreCase("ExecService")) {
-					ExecService e = go.cast();
-					items = items.concat("<li>" + SafeHtmlUtils.fromString(e.getService().getName() + " (" + e.getType()).asString() + ")</li>");
 				} else if (go.getObjectType().equalsIgnoreCase("UserExtSource")) {
 					UserExtSource ues = go.cast();
 					items = items.concat("<li>" + SafeHtmlUtils.fromString(ues.getLogin() + " / " + ues.getExtSource().getName()).asString() + "</li>");
