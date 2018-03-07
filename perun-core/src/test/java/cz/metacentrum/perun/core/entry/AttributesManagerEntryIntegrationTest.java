@@ -29,7 +29,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
@@ -1721,7 +1721,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setFacilityAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setFacilityAttributesWhenAttrbuteNotExists");
 
@@ -1784,7 +1784,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setVoAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setVoAttributes");
 
@@ -1849,7 +1849,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setResourceAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setVoAttributes");
 
@@ -1940,7 +1940,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setMemberResourceAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setMemberResourceAttributesWhenAttributeNotExists");
 
@@ -2035,7 +2035,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setUserAttributesForMemberResourceWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setUserAttributesForMemberResourceWhenAttributeNotExists");
 
@@ -2110,7 +2110,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find member
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setMemberGroupAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setMemberGroupAttributesWhenAttributeNotExists");
 
@@ -2206,7 +2206,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find group
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setUserAttributesForMemberGroupWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setUserAttributesForMemberGroupWhenAttributeNotExists");
 
@@ -2262,7 +2262,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setMemberAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setMemberAttributesWhenAttributeNotExists");
 
@@ -2335,7 +2335,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setUserAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setUserAttributesWhenAttributeNotExists");
 
@@ -2407,7 +2407,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setGroupAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setGroupAttributesWhenAttributeNotExists");
 
@@ -2528,7 +2528,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setGroupResourceAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setGroupResourceAttributesWhenAttributeNotExists");
 
@@ -2603,7 +2603,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setHostAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setHostAttributesWhenAttributeNotExists");
 
@@ -2666,7 +2666,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setUserExtSourceAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setUserExtSourceAttributesWhenAttributeNotExists");
 
@@ -2753,7 +2753,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getFacilityAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getFacilityAttributeWhenAttributeNotExists");
 
@@ -2796,7 +2796,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getVoAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getVoAttributeWhenAttributeNotExists");
 
@@ -2841,7 +2841,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getResourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getResourceAttributeWhenAttributeNotExists");
 
@@ -2955,7 +2955,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getMemberResourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getMemberResourceAttributeWhenAttributeNotExists");
 
@@ -3030,7 +3030,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find member
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getMemberGroupAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getMemberGroupAttributeWhenAttributeNotExists");
 
@@ -3078,7 +3078,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getMemberAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getMemberAttributeWhenAttributeNotExists");
 
@@ -3154,7 +3154,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getFacilityUserAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getFacilityUserAttributeWhenAttributeNotExists");
 
@@ -3215,7 +3215,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getUserAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getUserAttributeWhenAttributeNotExists");
 
@@ -3285,7 +3285,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getGroupAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupAttributeWhenAttributeNotExists");
 
@@ -3361,7 +3361,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getGroupResourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupResourceAttributeWhenAttributeNotExists");
 
@@ -3418,7 +3418,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getHostAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getHostAttributeWhenAttributeNotExists");
 
@@ -3462,7 +3462,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getUserExtSourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getUserExtSourceAttributeWhenAttributeNotExists");
 
@@ -3532,7 +3532,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getAttributeDefinitionWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributeDefinitionWhenAttributeNotExists");
 
@@ -3570,7 +3570,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getAttributeDefinitionByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesDefinitionByIdWhenAttributeNotExists");
 
@@ -3631,7 +3631,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getFacilityAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getFacilityAttributeByIdWhenAttributeNotExists");
 
@@ -3683,7 +3683,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getVoAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getVoAttributeByIdWhenAttributeNotExists");
 
@@ -3737,7 +3737,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getResourceAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getResourceAttributeByIdWhenAttributeNotExists");
 
@@ -3813,7 +3813,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getMemberResourceAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getMemberResourceAttributeByIdWhenAttributeNotExists");
 
@@ -3886,7 +3886,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find member
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getMemberGroupAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getMemberGroupAttributeByIdWhenAttributeNotExists");
 
@@ -3940,7 +3940,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getMemberAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getMemberAttributeByIdWhenAttributeNotExists");
 
@@ -4011,7 +4011,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getFacilityUserAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getFacilityUserAttributeByIdWhenAttributeNotExists");
 
@@ -4070,7 +4070,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getUserAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getMemberAttributeByIdWhenAttributeNotExists");
 
@@ -4148,7 +4148,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getGroupResourceAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupResourceAttributeByIdWhenAttributeNotExists");
 
@@ -4205,7 +4205,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getHostAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getHostAttributeByIdWhenAttributeNotExists");
 
@@ -4257,7 +4257,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void getUserExtSourceAttributeByIdWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getUserExtSourceAttributeByIdWhenAttributeNotExists");
 
@@ -4310,7 +4310,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setFacilityAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setFacilityAttributeWhenAttributeNotExists");
 
@@ -4393,7 +4393,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setFacilityUserAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setFacilityUserAttributeWhenAttributeNotExists");
 
@@ -4467,7 +4467,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setVoAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setVoAttributeWhenAttributeNotExists");
 
@@ -4534,7 +4534,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setResourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setResourceAttributeWhenAttributeNotExists");
 
@@ -4624,7 +4624,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setMemberResourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setMemberResourceAttributeWhenAttributeNotExists");
 
@@ -4713,7 +4713,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find member
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setMemberGroupAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setMemberGroupAttributeWhenAttributeNotExists");
 
@@ -4782,7 +4782,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setMemberAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setMemberAttributeWhenAttributeNotExists");
 
@@ -4852,7 +4852,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setUserAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setUserAttributeWhenAttributeNotExists");
 
@@ -4924,7 +4924,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setGroupAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setGroupAttributeWhenAttributeNotExists");
 
@@ -5011,7 +5011,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setGroupResourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setGroupResourceAttributeWhenAttributeNotExists");
 
@@ -5086,7 +5086,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setHostAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setHostAttributeWhenAttributeNotExists");
 
@@ -5150,7 +5150,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void setUserExtSourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "setUserExtSourceAttributeWhenAttributeNotExists");
 
@@ -5254,7 +5254,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 			attributesManager.deleteAttribute(sess, attrDef);
 			try {
 				attributesManager.getAttributeDefinition(sess, namespace + ":" + friendlyName);
-			} catch (AttributeNotExistsException ignored) {
+			} catch (AttributeDefinitionNotExistsException ignored) {
 				//expected
 			}
 		}
@@ -5615,7 +5615,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		}
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void deleteAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "deleteAttributeWhenAttributeNotExists");
 
@@ -5648,7 +5648,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	// FIXME - deleteAttributeForce - not yet implemented
 	@Ignore
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void deleteAttributeForce() throws Exception {
 		System.out.println(CLASS_NAME + "deleteAttributeForce");
 
@@ -5668,7 +5668,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void deleteAttributeForceWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "deleteAttributeForceWhenAttributeNotExists");
 
@@ -5685,7 +5685,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	// FIXME - deleteAttributeForce - not yet implemented
 	@Ignore
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void deleteAttributeForceWhenRelationExists() throws Exception {
 		System.out.println(CLASS_NAME + "deleteAttributeForceWhenRelationExists");
 
@@ -7212,7 +7212,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeFacilityAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeFacilityAttributeWhenAttributeNotExists");
 
@@ -7337,7 +7337,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeFacilityAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeFacilityAttributesWhenAttributeNotExists");
 
@@ -7516,7 +7516,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeVoAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeVoAttributeWhenAttributeNotExists");
 
@@ -7564,7 +7564,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeVoAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeVoAttributesWhenAttributeNotExists");
 
@@ -7639,7 +7639,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeResourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeResourceAttributeWhenAttributeNotExists");
 
@@ -7693,7 +7693,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeResourceAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeResourceAttributesWhenAttributeNotExists");
 
@@ -7790,7 +7790,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeMemberResourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberResourceAttributeWhenAttributeNotExists");
 
@@ -7862,7 +7862,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeMemberResourceAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberResourceAttributesWhenAttributeNotExists");
 
@@ -7973,7 +7973,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find member
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeMemberGroupAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberGroupAttributeWhenAttributeNotExists");
 
@@ -8036,7 +8036,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// shouldn't find member
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeMemberGroupAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberGroupAttributesWhenAttributeNotExists");
 
@@ -8125,7 +8125,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeMemberAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberAttributeWhenAttributeNotExists");
 
@@ -8211,7 +8211,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeMemberAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberAttributesWhenAttributeNotExists");
 
@@ -8305,7 +8305,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeFacilityUserAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeFacilityUserAttributeWhenAttributeNotExists");
 
@@ -8377,7 +8377,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeFacilityUserAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeFacilityUserAttributesWhenAttributeNotExists");
 
@@ -8477,7 +8477,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeUserAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeUserAttributeWhenAttributeNotExists");
 
@@ -8531,7 +8531,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeUserAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeUserAttributesWhenAttributeNotExists");
 
@@ -8611,7 +8611,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeGroupAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeGroupAttributeWhenAttributeNotExists");
 
@@ -8663,7 +8663,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeGroupAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeGroupAttributesWhenAttributeNotExists");
 
@@ -8757,7 +8757,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeGroupResourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeGroupResourceAttributeWhenAttributeNotExists");
 
@@ -8829,7 +8829,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeGroupResourceAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeGroupResourceAttributesWhenAttributeNotExists");
 
@@ -8927,7 +8927,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeHostAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeHostAttributeWhenAttributeNotExists");
 
@@ -8975,7 +8975,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeHostAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeHostAttributesWhenAttributeNotExists");
 
@@ -9048,7 +9048,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeUserExtSourceAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeUserExtSourceAttributeWhenAttributeNotExists");
 
@@ -9097,7 +9097,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeUserExtSourceAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeUserExtSourceAttributesWhenAttributeNotExists");
 

@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -73,7 +73,7 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 				}
 			}
 
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException("Related VŠUP mail attributes not exists.", e);
 		}
 		return resultAttribute;
@@ -102,7 +102,7 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 			vsupMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailUrn);
 			mailAliasesAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasesUrn);
 			vsupMailAliasAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasUrn);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -188,7 +188,7 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 					session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, userPreferredMail);
 				}
 			}
-		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 

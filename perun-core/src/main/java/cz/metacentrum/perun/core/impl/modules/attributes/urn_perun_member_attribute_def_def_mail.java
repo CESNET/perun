@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -51,7 +51,7 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 				}
 			} catch (WrongAttributeAssignmentException ex) {
 				throw new InternalErrorException(ex);
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			} catch (WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException(attribute, userPreferredMail, "Mismatch in checking of member mail and user preferredMail (different checking rules).", ex);
@@ -103,7 +103,7 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 		}
 		} catch(WrongAttributeAssignmentException ex) {
 		throw new InternalErrorException(ex);
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 		throw new ConsistencyErrorException(ex);
 		} catch(WrongAttributeValueException ex) {
 		throw new WrongReferenceAttributeValueException("There is mismatch between possible format of member mail and userPreferredMail", ex);

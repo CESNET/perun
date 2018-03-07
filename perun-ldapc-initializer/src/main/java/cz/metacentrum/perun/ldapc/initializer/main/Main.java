@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.ldapc.initializer.main;
 
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -105,7 +105,7 @@ public class Main {
 			} catch (IOException ex) {
 				System.err.println("Last message id before starting initializing: " + lastMessageBeforeInitializingData + '\n');
 				throw new InternalErrorException(ex);
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 				System.err.println("Problem with initializing users, there is an attribute which probably not exists.");
 				throw new InternalErrorException(ex);
 			}

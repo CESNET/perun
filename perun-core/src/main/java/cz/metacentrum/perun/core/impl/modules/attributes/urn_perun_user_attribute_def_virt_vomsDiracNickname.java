@@ -4,15 +4,13 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 /**
  * Dirac Nickname is defined like login in egi-ui, if not exists, then it is empty
@@ -28,7 +26,7 @@ public class urn_perun_user_attribute_def_virt_vomsDiracNickname extends UserVir
 		try {
 			Attribute loginInEgiui = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:egi-ui");
 			attribute = Utils.copyAttributeToVirtualAttributeWithValue(loginInEgiui, attribute);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			//That means that egi-ui attribute not exists at all, return empty attribute
 			return attribute;
 		} catch (WrongAttributeAssignmentException ex) {

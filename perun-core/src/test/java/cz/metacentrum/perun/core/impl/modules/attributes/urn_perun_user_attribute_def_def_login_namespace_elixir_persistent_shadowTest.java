@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -31,7 +31,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
     private static User user;
 
     @Before
-    public void SetUp() throws AttributeNotExistsException, InternalErrorException, WrongAttributeAssignmentException {
+    public void SetUp() throws AttributeDefinitionNotExistsException, InternalErrorException, WrongAttributeAssignmentException {
         classInstance = new urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadow();
         session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
         user = new User();

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import org.apache.http.Consts;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -29,7 +30,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RTMessage;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -175,7 +175,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 			userPreferredMail = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:preferredMail");
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 
@@ -184,7 +184,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 				userPreferredMail = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:mail");
 			} catch (WrongAttributeAssignmentException ex) {
 				throw new InternalErrorException(ex);
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 
@@ -215,7 +215,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 				Attribute voQueue = null;
 				try {
 					voQueue = perunBl.getAttributesManagerBl().getAttribute(sess, vo, AttributesManager.NS_VO_ATTR_DEF + ":RTVoQueue");
-				} catch (AttributeNotExistsException ex) {
+				} catch (AttributeDefinitionNotExistsException ex) {
 					throw new InternalErrorException("Attribute RTVoQueue not exists.", ex);
 				} catch (WrongAttributeAssignmentException ex) {
 					throw new InternalErrorException(ex);

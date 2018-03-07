@@ -8,7 +8,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -31,7 +31,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends Resourc
 		Attribute gidAttribute;
 		try {
 			gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 		gidAttribute.setValue(attribute.getValue());
@@ -57,7 +57,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends Resourc
 		Attribute gidAttribute;
 		try {
 			gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 
@@ -94,7 +94,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends Resourc
 			return attribute;
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
@@ -109,7 +109,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends Resourc
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, group, gidAttribute);
 		} catch (WrongAttributeValueException ex) {
 			throw new InternalErrorException(ex);
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -125,7 +125,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends Resourc
 			 try {
 			 AttributeDefinition groupGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
 			 sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, group, groupGidAttribute);
-			 } catch (AttributeNotExistsException ex) {
+			 } catch (AttributeDefinitionNotExistsException ex) {
 			 throw new InternalErrorException(ex);
 			 } catch (WrongAttributeAssignmentException ex) {
 			 throw new InternalErrorException(ex);

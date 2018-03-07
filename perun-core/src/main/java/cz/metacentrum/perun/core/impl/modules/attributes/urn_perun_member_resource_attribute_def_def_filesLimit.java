@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
@@ -37,7 +37,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Reso
 		//Get FilesQuotaAttribute
 		try {
 			attrFilesQuota = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, member, A_MR_filesQuota);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute with filesQuota from member " + member.getId() + " and resource " + resource.getId() + " could not obtained.", ex);
 		} catch (MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
@@ -49,7 +49,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Reso
 		} else {
 			try {
 				attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultFilesLimit);
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute with defaultFilesLimit from resource " + resource.getId() + " could not obtained.", ex);
 			}
 			if(attribute != null && attribute.getValue() != null) {
@@ -64,7 +64,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Reso
 		} else if(attrFilesQuota == null || attrFilesQuota.getValue() == null) {
 			try {
 				attrFilesQuota = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultFilesQuota);
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute with defaultFilesQuota from resource " + resource.getId() + " could not obtained.", ex);
 			}
 			if(attrFilesQuota != null || attrFilesQuota.getValue() != null) {

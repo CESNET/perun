@@ -37,7 +37,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 
 			try {
 				isSystemGroup = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemIsUnixGroup);
-			} catch(AttributeNotExistsException ex) {
+			} catch(AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException("Not exist Attribute " + A_GR_systemIsUnixGroup +  " for group " + group,ex);
 			} catch (GroupResourceMismatchException ex) {
 				throw new InternalErrorException(ex);
@@ -66,7 +66,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 
 				try {
 					group1GID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemUnixGID);
-				} catch (AttributeNotExistsException ex) {
+				} catch (AttributeDefinitionNotExistsException ex) {
 					throw new ConsistencyErrorException("Attribute "+ A_GR_systemUnixGID +" not exists for group " + group + " and resource " + resource,ex);
 				} catch (GroupResourceMismatchException ex) {
 					throw new InternalErrorException(ex);
@@ -75,7 +75,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 				try {
 
 					group2GID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, p.getRight(), p.getLeft(), A_GR_systemUnixGID);
-				} catch (AttributeNotExistsException ex) {
+				} catch (AttributeDefinitionNotExistsException ex) {
 					throw new ConsistencyErrorException("Attribute "+ A_GR_systemUnixGID +" not exists for group " + p.getLeft() + " and resource " + p.getRight() ,ex);
 				} catch (GroupResourceMismatchException ex) {
 					throw new InternalErrorException(ex);

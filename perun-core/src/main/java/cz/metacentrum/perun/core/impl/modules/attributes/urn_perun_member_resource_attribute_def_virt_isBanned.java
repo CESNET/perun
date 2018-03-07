@@ -10,7 +10,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
@@ -73,7 +73,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
     }
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<String> resolvingMessages = new ArrayList<>();
 		if(message == null) return resolvingMessages;
 		
@@ -118,7 +118,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 				Attribute attrVirtMemberResourceIsBanned = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, affectedObjects.getLeft(), affectedObjects.getRight(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":isBanned");
 
 				resolvingMessages.add(attrVirtMemberResourceIsBanned.serializeToString() + " " + operationType + " for " + affectedObjects.getLeft().serializeToString() + " and " + affectedObjects.getRight().serializeToString());
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				//This means that attribute isBanned not exists at all so we can skip this process
 				log.info("Virtual attribute {} not exists.", this.getClass().getSimpleName());
 				break;

@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.ActionType;
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -11,7 +10,7 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Searcher;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -45,7 +44,7 @@ public class SearcherEntry implements Searcher {
 	public SearcherEntry() {
 	}
 
-	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException {
+	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, PrivilegeException, WrongAttributeAssignmentException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "getUsers");
@@ -54,7 +53,7 @@ public class SearcherEntry implements Searcher {
 		return searcherBl.getUsers(sess, attributesWithSearchingValues);
 	}
 
-	public List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo,  Map<String, String> userAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException {		// Authorization
+	public List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo,  Map<String, String> userAttributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException {		// Authorization
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
@@ -73,7 +72,7 @@ public class SearcherEntry implements Searcher {
 		for(String attrName: attrNames) {
 			if(attrName == null || attrName.isEmpty()) throw new InternalErrorException("One of attributes has empty name.");
 
-			//throw AttributeNotExistsException if this attr_name not exists in DB
+			//throw AttributeDefinitionNotExistsException if this attr_name not exists in DB
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, attrName);
 			attrDefs.add(attrDef);
 
@@ -111,7 +110,7 @@ public class SearcherEntry implements Searcher {
 		return members;
 	}
 
-	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
+	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "getUsersForCoreAttributes");

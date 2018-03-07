@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -78,7 +78,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 	protected DnsMapCtx initModifyValueContext(PerunSessionImpl sess, User user, AttributeDefinition attr) throws InternalErrorException {
 		try {
 			return new DnsMapCtx(sess, user, attr, sess.getPerunBl().getAttributesManagerBl().getEntitylessStringAttributeMapping(sess, DNS_STATE_MAPPING_ATTR.getName()));
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+		} catch (WrongAttributeAssignmentException | AttributeDefinitionNotExistsException e) {
 			throw new InternalErrorException("cannot read dnsStateMappings", e);
 		}
 	}
@@ -110,7 +110,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 	 * For a change in dnsStateMapping attribute, finds all affected users and generates audit message about changing this attribute for each of them.
 	 */
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl sess, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl sess, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<String> messages = super.resolveVirtualAttributeValueChange(sess, message);
 		// react to auditlog message about changing dnsStateMapping
 		String key = null;

@@ -30,7 +30,7 @@ public class urn_perun_user_attribute_def_def_preferredEduPersonPrincipalName ex
 				}
 			}
 
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException("Can't fill attribute value because source attribute "+AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonPrincipalNames not exist!", ex);
 		}
 
@@ -56,7 +56,7 @@ public class urn_perun_user_attribute_def_def_preferredEduPersonPrincipalName ex
 				// available EPPNs are null, only allowed value is null.
 				if (value != null) throw new WrongReferenceAttributeValueException(attribute, eppns, user, null, user, null, "Value '"+value+"' is not allowed. Please use one of allowed.");
 			}
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException("Can't check attribute value because source attribute "+AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonPrincipalNames not exist!", ex);
 		}
 

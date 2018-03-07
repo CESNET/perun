@@ -1,11 +1,9 @@
 package cz.metacentrum.perun.notif.managers;
 
 import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -37,7 +35,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import javax.annotation.PostConstruct;
 import org.joda.time.DateTime;
@@ -1007,7 +1004,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 						}
 					} catch (UserNotExistsException ex) {
 						logger.error("Cannot found user with id: {}, ex: {}", id, ex.getMessage());
-					} catch (AttributeNotExistsException ex) {
+					} catch (AttributeDefinitionNotExistsException ex) {
 						logger.warn("Cannot find language for user with id: {}, ex: {}", id, ex.getMessage());
 					} catch (PerunException ex) {
 						logger.error("Error during user language recognition, ex: {}", ex.getMessage());

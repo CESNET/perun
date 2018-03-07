@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -59,7 +59,7 @@ public class urn_perun_user_attribute_def_virt_elixirBonaFideStatus extends User
 			if (statusAttrValue != null && !statusAttrValue.isEmpty()) {
 				attribute.setValue(URL);
 			}
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+		} catch (WrongAttributeAssignmentException | AttributeDefinitionNotExistsException e) {
 			log.error("Cannot read {} from user {}", USER_REMS_ATTR_NAME, user, e);
 		}
 
@@ -75,7 +75,7 @@ public class urn_perun_user_attribute_def_virt_elixirBonaFideStatus extends User
 						}
 					}
 				}
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			} catch (WrongAttributeAssignmentException | AttributeDefinitionNotExistsException e) {
 				log.error("Cannot read {} from user {}", USER_AFFILIATIONS_ATTR_NAME, user, e);
 			}
 		}
@@ -84,7 +84,7 @@ public class urn_perun_user_attribute_def_virt_elixirBonaFideStatus extends User
 	}
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl sess, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl sess, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<String> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 

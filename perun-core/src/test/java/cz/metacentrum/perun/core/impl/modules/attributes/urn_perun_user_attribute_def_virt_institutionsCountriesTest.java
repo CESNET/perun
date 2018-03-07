@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
@@ -85,7 +85,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountriesTest {
 
 	}
 
-	private void setSchacHomeOrgs(String domains) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException {
+	private void setSchacHomeOrgs(String domains) throws WrongAttributeAssignmentException, InternalErrorException, AttributeDefinitionNotExistsException {
 		schacHomeOrg.setValue(domains);
 		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, userExtSource, SCHAC_HOME_ATTR_NAME)).thenReturn(schacHomeOrg);
 	}

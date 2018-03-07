@@ -29,7 +29,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -387,9 +387,9 @@ public interface AttributesManagerImplApi {
 	 * @return attr_value in string
 	 *
 	 * @throws InternalErrorException if runtime error exception has been thrown
-	 * @throws AttributeNotExistsException throw exception if attribute with value not exists in DB
+	 * @throws AttributeDefinitionNotExistsException throw exception if attribute with value not exists in DB
 	 */
-	String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException;
+	String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Returns list of Keys which fits the attributeDefinition.
@@ -514,9 +514,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the vo.
@@ -526,9 +526,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the group.
@@ -538,9 +538,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the resource.
@@ -550,9 +550,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the member on this resource.
@@ -563,9 +563,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the member in this group.
@@ -577,9 +577,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the member.
@@ -589,9 +589,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the user on this facility.
@@ -600,9 +600,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the user.
@@ -613,13 +613,13 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, User user, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
-	Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
-	Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 
 	/**
@@ -629,9 +629,9 @@ public interface AttributesManagerImplApi {
 	 * @param attributeName
 	 * @return attribute
 	 * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException  if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException  if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Gets map from keys to string values for an entityless attribute.
@@ -639,7 +639,7 @@ public interface AttributesManagerImplApi {
 	 * @param attributeName full attribute name
 	 * @return unordered hashmap
 	 */
-	Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the User External Source.
@@ -650,9 +650,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get attributes definition (attribute without defined value).
@@ -661,9 +661,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get attributes definition (attribute without defined value).
@@ -691,9 +691,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeNotExistsException;
+	AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the facility.
@@ -703,9 +703,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the vo.
@@ -715,9 +715,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the resource.
@@ -727,9 +727,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the member on this resource.
@@ -740,9 +740,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the member in this group.
@@ -754,9 +754,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the member.
@@ -767,9 +767,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Member member, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Member member, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the user on this facility.
@@ -781,9 +781,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the user.
@@ -794,15 +794,15 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, User user, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, User user, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
-	Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
-	Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
-	Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get particular attribute for the user external source.
@@ -813,9 +813,9 @@ public interface AttributesManagerImplApi {
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Store the particular attribute associated with the given perun bean. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
@@ -2102,9 +2102,9 @@ public interface AttributesManagerImplApi {
 	 * @param sess perun session
 	 * @param attribute attribute to check
 	 * @throws InternalErrorException if unexpected error occured
-	 * @throws AttributeNotExistsException if attribute doesn';t exists
+	 * @throws AttributeDefinitionNotExistsException if attribute doesn';t exists
 	 */
-	void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeNotExistsException;
+	void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Check if actionType exists in underlaying data source.
@@ -2120,19 +2120,19 @@ public interface AttributesManagerImplApi {
 	 * @see cz.metacentrum.perun.core.implApi.AttributesManagerImplApi#checkAttributeExists(PerunSession, AttributeDefinition)
 	 * @param expectedNamespace expected namespace
 	 * @throws WrongAttributeAssignmentException if attribute's namespace is to equal to expected namespace
-	 void checkAttributeExists(PerunSession sess, AttributeDefinition attribute, String expectedNamespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	 void checkAttributeExists(PerunSession sess, AttributeDefinition attribute, String expectedNamespace) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException;
 	 */
 
 	/**
 	 * Batch version of checkAttributeExists
 	 */
-	void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotExistsException;
+	void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/*
 	 * @see cz.metacentrum.perun.core.implApi.AttributesManagerImplApi#checkAttributesExists(PerunSession, List)
 	 * @param expectedNamespace expected namespace
 	 * @throws WrongAttributeAssignmentException if any attribute's namespace is to equal to expected namespace
-	 void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes, String expectedNamespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	 void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes, String expectedNamespace) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException;
 	 */
 
 	/**
@@ -2301,7 +2301,7 @@ public interface AttributesManagerImplApi {
 	 * @param startingPartOfAttributeName is something like: urn:perun:user_facility:attribute-def:def:login-namespace:
 	 * @return list of similar attribute names like: urn:perun:user_facility:attribute-def:def:login-namespace:cesnet etc.
 	 * @throws InternalErrorException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
 	List<String> getAllSimilarAttributeNames(PerunSession sess, String startingPartOfAttributeName) throws InternalErrorException;
 

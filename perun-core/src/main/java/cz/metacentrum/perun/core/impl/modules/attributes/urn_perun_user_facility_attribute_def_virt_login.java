@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -43,7 +43,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 			} else {
 				throw new WrongAttributeValueException(loginNamespaceAttribute, user, facility, "Login-namespace for facility can not be empty.");
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException(e);
 		}
 	}
@@ -68,7 +68,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 			} else {
 				virtLoginAttribute.setValue(null);
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException(e);
 		}
 		return virtLoginAttribute;
@@ -94,7 +94,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 			} else {
 				attr.setValue(null);
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new InternalErrorException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new ConsistencyErrorException(e);
@@ -115,7 +115,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 			}
 
 			userLoginAttributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + (String) loginNamespaceAttribute.getValue());
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new InternalErrorException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new ConsistencyErrorException(e);

@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -404,7 +404,7 @@ public class Auditer {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
 				} catch (WrongReferenceAttributeValueException ex) {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
-				} catch (AttributeNotExistsException ex) {
+				} catch (AttributeDefinitionNotExistsException ex) {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
 				}
 

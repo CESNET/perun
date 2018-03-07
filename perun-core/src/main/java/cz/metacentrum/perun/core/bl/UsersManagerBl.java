@@ -1070,10 +1070,10 @@ public interface UsersManagerBl {
 	 * @throws UserNotExistsException                When user from session is null
 	 * @throws WrongAttributeValueException          If new email address is in wrong format
 	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException           If user:preferredEmail attribute doesn't exists.
+	 * @throws AttributeDefinitionNotExistsException           If user:preferredEmail attribute doesn't exists.
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
+	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Return list of email addresses of user, which are
@@ -1089,9 +1089,9 @@ public interface UsersManagerBl {
 	 * @return List<String> user's email addresses pending validation
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
-	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException;
+	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get user and convert values of his object attributes:
@@ -1184,6 +1184,6 @@ public interface UsersManagerBl {
 	 * @param excludeValueEnds exclude these attribute value endings
 	 * @return list of users
 	 */
-	List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws AttributeNotExistsException, InternalErrorException;
+	List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws AttributeDefinitionNotExistsException, InternalErrorException;
 
 }

@@ -184,7 +184,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		try {
 			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
 			memberLoa = (String) loa.getValue();
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			// user has no loa defined - if required by VO, it will be stopped in checking method later
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -235,7 +235,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				try {
 					actorUserOrganization = perunBl.getAttributesManagerBl().getAttribute(sess, sess.getPerunPrincipal().getUser(), userOrganization);
 					actorUserOrganizationValue = (String) actorUserOrganization.getValue();
-				} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+				} catch (WrongAttributeAssignmentException | AttributeDefinitionNotExistsException ex) {
 					throw new InternalErrorException(ex);
 				}
 
@@ -427,7 +427,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				AttributeDefinition attributeDefinition;
 				try {
 					attributeDefinition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
-				} catch(AttributeNotExistsException ex) {
+				} catch(AttributeDefinitionNotExistsException ex) {
 					throw new InternalErrorException(ex);
 				}
 				Attribute attribute = new Attribute(attributeDefinition);
@@ -464,7 +464,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		try {
 			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
 			memberLoa = (String) loa.getValue();
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			// user has no loa defined - if required by VO, it will be stopped in checking method later
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -676,7 +676,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return richMembersWithAttributes;
 	}
 
-	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
+	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(perunBl.getMembersManagerBl().getMembers(sess, vo));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
@@ -689,7 +689,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return richMembersWithAttributes;
 	}
 
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		if(attrsNames == null || attrsNames.isEmpty()) {
 			return this.getRichMembersWithAttributes(sess, vo);
 		} else {
@@ -697,15 +697,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 	}
 
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.getCompleteRichMembers(sess, vo, attrsNames), allowedStatuses);
 	}
 
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, GroupResourceMismatchException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeDefinitionNotExistsException, ParentGroupNotExistsException, GroupResourceMismatchException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.getRichMembersWithAttributesByNames(sess, group, resource, attrsNames), allowedStatuses);
 	}
 
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeDefinitionNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException {
 		if(lookingInParentGroup) group = getPerunBl().getGroupsManagerBl().getParentGroup(sess, group);
 
 		if(attrsNames == null || attrsNames.isEmpty()) {
@@ -715,34 +715,34 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 	}
 
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeDefinitionNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), allowedStatuses);
 	}
 
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException, AttributeNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		return this.findRichMembersWithAttributesInVo(sess, vo, searchString, attrsNames);
 	}
 
 
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, String searchString) throws InternalErrorException, AttributeNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, String searchString) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		return this.findRichMembersWithAttributes(sess, searchString, attrsNames);
 	}
 
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, vo, attrsNames, searchString), allowedStatuses);
 	}
 
 	@Override
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, attrsNames, searchString), allowedStatuses);
 	}
 
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, AttributeDefinitionNotExistsException, ParentGroupNotExistsException {
 		if(lookingInParentGroup) group = getPerunBl().getGroupsManagerBl().getParentGroup(sess, group);
 		return this.findRichMembersWithAttributesInGroup(sess, group, searchString, attrsNames);
 	}
 
-	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws InternalErrorException, AttributeDefinitionNotExistsException, ParentGroupNotExistsException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, group, attrsNames, searchString, lookingInParentGroup), allowedStatuses);
 	}
 
@@ -774,7 +774,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return allowedRichMembers;
 	}
 
-	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, GroupResourceMismatchException {
+	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, AttributeDefinitionNotExistsException, GroupResourceMismatchException {
 		getPerunBl().getAttributesManagerBl().checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
@@ -793,7 +793,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return richMembersWithAttributes;
 	}
 
-	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
+	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
@@ -1181,7 +1181,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		for (String attrsName : attrsNames) {
 			try {
 				attrsDefs.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrsName));
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				//pass
 			}
 		}
@@ -1237,7 +1237,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		for (String attrsName : attrsNames) {
 			try {
 				attrsDefs.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrsName));
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				//pass
 			}
 		}
@@ -1258,7 +1258,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		for (String attrsName : attrsNames) {
 			try {
 				attrsDefs.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrsName));
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				//pass
 			}
 		}
@@ -1468,7 +1468,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
       // If attribute was not filled, then silently exit with null
       if (membershipExpirationRules == null) return null;
-    } catch (AttributeNotExistsException e) {
+    } catch (AttributeDefinitionNotExistsException e) {
       // No rules set, so leave it as it is
       return null;
     } catch (WrongAttributeAssignmentException e) {
@@ -1805,7 +1805,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
 			// If attribute was not filled, then silently exit
 			if (membershipExpirationRules == null) return true;
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			// No rules set, so leave it as it is
 			return true;
 		} catch (WrongAttributeAssignmentException e) {
@@ -1871,7 +1871,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			if (membershipExpirationRules == null) return new Pair<Boolean, Date>(true, null);
 		} catch (VoNotExistsException e) {
 			throw new ConsistencyErrorException("Member " + member + " of non-existing VO id=" + member.getVoId());
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			// There is no attribute definition for membership expiration rules.
 			return new Pair<Boolean, Date>(true, null);
 		} catch (WrongAttributeAssignmentException e) {
@@ -1883,7 +1883,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		try {
 			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
 			memberLoa = (String) loa.getValue();
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			// Ignore, will be probably set further
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -1894,7 +1894,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		try {
 			membershipExpirationAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member,
 					EXPIRATION);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException("Attribute: " + AttributesManager.NS_MEMBER_ATTR_DEF +
 						":membershipExpiration" + " must be defined in order to use membershipExpirationRules");
 		} catch (WrongAttributeAssignmentException e) {
@@ -2234,7 +2234,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -2285,7 +2285,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			Attribute a = getPerunBl().getAttributesManagerBl().getAttribute(sess, sponsoredUser, loginAttributeName);
 			a.setValue(login);
 			getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredUser,a);
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException |WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+		} catch (WrongAttributeAssignmentException | AttributeDefinitionNotExistsException |WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException("cannot set attribute "+loginAttributeName+" for user "+sponsoredUser.getId(),e);
 		}
 	}
@@ -2341,7 +2341,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, sponsoredMember, EXPIRATION);
 				expiration.setValue(BeansUtils.getDateFormatterWithoutTime().format(new Date()));
 				getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredMember,expiration);
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException| WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+			} catch (WrongAttributeAssignmentException | AttributeDefinitionNotExistsException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 				throw new InternalErrorException("cannot set expiration date to today for sponsored member "+sponsoredMember.getId(),e);
 			}
 			try {
@@ -2369,7 +2369,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, sponsoredMember, EXPIRATION);
 			expiration.setValue(expirationString);
 			getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredMember,expiration);
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException|WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+		} catch (WrongAttributeAssignmentException | AttributeDefinitionNotExistsException |WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException("cannot set expiration date to today for sponsored member "+sponsoredMember.getId(),e);
 		}
 		return expirationString;

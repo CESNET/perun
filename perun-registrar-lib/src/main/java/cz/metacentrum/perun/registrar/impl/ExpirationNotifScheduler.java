@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
@@ -280,7 +280,7 @@ public class ExpirationNotifScheduler {
 
 		} catch(InternalErrorException e){
 			log.error("Synchronizer: checkMembersState, exception {}", e);
-		} catch(AttributeNotExistsException e){
+		} catch(AttributeDefinitionNotExistsException e){
 			log.warn("Synchronizer: checkMembersState, attribute definition for membershipExpiration doesn't exist, exception {}", e);
 		} catch(WrongAttributeAssignmentException e){
 			log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace, exception {}", e);

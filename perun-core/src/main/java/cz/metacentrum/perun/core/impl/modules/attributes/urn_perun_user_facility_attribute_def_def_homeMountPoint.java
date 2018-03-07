@@ -15,7 +15,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -42,7 +42,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Fa
 			Attribute resAttribute;
 			try {
 				resAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, res, AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints");
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new InternalErrorException("no homemountpoints found on underlying resources", ex);
 			}
 			List<String> homeMntPoint = (List<String>) resAttribute.getValue();
@@ -72,7 +72,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Fa
 			Attribute resAttribute;
 			try {
 				resAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, res, AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultHomeMountPoint");
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new InternalErrorException("no homemountpoints found on underlying user's  resources", ex);
 			}
 			if (resAttribute.getValue() != null) {

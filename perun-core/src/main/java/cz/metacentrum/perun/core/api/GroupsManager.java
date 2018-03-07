@@ -224,11 +224,11 @@ public interface GroupsManager {
 	 * @throws InternalErrorRuntimeException
 	 * @throws WrongAttributeValueException if any member attribute value, required by resource (on which the group is assigned), is wrong
 	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws ExternallyManagedException
 	 */
-	void addMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
+	void addMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, ExternallyManagedException;
 
 	/**
 	 * Removes member form the group.
@@ -244,10 +244,10 @@ public interface GroupsManager {
 	 * @throws NotGroupMemberException
 	 * @throws InternalErrorRuntimeException
 	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws ExternallyManagedException
 	 */
-	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
+	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, ExternallyManagedException;
 
 	/**
 	 * Return all group members.
@@ -788,9 +788,9 @@ public interface GroupsManager {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws VoNotExistsException
 	 * @throws MemberNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
-	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, VoNotExistsException, WrongAttributeAssignmentException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException;
+	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, VoNotExistsException, WrongAttributeAssignmentException, InternalErrorException, MemberNotExistsException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Return all member's groups. Included members groups.

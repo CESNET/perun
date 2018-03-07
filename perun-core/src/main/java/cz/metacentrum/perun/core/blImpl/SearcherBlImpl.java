@@ -7,14 +7,13 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,7 +39,7 @@ public class SearcherBlImpl implements SearcherBl {
 		this.searcherImpl = searcherImpl;
 	}
 
-	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		//If there is no attribute, so every user match
 		if(attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
 			return perunBl.getUsersManagerBl().getUsers(sess);
@@ -49,7 +48,7 @@ public class SearcherBlImpl implements SearcherBl {
 		Map<Attribute, String> mapOfAttrsWithValues = new HashMap<Attribute, String>();
 		Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<AttributeDefinition, String>();
 		for(String name: attributesWithSearchingValues.keySet()) {
-			if(name == null || name.equals("")) throw new AttributeNotExistsException("There is attribute with no specific name!");
+			if(name == null || name.equals("")) throw new AttributeDefinitionNotExistsException("There is attribute with no specific name!");
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, name);
 			if(getPerunBl().getAttributesManagerBl().isCoreAttribute(sess, attrDef)) {
 				mapOfCoreAttributesWithValues.put(attrDef, attributesWithSearchingValues.get(name));
@@ -64,14 +63,14 @@ public class SearcherBlImpl implements SearcherBl {
 		return usersFromAttributes;
 	}
 
-	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<User> users = getPerunBl().getUsersManagerBl().getUsers(sess);
 		if(coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) return users;
 
 		Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<AttributeDefinition, String>();
 		Set<String> keys = coreAttributesWithSearchingValues.keySet();
 		for(String name: keys) {
-			if(name == null || name.equals("")) throw new AttributeNotExistsException("There is attribute with no specific name!");
+			if(name == null || name.equals("")) throw new AttributeDefinitionNotExistsException("There is attribute with no specific name!");
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, name);
 			if(getPerunBl().getAttributesManagerBl().isCoreAttribute(sess, attrDef)) {
 				mapOfCoreAttributesWithValues.put(attrDef, coreAttributesWithSearchingValues.get(name));
@@ -115,10 +114,10 @@ public class SearcherBlImpl implements SearcherBl {
 	 * @param coreAttributesWithSearchingValues
 	 * @return
 	 * @throws InternalErrorException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	private List<User> getUsersForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<User> getUsersForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<User> users = getPerunBl().getUsersManagerBl().getUsers(sess);
 		if(coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) return users;
 

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
@@ -36,7 +37,6 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -1147,7 +1147,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		try {
 			facilityGIDNamespace = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace"));
 			facilityGIDNamespace.setValue(namespace);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			facilityGIDNamespace.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 			facilityGIDNamespace.setFriendlyName("unixGID-namespace");
 			facilityGIDNamespace.setType(String.class.getName());
@@ -1159,7 +1159,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		try {
 			facilityGroupNameNamespace = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace"));
 			facilityGroupNameNamespace.setValue(namespace);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			facilityGroupNameNamespace.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
 			facilityGroupNameNamespace.setFriendlyName("unixGroupName-namespace");
 			facilityGroupNameNamespace.setType(String.class.getName());

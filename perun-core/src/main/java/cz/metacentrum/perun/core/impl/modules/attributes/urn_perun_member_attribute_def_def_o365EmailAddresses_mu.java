@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -131,7 +131,7 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 			if (uco == null)
 				throw new InternalErrorException("user " + user.getId() + " does not have string attribute " + UCO_ATTRIBUTE);
 			return uco;
-		} catch (UserNotExistsException | AttributeNotExistsException e) {
+		} catch (UserNotExistsException | AttributeDefinitionNotExistsException e) {
 			throw new InternalErrorException(e.getMessage(), e);
 		}
 	}

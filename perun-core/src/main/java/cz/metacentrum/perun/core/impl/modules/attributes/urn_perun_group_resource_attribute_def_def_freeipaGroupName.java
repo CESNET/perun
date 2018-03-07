@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -67,7 +67,7 @@ public class urn_perun_group_resource_attribute_def_def_freeipaGroupName extends
 
 				try{
 					freeipaGroupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, rs, gr, A_GR_freeipaGroupName);
-				} catch(AttributeNotExistsException ex) {
+				} catch(AttributeDefinitionNotExistsException ex) {
 					throw new ConsistencyErrorException("Attribute "+ A_GR_freeipaGroupName +" does not exists for group " + gr + " and resource " + rs ,ex);
 				} catch (GroupResourceMismatchException ex) {
 					throw new InternalErrorException(ex);

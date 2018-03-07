@@ -37,7 +37,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_cesnet_eduroam ext
 		Attribute idsCounter;
 		try {
 			idsCounter = perunSession.getPerunBl().getAttributesManagerBl().getEntitylessAttributeForUpdate(perunSession, cesnet_eduroam_key, CESNET_EDUROAM_IDS_COUNTER);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException("Attribute doesn't exists.", e);
 		}
 

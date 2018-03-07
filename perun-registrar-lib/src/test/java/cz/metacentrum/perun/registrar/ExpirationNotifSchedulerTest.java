@@ -10,7 +10,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.registrar.impl.ExpirationNotifScheduler;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 
 		try {
 			perun.getAttributesManager().getAttributeDefinition(session, EXPIRATION_URN);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			setUpMembershipExpirationAttribute();
 		}
 

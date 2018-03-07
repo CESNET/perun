@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -19,8 +19,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttribu
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,7 +45,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 		Attribute thisResourceProjectsBasePath = null;
 		try {
 			thisResourceProjectsBasePath = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":projectsBasePath");
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute projectBasePath not exists!", ex);
 		}
 
@@ -71,7 +69,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 			Attribute otherResourceProjectsBasePath = null;
 			try {
 				otherResourceProjectsBasePath = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, r, AttributesManager.NS_RESOURCE_ATTR_DEF + ":projectsBasePath");
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute projectBasePath not exists!", ex);
 			}
 
@@ -93,7 +91,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 				Attribute groupProjectName = null;
 				try {
 					groupProjectName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, r, g, AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectName");
-				} catch (AttributeNotExistsException ex) {
+				} catch (AttributeDefinitionNotExistsException ex) {
 					throw new ConsistencyErrorException("Attribute projectName not exists!", ex);
 				} catch (GroupResourceMismatchException ex) {
 					throw new InternalErrorException(ex);

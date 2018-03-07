@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
@@ -53,7 +53,7 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Resou
 		//Get attrDataQuota attribute
 		try {
 			attrDataQuota = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, member, A_MR_dataQuota);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute with dataQuota from member " + member.getId() + " and resource " + resource.getId() + " could not obtained.", ex);
 		} catch (MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
@@ -63,7 +63,7 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Resou
 		if (attribute.getValue() == null) {
 			try {
 				attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultDataLimit);
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute with defaultDataLimit from resource " + resource.getId() + " could not obtained.", ex);
 			}
 		}
@@ -96,7 +96,7 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Resou
 		if (attrDataQuota == null || attrDataQuota.getValue() == null) {
 			try {
 				attrDataQuota = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultDataQuota);
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute with defaultDataQuota from resource " + resource.getId() + " could not obtained.", ex);
 			}
 		}

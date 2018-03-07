@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Collections;
 
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,7 +41,6 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
@@ -190,7 +190,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		String attributeName = "urn:perun:facility:attribute-def:def:facility-test-attribute";
 		try {
 			attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			// Attribute doesn't exist, so create it
 			attrDef = new AttributeDefinition();
 			attrDef.setNamespace("urn:perun:facility:attribute-def:def");
@@ -2262,7 +2262,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		for(String attrName: MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT) {
 			try {
 				mandatoryAttrs.add(perun.getAttributesManagerBl().getAttributeDefinition(sess, attrName));
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new InternalErrorException("Some of mandatory attributes for users in facility contacts not exists.",ex);
 			}
 		}

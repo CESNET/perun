@@ -8,10 +8,9 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -42,10 +41,10 @@ public interface ModulesUtilsBl {
 	 * @param namespace
 	 * @return
 	 * @throws InternalErrorException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	boolean isNamespaceEqualsToFacilityUnixGroupNameNamespace(PerunSessionImpl sess, Facility facility, String namespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	boolean isNamespaceEqualsToFacilityUnixGroupNameNamespace(PerunSessionImpl sess, Facility facility, String namespace) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method get if the resource has the same attribute "attr" with the same namespace and same or different values
@@ -107,10 +106,10 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if minGid or maxGid is null
 	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws WrongAttributeValueException
 	 */
-	void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
+	void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, WrongAttributeValueException;
 
 	/**
 	 * This method is looking for exactly one commonGID for all objects in list.
@@ -138,10 +137,10 @@ public interface ModulesUtilsBl {
 	 * @return if 0 there probably isn't maxGID or minGID, if null there is no free gid, other less or more than 0 gid
 	 *
 	 * @throws InternalErrorException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Integer getFreeGID(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	Integer getFreeGID(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Check if gid in arguments is free in the namespace
@@ -152,10 +151,10 @@ public interface ModulesUtilsBl {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException if minGid or maxGid is null
 	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws WrongAttributeValueException
 	 */
-	void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
+	void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, WrongAttributeValueException;
 
 	/**
 	 * Return true if i have right on any of groups or resources to WRITE the attribute
@@ -178,9 +177,9 @@ public interface ModulesUtilsBl {
 	 * @param groupGIDs list of attributes type of Group UnixGID
 	 * @return list of attribute type of Resource UnixGID with same values like in original list
 	 * @throws InternalErrorException if something is not correct or attribute is null
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
-	List<Attribute> getListOfResourceGIDsFromListOfGroupGIDs(PerunSessionImpl sess, List<Attribute> groupGIDs) throws InternalErrorException, AttributeNotExistsException;
+	List<Attribute> getListOfResourceGIDsFromListOfGroupGIDs(PerunSessionImpl sess, List<Attribute> groupGIDs) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Take list of resourceGID attributes and return list of the same GID attributes only for group (with the same original value)
@@ -189,9 +188,9 @@ public interface ModulesUtilsBl {
 	 * @param resourceGIDs list of attributes type of Resource UnixGID
 	 * @return list of attribute type of Group UnixGID with same values like in original list
 	 * @throws InternalErrorException if something is not correct or attribute is null
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
-	List<Attribute> getListOfGroupGIDsFromListOfResourceGIDs(PerunSessionImpl sess, List<Attribute> resourceGIDs) throws InternalErrorException, AttributeNotExistsException;
+	List<Attribute> getListOfGroupGIDsFromListOfResourceGIDs(PerunSessionImpl sess, List<Attribute> resourceGIDs) throws InternalErrorException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get list of facilities and namespace of group or resource attribute unixGroupName-namespace and

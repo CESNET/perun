@@ -1,8 +1,7 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -34,7 +33,7 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
 
 		try {
 			krbLogins = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":kerberosLogins");
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException("kerberosLogins attribute for " + user + " not exist.", ex);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException("kerberos Logins attribute bad assignment.", ex);
@@ -65,7 +64,7 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
 	}
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<String> resolvingMessages = new ArrayList<String>();
 		if (message == null) return resolvingMessages;
 

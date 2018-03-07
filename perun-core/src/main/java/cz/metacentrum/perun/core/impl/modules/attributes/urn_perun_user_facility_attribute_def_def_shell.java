@@ -9,7 +9,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -63,7 +63,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUse
 			Attribute resourceAttr;
 			try {
 				resourceAttr = session.getPerunBl().getAttributesManagerBl().getAttribute(session, r, AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells");
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new InternalErrorException("Attribute with all shells of facility " + facility.getId() + " could not be obtained", ex);
 			}
 			if (resourceAttr.getValue() != null) {

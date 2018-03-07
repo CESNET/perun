@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,6 @@ import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
@@ -348,7 +348,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage);
 	}
 
-	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
+	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -362,7 +362,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().addRequiredAttribute(sess, service, attribute);
 	}
 
-	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
+	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -376,7 +376,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().addRequiredAttributes(sess, service, attributes);
 	}
 
-	public void removeRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException {
+	public void removeRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, ServiceNotExistsException, AttributeNotAssignedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -390,7 +390,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().removeRequiredAttribute(sess, service, attribute);
 	}
 
-	public void removeRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException {
+	public void removeRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, ServiceNotExistsException, AttributeNotAssignedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

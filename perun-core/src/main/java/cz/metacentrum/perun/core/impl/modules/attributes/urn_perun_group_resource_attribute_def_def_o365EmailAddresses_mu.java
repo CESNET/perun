@@ -8,7 +8,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -83,7 +83,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 					throw new WrongAttributeValueException(attribute, resource, group, "at least one email must be defined");
 				}
 			}
-		} catch (AttributeNotExistsException | GroupResourceMismatchException e) {
+		} catch (AttributeDefinitionNotExistsException | GroupResourceMismatchException e) {
 			throw new InternalErrorException(e.getMessage(), e);
 		}
 
@@ -120,7 +120,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 				result.setValue(Lists.newArrayList(adName + "@group.muni.cz"));
 			}
 			return result;
-		} catch (GroupResourceMismatchException | AttributeNotExistsException e) {
+		} catch (GroupResourceMismatchException | AttributeDefinitionNotExistsException e) {
 			throw new InternalErrorException(e.getMessage(), e);
 		}
 	}
