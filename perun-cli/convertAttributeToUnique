@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+        return qq{
+	Converts attribute to Unique
+	------------------------------
+	Available options:
+	--attributeId   | -a attribute id
+	--attributeName | -A attribute name including namespace
+        --batch         | -b batch
+        --help          | -h prints this help
+	};
+}
+
+our $batch;
+my ($attributeId, $attributeName);
+GetOptions ("help|h"    => sub { print help(); exit 0; },
+"attributeName|A=s" => \$attributeName,
+"attributeId|a=i" => \$attributeId,
+"batch|b"        => \$batch) || die help();
+
+# Check options
+unless (defined($attributeId) or defined($attributeName)) { die "ERROR: attributeId or attributeName is required \n";}
+
+my $agent = Perun::Agent->new();
+my $attributesAgent = $agent->getAttributesAgent;
+my $attributeDefinition;
+
+if (!defined($attributeId)) {
+        $attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
+	$attributeId = $attributeDefinition->getId;
+}
+
+$attributesAgent->convertAttributeToUnique(attrDefId => $attributeId);
+printMessage("Attribute Id:".$attributeId." has just been set as unique",$batch);

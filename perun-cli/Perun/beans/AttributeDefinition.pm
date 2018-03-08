@@ -17,6 +17,7 @@ sub toString {
 	my $namespace = $self->getNamespace;
 	my $description = $self->getDescription;
 	my $type = $self->getType;
+	my $unique = $self->isUnique;
 
 	my $str = 'Attribute (';
 	$str .= "id: $id, " if (defined($id));
@@ -25,6 +26,7 @@ sub toString {
 	$str .= "namespace: $namespace, " if (defined($namespace));
 	$str .= "description: $description, " if (defined($description));
 	$str .= "type: $type, " if (defined($type));
+	$str .= "unique: $unique, " if (defined($unique));
 	$str .= ")";
 
 	return $str;
@@ -86,8 +88,15 @@ sub TO_JSON
 		$type = undef;
 	}
 
+	my $unique;
+	if (defined($self->{_unique})) {
+		$unique = $self->{_unique};
+	} else {
+		$unique = undef;
+	}
+
 	return { id   => $id, friendlyName => $friendlyName, displayName => $displayName,
-		namespace => $namespace, description => $description, type => $type };
+		namespace => $namespace, description => $description, type => $type, unique => $unique };
 }
 
 sub getId
@@ -221,13 +230,44 @@ sub setType
 	return;
 }
 
+sub isUniqueToPrint
+{
+	my $self = shift;
+
+	return ($self->{_unique})? 'true' : 'false';
+}
+
+sub isUnique
+{
+	my $self = shift;
+
+	return ($self->{_unique})? 1 : 0;
+}
+
+sub setUnique
+{
+	my $self = shift;
+	my $value = shift;
+	if (ref $value eq "JSON::XS::Boolean")
+	{
+		$self->{_unique} = $value;
+	} elsif ($value eq 'true' || $value eq 1)
+	{
+		$self->{_unique} = JSON::XS::true;
+	} else
+	{
+		$self->{_unique} = JSON::XS::false;
+	}
+	return;
+}
+
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->getId, $self->getName, $self->getType, $self->getDisplayName, $self->getDescription);
+	return ($self->getId, $self->getName, $self->getType, $self->isUniqueToPrint, $self->getDisplayName, $self->getDescription);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Name', 'Type', 'Display Name', 'Description');
+	return ('ID', 'Name', 'Type', 'isUnique', 'Display Name', 'Description');
 }
 
 1;

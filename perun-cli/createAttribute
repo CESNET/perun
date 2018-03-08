@@ -16,6 +16,7 @@ sub help {
 	--attributeDisplayName| -e attribute display name
 	--attributeType       | -t attribute type (integer/string/array/hash/boolean/largestring/largearray)*
 	--attributeDsc        | -d description
+	--isUnique            | -u attribute have to be unique
 	--batch               | -b batch
 	--help                | -h prints this help
 
@@ -24,14 +25,15 @@ sub help {
 	};
 }
 
-my ($attributeName, $attributeDisplayName, $attributeNameSpace, $attributeType, $attributeDsc, $batch);
+my ($attributeName, $attributeDisplayName, $attributeNameSpace, $attributeType, $attributeDsc, $unique, $batch);
 GetOptions ("help|h"         => sub {
 		print help();
 		exit 0;
 	}, "batch|b"             => \$batch,
 	"attributeName|N=s"      => \$attributeName, "attributeDisplayName|e=s" => \$attributeDisplayName,
 	"attributeNameSpace|n=s" => \$attributeNameSpace, "attributeType|t=s" => \$attributeType,
-	"attributeDsc|d=s"       => \$attributeDsc) || die help();
+	"attributeDsc|d=s"       => \$attributeDsc,
+	"isUnique|u" => \$unique) || die help();
 
 # Check options
 unless (defined($attributeName)) { die "ERROR: attributeName is required \n";}
@@ -47,6 +49,7 @@ $attribute->setNamespace( $attributeNameSpace );
 $attribute->setDisplayName( $attributeDisplayName );
 $attribute->setType( $attributeType );
 $attribute->setDescription( $attributeDsc ) if (defined($attributeDsc));
+$attribute->setUnique( $unique ) if (defined($unique));
 
 $attribute = $attributesAgent->createAttribute( attribute => $attribute );
 
