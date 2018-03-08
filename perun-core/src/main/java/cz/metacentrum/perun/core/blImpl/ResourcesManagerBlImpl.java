@@ -51,6 +51,44 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		return resource;
 	}
 
+	public Resource copyResource(PerunSession sess, Resource resource, String newResourceName, Vo destinationVo, Facility destinationFacility) throws ResourceExistsException, InternalErrorException {
+		//is the new resource name not taken yet?
+		Resource newResource = new Resource();
+		try{
+			Resource existingResource = getResourcesManagerImpl().getResourceByName(sess, destinationVo, destinationFacility, newResourceName);
+			throw new ResourceExistsException(existingResource);
+		} catch (ResourceNotExistsException e){
+			//if it is not taken we create new Resource in DB, then copy everything possible from template resource to our new one.
+			newResource.setName(newResourceName);
+			newResource = getResourcesManagerImpl().createResource(sess, destinationVo, newResource, destinationFacility);
+
+			// We don't copy group_resource/member_resource attributes because they are different for each VO and needs to be set manually.
+			List<Attribute> templateResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess,resource);
+			for (Attribute resourceAttribute : templateResourceAttributes) {
+				try {
+					if (!resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT)) {
+						perunBl.getAttributesManagerBl().setAttribute(sess, newResource, resourceAttribute);
+					}
+				} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
+					throw new ConsistencyErrorException("DB inconsistency while copying attributes from one resource to another. Cause:{}", ex);
+				}
+			}
+
+
+			List<Service> services = getAssignedServices(sess, resource);
+			for (Service service : services) {
+				try {
+					getResourcesManagerImpl().assignService(sess, newResource, service);
+				} catch (ServiceAlreadyAssignedException ex) {
+					throw new ConsistencyErrorException("Service was already assigned to this resource. {}", ex);
+				}
+			}
+
+		}
+
+		return newResource;
+	}
+
 	public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 		//Get facility for audit messages
 		Facility facility = this.getFacility(sess, resource);

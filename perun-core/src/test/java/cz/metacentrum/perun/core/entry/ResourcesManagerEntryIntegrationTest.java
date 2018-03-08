@@ -117,6 +117,49 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
+	@Test (expected=ResourceExistsException.class)
+	public void copyResourceWithExistingNameInDestinationFacility() throws Exception{
+		System.out.println(CLASS_NAME + "copyResourceWithExistingNameInDestinationFacility");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+
+		Resource resource1 = new Resource();
+		resource1.setName("TestResource");
+		resource1.setDescription("Template Resource");
+
+		String newResourceName = "TestResource";
+
+		resource1 = resourcesManager.createResource(sess, resource1, vo, facility);
+		assertNotNull("unable to create resource1 before copying",resource1);
+
+		resourcesManager.copyResource(sess, resource1, newResourceName, vo, facility);
+	}
+
+	@Ignore //copyResource method is not completed yet.
+	@Test
+	public void copyResource() throws Exception{
+		System.out.println(CLASS_NAME + "copyResource");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+
+		Resource resource1 = new Resource();
+		resource1.setName("TestResource");
+		resource1.setDescription("Template Resource");
+
+		resource1 = resourcesManager.createResource(sess, resource1, vo, facility);
+		assertNotNull("unable to create resource before copying",resource1);
+
+		String newName = "newName";
+
+
+		resourcesManager.copyResource(sess, resource1, newName, vo, facility);
+
+		Resource existingResource = resourcesManager.getResourceByName(sess, vo, facility, newName);
+		assertNotNull("Resource was not created", existingResource);
+	}
+
 	@Test
 	public void deleteResource() throws Exception {
 		System.out.println(CLASS_NAME + "deleteResource");

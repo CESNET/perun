@@ -99,6 +99,30 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return getResourcesManagerBl().createResource(sess, resource, vo, facility);
 	}
 
+	public Resource copyResource(PerunSession sess, Resource resource,String newResourceName, Vo destinationVo, Facility destinationFacility) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess,destinationVo);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess,destinationFacility);
+
+		Facility templateResourceFacility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId());
+
+		//check if user is part of template resource's facility
+		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(sess,Role.FACILITYADMIN, templateResourceFacility)){
+			throw new PrivilegeException(sess, "Problem with template Resource's facility in copyResource.");
+		}
+
+		//check if user is part of destination's facility
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, destinationVo) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationFacility)) {
+			throw new PrivilegeException(sess, "Problem with new Resource's facility in copyResource.");
+		}
+
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+
+		return getResourcesManagerBl().copyResource(sess, resource, newResourceName, destinationVo, destinationFacility);
+	}
+
 	public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId());

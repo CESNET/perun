@@ -66,6 +66,20 @@ public interface ResourcesManager {
 	Resource createResource(PerunSession perunSession, Resource resource, Vo vo, Facility facility) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException, ResourceExistsException;
 
 	/**
+	 * Copy "template" settings(attributes,services,..) from user's another existing resource and create new resource with this template.
+	 * Resource can be from any of user's facilities.
+	 *
+	 * @param perunSession
+	 * @param resource template resource to copy
+	 * @param newResourcename name of the new Resource
+	 * @param destinationVo virtual organization where the new resource will be created
+	 * @param destinationFacility facility where the new resource will be created.
+	 * @throws InternalErrorException
+	 * @throws ResourceNotExistsException
+	 */
+	Resource copyResource(PerunSession perunSession, Resource resource, String newResourcename, Vo destinationVo, Facility destinationFacility) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException;
+
+	/**
 	 *  Deletes resource by id.
 	 *
 	 * @param perunSession

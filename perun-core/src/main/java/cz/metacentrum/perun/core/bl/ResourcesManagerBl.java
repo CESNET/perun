@@ -58,6 +58,18 @@ public interface ResourcesManagerBl {
 	Resource createResource(PerunSession perunSession, Resource resource, Vo vo, Facility facility) throws InternalErrorException, FacilityNotExistsException, ResourceExistsException;
 
 	/**
+	 * Copy "template" settings from user's another existing resource and create new resource with this template.
+	 * Resource can be from any of user's facilities.
+	 *
+	 * @param perunSession
+	 * @param resource "template" resource
+	 * @param newResourceName name of the new Resource
+	 * @param destinationVo
+	 * @param destinationFacility
+	 */
+	Resource copyResource(PerunSession perunSession, Resource resource, String newResourceName, Vo destinationVo, Facility destinationFacility) throws ResourceExistsException, InternalErrorException;
+
+	/**
 	 *  Deletes resource by id.
 	 *
 	 * @param perunSession
