@@ -170,12 +170,19 @@ sub setTitleAfter
 	return;
 }
 
-sub isServiceUser
+sub isServiceUserToPrint
 {
 	my $self = shift;
 	return ($self->{_serviceUser}) ? 'true' : 'false';
 }
 
+sub isServiceUser
+{
+	my $self = shift;
+	return ($self->{_serviceUser}) ? 1 : 0;
+}
+
+sub setServiceUser
 sub setServiceUser
 {
 	my $self = shift;
@@ -194,11 +201,18 @@ sub setServiceUser
 	return;
 }
 
-sub isSponsoredUser
+sub isSponsoredUserToPrint
 {
 	my $self = shift;
 
 	return ($self->{_sponsoredUser}) ? 'true' : 'false';
+}
+
+sub isSponsoredUser
+{
+	my $self = shift;
+
+	return ($self->{_sponsoredUser}) ? 1 : 0;
 }
 
 sub setSponsoredUser
@@ -241,7 +255,7 @@ sub getSortingName {
 
 sub getCommonArrayRepresentation {
 	my $user = shift;
-	return ($user->getId, $user->getDisplayName, $user->isServiceUser, $user->isSponsoredUser);
+	return ($user->getId, $user->getDisplayName, $user->isServiceUserToPrint, $user->isSponsoredUserToPrint);
 }
 
 sub getCommonArrayRepresentationHeading {

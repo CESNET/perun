@@ -104,10 +104,16 @@ sub setLogin
 	return;
 }
 
-sub isPersistent
+sub isPersistentToPrint
 {
 	my $self = shift;
 	return ($self->{_persistent}) ? 'true' : 'false';
+}
+
+sub isPersistent
+{
+	my $self = shift;
+	return ($self->{_persistent}) ? 1 : 0;
 }
 
 sub setPersistent
