@@ -51,22 +51,24 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		return resource;
 	}
 
-	public Resource copyResource(PerunSession sess, Resource resource, String newResourceName, Vo destinationVo, Facility destinationFacility) throws ResourceExistsException, InternalErrorException {
-		//is the new resource name not taken yet?
+	public Resource copyResource(PerunSession sess, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException {
 		Resource newResource = new Resource();
+		Vo destinationVo = this.getVo(sess, destinationResource);
+		Facility destinationFacility = this.getFacility(sess, destinationResource);
+		//is the new resource name not taken yet?
 		try{
-			Resource existingResource = getResourcesManagerImpl().getResourceByName(sess, destinationVo, destinationFacility, newResourceName);
+			Resource existingResource = getResourcesManagerImpl().getResourceByName(sess, destinationVo, destinationFacility, destinationResource.getName());
 			throw new ResourceExistsException(existingResource);
 		} catch (ResourceNotExistsException e){
-			//if it is not taken we create new Resource in DB, then copy everything possible from template resource to our new one.
-			newResource.setName(newResourceName);
+			newResource.setName(destinationResource.getName());
 			newResource = getResourcesManagerImpl().createResource(sess, destinationVo, newResource, destinationFacility);
 
-			// We don't copy group_resource/member_resource attributes because they are different for each VO and needs to be set manually.
-			List<Attribute> templateResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess,resource);
+			//resource attributes
+			List<Attribute> templateResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess,templateResource);
 			for (Attribute resourceAttribute : templateResourceAttributes) {
 				try {
-					if (!resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT)) {
+					if (!resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT) &&
+							!resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_CORE)) {
 						perunBl.getAttributesManagerBl().setAttribute(sess, newResource, resourceAttribute);
 					}
 				} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
@@ -74,14 +76,54 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				}
 			}
 
+			//if the VOs are same we also copy groups and group-resource/member-resource attributes
+			if(withGroups && destinationVo.equals(this.getVo(sess, templateResource))){
+				List<Group> templateResourceGroups = perunBl.getResourcesManagerBl().getAssignedGroups(sess, templateResource);
+				try {
+					assignGroupsToResource(sess, templateResourceGroups, newResource);
+					for (Group group : templateResourceGroups) {
+						List<Attribute> groupResourceAttrs = perunBl.getAttributesManagerBl().getAttributes(sess, templateResource, group);
+						for (Attribute attr : groupResourceAttrs) {
+							if (!attr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT)) {
+								perunBl.getAttributesManagerBl().setAttribute(sess, newResource, group, attr);
+							}
+						}
+					}
+				} catch (GroupResourceMismatchException | WrongAttributeValueException | GroupAlreadyAssignedException |
+					WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
+					throw new ConsistencyErrorException("DB inconsistency while copying group-resource attributes. Cause:{}", ex);
+				}
 
-			List<Service> services = getAssignedServices(sess, resource);
+				List<Member> templateResourceMembers = perunBl.getResourcesManagerBl().getAssignedMembers(sess, templateResource);
+				try {
+					for (Member member : templateResourceMembers) {
+						List<Attribute> memberResourceAttrs = perunBl.getAttributesManagerBl().getAttributes(sess, templateResource, member);
+						for (Attribute attr : memberResourceAttrs) {
+							if (!attr.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT)) {
+								perunBl.getAttributesManagerBl().setAttribute(sess, newResource, member, attr);
+							}
+						}
+					}
+				} catch (MemberResourceMismatchException | WrongAttributeValueException|
+						WrongAttributeAssignmentException| WrongReferenceAttributeValueException ex) {
+					throw new ConsistencyErrorException("DB inconsistency while copying group-resource attributes. Cause:{}", ex);
+				}
+			}
+
+			//services
+			List<Service> services = getAssignedServices(sess, templateResource);
 			for (Service service : services) {
 				try {
 					getResourcesManagerImpl().assignService(sess, newResource, service);
 				} catch (ServiceAlreadyAssignedException ex) {
 					throw new ConsistencyErrorException("Service was already assigned to this resource. {}", ex);
 				}
+			}
+
+			//tags
+			List<ResourceTag> templateResourceTags = getAllResourcesTagsForResource(sess, templateResource);
+			for(ResourceTag resourceTag : templateResourceTags) {
+					getResourcesManagerImpl().assignResourceTagToResource(sess, resourceTag, newResource);
 			}
 
 		}

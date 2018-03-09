@@ -99,15 +99,17 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return getResourcesManagerBl().createResource(sess, resource, vo, facility);
 	}
 
-	public Resource copyResource(PerunSession sess, Resource resource,String newResourceName, Vo destinationVo, Facility destinationFacility) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException {
+	public Resource copyResource(PerunSession sess, Resource templateResource, Resource destinationResource, boolean withGroups) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException {
 		Utils.checkPerunSession(sess);
-		getPerunBl().getVosManagerBl().checkVoExists(sess,destinationVo);
-		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess,destinationFacility);
+		Vo destinationVo = getPerunBl().getVosManagerBl().getVoById(sess, destinationResource.getVoId());
+		Facility destinationFacility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, destinationResource.getFacilityId());
+		getPerunBl().getVosManagerBl().checkVoExists(sess, destinationVo);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
 
-		Facility templateResourceFacility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId());
+		Facility templateResourceFacility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, templateResource.getFacilityId());
 
 		//check if user is part of template resource's facility
-		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, templateResource) &&
 				!AuthzResolver.isAuthorized(sess,Role.FACILITYADMIN, templateResourceFacility)){
 			throw new PrivilegeException(sess, "Problem with template Resource's facility in copyResource.");
 		}
@@ -118,9 +120,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
 			throw new PrivilegeException(sess, "Problem with new Resource's facility in copyResource.");
 		}
 
-		getResourcesManagerBl().checkResourceExists(sess, resource);
+		getResourcesManagerBl().checkResourceExists(sess, templateResource);
 
-		return getResourcesManagerBl().copyResource(sess, resource, newResourceName, destinationVo, destinationFacility);
+		return getResourcesManagerBl().copyResource(sess, templateResource, destinationResource, withGroups);
 	}
 
 	public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException {

@@ -117,6 +117,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
+
 	@Test (expected=ResourceExistsException.class)
 	public void copyResourceWithExistingNameInDestinationFacility() throws Exception{
 		System.out.println(CLASS_NAME + "copyResourceWithExistingNameInDestinationFacility");
@@ -124,39 +125,60 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		vo = setUpVo();
 		facility = setUpFacility();
 
-		Resource resource1 = new Resource();
-		resource1.setName("TestResource");
-		resource1.setDescription("Template Resource");
+		resource = setUpResource();
+		Resource resource1 = setUpResource();
 
 		String newResourceName = "TestResource";
 
 		resource1 = resourcesManager.createResource(sess, resource1, vo, facility);
 		assertNotNull("unable to create resource1 before copying",resource1);
 
-		resourcesManager.copyResource(sess, resource1, newResourceName, vo, facility);
+		resourcesManager.copyResource(sess, resource, resource1, false);
 	}
 
-	@Ignore //copyResource method is not completed yet.
-	@Test
-	public void copyResource() throws Exception{
-		System.out.println(CLASS_NAME + "copyResource");
 
-		vo = setUpVo();
+	@Test
+	public void copyResourceDifferentVO() throws Exception{
+		System.out.println(CLASS_NAME + "copyResourceDifferentVO");
 		facility = setUpFacility();
+		vo = setUpVo();
+		resource = setUpResource();
+
+		Vo diffVo = new Vo(1, "TestVo", "TestingVo");
+		diffVo = perun.getVosManagerBl().createVo(sess, diffVo);
+		assertNotNull("unable to create testing Vo", diffVo);
 
 		Resource resource1 = new Resource();
 		resource1.setName("TestResource");
-		resource1.setDescription("Template Resource");
+		resource1.setDescription("TestingResource");
+		resource1.setVoId(diffVo.getId());
+		resource1.setFacilityId(facility.getId());
 
-		resource1 = resourcesManager.createResource(sess, resource1, vo, facility);
-		assertNotNull("unable to create resource before copying",resource1);
+		resourcesManager.copyResource(sess, resource, resource1, true);
 
-		String newName = "newName";
+		Resource existingResource = resourcesManager.getResourceByName(sess, diffVo, facility, resource1.getName());
+		assertNotNull("Resource was not created", existingResource);
+	}
 
+	@Test
+	public void copyResourceSameVO() throws Exception{
+		System.out.println(CLASS_NAME + "copyResourceSameVO");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		resource.setVoId(vo.getId());
+		resource.setFacilityId(facility.getId());
+		assertNotNull("resource",resource);
 
-		resourcesManager.copyResource(sess, resource1, newName, vo, facility);
+		Resource resource1 = new Resource();
+		resource1.setName("TestingResource");
+		resource1.setDescription("TestingResource");
+		resource1.setVoId(vo.getId());
+		resource1.setFacilityId(facility.getId());
 
-		Resource existingResource = resourcesManager.getResourceByName(sess, vo, facility, newName);
+		resourcesManager.copyResource(sess, resource, resource1, true);
+
+		Resource existingResource = resourcesManager.getResourceByName(sess, vo, facility, resource1.getName());
 		assertNotNull("Resource was not created", existingResource);
 	}
 

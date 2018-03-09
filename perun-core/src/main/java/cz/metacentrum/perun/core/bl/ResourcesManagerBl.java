@@ -62,12 +62,13 @@ public interface ResourcesManagerBl {
 	 * Resource can be from any of user's facilities.
 	 *
 	 * @param perunSession
-	 * @param resource "template" resource
-	 * @param newResourceName name of the new Resource
-	 * @param destinationVo
-	 * @param destinationFacility
+	 * @param templateResource "template" resource
+	 * @param destinationResource destination resource
+	 * @param withGroups if set to true and resources ARE from the same VO we also copy all group-resource and member-resource attributes,
+	 *                   if set to true and resources ARE NOT from the same VO we copy resource only attributes,
+	 *                   if set to false we copy resource only attributes.
 	 */
-	Resource copyResource(PerunSession perunSession, Resource resource, String newResourceName, Vo destinationVo, Facility destinationFacility) throws ResourceExistsException, InternalErrorException;
+	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException;
 
 	/**
 	 *  Deletes resource by id.

@@ -66,18 +66,19 @@ public interface ResourcesManager {
 	Resource createResource(PerunSession perunSession, Resource resource, Vo vo, Facility facility) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException, ResourceExistsException;
 
 	/**
-	 * Copy "template" settings(attributes,services,..) from user's another existing resource and create new resource with this template.
+	 * Copy "template" settings(attributes,services,tags (if exists),...) from user's another existing resource and create new resource with this template.
 	 * Resource can be from any of user's facilities.
 	 *
 	 * @param perunSession
-	 * @param resource template resource to copy
-	 * @param newResourcename name of the new Resource
-	 * @param destinationVo virtual organization where the new resource will be created
-	 * @param destinationFacility facility where the new resource will be created.
+	 * @param templateResource template resource to copy
+	 * @param destinationResource destination resource containing destination facility, VO & resource name.
+	 * @param withGroups if set to true and resources ARE from the same VO we also copy all group-resource and member-resource attributes,
+	 *                   if set to true and resources ARE NOT from the same VO we copy resource only attributes,
+	 *                   if set to false we copy resource only attributes.
 	 * @throws InternalErrorException
 	 * @throws ResourceNotExistsException
 	 */
-	Resource copyResource(PerunSession perunSession, Resource resource, String newResourcename, Vo destinationVo, Facility destinationFacility) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException;
+	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException;
 
 	/**
 	 *  Deletes resource by id.
