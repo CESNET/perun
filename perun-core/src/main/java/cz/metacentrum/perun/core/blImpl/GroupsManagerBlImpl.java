@@ -778,6 +778,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		for(Member removedIndirectMember: membersToRemove) {
 			notifyMemberRemovalFromGroup(sess, group, removedIndirectMember);
+			//remove all member-group attributes because member is not part of group any more
+			try {
+				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, removedIndirectMember, group);
+			} catch (WrongAttributeAssignmentException ex) {
+				//This should not happen
+				throw new InternalErrorException(ex);
+			}
 			getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", removedIndirectMember, group);
 		}
 
@@ -815,6 +822,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			return;
 		} else {
 			notifyMemberRemovalFromGroup(sess, group, member);
+			//remove all member-group attributes because member is not part of group any more
+			try {
+				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, member, group);
+			} catch (WrongAttributeAssignmentException ex) {
+				//This should not happen
+				throw new InternalErrorException(ex);
+			}
 			getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", member, group);
 		}
 
