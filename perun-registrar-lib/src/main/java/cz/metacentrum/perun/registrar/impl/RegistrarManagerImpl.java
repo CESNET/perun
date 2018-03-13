@@ -2720,9 +2720,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			parsedName = Utils.parseCommonName(commonName);
 		} else {
 			parsedName = new HashMap<String, String>();
+		}
+		// try to fill if initial parsing failed -> returned null
+		if (parsedName.get("firstName") == null) {
 			parsedName.put("firstName", federValues.get(shibFirstNameVar));
+		}
+		if (parsedName.get("lastName") == null) {
 			parsedName.put("lastName", federValues.get(shibLastNameVar));
 		}
+
 		return parsedName;
 
 	}
