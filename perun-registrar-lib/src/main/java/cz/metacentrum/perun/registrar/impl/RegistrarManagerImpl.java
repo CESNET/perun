@@ -2252,6 +2252,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
 				if ((itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) && itemW.getFormItem().isRequired() &&
 						(Type.FROM_FEDERATION_HIDDEN.equals(itemW.getFormItem().getType()) || Type.FROM_FEDERATION_SHOW.equals(itemW.getFormItem().getType()))) {
+
+					if (URN_USER_DISPLAY_NAME.equals(item.getPerunDestinationAttribute())) {
+						log.error("Couldn't resolve displayName from: {}, parsedNames were: {}", federValues, parsedName);
+					}
+
 					itemsWithMissingData.add(itemW);
 				}
 
