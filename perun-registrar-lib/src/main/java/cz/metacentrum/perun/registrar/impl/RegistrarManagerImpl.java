@@ -2265,7 +2265,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		if (!itemsWithMissingData.isEmpty() && extSourceType.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 			// throw exception only if user is logged-in by Federation IDP
-			String IDP = federValues.get("Shib-Identity-Provider");
+			String IDP = federValues.get("originIdentityProvider");
 			log.error("[REGISTRAR] IDP {} doesn't provide data for following form items: {}", IDP, itemsWithMissingData);
 			throw new MissingRequiredDataException("Your IDP doesn't provide data required by this application form.", itemsWithMissingData);
 		}
