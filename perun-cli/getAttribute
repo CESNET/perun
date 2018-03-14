@@ -64,7 +64,7 @@ if (defined $attributeName and not defined $attributeId) {
 $attributeDefinition = $attributesAgent->getAttributeDefinitionById( id => $attributeId ); 
 unless (defined $userId or defined $memberId or defined $facilityId or defined $resourceId or defined $groupId or defined $voId or defined $hostId or defined $entitylessSubj or defined $uesId) {
 	warn "WARNING: Entity (user/member/facility/resource/group/vo/host/userExtSource/entityless) is required\n";
-	printMessage ("ATTRIBUTE DEFINITION:\n Id=".$attributeDefinition->getId."\n FriendlyName=".$attributeDefinition->getFriendlyName."\n Namespace=".$attributeDefinition->getNamespace."\n Description=".$attributeDefinition->getDescription."\n Type=".$attributeDefinition->getType, $batch);
+	printMessage ("ATTRIBUTE DEFINITION:\n Id=".$attributeDefinition->getId."\n FriendlyName=".$attributeDefinition->getFriendlyName."\n Namespace=".$attributeDefinition->getNamespace."\n Description=".$attributeDefinition->getDescription."\n Type=".$attributeDefinition->getType."\n isUnique=".$attributeDefinition->isUniqueToPrint , $batch);
 	exit;
 }
 
@@ -125,10 +125,10 @@ unless (@attributes) {
 
 #output
 my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-$table->setCols( 'ID', 'Name', 'Type', 'Value' );
+$table->setCols( 'ID', 'Name', 'Type','isUnique', 'Value' );
 
 foreach my $attribute (sort $sortingFunction @attributes) {
-	$table->addRow( $attribute->getId, $attribute->getName, $attribute->getType, $attribute->getValueAsScalar );
+	$table->addRow( $attribute->getId, $attribute->getName, $attribute->getType, $attribute->isUniqueToPrint, $attribute->getValueAsScalar );
 }
 
 print tableToPrint($table, $batch);

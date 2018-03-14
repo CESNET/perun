@@ -210,4 +210,10 @@ sub getLogins
 {
 	return Perun::Common::callManagerMethod('getLogins', '[]Attribute', @_);
 }
+
+sub convertAttributeToUnique
+{
+	return Perun::Common::callManagerMethod('convertAttributeToUnique','',@_);
+}
+
 1;
