@@ -28,6 +28,7 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -549,8 +550,9 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		headerTitle.getElement().setAttribute("style", "font-size: 1.35em;");
 		menu.addWidget(headerTitle);
 
-		CustomButton searchButton = new CustomButton("Search in", SmallIcons.INSTANCE.booksIcon());
+		final CustomButton searchButton = new CustomButton("Search in", SmallIcons.INSTANCE.booksIcon());
 		searchButton.setTitle("Search in external source for yours publications");
+		searchButton.setEnabled(false);
 
 		// CALLBACK
 		final FindExternalPublications find = new FindExternalPublications(userId, JsonCallbackEvents.disableButtonEvents(searchButton));
@@ -567,10 +569,55 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		addAsAuthor.setTitle("When checked, you will be automatically added as author of imported publications");
 
 		final ListBox namespace = new ListBox(false);
-		namespace.addItem("Prezentator (MU)", "mu");
-		namespace.addItem("OBD 3.0 (ZČU)", "zcu");
-		namespace.addItem("OBD 3.0 (UK)", "uk");
-		namespace.addItem("Europe PMC", "europepmc");
+
+		GetPublicationSystems getPublicationSystems = new GetPublicationSystems(new JsonCallbackEvents() {
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				namespace.clear();
+				List<PublicationSystem> systems = JsonUtils.<PublicationSystem>jsoAsList(jso);
+				if (systems.isEmpty() || (systems.size() == 1 && systems.get(0).getFriendlyName().equals("INTERNAL")) ) {
+					namespace.addItem("No publication system found");
+					importButton.setEnabled(false);
+					searchButton.setEnabled(false);
+				} else {
+					boolean preferenceFound = false;
+					for (PublicationSystem ps : systems) {
+						if (!ps.getFriendlyName().equals("INTERNAL")) {
+							namespace.addItem(ps.getFriendlyName(), ps.getLoginNamespace().toLowerCase());
+						}
+						if (ps.getFriendlyName().equals("Masarykova Univerzita - prezentator")) {
+							// PREFER MU AS DEFAULT IF PRESENT
+							namespace.setSelectedIndex(namespace.getItemCount()-1);
+							find.setNamespace("mu"); // mu by default
+							preferenceFound=true;
+						}
+					}
+					if (!preferenceFound) {
+						find.setNamespace(namespace.getSelectedValue());
+					}
+					importButton.setEnabled(true);
+					searchButton.setEnabled(true);
+				}
+			}
+
+			@Override
+			public void onError(PerunError error) {
+				importButton.setEnabled(false);
+				searchButton.setEnabled(false);
+				namespace.clear();
+				namespace.addItem("Error...");
+			}
+
+			@Override
+			public void onLoadingStart() {
+				importButton.setEnabled(false);
+				searchButton.setEnabled(false);
+				namespace.clear();
+				namespace.addItem("Loading...");
+			}
+		});
+		getPublicationSystems.retrieveData();
+
 		namespace.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event) {
 				// set namespace on change
@@ -578,7 +625,6 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			}
 		});
 		namespace.setTitle("Select publications external source to search in.");
-		find.setNamespace("mu"); // mu by default
 
 		// save for import
 		importButton.setEnabled(false);
@@ -591,6 +637,10 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 							importButton.setTitle("Import selected publications into Perun");
 							defaultCategoryId = c.getId(); // set default
 						}
+					}
+					// if default not found, fallback to first found category
+					if (defaultCategoryId == 0) {
+						defaultCategoryId = categories.get(0).getId();
 					}
 				}
 

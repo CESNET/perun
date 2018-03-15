@@ -66,7 +66,7 @@ public class PublicationSystemManagerIntegrationTest extends CabinetBaseIntegrat
 	public void deletePublicationSystem() throws Exception {
 		System.out.println("PublicationSystemManagerIntegrationTest.deletePublicationSystem");
 
-		List<PublicationSystem> systems = getCabinetManager().getPublicationSystems();
+		List<PublicationSystem> systems = getCabinetManager().getPublicationSystems(sess);
 
 		assertNotNull(systems);
 		assertTrue(!systems.isEmpty());
@@ -75,7 +75,7 @@ public class PublicationSystemManagerIntegrationTest extends CabinetBaseIntegrat
 
 		getCabinetManager().deletePublicationSystem(sess, ps);
 
-		List<PublicationSystem> systems2 = getCabinetManager().getPublicationSystems();
+		List<PublicationSystem> systems2 = getCabinetManager().getPublicationSystems(sess);
 		assertNotNull(systems2);
 		assertTrue(!systems2.isEmpty());
 		assertTrue(!systems2.contains(ps));
@@ -85,7 +85,7 @@ public class PublicationSystemManagerIntegrationTest extends CabinetBaseIntegrat
 	@Test
 	public void getPublicationSystems() throws Exception {
 		System.out.println("PublicationSystemManagerIntegrationTest.getPublicationSystems");
-		List<PublicationSystem> systems = getCabinetManager().getPublicationSystems();
+		List<PublicationSystem> systems = getCabinetManager().getPublicationSystems(sess);
 
 		assertNotNull(systems);
 		assertTrue(!systems.isEmpty());

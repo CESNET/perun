@@ -93,10 +93,12 @@ public interface CabinetManager {
 	/**
 	 * Get all PublicationSystems in Perun. If none, return empty list.
 	 *
+	 *
+	 * @param session PerunSession with authorization
 	 * @return List of all PublicationSystems or empty list.
 	 * @throws InternalErrorException When implementation fails
 	 */
-	List<PublicationSystem> getPublicationSystems() throws InternalErrorException;
+	List<PublicationSystem> getPublicationSystems(PerunSession session) throws InternalErrorException;
 
 
 	// category -------------------------------------

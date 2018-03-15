@@ -140,8 +140,19 @@ public class CabinetManagerImpl implements CabinetManager {
 	}
 
 	@Override
-	public List<PublicationSystem> getPublicationSystems() throws InternalErrorException {
-		return getPublicationSystemManagerBl().getPublicationSystems();
+	public List<PublicationSystem> getPublicationSystems(PerunSession session) throws InternalErrorException {
+
+		List<PublicationSystem> systems = getPublicationSystemManagerBl().getPublicationSystems();
+		if (AuthzResolverBlImpl.isAuthorized(session, Role.PERUNADMIN)) {
+			return systems;
+		}
+		// clear authz for non-perun admins
+		for (PublicationSystem system : systems) {
+			system.setUsername(null);
+			system.setPassword(null);
+		}
+		return systems;
+
 	}
 
 

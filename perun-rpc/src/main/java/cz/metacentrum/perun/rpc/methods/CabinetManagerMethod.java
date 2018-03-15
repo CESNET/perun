@@ -28,7 +28,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	getPublicationSystems {
 		public 	List<PublicationSystem> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getCabinetManager().getPublicationSystems();
+			return ac.getCabinetManager().getPublicationSystems(ac.getSession());
 		}
 	},
 
