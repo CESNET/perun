@@ -188,8 +188,6 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			throw new InternalErrorException("Moving groups is temporary disabled.");
-			/*
 			if(parms.contains("destinationGroup")) {
 				ac.getGroupsManager().moveGroup(ac.getSession(),
 						ac.getGroupById(parms.readInt("destinationGroup")),
@@ -200,7 +198,6 @@ public enum GroupsManagerMethod implements ManagerMethod {
 						ac.getGroupById(parms.readInt("movingGroup")));
 			}
 			return null;
-			*/
 		}
 	},
 
