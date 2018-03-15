@@ -190,8 +190,19 @@ public class MoveGroupsTabItem implements TabItem {
 					}
 				}
 				if (vosGroups.getAllObjects().isEmpty()) {
-					// shouldn't happen
-					vosGroups.addItem("No allowed destination groups found");
+
+					for (Group g : groups) {
+						// at lease one of moving groups is a sub group, so we can offer move to top-level
+						if (g.getName().contains(":")) {
+							vosGroups.addNotSelectedOption();
+							moveButton.setEnabled(true);
+							return;
+						}
+					}
+
+					// can't move group anywhere
+					vosGroups.addItem("No possible destination group was found or group is already top-level.");
+
 				} else {
 					vosGroups.addNotSelectedOption();
 					moveButton.setEnabled(true);
