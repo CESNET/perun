@@ -64,7 +64,7 @@ public class urn_perun_user_attribute_def_virt_mails_namespace_google extends Us
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-		attr.setFriendlyName("emails-namespace:google");
+		attr.setFriendlyName("mails-namespace:google");
 		attr.setDisplayName("Emails in namespace:google");
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription("Emails in google namespace");
