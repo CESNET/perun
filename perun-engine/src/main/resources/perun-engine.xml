@@ -46,17 +46,36 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
         <property name="queueCapacity" value="1000" />
     </bean>
 
-    <bean id="taskExecutorGenWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="10" />
-        <property name="maxPoolSize" value="${engine.thread.gentasks.max}" />
-        <property name="queueCapacity" value="2000" />
+    <bean id="generatingTasks" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingBoundedHashMap">
+        <constructor-arg value="10"/>
     </bean>
 
-    <bean id="taskExecutorSendWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="200" />
-        <property name="maxPoolSize" value="${engine.thread.sendtasks.max}" />
-        <property name="queueCapacity" value="200000" />
+    <bean id="sendingSendTasks" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingBoundedHashMap">
+        <constructor-arg value="100"/>
     </bean>
+
+    <bean id="taskStore" class="cz.metacentrum.perun.taskslib.service.impl.TaskStoreImpl"/>
+
+    <bean id="schedulingPool" class="cz.metacentrum.perun.engine.scheduling.impl.SchedulingPoolImpl"/>
+
+    <bean id="genCompletionService" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingGenExecutorCompletionService">
+        <constructor-arg value="10"/>
+    </bean>
+
+    <bean id="sendCompletionService" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingSendExecutorCompletionService">
+        <constructor-arg value="100"/>
+    </bean>
+
+    <!-- Runners -->
+
+    <bean id="genPlanner" class="cz.metacentrum.perun.engine.runners.GenPlanner"/>
+
+    <bean id="genCollector" class="cz.metacentrum.perun.engine.runners.GenCollector"/>
+
+    <bean id="sendPlanner" class="cz.metacentrum.perun.engine.runners.SendPlanner"/>
+
+    <bean id="sendCollector" class="cz.metacentrum.perun.engine.runners.SendCollector"/>
+
 
     <!-- PROPERTIES  -->
 	

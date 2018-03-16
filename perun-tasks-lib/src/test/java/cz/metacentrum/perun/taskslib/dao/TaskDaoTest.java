@@ -130,8 +130,8 @@ facility2 = facilitiesManager.createFacility(perunSession, facility2);
 
 // Test ExecService #1 (Parent:testService1)
 testExecService1 = new ExecService();
-testExecService1.setDefaultDelay(1);
-testExecService1.setDefaultRecurrence(1);
+testExecService1.setDelay(1);
+testExecService1.setRecurrence(1);
 testExecService1.setEnabled(true);
 testExecService1.setService(testService1);
 testExecService1.setScript("serviceGenerate.bash");
@@ -140,8 +140,8 @@ testExecService1.setId(generalServiceManager.insertExecService(perunSession, tes
 
 // Test ExecService #2 (Parent:testService1)
 testExecService2 = new ExecService();
-testExecService2.setDefaultDelay(1);
-testExecService2.setDefaultRecurrence(1);
+testExecService2.setDelay(1);
+testExecService2.setRecurrence(1);
 testExecService2.setEnabled(true);
 testExecService2.setService(testService2);
 testExecService2.setScript("serviceSend.bash");

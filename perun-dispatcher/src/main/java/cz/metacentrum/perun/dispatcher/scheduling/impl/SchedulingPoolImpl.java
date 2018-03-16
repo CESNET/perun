@@ -1,388 +1,595 @@
 package cz.metacentrum.perun.dispatcher.scheduling.impl;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import cz.metacentrum.perun.auditparser.AuditParser;
+import cz.metacentrum.perun.controller.service.GeneralServiceManager;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
+import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducerPool;
+import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
+import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
+import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
+import cz.metacentrum.perun.taskslib.model.TaskSchedule;
+import cz.metacentrum.perun.taskslib.service.ResultManager;
+import cz.metacentrum.perun.taskslib.service.TaskManager;
+import cz.metacentrum.perun.taskslib.service.TaskStore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.dispatcher.jms.DispatcherQueue;
-import cz.metacentrum.perun.dispatcher.jms.DispatcherQueuePool;
-import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
-import cz.metacentrum.perun.taskslib.model.ExecService;
-import cz.metacentrum.perun.taskslib.model.Task;
-import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.DelayQueue;
 
-// TODO: this shares a lot of code with engine.SchedulingPoolImpl - create abstract base with implementation specific indexes
+import javax.annotation.Resource;
 
+/**
+ * Implementation of SchedulingPool.
+ *
+ * @see cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool
+ *
+ * @author Michal Voců
+ * @author Michal Babacek
+ * @author David Šarman
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
 @org.springframework.stereotype.Service("schedulingPool")
 public class SchedulingPoolImpl implements SchedulingPool {
 
 	private final static Logger log = LoggerFactory.getLogger(SchedulingPoolImpl.class);
 
-	private final Map<Integer, Pair<Task, DispatcherQueue>> tasksById = new ConcurrentHashMap<Integer, Pair<Task, DispatcherQueue>>();
-	private final Map<Pair<Integer, Integer>, Task> tasksByServiceAndFacility = new ConcurrentHashMap<Pair<Integer, Integer>, Task>();
-	private final Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
+	private final Map<Integer, EngineMessageProducer> enginesByTaskId = new HashMap<>();
+	private PerunSession sess;
 
-	@Autowired
+	private DelayQueue<TaskSchedule> waitingTasksQueue;
+	private DelayQueue<TaskSchedule> waitingForcedTasksQueue;
+	private Properties dispatcherProperties;
+	private TaskStore taskStore;
 	private TaskManager taskManager;
-	@Autowired
-	private DispatcherQueuePool dispatcherQueuePool;
+	private ResultManager resultManager;
+	private EngineMessageProducerPool engineMessageProducerPool;
+	private GeneralServiceManager generalServiceManager;
+	private Perun perun;
 
 	public SchedulingPoolImpl() {
-		for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
-			pool.put(status, new ArrayList<Task>());
-		}
+	}
+
+	public SchedulingPoolImpl(Properties dispatcherPropertiesBean, TaskStore taskStore,
+	                          TaskManager taskManager, EngineMessageProducerPool engineMessageProducerPool) {
+		this.dispatcherProperties = dispatcherPropertiesBean;
+		this.taskStore = taskStore;
+		this.taskManager = taskManager;
+		this.engineMessageProducerPool = engineMessageProducerPool;
+	}
+
+
+	// ----- setters -------------------------------------
+
+
+	public DelayQueue<TaskSchedule> getWaitingTasksQueue() {
+		return waitingTasksQueue;
+	}
+
+	@Autowired
+	public void setWaitingTasksQueue(DelayQueue<TaskSchedule> waitingTasksQueue) {
+		this.waitingTasksQueue = waitingTasksQueue;
+	}
+
+	public DelayQueue<TaskSchedule> getWaitingForcedTasksQueue() {
+		return waitingForcedTasksQueue;
+	}
+
+	@Autowired
+	public void setWaitingForcedTasksQueue(DelayQueue<TaskSchedule> waitingForcedTasksQueue) {
+		this.waitingForcedTasksQueue = waitingForcedTasksQueue;
+	}
+
+	public Properties getDispatcherProperties() {
+		return dispatcherProperties;
+	}
+
+	@Resource(name="dispatcherPropertiesBean")
+	public void setDispatcherProperties(Properties dispatcherProperties) {
+		this.dispatcherProperties = dispatcherProperties;
+	}
+
+	public TaskStore getTaskStore() {
+		return taskStore;
+	}
+
+	@Autowired
+	public void setTaskStore(TaskStore taskStore) {
+		this.taskStore = taskStore;
+	}
+
+	public TaskManager getTaskManager() {
+		return taskManager;
+	}
+
+	@Autowired
+	public void setTaskManager(TaskManager taskManager) {
+		this.taskManager = taskManager;
+	}
+
+	public ResultManager getResultManager() {
+		return resultManager;
+	}
+
+	@Autowired
+	public void setResultManager(ResultManager resultManager) {
+		this.resultManager = resultManager;
+	}
+
+	public EngineMessageProducerPool getEngineMessageProducerPool() {
+		return engineMessageProducerPool;
+	}
+
+	@Autowired
+	public void setEngineMessageProducerPool(EngineMessageProducerPool engineMessageProducerPool) {
+		this.engineMessageProducerPool = engineMessageProducerPool;
+	}
+
+	public GeneralServiceManager getGeneralServiceManager() {
+		return generalServiceManager;
+	}
+
+	@Autowired
+	public void setGeneralServiceManager(GeneralServiceManager generalServiceManager) {
+		this.generalServiceManager = generalServiceManager;
+	}
+
+	public Perun getPerun() {
+		return perun;
+	}
+
+	@Autowired
+	public void setPerun(Perun perun) {
+		this.perun = perun;
+	}
+
+
+	// ----- methods -------------------------------------
+
+
+	@Override
+	public Task getTask(int id) {
+		return taskStore.getTask(id);
+	}
+
+	@Override
+	public Task getTask(Facility facility, Service service) {
+		return taskStore.getTask(facility, service);
 	}
 
 	@Override
 	public int getSize() {
-		return tasksById.size();
+		return taskStore.getSize();
 	}
 
 	@Override
-	public int addToPool(Task task, DispatcherQueue dispatcherQueue)
-			throws InternalErrorException {
-		int engineId = (dispatcherQueue == null) ? -1 : dispatcherQueue.getClientID();
-		if (task.getId() == 0) {
+	public Task addTask(Task task) throws TaskStoreException {
+		return taskStore.addTask(task);
+	}
 
-			// this task was created new, so we have to check the
-			// ExecService,Facility pair
-			synchronized (tasksByServiceAndFacility) {
-				if (!tasksByServiceAndFacility.containsKey(new Pair<Integer, Integer>(task.getExecServiceId(), task.getFacilityId()))) {
-					log.debug("Adding new task to pool " + task);
-					if (null == task.getStatus()) {
-						task.setStatus(TaskStatus.NONE);
-					}
-					try {
-						int id = taskManager.scheduleNewTask(task, engineId);
-						task.setId(id);
-					} catch (InternalErrorException e) {
-						log.error("Error storing task " + task
-								+ " into database: " + e.getMessage());
-						throw new InternalErrorException(
-								"Could not assign id to newly created task", e);
-					}
-					tasksByServiceAndFacility.put(
-							new Pair<Integer, Integer>(task
-									.getExecServiceId(), task.getFacilityId()),
-							task);
-					tasksById.put(task.getId(),
-							new Pair<Task, DispatcherQueue>(task,
-									dispatcherQueue));
-					List<Task> list = pool.get(task.getStatus());
-					if(list == null) {
-						log.info("Making new list for task status " + task.getStatus().toString());
-						list = new ArrayList<Task>();
-						pool.put(task.getStatus(), list);
-					}
-					list.add(task);
-				} else {
-					log.debug("There already is task for given ExecService and Facility pair");
-				}
+	@Override
+	public Collection<Task> getAllTasks() {
+		return taskStore.getAllTasks();
+	}
+
+	@Override
+	public List<Task> getTasksWithStatus(TaskStatus... status) {
+		return taskStore.getTasksWithStatus(status);
+	}
+
+	@Override
+	public Task removeTask(Task task) throws TaskStoreException {
+		return taskStore.removeTask(task);
+	}
+
+	@Override
+	public void scheduleTask(Task task, int delayCount) {
+
+		// init session
+		try {
+			if (sess == null) {
+				sess = perun.getPerunSession(new PerunPrincipal(
+								dispatcherProperties.getProperty("perun.principal.name"),
+								dispatcherProperties.getProperty("perun.principal.extSourceName"),
+								dispatcherProperties.getProperty("perun.principal.extSourceType")),
+						new PerunClient());
 			}
-		} else {
-			// weird - we should not be adding tasks with id present...
-			synchronized (tasksById) {
-				if (!tasksById.containsKey(task.getId())) {
-					log.debug("Adding task to pool " + task);
-					if (null == task.getStatus()) {
-						task.setStatus(TaskStatus.NONE);
-					}
-					tasksById.put(task.getId(), new Pair<Task, DispatcherQueue>(task, dispatcherQueue));
-					tasksByServiceAndFacility.put(new Pair<Integer, Integer>(task.getExecServiceId(), task.getFacilityId()), task);
-					List<Task> list = pool.get(task.getStatus());
-					if(list == null) {
-						log.info("Making new list for task status " + task.getStatus().toString());
-						list = new ArrayList<Task>();
-						pool.put(task.getStatus(), list);
-					}
-					list.add(task);
-					// pool.get(task.getStatus()).add(task);
-				}
+		} catch (InternalErrorException e1) {
+			log.error("Error establishing perun session to add task schedule: ", e1);
+			return;
+		}
+
+		// check if service/facility exists
+
+		boolean removeTask = false;
+
+		try {
+			Service service = perun.getServicesManager().getServiceById(sess, task.getServiceId());
+			Facility facility = perun.getFacilitiesManager().getFacilityById(sess, task.getFacilityId());
+			task.setService(service);
+			task.setFacility(facility);
+		} catch (ServiceNotExistsException e) {
+			log.error("[{}] Task NOT added to waiting queue, service not exists: {}.", task.getId(), task);
+			removeTask = true;
+		} catch (FacilityNotExistsException e) {
+			log.error("[{}] Task NOT added to waiting queue, facility not exists: {}.", task.getId(), task);
+			removeTask = true;
+		}  catch (InternalErrorException | PrivilegeException e) {
+			log.error("[{}] {}", task.getId(), e);
+		}
+
+		if (!task.getService().isEnabled() || generalServiceManager.isServiceBlockedOnFacility(task.getService(), task.getFacility())) {
+			log.error("[{}] Task NOT added to waiting queue, service is blocked: {}.", task.getId(), task);
+			// do not change Task status or any other data !
+			if (!removeTask) return;
+		}
+
+		try {
+			List<Service> assignedServices = perun.getServicesManager().getAssignedServices(sess, task.getFacility());
+			if (!assignedServices.contains(task.getService())) {
+				log.debug("[{}] Task NOT added to waiting queue, service is not assigned to facility any more: {}.", task.getId(), task);
+				if (!removeTask) return;
 			}
+		} catch (FacilityNotExistsException e) {
+			removeTask = true;
+			log.error("[{}] Task removed from database, facility no longer exists: {}.", task.getId(), task);
+		} catch (InternalErrorException | PrivilegeException e) {
+			log.error("[{}] Unable to check Service assignment to Facility: {}", task.getId(), e.getMessage());
+		}
+
+		if (removeTask) {
+			// in memory task belongs to non existent facility/service - remove it and return
 			try {
-				Task existingTask = taskManager.getTaskById(task.getId());
-				if (existingTask == null) {
-					taskManager.scheduleNewTask(task, engineId);
-				} else {
-					taskManager.updateTask(task);
-				}
-			} catch (InternalErrorException e) {
-				log.error("Error storing task " + task + " into database: "
-						+ e.getMessage());
+				removeTask(task);
+				return;
+			} catch (TaskStoreException e) {
+				log.error("[{}] Unable to remove Task from pool: {}.", task.getId(), e);
+				return;
 			}
 		}
+
+		// Task is eligible for running - create new schedule
+
+		task.setSourceUpdated(false);
+
+		long newTaskDelay = 0;
+		if (!task.isPropagationForced()) {
+			// normal tasks are delayed
+			try {
+				newTaskDelay = Long.parseLong(dispatcherProperties.getProperty("dispatcher.task.delay.time"));
+			} catch (NumberFormatException e) {
+				log.warn("Could not parse value of dispatcher.task.delay.time property. Using default.");
+				newTaskDelay = 30000;
+			}
+		}
+		if (task.isPropagationForced()) {
+			delayCount = 0;
+		}
+		if (delayCount < 0) {
+			try {
+				delayCount = Integer.parseInt(dispatcherProperties.getProperty("dispatcher.task.delay.count"));
+			} catch (NumberFormatException e) {
+				log.warn("Could not parse value of dispatcher.task.delay.count property. Using default.");
+				delayCount = 4;
+			}
+		}
+
+		TaskSchedule schedule = new TaskSchedule(newTaskDelay, task);
+		schedule.setBase(System.currentTimeMillis());
+		schedule.setDelayCount(delayCount);
+
+		// Task was newly planned for propagation, switch state.
+		if (!task.getStatus().equals(TaskStatus.WAITING)) {
+
+			task.setStatus(TaskStatus.WAITING);
+			task.setSchedule(new Date(System.currentTimeMillis()));
+			// clear previous timestamps
+			task.setSentToEngine(null);
+			task.setStartTime(null);
+			task.setGenStartTime(null);
+			task.setSendStartTime(null);
+			task.setEndTime(null);
+			task.setGenEndTime(null);
+			task.setSendEndTime(null);
+
+			taskManager.updateTask(task);
+
+		}
+
+		boolean added = false;
+
+		if (schedule.getTask().isPropagationForced()) {
+			added = waitingForcedTasksQueue.add(schedule);
+		} else {
+			added = waitingTasksQueue.add(schedule);
+		}
+
+		if (!added) {
+			log.error("[{}] Task could not be added to waiting queue. Shouldn't ever happen. Look to javadoc of DelayQueue. {}", task.getId(), schedule);
+		} else {
+			log.debug("[{}] Task was added to waiting queue: {}", task.getId(), schedule);
+		}
+
+	}
+
+	/**
+	 * Adds Task and associated dispatcherQueue into scheduling pools internal maps and also to the database.
+	 *
+	 * @param task            Task which will be added and persisted.
+	 * @param engineMessageProducer dispatcherQueue associated with the Task which will be added and persisted.
+	 * @return Number of Tasks in the pool.
+	 * @throws InternalErrorException Thrown if the Task could not be persisted.
+	 * @throws TaskStoreException
+	 */
+	@Override
+	public int addToPool(Task task, EngineMessageProducer engineMessageProducer) throws InternalErrorException, TaskStoreException {
+
+		int engineId = (engineMessageProducer == null) ? -1 : engineMessageProducer.getClientID();
+		if (task.getId() == 0) {
+			if (getTask(task.getFacility(), task.getService()) == null) {
+				try {
+					int id = taskManager.scheduleNewTask(task, engineId);
+					task.setId(id);
+				} catch (InternalErrorException e) {
+					log.error("Error storing task {} into database: {}", task, e.getMessage());
+					throw new InternalErrorException("Could not assign id to newly created task {}", e);
+				}
+				log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
+			} else {
+				try {
+					Task existingTask = taskManager.getTaskById(task.getId());
+					if (existingTask == null) {
+						int id = taskManager.scheduleNewTask(task, engineId);
+						task.setId(id);
+						log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
+					} else {
+						taskManager.updateTask(task);
+						log.debug("[{}] Task updated in the pool: {}", task.getId(), task);
+					}
+				} catch (InternalErrorException e) {
+					log.error("Error storing task {} into database: {}", task, e.getMessage());
+				}
+			}
+		}
+		addTask(task);
+		enginesByTaskId.put(task.getId(), engineMessageProducer);
+		log.debug("[{}] Task added to the pool: {}", task.getId(), task);
 		return getSize();
 	}
 
 	@Override
-	public Task getTaskById(int id) {
-		Pair<Task, DispatcherQueue> entry = tasksById.get(id);
+	public Task removeTask(int id) throws TaskStoreException {
+		return taskStore.removeTask(id);
+	}
+
+	@Override
+	public EngineMessageProducer getEngineMessageProducerForTask(Task task) throws InternalErrorException {
+		if (task == null) {
+			log.error("Supplied Task is null.");
+			throw new IllegalArgumentException("Task cannot be null");
+		}
+		EngineMessageProducer entry = enginesByTaskId.get(task.getId());
 		if (entry == null) {
-			return null;
-		} else {
-			return entry.getLeft();
+			throw new InternalErrorException("No Task with ID " + task.getId());
 		}
+		return entry;
 	}
 
-	@Override
-	public void removeTask(Task task) {
-		Pair<Task, DispatcherQueue> val;
-		synchronized (pool) {
-			pool.get(task.getStatus()).remove(task);
-			val = tasksById.remove(task.getId());
-			tasksByServiceAndFacility.remove(new Pair<Integer, Integer>(task.getExecServiceId(),
-					task.getFacilityId()));
-		}
-		taskManager.removeTask(task.getId());
-	}
-
-	@Override
-	public Task getTask(ExecService execService, Facility facility) {
-		return tasksByServiceAndFacility.get(new Pair<Integer, Integer>(
-				execService.getId(), facility.getId()));
-	}
-
-	@Override
-	public DispatcherQueue getQueueForTask(Task task)
-			throws InternalErrorException {
-		Pair<Task, DispatcherQueue> entry = tasksById.get(task.getId());
-		if (entry == null) {
-			throw new InternalErrorException("no such task");
-		}
-		return entry.getRight();
-	}
-
-	@Override
-	public void setTaskStatus(Task task, TaskStatus status) {
-		TaskStatus old = task.getStatus();
-		task.setStatus(status);
-		// move task to the appropriate place
-		synchronized(pool) {
-			if (!old.equals(status)) {
-				if(pool.get(old) != null) {
-					pool.get(old).remove(task);
-				} else {
-					log.warn("task unknown by status");
-				}
-				if(pool.get(status) != null) {
-					pool.get(status).add(task);
-				} else {
-					log.error("no task pool for status " + status.toString());
-				}
-			}
-		}
-		taskManager.updateTask(task);
-	}
 
 	@Override
 	public List<Task> getTasksForEngine(int clientID) {
 		List<Task> result = new ArrayList<Task>();
-		for (Pair<Task, DispatcherQueue> value : tasksById.values()) {
-			if (value.getRight() != null && clientID == value.getRight().getClientID()) {
-				result.add(value.getLeft());
+		for (Map.Entry<Integer, EngineMessageProducer> entry : enginesByTaskId.entrySet()) {
+			if (entry.getValue() != null && clientID == entry.getValue().getClientID()) {
+				result.add(getTask(entry.getKey()));
 			}
 		}
 		return result;
 	}
 
 	@Override
-	public List<Task> getWaitingTasks() {
-		synchronized(pool) {
-			return new ArrayList<Task>(pool.get(TaskStatus.NONE));
-		}
-	}
+	public String getReport() {
+		int waiting = getTasksWithStatus(TaskStatus.WAITING).size();
+		int planned = getTasksWithStatus(TaskStatus.PLANNED).size();
+		int generating = getTasksWithStatus(TaskStatus.GENERATING).size();
+		int generated = getTasksWithStatus(TaskStatus.GENERATED).size();
+		int generror = getTasksWithStatus(TaskStatus.GENERROR).size();
+		int sending = getTasksWithStatus(TaskStatus.SENDING).size();
+		int senderror = getTasksWithStatus(TaskStatus.SENDERROR).size();
+		int done = getTasksWithStatus(TaskStatus.DONE).size();
+		int error = getTasksWithStatus(TaskStatus.ERROR).size();
 
-	@Override
-	public List<Task> getDoneTasks() {
-		synchronized(pool) {
-			return new ArrayList<Task>(pool.get(TaskStatus.DONE));
-		}
-	}
-
-	@Override
-	public List<Task> getErrorTasks() {
-		synchronized(pool) {
-			return new ArrayList<Task>(pool.get(TaskStatus.ERROR));
-		}
-	}
-
-	@Override
-	public List<Task> getProcessingTasks() {
-		synchronized(pool) {
-			return new ArrayList<Task>(pool.get(TaskStatus.PROCESSING));
-		}
-	}
-
-	@Override
-	public List<Task> getPlannedTasks() {
-		synchronized(pool) {
-			return new ArrayList<Task>(pool.get(TaskStatus.PLANNED));
-		}
+		return "Dispatcher SchedulingPool Task report:\n" +
+				"  WAITING: " + waiting +
+				"  PLANNED: " + planned +
+				"  GENERATING: " + generating +
+				"  GENERATED: " + generated +
+				"  GENERROR: " + generror +
+				"  SENDING:  " + sending +
+				"  SENDEEROR:  " + senderror +
+				"  DONE: " + done +
+				"  ERROR: " + error;
 	}
 
 	@Override
 	public void clear() {
-		synchronized (tasksById) {
-			tasksById.clear();
-			tasksByServiceAndFacility.clear();
-			for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
-				pool.get(status).clear();
-			}
-		}
-		// taskManager.removeAllTasks();
+		taskStore.clear();
+		enginesByTaskId.clear();
+		waitingTasksQueue.clear();
+		waitingForcedTasksQueue.clear();
 	}
 
 	@Override
 	public void reloadTasks() {
-		log.debug("Going to reload tasks from database...");
+
+		log.debug("Going to reload Tasks from database...");
+
 		this.clear();
+
 		for (Pair<Task, Integer> pair : taskManager.listAllTasksAndClients()) {
 			Task task = pair.getLeft();
-			TaskStatus status = task.getStatus();
-			if (status == null) {
-				task.setStatus(TaskStatus.NONE);
+			EngineMessageProducer queue = engineMessageProducerPool.getProducerByClient(pair.getRight());
+			try {
+				// just add DB Task to in-memory structure
+				addToPool(task, queue);
+			} catch (InternalErrorException | TaskStoreException e) {
+				log.error("Adding Task {} and Queue {} into SchedulingPool failed, so the Task will be lost.", task, queue);
 			}
-			/* TESTING ONLY: skip all tasks for other facilities than meant for testing */
-			/*
-			if(task.getFacility().getName().equals("alcor.ics.muni.cz") ||
-               task.getFacility().getName().equals("aldor.ics.muni.cz") ||
-               task.getFacility().getName().equals("ascor.ics.muni.cz") ||
-               task.getFacility().getName().equals("torque.ics.muni.cz") ||
-               task.getFacility().getName().equals("nympha-cloud.zcu.cz")) {
-            } else {
-                    log.debug("Skipping task for facility {} not meant for testing.", task.getFacility().getName());
-                    continue;
-            }
-            */
-			if (!pool.get(task.getStatus()).contains(task)) {
-				pool.get(task.getStatus()).add(task);
+
+			// if service was not in DONE or any kind of ERROR - reschedule now
+			// error/done tasks will be rescheduled later by periodic jobs !!
+			if (!Arrays.asList(TaskStatus.DONE, TaskStatus.ERROR, TaskStatus.GENERROR, TaskStatus.SENDERROR).contains(task.getStatus())) {
+				if (task.getStatus().equals(TaskStatus.WAITING)) {
+					// if were in WAITING, reset timestamp to now
+					task.setSchedule(new Date(System.currentTimeMillis()));
+					taskManager.updateTask(task);
+				}
+				scheduleTask(task, 0);
 			}
-			DispatcherQueue queue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight());
-			// XXX should this be synchronized too?
-			tasksById.put(
-					task.getId(),
-					new Pair<Task, DispatcherQueue>(task, queue));
-			tasksByServiceAndFacility.put(
-					new Pair<Integer, Integer>(task.getExecServiceId(),
-								task.getFacilityId()), task);
-			// TODO: what about possible duplicates?
-			log.debug("Added task " + task.toString() + " belonging to queue " + pair.getRight());
+
 		}
-		log.info("Pool contains: ");
-		for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
-			log.info("  - {} tasks in state {}", pool.get(status).size(),
-					status.toString());
-		}
+
+		log.debug("Reload of Tasks from database finished.");
+
 	}
 
 	@Override
-	public void setQueueForTask(Task task, DispatcherQueue queueForTask) throws InternalErrorException {
-		Pair<Task, DispatcherQueue> pair = tasksById.get(task.getId());
-		if(pair == null) {
-			throw new InternalErrorException("no task by that id");
+	public void setEngineMessageProducerForTask(Task task, EngineMessageProducer messageProducer) throws InternalErrorException {
+		Task found = getTask(task.getId());
+		if (found == null) {
+			throw new InternalErrorException("no task by id " + task.getId());
 		} else {
-			tasksById.get(task.getId()).put(task, queueForTask);
+			enginesByTaskId.put(task.getId(), messageProducer);
 		}
 		// if queue is removed, set -1 to task as it's done on task creation if queue is null
-		int queueId = (queueForTask != null) ? queueForTask.getClientID() : -1;
+		int queueId = (messageProducer != null) ? messageProducer.getClientID() : -1;
 		taskManager.updateTaskEngine(task, queueId);
 	}
 
 	@Override
-	public void checkTasksDb() {
-		log.debug("Going to cross-check tasks in database...");
-		for (Pair<Task, Integer> pair : taskManager.listAllTasksAndClients()) {
-			Task task = pair.getLeft();
-			DispatcherQueue taskQueue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight());
-			TaskStatus status = task.getStatus();
-			if (status == null) {
-				task.setStatus(TaskStatus.NONE);
-			}
-			Task local_task = null;
-			TaskStatus local_status = null;
-			log.debug("  checking task " + task.toString());
-			if(taskQueue == null) {
-				log.warn("  there is no task queue for client " + pair.getRight());
-				// continue;
-			}
-			synchronized (tasksById) {
-				Pair<Task, DispatcherQueue> local_pair = tasksById.get(task.getId());
-				if(local_pair != null) {
-					local_task = local_pair.getLeft();
-				}
-				if(local_task == null) {
-					local_task = tasksByServiceAndFacility.get(new Pair<Integer,Integer>(
-							task.getExecServiceId(),
-							task.getFacilityId()));
-				}
-				if(local_task == null) {
-					for (TaskStatus sts : TaskStatus.class.getEnumConstants()) {
-						List<Task> tasklist = pool.get(sts);
-						if(tasklist != null) {
-							for (Task tsk : tasklist) {
-								if (tsk.getId() == task.getId()) {
-									local_task = tsk;
-									break;
-								}
-							}
-						}
-						if(local_task != null) {
-							local_status = sts;
-							break;
-						}
-					}
-				}
-			}
-			if(local_task == null) {
-				try {
-					log.debug("  task not found in any of local structures, adding fresh");
-					addToPool(task, taskQueue);
-				} catch(InternalErrorException e) {
-					log.error("Error adding task to the local structures: " + e.getMessage());
-				}
-			} else {
-				synchronized(tasksById) {
-					if(!tasksById.containsKey(local_task.getId())) {
-						log.debug("  task not known by id, adding");
-						tasksById.put(local_task.getId(),
-								new Pair<Task, DispatcherQueue>(local_task, taskQueue));
-					}
-					if(!tasksByServiceAndFacility.containsKey(new Pair<Integer, Integer>(
-							local_task.getExecServiceId(), local_task.getFacilityId()))) {
-						log.debug("  task not known by ExecService and Facility, adding");
-						tasksByServiceAndFacility.put(
-								new Pair<Integer, Integer>(
-										local_task.getExecServiceId(),
-										local_task.getFacilityId()),
-								task);
+	public void closeTasksForEngine(int clientID) {
 
-					}
-					if(local_status != null && local_status != local_task.getStatus()) {
-						log.debug("  task listed with wrong status, removing");
-						if(pool.get(local_status) != null) {
-							pool.get(local_status).remove(local_task.getId());
-						} else {
-							log.error("  no task list for status " + local_status);
-						}
-					}
-					if(pool.get(local_task.getStatus()) != null &&
-							!pool.get(local_task.getStatus()).contains(local_task)) {
-						log.debug("  task not listed with its status, adding");
-						pool.get(local_task.getStatus()).add(local_task);
-					}
-				}
+		List<Task> tasks = getTasksForEngine(clientID);
+		List<TaskStatus> engineStates = new ArrayList<>();
+		engineStates.add(TaskStatus.PLANNED);
+		engineStates.add(TaskStatus.GENERATING);
+		engineStates.add(TaskStatus.GENERATED);
+		engineStates.add(TaskStatus.SENDING);
+
+		// switch all processing tasks to error, remove the engine queue association
+		log.debug("Switching processing tasks on engine {} to ERROR, the engine went down...", clientID);
+		for (Task task : tasks) {
+			if (engineStates.contains(task.getStatus())) {
+				log.debug("[{}] Switching Task to ERROR, the engine it was running on went down.", task.getId());
+				task.setStatus(TaskStatus.ERROR);
+			}
+			try {
+				setEngineMessageProducerForTask(task, null);
+			} catch (InternalErrorException e) {
+				log.error("[{}] Could not remove dispatcher queue for task: {}.", task.getId(), e.getMessage());
 			}
 		}
+
+	}
+
+	@Override
+	public void onTaskStatusChange(int taskId, String status, String milliseconds) {
+
+		Task task = getTask(taskId);
+		if (task == null) {
+			log.error("[{}] Received status update about Task which is not in Dispatcher anymore, will ignore it.", taskId);
+			return;
+		}
+
+		TaskStatus oldStatus = task.getStatus();
+		task.setStatus(TaskStatus.valueOf(status));
+		long ms;
+		try {
+			ms = Long.valueOf(milliseconds);
+		} catch (NumberFormatException e) {
+			log.warn("[{}] Timestamp of change '{}' could not be parsed, current time will be used instead.", task.getId(), milliseconds);
+			ms = System.currentTimeMillis();
+		}
+		Date changeDate = new Date(ms);
+
+		switch (task.getStatus()) {
+			case WAITING:
+			case PLANNED:
+				log.error("[{}] Received status change to {} from Engine, this should not happen.", task.getId(), task.getStatus());
+				return;
+			case GENERATING:
+				task.setStartTime(changeDate);
+				task.setGenStartTime(changeDate);
+				break;
+			case GENERROR:
+				task.setEndTime(changeDate);
+			case GENERATED:
+				task.setGenEndTime(changeDate);
+				break;
+			case SENDING:
+				task.setSendStartTime(changeDate);
+				break;
+			case DONE:
+			case SENDERROR:
+				task.setSendEndTime(changeDate);
+				task.setEndTime(changeDate);
+				break;
+			case ERROR:
+				task.setEndTime(changeDate);
+				break;
+		}
+
+		taskManager.updateTask(task);
+
+		log.debug("[{}] Task status changed from {} to {} as reported by Engine: {}.", new Object[]{task.getId(), oldStatus, task.getStatus(), task});
+
+	}
+
+	@Override
+	public void onTaskDestinationComplete(int clientID, String string) {
+
+		if (string == null || string.isEmpty()) {
+			log.error("Could not parse TaskResult message from Engine " + clientID + ".");
+			return;
+		}
+
+		try {
+			List<PerunBean> listOfBeans = AuditParser.parseLog(string);
+			if (!listOfBeans.isEmpty()) {
+				TaskResult taskResult = (TaskResult) listOfBeans.get(0);
+				log.debug("[{}] Received TaskResult for Task from Engine {}.", taskResult.getTaskId(), clientID);
+				resultManager.insertNewTaskResult(taskResult, clientID);
+			} else {
+				log.error("No TaskResult found in message from Engine {}: {}.", clientID, string);
+			}
+		} catch (Exception e) {
+			log.error("Could not save TaskResult from Engine " + clientID + " {}, {}", string, e.getMessage());
+		}
+
 	}
 
 }

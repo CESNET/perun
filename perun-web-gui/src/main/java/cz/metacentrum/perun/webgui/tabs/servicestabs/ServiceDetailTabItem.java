@@ -8,6 +8,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
@@ -114,6 +115,34 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
 		int column = 3;
+
+		final JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				new GetEntityById(PerunEntity.SERVICE, serviceId, new JsonCallbackEvents(){
+					public void onFinished(JavaScriptObject jso){
+						service = jso.cast();
+						open();
+						draw();
+					}
+				}).retrieveData();
+			}
+		};
+
+		CustomButton change = new CustomButton("", ButtonTranslation.INSTANCE.editFacilityDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
+		change.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event) {
+				// prepare confirm content
+				session.getTabManager().addTabToCurrentTab(new EditServiceDetailsTabItem(service, events));
+			}
+		});
+		menu.setWidget(0, column, change);
+
+		column++;
+
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+		column++;
+
 		if (JsonUtils.isExtendedInfoVisible()) {
 			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+service.getId()+"</span>");
 			column++;
@@ -122,8 +151,7 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 			column++;
 		}
 
-		// TODO - waiting for time, when service will have description param
-		//menu.setHTML(0, 3, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+service.getDescription()+"</span>");
+		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+service.getDescription()+"</span>");
 
 		dp.add(menu);
 		vp.add(dp);
@@ -134,7 +162,6 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 		tabPanel.clear();
 
 		tabPanel.add(new ServiceRequiredAttributesTabItem(service), "Required attributes");
-		tabPanel.add(new ServiceExecServicesTabItem(service), "Exec services");
 		tabPanel.add(new ServiceDestinationsTabItem(service), "Destinations");
 
 		// Resize must be called after page fully displays

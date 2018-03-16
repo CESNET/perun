@@ -15,7 +15,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpclib.api.Deserializer;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 
 /**
  * Deserializer that reads values from JSON content.
@@ -40,9 +39,6 @@ public class JsonDeserializer extends Deserializer {
 
 	@JsonIgnoreProperties({"beanName"})
 	private interface PerunBeanMixIn {}
-
-	@JsonIgnoreProperties({"beanName"})
-	private interface ExecServiceMixIn {}
 
 	@JsonIgnoreProperties({"userExtSources"})
 	private interface CandidateMixIn {}
@@ -69,7 +65,6 @@ public class JsonDeserializer extends Deserializer {
 		mapper.getDeserializationConfig().addMixInAnnotations(Member.class, MemberMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(AuditMessage.class, AuditMessageMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(PerunBean.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ExecService.class, ExecServiceMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, DestinationMixIn.class);

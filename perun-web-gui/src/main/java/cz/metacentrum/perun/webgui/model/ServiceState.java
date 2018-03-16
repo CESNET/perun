@@ -24,12 +24,8 @@ public class ServiceState extends JavaScriptObject {
 		return this.service;
 	}-*/;
 
-	public final native Task getGenTask() /*-{
-		return this.genTask;
-	}-*/;
-
-	public final native Task getSendTask() /*-{
-		return this.sendTask;
+	public final native Task getTask() /*-{
+		return this.task;
 	}-*/;
 
 	public final native boolean isBlockedGlobally() /*-{
@@ -94,7 +90,7 @@ public class ServiceState extends JavaScriptObject {
 	}-*/;
 
 	public final native String getLastScheduled() /*-{
-		if (!(this.lastScheduled)) { return "GENERATE"; }
+		if (!(this.lastScheduled)) { return "SEND"; }
 		return this.lastScheduled;
 	}-*/;
 

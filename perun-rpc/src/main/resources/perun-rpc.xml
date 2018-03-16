@@ -13,7 +13,7 @@
 	<!-- perun-tasks-lib.xml is needed for  perun-controller.xml, perun-dispatcher.xml -->
 	<import resource="classpath:perun-tasks-lib.xml"/>
 
-	<import resource="classpath:perun-controller.xml"/>
+	<!--  <import resource="classpath:perun-controller.xml"/>  -->
 	<import resource="classpath:perun-core-synchronizers.xml"/>
 	<import resource="classpath:perun-cabinet.xml"/>
 	<import resource="classpath:perun-registrar-lib.xml"/>

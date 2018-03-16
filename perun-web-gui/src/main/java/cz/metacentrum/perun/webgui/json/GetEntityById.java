@@ -38,7 +38,6 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 	static private final String URL_RICH_RESOURCE = "resourcesManager/getRichResourceById";
 	static private final String URL_PUBLICATION = "cabinetManager/findPublicationById";
 	static private final String URL_SERVICE = "servicesManager/getServiceById";
-	static private final String URL_EXEC_SERVICE = "generalServiceManager/getExecService";
 
 	static private final String URL_USER = "usersManager/getUserById";
 	static private final String URL_RICH_USER = "usersManager/getRichUser";
@@ -126,8 +125,6 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 			js.retrieveData(URL_RICH_USER_WITH_ATTRS, param, this);
 		} else if (PerunEntity.SERVICE.equals(entity)) {
 			js.retrieveData(URL_SERVICE, param, this);
-		} else if (PerunEntity.EXEC_SERVICE.equals(entity)) {
-			js.retrieveData(URL_EXEC_SERVICE, param, this);
 		} else if (PerunEntity.TASK.equals(entity)) {
 			js.retrieveData(URL_TASK, param, this);
 		} else if (PerunEntity.APPLICATION_MAIL.equals(entity)) {

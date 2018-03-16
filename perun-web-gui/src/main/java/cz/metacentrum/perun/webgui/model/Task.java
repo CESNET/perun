@@ -49,8 +49,8 @@ public class Task extends JavaScriptObject {
 		return this.endTime;
 	}-*/;
 
-	public final native ExecService getExecService() /*-{
-		return this.execService;
+	public final native Service getService() /*-{
+		return this.service;
 	}-*/;
 
 	public final native Facility getFacility() /*-{

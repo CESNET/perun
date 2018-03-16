@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.webgui.json.servicesManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -21,6 +23,12 @@ public class CreateService {
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// service name
 	private String serviceName = "";
+	private String description = "";
+	private String script = "";
+	private boolean enabled = true;
+	private int delay = 10;
+	private int recurrence = 2;
+
 	// URL to call
 	final String JSON_URL = "servicesManager/createService";
 	// custom events
@@ -46,13 +54,28 @@ public class CreateService {
 	 *
 	 * @return true/false for continue/stop
 	 */
-	private boolean testCreating()
-	{
+	private boolean testCreating() {
+
 		boolean result = true;
 		String errorMsg = "";
 
 		if(serviceName.length() == 0){
 			errorMsg += "You must fill in the parameter 'Name'.</br>";
+			result = false;
+		}
+
+		if(script.length() == 0){
+			errorMsg += "You must fill in the parameter 'Script path'.</br>";
+			result = false;
+		}
+
+		if(delay <= 0){
+			errorMsg += "Parameter 'Delay' must be > 0.</br>";
+			result = false;
+		}
+
+		if(recurrence <= 0){
+			errorMsg += "Parameter 'Recurrence' must be > 0.</br>";
 			result = false;
 		}
 
@@ -64,13 +87,17 @@ public class CreateService {
 	}
 
 	/**
-	 * Attempts to create a new Service, it first tests the values and then submits them.
-	 *
-	 * @param name service Name
+	 * Attempts to create a new Service,
+	 * it first tests the values and then submits them.
 	 */
-	public void createService(final String name)
-	{
+	public void createService(final String name, final String description, final int delay, final int recurrence, final boolean enabled, final String script) {
+
 		this.serviceName = name;
+		this.description = description;
+		this.delay = delay;
+		this.recurrence = recurrence;
+		this.enabled = enabled;
+		this.script = script;
 
 		// test arguments
 		if(!this.testCreating()){
@@ -104,15 +131,19 @@ public class CreateService {
 	 * Prepares a JSON object
 	 * @return JSONObject the whole query
 	 */
-	private JSONObject prepareJSONObject()
-	{
-		// service
-		JSONObject service = new JSONObject();
-		service.put("name", new JSONString(serviceName));      // service name as object
+	private JSONObject prepareJSONObject() {
 
 		// whole JSON query
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("name", new JSONString(serviceName));
+		jsonObject.put("description", new JSONString(description));
+		jsonObject.put("recurrence", new JSONNumber(recurrence));
+		jsonObject.put("script", new JSONString(script));
+		jsonObject.put("delay", new JSONNumber(delay));
+		jsonObject.put("enabled", JSONBoolean.getInstance(enabled));
+
 		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("service", service);           // service object
+		jsonQuery.put("service", jsonObject);
 		return jsonQuery;
 	}
 

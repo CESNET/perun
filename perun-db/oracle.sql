@@ -1,4 +1,4 @@
--- database version 3.1.46 (don't forget to update insert statement at the end of file)
+-- database version 3.1.47 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -275,20 +275,6 @@ create table routing_rules (
 	constraint routrul_pk primary key (id)
 );
 
--- DISPATCHER_SETTINGS - settings of daemon-dispatcher of services
-create table dispatcher_settings (
-	ip_address nvarchar2(40) not null, --IP address
-	port integer not null,           -- port
-	last_check_in date default sysdate, --time of last activation
-	created_at date default sysdate not null,
-	created_by nvarchar2(1300) default user not null,
-	modified_at date default sysdate not null,
-	modified_by nvarchar2(1300) default user not null,
-	status char(1) default '0' not null,
-	created_by_uid integer,
-	modified_by_uid integer
-);
-
 -- ENGINES - information for daemons controles services planning
 create table engines (
 	id integer not null, --identifier of daemon
@@ -461,6 +447,11 @@ create table auditer_consumers (
 create table services (
 	id integer not null,
 	name nvarchar2(128) not null,    --name of service
+   	description nvarchar2(1024),
+   	delay integer default 10 not null,
+   	recurrence integer default 2 not null,
+   	enabled char(1) default '1' not null,
+   	script nvarchar2(256) not null,
 	created_at date default sysdate not null,
 	created_by nvarchar2(1300) default user not null,
 	modified_at date default sysdate not null,
@@ -518,31 +509,10 @@ create table specific_user_users (
 	constraint specifu_u_status_chk check (status in ('0','1'))
 );
 
--- EXEC_SERVICES - controlling data for service
-create table exec_services (
-	id integer not null,
-	service_id integer not null,    --identifier of service (services.id)
-	default_delay integer not null, --delay to repeating of service in case of error
-	enabled char(1) not null,       --service is active/inactive
-	default_recurrence integer not null,  --number of repeating in case of error
-	script nvarchar2(256) not null,   --name of executable service script
-	type nvarchar2(10) not null,      --part of service (SEND/GENERATE)
-	created_at date default sysdate not null,
-	created_by nvarchar2(1300) default user not null,
-	modified_at date default sysdate not null,
-	modified_by nvarchar2(1300) default user not null,
-	status char(1) default '0' not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint exsrv_pk primary key(id),
-	constraint exsrv_srv_fk foreign key (service_id) references services(id),
-	constraint exsrv_type_chk check (type in ('SEND','GENERATE'))
-);
-
 -- SERVICE_DENIALS - services excluded from ussage
 create table service_denials (
 	id integer not null,
-	exec_service_id integer not null,  --identifier of service (exec_services.id)
+	service_id integer not null,       --identifier of service (services.id)
 	facility_id integer,               --identifier of facility (facilities.id)
 	destination_id integer,            --identifier of destination (destinations.id) if service is not excluded on whole facility
 	created_at date default sysdate not null,
@@ -553,28 +523,10 @@ create table service_denials (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint srvden_pk primary key (id),
-	constraint srvden_exsrv_fk foreign key (exec_service_id) references exec_services(id),
+	constraint srvden_srv_fk foreign key (service_id) references services(id),
 	constraint srvden_fac_fk foreign key (facility_id) references facilities(id),
 	constraint srvden_dest_fk foreign key (destination_id) references destinations(id),
-	constraint srvden_u check(exec_service_id is not null and ((facility_id is not null and destination_id is null) or (facility_id is null and destination_id is not null)))
-);
-
--- SERVICE_DEPENDENCIES - dependency of executing one service on finishing of other service
-create table service_dependencies (
-	exec_service_id integer not null,  --identifier of service which must be finished finished first (exec_services.id)
-	dependency_id integer not null,    --identifier of service which can be executed after finishing exec_service_id (exec_services.id)
-	created_at date default sysdate not null,
-	created_by nvarchar2(1300) default user not null,
-	modified_at date default sysdate not null,
-	modified_by nvarchar2(1300) default user not null,
-	status char(1) default '0' not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	type nvarchar2(16) default 'SERVICE' not null, --type of dependency (SERVICE/DESTINATION)
-	constraint srvdep_exsrv_fk foreign key (exec_service_id) references exec_services(id),
-	constraint srvdep_depexsrv_fk foreign key (dependency_id) references exec_services(id),
-	constraint srvdep_type_chk check (type in ('SERVICE','DESTINATION')),
-	constraint srvdep_u unique(exec_service_id,dependency_id)
+	constraint srvden_u check(service_id is not null and ((facility_id is not null and destination_id is null) or (facility_id is null and destination_id is not null)))
 );
 
 -- RESOURCE_SERVICES - services assigned to resource
@@ -1198,7 +1150,7 @@ create table service_service_packages (
 -- TASKS - contains planned services and services finished at near past
 create table tasks (
 	id integer not null,
-	exec_service_id integer not null,  --identifier of executed service (exec_services.id)
+	service_id integer not null,  --identifier of executed service (services.id)
 	facility_id integer not null,      --identifier of target facility (facilities.id)
 	schedule date not null,        --planned time for starting task
 	recurrence integer not null,        --number of repeating of task in case of error
@@ -1212,8 +1164,8 @@ create table tasks (
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint task_pk primary key (id),
-	constraint task_u unique (exec_service_id, facility_id),
-	constraint task_exsrv_fk foreign key (exec_service_id) references exec_services(id),
+	constraint task_u unique (service_id, facility_id),
+	constraint task_srv_fk foreign key (service_id) references services(id),
 	constraint task_fac_fk foreign key (facility_id) references facilities(id),
 	constraint task_eng_fk foreign key (engine_id) references engines (id),
 	constraint task_stat_chk check (status in ('NONE','OPEN','PLANNED','PROCESSING','DONE','ERROR'))
@@ -1618,7 +1570,6 @@ create sequence ATTR_NAMES_ID_SEQ nocache;
 create sequence AUDITER_CONSUMERS_ID_SEQ nocache;
 create sequence AUDITER_LOG_ID_SEQ nocache;
 create sequence DESTINATIONS_ID_SEQ nocache;
-create sequence EXEC_SERVICES_ID_SEQ nocache;
 create sequence EXT_SOURCES_ID_SEQ nocache;
 create sequence FACILITIES_ID_SEQ nocache;
 create sequence GROUPS_ID_SEQ nocache;
@@ -1673,7 +1624,7 @@ create index IDX_FK_USREX_USERSRC on user_ext_sources(ext_sources_id);
 create index IDX_FK_MEM_USER on members(user_id);
 create index IDX_FK_MEM_VO on members(vo_id);
 create index IDX_FK_HOST_FAC on hosts(facility_id);
-create index IDX_FK_EXSRV_SRV on exec_services(service_id);
+create index IDX_FK_SRV_SRV on services(id);
 create index IDX_FK_DEST_SRV on facility_service_destinations(service_id);
 create index IDX_FK_DEST_FAC on facility_service_destinations(facility_id);
 create index IDX_FK_DEST_DESTC on facility_service_destinations(destination_id);
@@ -1712,17 +1663,16 @@ create index IDX_FK_MEMGAV_ACCATTNAM on member_group_attr_values(attr_id);
 create index IDX_FK_USRFACAV_MEM on user_facility_attr_values(user_id);
 create index IDX_FK_USRFACAV_FAC on user_facility_attr_values(facility_id);
 create index IDX_FK_USRFACAV_ACCATTNAM on user_facility_attr_values(attr_id);
-create index IDX_FK_TASK_EXSRV on tasks(exec_service_id);
+create index IDX_FK_TASK_SRV on tasks(service_id);
 create index IDX_FK_TASK_FAC on tasks(facility_id);
 create index IDX_FK_TASK_ENG on tasks(engine_id);
 create index IDX_FK_TASKRES_TASK on tasks_results(task_id);
 create index IDX_FK_TASKRES_DEST on tasks_results(destination_id);
 create index IDX_FK_TASKRES_ENG on tasks_results(engine_id);
-create index IDX_FK_SRVDEN_EXSRV on service_denials(exec_service_id);
+create index IDX_FK_SRVDEN_SRV on service_denials(service_id);
 create index IDX_FK_SRVDEN_FAC on service_denials(facility_id);
 create index IDX_FK_SRVDEN_DEST on service_denials(destination_id);
-create index IDX_FK_SRVDEP_EXSRV on service_dependencies(exec_service_id);
-create index IDX_FK_SRVDEP_DEPEXSRV on service_dependencies(dependency_id);
+create index IDX_SRVDEN_U on service_denials(COALESCE(service_id, '0'), COALESCE(facility_id, '0'), COALESCE(destination_id, '0'));
 create index IDX_FK_SRVREQATTR_SRV on service_required_attrs(service_id);
 create index IDX_FK_SRVREQATTR_ATTR on service_required_attrs(attr_id);
 create index IDX_FK_RESRCSRV_SRV on resource_services(service_id);
@@ -1820,7 +1770,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.46');
+insert into configurations values ('DATABASE VERSION','3.1.47');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

@@ -1,86 +1,59 @@
 package cz.metacentrum.perun.engine.scheduling;
 
-import java.util.List;
-
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.engine.model.Pair;
-import cz.metacentrum.perun.taskslib.model.ExecService;
+import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
+import cz.metacentrum.perun.taskslib.model.SendTask;
 import cz.metacentrum.perun.taskslib.model.Task;
-import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
+import cz.metacentrum.perun.taskslib.service.TaskStore;
+
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
 
 /**
- * 
- * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ * This class groups all Task queues from Engine, providing means to add new Tasks, cancel/remove present ones, etc.
  */
-public interface SchedulingPool {
+public interface SchedulingPool extends TaskStore {
+
+	Future<Task> addGenTaskFutureToPool(Integer id, Future<Task> taskFuture);
+
+	Future<SendTask> addSendTaskFuture(SendTask sendTask, Future<SendTask> sendFuture);
+	
+	String getReport();
 
 	/**
-	 * Add to the pool
-	 * 
-	 * @param pair
-	 * @return current pool size
+	 * Method used when SendTasks are being created from parent Task.
+	 * It puts number of SendTasks still running under the Tasks id.
+	 * @param taskId Id of the Task which count we add.
+	 * @param count Number of running sendTasks for a given Task.
+	 * @return Value previously associated with given Task's ID, null if there was none.
 	 */
-	@Deprecated
-	int addToPool(Pair<ExecService, Facility> pair);
+	Integer addSendTaskCount(int taskId, int count);
 
 	/**
-	 * Get all pairs from the pool. NOTE: This action will empty the pool!
-	 * 
-	 * @return
+	 * Decreases the count of SendTask running for given Task.
+	 * Used when SendTasks finishes executing.
+	 * @param taskId Id of the Task whose SendTask/s finished.
+	 * @param decrease Number by which we reduce the count.
+	 * @return Return value previously associated with given Task ID.
+	 * @throws TaskStoreException Thrown if inconsistency occurred while saving the Task.
 	 */
-	@Deprecated
-	List<Pair<ExecService, Facility>> emptyPool();
+	Integer decreaseSendTaskCount(int taskId, int decrease) throws TaskStoreException;
 
-	/**
-	 * Size
-	 * 
-	 * @return current pool size
-	 */
-	int getSize();
+	BlockingDeque<Task> getNewTasksQueue();
 
-	void close();
+	BlockingDeque<Task> getGeneratedTasksQueue();
 
-	/**
-	 * Add Task to the waiting list.
-	 * 
-	 * @param task
-	 * @return
-	 */
-	int addToPool(Task task);
+	ConcurrentMap<Integer, Future<Task>> getGenTaskFuturesMap();
 
-	/**
-	 * Get list of Tasks in Planned state
-	 * 
-	 * @return list of tasks
-	 */
-	List<Task> getPlannedTasks();
+	Future<Task> getGenTaskFutureById(int id);
 
-	/**
-	 * Get list of Tasks to be scheduled
-	 * 
-	 * @return list of tasks
-	 */
-	List<Task> getNewTasks();
+	Future<SendTask> removeSendTaskFuture(int taskId, Destination destination) throws TaskStoreException;
 
-	List<Task> getProcessingTasks();
-
-	List<Task> getErrorTasks();
-
-	List<Task> getDoneTasks();
-
-	/**
-	 * Set status of given task
-	 * 
-	 * @param task
-	 * @param status
-	 */
-	void setTaskStatus(Task task, TaskStatus status);
-
-	Task getTaskById(int id);
-
-	void removeTask(Task task);
-
-	void reloadTasks(int engineID);
+	TaskResult createTaskResult (int taskId, int destinationId, String stderr, String stdout, int returnCode,
+	                             Service service);
 
 }

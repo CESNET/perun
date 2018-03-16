@@ -1,16 +1,19 @@
 package cz.metacentrum.perun.dispatcher.exceptions;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The base of Perun-Dispatcher checked exceptions.
- * 
+ *
  * @author Michal Karm Babacek
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public abstract class DispatcherException extends Exception {
+
+	private final static org.slf4j.Logger logger = LoggerFactory.getLogger(DispatcherException.class);
+
 	static final long serialVersionUID = 0;
 
-	static Logger logger = Logger.getLogger(DispatcherException.class);
 	private String errorId = Long.toHexString(System.currentTimeMillis());
 
 	public DispatcherException() {

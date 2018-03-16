@@ -53,6 +53,8 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	public final static String serviceMappingSelectQuery = " services.id as services_id, services.name as services_name, " +
+		"services.description as services_description, services.delay as services_delay, services.recurrence as services_recurrence, " +
+		"services.enabled as services_enabled, services.script as services_script, " +
 		"services.created_at as services_created_at, services.created_by as services_created_by, " +
 		"services.modified_by as services_modified_by, services.modified_at as services_modified_at, " +
 		"services.created_by_uid as services_created_by_uid, services.modified_by_uid as services_modified_by_uid";
@@ -69,17 +71,11 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	public final static String facilityDestinationMappingSelectQuery = destinationMappingSelectQuery + ", facility_service_destinations.propagation_type as f_s_des_propagation_type ";
 
-	public final static String richDestinationMappingSelectQuery = " destinations.id as destinations_id, destinations.destination as destinations_destination, " +
-		"destinations.type as destinations_type, destinations.created_at as destinations_created_at, destinations.created_by as destinations_created_by, " +
-		"destinations.modified_by as destinations_modified_by, destinations.modified_at as destinations_modified_at, " +
-		"destinations.modified_by_uid as destinations_modified_by_uid, destinations.created_by_uid as destinations_created_by_uid, " +
+	public final static String richDestinationMappingSelectQuery = " " + destinationMappingSelectQuery + ", " +
 		"facilities.id as facilities_id, facilities.name as facilities_name, " +
 		"facilities.created_at as facilities_created_at, facilities.created_by as facilities_created_by, facilities.modified_at as facilities_modified_at, facilities.modified_by as facilities_modified_by, " +
-		"facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " +
-		"services.id as services_id, services.name as services_name, " +
-		"services.created_at as services_created_at, services.created_by as services_created_by, " +
-		"services.modified_by as services_modified_by, services.modified_at as services_modified_at, " +
-		"services.created_by_uid as services_created_by_uid, services.modified_by_uid as services_modified_by_uid, " +
+		"facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " + 
+		serviceMappingSelectQuery + ", " +
 		"facility_service_destinations.propagation_type as f_s_des_propagation_type ";
 
 	public static final RowMapper<Service> SERVICE_MAPPER = new RowMapper<Service>() {
@@ -87,6 +83,16 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			Service service = new Service();
 			service.setId(rs.getInt("services_id"));
 			service.setName(rs.getString("services_name"));
+			service.setDescription(rs.getString("services_description"));
+			service.setDelay(rs.getInt("services_delay"));
+			service.setRecurrence(rs.getInt("services_recurrence"));
+			char enabled = rs.getString("services_enabled").charAt(0);
+			if (enabled == '0') {
+				service.setEnabled(false);
+			} else {
+				service.setEnabled(true);
+			}
+			service.setScript(rs.getString("services_script"));
 			service.setCreatedAt(rs.getString("services_created_at"));
 			service.setCreatedBy(rs.getString("services_created_by"));
 			service.setModifiedAt(rs.getString("services_modified_at"));
@@ -190,29 +196,22 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
 			else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
 
-			Service service = new Service();
-			service.setId(rs.getInt("services_id"));
-			service.setName(rs.getString("services_name"));
-			service.setCreatedAt(rs.getString("services_created_at"));
-			service.setCreatedBy(rs.getString("services_created_by"));
-			service.setModifiedAt(rs.getString("services_modified_at"));
-			service.setModifiedBy(rs.getString("services_modified_by"));
-			if(rs.getInt("services_modified_by_uid") == 0) service.setModifiedByUid(null);
-			else service.setModifiedByUid(rs.getInt("services_modified_by_uid"));
-			if(rs.getInt("services_created_by_uid") == 0) service.setCreatedByUid(null);
-			else service.setCreatedByUid(rs.getInt("services_created_by_uid"));
+			Service service = SERVICE_MAPPER.mapRow(rs, i);
 
-			RichDestination richDestination = new RichDestination(destination, facility, service);
-			return richDestination;
+			return new RichDestination(destination, facility, service);
 		}
 	};
 
 	public Service createService(PerunSession sess, Service service) throws InternalErrorException {
 		try {
 			int newId = Utils.getNewId(jdbc, "services_id_seq");
-
-			jdbc.update("insert into services(id,name,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
-					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, service.getName(),
+			// if not set, make sure script path is set based on service name
+			if (service.getScript() == null || service.getScript().isEmpty()) {
+				service.setScript("./"+service.getName());
+			}
+			jdbc.update("insert into services(id,name,description,delay,recurrence,enabled,script,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
+					"values (?,?,?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, service.getName(),
+					service.getDescription(), service.getDelay(), service.getRecurrence(), service.isEnabled() ? '1' : '0', service.getScript(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			log.info("Service created: {}", service);
 
@@ -238,7 +237,14 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	public void updateService(PerunSession sess, Service service) throws InternalErrorException {
 		try {
-			jdbc.update("update services set name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", service.getName(),
+			// if not set, make sure script path is set based on new service name
+			if (service.getScript() == null || service.getScript().isEmpty()) {
+				service.setScript("./"+service.getName());
+			}
+			jdbc.update("update services set name=?, description=?, delay=?, recurrence=?, enabled=?, script=?, " +
+							"modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?",
+					service.getName(), service.getDescription(), service.getDelay(), service.getRecurrence(),
+					service.isEnabled() ? '1' : '0', service.getScript(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), service.getId());
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);

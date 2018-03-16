@@ -1,17 +1,17 @@
 package cz.metacentrum.perun.taskslib.service.impl;
 
-import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.dao.TaskDao;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.service.TaskManager;
@@ -23,8 +23,9 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
  *
  */
 @Transactional
-@Service(value = "taskManager")
+@org.springframework.stereotype.Service(value = "taskManager")
 public class TaskManagerImpl implements TaskManager {
+	private static final Logger log = LoggerFactory.getLogger(TaskManagerImpl.class);
 
 	@Autowired
 	private TaskDao taskDao;
@@ -40,13 +41,13 @@ public class TaskManagerImpl implements TaskManager {
 	}
 
 	@Override
-	public Task getTask(ExecService execService, Facility facility, int engineID) {
-		return taskDao.getTask(execService, facility);
+	public Task getTask(Service service, Facility facility, int engineID) {
+		return taskDao.getTask(service, facility);
 	}
 
 	@Override
-	public Task getTask(int execServiceId, int facilityId, int engineID) {
-		return taskDao.getTask(execServiceId, facilityId, engineID);
+	public Task getTask(int serviceId, int facilityId, int engineID) {
+		return taskDao.getTask(serviceId, facilityId, engineID);
 	}
 
 	@Override
@@ -85,21 +86,6 @@ public class TaskManagerImpl implements TaskManager {
 	}
 
 	@Override
-	public List<Task> listTasksScheduledBetweenDates(Date olderThen, Date youngerThen, int engineID) {
-		return taskDao.listTasksScheduledBetweenDates(olderThen, youngerThen, engineID);
-	}
-
-	@Override
-	public List<Task> listTasksStartedBetweenDates(Date olderThen, Date youngerThen, int engineID) {
-		return taskDao.listTasksStartedBetweenDates(olderThen, youngerThen, engineID);
-	}
-
-	@Override
-	public List<Task> listTasksEndedBetweenDates(Date olderThen, Date youngerThen, int engineID) {
-		return taskDao.listTasksEndedBetweenDates(olderThen, youngerThen, engineID);
-	}
-
-	@Override
 	public void updateTask(Task task, int engineID) {
 		taskDao.updateTask(task, engineID);
 	}
@@ -115,13 +101,13 @@ public class TaskManagerImpl implements TaskManager {
 	}
 
 	@Override
-	public boolean isThereSuchTask(ExecService execService, Facility facility, int engineID) {
-		return taskDao.isThereSuchTask(execService, facility, engineID);
+	public boolean isThereSuchTask(Service service, Facility facility, int engineID) {
+		return taskDao.isThereSuchTask(service, facility, engineID);
 	}
 
 	@Override
-	public void removeTask(ExecService execService, Facility facility, int engineID) {
-		taskDao.removeTask(execService, facility, engineID);
+	public void removeTask(Service service, Facility facility, int engineID) {
+		taskDao.removeTask(service, facility, engineID);
 	}
 
 	@Override

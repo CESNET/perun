@@ -147,20 +147,9 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 
 		Column<RichService, String> allowedGloballyColumn = JsonUtils.addColumn(new JsonUtils.GetValue<RichService, String>() {
 			public String getValue(RichService object) {
-				String gen = "";
 				String send = "";
-
-				if (object.getGenExecService() != null) {
-					if (object.getGenExecService().isEnabled()==true) {
-						gen = "Allowed";
-					} else {
-						gen = "Denied";
-					}
-				} else {
-					gen = "Not determined";
-				}
-				if (object.getSendExecService() != null) {
-					if (object.getSendExecService().isEnabled()==true) {
+				if (object.getService() != null) {
+					if (object.getService().isEnabled()) {
 						send = "Allowed";
 					} else {
 						send = "Denied";
@@ -168,7 +157,7 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 				} else {
 					send = "Not determined";
 				}
-				return "GENERATE: "+ gen +" SEND: "+ send;
+				return send;
 			}
 		},this.tableFieldUpdater);
 
@@ -320,21 +309,7 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 	}
 
 	private String getAllowedValue(RichService object) {
-
-		String result = "GENERATE: ";
-		if (object.getGenExecService() != null) {
-			result += object.getGenAllowedOnFacility();
-		} else {
-			result += "Not determined";
-		}
-		result += " SEND: ";
-		if (object.getSendExecService() != null) {
-			result += object.getSendAllowedOnFacility();
-		} else {
-			result += "Not determined";
-		}
-		return result;
-
+		return object.getAllowedOnFacility();
 	}
 
 	public MultiSelectionModel<RichService> getSelectionModel() {

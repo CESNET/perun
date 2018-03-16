@@ -666,20 +666,14 @@ public interface ButtonTranslation extends Messages {
 	@DefaultMessage("Remove selected attribute definitions from required by service")
 	String removeSelectedRequiredAttributes();
 
-	@DefaultMessage("Add dependent exec service")
-	String addDependantExecService();
-
-	@DefaultMessage("Remove selected dependent services")
-	String removeSelectedDependantExecServices();
-
-	@DefaultMessage("Add dependent exec service")
-	String createExecService();
-
-	@DefaultMessage("Remove selected dependent services")
-	String deleteSelectedExecServices();
-
 	@DefaultMessage("Filter services by name")
 	String filterServices();
+
+	@DefaultMessage("Edit service details")
+	String editServiceDetails();
+
+	@DefaultMessage("Save changes in service details")
+	String saveServiceDetails();
 
 	/* SERVICE PACKAGES */
 

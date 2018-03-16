@@ -1,57 +1,66 @@
 package cz.metacentrum.perun.dispatcher.model;
 
+import java.util.Objects;
+
 /**
- * 
- * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ * Processing rule.
+ *
+ * @author Michal Karm Babacek
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class ProcessingRule {
 
 	private int id;
 	private String rule;
 
+	/**
+	 * Set rule
+	 *
+	 * @param rule Rule
+	 */
 	public void setRule(String rule) {
 		this.rule = rule;
 	}
 
+	/**
+	 * Get rule
+	 *
+	 * @return Rule
+	 */
 	public String getRule() {
 		return rule;
 	}
 
+	/**
+	 * Set Rule ID
+	 *
+	 * @param id ID to set
+	 */
 	public void setId(int id) {
 		this.id = id;
 	}
 
+	/**
+	 * Get rule ID
+	 *
+	 * @return ID of rule
+	 */
 	public int getId() {
 		return id;
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + id;
-		result = prime * result + ((rule == null) ? 0 : rule.hashCode());
-		return result;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof ProcessingRule)) return false;
+		ProcessingRule that = (ProcessingRule) o;
+		return id == that.id &&
+				Objects.equals(rule, that.rule);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ProcessingRule other = (ProcessingRule) obj;
-		if (id != other.id)
-			return false;
-		if (rule == null) {
-			if (other.rule != null)
-				return false;
-		} else if (!rule.equals(other.rule))
-			return false;
-		return true;
+	public int hashCode() {
+		return Objects.hash(id, rule);
 	}
 
 }

@@ -519,7 +519,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getAttributesManagerBl().setAttribute(sess, f2, GIDNamespaceForFacilities);
 
 		//create new service and assigne it to resources
-		Service s1 = new Service(0, "testService01");
+		Service s1 = new Service(0, "testService01", null);
 		s1 = perun.getServicesManagerBl().createService(sess, s1);
 		perun.getResourcesManagerBl().assignService(sess, r1, s1);
 		perun.getResourcesManagerBl().assignService(sess, r2, s1);

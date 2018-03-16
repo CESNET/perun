@@ -1,243 +1,256 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.PreDestroy;
-
+import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.engine.jms.JMSQueueManager;
+import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
+import cz.metacentrum.perun.engine.scheduling.BlockingBoundedMap;
+import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
+import cz.metacentrum.perun.taskslib.service.TaskStore;
+import cz.metacentrum.perun.taskslib.model.SendTask;
+import cz.metacentrum.perun.taskslib.model.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 
-import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.engine.model.Pair;
-import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
-import cz.metacentrum.perun.engine.scheduling.TaskResultListener;
-import cz.metacentrum.perun.taskslib.model.ExecService;
-import cz.metacentrum.perun.taskslib.model.Task;
-import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
-import cz.metacentrum.perun.taskslib.model.TaskResult;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
+import javax.jms.JMSException;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+
+import static cz.metacentrum.perun.taskslib.model.Task.TaskStatus.*;
 
 @org.springframework.stereotype.Service(value = "schedulingPool")
-// Spring 3.0 default...
-@Scope(value = "singleton")
-public class SchedulingPoolImpl implements SchedulingPool{
-
+public class SchedulingPoolImpl implements SchedulingPool {
 	private final static Logger log = LoggerFactory.getLogger(SchedulingPoolImpl.class);
-
-	private final Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
-	private final Map<Integer, Task> taskIdMap = new ConcurrentHashMap<Integer, Task>();
-
-	/*
-	 * private BufferedWriter out = null; private FileWriter fstream = null;
-	 * 
-	 * @Autowired private TaskExecutor taskExecutorSchedulingPoolSerializer;
-	 * private boolean writerInitialized = false;
-	 */
+	private final ConcurrentMap<Integer, Future<Task>> genTaskFutures = new ConcurrentHashMap<>();
+	private final ConcurrentMap<Integer, ConcurrentMap<Destination, Future<SendTask>>> sendTasks = new ConcurrentHashMap<>();
+	private final ConcurrentMap<Integer, Integer> sendTaskCount = new ConcurrentHashMap<>();
+	private final BlockingDeque<Task> newTasksQueue = new LinkedBlockingDeque<>();
+	private final BlockingDeque<Task> generatedTasksQueue = new LinkedBlockingDeque<>();
+	@Autowired
+	private TaskStore taskStore;
+	@Autowired
+	private JMSQueueManager jmsQueueManager;
 
 	public SchedulingPoolImpl() {
-		for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
-			pool.put(status, new ArrayList<Task>());
-		}
+	}
+
+	public SchedulingPoolImpl(TaskStore taskStore,  JMSQueueManager jmsQueueManager) {
+		this.taskStore = taskStore;
+		this.jmsQueueManager = jmsQueueManager;
+	}
+
+	public Future<Task> addGenTaskFutureToPool(Integer id, Future<Task> taskFuture) {
+		return genTaskFutures.put(id, taskFuture);
 	}
 
 	@Override
-	public int addToPool(Task task) {
-		synchronized (pool) {
-			if (taskIdMap.containsKey(task.getId())) {
-				log.warn("Task already is in the pool " + task.toString());
-				return this.getSize();
-			}
-			taskIdMap.put(task.getId(), task);
-			TaskStatus status = task.getStatus();
-			if (status == null) {
-				task.setStatus(TaskStatus.NONE);
-			}
-			if (!pool.get(task.getStatus()).contains(task)) {
-				pool.get(task.getStatus()).add(task);
-			}
+	public Future<SendTask> addSendTaskFuture(SendTask sendTask, Future<SendTask> sendFuture) {
+		ConcurrentMap<Destination, Future<SendTask>> sendTaskFutures = sendTasks.get(sendTask.getId().getLeft());
+		if(sendTaskFutures == null) {
+			sendTaskFutures = new ConcurrentHashMap<Destination, Future<SendTask>>();
+			sendTasks.put(sendTask.getId().getLeft(), sendTaskFutures);
 		}
-		return this.getSize();
+		sendTaskFutures.putIfAbsent(sendTask.getDestination(), sendFuture);
+		return sendFuture;
 	}
 
 	@Override
-	public List<Task> getPlannedTasks() {
-		synchronized(pool) {
-			return new ArrayList<Task>(pool.get(TaskStatus.PLANNED));
-		}
+	public String getReport() {
+		return "Engine SchedulingPool Task report:\n" +
+				" PLANNED: " + getTasksWithStatus(WAITING) +
+				" GENERATING:" + getTasksWithStatus(GENERATING) +
+				" SENDING:" + getTasksWithStatus(SENDING) +
+				" SENDTASKCOUNT map: " + sendTaskCount.toString();
 	}
 
 	@Override
-	public List<Task> getNewTasks() {
-		synchronized(pool) {
-			return new ArrayList<Task>(pool.get(TaskStatus.NONE));
-		}
+	public Task getTask(int id) {
+		return taskStore.getTask(id);
 	}
 
 	@Override
-	public List<Task> getProcessingTasks() {
-		synchronized(pool) {
-			return new ArrayList<Task>(pool.get(TaskStatus.PROCESSING));
-		}
-	}
-
-	@Override
-	public List<Task> getErrorTasks() {
-		synchronized(pool) {
-			return new ArrayList<Task>(pool.get(TaskStatus.ERROR));
-		}
-	}
-
-	@Override
-	public List<Task> getDoneTasks() {
-		synchronized(pool) {
-			return new ArrayList<Task>(pool.get(TaskStatus.DONE));
-		}
-	}
-
-	@Override
-	public void setTaskStatus(Task task, TaskStatus status) {
-		TaskStatus old = task.getStatus();
-		task.setStatus(status);
-		// move task to the appropriate place
-		synchronized(pool) {
-			if (!old.equals(status)) {
-				if(pool.get(old) != null) {
-					pool.get(old).remove(task);
-				} else {
-					log.warn("Task " + task.getId() + "not known by old status");
-				}
-				if(pool.get(status) != null) {
-					pool.get(status).add(task);
-				} else {
-					log.error("No task pool for status " + status.toString());
-				}
-			}
-		}
+	public Task getTask(Facility facility, Service service) {
+		return taskStore.getTask(facility, service);
 	}
 
 	@Override
 	public int getSize() {
-		/*
-		 * int size = 0; for(TaskStatus status :
-		 * TaskStatus.class.getEnumConstants()) { size +=
-		 * pool.get(status).size(); } return size;
-		 */
-		return taskIdMap.size();
+		return taskStore.getSize();
 	}
 
-	@Override
-	public Task getTaskById(int id) {
-		return taskIdMap.get(id);
-	}
+	/**
+	 * Adds new Task to the SchedulingPool.
+	 * Only newly received Tasks with PLANNED status can be added.
+	 *
+	 * @param task Task that will be added to the pool.
+	 * @return Task that was added to the pool.
+	 */
+	public Task addTask(Task task) throws TaskStoreException {
+		if (task.getStatus() != PLANNED) {
+			throw new IllegalArgumentException("Only Tasks with PLANNED status can be added to SchedulingPool");
+		}
 
-	@Override
-	public void removeTask(Task task) {
-		synchronized (pool) {
-			for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
-				// remove from everywhere, just to be sure
-				List<Task> tasklist = pool.get(status /* task.getStatus() */);
-				if (tasklist != null) {
-					tasklist.remove(task);
-				}
+		Task addedTask = taskStore.addTask(task);
+		if (task.isPropagationForced()) {
+			try {
+				newTasksQueue.putFirst(task);
+			} catch (InterruptedException e) {
+				handleInterruptedException(task, e);
 			}
-			taskIdMap.remove(task.getId());
+		} else {
+			try {
+				newTasksQueue.put(task);
+			} catch (InterruptedException e) {
+				handleInterruptedException(task, e);
+			}
+		}
+		return addedTask;
+	}
+
+	@Override
+	public Collection<Task> getAllTasks() {
+		return taskStore.getAllTasks();
+	}
+
+	@Override
+	public List<Task> getTasksWithStatus(Task.TaskStatus... status) {
+		return taskStore.getTasksWithStatus(status);
+	}
+
+	@Override
+	public Integer addSendTaskCount(int taskId, int count) {
+		return sendTaskCount.put(taskId, count);
+	}
+
+	@Override
+	public Integer decreaseSendTaskCount(int taskId, int decrease) throws TaskStoreException {
+		Integer count = sendTaskCount.get(taskId);
+		if (count == null) {
+			return null;
+		} else if (count <= 1) {
+			Task task = taskStore.getTask(taskId);
+			if (task.getStatus() != SENDERROR) {
+				task.setStatus(DONE);
+			}
+			if(task.getSendEndTime() == null) {
+				task.setSendEndTime(new Date(System.currentTimeMillis()));
+			}
+			try {
+				jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
+			} catch (JMSException e) {
+				log.error("Error while sending final status update for Task with ID {} to Dispatcher", taskId);
+			}
+			removeTask(taskId);
+			return 1;
+		} else {
+			return sendTaskCount.replace(taskId, count - decrease);
 		}
 	}
 
 	@Override
-	@Deprecated
-	public int addToPool(Pair<ExecService, Facility> pair) {
-		/*
-		 * if (!writerInitialized) { initializeWriter(); writerInitialized =
-		 * true; } pool.add(pair); serialize(pair);
-		 */
-		return this.getSize();
+	public BlockingDeque<Task> getNewTasksQueue() {
+		return newTasksQueue;
 	}
 
 	@Override
-	@Deprecated
-	public List<Pair<ExecService, Facility>> emptyPool() {
-		/*
-		 * List<Pair<ExecService, Facility>> toBeReturned = new
-		 * ArrayList<Pair<ExecService, Facility>>(pool);
-		 * log.debug(toBeReturned.size() + " pairs to be returned");
-		 * pool.clear(); close(); initializeWriter(); return toBeReturned;
-		 */
-		return null;
-	}
-
-	/*
-	 * private void serialize(Pair<ExecService, Facility> pair) {
-	 * taskExecutorSchedulingPoolSerializer.execute(new Serializator(pair)); }
-	 * 
-	 * private void initializeWriter() { try { //Do not append, truncate the
-	 * file instead. //You just have to make sure the former content have been
-	 * loaded... fstream = new FileWriter("SchedulingPool.txt", false); } catch
-	 * (IOException e) { log.error(e.toString(), e); } out = new
-	 * BufferedWriter(fstream); }
-	 */
-
-	@PreDestroy
-	@Override
-	@Deprecated
-	public void close() {
-		/*
-		 * log.debug("Closing file writer..."); try { if (out != null) {
-		 * out.flush(); out.close(); } } catch (IOException e) {
-		 * log.error(e.toString(), e); }
-		 */
+	public BlockingDeque<Task> getGeneratedTasksQueue() {
+		return generatedTasksQueue;
 	}
 
 	@Override
-	@Deprecated
-	public void reloadTasks(int engineID) {
-		/*
-		 * this.clearPool();
-		 * 
-		 */
+	public ConcurrentMap<Integer, Future<Task>> getGenTaskFuturesMap() {
+		return genTaskFutures;
 	}
 
-	/* FIXME - if ever used, do not re-assign, but clear final variables
-	private void clearPool() {
-		pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
-		taskIdMap = new ConcurrentHashMap<Integer, Task>();
-		for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
-			pool.put(status, new ArrayList<Task>());
+	@Override
+	public Future<Task> getGenTaskFutureById(int id) {
+		return genTaskFutures.get(id);
+	}
+
+	@Override
+	public Task removeTask(Task task) throws TaskStoreException {
+		return removeTask(task.getId());
+	}
+
+	@Override
+	public Task removeTask(int id) throws TaskStoreException {
+		Task removed = taskStore.removeTask(id);
+		Future<Task> taskFuture = genTaskFutures.get(id);
+		if (taskFuture != null) {
+			taskFuture.cancel(true);
+		}
+		if (removed != null) {
+			cancelSendTasks(id);
+			sendTaskCount.remove(id);
+		}
+		return removed;
+	}
+
+	@Override
+	public void clear() {
+		taskStore.clear();
+		genTaskFutures.clear();
+		sendTasks.clear();
+		sendTaskCount.clear();
+		newTasksQueue.clear();
+		generatedTasksQueue.clear();
+	}
+
+	public Future<SendTask> removeSendTaskFuture(int taskId, Destination destination) throws TaskStoreException {
+		ConcurrentMap<Destination, Future<SendTask>> destinationSendTasks = sendTasks.get(taskId);
+		if (destinationSendTasks != null) {
+			Future<SendTask> removed = destinationSendTasks.remove(destination);
+			if (removed != null) {
+				decreaseSendTaskCount(taskId, 1);
+			}
+			return removed;
+		} else {
+			return null;
 		}
 	}
-	*/
 
-	/*
-	 * class Serializator implements Runnable { private Pair<ExecService,
-	 * Facility> pair = null;
-	 * 
-	 * public Serializator(Pair<ExecService, Facility> pair) { super();
-	 * this.pair = pair; }
-	 * 
-	 * public void run() { if (pair != null && pair.getLeft() != null &&
-	 * pair.getRight() != null) { try { out.write(System.currentTimeMillis() +
-	 * " " + pair.getLeft().getId() + " " + pair.getRight().getId() + "\n");
-	 * out.flush(); } catch (IOException e) { log.error(e.toString(), e); } } }
-	 * }
-	 */
+	private void handleInterruptedException(Task task, InterruptedException e) {
+		String errorMessage = "Thread was interrupted while trying to put Task " + task + " into new Tasks queue.";
+		log.error(errorMessage, e);
+		throw new RuntimeException(errorMessage, e);
+	}
 
-	/*
-	 * public TaskExecutor getTaskExecutorSchedulingPoolSerializer() { return
-	 * taskExecutorSchedulingPoolSerializer; }
-	 * 
-	 * public void setTaskExecutorSchedulingPoolSerializer(TaskExecutor
-	 * taskExecutorSchedulingPoolSerializer) {
-	 * this.taskExecutorSchedulingPoolSerializer =
-	 * taskExecutorSchedulingPoolSerializer; }
-	 */
+	private void cancelSendTasks(int taskId) {
+		//TODO: If SendPlanner is currently planning the Task, we may not cancel all sendTasks
+		ConcurrentMap<Destination, Future<SendTask>> futureSendTasks = sendTasks.get(taskId);
+		if (futureSendTasks == null) {
+			return;
+		}
+		for (Future<SendTask> sendTaskFuture : futureSendTasks.values()) {
+			//TODO: Set the with interrupt parameter to true or not?
+			sendTaskFuture.cancel(true);
+		}
+	}
 
+	// TODO this does not belong here, move it somewhere else
+	@Override
+	public TaskResult createTaskResult (int taskId, int destinationId, String stderr, String stdout, int returnCode,
+	                                    Service service) {
+		TaskResult taskResult = new TaskResult();
+		taskResult.setTaskId(taskId);
+		taskResult.setDestinationId(destinationId);
+		taskResult.setErrorMessage(stderr);
+		taskResult.setStandardMessage(stdout);
+		taskResult.setReturnCode(returnCode);
+		taskResult.setStatus(returnCode == 0 ? TaskResult.TaskResultStatus.DONE : TaskResult.TaskResultStatus.ERROR);
+		taskResult.setTimestamp(new Date(System.currentTimeMillis()));
+		taskResult.setService(service);
+		return taskResult;
+	}
 }

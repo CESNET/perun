@@ -8,44 +8,9 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 	<!-- Import standard app config -->
 	<import resource="classpath:perun-dispatcher.xml"/>
 
-	<!-- Define empty scheduler in order for test context to start
-	     but we don't want scheduled jobs to run in unit/integration tests -->
-	<bean id="perunScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="triggers">
-			<list>
-			</list>
-		</property>
-	</bean>
+	<!--  do not start the whole dispatcher thing just for tests (do not call the init method) -->
+	<bean id="dispatcherManager" class="cz.metacentrum.perun.dispatcher.service.impl.DispatcherManagerImpl"  />
 
-	<!-- FIXME - in case of integration testing run scheduler - most probably obsolete -->
-
-	<beans profile="integration">
-
-		<!-- BEGIN Quartz tasks -->
-		<bean id="maintenanceJob" class="org.springframework.scheduling.quartz.JobDetailBean">
-			<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.MaintenanceJob" />
-			<property name="jobDataAsMap">
-				<map>
-					<entry key="schedulingPool" value-ref="schedulingPool" />
-				</map>
-			</property>
-		</bean>
-
-		<bean id="maintenanceJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-			<property name="jobDetail" ref="maintenanceJob" />
-			<property name="cronExpression" value="${dispatcher.cron.maintenance}" />
-		</bean>
-
-		<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-			<property name="triggers">
-				<list>
-					<!--<ref bean="maintenanceJobTrigger" />-->
-					<!--<ref bean="checkInJobTrigger" /> -->
-				</list>
-			</property>
-		</bean>
-		<!-- END Quartz tasks -->
-
-	</beans>
+	<!-- DO NOT INCLUDE SCHEDULER for test context we don't want scheduled jobs to run in unit tests -->
 
 </beans>

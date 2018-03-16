@@ -2,7 +2,6 @@ package cz.metacentrum.perun.auditparser;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.cabinet.model.Authorship;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
 import static org.junit.Assert.assertEquals;
@@ -42,7 +41,7 @@ public class AuditParserTest {
 	private final Owner owner = new Owner(39, textMismatch, textMismatch, OwnerType.administrative);
 	private final Owner owner1 = new Owner(12, null, textMismatch, null);
 	private final Owner owner2 = new Owner(23, textMismatch, textMismatch, OwnerType.technical);
-	private final Service service = new Service(29, textMismatch);
+	private final Service service = new Service(29, textMismatch, null);
 	private final AttributeDefinition attributeDefinition1 = new AttributeDefinition(getAttributeDefinition1());
 	private final Attribute attribute1 = new Attribute(attributeDefinition1);
 	private final AttributeDefinition attributeDefinition2 = new AttributeDefinition(getAttributeDefinition2());
@@ -61,8 +60,6 @@ public class AuditParserTest {
 	private ResourceTag resourceTag2 = new ResourceTag(8, null, 5);
 	private SecurityTeam securityTeam1 = new SecurityTeam(1, "jmeno", "popis");
 	private SecurityTeam securityTeam2 = new SecurityTeam(2, null, null);
-	private ExecService exService1 = new ExecService();
-	private ExecService exService2 = new ExecService();
 	private TaskResult taskResult1 = new TaskResult();
 	private BanOnResource banOnResource1 = new BanOnResource(3, new Date(), "neco" , 10, 12);
 	private BanOnResource banOnResource2 = new BanOnResource(4, null, null, 10, 12);
@@ -104,12 +101,6 @@ public class AuditParserTest {
 		owners.add(owner2);
 		richFacility = new RichFacility(facility, owners);
 		candidate.setAdditionalUserExtSources(userExtSources);
-		exService1.setId(10);
-		exService1.setService(service);
-		exService1.setExecServiceType(ExecService.ExecServiceType.GENERATE);
-		exService2.setId(20);
-		exService2.setService(null);
-		exService2.setExecServiceType(null);
 		taskResult1.setId(1);
 		taskResult1.setDestinationId(2);
 		taskResult1.setErrorMessage("error");
@@ -317,10 +308,15 @@ public class AuditParserTest {
 		assertEquals(owner.getName(), ((Owner) ownerInList.get(0)).getName());
 
 		//FOR SERVICE
-		Service service = new Service(8, null);
+		Service service = new Service(8, null, null);
 		List<PerunBean> serviceInList = AuditParser.parseLog(service.serializeToString());
 		assertEquals(service.toString(), ((Service) serviceInList.get(0)).toString());
 		assertEquals(service.getName(), ((Service) serviceInList.get(0)).getName());
+		assertEquals(service.getDescription(), ((Service) serviceInList.get(0)).getDescription());
+		assertEquals(service.getDelay(), ((Service) serviceInList.get(0)).getDelay());
+		assertEquals(service.getRecurrence(), ((Service) serviceInList.get(0)).getRecurrence());
+		assertEquals(service.isEnabled(), ((Service) serviceInList.get(0)).isEnabled());
+		assertEquals(service.getScript(), ((Service) serviceInList.get(0)).getScript());
 
 		//FOR ATTRIBUTE DEFINITION
 		AttributeDefinition attributeDefinition1 = new AttributeDefinition(getAttributeDefinition1());
@@ -514,11 +510,6 @@ public class AuditParserTest {
 		assertEquals(authorship1.toString(), ((Authorship) authorship1InList.get(0)).toString());
 		assertEquals(authorship2.toString(), ((Authorship) authorship2InList.get(0)).toString());
 
-		//FOR EXECSERVICE
-		List<PerunBean> execService1InList = AuditParser.parseLog(exService1.serializeToString());
-		List<PerunBean> execService2InList = AuditParser.parseLog(exService2.serializeToString());
-		assertEquals(exService1.toString(), ((ExecService) execService1InList.get(0)).toString());
-		assertEquals(exService2.toString(), ((ExecService) execService2InList.get(0)).toString());
 	}
 
 	@Test
@@ -552,7 +543,6 @@ public class AuditParserTest {
 		assertEquals(vo.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(vo.serializeToString())));
 		assertEquals(userExtSource1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(userExtSource1.serializeToString())));
 		assertEquals(resourceTag1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(resourceTag1.serializeToString())));
-		assertEquals(exService1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(exService1.serializeToString())));
 		assertEquals(securityTeam1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(securityTeam1.serializeToString())));
 		assertEquals(securityTeam2.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(securityTeam2.serializeToString())));
 		assertEquals(taskResult1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(taskResult1.serializeToString())));
@@ -576,13 +566,13 @@ public class AuditParserTest {
 			owner.serializeToString() + service.serializeToString() + attributeDefinition1.serializeToString() +
 			attribute1.serializeToString() + richMember.serializeToString() + richDestination.serializeToString() +
 			richResource.serializeToString() + richUser.serializeToString() + richGroup.serializeToString() +
-			richFacility.serializeToString() + resourceTag1.serializeToString() + exService1.serializeToString() +
+			richFacility.serializeToString() + resourceTag1.serializeToString() +
 			securityTeam1.serializeToString() + taskResult1.serializeToString() + banOnResource1.serializeToString() +
 			banOnResource2.serializeToString() + banOnFacility1.serializeToString()+ banOnFacility2.serializeToString();
 
 		List<PerunBean> perunBeans = new ArrayList<PerunBean>();
 		perunBeans = AuditParser.parseLog(bigLog);
-		assertEquals(29, perunBeans.size());
+		assertEquals(28, perunBeans.size());
 
 		assertTrue(perunBeans.contains(user));
 		assertTrue(perunBeans.contains(attribute1));
@@ -606,7 +596,6 @@ public class AuditParserTest {
 		assertTrue(perunBeans.contains(richGroup));
 		assertTrue(perunBeans.contains(richFacility));
 		assertTrue(perunBeans.contains(resourceTag1));
-		assertTrue(perunBeans.contains(exService1));
 		assertTrue(perunBeans.contains(securityTeam1));
 		assertTrue(perunBeans.contains(taskResult1));
 	}

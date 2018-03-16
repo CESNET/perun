@@ -31,15 +31,10 @@ public class ListBoxWithObjects<T> extends ListBox {
 		// this is a GWT hack - not quite universal, but working
 		if (!value.beanName) {
 			// OLD WAY
-			// execService
 			if (!value.name) {
 				if (!value.user) {
 					if (!value.lastName) {
-						if (!value.description) {
-							if (value.execServiceType) {
-								return value.service.name + " " + value.execServiceType;
-							}
-						} else {
+						if (value.description) {
 							return "(" + value.id + ") " + value.description;
 						}
 					}
@@ -125,8 +120,6 @@ public class ListBoxWithObjects<T> extends ListBox {
 				}
 				return result;
 
-			} else if (value.beanName == "ExecService") {
-				return value.service.name + " " + value.execServiceType;
 			} else if (value.beanName == "AttributeDefinition") {
 				return value.displayName;
 			} else if (value.beanName == "Publication") {

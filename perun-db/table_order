@@ -15,7 +15,6 @@ facility_contacts
 members
 members_sponsored
 routing_rules
-dispatcher_settings
 engines
 engine_routing_rule
 processing_rules
@@ -38,9 +37,7 @@ facilities_bans
 service_processing_rule
 service_required_attrs
 specific_user_users
-exec_services
 service_denials
-service_dependencies
 resource_services
 application
 application_form

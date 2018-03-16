@@ -1,73 +1,99 @@
 package cz.metacentrum.perun.dispatcher.model;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
- * 
- * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ * Event object is used to pass audited events from Perun to Dispatcher through EventQueue.
+ *
+ * @see cz.metacentrum.perun.dispatcher.processing.AuditerListener
+ * @see cz.metacentrum.perun.dispatcher.processing.EventProcessor
+ * @see cz.metacentrum.perun.dispatcher.processing.EventQueue
+ *
+ * @author Michal Karm Babacek
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class Event {
+
 	private String header;
 	private String data;
 	private long timeStamp;
 
+	/**
+	 * Get event data
+	 *
+	 * @return event data
+	 */
 	public String getData() {
 		return data;
 	}
 
+	/**
+	 * Set event data
+	 *
+	 * @param data event data
+	 */
 	public void setData(String data) {
 		this.data = data;
 	}
 
+	/**
+	 * Set event timestamp
+	 *
+	 * @param timeStamp timestamp
+	 */
 	public void setTimeStamp(long timeStamp) {
 		this.timeStamp = timeStamp;
 	}
 
+	/**
+	 * Get event timestamp
+	 *
+	 * @return timestamp
+	 */
 	public long getTimeStamp() {
 		return timeStamp;
 	}
 
+	/**
+	 * Set event header
+	 *
+	 * @param header header
+	 */
 	public void setHeader(String header) {
 		this.header = header;
 	}
 
+	/**
+	 * Get event header
+	 *
+	 * @return header
+	 */
 	public String getHeader() {
 		return header;
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((data == null) ? 0 : data.hashCode());
-		result = prime * result + (int) (timeStamp ^ (timeStamp >>> 32));
-		return result;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Event)) return false;
+		Event event = (Event) o;
+		return timeStamp == event.timeStamp &&
+				Objects.equals(header, event.header) &&
+				Objects.equals(data, event.data);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Event other = (Event) obj;
-		if (data == null) {
-			if (other.data != null)
-				return false;
-		} else if (!data.equals(other.data))
-			return false;
-		if (timeStamp != other.timeStamp)
-			return false;
-		return true;
+	public int hashCode() {
+		return Objects.hash(header, data, timeStamp);
 	}
 
 	@Override
 	public String toString() {
-		return "[" + (new Date(timeStamp)).toString() + "][" + header + "]["
-				+ data + "]";
+		StringBuilder str = new StringBuilder();
+		str.append("[").append(new Date(timeStamp).toString())
+				.append("][").append(header).append("][").append(data).append("]");
+		return str.toString();
 	}
 
 }

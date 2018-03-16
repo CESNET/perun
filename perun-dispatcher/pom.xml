@@ -15,7 +15,7 @@
 	<packaging>jar</packaging>
 
 	<name>perun-dispatcher</name>
-	<description></description>
+	<description>Module for service provisioning/deprovisioning planning.</description>
 
 	<properties>
 		<!-- custom properties for all profiles -->
@@ -74,9 +74,16 @@
 		<!-- PERUN -->
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-controller</artifactId>
+			<artifactId>perun-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-tasks-lib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 
 		<!-- TESTS -->
 
@@ -102,11 +109,6 @@
 		</dependency>
 
 		<!-- OTHERS -->
-
-		<dependency>
-			<groupId>org.quartz-scheduler</groupId>
-			<artifactId>quartz</artifactId>
-		</dependency>
 
 		<!-- HORNET-Q  -->
 

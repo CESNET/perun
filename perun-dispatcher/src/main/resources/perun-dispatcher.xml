@@ -32,20 +32,24 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	</tx:advice>
 
 	<!-- THIS BEAN STARTS THE WHOLE DISPATCHER COMPONENT -->
-	<bean id="dispatcherStarter" class="cz.metacentrum.perun.dispatcher.main.DispatcherStarter" init-method="init"/>
+	<bean id="dispatcherManager" class="cz.metacentrum.perun.dispatcher.service.impl.DispatcherManagerImpl" init-method="init" />
 
 	<!-- Beans -->
 	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="10"/>
-		<property name="maxPoolSize" value="50"/>
-		<property name="queueCapacity" value="100"/>
+		<property name="corePoolSize" value="0" />
+		<property name="maxPoolSize" value="50" />
+		<property name="queueCapacity" value="0" />
 	</bean>
+
+	<bean id="taskStore" class="cz.metacentrum.perun.taskslib.service.impl.TaskStoreImpl"/>
+
+	<bean id="taskManager" class="cz.metacentrum.perun.taskslib.service.impl.TaskManagerImpl"/>
+
+	<!-- Task Queues -->
+	<bean id="waitingTasksQueue" class="java.util.concurrent.DelayQueue"/>
+	<bean id="waitingForcedTasksQueue" class="java.util.concurrent.DelayQueue"/>
 
 	<!-- DAOs -->
-	<bean id="dispatcherDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.DispatcherDaoJdbc">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
-
 	<bean id="rulesDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.RulesDaoJdbc">
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
@@ -53,66 +57,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<bean id="processingRuleDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.ProcessingRuleDaoJdbc">
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
-
-	<!-- Quartz jobs definition - they are not started unless perun-dispatcher-scheduler.xml is imported to context -->
-
-	<bean id="maintenanceJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.MaintenanceJob"/>
-		<property name="jobDataAsMap">
-			<map>
-				<entry key="schedulingPool" value-ref="schedulingPool"/>
-			</map>
-		</property>
-	</bean>
-
-	<bean id="maintenanceJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-		<property name="jobDetail" ref="maintenanceJob"/>
-		<property name="cronExpression" value="${dispatcher.cron.maintenance}"/>
-	</bean>
-
-	<bean id="propagationMaintainerJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.PropagationMaintainerJob"/>
-		<property name="jobDataAsMap">
-			<map>
-				<entry key="propagationMaintainer" value-ref="propagationMaintainer"/>
-			</map>
-		</property>
-	</bean>
-
-	<bean id="propagationMaintainerJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-		<property name="jobDetail" ref="propagationMaintainerJob"/>
-		<property name="cronExpression" value="${dispatcher.cron.propagation}"/>
-	</bean>
-
-	<bean id="processPoolJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.ProcessPoolJob"/>
-		<property name="jobDataAsMap">
-			<map>
-				<entry key="taskScheduler" value-ref="taskScheduler"/>
-			</map>
-		</property>
-	</bean>
-
-	<bean id="processPoolJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-		<property name="jobDetail" ref="processPoolJob"/>
-		<property name="cronExpression" value="${dispatcher.cron.processpool}"/>
-	</bean>
-
-	<bean id="cleanTaskResultsJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.CleanTaskResultsJob"/>
-		<property name="jobDataAsMap">
-			<map>
-				<entry key="dispatcherManager" value-ref="dispatcherManager"/>
-			</map>
-		</property>
-	</bean>
-
-	<bean id="cleanTaskResultsJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-		<property name="jobDetail" ref="cleanTaskResultsJob"/>
-		<property name="cronExpression" value="${dispatcher.cron.cleantaskresults}"/>
-	</bean>
-
-	<!-- END of quartz jobs definition -->
 
 	<!-- Dispatcher properties -->
 
@@ -123,12 +67,12 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 				<prop key="perun.principal.name">perunDispatcher</prop>
 				<prop key="perun.principal.extSourceName">INTERNAL</prop>
 				<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-				<prop key="dispatcher.cron.propagation">45 0/2 * * * ?</prop>
-				<prop key="dispatcher.cron.processpool">0 0/1 * * * ?</prop>
 				<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
 				<prop key="dispatcher.cron.maintenance">0 0 0/2 * * ?</prop>
 				<prop key="dispatcher.ip.address">127.0.0.1</prop>
 				<prop key="dispatcher.port">6071</prop>
+				<prop key="dispatcher.task.delay.time">30000</prop>
+				<prop key="dispatcher.task.delay.count">4</prop>
 				<prop key="dispatcher.datadir">/tmp/perun-dispatcher-data</prop>
 			</props>
 		</property>

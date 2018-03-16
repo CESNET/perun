@@ -41,15 +41,10 @@ public class EngineStarter {
 			engineStarter.springCtx.registerShutdownHook();
 			// Yes, we do this in the main thread because we do want to carry
 			// this initial steps out sequentially.
-			// FIXME - We can't reload pool from file since ExecService, Service and Facility are missing
-			// FIXME in local DB but are required by mapper when selecting Task.
-			// engineStarter.engineManager.loadSchedulingPool();
-			//log.info("Gonna loadSchedulingPool from file.");
-			log.info("Gonna start Messaging...");
+			log.info("Gonna start Messaging.");
 			engineStarter.engineManager.startMessaging();
-			// FIXME - There is not reason to switch Tasks in local pool because of above FIXME.
-			//log.info("Gonna switch all the unfinished Tasks to ERROR...");
-			//engineStarter.engineManager.switchUnfinishedTasksToERROR();
+			log.info("Starting the runners.");
+			engineStarter.engineManager.startRunnerThreads();
 			log.info("Done. Perun-Engine has started.");
 			System.out.println("Done. Perun-Engine has started.");
 			if (SplashScreen.getSplashScreen() != null) {
@@ -58,7 +53,8 @@ public class EngineStarter {
 		} catch (HeadlessException e) {
 			// Doesn't matter... (We can't show splash screen on a server :-))
 		} catch (Exception e) {
-			log.error("Error: {}" , e);
+			System.out.println("Can't start Perun-Engine: " + e);
+			log.error("Can't start Perun-Engine: {}" , e);
 		}
 	}
 

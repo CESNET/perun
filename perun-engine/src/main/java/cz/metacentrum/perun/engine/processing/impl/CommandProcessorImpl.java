@@ -1,17 +1,12 @@
 package cz.metacentrum.perun.engine.processing.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.metacentrum.perun.engine.exceptions.UnknownCommandException;
 import cz.metacentrum.perun.engine.model.Command;
 import cz.metacentrum.perun.engine.processing.CommandProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * 
- * @author Michal Karm Babacek JavaDoc coming soon...
- * 
- */
+
 @org.springframework.stereotype.Service(value = "commandProcessor")
 public class CommandProcessorImpl implements CommandProcessor {
 
@@ -24,20 +19,16 @@ public class CommandProcessorImpl implements CommandProcessor {
 		String commandString = command.trim().toUpperCase();
 
 		if (commandString.equals(Command.SEND_STATS)) {
-			log.debug("Command [" + Command.SEND_STATS + "] [" + command
-					+ "] received into CommandProcessor.");
+			log.debug("Command [{}] [{}] received into CommandProcessor.", Command.SEND_STATS, command);
 
 		} else if (commandString.equals(Command.REFRESH_PROCESSING_RULES)) {
-			log.debug("Command [" + Command.REFRESH_PROCESSING_RULES + "] ["
-					+ command + "] received into CommandProcessor.");
+			log.debug("Command [{}] [{}] received into CommandProcessor.", Command.REFRESH_PROCESSING_RULES, command);
 
 		} else if (commandString.equals(Command.SWITCH_OFF)) {
-			log.debug("Command [" + Command.SWITCH_OFF + "] [" + command
-					+ "] received into CommandProcessor.");
+			log.debug("Command [{}] [{}] received into CommandProcessor.", Command.SWITCH_OFF, command);
 
 		} else if (commandString.equals(Command.FORCE_SERVICE_PROPAGATION)) {
-			log.debug("Command [" + Command.FORCE_SERVICE_PROPAGATION + "] ["
-					+ command + "] received into CommandProcessor.");
+			log.debug("Command [{}] [{}] received into CommandProcessor.", Command.FORCE_SERVICE_PROPAGATION, command);
 
 		} else {
 			throw new UnknownCommandException(commandString);

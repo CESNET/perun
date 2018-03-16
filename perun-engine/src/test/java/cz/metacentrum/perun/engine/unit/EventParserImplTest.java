@@ -32,14 +32,14 @@ public class EventParserImplTest extends AbstractEngineTest {
 	public void parseEventTest() throws Exception {
 		System.out.println("EventParserImpl.parseEventTest");
 
-		String testEvent = "task|"+engineId+"|[" + task1.getId() + "][false]|[" 
-				+ task1.getExecService().serializeToString() + "]|["
+		String testEvent = "task|"+engineId+"|[" + task1.getId() + "][false]|["
+				+ task1.getService().serializeToString() + "]|["
 				+ task1.getFacility().serializeToString() + "]|[Destinations [";
 
 		for (Destination destination : task1.getDestinations()) {
 			testEvent = testEvent.concat(destination.serializeToString() + ", ");
 		}
-		testEvent = testEvent.concat("]]|[]");
+		testEvent = testEvent.concat("]]");
 
 		Task task2 = eventParser.parseEvent(testEvent);
 
