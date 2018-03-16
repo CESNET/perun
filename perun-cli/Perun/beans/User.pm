@@ -183,7 +183,6 @@ sub isServiceUser
 }
 
 sub setServiceUser
-sub setServiceUser
 {
 	my $self = shift;
 	my $value = shift;
