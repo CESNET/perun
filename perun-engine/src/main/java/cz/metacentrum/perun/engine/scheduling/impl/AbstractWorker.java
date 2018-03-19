@@ -9,8 +9,14 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * Common implementation of EngineWorker interface. Represents Thread, which is started by BlockingCompletionService.
+ * Own worker is created for each GEN/SEND part of processing the Task.
  *
+ * @see cz.metacentrum.perun.engine.scheduling.BlockingCompletionService
+ * @see GenWorkerImpl
+ * @see SendWorkerImpl
  *
+ * @author David Šarman
  */
 public abstract class AbstractWorker<V> implements EngineWorker<V> {
 
@@ -33,14 +39,29 @@ public abstract class AbstractWorker<V> implements EngineWorker<V> {
 		this.directory = directory;
 	}
 
+	/**
+	 * Get return code of the script represented by this worker.
+	 *
+	 * @return return code of the script
+	 */
 	public Integer getReturnCode() {
 		return returnCode;
 	}
 
+	/**
+	 * Get STDOUT of the script represented by this worker.
+	 *
+	 * @return STDOUT of the script
+	 */
 	public String getStdout() {
 		return (stdout == null) ? "" : stdout;
 	}
 
+	/**
+	 * Get STDERR of the script represented by this worker.
+	 *
+	 * @return STDERR of the script
+	 */
 	public String getStderr() {
 		return (stderr == null) ? "" : stderr;
 	}

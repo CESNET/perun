@@ -8,11 +8,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
 
+/**
+ * Implementation of BlockingBoundedMap<K,V> using ConcurrentHashMap and Semaphore.
+ * Allow holding only specified number of keys. Any thread waits on blockingPut() call if full.
+ *
+ * Used to hold currently executing tasks in Engine.
+ *
+ * @see BlockingBoundedMap
+ * @see Semaphore
+ *
+ * @param <K> key class
+ * @param <V> value class
+ */
 public class BlockingBoundedHashMap<K, V> implements BlockingBoundedMap<K, V> {
 
 	private ConcurrentMap<K, V> map = new ConcurrentHashMap<>();
 	private Semaphore semaphore;
 
+	/**
+	 * Create new BlockingBoundedHashMap with specified size limit.
+	 *
+	 * @param limit Number of allowed keys
+	 */
 	public BlockingBoundedHashMap(int limit) {
 		semaphore = new Semaphore(limit);
 	}
@@ -38,4 +55,5 @@ public class BlockingBoundedHashMap<K, V> implements BlockingBoundedMap<K, V> {
 	public Collection<V> values() {
 		return map.values();
 	}
+
 }

@@ -7,6 +7,11 @@ import java.io.InputStreamReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Represents Thread, which waits for script STDOUT and STDERR for both GenWorker and SendWorker.
+ *
+ * @author Michal Voců
+ */
 class StreamGobbler extends Thread {
 
 	private InputStream is;
@@ -24,6 +29,7 @@ class StreamGobbler extends Thread {
 		return sb.toString();
 	}
 
+	@Override
 	public void run() {
 		BufferedReader br = null;
 		try {
@@ -46,4 +52,5 @@ class StreamGobbler extends Thread {
 			}
 		}
 	}
+
 }
