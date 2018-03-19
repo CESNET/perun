@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
-import java.util.Date;
 import java.util.concurrent.BlockingDeque;
 
 import static cz.metacentrum.perun.taskslib.model.Task.TaskStatus.GENERROR;
@@ -73,6 +72,10 @@ public class GenCollector extends AbstractRunner {
 				} catch (TaskStoreException e1) {
 					log.error("Could not remove Task with id {} from SchedulingPool", id, e1);
 				}
+			} catch (Throwable ex) {
+				// FIXME - we should probably remove tasks, but which ones ?
+				// FIXME - if genCompletionService is not emptied, limit is reached and no new service propagation is started !!
+				log.error("Unexpected exception in GenCollector thread: {}.", ex);
 			}
 		}
 	}

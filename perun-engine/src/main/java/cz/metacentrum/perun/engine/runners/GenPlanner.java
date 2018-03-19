@@ -64,6 +64,9 @@ public class GenPlanner extends AbstractRunner {
 				String errorStr = "Thread executing GEN tasks was interrupted.";
 				log.error(errorStr, e);
 				throw new RuntimeException(errorStr, e);
+			} catch (Throwable ex) {
+				// FIXME - what to do ?
+				log.error("Unexpected exception in GenPlanner thread: {}.", ex);
 			}
 		}
 	}

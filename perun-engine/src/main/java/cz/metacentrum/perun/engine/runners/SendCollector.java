@@ -83,6 +83,10 @@ public class SendCollector extends AbstractRunner {
 				stdout = e.getStdout();
 				returnCode = e.getReturnCode();
 				service = task.getService();
+			} catch (Exception ex) {
+				log.error("Unexpected exception in SendCollector thread: {}.", ex);
+				// TODO - determine, what should be done since we might not get TaskID here
+				throw ex;
 			}
 			Task task = schedulingPool.getTask(taskId);
 
