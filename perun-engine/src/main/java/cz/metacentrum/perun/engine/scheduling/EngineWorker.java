@@ -25,7 +25,7 @@ public interface EngineWorker<V> extends Callable<V> {
 	/**
 	 * Set Directory to look for scripts
 	 *
-	 * @param directory
+	 * @param directory Directory to look for scripts
 	 */
 	void setDirectory(File directory);
 

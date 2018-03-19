@@ -14,20 +14,33 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.concurrent.*;
 
+/**
+ * Implementation of BlockingCompletionService<Task> for generating Tasks in Engine.
+ * Tasks are managed by separate threads GenPlanner and GenCollector.
+ *
+ * @see BlockingCompletionService
+ * @see GenWorker
+ * @see GenWorkerImpl
+ * @see cz.metacentrum.perun.engine.runners.GenPlanner
+ * @see cz.metacentrum.perun.engine.runners.GenCollector
+ *
+ * @author David Šarman
+ */
 public class BlockingGenExecutorCompletionService implements BlockingCompletionService<Task> {
-	private final static Logger log = LoggerFactory
-			.getLogger(BlockingGenExecutorCompletionService.class);
+
+	private final static Logger log = LoggerFactory.getLogger(BlockingGenExecutorCompletionService.class);
 	private CompletionService<Task> completionService;
 	@Autowired
 	@Qualifier("generatingTasks")
 	private BlockingBoundedMap<Integer, Task> executingTasks;
 
+	/**
+	 * Create new blocking CompletionService for GEN Tasks with specified limit
+	 *
+	 * @param limit Limit for processing GEN Tasks
+	 */
 	public BlockingGenExecutorCompletionService(int limit) {
-		this(Executors.newFixedThreadPool(limit), new LinkedBlockingQueue(), limit);
-	}
-
-	public BlockingGenExecutorCompletionService(Executor executor, BlockingQueue blockingQueue, int limit) {
-		completionService = new ExecutorCompletionService<>(executor, blockingQueue);
+		completionService = new ExecutorCompletionService<Task>(Executors.newFixedThreadPool(limit), new LinkedBlockingQueue<Future<Task>>());
 	}
 
 	@Override
@@ -37,6 +50,7 @@ public class BlockingGenExecutorCompletionService implements BlockingCompletionS
 		return completionService.submit(genWorker);
 	}
 
+	@Override
 	public Task blockingTake() throws InterruptedException, TaskExecutionException {
 		Future<Task> taskFuture = completionService.take();
 		try {

@@ -15,21 +15,34 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.concurrent.*;
 
-
+/**
+ * Implementation of BlockingCompletionService<SendTask> for sending Tasks in Engine.
+ * (SendTask is inner representation of <Task,Destination>)
+ * Tasks are managed by separate threads SendPlanner and SendCollector.
+ *
+ * @see BlockingCompletionService
+ * @see SendWorker
+ * @see SendWorkerImpl
+ * @see cz.metacentrum.perun.engine.runners.SendPlanner
+ * @see cz.metacentrum.perun.engine.runners.SendCollector
+ *
+ * @author David Šarman
+ */
 public class BlockingSendExecutorCompletionService implements BlockingCompletionService<SendTask> {
-	private final static Logger log = LoggerFactory
-			.getLogger(BlockingSendExecutorCompletionService.class);
+
+	private final static Logger log = LoggerFactory.getLogger(BlockingSendExecutorCompletionService.class);
 	private CompletionService<SendTask> completionService;
 	@Autowired
 	@Qualifier("sendingSendTasks")
 	private BlockingBoundedMap<Pair<Integer, Destination>, SendTask> executingTasks;
 
+	/**
+	 * Create new blocking CompletionService for SEND Tasks with specified limit
+	 *
+	 * @param limit Limit for processing SEND Tasks
+	 */
 	public BlockingSendExecutorCompletionService(int limit) {
-		this(Executors.newFixedThreadPool(limit), new LinkedBlockingQueue(), limit);
-	}
-
-	public BlockingSendExecutorCompletionService(Executor executor, BlockingQueue blockingQueue, int limit) {
-		completionService = new ExecutorCompletionService<>(executor, blockingQueue);
+		completionService = new ExecutorCompletionService<SendTask>(Executors.newFixedThreadPool(limit), new LinkedBlockingQueue<Future<SendTask>>());
 	}
 
 	@Override
@@ -39,6 +52,7 @@ public class BlockingSendExecutorCompletionService implements BlockingCompletion
 		return completionService.submit(sendWorker);
 	}
 
+	@Override
 	public SendTask blockingTake() throws InterruptedException, TaskExecutionException {
 		Future<SendTask> taskFuture = completionService.take();
 		try {
