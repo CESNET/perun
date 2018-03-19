@@ -56,13 +56,13 @@ public class SendWorkerImpl extends AbstractWorker<SendTask> implements SendWork
 				sendTask.setStderr("");
 				sendTask.setReturnCode(0);
 				sendTask.setEndTime(new Date(System.currentTimeMillis()));
-				
+
 				log.info("[{}] SEND worker skipped for dummy destination for Task.",
 						new Object[]{sendTask.getTask().getId()});
 
 				sendTask.setStatus(SENT);
 				return sendTask;
-			} 
+			}
 
 			// start the script and wait for results
 			super.execute(pb);

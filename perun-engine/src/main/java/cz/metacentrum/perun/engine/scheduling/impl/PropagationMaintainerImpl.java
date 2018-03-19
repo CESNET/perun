@@ -37,7 +37,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	private BlockingBoundedHashMap<Integer, Task> generatingTasks;
 	@Autowired
 	private BlockingBoundedHashMap<Pair<Integer, Destination>, SendTask> sendingSendTasks;
-	
+
 	private SchedulingPool schedulingPool;
 	private JMSQueueManager jmsQueueManager;
 
@@ -69,7 +69,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		for (Task task : generatingTasks.values()) {
 			Date startTime = task.getGenStartTime();
 			int howManyMinutesAgo = 0;
-			if(startTime != null) { 
+			if(startTime != null) {
 				howManyMinutesAgo = (int) (System.currentTimeMillis() - startTime.getTime()) / 1000 / 60;
 			}
 			// If too much time has passed something is broken
@@ -94,14 +94,14 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 							sendTask.getId().getLeft(), sendTask.getId().getRight());
 				} catch (TaskStoreException e) {
 					log.error("Failed during removal of SendTaskFuture {} from SchedulingPool", sendTaskFuture);
-				}	
+				}
 				if (sendTaskFuture == null) {
 					log.error("Stale SendTask {} was not removed.", sendTask);
 				}
 				TaskResult taskResult = null;
 				try {
 					taskResult = schedulingPool.createTaskResult(sendTask.getId().getLeft(),
-							sendTask.getDestination().getId(), 
+							sendTask.getDestination().getId(),
 							sendTask.getStderr(), sendTask.getStdout(),
 							sendTask.getReturnCode(), sendTask.getTask().getService());
 					jmsQueueManager.reportTaskResult(taskResult);
@@ -111,13 +111,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 			}
 		}
-		
+
 		// check all known tasks
 		Collection<Task> allTasks = schedulingPool.getAllTasks();
 		if(allTasks == null) {
 			return;
 		}
-		
+
 		for(Task task : allTasks) {
 			switch(task.getStatus()) {
 			case PLANNED:
@@ -133,13 +133,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					}
 				}
 				break;
-			
+
 			case GENERATING:
 				// this is basically the same check as for the generating tasks above,
 				// but now for tasks missing in generatingTasks collection
 				Date startTime = task.getGenStartTime();
 				int howManyMinutesAgo = 0;
-				if(startTime != null) { 
+				if(startTime != null) {
 					howManyMinutesAgo = (int) (System.currentTimeMillis() - startTime.getTime()) / 1000 / 60;
 				}
 				// If too much time has passed something is broken
@@ -148,18 +148,18 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					abortTask(task, TaskStatus.GENERROR);
 				}
 				break;
-				
+
 			case SENDING:
 				break;
 
 			case SENDERROR:
 				Date endTime = task.getSendEndTime();
 				howManyMinutesAgo = 0;
-				if(endTime != null) { 
+				if(endTime != null) {
 					howManyMinutesAgo = (int) (System.currentTimeMillis() - endTime.getTime()) / 1000 / 60;
 				}
 				// If too much time has passed something is broken
-				if(endTime == null || howManyMinutesAgo >= rescheduleTime) { 
+				if(endTime == null || howManyMinutesAgo >= rescheduleTime) {
 					abortTask(task, TaskStatus.SENDERROR);
 				}
 				break;
@@ -172,11 +172,11 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 				// should be taken by SendPlanner or reported
 				endTime = task.getGenEndTime();
 				howManyMinutesAgo = 0;
-				if(endTime != null) { 
+				if(endTime != null) {
 					howManyMinutesAgo = (int) (System.currentTimeMillis() - endTime.getTime()) / 1000 / 60;
 				}
 				// If too much time has passed something is broken
-				if((endTime == null || howManyMinutesAgo >= rescheduleTime) && 
+				if((endTime == null || howManyMinutesAgo >= rescheduleTime) &&
 						!schedulingPool.getGeneratedTasksQueue().contains(task)) {
 					abortTask(task, TaskStatus.GENERROR);
 				}
@@ -201,7 +201,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 				abortTask(task, TaskStatus.ERROR);
 			}
 		}
-	}	
+	}
 
 
 	private void abortTask(Task task, TaskStatus status) {
@@ -223,6 +223,6 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		} catch (JMSException e) {
 			log.warn("Error trying to send {} to Dispatcher: {}", task, e);
 		}
-		
+
 	}
 }

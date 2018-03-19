@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
 import java.util.Date;
+import java.util.concurrent.Future;
 
 import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENT;
 
@@ -51,20 +52,20 @@ public class SendCollector extends AbstractRunner {
 		while (!shouldStop()) {
 			Task.TaskStatus status = Task.TaskStatus.SENDERROR;
 			int taskId;
-			int destinationId;
 			String stderr;
 			String stdout;
 			int returnCode;
 			Service service;
 			log.debug(schedulingPool.getReport());
 			SendTask sendTask = null;
+			Destination destination = null;
 			try {
 				sendTask = sendCompletionService.blockingTake();
 				status = null;
 				taskId = sendTask.getId().getLeft();
 				sendTask.setStatus(SENT);
 				sendTask.setEndTime(new Date(System.currentTimeMillis()));
-				destinationId = sendTask.getDestination().getId();
+				destination = sendTask.getDestination();
 				stderr = sendTask.getStderr();
 				stdout = sendTask.getStdout();
 				returnCode = sendTask.getReturnCode();
@@ -74,11 +75,12 @@ public class SendCollector extends AbstractRunner {
 				log.error(errorStr);
 				throw new RuntimeException(errorStr, e);
 			} catch (TaskExecutionException e) {
+				log.error("Execution exception: {}", e);
 				Pair<Integer, Destination> id = (Pair<Integer, Destination>) e.getId();
 				Task task = schedulingPool.getTask(id.getLeft());
 				log.warn("Error occurred while sending {} to destination {}", task, id.getRight());
 				taskId = task.getId();
-				destinationId = id.getRight().getId();
+				destination = id.getRight();
 				stderr = e.getStderr();
 				stdout = e.getStdout();
 				returnCode = e.getReturnCode();
@@ -92,11 +94,11 @@ public class SendCollector extends AbstractRunner {
 
 			try {
 				log.debug("TESTSTR --> Sending TaskResult: taskid {}, destionationId {}, stderr {}, stdout {}, " +
-						"returnCode {}, service {}", new Object[]{taskId, destinationId, stderr, stdout, returnCode, service});
-				jmsQueueManager.reportTaskResult(schedulingPool.createTaskResult(taskId, destinationId, stderr, stdout,
+						"returnCode {}, service {}", new Object[]{taskId, destination.getId(), stderr, stdout, returnCode, service});
+				jmsQueueManager.reportTaskResult(schedulingPool.createTaskResult(taskId, destination.getId(), stderr, stdout,
 						returnCode, service));
 			} catch (JMSException e1) {
-				jmsErrorLog(taskId, destinationId);
+				jmsErrorLog(taskId, destination.getId());
 			}
 
 			if (status != null) {
@@ -104,10 +106,8 @@ public class SendCollector extends AbstractRunner {
 				task.setSendEndTime(new Date(System.currentTimeMillis()));
 			}
 			try {
-				// schedulingPool.decreaseSendTaskCount(taskId, 1);
-				if(sendTask != null) {
-					schedulingPool.removeSendTaskFuture(taskId, sendTask.getDestination());
-				}
+				//schedulingPool.decreaseSendTaskCount(taskId, 1);
+				schedulingPool.removeSendTaskFuture(taskId, destination);
 			} catch (TaskStoreException e) {
 				log.error("Task {} could not be removed from SchedulingPool", e);
 			}
