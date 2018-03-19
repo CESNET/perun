@@ -210,12 +210,17 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	public Future<SendTask> removeSendTaskFuture(int taskId, Destination destination) throws TaskStoreException {
 		ConcurrentMap<Destination, Future<SendTask>> destinationSendTasks = sendTasks.get(taskId);
 		if (destinationSendTasks != null) {
+			log.debug("[{}] Removing SendTask futures for destination {}", taskId, destination);
 			Future<SendTask> removed = destinationSendTasks.remove(destination);
 			if (removed != null) {
+				log.debug("[{}] Lowering SendTask future counts for destination {}", taskId, destination);
 				decreaseSendTaskCount(taskId, 1);
+			} else {
+				log.debug("[{}] SendTask future hadn't had future for destination: {}", taskId, destination);
 			}
 			return removed;
 		} else {
+			log.debug("[{}] SendTask future hadn't had any destination for: {}", taskId, taskId);
 			return null;
 		}
 	}
