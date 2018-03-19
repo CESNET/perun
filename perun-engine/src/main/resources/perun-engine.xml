@@ -47,11 +47,11 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     </bean>
 
     <bean id="generatingTasks" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingBoundedHashMap">
-        <constructor-arg value="10"/>
+        <constructor-arg value="${engine.thread.gentasks.max}"/>
     </bean>
 
     <bean id="sendingSendTasks" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingBoundedHashMap">
-        <constructor-arg value="100"/>
+        <constructor-arg value="${engine.thread.sendtasks.max}"/>
     </bean>
 
     <bean id="taskStore" class="cz.metacentrum.perun.taskslib.service.impl.TaskStoreImpl"/>
@@ -59,11 +59,11 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <bean id="schedulingPool" class="cz.metacentrum.perun.engine.scheduling.impl.SchedulingPoolImpl"/>
 
     <bean id="genCompletionService" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingGenExecutorCompletionService">
-        <constructor-arg value="10"/>
+        <constructor-arg value="${engine.thread.gentasks.max}"/>
     </bean>
 
     <bean id="sendCompletionService" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingSendExecutorCompletionService">
-        <constructor-arg value="100"/>
+        <constructor-arg value="${engine.thread.sendtasks.max}"/>
     </bean>
 
     <!-- Runners -->
@@ -78,7 +78,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 
 
     <!-- PROPERTIES  -->
-	
+
 	<bean id="defaultProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="properties">
 			<props>
