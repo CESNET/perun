@@ -32,20 +32,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		-->
     </bean>
 
-    <!-- for force propagation  now it is unused -->
-    <bean id="taskExecutorEventProcessor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="3" />
-        <property name="maxPoolSize" value="3" />
-        <property name="queueCapacity" value="1000" />
-    </bean>
-
-    <bean id="taskExecutorSchedulingPoolSerializer" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <!-- TODO put better values here -->
-        <property name="corePoolSize" value="5" />
-        <property name="maxPoolSize" value="5" />
-        <property name="queueCapacity" value="1000" />
-    </bean>
-
     <bean id="generatingTasks" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingBoundedHashMap">
         <constructor-arg value="${engine.thread.gentasks.max}"/>
     </bean>
