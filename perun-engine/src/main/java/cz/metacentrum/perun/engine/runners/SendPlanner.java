@@ -93,6 +93,8 @@ public class SendPlanner extends AbstractRunner {
 				String errorStr = "Thread planning SendTasks was interrupted.";
 				log.error(errorStr);
 				throw new RuntimeException(errorStr, e);
+			} catch (Throwable ex) {
+				log.error("Unexpected exception in SendPlanner thread: {}.", ex);
 			}
 		}
 	}
