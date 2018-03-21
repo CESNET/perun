@@ -395,6 +395,8 @@ public class Auditer {
 
 		for(AuditerMessage message: messages) {
 			for(VirtualAttributesModuleImplApi virtAttrModuleImplApi : registeredAttributesModules) {
+				log.info("Message {} is given to module {}", message.getMessage(), virtAttrModuleImplApi.getClass().getSimpleName());
+
 				List<String> resolvingMessages = new ArrayList<String>();
 				try {
 					resolvingMessages.addAll(virtAttrModuleImplApi.resolveVirtualAttributeValueChange((PerunSessionImpl) message.getOriginaterPerunSession(), message.getMessage()));
@@ -406,6 +408,10 @@ public class Auditer {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
 				} catch (AttributeNotExistsException ex) {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
+				} catch (Exception ex) {
+					log.info("An uncaught exception happened when trying to resolve message: {} in module {}, exception: {}",
+							message, virtAttrModuleImplApi.getAttributeDefinition().getFriendlyName(), ex);
+					throw ex;
 				}
 
 				if(!resolvingMessages.isEmpty()) {
