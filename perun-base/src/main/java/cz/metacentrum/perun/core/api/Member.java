@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Member of a Virtual Organization.
  * @author Michal Prochazka michalp@ics.muni.cz
@@ -13,6 +17,7 @@ public class Member extends Auditable {
 	private MembershipType membershipType;
 	private Integer sourceGroupId;
 	private boolean sponsored = false;
+	private Map<Integer, MemberGroupStatus> groupsStatuses = new HashMap<>();
 
 	public Member() {
 		super();
@@ -112,6 +117,33 @@ public class Member extends Auditable {
 
 	public void setSponsored(boolean sponsored) {
 		this.sponsored = sponsored;
+	}
+
+	public void addGroupStatus(int groupId, MemberGroupStatus status) {
+		groupsStatuses.put(groupId, status);
+	}
+
+	public Map<Integer, MemberGroupStatus> getGroupStatuses() {
+		return Collections.unmodifiableMap(groupsStatuses);
+	}
+
+	public MemberGroupStatus getGroupStatus() {
+		if (groupsStatuses.containsValue(MemberGroupStatus.EXPIRED) && !groupsStatuses.containsValue(MemberGroupStatus.ACTIVE)) {
+			return MemberGroupStatus.EXPIRED;
+		}
+
+		return MemberGroupStatus.ACTIVE;
+	}
+
+	public void addGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses) {
+		for (Integer integer : groupStatuses.keySet()) {
+			MemberGroupStatus currentValue = this.groupsStatuses.get(integer);
+			if (currentValue == MemberGroupStatus.ACTIVE) {
+				continue;
+			}
+
+			this.groupsStatuses.put(integer, groupStatuses.get(integer));
+		}
 	}
 
 	@Override
