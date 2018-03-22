@@ -19,6 +19,8 @@ import javax.jms.JMSException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -66,9 +68,9 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Override
 	public String getReport() {
 		return "Engine SchedulingPool Task report:\n" +
-				" PLANNED: " + getTasksWithStatus(WAITING) +
-				" GENERATING:" + getTasksWithStatus(GENERATING) +
-				" SENDING:" + getTasksWithStatus(SENDING) +
+				" PLANNED: " + printListWithWhitespace(getTasksWithStatus(WAITING)) +
+				" GENERATING:" + printListWithWhitespace(getTasksWithStatus(GENERATING)) +
+				" SENDING:" + printListWithWhitespace(getTasksWithStatus(SENDING)) +
 				" SENDTASKCOUNT map: " + sendTaskCount.toString();
 	}
 
@@ -134,24 +136,32 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Override
 	public Integer decreaseSendTaskCount(int taskId, int decrease) throws TaskStoreException {
 		Integer count = sendTaskCount.get(taskId);
+		log.debug("[{}] Task SendTasks count is {}", taskId, count);
 		if (count == null) {
 			return null;
 		} else if (count <= 1) {
 			Task task = taskStore.getTask(taskId);
-			if (task.getStatus() != SENDERROR) {
-				task.setStatus(DONE);
-			}
-			if(task.getSendEndTime() == null) {
-				task.setSendEndTime(new Date(System.currentTimeMillis()));
-			}
-			try {
-				jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
-			} catch (JMSException e) {
-				log.error("Error while sending final status update for Task with ID {} to Dispatcher", taskId);
+			// its weird, but task don't have to be in a TaskStore when we are resolving removal of SendTask
+			if (task != null) {
+				if (!Objects.equals(task.getStatus(), SENDERROR)) {
+					task.setStatus(DONE);
+				}
+				if(task.getSendEndTime() == null) {
+					task.setSendEndTime(new Date(System.currentTimeMillis()));
+				}
+				try {
+					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
+				} catch (JMSException e) {
+					log.error("[{}] Error while sending final status update for Task to Dispatcher", taskId);
+				}
+				log.debug("[{}] Trying to remove Task from allTasks since its done", taskId);
+			} else {
+				log.error("[{}] Trying to remove Task from allTasks since its done, but it was not there !!", taskId);
 			}
 			removeTask(taskId);
 			return 1;
 		} else {
+			log.debug("[{}] Task SendTasks count lowered by {}", taskId, decrease);
 			return sendTaskCount.replace(taskId, count - decrease);
 		}
 	}
@@ -183,14 +193,19 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 	@Override
 	public Task removeTask(int id) throws TaskStoreException {
+		log.debug("[{}] Removing Task from scheduling pool.", id);
 		Task removed = taskStore.removeTask(id);
 		Future<Task> taskFuture = genTaskFutures.get(id);
 		if (taskFuture != null) {
 			taskFuture.cancel(true);
 		}
+		// FIXME - I don't like this, we should try to cancel sendTasks even it Task was not in a TaskStore, just like for GEN
 		if (removed != null) {
+			log.debug("[{}] Task was in TaskStore (all tasks), canceling SendTasks.", id);
 			cancelSendTasks(id);
 			sendTaskCount.remove(id);
+		} else {
+			log.debug("[{}] Task was not in TaskStore (all tasks)", id);
 		}
 		return removed;
 	}
@@ -256,4 +271,16 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		taskResult.setService(service);
 		return taskResult;
 	}
+
+	private String printListWithWhitespace(List<Task> list) {
+
+		if (list == null) return "[]";
+		StringJoiner joiner = new StringJoiner(", ");
+		for (Task task : list) {
+			if (task != null) joiner.add(String.valueOf(task.getId()));
+		}
+		return "[" + joiner.toString() + "]";
+
+	}
+
 }

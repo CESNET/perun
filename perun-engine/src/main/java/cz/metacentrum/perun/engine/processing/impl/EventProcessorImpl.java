@@ -28,7 +28,6 @@ public class EventProcessorImpl implements EventProcessor {
 
 	@Override
 	public void receiveEvent(String event) {
-		log.info("Current pool size BEFORE event processing: {}", schedulingPool.getSize());
 		log.debug("Event {} is going to be resolved.", event);
 
 		Task task = null;
@@ -41,17 +40,20 @@ public class EventProcessorImpl implements EventProcessor {
 		}
 
 		if (task == null) {
+			log.debug("Task not found in event {}", event);
 			return;
 		}
 		task.setStatus(Task.TaskStatus.PLANNED);
 
-		log.debug("\t Facility[{}]", task.getFacility());
+		log.info("Current pool size BEFORE event processing: {}", schedulingPool.getSize());
+
+		log.debug("\t Resolved Facility[{}]", task.getFacility());
 		log.debug("\t Resolved Service[{}]", task.getService());
 		if (task.getFacility() != null && task.getService() != null) {
-			log.debug("TESTSTRE -> Gonna check if the task {} exists", task);
+			log.debug("[{}] Check if Task exist in SchedulingPool: {}", task.getId(), task);
 			Task currentTask = schedulingPool.getTask(task.getId());
-			log.debug("TESTSTRE -> Found {}", currentTask);
 			if (currentTask == null) {
+				log.debug("[{}] Task not found in SchedulingPool.", task.getId());
 				try {
 					schedulingPool.addTask(task);
 				} catch (TaskStoreException e) {
@@ -60,13 +62,14 @@ public class EventProcessorImpl implements EventProcessor {
 					// XXX - should probably report ERROR back to dispatcher...
 				}
 			} else {
-				log.debug("Resetting current task destination list to {}", task.getDestinations());
+				log.debug("[{}] Task found in SchedulingPool.", task.getId(), currentTask);
+				log.debug("[{}] Resetting current task destination list to {}", task.getId(), task.getDestinations());
 				currentTask.setDestinations(task.getDestinations());
 				currentTask.setPropagationForced(task.isPropagationForced());
 			}
 		}
-		log.debug("POOL SIZE: {}", schedulingPool.getSize());
-		log.info("Current pool size AFTER event processing: {}", schedulingPool.getSize());
+		log.debug("[{}] POOL SIZE: {}", task.getId(), schedulingPool.getSize());
+		log.info("[{}] Current pool size AFTER event processing: {}", task.getId(), schedulingPool.getSize());
 	}
 
 	public EventParser getEventParser() {

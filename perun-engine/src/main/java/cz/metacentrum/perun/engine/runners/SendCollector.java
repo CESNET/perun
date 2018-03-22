@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
 import java.util.Date;
-import java.util.concurrent.Future;
 
 import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENT;
 
@@ -55,7 +54,7 @@ public class SendCollector extends AbstractRunner {
 			String stderr;
 			String stdout;
 			int returnCode;
-			Service service;
+			Service service = null;
 			log.debug(schedulingPool.getReport());
 			SendTask sendTask = null;
 			Destination destination = null;
@@ -71,50 +70,67 @@ public class SendCollector extends AbstractRunner {
 				returnCode = sendTask.getReturnCode();
 				service = sendTask.getTask().getService();
 			} catch (InterruptedException e) {
-				String errorStr = "Thread collecting sent SendTasks was interrupted.";
-				log.error(errorStr);
-				throw new RuntimeException(errorStr, e);
+				log.error("Thread collecting sent SendTasks was interrupted: {}", e);
+				continue;
 			} catch (TaskExecutionException e) {
-				log.error("Execution exception: {}", e);
+				//log.error("Execution exception: {}", e); - is already logged as EngineException
 				Pair<Integer, Destination> id = (Pair<Integer, Destination>) e.getId();
 				Task task = schedulingPool.getTask(id.getLeft());
-				log.warn("Error occurred while sending {} to destination {}", task, id.getRight());
-				taskId = task.getId();
-				destination = id.getRight();
-				stderr = e.getStderr();
-				stdout = e.getStdout();
-				returnCode = e.getReturnCode();
-				service = task.getService();
-			} catch (Exception ex) {
+				if (task != null) {
+					log.warn("[{}] Error occurred while sending {} to destination {}", task.getId(), task, id.getRight());
+					taskId = task.getId();
+					destination = id.getRight();
+					stderr = e.getStderr();
+					stdout = e.getStdout();
+					returnCode = e.getReturnCode();
+					service = task.getService();
+				} else {
+					log.error("[{}] Error occurred while sending {} to destination {}", id.getLeft(), task, id.getRight());
+					log.error("[{}] Task no longer in pool after sending to destination {}", id.getLeft(), id.getRight());
+					// we can't get service from exception on null task, hence we can't report TaskResult
+					taskId = id.getLeft();
+					destination = id.getRight();
+					stderr = e.getStderr();
+					stdout = e.getStdout();
+					returnCode = e.getReturnCode();
+				}
+			} catch (Throwable ex) {
 				log.error("Unexpected exception in SendCollector thread: {}.", ex);
-				// TODO - determine, what should be done since we might not get TaskID here
-				throw ex;
+				continue;
 			}
+
 			Task task = schedulingPool.getTask(taskId);
 
 			try {
-				log.debug("TESTSTR --> Sending TaskResult: taskid {}, destionationId {}, stderr {}, stdout {}, " +
-						"returnCode {}, service {}", new Object[]{taskId, destination.getId(), stderr, stdout, returnCode, service});
-				jmsQueueManager.reportTaskResult(schedulingPool.createTaskResult(taskId, destination.getId(), stderr, stdout,
-						returnCode, service));
+				//log.debug("TESTSTR --> Sending TaskResult: taskid {}, destionationId {}, stderr {}, stdout {}, " +
+				//		"returnCode {}, service {}", new Object[]{taskId, destination.getId(), stderr, stdout, returnCode, service});
+				if (service != null) {
+					jmsQueueManager.reportTaskResult(schedulingPool.createTaskResult(taskId, destination.getId(), stderr, stdout, returnCode, service));
+				}
 			} catch (JMSException e1) {
-				jmsErrorLog(taskId, destination.getId());
+				if (sendTask != null && sendTask.getId() != null) {
+					log.error("[{}] Error trying to reportTaskResult of {} to Dispatcher: {}", sendTask.getId().getLeft(), sendTask, e1);
+				} else if (sendTask != null && sendTask.getTask() != null) {
+					log.error("[{}] Error trying to reportTaskResult of {} to Dispatcher: {}", sendTask.getTask().getId(), sendTask, e1);
+				} else {
+
+					log.error("[{}] Error trying to reportTaskResult of {} to Dispatcher: {}", (task != null) ? task.getId() : "unknown", sendTask, e1);
+				}
 			}
 
-			if (status != null) {
+			if (status != null && task != null) {
 				task.setStatus(status);
 				task.setSendEndTime(new Date(System.currentTimeMillis()));
 			}
+
 			try {
 				//schedulingPool.decreaseSendTaskCount(taskId, 1);
+				// always try to remove send task future even on TaskExecutionException.
 				schedulingPool.removeSendTaskFuture(taskId, destination);
 			} catch (TaskStoreException e) {
-				log.error("Task {} could not be removed from SchedulingPool", e);
+				log.error("[{}] Task {} could not be removed from SchedulingPool: {}", taskId, task, e);
 			}
 		}
 	}
 
-	private void jmsErrorLog(Integer id, Integer destinationId) {
-		log.warn("Could not send status update to SendTask with id {} and destination with id {}.", id, destinationId);
-	}
 }

@@ -223,8 +223,8 @@ public class SendTask implements Serializable {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 		str.append(getClass().getSimpleName()).append(":[status='").append(status)
-				.append("', startTime='").append(BeansUtils.getDateFormatter().format(startTime))
-				.append("', endTime='").append(BeansUtils.getDateFormatter().format(endTime))
+				.append("', startTime='").append((startTime!=null) ? BeansUtils.getDateFormatter().format(startTime) : startTime)
+				.append("', endTime='").append((endTime!=null) ? BeansUtils.getDateFormatter().format(endTime) : endTime)
 				.append("', returnCode='").append(returnCode)
 				.append("', task='").append(task)
 				.append("', destination='").append(destination)

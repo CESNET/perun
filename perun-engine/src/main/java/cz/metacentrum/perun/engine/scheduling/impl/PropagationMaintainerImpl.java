@@ -93,22 +93,27 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					sendTaskFuture = schedulingPool.removeSendTaskFuture(
 							sendTask.getId().getLeft(), sendTask.getId().getRight());
 				} catch (TaskStoreException e) {
-					log.error("Failed during removal of SendTaskFuture {} from SchedulingPool", sendTaskFuture);
+					log.error("[{}] Failed during removal of SendTaskFuture for {} from SchedulingPool: {}", sendTask.getId().getLeft(), sendTask, e);
 				}
 				if (sendTaskFuture == null) {
-					log.error("Stale SendTask {} was not removed.", sendTask);
+					log.error("[{}] Stale SendTask {} was not removed. For some reason, SendTask is kept in 'sendingSendTasks' but actually has not SendTask futures.", sendTask.getId().getLeft(), sendTask);
+					log.error("  - Probably SendCollector failed and SendTask is kept in the structure, removing !!");
+					// probably because when we cancel send tasks, we might not be able to remove them all
+					// as mentioned in SchedulingPoolImpl TODOs in cancelSendTasks() method
+					sendingSendTasks.remove(sendTask.getId());
+				} else {
+					// report Task result only for Tasks, which had future
+					TaskResult taskResult = null;
+					try {
+						taskResult = schedulingPool.createTaskResult(sendTask.getId().getLeft(),
+								sendTask.getDestination().getId(),
+								sendTask.getStderr(), sendTask.getStdout(),
+								sendTask.getReturnCode(), sendTask.getTask().getService());
+						jmsQueueManager.reportTaskResult(taskResult);
+					} catch (JMSException e) {
+						log.error("[{}] Error trying to reportTaskResult {} of {} to Dispatcher: {}", sendTask.getId().getLeft(), taskResult, sendTask.getTask(), e);
+					}
 				}
-				TaskResult taskResult = null;
-				try {
-					taskResult = schedulingPool.createTaskResult(sendTask.getId().getLeft(),
-							sendTask.getDestination().getId(),
-							sendTask.getStderr(), sendTask.getStdout(),
-							sendTask.getReturnCode(), sendTask.getTask().getService());
-					jmsQueueManager.reportTaskResult(taskResult);
-				} catch (JMSException e) {
-					log.warn("Error trying to send {} to Dispatcher: {}", taskResult, e);
-				}
-
 			}
 		}
 
@@ -187,17 +192,18 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 				try {
 					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
 				} catch (JMSException e) {
-					log.error("Error while sending final status update for Task with ID {} to Dispatcher", task.getId());
+					log.error("[{}] Error trying to reportTaskStatus of {} to Dispatcher: {}", task.getId(), task, e);
 				}
 				try {
 					schedulingPool.removeTask(task.getId());
 				} catch (TaskStoreException e) {
-					log.error("Task {} could not be removed from SchedulingPool", e);
+					log.error("[{}] Task could not be removed from SchedulingPool: {}", task.getId(), e);
 				}
 				break;
 
 			default:
 				// unknown state
+				log.debug("[{}] Failing to default, status was: {}", task.getId(), task.getStatus());
 				abortTask(task, TaskStatus.ERROR);
 			}
 		}
@@ -205,7 +211,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 
 	private void abortTask(Task task, TaskStatus status) {
-		log.warn("Task {} found in unexpected state, switching to {} ", task, status);
+		log.warn("[{}] Task {} found in unexpected state, switching to {} ", task.getId(), task, status);
 		task.setStatus(status);
 		Task removed = null;
 		try {
@@ -213,15 +219,19 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			// the removal from pool also cancels all task futures, which in turn
 			// makes the completion service collect the task and remove it from its executingTasks map
 		} catch (TaskStoreException e) {
-			log.error("Failed during removal of Task {} from SchedulingPool", task);
+			log.error("[{}] Failed during removal of Task {} from SchedulingPool: {}", task.getId(), task, e);
 		}
-		if (removed == null) {
-			log.error("Stale Task {} was not removed.", task);
-		}
-		try {
-			jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
-		} catch (JMSException e) {
-			log.warn("Error trying to send {} to Dispatcher: {}", task, e);
+		if (removed != null) {
+			// report status only if Task was actually removed from the pool, otherwise its
+			// some kind of inconsistency and we don't want to spam dispatcher - it will mark it as error on its own
+			try {
+				jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
+			} catch (JMSException e) {
+				log.error("[{}] Error trying to reportTaskStatus of {} to Dispatcher: {}", task.getId(), task, e);
+			}
+		} else {
+			log.error("[{}] Stale Task {} was not removed and not reported to dispatcher.", task.getId(), task);
+			log.error("  - This is nonsense - why we abort the Task taken from AllTasks but we can remove it from it ??");
 		}
 
 	}

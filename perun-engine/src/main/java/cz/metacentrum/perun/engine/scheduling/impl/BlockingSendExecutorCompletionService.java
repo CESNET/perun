@@ -35,6 +35,7 @@ public class BlockingSendExecutorCompletionService implements BlockingCompletion
 	@Autowired
 	@Qualifier("sendingSendTasks")
 	private BlockingBoundedMap<Pair<Integer, Destination>, SendTask> executingTasks;
+	private int limit;
 
 	/**
 	 * Create new blocking CompletionService for SEND Tasks with specified limit
@@ -42,18 +43,21 @@ public class BlockingSendExecutorCompletionService implements BlockingCompletion
 	 * @param limit Limit for processing SEND Tasks
 	 */
 	public BlockingSendExecutorCompletionService(int limit) {
+		this.limit = limit;
 		completionService = new ExecutorCompletionService<SendTask>(Executors.newFixedThreadPool(limit), new LinkedBlockingQueue<Future<SendTask>>());
 	}
 
 	@Override
 	public Future<SendTask> blockingSubmit(EngineWorker<SendTask> taskWorker) throws InterruptedException {
 		SendWorker sendWorker = (SendWorker) taskWorker;
+		log.debug("Executing SEND tasks before submit: {}/{}, content: {}", executingTasks.keySet().size(), limit, executingTasks.keySet());
 		executingTasks.blockingPut(sendWorker.getSendTask().getId(), sendWorker.getSendTask());
 		return completionService.submit(sendWorker);
 	}
 
 	@Override
 	public SendTask blockingTake() throws InterruptedException, TaskExecutionException {
+		log.debug("Executing SEND tasks before take: {}/{}, content: {}", executingTasks.keySet().size(), limit, executingTasks.keySet());
 		Future<SendTask> taskFuture = completionService.take();
 		try {
 			SendTask taskResult = taskFuture.get();

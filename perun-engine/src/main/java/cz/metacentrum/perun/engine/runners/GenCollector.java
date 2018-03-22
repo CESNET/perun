@@ -70,7 +70,7 @@ public class GenCollector extends AbstractRunner {
 				try {
 					schedulingPool.removeTask(id);
 				} catch (TaskStoreException e1) {
-					log.error("Could not remove Task with id {} from SchedulingPool", id, e1);
+					log.error("[{}] Could not remove Task from SchedulingPool: {}", id, e1);
 				}
 			} catch (Throwable ex) {
 				// FIXME - we should probably remove tasks, but which ones ?

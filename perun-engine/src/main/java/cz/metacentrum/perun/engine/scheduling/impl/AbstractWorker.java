@@ -75,7 +75,7 @@ public abstract class AbstractWorker<V> implements EngineWorker<V> {
 	 */
 	protected void execute(ProcessBuilder pb) throws InterruptedException, IOException {
 
-		log.debug("The directory for the worker will be [{}]", getDirectory());
+		log.trace("The directory for the worker will be [{}]", getDirectory());
 		if (getDirectory() != null) {
 			// set path relative to current working dir
 			pb.directory(getDirectory());

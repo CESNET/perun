@@ -65,7 +65,7 @@ public class SendPlanner extends AbstractRunner {
 					try {
 						schedulingPool.removeTask(task);
 					} catch (TaskStoreException e) {
-						log.error("Task {} could not be removed from SchedulingPool", e);
+						log.error("[{}] Task {} could not be removed from SchedulingPool: {}", task.getId(), task, e);
 					}
 					continue;
 				}
@@ -105,9 +105,9 @@ public class SendPlanner extends AbstractRunner {
 
 	@Autowired
 	public void setPropertiesBean(Properties propertiesBean) {
-		log.debug("TESTSTR --> Send property bean set");
+		//log.debug("TESTSTR --> Send property bean set");
 		if (propertiesBean != null) {
-			log.debug("TESTSTR --> Send script path from properties is {}", propertiesBean.getProperty("engine.sendscript.path"));
+			//log.debug("TESTSTR --> Send script path from properties is {}", propertiesBean.getProperty("engine.sendscript.path"));
 			directory = new File(propertiesBean.getProperty("engine.sendscript.path"));
 		}
 	}

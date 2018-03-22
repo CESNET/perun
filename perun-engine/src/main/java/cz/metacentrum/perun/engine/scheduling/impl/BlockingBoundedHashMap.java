@@ -56,4 +56,9 @@ public class BlockingBoundedHashMap<K, V> implements BlockingBoundedMap<K, V> {
 		return map.values();
 	}
 
+	@Override
+	public Collection<K> keySet() {
+		return map.keySet();
+	}
+
 }

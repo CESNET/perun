@@ -58,7 +58,7 @@ public class GenPlanner extends AbstractRunner {
 				try {
 					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), task.getGenStartTime().getTime());
 				} catch (JMSException e) {
-					log.warn("Could not send Tasks [{}] GEN status update.", task);
+					log.warn("[{}] Could not send Tasks {} GEN status update: {}", task.getId(), task, e);
 				}
 			} catch (InterruptedException e) {
 				String errorStr = "Thread executing GEN tasks was interrupted.";
@@ -73,9 +73,9 @@ public class GenPlanner extends AbstractRunner {
 
 	@Autowired
 	public void setPropertiesBean(Properties propertiesBean) {
-		log.debug("TESTSTR --> Gen property bean set");
+		//log.debug("TESTSTR --> Gen property bean set");
 		if (propertiesBean != null) {
-			log.debug("TESTSTR --> Gen script path from properties is {}", propertiesBean.getProperty("engine.genscript.path"));
+			//log.debug("TESTSTR --> Gen script path from properties is {}", propertiesBean.getProperty("engine.genscript.path"));
 			directory = new File(propertiesBean.getProperty("engine.genscript.path"));
 		}
 	}
