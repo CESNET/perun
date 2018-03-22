@@ -120,6 +120,11 @@ public class Member extends Auditable {
 	}
 
 	public void addGroupStatus(int groupId, MemberGroupStatus status) {
+		MemberGroupStatus currentValue = this.groupsStatuses.get(groupId);
+		if (currentValue == MemberGroupStatus.ACTIVE) {
+			return;
+		}
+
 		groupsStatuses.put(groupId, status);
 	}
 
@@ -137,12 +142,7 @@ public class Member extends Auditable {
 
 	public void addGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses) {
 		for (Integer integer : groupStatuses.keySet()) {
-			MemberGroupStatus currentValue = this.groupsStatuses.get(integer);
-			if (currentValue == MemberGroupStatus.ACTIVE) {
-				continue;
-			}
-
-			this.groupsStatuses.put(integer, groupStatuses.get(integer));
+			addGroupStatus(integer, groupStatuses.get(integer));
 		}
 	}
 

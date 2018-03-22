@@ -1693,7 +1693,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		//Add not containing members with indirect membership type
 		for(Member m: members) {
-			if(!filteredMembers.contains(m)) filteredMembers.add(m);
+			boolean alreadyAdded = false;
+
+			for (Member filteredMember : filteredMembers) {
+				if (filteredMember.equals(m)) {
+					filteredMember.addGroupStatuses(m.getGroupStatuses());
+					alreadyAdded = true;
+					break;
+				}
+			}
+
+			if (!alreadyAdded) {
+				filteredMembers.add(m);
+			}
 		}
 
 		return filteredMembers;

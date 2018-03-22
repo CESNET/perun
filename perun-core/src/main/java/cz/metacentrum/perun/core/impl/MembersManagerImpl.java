@@ -28,7 +28,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			"members.created_by_uid as members_created_by_uid, members.modified_by_uid as members_modified_by_uid";
 
 	final static String groupsMembersMappingSelectQuery = memberMappingSelectQuery + ", groups_members.membership_type as membership_type, " +
-			"groups_members.source_group_id as source_group_id";
+			"groups_members.source_group_id as source_group_id, groups_members.source_group_status as source_group_status, groups_members.group_id as group_id";
 
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -40,6 +40,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
 		member.setSponsored(rs.getBoolean("members_sponsored"));
 		try {
+			member.addGroupStatus(rs.getInt("group_id"), MemberGroupStatus.getMemberGroupStatus(rs.getInt("source_group_status")));
 			member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
 			member.setSourceGroupId(rs.getInt("source_group_id"));
 		} catch (SQLException ex) {
