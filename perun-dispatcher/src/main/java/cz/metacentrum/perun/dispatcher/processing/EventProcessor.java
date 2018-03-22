@@ -180,7 +180,7 @@ public class EventProcessor extends AbstractRunner {
 						schedulingPool.addToPool(task, null);
 						log.debug("[{}] New Task added to pool. {}.", task.getId(), task);
 					} catch (TaskStoreException e) {
-						log.error("[{}] Could not add Task to pool. Task will be lost: {}.", task.getId(), task);
+						log.error("[{}] Could not add Task to pool. Task {} will be lost: {}", task.getId(), task, e);
 					}
 					schedulingPool.scheduleTask(task, -1);
 				}
