@@ -64,6 +64,8 @@ if [ -z "$LDAP_BASE" -o -z "$LDAP_ADMIN" -o -z "$LDAP_ADMIN_PASSWORD" ]; then
   echo "Can't read one of the mandatory variables for LDAP inicialization!" 1>&2
   exit 3
 fi
+#Parse first "dc" from "BASE DN"
+LDAP_DC=`echo $LDAP_BASE | sed -e 's/^dc=//' | sed -e 's/,.*$//'`
 
 # Set removing temp files on exit
 trap 'rm -r -f "$LDAP_CONTENT_FILE" "$PERUN_PRE_CONTENT_FILE" "$PERUN_CONTENT_FILE" "$LDAP_PERUN_DIFF" "$LDAP_PERUN_DIFF_SORTED" "$LDAP_INIT_FILE" "$LDAP_CONTENT_FILE_SORTED" "$PERUN_CONTENT_FILE_SORTED"' EXIT
@@ -75,7 +77,7 @@ dn: $LDAP_BASE
 objectClass: top
 objectClass: organization
 objectClass: dcObject
-dc: perun
+dc: $LDAP_DC
 description: Perun Management System
 o: perun
 
