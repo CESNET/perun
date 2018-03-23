@@ -1,0 +1,19 @@
+# Systemd unit file for perun-ldapc
+#
+#
+
+[Unit]
+Description=Perun-LDAPc
+After=perun.service
+
+[Service]
+Type=forking
+ExecStart=/bin/bash /home/perun/perun-ldapc/start_ldapc.sh
+ExecStop=/bin/bash /home/perun/perun-ldapc/stop_ldapc.sh
+#SuccessExitStatus=143
+User=perun
+Group=perun
+
+[Install]
+WantedBy=multi-user.target
+
