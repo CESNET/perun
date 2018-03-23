@@ -5,7 +5,7 @@ while getopts "t" opt; do
     case "$opt" in
     t)
         TEST=1
-				echo "Initialization executed in the test mode - without any changes!"
+        echo "Initialization executed in the test mode - without any changes!"
         ;;
     esac
 done
@@ -72,11 +72,12 @@ trap 'rm -r -f "$LDAP_CONTENT_FILE" "$PERUN_PRE_CONTENT_FILE" "$PERUN_CONTENT_FI
 cat > $LDAP_INIT_FILE <<EOF
 
 dn: $LDAP_BASE
-ou: People
-description: Perun Management System
-objectClass: organizationalUnit
+objectClass: top
+objectClass: organization
 objectClass: dcObject
 dc: perun
+description: Perun Management System
+o: perun
 
 dn: ou=People,$LDAP_BASE
 ou: People
