@@ -55,6 +55,7 @@ if [ ! -x "$LDIF_DIFF_LIBRARY" -o ! -x "$LDIF_DIFF_SORT_LIBRARY" -o ! -x "$LDIF_
 fi
 
 LDAP_BASE=`grep '^ldap\.base=' "$LDAP_PROPERTIES_FILE" | sed -e 's/^ldap\.base=//'`
+LDAP_DC=`echo $LDAP_BASE | sed -e 's/^dc=//' | sed -e 's/,.*$//'`
 LDAP_ADMIN=`grep '^ldap\.userDn=' "$LDAP_PROPERTIES_FILE" | sed -e 's/^ldap\.userDn=//'`
 LDAP_ADMIN_PASSWORD=`grep '^ldap\.password=' "$LDAP_PROPERTIES_FILE" | sed -e 's/^ldap\.password=//'`
 LDAP_PORT="389"
@@ -64,22 +65,12 @@ if [ -z "$LDAP_BASE" -o -z "$LDAP_ADMIN" -o -z "$LDAP_ADMIN_PASSWORD" ]; then
   echo "Can't read one of the mandatory variables for LDAP inicialization!" 1>&2
   exit 3
 fi
-#Parse first "dc" from "BASE DN"
-LDAP_DC=`echo $LDAP_BASE | sed -e 's/^dc=//' | sed -e 's/,.*$//'`
 
 # Set removing temp files on exit
 trap 'rm -r -f "$LDAP_CONTENT_FILE" "$PERUN_PRE_CONTENT_FILE" "$PERUN_CONTENT_FILE" "$LDAP_PERUN_DIFF" "$LDAP_PERUN_DIFF_SORTED" "$LDAP_INIT_FILE" "$LDAP_CONTENT_FILE_SORTED" "$PERUN_CONTENT_FILE_SORTED"' EXIT
 
 #create init.ldif file
 cat > $LDAP_INIT_FILE <<EOF
-
-dn: $LDAP_BASE
-objectClass: top
-objectClass: organization
-objectClass: dcObject
-dc: $LDAP_DC
-description: Perun Management System
-o: perun
 
 dn: ou=People,$LDAP_BASE
 ou: People
@@ -120,7 +111,7 @@ fi
 
 #Create content ldif file from LDAP
 echo "Generating LDIF content file from LDAP..."
-ldapsearch -LLL -x -h localhost -p $LDAP_PORT -b "$LDAP_BASE" -D "$LDAP_ADMIN" -w "$LDAP_ADMIN_PASSWORD" > $LDAP_CONTENT_FILE
+ldapsearch -LLL -x -h localhost -p $LDAP_PORT -b "$LDAP_BASE" -D "$LDAP_ADMIN" -w "$LDAP_ADMIN_PASSWORD" "(!(dc=$LDAP_DC))" > $LDAP_CONTENT_FILE
 
 #Create diff between actual state in LDAP and Perun
 echo "Content files will be sorted now..."
