@@ -1612,6 +1612,7 @@ create sequence ACTION_TYPES_SEQ nocache;
 create sequence RES_TAGS_SEQ nocache;
 create sequence MAILCHANGE_ID_SEQ nocache;
 create sequence PWDRESET_ID_SEQ nocache;
+create sequence SECURITY_TEAMS_ID_SEQ nocache;
 create sequence RESOURCES_BANS_ID_SEQ nocache;
 create sequence FACILITIES_BANS_ID_SEQ nocache;
 
