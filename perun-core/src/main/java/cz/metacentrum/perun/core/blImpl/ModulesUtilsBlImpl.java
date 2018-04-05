@@ -66,7 +66,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public ModulesUtilsBlImpl() {
 	}
 
-	public boolean isNamespaceEqualsToFacilityUnixGroupNameNamespace(PerunSessionImpl sess, Facility facility, String namespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException{
+	public boolean isNamespaceEqualsToFacilityUnixGroupNameNamespace(PerunSessionImpl sess, Facility facility, String namespace) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException{
 		Utils.notNull(facility, "facility");
 		Utils.notNull(namespace, "namespace");
 		Utils.notNull(sess, "perunSessionImpl");
@@ -78,7 +78,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return true;
 	}
 
-	public List<Resource> findCollisionResourcesWithSameGroupName(PerunSessionImpl sess, Resource resource, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<Resource> findCollisionResourcesWithSameGroupName(PerunSessionImpl sess, Resource resource, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Utils.notNull(sess, "perunSessionImpl");
 		Utils.notNull(resource, "resource");
 		Attribute resourceUnixGroupName = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_unixGroupName_namespace + ":" + namespace);
@@ -87,7 +87,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return resourcesWithSameUnixGroupName;
 	}
 
-	public List<Resource> findCollisionResourcesWithSameGroupName(PerunSessionImpl sess, Group group, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<Resource> findCollisionResourcesWithSameGroupName(PerunSessionImpl sess, Group group, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Utils.notNull(sess, "perunSessionImpl");
 		Utils.notNull(group, "group");
 		Utils.notNull(namespace, "namespace");
@@ -97,7 +97,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, copyResourceUnixGroupName);
 	}
 
-	public List<Group> findCollisionGroupsWithSamgeGroupName(PerunSessionImpl sess, Resource resource, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<Group> findCollisionGroupsWithSamgeGroupName(PerunSessionImpl sess, Resource resource, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Utils.notNull(sess, "perunSessionImpl");
 		Utils.notNull(resource, "resource");
 		Utils.notNull(namespace, "namespace");
@@ -108,7 +108,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	}
 
-	public List<Group> findCollisionGroupsWithSamgeGroupName(PerunSessionImpl sess, Group group, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<Group> findCollisionGroupsWithSamgeGroupName(PerunSessionImpl sess, Group group, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Utils.notNull(sess, "perunSessionImpl");
 		Utils.notNull(group, "group");
 		Utils.notNull(namespace, "namespace");
@@ -118,7 +118,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return groupsWithsameGroupName;
 	}
 
-	public List<Resource> findCollisionResourcesWithSameGid(PerunSessionImpl sess, Resource resource, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<Resource> findCollisionResourcesWithSameGid(PerunSessionImpl sess, Resource resource, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Utils.notNull(sess, "perunSessionImpl");
 		Utils.notNull(resource, "resource");
 		Utils.notNull(namespace, "namespace");
@@ -128,7 +128,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return resourcesWithSameGid;
 	}
 
-	public List<Resource> findCollisionResourcesWithSameGid(PerunSessionImpl sess, Group group, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<Resource> findCollisionResourcesWithSameGid(PerunSessionImpl sess, Group group, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Utils.notNull(sess, "perunSessionImpl");
 		Utils.notNull(group, "group");
 		Utils.notNull(namespace, "namespace");
@@ -138,7 +138,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, copyResourceUnixGid);
 	}
 
-	public List<Group> findCollisionGroupsWithSamgeGroupGid(PerunSessionImpl sess, Resource resource, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<Group> findCollisionGroupsWithSamgeGroupGid(PerunSessionImpl sess, Resource resource, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Utils.notNull(sess, "perunSessionImpl");
 		Utils.notNull(resource, "resource");
 		Utils.notNull(namespace, "namespace");
@@ -148,7 +148,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, copyGroupUnixGid);
 	}
 
-	public List<Group> findCollisionGroupsWithSamgeGroupGid(PerunSessionImpl sess, Group group, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<Group> findCollisionGroupsWithSamgeGroupGid(PerunSessionImpl sess, Group group, String namespace) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Utils.notNull(sess, "perunSessionImpl");
 		Utils.notNull(group, "group");
 		Utils.notNull(namespace, "namespace");
@@ -178,7 +178,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return false;
 	}
 
-	public Pair<Integer, Integer> getMinAndMaxGidForNamespace(PerunSessionImpl sess, String namespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Pair<Integer, Integer> getMinAndMaxGidForNamespace(PerunSessionImpl sess, String namespace) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		Utils.notNull(sess, "perunSessionImpl");
 		Utils.notNull(namespace, "namespace");
 		Attribute minGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, namespace, A_E_namespace_minGID);
@@ -192,7 +192,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return new Pair(minGid, maxGid);
 	}
 
-	public Integer getFirstFreeGidForResourceOrGroup(PerunSessionImpl sess, String namespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Integer getFirstFreeGidForResourceOrGroup(PerunSessionImpl sess, String namespace) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		Utils.notNull(sess, "perunSessionImpl");
 		Utils.notNull(namespace, "namespace");
 		Pair<Integer, Integer> minAndMaxGid = this.getMinAndMaxGidForNamespace(sess, namespace);
@@ -213,7 +213,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return null;
 	}
 
-	public void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
+	public void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, WrongAttributeValueException {
 		Utils.notNull(attribute, "attribute");
 		Integer gid = null;
 		if(attribute.getValue() != null) gid = (Integer) attribute.getValue();
@@ -235,7 +235,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		}
 	}
 
-	public void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
+	public void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, WrongAttributeValueException {
 		Utils.notNull(attribute, "attribute");
 		List<String> gIDs = (List<String>)attribute.getValue();
 		if (gIDs != null){
@@ -262,7 +262,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		}
 	}
 
-	public Integer getFreeGID(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Integer getFreeGID(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		Utils.notNull(attribute, "attribute");
 		String gidNamespace = attribute.getFriendlyNameParameter();
 
@@ -313,7 +313,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 						if(!commonGID.equals((Integer) attr.getValue())) throw new ConsistencyErrorException("There are at least 1 groups/resources with same GroupName in same namespace but with different GID in same namespaces. Conflict found: "  + g + "(gid=" + attr.getValue()+ ") and " + commonGIDGroup + "(gid=" + commonGID + ")");
 					}
 				}
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -338,7 +338,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 						if(!commonGID.equals((Integer) attr.getValue())) throw new ConsistencyErrorException("There are at least 1 groups/resources with same GroupName in same namespace but with different GID in same namespaces. Conflict found: " + r + "(gid=" + attr.getValue()+ ") and " + commonGIDResource + "(gid=" + commonGID + ")");
 					}
 				}
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -359,7 +359,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			else {
 				if(!testingAttribute.getValue().equals(attr.getValue())) return 1;
 			}
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 		return 0;
@@ -378,7 +378,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			else {
 				if(!testingAttribute.getValue().equals(attr.getValue())) return 1;
 			}
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 		return 0;
@@ -400,7 +400,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return false;
 	}
 
-	public List<Attribute> getListOfResourceGIDsFromListOfGroupGIDs(PerunSessionImpl sess, List<Attribute> groupGIDs) throws InternalErrorException, AttributeNotExistsException {
+	public List<Attribute> getListOfResourceGIDsFromListOfGroupGIDs(PerunSessionImpl sess, List<Attribute> groupGIDs) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		List<Attribute> resourceGIDs = new ArrayList<Attribute>();
 		if(groupGIDs == null || groupGIDs.isEmpty()) {
 			return resourceGIDs;
@@ -415,7 +415,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return resourceGIDs;
 	}
 
-	public List<Attribute> getListOfGroupGIDsFromListOfResourceGIDs(PerunSessionImpl sess, List<Attribute> resourceGIDs) throws InternalErrorException, AttributeNotExistsException {
+	public List<Attribute> getListOfGroupGIDsFromListOfResourceGIDs(PerunSessionImpl sess, List<Attribute> resourceGIDs) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		List<Attribute> groupGIDs = new ArrayList<Attribute>();
 		if(resourceGIDs == null || resourceGIDs.isEmpty()) {
 			return groupGIDs;
@@ -449,7 +449,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 						}
 					}
 				}
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -478,7 +478,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 						}
 					}
 				}
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -525,7 +525,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			Attribute googleGroupNameNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_F_googleGroupName_namespace);
 			if(googleGroupNameNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(googleGroupNameNamespaceAttribute);
 			return googleGroupNameNamespaceAttribute;
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -538,7 +538,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			Attribute unixGroupNameNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_F_unixGroupName_namespace);
 			if(unixGroupNameNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(unixGroupNameNamespaceAttribute);
 			return unixGroupNameNamespaceAttribute;
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -551,7 +551,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_F_unixGID_namespace);
 			if(unixGIDNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(unixGIDNamespaceAttribute);
 			return unixGIDNamespaceAttribute;
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -579,7 +579,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 					if(groupNameNamespace.getValue() != null) {
 						return true;
 					}
-				} catch (AttributeNotExistsException ex) {
+				} catch (AttributeDefinitionNotExistsException ex) {
 					throw new ConsistencyErrorException(ex);
 				}
 			}

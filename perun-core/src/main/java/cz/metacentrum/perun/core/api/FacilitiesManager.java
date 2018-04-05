@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.api;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
@@ -116,9 +116,9 @@ public interface FacilitiesManager {
 	 * @return list of facilities
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
-	List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, PrivilegeException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException;
 
 
 	/**

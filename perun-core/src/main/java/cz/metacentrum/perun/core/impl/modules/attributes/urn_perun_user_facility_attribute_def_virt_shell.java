@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -35,7 +35,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
 				Utils.copyAttributeToVirtualAttributeWithValue(attribute, attr);
 				return attr;
 			}
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+		} catch (WrongAttributeAssignmentException | AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -68,7 +68,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
 				}
 			}
 
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 		return attr;
@@ -81,7 +81,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
 			return  sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attributeToSet);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		} catch (WrongAttributeValueException ex) {
 			throw new InternalErrorException(ex);

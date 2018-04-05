@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -32,12 +32,12 @@ public interface Searcher {
 	 * @return list of users who have attributes with specific values (behaviour above)
 	 *        if no user exist, return empty list of users
 	 *
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException;
+	List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, PrivilegeException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method get Map of user Attributes with searching values and try to find all members, which have specific attributes in format for specific VO.
@@ -57,13 +57,13 @@ public interface Searcher {
 	 * @return list of users who have attributes with specific values (behaviour above)
 	 *        if no user exist, return empty list of users
 	 *
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws VoNotExistsException
 	 */
-	List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo,  Map<String, String> userAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException;
+	List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo,  Map<String, String> userAttributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException;
 
 	/**
 	 * This method take map of coreAttributes with search values and return all
@@ -73,11 +73,11 @@ public interface Searcher {
 	 * @param coreAttributesWithSearchingValues
 	 * @return
 	 * @throws InternalErrorException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws PrivilegeException
 	 */
-	List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException;
+	List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, PrivilegeException;
 
 	/**
 	 * Return members with expiration date set, which will expire on today +/- X days.

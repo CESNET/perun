@@ -124,7 +124,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeDefinitionNotExistsException, ActionTypeNotExistsException {
 		log.trace("Entering isAuthorizedForAttribute: sess='" + sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
 
 		Utils.notNull(sess, "sess");
@@ -478,7 +478,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param attrDef    attribute what principal want to work with
 	 * @return list of roles
 	 */
-	public static List<Role> getRolesWhichCanWorkWithAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
+	public static List<Role> getRolesWhichCanWorkWithAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, ActionTypeNotExistsException {
 		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
 		getPerunBl().getAttributesManagerBl().checkActionTypeExists(sess, actionType);
 		return cz.metacentrum.perun.core.impl.AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);

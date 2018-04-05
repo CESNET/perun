@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +20,6 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -83,13 +83,13 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 		System.out.println("fillAttributeWhichNotExists()");
 
 		//testujeme scenar, kdy budeme hledat neexistujici atribut a proto ocekavame vyjimku AttrNotExists..
-		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(new AttributeNotExistsException("neexistuje"));
+		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(new AttributeDefinitionNotExistsException("neexistuje"));
 
 		try {
 			defShellAttr.fillAttribute(ps, new Resource(), new AttributeDefinition());
 			fail();
 		} catch (InternalErrorException ex) {
-			assertTrue("Mela byt vyhozena vyjimka AttributeNotExistsException", (ex.getCause() instanceof AttributeNotExistsException));
+			assertTrue("Mela byt vyhozena vyjimka AttributeDefinitionNotExistsException", (ex.getCause() instanceof AttributeDefinitionNotExistsException));
 		}
 	}
 
@@ -128,7 +128,7 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 		System.out.println("checkAttributeValueWhichNotExists()");
 
 		// hledame neexistujici atribut, proto ocekavame vyjimku
-		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(new AttributeNotExistsException("neexistuje"));
+		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(new AttributeDefinitionNotExistsException("neexistuje"));
 
 		final Attribute attribute = new Attribute();
 		attribute.setValue("mujShell");
@@ -137,7 +137,7 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 			defShellAttr.checkAttributeValue(ps, new Resource(), attribute);
 			fail();
 		} catch (InternalErrorException ex) {
-			assertTrue("Mela byt vyhozena vyjimka AttributeNotExistsException", (ex.getCause() instanceof AttributeNotExistsException));
+			assertTrue("Mela byt vyhozena vyjimka AttributeDefinitionNotExistsException", (ex.getCause() instanceof AttributeDefinitionNotExistsException));
 		}
 	}
 

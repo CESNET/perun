@@ -337,7 +337,7 @@ public class JsonErrorHandler {
 
 			return text;
 
-		} else if ("AttributeNotExistsException".equalsIgnoreCase(errorName)) {
+		} else if ("AttributeDefinitionNotExistsException".equalsIgnoreCase(errorName)) {
 
 			Attribute a = error.getAttribute();
 			if (a != null) {
@@ -430,7 +430,7 @@ public class JsonErrorHandler {
 				return "Attribute is already NOT required by service.";
 			}
 
-		} else if ("AttributeNotExistsException".equalsIgnoreCase(errorName)) {
+		} else if ("AttributeDefinitionNotExistsException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - attribute object inside is never used, but has good description
 			return SafeHtmlUtils.fromString(error.getErrorInfo()).asString();

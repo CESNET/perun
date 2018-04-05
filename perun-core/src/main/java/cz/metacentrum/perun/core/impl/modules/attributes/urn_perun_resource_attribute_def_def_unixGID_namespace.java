@@ -9,10 +9,9 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -23,7 +22,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Resource unixGID-namespace attribute.
@@ -55,7 +53,7 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 				Attribute groupNameOfGroup;
 				try {
 					groupNameOfGroup = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_G_unixGroupName_namespace + ":" + attr.getFriendlyNameParameter()));
-				} catch (AttributeNotExistsException ex) {
+				} catch (AttributeDefinitionNotExistsException ex) {
 					throw new ConsistencyErrorException("AttributeDefinition for group_def_unixGroupName-namespace:" + attr.getFriendlyNameParameter() + " must exists", ex);
 				}
 				groupNameOfGroup.setValue(attr.getValue());
@@ -93,7 +91,7 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 
 			return attribute;
 
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
@@ -178,7 +176,7 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 				}
 			}
 
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
@@ -192,7 +190,7 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 		Attribute usedGids;
 		try {
 			usedGids = session.getPerunBl().getAttributesManagerBl().getEntitylessAttributeForUpdate(session, gidNamespace, A_E_usedGids);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 		

@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.notif.senders;
 
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.notif.dto.PerunNotifEmailMessageToSendDto;
@@ -94,7 +94,7 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 					} catch (UserNotExistsException ex) {
 						logger.error("Cannot found user with id: {}, ex: {}", Arrays.asList(id, ex.getMessage()));
 						logger.debug("ST:", ex);
-					} catch (AttributeNotExistsException ex) {
+					} catch (AttributeDefinitionNotExistsException ex) {
 						logger.warn("Cannot found email for user with id: {}, ex: {}", Arrays.asList(id, ex.getMessage()));
 						logger.debug("ST:", ex);
 					} catch (Exception ex) {

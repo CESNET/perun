@@ -250,7 +250,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
 			} catch(WrongAttributeAssignmentException ex) {
 				throw new ConsistencyErrorException(ex);
-			} catch(AttributeNotExistsException ex) {
+			} catch(AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			} catch (MemberResourceMismatchException ex) {
 				throw new ConsistencyErrorException(ex);
@@ -406,7 +406,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			}
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch (MemberResourceMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
@@ -662,7 +662,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		} else {
 			try {
 				richUsers = getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new InternalErrorException("One of Attribute not exist.", ex);
 			}
 		}

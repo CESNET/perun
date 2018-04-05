@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +13,6 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -78,7 +78,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 				Attribute groupNameOfResource;
 				try {
 					groupNameOfResource = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_R_unixGroupName_namespace + ":" + attr.getFriendlyNameParameter()));
-				} catch (AttributeNotExistsException ex) {
+				} catch (AttributeDefinitionNotExistsException ex) {
 					throw new ConsistencyErrorException("AttributeDefinition for resource_def_unixGroupName-namespace:" + attr.getFriendlyNameParameter() + " must exists", ex);
 				}
 				groupNameOfResource.setValue(attr.getValue());
@@ -116,7 +116,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 
 			return attribute;
 
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
@@ -216,7 +216,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 				}
 			}
 
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
@@ -230,7 +230,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 		Attribute usedGids;
 		try {
 			usedGids = session.getPerunBl().getAttributesManagerBl().getEntitylessAttributeForUpdate(session, gidNamespace, A_E_usedGids);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 		

@@ -3,8 +3,8 @@ package cz.metacentrum.perun.core.api;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
@@ -510,17 +510,17 @@ public interface ServicesManager {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws PrivilegeException if privileges are not given
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in underlaying data source
+	 * @throws AttributeDefinitionNotExistsException if the attribute doesn't exists in underlaying data source
 	 * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
 	 * @throws AttributeAlreadyAssignedException if the attribute is already added
 	 */
-	void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException;
+	void addRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException;
 
 	/**
 	 *  Batch version of addRequiredAttribute
 	 *  @see cz.metacentrum.perun.core.api.ServicesManager#addRequiredAttribute(PerunSession,Service,AttributeDefinition)
 	 */
-	void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException;
+	void addRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException;
 
 	/**
 	 * Remove required attribute from service.
@@ -532,17 +532,17 @@ public interface ServicesManager {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws PrivilegeException if privileges are not given
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws AttributeNotAssignedException
 	 * @throws ServiceNotExistsException if the service doesn't exists in underlaying data source
 	 */
-	void removeRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException;
+	void removeRequiredAttribute(PerunSession perunSession, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, ServiceNotExistsException, AttributeNotAssignedException;
 
 	/**
 	 *  Batch version of removeRequiredAttribute
 	 *  @see cz.metacentrum.perun.core.api.ServicesManager#removeRequiredAttribute(PerunSession,Service,AttributeDefinition)
 	 */
-	void removeRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException;
+	void removeRequiredAttributes(PerunSession perunSession, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, ServiceNotExistsException, AttributeNotAssignedException;
 
 	/**
 	 * Detate all required attributes from service

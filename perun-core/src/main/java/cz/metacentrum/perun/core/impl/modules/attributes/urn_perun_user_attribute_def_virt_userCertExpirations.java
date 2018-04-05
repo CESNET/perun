@@ -5,13 +5,13 @@ import javax.security.cert.X509Certificate;
 
 import java.text.DateFormat;
 
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import org.apache.commons.codec.binary.Base64;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -55,7 +55,7 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
 				}
 				attribute = Utils.copyAttributeToViAttributeWithoutValue(userCertsAttribute, attribute);
 			}
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// FIXME throw new WrongReferenceAttributeValueException("User " + user + " doesn't have assigned urn:perun:user:attribute-def:def:userCertificates attribute", ex);
 		} catch (CertificateException e) {
 			throw new InternalErrorException("CertificateException - user: " + user + ".", e);
@@ -65,7 +65,7 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
 		return attribute;
 	}
 
-	private Attribute getUserCertsAttribute(PerunSessionImpl sess, User user) throws InternalErrorException, AttributeNotExistsException {
+	private Attribute getUserCertsAttribute(PerunSessionImpl sess, User user) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
 		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);

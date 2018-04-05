@@ -10,7 +10,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -44,7 +44,7 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 		Attribute facilityAttr = null;
 		try {
 			facilityAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_homeMountPoints);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException("Attribute which is essentials for fill the value of checked attribute doesn't exists.", ex);
 		}
 		Attribute toReturn = new Attribute(attribute);
@@ -70,7 +70,7 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 		Attribute facilityAttr = null;
 		try {
 			facilityAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_homeMountPoints);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 

@@ -203,7 +203,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// check necessary attributes
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_FROM_EMAIL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_VO_FROM_EMAIL);
@@ -219,7 +219,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_TO_EMAIL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_VO_TO_EMAIL);
@@ -235,7 +235,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_TO_EMAIL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_GROUP_TO_EMAIL);
@@ -252,7 +252,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_FROM_EMAIL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_GROUP_FROM_EMAIL);
@@ -269,7 +269,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_LANGUAGE_EMAIL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_VO_LANGUAGE_EMAIL);
@@ -285,7 +285,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_LANGUAGE_EMAIL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_GROUP_LANGUAGE_EMAIL);
@@ -302,7 +302,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_APPLICATION_URL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_VO_APPLICATION_URL);
@@ -318,7 +318,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_APPLICATION_URL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_GROUP_APPLICATION_URL);
@@ -335,7 +335,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_REGISTRAR_URL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_VO_REGISTRAR_URL);
@@ -351,7 +351,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_REGISTRAR_URL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_GROUP_REGISTRAR_URL);
@@ -368,7 +368,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_MAIL_FOOTER_URL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_VO_MAIL_FOOTER_URL);
@@ -384,7 +384,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_MAIL_FOOTER_URL);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName(DISPLAY_NAME_GROUP_MAIL_FOOTER_URL);
@@ -401,7 +401,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, "urn:perun:vo:attribute-def:def:voLogoURL");
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			// create attr if not exists
 			AttributeDefinition attrDef = new AttributeDefinition();
 			attrDef.setDisplayName("VO logo's URL");

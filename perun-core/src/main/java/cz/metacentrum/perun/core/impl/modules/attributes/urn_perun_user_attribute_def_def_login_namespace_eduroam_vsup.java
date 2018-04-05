@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -51,7 +51,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup exten
 			if (attribute != null && !Objects.equals(attribute.getValue(),a.getValue())) {
 				throw new WrongAttributeValueException(attribute, user, "Eduroam login must match VŠUP login "+a.getValue());
 			}
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException("Login namespace attribute for VŠUP must exists.", ex);
 		}
 
@@ -81,7 +81,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup exten
 				// pre-fill if exists !
 				filledAttribute.setValue(a.getValue());
 			}
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException("Login namespace attribute for VŠUP must exists.", ex);
 		}
 

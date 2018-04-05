@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -44,7 +44,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 				preferredUnixGroupNameAttr.setValue(attribute.getValue());
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, preferredUnixGroupNameAttr);
 			} // Null is ok, can be empty
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException(e);
 		}
 	}
@@ -63,7 +63,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 			} else {
 				attr.setValue(null);
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -83,7 +83,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 			String namespace = (String) facilityGroupNameNamespaceAttr.getValue();
 
 			userPreferredGroupNameDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_USER_DEF_PREFERRED_UNIX_GROUPNAME_NAMESPACE + namespace);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);

@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -30,7 +30,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 		Attribute groupNameAttribute;
 		try {
 			groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + unixGroupNameNamespaceAttribute.getValue());
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 		groupNameAttribute.setValue(attribute.getValue());
@@ -57,7 +57,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 		Attribute groupNameAttribute;
 		try {
 			groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + unixGroupNameNamespaceAttribute.getValue());
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 
@@ -94,7 +94,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 			return attribute;
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
@@ -109,7 +109,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, resource, groupNameAttribute);
 		} catch(WrongAttributeValueException ex) {
 			throw new InternalErrorException(ex);
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -122,7 +122,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 		try {
 			AttributeDefinition groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + unixGroupNameNamespaceAttribute.getValue());
 			return sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, resource, groupNameAttribute);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);

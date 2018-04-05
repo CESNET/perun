@@ -4,13 +4,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.ldapc.beans.LdapOperation;
 import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -886,7 +886,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			preferredMailAttr = Rpc.AttributesManager.getAttribute(ldapcManager.getRpcCaller(), user, cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrPreferredMail);
 		} catch(PrivilegeException ex) {
 			throw new InternalErrorException("There are no privilegies for getting user's attribute.", ex);
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException("There is no such attribute.", ex);
 		} catch(UserNotExistsException ex) {
 			//If user not exist in perun now, probably will be deleted in next step so its ok. The value is null anyway.
@@ -921,7 +921,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			entityID = Rpc.AttributesManager.getAttribute(ldapcManager.getRpcCaller(), facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":" + perunAttrEntityID);
 		} catch(PrivilegeException ex) {
 			throw new InternalErrorException("There are no privilegies for getting facility attribute.", ex);
-		} catch(AttributeNotExistsException ex) {
+		} catch(AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException("There is no such attribute.", ex);
 		} catch(FacilityNotExistsException ex) {
 			//If facility not exist in perun now, probably will be deleted in next step so its ok. The value is null anyway.

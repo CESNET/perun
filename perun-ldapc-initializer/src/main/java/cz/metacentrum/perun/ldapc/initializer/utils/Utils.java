@@ -13,7 +13,7 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -162,7 +162,7 @@ public class Utils {
 				Attribute entityIDAttr = null;
 				try {
 					entityIDAttr = perun.getAttributesManagerBl().getAttribute(perunSession, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":entityID");
-				} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 					//entityId attribute not exists or its assignment is wrong, use empty value
 					entityIDAttr = new Attribute();
 					log.error("EntityId attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
@@ -170,7 +170,7 @@ public class Utils {
 				Attribute clientIDAttr = null;
 				try {
 					clientIDAttr = perun.getAttributesManagerBl().getAttribute(perunSession, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":OIDCClientID");
-				} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 					//clientIDAttr attribute not exists or its assignment is wrong, use empty value
 					clientIDAttr = new Attribute();
 					log.error("clientIDAttr attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
@@ -306,10 +306,10 @@ public class Utils {
 	 *
 	 * @throws InternalErrorException if some problem with initializer or objects in perun-core
 	 * @throws IOException if some problem with writer
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	public static void generateAllUsersToWriter(PerunInitializer perunInitializer) throws IOException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static void generateAllUsersToWriter(PerunInitializer perunInitializer) throws IOException, InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		//Load basic variables
 		if(perunInitializer == null) throw new InternalErrorException("PerunInitializer must be loaded before using in generating methods!");
 		PerunSession perunSession = perunInitializer.getPerunSession();
@@ -370,47 +370,47 @@ public class Utils {
 			//Check if there is any attribute missing and if so, log it and skip it
 			try {
 				attrPreferredMail = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("Preferred mail attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
 			}
 			try {
 				attrOrganization = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":organization");
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("Organization attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
 			}
 			try {
 				attrVirtCertDNs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("Certificate DNs attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
 			}
 			try {
 				attrSchacHomeOrganizations = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":schacHomeOrganizations");
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("Schac home organizations attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
 			}
 			try {
 				attrBonaFideStatus = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":elixirBonaFideStatus");
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("Bona fide status attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
 			}
 			try {
 				attrEduPersonScopedAffiliations = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":eduPersonScopedAffiliations");
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("Edu person scoped affilations attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
 			}
 			try {
 				attrLibraryIDs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs");
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("Library IDs attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
 			}
 			try {
 				attrPhone = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":phone");
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("Phone attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
 			}
 			try {
 				attrGroupNames = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":groupNames");
-			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("Group names attribute is missing or it's assignment is wrong is missing. Attribute was skipped.", ex);
 			}
 

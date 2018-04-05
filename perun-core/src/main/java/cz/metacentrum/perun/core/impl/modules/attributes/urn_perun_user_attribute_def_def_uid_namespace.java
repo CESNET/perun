@@ -10,7 +10,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -53,7 +53,7 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 		try {
 			minUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_minUID);
 			maxUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_maxUID);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException("minUid and maxUid attributes are required", e);
 		}
 
@@ -93,7 +93,7 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 		try {
 			minUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_minUID);
 			maxUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_maxUID);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException("minUid and maxUid attributes are required", e);
 		}
 
@@ -115,7 +115,7 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 		String uidPolicy;
 		try {
 			uidPolicy = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_namespace_uid_policy).getValue();
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
 

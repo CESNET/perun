@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
@@ -44,7 +44,7 @@ public class urn_perun_member_resource_attribute_def_virt_fileQuotas extends Res
 		Attribute resourceQuotas;
 		try {
 			resourceQuotas = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_defaultFileQuotas);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -64,7 +64,7 @@ public class urn_perun_member_resource_attribute_def_virt_fileQuotas extends Res
 		Attribute memberQuotas;
 		try {
 			memberQuotas = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, member, A_MR_fileQuotas);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -86,7 +86,7 @@ public class urn_perun_member_resource_attribute_def_virt_fileQuotas extends Res
 		Attribute memberQuotasOverride;
 		try {
 			memberQuotasOverride = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, member, A_MR_fileQuotasOverride);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);

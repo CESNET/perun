@@ -27,7 +27,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
@@ -417,7 +417,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getEntitylessKeys(sess, attributeDefinition);
 	}
 
-	public Attribute getEntitylessAttributeForUpdate(PerunSession sess, String key, String attrName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getEntitylessAttributeForUpdate(PerunSession sess, String key, String attrName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		AttributeDefinition attrDef = this.getAttributeDefinition(sess, attrName);
 		Attribute attr = new Attribute(attrDef);
 
@@ -1137,7 +1137,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAllSimilarAttributeNames(sess, startingPartOfAttributeName);
 	}
 
-	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_FACILITY_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
@@ -1145,7 +1145,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, facility, attributeName);
 	}
 
-	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_VO_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
@@ -1153,7 +1153,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, vo, attributeName);
 	}
 
-	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		//check namespace
 		String namespace = getNamespaceFromAttributeName(attributeName);
 		if (!namespace.startsWith(AttributesManager.NS_GROUP_ATTR))
@@ -1162,7 +1162,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, group, attributeName);
 	}
 
-	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_RESOURCE_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
@@ -1170,7 +1170,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, resource, attributeName);
 	}
 
-	public Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, MemberResourceMismatchException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, MemberResourceMismatchException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR))
@@ -1180,7 +1180,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		// check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
@@ -1188,7 +1188,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, member, group, attributeName);
 	}
 
-	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
@@ -1196,7 +1196,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, member, attributeName);
 	}
 
-	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_USER_FACILITY_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
@@ -1205,7 +1205,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
-	public Attribute getAttribute(PerunSession sess, User user, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, User user, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_USER_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
@@ -1214,35 +1214,35 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 
-	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		if (!attributeName.startsWith(AttributesManager.NS_HOST_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name= " + attributeName);
 		return getAttributesManagerImpl().getAttribute(sess, host, attributeName);
 
 	}
 
-	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupResourceMismatchException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if (!attributeName.startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name= " + attributeName);
 		return getAttributesManagerImpl().getAttribute(sess, resource, group, attributeName);
 	}
 
-	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		if (!attributeName.startsWith(AttributesManager.NS_ENTITYLESS_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name= " + attributeName);
 		return getAttributesManagerImpl().getAttribute(sess, key, attributeName);
 	}
 
 	@Override
-	public Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws WrongAttributeAssignmentException, AttributeNotExistsException, InternalErrorException {
+	public Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, InternalErrorException {
 		if (!attributeName.startsWith(AttributesManager.NS_ENTITYLESS_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name= " + attributeName);
 		return getAttributesManagerImpl().getEntitylessStringAttributeMapping(sess, attributeName);
 	}
 
 
-	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_UES_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
@@ -1250,11 +1250,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, ues, attributeName);
 	}
 
-	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		return getAttributesManagerImpl().getAttributeDefinition(sess, attributeName);
 	}
 
-	public List<AttributeDefinition> getAttributesDefinitionWithRights(PerunSession sess, List<PerunBean> entities) throws InternalErrorException, AttributeNotExistsException {
+	public List<AttributeDefinition> getAttributesDefinitionWithRights(PerunSession sess, List<PerunBean> entities) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
 
 		//if there is no entities, so no attribute definition will be returned => empty array list of ADs
@@ -1377,7 +1377,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttributesDefinition(sess);
 	}
 
-	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess, List<String> listOfAttributesNames) throws AttributeNotExistsException, InternalErrorException {
+	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess, List<String> listOfAttributesNames) throws AttributeDefinitionNotExistsException, InternalErrorException {
 		List<AttributeDefinition> listOfAttributeDefinitions = new ArrayList<>();
 		for (String name : listOfAttributesNames) {
 			listOfAttributeDefinitions.add(this.getAttributeDefinition(sess, name));
@@ -1385,7 +1385,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return listOfAttributeDefinitions;
 	}
 
-	public AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeNotExistsException {
+	public AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		return getAttributesManagerImpl().getAttributeDefinitionById(sess, id);
 	}
 
@@ -1393,25 +1393,25 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttributesDefinitionByNamespace(sess, namespace);
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, facility, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, vo, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_VO_ATTR);
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, resource, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_RESOURCE_ATTR);
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		AttributeDefinition attributeDefinition = getAttributeDefinitionById(sess, id);
 
@@ -1437,7 +1437,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		AttributeDefinition attributeDefinition = getAttributeDefinitionById(sess, id);
 
 		if (getAttributesManagerImpl().isFromNamespace(attributeDefinition, AttributesManager.NS_MEMBER_GROUP_ATTR)) {
@@ -1455,50 +1455,50 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Member member, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Member member, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, member, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_ATTR);
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, facility, user, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_FACILITY_ATTR);
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, User user, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, User user, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, user, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_ATTR);
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, host, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_HOST_ATTR);
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupResourceMismatchException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, resource, group, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, group, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 		return attribute;
 	}
 
-	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, ues, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_UES_ATTR);
 		return attribute;
 	}
 
-	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeDefinitionNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
 		//fill attributes and get back only those which were really filled with new value
 		List<Attribute> filledAttributes = this.fillAttributes(sess, facility, resource, user, member, attributes, true);
 
@@ -1559,14 +1559,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributes);
 	}
 
-	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
+	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeDefinitionNotExistsException, MemberResourceMismatchException {
 		//get all attributes (for member, resource, facility and user) with values
 		List<Attribute> attributes = this.getResourceRequiredAttributes(sess, resource, facility, resource, user, member);
 
 		this.setRequiredAttributes(sess, facility, resource, user, member, attributes);
 	}
 
-	public void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
+	public void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeDefinitionNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
 		//get all attributes (for member, resource, facility, user and service) with values
 		List<Attribute> attributes = this.getRequiredAttributes(sess, service, facility, resource, user, member);
 
@@ -1717,7 +1717,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, member, group, attribute);
@@ -2016,7 +2016,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			Attribute storedAttribute;
 			try {
 				storedAttribute = getAttribute(sess, resource, group, attribute.getName());
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 			if (!(storedAttribute.getValue() == null ? attribute.getValue() == null : storedAttribute.getValue().equals(attribute.getValue()))) { //unless attribute and storedAttribute have equals value
@@ -4306,11 +4306,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkActionTypeExists(sess, actionType);
 	}
 
-	public void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeNotExistsException {
+	public void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		getAttributesManagerImpl().checkAttributeExists(sess, attribute);
 	}
 
-	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotExistsException {
+	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		getAttributesManagerImpl().checkAttributesExists(sess, attributes);
 	}
 
@@ -4502,7 +4502,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				try {
 					setRequiredAttributes(sess, facility, resource, user, member, requiredAttributes);
 					allOk = true;
-				} catch (AttributeNotExistsException | MemberResourceMismatchException | WrongAttributeAssignmentException ex) {
+				} catch (AttributeDefinitionNotExistsException | MemberResourceMismatchException | WrongAttributeAssignmentException ex) {
 					throw new ConsistencyErrorException(ex);
 				} catch (WrongAttributeValueException ex) {
 					if (!trueMagic) throw ex;
@@ -4585,7 +4585,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			} else {
 				throw new InternalErrorException("Primary holder for attribute is not supported: " + primaryHolder);
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException(e);
 		}
 
@@ -4834,7 +4834,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					List<RichAttribute> richAttributesToCheck;
 					try {
 						richAttributesToCheck = getRichAttributesWithHoldersForAttributeDefinition(sess, dependency, richAttr);
-					} catch (AttributeNotExistsException | VoNotExistsException | UserNotExistsException | GroupResourceMismatchException | MemberResourceMismatchException ex) {
+					} catch (AttributeDefinitionNotExistsException | VoNotExistsException | UserNotExistsException | GroupResourceMismatchException | MemberResourceMismatchException ex) {
 						throw new InternalErrorException(ex);
 					}
 					for (RichAttribute richAttribute : richAttributesToCheck) {
@@ -5005,7 +5005,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, UserNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
+	public List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeDefinitionNotExistsException, UserNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		//Filling objects from aidingAttr
 		if (aidingAttr == null) throw new InternalErrorException("Aiding attribute cant be null.");
 		if (attrDef == null) throw new InternalErrorException("attrDef cant be null.");
@@ -6151,7 +6151,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			try {
 				// If attribute definition is not found, catch exception and create this attribute definition
 				getAttributeDefinition(sess, attribute.getName());
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				if (perunBl.isPerunReadOnly()) {
 					throw new InternalErrorException("There is missing required attribute " + attribute + " and can't be created because this instance is read only.");
 				} else {
@@ -6209,7 +6209,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 						try {
 							AttributeDefinition attrDef = getAttributeDefinition(sess, s);
 							depSet.add(attrDef);
-						} catch (AttributeNotExistsException ex) {
+						} catch (AttributeDefinitionNotExistsException ex) {
 							log.error("For attribute name " + s + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
 						}
 						//If there is something like AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*" we need to replace * by all possibilities
@@ -6219,7 +6219,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 							try {
 								AttributeDefinition attrDef = getAttributeDefinition(sess, variant);
 								depSet.add(attrDef);
-							} catch (AttributeNotExistsException ex) {
+							} catch (AttributeDefinitionNotExistsException ex) {
 								log.error("For attribute name " + variant + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
 							}
 						}
@@ -6231,7 +6231,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 						try {
 							AttributeDefinition attrDef = getAttributeDefinition(sess, s);
 							strongDepSet.add(attrDef);
-						} catch (AttributeNotExistsException ex) {
+						} catch (AttributeDefinitionNotExistsException ex) {
 							log.error("For attribute name " + s + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
 						}
 						//If there is something like AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*" we need to replace * by all possibilities
@@ -6241,7 +6241,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 							try {
 								AttributeDefinition attrDef = getAttributeDefinition(sess, variant);
 								strongDepSet.add(attrDef);
-							} catch (AttributeNotExistsException ex) {
+							} catch (AttributeDefinitionNotExistsException ex) {
 								log.error("For attribute name " + variant + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
 							}
 						}
@@ -6448,7 +6448,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void convertAttributeToUnique(PerunSession session, int attrId) throws InternalErrorException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException {
+	public void convertAttributeToUnique(PerunSession session, int attrId) throws InternalErrorException, AttributeDefinitionNotExistsException, AttributeAlreadyMarkedUniqueException {
 		AttributeDefinition attrDef = getAttributeDefinitionById(session, attrId);
 		if(attrDef.isUnique()) throw new AttributeAlreadyMarkedUniqueException("Cannot convert attribute because it is already marked as unique", attrDef);
 		if(attrDef.getNamespace().startsWith(NS_ENTITYLESS_ATTR)) throw new InternalErrorException("entityless atributes cannot be converted to unique");
@@ -6638,7 +6638,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of Rich attributes for given user
 	 */
-	private List<RichAttribute> getVoAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getVoAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		for (Member memberElement : membersFromUser) {
@@ -6659,7 +6659,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getVoAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
@@ -6679,7 +6679,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getVoAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, VoNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, VoNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId());
 		listOfRichAttributes.addAll(getVoAttributes(sess, vo, attrDef));
@@ -6696,7 +6696,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return list of RichAttributes
 	 */
-	private List<RichAttribute> getVoAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, VoNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, VoNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());
 		listOfRichAttributes.addAll(getVoAttributes(sess, vo, attrDef));
@@ -6713,7 +6713,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getVoAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, attrDef.getName());
 		listOfRichAttributes.add(new RichAttribute<>(vo, null, attribute));
@@ -6730,7 +6730,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getVoAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Vo> vos = getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility);
 		for (Vo voElement : vos) {
@@ -6750,7 +6750,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAtrributes
 	 */
-	private List<RichAttribute> getVoAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getVoAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getVoAttributes(sess, facility, attrDef));
@@ -6767,7 +6767,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getVoAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getVoAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		listOfRichAttributes.addAll(getVoAttributes(sess, user, attrDef));
@@ -6789,7 +6789,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getVoAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getVoAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Group> groupsFromUser = new ArrayList<>();
 		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
@@ -6830,7 +6830,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getVoAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getVoAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
 		for (Vo voElement : vos) {
@@ -6853,7 +6853,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getUserAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attrDef.getName());
 		listOfRichAttributes.add(new RichAttribute<>(user, null, attribute));
@@ -6871,7 +6871,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getUserAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -6890,7 +6890,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getUserAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
 		for (Member memberElement : members) {
@@ -6910,7 +6910,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getUserAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<User> usersFromResource = getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
 		for (User userElement : usersFromResource) {
@@ -6930,7 +6930,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getUserAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 		for (Member memberElement : members) {
@@ -6950,7 +6950,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getUserAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 		for (User userElement : usersFromFacility) {
@@ -6970,7 +6970,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getUserAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getUserAttributes(sess, facility, attrDef));
@@ -6987,7 +6987,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getUserAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		listOfRichAttributes.addAll(getUserAttributes(sess, user, attrDef));
@@ -7008,7 +7008,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getUserAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Facility> facilitiesFromUser = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
 		if (facilitiesFromUser.contains(facility)) {
@@ -7026,7 +7026,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getUserAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<User> allUsers = getPerunBl().getUsersManagerBl().getUsers(sess);
 		for (User userElement : allUsers) {
@@ -7048,7 +7048,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getMemberAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		for (Member memberElement : membersFromUser) {
@@ -7069,7 +7069,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getMemberAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, attrDef.getName());
@@ -7088,7 +7088,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getMemberAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
 		for (Member memberElement : membersFromGroup) {
@@ -7109,7 +7109,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getMemberAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		for (Member memberElement : membersFromResource) {
@@ -7129,7 +7129,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getMemberAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromVo = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 		for (Member memberElement : membersFromVo) {
@@ -7149,7 +7149,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getMemberAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
 		for (Member memberElement : membersFromFacility) {
@@ -7170,7 +7170,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getMemberAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getMemberAttributes(sess, facility, attrDef));
@@ -7188,7 +7188,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getMemberAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		listOfRichAttributes.addAll(getMemberAttributes(sess, user, attrDef));
@@ -7210,7 +7210,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getMemberAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
@@ -7231,7 +7231,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getMemberAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
 		for (Vo voElement : vos) {
@@ -7253,7 +7253,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		for (Member memberElement : members) {
@@ -7274,7 +7274,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
@@ -7296,7 +7296,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, attrDef.getName());
 		listOfRichAttributes.add(new RichAttribute<>(group, null, attribute));
@@ -7313,7 +7313,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		for (Group groupElement : groupsFromResource) {
@@ -7333,7 +7333,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Group> groups = getPerunBl().getGroupsManagerBl().getAllGroups(sess, vo);
 		for (Group groupElement : groups) {
@@ -7353,7 +7353,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
 		for (Group groupElement : groupsFromFacility) {
@@ -7373,7 +7373,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getGroupAttributes(sess, facility, attrDef));
@@ -7391,7 +7391,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		listOfRichAttributes.addAll(getGroupAttributes(sess, user, attrDef));
@@ -7410,7 +7410,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			listOfRichAttributes = getGroupAttributes(sess, group, attrDef);
@@ -7434,7 +7434,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
@@ -7465,7 +7465,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		Set<Group> groupsFromMembers = new HashSet<>();
@@ -7490,7 +7490,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return list of RichAttributes
 	 */
-	private List<RichAttribute> getGroupAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getGroupAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
 		for (Vo voElement : vos) {
@@ -7513,7 +7513,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return list of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		for (Member memberElement : members) {
@@ -7535,7 +7535,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return list of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Resource> resourcesFromMember = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
@@ -7557,7 +7557,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return list of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
 		for (Resource resourceElement : resourcesFromGroup) {
@@ -7577,7 +7577,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, attrDef.getName());
 		listOfRichAttributes.add(new RichAttribute<>(resource, null, attribute));
@@ -7594,7 +7594,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resourcesFromVo = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
 		for (Resource resourceElement : resourcesFromVo) {
@@ -7614,7 +7614,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		for (Resource resourceElement : resourcesFromFacility) {
@@ -7635,7 +7635,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getResourceAttributes(sess, facility, attrDef));
@@ -7654,7 +7654,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		listOfRichAttributes.addAll(getResourceAttributes(sess, user, attrDef));
@@ -7674,7 +7674,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Resource> resourcesFromGroup = new ArrayList<>(new HashSet<>(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group)));
@@ -7698,7 +7698,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, attrDef.getName());
@@ -7722,7 +7722,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		List<Resource> resourcesFromUser = new ArrayList<>();
@@ -7749,7 +7749,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getResourceAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getResourceAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
 		for (Vo voElement : vos) {
@@ -7772,7 +7772,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
 		for (Facility facilityElement : facilities) {
@@ -7796,7 +7796,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Group> groupsForMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
@@ -7820,7 +7820,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
 		for (Resource resourceElement : resources) {
@@ -7840,7 +7840,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 		listOfRichAttributes.addAll(getFacilityAttributes(sess, facility, attrDef));
@@ -7859,7 +7859,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
 		for (Resource resourceElement : resources) {
@@ -7878,7 +7878,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, attrDef.getName());
 		listOfRichAttributes.add(new RichAttribute<>(facility, null, attribute));
@@ -7896,7 +7896,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getFacilityAttributes(sess, facility, attrDef));
@@ -7915,7 +7915,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		listOfRichAttributes.addAll(getFacilityAttributes(sess, user, attrDef));
@@ -7936,7 +7936,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			listOfRichAttributes = getFacilityAttributes(sess, group, attrDef);
@@ -7957,7 +7957,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			listOfRichAttributes.addAll(getFacilityAttributes(sess, resource, attrDef));
@@ -7978,7 +7978,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Facility> facilitiesFromUser = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
 		if (facilitiesFromUser.contains(facility)) {
@@ -7995,7 +7995,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getFacilityAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getFacilityAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
 		for (Facility facilityElement : facilities) {
@@ -8018,7 +8018,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
 		for (Facility facilityElement : facilities) {
@@ -8043,7 +8043,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (perunBl.getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Group> groupsForMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
@@ -8068,7 +8068,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
 		for (Resource resourceElement : resources) {
@@ -8090,7 +8090,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 		listOfRichAttributes.addAll(getHostAttributes(sess, facility, attrDef));
@@ -8110,7 +8110,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
 		for (Resource resourceElement : resources) {
@@ -8131,7 +8131,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Host> hostsFromFacility = getPerunBl().getFacilitiesManagerBl().getHosts(sess, facility);
 		for (Host hostElement : hostsFromFacility) {
@@ -8149,7 +8149,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, host, attrDef.getName());
 		listOfRichAttributes.add(new RichAttribute<>(host, null, attribute));
@@ -8170,7 +8170,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		listOfRichAttributes.addAll(getHostAttributes(sess, user, attrDef));
@@ -8192,7 +8192,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			listOfRichAttributes.addAll(getHostAttributes(sess, group, attrDef));
@@ -8212,7 +8212,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			listOfRichAttributes = getHostAttributes(sess, resource, attrDef);
@@ -8233,7 +8233,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user).contains(facility)) {
 			List<Host> hostsFromFacility = getPerunBl().getFacilitiesManagerBl().getHosts(sess, facility);
@@ -8252,7 +8252,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttributes
 	 */
-	private List<RichAttribute> getHostAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getHostAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
 		for (Facility facilityElement : facilities) {
@@ -8273,7 +8273,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<UserExtSource> userExtSources = getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 		for (UserExtSource userExtSourceElement : userExtSources) {
@@ -8293,7 +8293,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -8313,7 +8313,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> groupMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
 		for (Member memberElement : groupMembers) {
@@ -8334,7 +8334,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> resourceMembers = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		for (Member memberElement : resourceMembers) {
@@ -8355,7 +8355,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> voMembers = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 		for (Member memberElement : voMembers) {
@@ -8376,7 +8376,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> facilityMembers = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
 		for (Member memberElement : facilityMembers) {
@@ -8397,7 +8397,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getUserExtSourceAttributes(sess, facility, attrDef));
@@ -8414,7 +8414,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, userExtSource, attrDef.getName());
 		listOfRichAttributes.add(new RichAttribute<>(userExtSource, null, attribute));
@@ -8434,7 +8434,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 		if (usersFromFacility.contains(user)) {
@@ -8455,7 +8455,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserExtSourceAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
 		for (Facility facilityElement : facilities) {
@@ -8478,7 +8478,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		for (Member memberElement : members) {
@@ -8500,7 +8500,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Group> groupsFromMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
@@ -8530,7 +8530,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
 		for (Resource resourceElement : resourcesFromGroup) {
@@ -8552,7 +8552,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		for (Group groupElement : groupsFromResource) {
@@ -8573,7 +8573,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
 		for (Resource resourceElement : resources) {
@@ -8593,7 +8593,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		for (Resource resourceElement : resourcesFromFacility) {
@@ -8614,7 +8614,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getGroupResourceAttributes(sess, facility, attrDef));
@@ -8632,7 +8632,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		listOfRichAttributes.addAll(getGroupResourceAttributes(sess, user, attrDef));
@@ -8650,7 +8650,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, attrDef.getName());
 		listOfRichAttributes.add(new RichAttribute<>(resource, group, attribute));
@@ -8670,7 +8670,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		// there is no need to get Resources from Member because Members are only in those groups from which we already took Resources
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
@@ -8693,7 +8693,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
@@ -8722,7 +8722,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		//Groups from User
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
@@ -8772,7 +8772,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
+	private List<RichAttribute> getGroupResourceAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
 		List<Resource> resources = new ArrayList<>();
@@ -8804,7 +8804,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		for (Member memberElement : membersFromUser) {
@@ -8825,7 +8825,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Group> groupsFromMembers = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
@@ -8849,7 +8849,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromGroups = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
 		for (Member memberElement : membersFromGroups) {
@@ -8873,7 +8873,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Group> groupsFromResources = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		for (Group groupElement : groupsFromResources) {
@@ -8894,7 +8894,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Group> groupsFromVo = getPerunBl().getGroupsManagerBl().getAllGroups(sess, vo);
 		for (Group groupElement : groupsFromVo) {
@@ -8915,7 +8915,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
 		for (Group groupElement : groupsFromFacility) {
@@ -8936,7 +8936,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getMemberGroupAttributes(sess, facility, attrDef));
@@ -8954,7 +8954,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		listOfRichAttributes.addAll(getMemberGroupAttributes(sess, user, attrDef));
@@ -8973,7 +8973,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, group, attrDef.getName());
@@ -8994,7 +8994,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		//If member is not allowed, skip whole process
 		if (!getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) return listOfRichAttributes;
@@ -9025,7 +9025,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		// get all groups from facility
 		List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
@@ -9065,7 +9065,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getMemberGroupAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
 		List<Group> groupsFromVo = new ArrayList<>();
@@ -9100,7 +9100,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		for (Member memberElement : members) {
@@ -9122,7 +9122,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
@@ -9146,7 +9146,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
 		List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
@@ -9176,7 +9176,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		for (Member memberElement : members) {
@@ -9199,7 +9199,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
 		for (Resource resourceElement : resources) {
@@ -9220,7 +9220,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		for (Resource resourceElement : resources) {
@@ -9241,7 +9241,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getMemberResourceAttributes(sess, facility, attrDef));
@@ -9259,7 +9259,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		listOfRichAttributes.addAll(getMemberResourceAttributes(sess, user, attrDef));
@@ -9278,7 +9278,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
 		List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
@@ -9305,7 +9305,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		//we can take everything from group, because member should be assigned to this group already
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
@@ -9331,7 +9331,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, member, attrDef.getName());
@@ -9353,7 +9353,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
@@ -9385,7 +9385,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Vo> vos = getPerunBl().getVosManagerBl().getVos(sess);
 		List<Resource> resources = new ArrayList<>();
@@ -9416,7 +9416,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, User user, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
 		for (Facility facilityElement : facilities) {
@@ -9438,7 +9438,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -9471,7 +9471,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
 		List<User> users = new ArrayList<>();
@@ -9510,7 +9510,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 		List<User> usersFromResource = getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
@@ -9533,7 +9533,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Vo vo, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Group> groupsFromVo = getPerunBl().getGroupsManagerBl().getGroups(sess, vo);
 		for (Group groupElement : groupsFromVo) {
@@ -9570,7 +9570,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<User> users = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 		for (User userElement : users) {
@@ -9591,7 +9591,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Host host, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 		listOfRichAttributes.addAll(getUserFacilityAttributes(sess, facility, attrDef));
@@ -9608,7 +9608,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef       type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, UserExtSource userExtSource, AttributeDefinition attrDef) throws InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		User user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
@@ -9632,7 +9632,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 		//get Users from Group
@@ -9676,7 +9676,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Member member, Group group, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
@@ -9708,7 +9708,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
@@ -9733,7 +9733,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef  type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, User user, Facility facility, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, attrDef.getName());
 		listOfRichAttributes.add(new RichAttribute<>(facility, user, attribute));
@@ -9750,7 +9750,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getUserFacilityAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
 		for (Facility facilityElement : facilities) {
@@ -9774,7 +9774,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getEntitylessAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getEntitylessAttributes(PerunSession sess, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		List<String> keys = this.getEntitylessKeys(sess, attrDef);
 		for (String keyElement : keys) {
@@ -9794,7 +9794,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param attrDef type of attribute that will be returned
 	 * @return List of RichAttribute
 	 */
-	private List<RichAttribute> getEntitylessAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private List<RichAttribute> getEntitylessAttributes(PerunSession sess, String key, AttributeDefinition attrDef) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, key, attrDef.getName());
 		listOfRichAttributes.add(new RichAttribute<>(key, null, attribute));

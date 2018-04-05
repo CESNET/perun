@@ -5,8 +5,8 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 
 import java.util.Calendar;
@@ -34,11 +34,11 @@ public interface SearcherBl {
 	 * @return list of users who have attributes with specific values (behavior above)
 	 *        if no user exist, return empty list of users
 	 *
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method take map of coreAttributes with search values and return all
@@ -48,10 +48,10 @@ public interface SearcherBl {
 	 * @param coreAttributesWithSearchingValues
 	 * @return
 	 * @throws InternalErrorException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Return members with expiration date set, which will expire on today +/- X days.

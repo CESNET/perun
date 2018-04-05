@@ -5,7 +5,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -2189,7 +2189,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't user-facility attribute.
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this facility attribute is valid.
@@ -2201,7 +2201,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't facility attribute.
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this vo attribute is valid.
@@ -2213,7 +2213,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeAssignmentException When the attribute isn't attribute of Vo with <code>id</code>.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this member-resource attribute is valid.
@@ -2227,7 +2227,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code> aren't from the same Vo.
 	 */
 	/*#
@@ -2237,7 +2237,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param group int Group <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 *
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
 	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
@@ -2255,7 +2255,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Resource with <code>id</code>.
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this member-group attribute is valid.
@@ -2269,7 +2269,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this member attribute is valid.
@@ -2281,7 +2281,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this group attribute is valid.
@@ -2292,7 +2292,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeValueException  When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with <code>id</code>.
 	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
 	 */
 	/*#
@@ -2303,7 +2303,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with <code>id</code>.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 * @throw HostNotExistsException When the host with <code>id</code> doesn't exist.
 	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
 	 */
@@ -2317,7 +2317,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't user-facility attribute.
 	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Checks if this userExtSource attribute is valid.
@@ -2327,7 +2327,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
 	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of UserExtSource with <code>id</code>.
-	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 * @throw UserExtSourceNotExistsException When the specified user external source with <code>id</code> doesn't exist.
 	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
 	 */
@@ -3176,7 +3176,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param attributeDefinition AttributeDefinition AttributeDefinition with updated properties to store in DB
 	 * @return AttributeDefinition updated AttributeDefinition
-	 * @throw AttributeNotExistsException When AttributeDefinition with <code>id</code> in object doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When AttributeDefinition with <code>id</code> in object doesn't exist.
 	 */
 	updateAttributeDefinition {
 
@@ -3214,7 +3214,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return List<AttributeRights> all rights of the attribute
-	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When Attribute with <code>id</code> doesn't exist.
 	 */
 	getAttributeRights {
 		@Override
@@ -3229,7 +3229,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * rights for are: voadmin, groupadmin, facilityadmin, self.
 	 *
 	 * @param rights List<AttributeRights> List of AttributeRights to set.
-	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When Attribute with <code>id</code> doesn't exist.
 	 */
 	setAttributeRights {
 		@Override
@@ -3247,13 +3247,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Entityless attributes cannot be converted to unique, only attributes attached to PerunBeans or pairs of PerunBeans.
 	 *
 	 * @param attrDefId int AttributeDefinition <code>id</code>
-	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
+	 * @throw AttributeDefinitionNotExistsException When Attribute with <code>id</code> doesn't exist.
 	 * @throw AttributeAlreadymarkedUniqueException When Attribute is already marked as unique.
 	 * @throw InternalErrorException when some attribute values are not unique
 	 */
 	convertAttributeToUnique {
 		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws InternalErrorException, AttributeAlreadyMarkedUniqueException, PrivilegeException, AttributeNotExistsException {
+		public Void call(ApiCaller ac, Deserializer parms) throws InternalErrorException, AttributeAlreadyMarkedUniqueException, PrivilegeException, AttributeDefinitionNotExistsException {
 			ac.stateChangingCheck();
 			ac.getAttributesManager().convertAttributeToUnique(ac.getSession(), parms.readInt("attrDefId"));
 			return null;

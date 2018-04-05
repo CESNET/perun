@@ -38,7 +38,7 @@ public class urn_perun_user_attribute_def_def_preferredMail extends UserAttribut
 		Attribute memberMail = null;
 		try {
 		memberMail = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, m, A_M_mail);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 		throw new ConsistencyErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {
 		throw new InternalErrorException(ex);
@@ -66,7 +66,7 @@ Attribute memberMail = null;
 for(Member m: membersOfUser) {
 try {
 memberMail = session.getPerunBl().getAttributesManagerBl().getAttribute(session, m, A_M_mail);
-} catch (AttributeNotExistsException ex) {
+} catch (AttributeDefinitionNotExistsException ex) {
 throw new ConsistencyErrorException(ex);
 } catch (WrongAttributeAssignmentException ex) {
 throw new InternalErrorException(ex);

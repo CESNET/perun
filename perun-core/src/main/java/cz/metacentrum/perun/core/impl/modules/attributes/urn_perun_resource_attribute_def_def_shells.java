@@ -2,15 +2,13 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -18,7 +16,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-import javax.mail.Session;
 
 /**
  * Checks and fills shells at specified resource
@@ -41,7 +38,7 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 		Attribute allShellsPerFacility;
 		try {
 			allShellsPerFacility = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_shells);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException("Attribute with list of shells from facility " + facility.getId() +" could not obtained.",ex);
 		}
 
@@ -71,7 +68,7 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 		Attribute allShellsPerFacility;
 		try {
 			allShellsPerFacility = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_shells);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException("Attribute with list of shells from facility " + facility.getId() +" could not obtained.",ex);
 		}
 

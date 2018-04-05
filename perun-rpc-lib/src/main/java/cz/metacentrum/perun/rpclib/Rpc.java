@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpclib;
 
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.*;
 import java.util.HashMap;
@@ -7,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
@@ -567,13 +567,13 @@ public class Rpc {
 
 	// AttributesManager
 	public static class AttributesManager {
-		public static AttributeDefinition getAttributeDefinitionById(RpcCaller rpcCaller, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException {
+		public static AttributeDefinition getAttributeDefinitionById(RpcCaller rpcCaller, int id) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("id", new Integer(id));
 
 			try {
 				return rpcCaller.call("attributesManager", "getAttributeDefinitionById", params).read(AttributeDefinition.class);
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				throw e;
 			} catch (PrivilegeException e) {
 				throw e;
@@ -599,13 +599,13 @@ public class Rpc {
 			}
 		}
 
-		public static AttributeDefinition getAttributeDefinition(RpcCaller rpcCaller, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException {
+		public static AttributeDefinition getAttributeDefinition(RpcCaller rpcCaller, String attributeName) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("attributeName", attributeName);
 
 			try {
 				return rpcCaller.call("attributesManager", "getAttributeDefinition", params).read(AttributeDefinition.class);
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				throw e;
 			} catch (PrivilegeException e) {
 				throw e;
@@ -633,14 +633,14 @@ public class Rpc {
 			}
 		}
 
-		public static Attribute getAttribute(RpcCaller rpcCaller, Facility facility, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException {
+		public static Attribute getAttribute(RpcCaller rpcCaller, Facility facility, String attributeName) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("facility", facility.getId());
 			params.put("attributeName", attributeName);
 
 			try {
 				return rpcCaller.call("attributesManager", "getAttribute", params).read(Attribute.class);
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				throw e;
 			} catch (PrivilegeException e) {
 				throw e;
@@ -655,14 +655,14 @@ public class Rpc {
 			}
 		}
 
-		public static Attribute getAttribute(RpcCaller rpcCaller, Vo vo, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException {
+		public static Attribute getAttribute(RpcCaller rpcCaller, Vo vo, String attributeName) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, VoNotExistsException, WrongAttributeAssignmentException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("vo", vo.getId());
 			params.put("attributeName", attributeName);
 
 			try {
 				return rpcCaller.call("attributesManager", "getAttribute", params).read(Attribute.class);
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				throw e;
 			} catch (PrivilegeException e) {
 				throw e;
@@ -677,14 +677,14 @@ public class Rpc {
 			}
 		}
 
-		public static Attribute getAttribute(RpcCaller rpcCaller, User user, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
+		public static Attribute getAttribute(RpcCaller rpcCaller, User user, String attributeName) throws PrivilegeException, InternalErrorException, AttributeDefinitionNotExistsException, UserNotExistsException, WrongAttributeAssignmentException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("user", user.getId());
 			params.put("attributeName", attributeName);
 
 			try {
 				return rpcCaller.call("attributesManager", "getAttribute", params).read(Attribute.class);
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				throw e;
 			} catch (PrivilegeException e) {
 				throw e;
@@ -753,7 +753,7 @@ public class Rpc {
 		}
 
 		public static void setAttribute(RpcCaller rpcCaller, Member member, Attribute attribute)
-			throws PrivilegeException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+			throws PrivilegeException, InternalErrorException, MemberNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("member", member.getId());
 			params.put("attribute", attribute);
@@ -766,7 +766,7 @@ public class Rpc {
 				throw e;
 			} catch (WrongAttributeValueException e) {
 				throw e;
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				throw e;
 			} catch (MemberNotExistsException e) {
 				throw e;
@@ -780,7 +780,7 @@ public class Rpc {
 		}
 
 		public static void setAttribute(RpcCaller rpcCaller, User user, Attribute attribute)
-			throws PrivilegeException, InternalErrorException, UserNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+			throws PrivilegeException, InternalErrorException, UserNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("user", user.getId());
 			params.put("attribute", attribute);
@@ -793,7 +793,7 @@ public class Rpc {
 				throw e;
 			} catch (WrongAttributeValueException e) {
 				throw e;
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				throw e;
 			} catch (UserNotExistsException e) {
 				throw e;

@@ -528,7 +528,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		} else {
 			try {
 				richUsers = getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new InternalErrorException("One of Attribute not exist.", ex);
 			}
 		}
@@ -579,7 +579,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException("One of Attribute not exist.", ex);
 		}
 	}
@@ -588,7 +588,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getDirectRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException("One of Attribute not exist.", ex);
 		}
 	}

@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -35,7 +35,7 @@ public class urn_perun_user_attribute_def_virt_optionalLogin_namespace_mu extend
 		try {
 			Attribute loginInMU = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu");
 			attribute = Utils.copyAttributeToVirtualAttributeWithValue(loginInMU, attribute);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			//That means that mu login attribute not exists at all
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);

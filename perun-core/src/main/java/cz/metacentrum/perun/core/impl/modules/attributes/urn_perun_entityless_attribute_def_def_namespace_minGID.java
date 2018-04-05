@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -29,7 +29,7 @@ public class  urn_perun_entityless_attribute_def_def_namespace_minGID extends En
 				if(maxGID != null) {
 					if(minGID > maxGID) throw new WrongAttributeValueException(attribute, "Attribute value must be less than maxGID. MaxGID = " + maxGID + ", and minGID try to set = " + minGID);
 				}
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute namespace-maxGID is supposed to exist.",ex);
 			}
 		}

@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleImplApi;
 
@@ -73,7 +72,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 	private Attribute getNamespaceMinGidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException, WrongReferenceAttributeValueException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, (String) uidNamespace, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
-		} catch(AttributeNotExistsException ex) { throw new ConsistencyErrorException(ex);
+		} catch(AttributeDefinitionNotExistsException ex) { throw new ConsistencyErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
 		}
 	}
@@ -81,7 +80,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 	private Attribute getUnixGIDNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
-		} catch(AttributeNotExistsException ex) { throw new InternalErrorException(ex);
+		} catch(AttributeDefinitionNotExistsException ex) { throw new InternalErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
 		}
 	}

@@ -5,7 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -144,7 +144,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 					//add non-null values returned by modifyValue()
 					Arrays.stream(rawValues).map(v -> modifyValue(ctx, v)).filter(Objects::nonNull).forEachOrdered(valuesWithoutDuplicities::add);
 				}
-			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+			} catch (WrongAttributeAssignmentException | AttributeDefinitionNotExistsException e) {
 				log.error("cannot read " + sourceAttributeFriendlyName + " from userExtSource " + userExtSource.getId() + " of user " + user.getId(), e);
 			}
 		}
@@ -156,7 +156,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		List<String> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 

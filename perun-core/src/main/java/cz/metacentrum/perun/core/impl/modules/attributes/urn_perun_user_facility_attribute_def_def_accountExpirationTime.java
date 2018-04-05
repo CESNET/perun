@@ -14,7 +14,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleImplApi;
-import java.util.HashMap;
 
 /**
  *
@@ -39,7 +38,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 		Integer facilityAccExpTime = null;
 		try {
 			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, attribute.getName()).getValue();
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 		if(accExpTime > facilityAccExpTime) {
@@ -57,14 +56,14 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 				if (resourceExpTime != null) {
 					resourcesExpTimes.add(resourceExpTime);
 				}
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new InternalErrorException(ex);
 			}
 		}
 		Integer facilityAccExpTime = null;
 		try {
 			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, attribute.getName()).getValue();
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 		if (facilityAccExpTime != null) {

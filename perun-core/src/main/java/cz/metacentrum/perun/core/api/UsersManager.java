@@ -619,9 +619,9 @@ public interface UsersManager {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
-	List<User> getUsersByAttribute(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
+	List<User> getUsersByAttribute(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, PrivilegeException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Returns all users who have the attribute with the value. attributeValue is not converted to the attribute type, it is always type of String.
@@ -632,9 +632,9 @@ public interface UsersManager {
 	 * @return list of users
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
-	List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
+	List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, PrivilegeException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Returns all users who are not member of any VO.
@@ -1013,13 +1013,13 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 *
 	 * @return String return new preferred email
 	 */
-	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Return list of email addresses of user, which are
@@ -1037,11 +1037,11 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 *
 	 * @return List<String> user's email addresses pending validation
 	 */
-	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException;
+	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get count of all users.

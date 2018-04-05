@@ -10,12 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
@@ -463,7 +463,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void addRequiredAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "addRequiredAttributeWhenAttributeNotExists");
 
@@ -513,7 +513,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void addRequiredAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "addRequiredAttributesWhenAttributeNotExists");
 
@@ -563,7 +563,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeRequiredAttributeWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeRequiredAttributeWhenAttributeNotExists");
 
@@ -612,7 +612,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
-	@Test (expected=AttributeNotExistsException.class)
+	@Test (expected=AttributeDefinitionNotExistsException.class)
 	public void removeRequiredAttributesWhenAttributeNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeRequiredAttributesWhenAttributeNotExists");
 

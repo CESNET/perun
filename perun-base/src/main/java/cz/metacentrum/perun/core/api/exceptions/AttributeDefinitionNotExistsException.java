@@ -8,22 +8,22 @@ import cz.metacentrum.perun.core.api.exceptions.rt.AttributeNotExistsRuntimeExce
  *
  * @author Slavek Licehammer glory@ics.muni.cz
  */
-public class AttributeNotExistsException extends EntityNotExistsException {
+public class AttributeDefinitionNotExistsException extends EntityNotExistsException {
 	static final long serialVersionUID = 0;
 
-	public AttributeNotExistsException(AttributeNotExistsRuntimeException rt) {
+	public AttributeDefinitionNotExistsException(AttributeNotExistsRuntimeException rt) {
 		super(rt.getMessage(),rt);
 	}
 
-	public AttributeNotExistsException(String message) {
+	public AttributeDefinitionNotExistsException(String message) {
 		super(message);
 	}
 
-	public AttributeNotExistsException(String message, Throwable cause) {
+	public AttributeDefinitionNotExistsException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public AttributeNotExistsException(Throwable cause) {
+	public AttributeDefinitionNotExistsException(Throwable cause) {
 		super(cause);
 	}
 

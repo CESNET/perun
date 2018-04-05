@@ -26,7 +26,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -172,7 +172,7 @@ public class PerunBlImpl implements PerunBl {
 					Attribute attributeWithValue;
 					try {
 						attributeWithValue = attributesManagerBl.getAttribute(session, ues, attr.getName());
-					} catch (AttributeNotExistsException ex) {
+					} catch (AttributeDefinitionNotExistsException ex) {
 						try {
 							attributeWithValue = new Attribute(attributesManagerBl.createAttribute(session, attr));
 						} catch (AttributeDefinitionExistsException e) {
@@ -182,7 +182,7 @@ public class PerunBlImpl implements PerunBl {
 					attributeWithValue.setValue(attrValue);
 					log.debug("storing attribute {}='{}' for user {}", attributeWithValue.getFriendlyName(), attrValue, ues.getLogin());
 					attributesManagerBl.setAttribute(session, ues, attributeWithValue);
-				} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+				} catch (AttributeDefinitionNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 					log.error("Attribute " + attr.getName() + " with value '" + attrValue + "' cannot be saved", e);
 				}
 			}

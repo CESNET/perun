@@ -655,7 +655,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public List<User> getUsersByAttribute(PerunSession sess, String attributeName, String attributeValue)
-			throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
+			throws InternalErrorException, PrivilegeException, AttributeDefinitionNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -669,7 +669,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue)
-			throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
+			throws InternalErrorException, PrivilegeException, AttributeDefinitionNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -755,7 +755,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		try {
 			getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attributeName);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new LoginNotExistsException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new LoginNotExistsException(e);
@@ -1115,7 +1115,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
-	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, PrivilegeException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -1135,7 +1135,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
-	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);

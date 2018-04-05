@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.*;
 
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -186,7 +186,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		// setup required attribute if not exists
 		try {
 			perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:membershipExpiration");
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			setUpMembershipExpirationAttribute();
 		}
 

@@ -10,7 +10,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -56,7 +56,7 @@ public class urn_perun_resource_attribute_def_def_fairshareGroupName extends Res
 				Attribute resFairshareName = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, res, attribute.getName());
 				if(resFairshareName.getValue() == null) continue;
 				resourcesFairshareGroupNames.add((String) resFairshareName.getValue());
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}

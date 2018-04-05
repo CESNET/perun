@@ -493,9 +493,9 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
-	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException;
+	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
@@ -506,11 +506,11 @@ public interface MembersManager {
 	 * @return list of richmembers
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws GroupNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, PrivilegeException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, PrivilegeException, GroupNotExistsException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get all RichMembers with attrs specific for list of attrsNames from the vo.
@@ -523,9 +523,9 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get all RichMembers with attrs specific for list of attrsNames from the vo and have only
@@ -541,9 +541,9 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Get all RichMembers with attrs specific for list of attrsNames from the group.
@@ -560,10 +560,10 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws VoNotExistsException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, VoNotExistsException, GroupNotExistsException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, VoNotExistsException, GroupNotExistsException, AttributeDefinitionNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get all RichMembers with attrs specific for list of attrsNames from the group and have only
@@ -583,11 +583,11 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws VoNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, VoNotExistsException, GroupNotExistsException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, VoNotExistsException, GroupNotExistsException, AttributeDefinitionNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get all RichMembers with attributes specific for list of attrNames.
@@ -603,14 +603,14 @@ public interface MembersManager {
 	 * @param allowedStatuses
 	 * @return list of richMembers with specific attributes
 	 * @throws InternalErrorException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws ParentGroupNotExistsException
 	 * @throws ResourceNotExistsException
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
 	 * @throws GroupResourceMismatchException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException, GroupResourceMismatchException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeDefinitionNotExistsException, ParentGroupNotExistsException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException, GroupResourceMismatchException;
 
 	/**
 	 * Return list of richMembers for specific vo by the searchString with attrs specific for list of attrsNames.
@@ -624,10 +624,10 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Return list of richMembers for specific vo by the searchString with attrs specific for list of attrsNames
@@ -644,10 +644,10 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Return list of richMembers from Perun by searchString with attrs specific for list of attrsNames
@@ -665,10 +665,10 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws MemberNotExistsException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, MemberNotExistsException, PrivilegeException, VoNotExistsException, AttributeNotExistsException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, MemberNotExistsException, PrivilegeException, VoNotExistsException, AttributeDefinitionNotExistsException;
 
 	/**
 	 * Return list of richMembers for specific group by the searchString with attrs specific for list of attrsNames.
@@ -686,11 +686,11 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws VoNotExistsException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, AttributeNotExistsException, VoNotExistsException, ParentGroupNotExistsException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, AttributeDefinitionNotExistsException, VoNotExistsException, ParentGroupNotExistsException;
 
 	/**
 	 * Return list of richMembers for specific group by the searchString with attrs specific for list of attrsNames
@@ -711,11 +711,11 @@ public interface MembersManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws AttributeNotExistsException
+	 * @throws AttributeDefinitionNotExistsException
 	 * @throws VoNotExistsException
 	 * @throws ParentGroupNotExistsException
 	 */
-	List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, AttributeNotExistsException, VoNotExistsException, ParentGroupNotExistsException;
+	List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, AttributeDefinitionNotExistsException, VoNotExistsException, ParentGroupNotExistsException;
 
 	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.

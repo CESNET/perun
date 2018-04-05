@@ -656,7 +656,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			Attribute userAttribute;
 			try {
 				userAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, user, attributeDef.getName());
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				throw new InternalErrorException(e);
 			} catch (WrongAttributeAssignmentException e) {
 				throw new InternalErrorException(e);
@@ -677,7 +677,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			} else {
 				return this.getUsersManagerImpl().getUsersByAttributeValue(sess, attributeDef, attributeValue);
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException("Attribute name:'"  + attributeName + "', value:'" + attributeValue + "' not exists ", e);
 		}
 	}
@@ -701,7 +701,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				return this.getUsersManagerImpl().getUsersByAttribute(sess, attribute);
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new ConsistencyErrorException("Attribute name:'"  + attributeName + "', value:'" + attributeValue + "' not exists ", e);
 		}
 	}
@@ -766,7 +766,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, attribute);
 
 			return true;
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new InternalErrorException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -960,7 +960,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			} catch (PasswordStrengthFailedRuntimeException e) {
 				throw new PasswordStrengthFailedException(e);
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new LoginNotExistsException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -1021,7 +1021,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			} catch (PasswordStrengthFailedRuntimeException e) {
 				throw new PasswordStrengthFailedException(e);
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new LoginNotExistsException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -1072,7 +1072,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			} catch (PasswordCreationFailedRuntimeException e) {
 				throw new PasswordCreationFailedException(e);
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new LoginNotExistsException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -1350,7 +1350,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -1406,7 +1406,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			} catch (PasswordCreationFailedRuntimeException e) {
 				throw new PasswordCreationFailedException(e);
 			}
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new LoginNotExistsException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -1447,7 +1447,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		Attribute userLogin;
 		try {
 			userLogin = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new LoginNotExistsException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
@@ -1686,7 +1686,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userAlternativePassword);
 			} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		} else if (operation.equals(PASSWORD_DELETE)) {
@@ -1714,7 +1714,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userAlternativePassword);
 			} catch (WrongAttributeAssignmentException ex) {
 				throw new InternalErrorException(ex);
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			} catch (WrongAttributeValueException ex) {
 				throw new InternalErrorException(ex);
@@ -1939,7 +1939,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
-	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeDefinitionNotExistsException {
 
 		String email = getUsersManagerImpl().getPreferredEmailChangeRequest(sess, user, i, m);
 
@@ -1956,7 +1956,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
-	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, WrongAttributeAssignmentException, AttributeDefinitionNotExistsException {
 
 		List<String> list = getUsersManagerImpl().getPendingPreferredEmailChanges(sess, user);
 
@@ -2024,7 +2024,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -2038,7 +2038,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				}
 			} catch (WrongAttributeAssignmentException ex) {
 				throw new InternalErrorException(ex);
-			} catch (AttributeNotExistsException ex) {
+			} catch (AttributeDefinitionNotExistsException ex) {
 				throw new InternalErrorException(ex);
 			}
 
@@ -2083,7 +2083,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws AttributeNotExistsException, InternalErrorException {
+	public List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws AttributeDefinitionNotExistsException, InternalErrorException {
 		AttributeDefinition adef = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 		if((!adef.getType().equals("java.lang.String")) || (!adef.getNamespace().equals(AttributesManager.NS_UES_ATTR_DEF))) {
 			throw new InternalErrorException("only ues attributes of type String can be used in findUsersWithExtSourceAttributeValueEnding()");

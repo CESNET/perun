@@ -13,7 +13,7 @@ import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -192,7 +192,7 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 
 			} catch (WrongAttributeAssignmentException e) {
 				throw new InternalErrorException(e);
-			} catch (AttributeNotExistsException e) {
+			} catch (AttributeDefinitionNotExistsException e) {
 				throw new InternalErrorException(e);
 			}
 
@@ -278,7 +278,7 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 		try {
 			// check if attr exists
 			attrDef = perun.getAttributesManager().getAttributeDefinition(cabinetSession,ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			// if not - create it
 			log.warn("Attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" does not exist in Perun. Attempting to create it.");
 			AttributeDefinition attributeDefinition = new AttributeDefinition();
@@ -304,7 +304,7 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 		try {
 			// check if attr exists
 			attrDef2 = perun.getAttributesManager().getAttributeDefinition(cabinetSession,ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			// if not - create it
 			log.warn("Attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" does not exist in Perun. Attempting to create it.");
 			AttributeDefinition attributeDefinition = new AttributeDefinition();

@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.ActionType;
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +65,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import java.util.Iterator;
@@ -168,7 +165,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	public List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue)
-			throws InternalErrorException, PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
+			throws InternalErrorException, PrivilegeException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization

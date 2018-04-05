@@ -1025,7 +1025,7 @@ public class Utils {
 		String telNumber;
 		try {
 			telNumber = (String) sess.getPerun().getAttributesManager().getAttribute(sess, user, userPhoneAttribute).getValue();
-		} catch (AttributeNotExistsException ex ) {
+		} catch (AttributeDefinitionNotExistsException ex ) {
 			log.info("Sendig SMS with text \"" + message + "\" to user " + user + "failed: cannot get tel. number." );
 			throw new InternalErrorException("The attribute " + userPhoneAttribute + " has not been found.", ex);
 		} catch (WrongAttributeAssignmentException ex) {
@@ -1050,7 +1050,7 @@ public class Utils {
 		String telNumber;
 		try {
 			telNumber = (String) sess.getPerun().getAttributesManager().getAttribute(sess, member, memberPhoneAttribute).getValue();
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeDefinitionNotExistsException ex) {
 			log.info("Sendig SMS with text \"" + message + "\" to member " + member + " failed: cannot get tel. number." );
 			throw new InternalErrorException("The attribute " + memberPhoneAttribute + " has not been found.", ex);
 		} catch (WrongAttributeAssignmentException ex) {

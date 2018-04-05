@@ -24,7 +24,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
@@ -1190,7 +1190,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException {
+	public String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("SELECT attr_value, attr_value_text FROM entityless_attr_values WHERE subject=? AND attr_id=? FOR UPDATE", ATTRIBUTE_VALUES_MAPPER, key, attrId);
 		} catch (EmptyResultDataAccessException ex) {
@@ -1256,11 +1256,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names left join facility_attr_values on id=attr_id and facility_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, facility), facility.getId(), attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Facility attribute - attribute.name='" + attributeName + "'");
+			throw new AttributeDefinitionNotExistsException("Facility attribute - attribute.name='" + attributeName + "'");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -1276,37 +1276,37 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names left join vo_attr_values on id=attr_id and vo_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, vo), vo.getId(), attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Vo attribute - attribute.name='" + attributeName + "'");
+			throw new AttributeDefinitionNotExistsException("Vo attribute - attribute.name='" + attributeName + "'");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("group_attr_values") + " from attr_names left join group_attr_values on id=attr_id and group_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, group), group.getId(), attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Group attribute - attribute.name='" + attributeName + "'");
+			throw new AttributeDefinitionNotExistsException("Group attribute - attribute.name='" + attributeName + "'");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names left join resource_attr_values on id=attr_id and resource_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, resource), resource.getId(), attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Resource attribute - attribute.name='" + attributeName + "'");
+			throw new AttributeDefinitionNotExistsException("Resource attribute - attribute.name='" + attributeName + "'");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			//member-resource attributes, member core attributes
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
@@ -1316,14 +1316,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			//member-group attributes, member core attributes
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
@@ -1332,13 +1332,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					new MemberGroupAttributeRowMapper(sess, this, member, group), group.getId(), member.getId(), attributeName);
 
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		//member and member core attributes
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
@@ -1346,26 +1346,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"where attr_name=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), member.getId(), attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
 							"left join    user_facility_attr_values     usr_fac      on id=usr_fac.attr_id     and   facility_id=? and user_id=? " +
 							"where attr_name=?",
 					new UserFacilityAttributeRowMapper(sess, this, user, facility), facility.getId(), user.getId(), attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, User user, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		//user and user core attributes
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
@@ -1373,52 +1373,52 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"where attr_name=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, user), user.getId(), attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 
-	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names " +
 					"left join host_attr_values on id=attr_id and host_id=? where attr_name=?", new SingleBeanAttributeRowMapper<>(sess, this, host), host.getId(), attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Host attribute - attribute.name='" + attributeName + "'");
+			throw new AttributeDefinitionNotExistsException("Host attribute - attribute.name='" + attributeName + "'");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
 							"left join    group_resource_attr_values     grp_res      on id=grp_res.attr_id     and   resource_id=? and group_id=? " +
 							"where attr_name=?",
 					new GroupResourceAttributeRowMapper(sess, this, group, resource), resource.getId(), group.getId(), attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("entityless_attr_values") + " from attr_names " +
 							"left join    entityless_attr_values     on id=entityless_attr_values.attr_id     and   subject=? " +
 							"where attr_name=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, null), key, attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
-	public Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Map<String,String> getEntitylessStringAttributeMapping(PerunSession sess, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			Map<String,String> map = new HashMap<>();
 			jdbc.query("select subject, attr_value " +
@@ -1427,30 +1427,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					rs -> { map.put(rs.getString(1), rs.getString(2)); }, attributeName);
 			return map;
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("user_ext_source_attr_values") + " from attr_names " +
 							"left join user_ext_source_attr_values on id=attr_id and user_ext_source_id=? " +
 							"where attr_name=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, ues), ues.getId(), attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute name: \"" + attributeName + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("SELECT " + attributeDefinitionMappingSelectQuery + " FROM attr_names WHERE attr_name=?", ATTRIBUTE_DEFINITION_MAPPER, attributeName);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute - attribute.name='" + attributeName + "'", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute - attribute.name='" + attributeName + "'", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -1478,84 +1478,84 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeNotExistsException {
+	public AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("SELECT " + attributeDefinitionMappingSelectQuery + " FROM attr_names WHERE id=?", ATTRIBUTE_DEFINITION_MAPPER, id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names left join facility_attr_values on id=attr_id and facility_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, facility), facility.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names left join vo_attr_values on id=attr_id and vo_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, vo), vo.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names left join resource_attr_values on id=attr_id and resource_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, resource), resource.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
 							"left join    group_resource_attr_values     grp_res      on id=grp_res.attr_id     and   resource_id=? and group_id=? " +
 							"where id=?",
 					new GroupResourceAttributeRowMapper(sess, this, group, resource), resource.getId(), group.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
 							"left join group_attr_values grp on id=grp.attr_id and group_id=? " +
 							"where id=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, group), group.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names left join host_attr_values on id=attr_id and host_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, host), host.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 
-	public Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			//member-resource attributes, member core attributes
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
@@ -1563,14 +1563,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"where id=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), resource.getId(), member.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			//member-group attributes, member core attributes
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
@@ -1578,13 +1578,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"where id=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), group.getId(), member.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Member member, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Member member, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			//member and member core attributes
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
@@ -1592,26 +1592,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"where id=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, member), member.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
 							"left join    user_facility_attr_values     usr_fac      on id=usr_fac.attr_id     and   facility_id=? and user_id=? " +
 							"where id=?",
 					new UserFacilityAttributeRowMapper(sess, this, user, facility), facility.getId(), user.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, User user, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, User user, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			//user and user core attributes
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
@@ -1619,17 +1619,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"where id=?",
 					new SingleBeanAttributeRowMapper<>(sess, this, user), user.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("ues") + " from attr_names left join user_ext_source_attr_values ues on id=ues.attr_id and user_ext_source_id=? where id=?", new SingleBeanAttributeRowMapper<>(sess, this, ues), ues.getId(), id);
 		} catch (EmptyResultDataAccessException ex) {
-			throw new AttributeNotExistsException("Attribute id= \"" + id + "\"", ex);
+			throw new AttributeDefinitionNotExistsException("Attribute id= \"" + id + "\"", ex);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -1782,7 +1782,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			//check that attribute definition is current, non-altered by upper tiers
 			getAttributeDefinitionById(sess, attribute.getId()).checkEquality(attribute);
-		} catch (AttributeNotExistsException e) {
+		} catch (AttributeDefinitionNotExistsException e) {
 			throw new InternalErrorException("cannot verify attribute definition",e);
 		}
 		try {
@@ -3367,16 +3367,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		if (!actionTypeExists(actionType)) throw new ActionTypeNotExistsException("ActionType: " + actionType);
 	}
 
-	public void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeNotExistsException {
-		if (!attributeExists(sess, attribute)) throw new AttributeNotExistsException("Attribute: " + attribute);
+	public void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeDefinitionNotExistsException {
+		if (!attributeExists(sess, attribute)) throw new AttributeDefinitionNotExistsException("Attribute: " + attribute);
 	}
 
-	private void checkAttributeExists(PerunSession sess, AttributeDefinition attribute, String expectedNamespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private void checkAttributeExists(PerunSession sess, AttributeDefinition attribute, String expectedNamespace) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		checkAttributeExists(sess, attribute);
 		checkNamespace(sess, attribute, expectedNamespace);
 	}
 
-	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotExistsException {
+	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeDefinitionNotExistsException {
 		Utils.notNull(attributes, "attributes");
 		for (AttributeDefinition attribute : attributes) {
 			checkAttributeExists(sess, attribute);
@@ -3384,7 +3384,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@SuppressWarnings("unused")
-	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes, String expectedNamespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes, String expectedNamespace) throws InternalErrorException, AttributeDefinitionNotExistsException, WrongAttributeAssignmentException {
 		Utils.notNull(attributes, "attributes");
 		for (AttributeDefinition attribute : attributes) {
 			checkAttributeExists(sess, attribute, expectedNamespace);
