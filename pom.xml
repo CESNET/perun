@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>io.spring.platform</groupId>
 		<artifactId>platform-bom</artifactId>
-		<version>Brussels-SR7</version>
+		<version>Brussels-SR8</version>
 		<relativePath/>
 	</parent>
 
@@ -64,11 +64,11 @@
 		<spring.profiles.default>default</spring.profiles.default>
 
 		<!-- redefine versions of some libraries defined by Spring platform -->
-		<postgresql.version>42.0.0</postgresql.version>
+		<postgresql.version>42.2.2</postgresql.version>
 		<hsqldb.version>2.3.2</hsqldb.version> <!-- 2.3.3 fails GroupsManagerEntryIntegrationTest.addAdminWhenAlreadyAdmin test -->
 		<javax-validation.version>1.0.0.GA</javax-validation.version>
-		<mockito.version>2.13.0</mockito.version>
-		
+		<mockito.version>2.17.0</mockito.version>
+
 		<!-- versions of libraries not defined by the Spring platform-->
 		<cglib-nodep.version>2.2.2</cglib-nodep.version>
 		<dumbster.version>1.6</dumbster.version>
@@ -428,12 +428,6 @@
 				<artifactId>jboss-jms-api</artifactId>
 				<version>${jboss-jms-api.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>${jackson.version}</version>
-			</dependency>
-
 		</dependencies>
 	</dependencyManagement>
 
