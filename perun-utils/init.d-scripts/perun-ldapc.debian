@@ -1,0 +1,147 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:             perun-ldapc
+# Required-Start:       slapd
+# Required-Stop:        slapd
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+# Short-Description:    Perun LDAPc
+# Description:          Starts Perun LDAPc component.
+### END INIT INFO
+#
+# Written by Michal Prochazka <michalp@ics.muni.cz>
+# Modified by Pavel Zlamal <zlamal@cesnet.cz>
+#
+# 23.03.2018 Reworked perun-engine init.d script for LDAPc
+#
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DESC="Perun LDAPc"
+DAEMON="/usr/bin/java"
+JAR=/home/perun/perun-ldapc/perun-ldapc-3.0.1-SNAPSHOT-production.jar
+NAME=perun-ldapc
+SCRIPTNAME=/etc/init.d/$NAME
+PIDFILE=/var/run/perun/$NAME.pid
+LOG_CONF=/etc/perun/logback-ldapc.xml
+PERUN_LDAPC_CONF_DIR=/etc/perun/
+DAEMON_USER=perun
+JAVA=`which java`
+EXEC_DIR=/home/perun/perun-ldapc/
+
+#we don't want to use default kerberos ticket (for user perun-engine)
+KRB5CCNAME="/dev/null"
+export KRB5CCNAME
+
+# Exit if the package is not installed.
+[ -x "$DAEMON" ] || exit 0
+
+# Exit if Java isn't present
+[ -x "$JAVA" ] || exit 0
+
+# Read configuration if it is present.
+[ -r /etc/perun/$NAME ] && . /etc/perun/$NAME
+
+DAEMON_OPTS="-Dlogback.configurationFile=$LOG_CONF -Dperun.conf.custom=$PERUN_LDAPC_CONF_DIR $JAVA_OPTS -Dspring.profiles.default=production -jar $JAR"
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+. /lib/lsb/init-functions
+
+# Start Perun Ldapc.
+do_start () {
+	# Return
+	#   0 if daemon has been started
+	#   1 if daemon was already running
+	#   2 if daemon could not be started
+	start-stop-daemon --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
+        --pidfile $PIDFILE --chdir $EXEC_DIR --exec $DAEMON --test --background > /dev/null \
+        || return 1
+
+	# /var/run is not persistent, create pid directory on first start
+	# is expected to run by root on system startup
+	# if started by perun (service restart), this will fail
+	PID_DIR="/var/run/perun";
+	if [ ! -d $PID_DIR ]; then
+		mkdir $PID_DIR;
+		chown $DAEMON_USER $PID_DIR;
+	fi
+
+	# Create empty pidfile
+	touch $PIDFILE;
+	chown $DAEMON_USER $PIDFILE;
+
+	# Start with output logging, but we need to create log-file first for perun:perun
+	start-stop-daemon --make-pidfile --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
+        --pidfile $PIDFILE --chdir $EXEC_DIR --background --no-close --startas /bin/bash -- \
+        -c "exec $DAEMON $DAEMON_OPTS >> /var/log/perun/perun-ldapc-out.log 2>&1" \
+        || return 2
+
+}
+
+# Stop Perun Engine.
+do_stop () {
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+	#   other if a failure occurred
+	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 \
+        --pidfile $PIDFILE
+	RETVAL="$?"
+	rm $PIDFILE
+	return "$RETVAL"
+}
+case "$1" in
+	start)
+	# Don't start Perun Engine if NO_START is set.
+		if [ "$NO_START" = 1 ] ; then
+			if [ "$VERBOSE" != no ] ; then
+				echo "Not starting $DESC (see /etc/default/$NAME)"
+			fi
+			exit 0
+		fi
+		[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+		do_start
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			2)   [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+	;;
+	stop)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+		do_stop
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			2)   [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+	;;
+	restart|force-reload)
+
+		log_daemon_msg "Restarting $DESC" "$NAME"
+		do_stop
+		case "$?" in
+			0|1)
+				do_start
+				case "$?" in
+					0) log_end_msg 0 ;;
+					1) log_end_msg 1 ;; # Old process is still running
+					*) log_end_msg 1 ;; # Failed to start
+				esac
+			;;
+			*)
+			# Failed to stop
+				log_end_msg 1
+			;;
+		esac
+	;;
+	status)
+		status_of_proc -p "$PIDFILE" "$DAEMON" "$NAME" && exit 0 || exit $?
+	;;
+	*)
+		echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload|status}" >&2
+		exit 1
+	;;
+esac
+
+exit 0
