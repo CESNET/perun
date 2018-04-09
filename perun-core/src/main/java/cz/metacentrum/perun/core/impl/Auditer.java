@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -512,14 +513,22 @@ public class Auditer {
 	 * @param auditerMessages list of AuditerMessages
 	 */
 	public void storeMessagesToDb(final List<AuditerMessage> auditerMessages) {
+		//Avoid working with empty list of auditer-messages
+		if(auditerMessages == null || auditerMessages.isEmpty()) {
+			log.trace("Trying to store empty list of messages to DB!");
+			return;
+		}
+
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
 
 			//Add all possible resolving messages to the bulk
 			try {
 				List<String> messages = new ArrayList<>();
-				PerunSessionImpl session = null;
+
+				//Get perun session from the first message (all sessions should be same from the same principal)
+				PerunSessionImpl session = (PerunSessionImpl) auditerMessages.get(0).getOriginaterPerunSession();
+
 				for (AuditerMessage auditerMessage : auditerMessages) {
-					if (session == null) session = (PerunSessionImpl) auditerMessage.getOriginaterPerunSession();
 					messages.add(auditerMessage.getMessage());
 				}
 
@@ -822,16 +831,15 @@ public class Auditer {
 		//We still have new resolving messages, so we need to detect if there isn't cycle and if not, continue the recursion
 		if(!addedResolvedMessages.isEmpty()) {
 			//Cycle detection
-			for(String addedResolvedMessage: addedResolvedMessages) {
-				//if message is already present in the list of resolving messages, we are probably in the cycle between two or more registered modules
+			Iterator<String> msgIterator = addedResolvedMessages.iterator();
+			while(msgIterator.hasNext()) {
+				String addedResolvedMessage = msgIterator.next();
+				//If message is already present in the list of resovling messages, remove it from the list of added resolved messages, log it and continue
 				if(alreadyResolvedMessages.contains(addedResolvedMessage)) {
-					//do not continue, just return already resolved messages and inform in the log about this unexpected situation
-					log.error("There is a cycle for resolving message {}. Recursion was stopped forcibly and more resolving messages was not generated! " +
-							"For this reason, some of them may be missing!", addedResolvedMessage);
-					return alreadyResolvedMessages;
+					log.error("There is a cycle for resolving message {}. This message won't be processed more than once!", addedResolvedMessage);
+					msgIterator.remove();
 				}
 			}
-
 			//Update list of already resolved messages
 			alreadyResolvedMessages.addAll(addedResolvedMessages);
 			//Continue of processing newly generated messages
