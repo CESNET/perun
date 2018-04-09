@@ -154,7 +154,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().updateGroup(sess, group);
 	}
 
-	public void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException{
+	public void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException{
 		Utils.checkPerunSession(sess);
 
 		getGroupsManagerBl().checkGroupExists(sess, movingGroup);
