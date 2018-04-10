@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>io.spring.platform</groupId>
 		<artifactId>platform-bom</artifactId>
-		<version>Brussels-SR8</version>
+		<version>Cairo-RELEASE</version>
 		<relativePath/>
 	</parent>
 
@@ -78,7 +78,8 @@
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
-		<netty.version>3.2.1.Final</netty.version>
+		<json.version>20140107</json.version>
+		<netty3.version>3.2.1.Final</netty3.version>
 		<opencsv.version>3.3</opencsv.version>
 		<oracle.version>12.2.0.1.0</oracle.version>
 		<recaptcha4j.version>0.0.7</recaptcha4j.version>
@@ -420,7 +421,7 @@
 			<dependency>
 				<groupId>org.jboss.netty</groupId>
 				<artifactId>netty</artifactId>
-				<version>${netty.version}</version>
+				<version>${netty3.version}</version>
 			</dependency>
 
 			<dependency>
