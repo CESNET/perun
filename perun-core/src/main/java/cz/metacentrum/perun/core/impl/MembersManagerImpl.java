@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -16,8 +17,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MembersManagerImpl implements MembersManagerImplApi {
@@ -47,6 +51,24 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			// this is ok, member does not need to always have membership_type and source_group_id set
 		}
 		return member;
+	};
+
+
+	public static final ResultSetExtractor<List<Member>> MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR = resultSet -> {
+		Map<Integer, Member> members = new HashMap<>();
+
+		while(resultSet.next()) {
+			Member member = MembersManagerImpl.MEMBER_MAPPER.mapRow(resultSet, resultSet.getRow());
+			if (members.containsKey(member.getId())) {
+				members.get(member.getId()).addGroupStatuses(member.getGroupStatuses());
+			} else {
+				member.setSourceGroupId(null);
+				member.setMembershipType((String)null);
+				members.put(member.getId(), member);
+			}
+		}
+
+		return new ArrayList<>(members.values());
 	};
 
 	/**

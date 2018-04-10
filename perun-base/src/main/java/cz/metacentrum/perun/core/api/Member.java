@@ -140,6 +140,10 @@ public class Member extends Auditable {
 		return MemberGroupStatus.ACTIVE;
 	}
 
+	protected void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses) {
+		this.groupsStatuses = new HashMap<>(groupsStatuses);
+	}
+
 	public void addGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses) {
 		for (Integer integer : groupStatuses.keySet()) {
 			addGroupStatus(integer, groupStatuses.get(integer));
