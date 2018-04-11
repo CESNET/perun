@@ -6128,6 +6128,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		attributes.put(attr, rights);
 
+		//urn:perun:group:attribute-def:def:membershipExpirationRules
+		attr = new AttributeDefinition();
+		attr.setDisplayName("Membership expiration rules");
+		attr.setFriendlyName("membershipExpirationRules");
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setDescription("Set of rules to determine date of membership expiration. If not set, membership is not limited.");
+		attr.setType(LinkedHashMap.class.getName());
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
 
 		//urn:perun:group:attribute-def:def:groupExtSource
 		attr = new AttributeDefinition();
