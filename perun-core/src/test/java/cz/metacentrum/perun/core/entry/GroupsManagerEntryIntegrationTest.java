@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -22,6 +24,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
@@ -35,6 +38,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
+import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -82,6 +86,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	private GroupsManager groupsManager;
 	private GroupsManagerBl groupsManagerBl;
 	private AttributesManager attributesManager;
+	private MembersManagerBl membersManagerBl;
 
 	@Before
 	public void setUpBeforeEveryMethod() throws Exception {
@@ -89,10 +94,149 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager = perun.getGroupsManager();
 		groupsManagerBl = perun.getGroupsManagerBl();
 		attributesManager = perun.getAttributesManager();
+		membersManagerBl = perun.getMembersManagerBl();
 		// vo = setUpVo();
 		// setUpGroup(vo);
 		// moved to every method to save testing time
 
+	}
+
+
+	@Test
+	public void initMembersStatusInGroup() throws Exception {
+		System.out.println(CLASS_NAME + "initMembersStatusInGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//load member with group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate init status
+		assertSame("Member does not have VALID init group status", foundMember.getGroupStatus(), MemberGroupStatus.VALID);
+		assertTrue("Member's init group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's init status for specific group was not VALID",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.VALID);
+	}
+
+	@Test
+	public void expireMemberInGroup() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		//load member with group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate expired status
+		assertSame("Member does not have EXPIRED status.", foundMember.getGroupStatus(), MemberGroupStatus.EXPIRED);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not EXPIRED",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.EXPIRED);
+	}
+
+	@Test
+	public void expireMemberInGroupWithActiveInSubGroup() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInGroupWithActiveInSubGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up subgroup and add member to it
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.moveGroup(sess, group, group2);
+
+		//expire member in upper group
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		//load member with upper group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate status after expiration with being VALID in subgroup
+		assertSame("Member does not have VALID group status", foundMember.getGroupStatus(), MemberGroupStatus.VALID);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not VALID",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.VALID);
+	}
+
+	@Test
+	public void expireMemberInSubGroupAndStillActiveInUpperGroup() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInSubGroupAndStillActiveInUpperGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up subgroup and add member to it
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.moveGroup(sess, group, group2);
+
+		//expire member in upper group
+		groupsManagerBl.expireMemberInGroup(sess, member, group2);
+
+		//load member with upper group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate status after expiration with being expired in subgroup
+		assertSame("Member does not have VALID group status", foundMember.getGroupStatus(), MemberGroupStatus.VALID);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not VALID",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.VALID);
+	}
+
+	@Test
+	public void expireMemberInSubGroupAndInUpperGroup() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInSubGroupAndInUpperGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up subgroup and add member to it
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.moveGroup(sess, group, group2);
+
+		//expire member in upper group
+		groupsManagerBl.expireMemberInGroup(sess, member, group2);
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		//load member with upper group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate status after expiration with being expired in subgroup
+		assertSame("Member does not have EXPIRED group status", foundMember.getGroupStatus(), MemberGroupStatus.EXPIRED);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not EXPIRED",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.EXPIRED);
 	}
 
 	@Test
@@ -2747,5 +2891,26 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		facility.setName("AttributesManagerTestFacility");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, facility));
 		return facility;
+	}
+
+	private Member setUpMemberInGroup(Vo vo) throws Exception {
+		Candidate candidate = new Candidate();
+		candidate.setFirstName("TestName");
+		candidate.setId(0);
+		candidate.setMiddleName("");
+		candidate.setLastName("TestLastName");
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		UserExtSource ues = new UserExtSource(extSource, extLogin);
+		candidate.setUserExtSource(ues);
+		candidate.setAttributes(new HashMap<>());
+
+		Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member);
+
+		return member;
 	}
 }

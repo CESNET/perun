@@ -121,7 +121,7 @@ public class Member extends Auditable {
 
 	public void addGroupStatus(int groupId, MemberGroupStatus status) {
 		MemberGroupStatus currentValue = this.groupsStatuses.get(groupId);
-		if (currentValue == MemberGroupStatus.ACTIVE) {
+		if (currentValue == MemberGroupStatus.VALID) {
 			return;
 		}
 
@@ -133,11 +133,11 @@ public class Member extends Auditable {
 	}
 
 	public MemberGroupStatus getGroupStatus() {
-		if (groupsStatuses.containsValue(MemberGroupStatus.EXPIRED) && !groupsStatuses.containsValue(MemberGroupStatus.ACTIVE)) {
+		if (groupsStatuses.containsValue(MemberGroupStatus.EXPIRED) && !groupsStatuses.containsValue(MemberGroupStatus.VALID)) {
 			return MemberGroupStatus.EXPIRED;
 		}
 
-		return MemberGroupStatus.ACTIVE;
+		return MemberGroupStatus.VALID;
 	}
 
 	protected void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses) {

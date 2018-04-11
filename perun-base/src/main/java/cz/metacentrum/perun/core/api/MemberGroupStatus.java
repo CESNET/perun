@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Vojtech Sassmann &lt;vojtech.sassmann@gmail.com&gt;
  */
 public enum MemberGroupStatus {
-	ACTIVE(0),
+	VALID(0),
 	EXPIRED(1);
 
 	private static final Map<Integer, MemberGroupStatus> lookup = new HashMap<>();
