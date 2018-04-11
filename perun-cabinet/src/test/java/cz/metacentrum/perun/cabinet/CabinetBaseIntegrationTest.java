@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.cabinet.model.Authorship;
@@ -28,8 +27,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-cabinet.xml" })
-@Transactional
-@TransactionConfiguration(defaultRollback=true, transactionManager = "springTransactionManager")
+@Transactional(transactionManager = "springTransactionManager")
 public abstract class CabinetBaseIntegrationTest {
 
 	public Authorship authorshipOne = null;

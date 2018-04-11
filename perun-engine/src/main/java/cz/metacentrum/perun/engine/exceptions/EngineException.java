@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.engine.exceptions;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The base of Perun-Engine checked exceptions.
@@ -10,7 +12,7 @@ import org.apache.log4j.Logger;
 public abstract class EngineException extends Exception {
 	static final long serialVersionUID = 0;
 
-	static Logger logger = Logger.getLogger(EngineException.class);
+	static Logger logger = LoggerFactory.getLogger(EngineException.class);
 	private String errorId = Long.toHexString(System.currentTimeMillis());
 
 	public EngineException() {

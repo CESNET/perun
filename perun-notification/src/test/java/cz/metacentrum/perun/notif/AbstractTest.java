@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -30,8 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Pavel Zlámal <256627@mail.muni.cz>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@Transactional
-@TransactionConfiguration(transactionManager = "springTransactionManager", defaultRollback = true)
+@Transactional(transactionManager = "springTransactionManager")
 @ContextConfiguration(locations = {"classpath:perun-core.xml","classpath:perun-notification.xml", "classpath:perun-notification-scheduler.xml"})
 public class AbstractTest {
 
