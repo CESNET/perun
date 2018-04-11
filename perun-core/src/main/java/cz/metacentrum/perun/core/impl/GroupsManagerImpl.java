@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -860,6 +861,16 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Integer> getResultGroupsIds(PerunSession sess, int groupId) throws InternalErrorException {
 		try {
 			return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=?", Integer.class, groupId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void setGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException {
+		try {
+			jdbc.update("UPDATE groups_members SET source_group_status=?, modified_by=?, modified_at=" + Compatibility.getSysdate() +
+					" WHERE source_group_id=? AND member_id=?", status.getCode(), sess.getPerunPrincipal().getActor(), group.getId(), member.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

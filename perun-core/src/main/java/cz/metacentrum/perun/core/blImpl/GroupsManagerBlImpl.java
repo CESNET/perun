@@ -13,7 +13,6 @@ import java.util.TreeMap;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2994,5 +2993,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				throw new ConsistencyErrorException("Some group does not exists while creating group union.", e);
 			}
 		}
+	}
+
+	@Override
+	public void expireMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		groupsManagerImpl.setGroupStatus(sess, member, group, MemberGroupStatus.EXPIRED);
+		getPerunBl().getAuditer().log(sess, "{} in {} expired.", member, group);
+	}
+
+	@Override
+	public void validateMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		groupsManagerImpl.setGroupStatus(sess, member, group, MemberGroupStatus.VALID);
+		getPerunBl().getAuditer().log(sess, "{} in {} validated.", member, group);
 	}
 }

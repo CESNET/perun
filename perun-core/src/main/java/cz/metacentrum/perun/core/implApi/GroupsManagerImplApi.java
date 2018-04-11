@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
@@ -647,4 +648,14 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Integer> getResultGroupsIds(PerunSession sess, int groupId) throws InternalErrorException;
+
+	/**
+	 * Set status of the member to specified status in given group group.
+	 *
+	 * @param member member whose status will be changed
+	 * @param group group where member's status will be changed
+	 * @param status status that will be set
+	 * @throws InternalErrorException internal error
+	 */
+	void setGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException;
 }

@@ -1278,14 +1278,33 @@ public interface GroupsManagerBl {
 	/**
 	 * Move one group structure under another group in same vo or as top level group
 	 *
-	 * @param sess perun session
+	 * @param sess             perun session
 	 * @param destinationGroup group to which is moving group moved, if it's null group will be moved as top level group
-	 * @param movingGroup group which is moved to destination group
-	 *
+	 * @param movingGroup      group which is moved to destination group
 	 * @throws InternalErrorException
 	 * @throws GroupMoveNotAllowedException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Set member's status in given group to EXPIRED
+	 *
+	 * @param sess perun session
+	 * @param member member whose status will be changed
+	 * @param group group in which given member will be expired
+	 * @throws InternalErrorException internal error
+	 */
+	void expireMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Set member's status in givne group to VALID
+	 *
+	 * @param sess perun session
+	 * @param member member whose status will be changed
+	 * @param group group in which given member will be validated
+	 * @throws InternalErrorException internal error
+	 */
+	void validateMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
 }
