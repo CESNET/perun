@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
 @org.springframework.stereotype.Service(value = "eventProcessor")
 public class EventProcessorImpl implements EventProcessor {
 
@@ -57,15 +56,13 @@ public class EventProcessorImpl implements EventProcessor {
 				try {
 					schedulingPool.addTask(task);
 				} catch (TaskStoreException e) {
-					log.error("Could not save Task {} into Engine SchedulingPool because of {}, it will be ignored",
-							task, e);
-					// XXX - should probably report ERROR back to dispatcher...
+					log.error("Could not save Task {} into Engine SchedulingPool because of {}, it will be ignored", task, e);
+					// FIXME - should probably report ERROR back to dispatcher...
 				}
 			} else {
-				log.debug("[{}] Task found in SchedulingPool.", task.getId(), currentTask);
-				log.debug("[{}] Resetting current task destination list to {}", task.getId(), task.getDestinations());
-				currentTask.setDestinations(task.getDestinations());
-				currentTask.setPropagationForced(task.isPropagationForced());
+				// since we always remove Task from pool at the end and Dispatcher doesn't send partial Destinations,
+				// we don't need to update existing Task object !! Let engine finish the processing.
+				log.debug("[{}] Task found in SchedulingPool, message skipped.", task.getId(), currentTask);
 			}
 		}
 		log.debug("[{}] POOL SIZE: {}", task.getId(), schedulingPool.getSize());

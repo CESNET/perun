@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static cz.metacentrum.perun.taskslib.model.Task.TaskStatus.*;
 
@@ -70,7 +72,8 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		return "Engine SchedulingPool Task report:\n" +
 				" PLANNED: " + printListWithWhitespace(getTasksWithStatus(WAITING)) +
 				" GENERATING:" + printListWithWhitespace(getTasksWithStatus(GENERATING)) +
-				" SENDING:" + printListWithWhitespace(getTasksWithStatus(SENDING)) +
+				" SENDING:" + printListWithWhitespace(Stream.concat(getTasksWithStatus(SENDING).stream(),
+				getTasksWithStatus(SENDERROR).stream()).collect(Collectors.toList())) +
 				" SENDTASKCOUNT map: " + sendTaskCount.toString();
 	}
 
@@ -98,10 +101,12 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	 */
 	public Task addTask(Task task) throws TaskStoreException {
 		if (task.getStatus() != PLANNED) {
-			throw new IllegalArgumentException("Only Tasks with PLANNED status can be added to SchedulingPool");
+			throw new IllegalArgumentException("Only Tasks with PLANNED status can be added to SchedulingPool.");
 		}
 
+		log.debug("[{}] Adding Task to scheduling pool: {}", task.getId(), task);
 		Task addedTask = taskStore.addTask(task);
+
 		if (task.isPropagationForced()) {
 			try {
 				newTasksQueue.putFirst(task);
@@ -158,6 +163,11 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			} else {
 				log.error("[{}] Trying to remove Task from allTasks since its done, but it was not there !!", taskId);
 			}
+			// FIXME - we should probably removeTask() only if its in taskStore, since it doesn't make sense otherwise
+			// FIXME   otherwise we might cancel correctly running gen when late send is not yet reported ?
+			// FIXME   (would be probably caused by cleaning thread removal just before reporting done/error)
+			// FIXME - ALSO WE ARE NOW ABLE TO PASS WHOLE "TASK" object to these methods, making it safe to blindly
+			// FIXME   remove Task from any corresponding structure
 			removeTask(taskId);
 			return 1;
 		} else {

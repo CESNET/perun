@@ -125,86 +125,117 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		for(Task task : allTasks) {
 			switch(task.getStatus()) {
-			case PLANNED:
-				// should be taken by GenPlanner
-				BlockingDeque<Task> newTasks = schedulingPool.getNewTasksQueue();
-				if(!newTasks.contains(task)) {
+
+				case WAITING:
+					/*
+					Such Tasks should never be in Engine, (only in Dispatcher) since when they are sent to Engine,
+					status is set to PLANNED in both components. If they are already present in SchedulingPool
+					(Engine), then adding of new (same) Task is skipped and previous processing is finished first.
+					=> just remove such nonsense from SchedulingPool and don't spam Dispatcher
+					 */
 					try {
-						schedulingPool.addTask(task);
-					} catch (TaskStoreException e) {
-						log.error("Could not save Task {} into Engine SchedulingPool because of {}, setting to ERROR",
-								task, e);
-						abortTask(task, TaskStatus.ERROR);
+						// TODO - can such Task be in any structure like generating/sending/newTasks/generatedTasks ?
+						schedulingPool.removeTask(task.getId());
+						log.error("[{}] Task in WAITING state shouldn't be in Engine at all, silently removing from SchedulingPool.", task.getId());
+					} catch (TaskStoreException ex) {
+						log.error("[{}] Failed during removal of WAITING Task from SchedulingPool. Such Task shouldn't be in Engine at all: {}", task.getId(), ex);
 					}
-				}
-				break;
 
-			case GENERATING:
-				// this is basically the same check as for the generating tasks above,
-				// but now for tasks missing in generatingTasks collection
-				Date startTime = task.getGenStartTime();
-				int howManyMinutesAgo = 0;
-				if(startTime != null) {
-					howManyMinutesAgo = (int) (System.currentTimeMillis() - startTime.getTime()) / 1000 / 60;
-				}
-				// If too much time has passed something is broken
-				if ((startTime == null || howManyMinutesAgo >= rescheduleTime) &&
-						!generatingTasks.values().contains(task)) {
-					abortTask(task, TaskStatus.GENERROR);
-				}
-				break;
+				case PLANNED:
+					/*
+					Check tasks, that should be put to scheduling pool by EventProcessorImpl and taken by GenPlanner.
+					Tasks might be like that, because adding to BlockingDeque has limit on Integer#MAX_SIZE
+					(while EventProcessorImpl adds Task to the scheduling pool).
+					Also if GenPlanner implementation fails it might take Task from the BlockingDeque but doesn't change
+					its status or doesn't put it between generatingTasks.
+					 */
+					BlockingDeque<Task> newTasks = schedulingPool.getNewTasksQueue();
+					if(!newTasks.contains(task)) {
+						try {
+							schedulingPool.addTask(task);
+						} catch (TaskStoreException e) {
+							log.error("Could not save Task {} into Engine SchedulingPool because of {}, setting to ERROR",
+									task, e);
+							abortTask(task, TaskStatus.ERROR);
+						}
+					}
+					break;
 
-			case SENDING:
-				break;
+				case GENERATING:
+					/*
+					This is basically the same check as for the GENERATING Tasks above,
+					but now for Tasks missing in "generatingTasks" blocking bounded hash map.
+					!! We can't abort GENERATING Tasks with startTime=NULL here,
+					because they are waiting to be started at genCompletionService#blockingSubmit() !!
+					*/
+					Date startTime = task.getGenStartTime();
+					int howManyMinutesAgo = 0;
+					if(startTime != null) {
+						howManyMinutesAgo = (int) (System.currentTimeMillis() - startTime.getTime()) / 1000 / 60;
+					}
+					// If task started too long ago and is not in generating structure anymore
+					if (howManyMinutesAgo >= rescheduleTime && !generatingTasks.values().contains(task)) {
+						// probably GenCollector failed to pick task -> abort
+						abortTask(task, TaskStatus.GENERROR);
+					}
+					break;
 
-			case SENDERROR:
-				Date endTime = task.getSendEndTime();
-				howManyMinutesAgo = 0;
-				if(endTime != null) {
-					howManyMinutesAgo = (int) (System.currentTimeMillis() - endTime.getTime()) / 1000 / 60;
-				}
-				// If too much time has passed something is broken
-				if(endTime == null || howManyMinutesAgo >= rescheduleTime) {
-					abortTask(task, TaskStatus.SENDERROR);
-				}
-				break;
+				case GENERROR:
+				case GENERATED:
+					/*
+					Check Tasks, which should be processed by GenCollector and taken by SendPlanner or reported as GENERROR to Dispatcher.
+					Task must have endTime set by GenWorker, otherwise it failed completely and should be reported as error.
+					If either of GenCollector and SendPlanner fails to process generated tasks, it's missing in generatedTasksQueue.
+					*/
+					Date genEndTime = task.getGenEndTime();
+					howManyMinutesAgo = 0;
+					if(genEndTime != null) {
+						howManyMinutesAgo = (int) (System.currentTimeMillis() - genEndTime.getTime()) / 1000 / 60;
+					}
+					// If too much time has passed for Task and its not present in generatedTasksQueue, something is broken
+					if((genEndTime == null || howManyMinutesAgo >= rescheduleTime) && !schedulingPool.getGeneratedTasksQueue().contains(task)) {
+						abortTask(task, TaskStatus.GENERROR);
+					}
+					break;
 
-			case ERROR:
-				break;
+				case SENDING:
+					// TODO - if SendPlanner fails, we might need to switch SENDING Tasks to SENDERROR and cancel any running SendTaskFutures
+					// TODO   since Task is switched to SENDING before blockingSubmit() of any SendWorker.
+					break;
 
-			case GENERROR:
-			case GENERATED:
-				// should be taken by SendPlanner or reported
-				endTime = task.getGenEndTime();
-				howManyMinutesAgo = 0;
-				if(endTime != null) {
-					howManyMinutesAgo = (int) (System.currentTimeMillis() - endTime.getTime()) / 1000 / 60;
-				}
-				// If too much time has passed something is broken
-				if((endTime == null || howManyMinutesAgo >= rescheduleTime) &&
-						!schedulingPool.getGeneratedTasksQueue().contains(task)) {
-					abortTask(task, TaskStatus.GENERROR);
-				}
-				break;
+				case SENDERROR:
+					Date endTime = task.getSendEndTime();
+					howManyMinutesAgo = 0;
+					if(endTime != null) {
+						howManyMinutesAgo = (int) (System.currentTimeMillis() - endTime.getTime()) / 1000 / 60;
+					}
+					// If too much time has passed something is broken
+					if(endTime == null || howManyMinutesAgo >= rescheduleTime) {
+						abortTask(task, TaskStatus.SENDERROR);
+					}
+					break;
 
-			case DONE:
-				// report it
-				try {
-					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
-				} catch (JMSException e) {
-					log.error("[{}] Error trying to reportTaskStatus of {} to Dispatcher: {}", task.getId(), task, e);
-				}
-				try {
-					schedulingPool.removeTask(task.getId());
-				} catch (TaskStoreException e) {
-					log.error("[{}] Task could not be removed from SchedulingPool: {}", task.getId(), e);
-				}
-				break;
+				case ERROR:
+					break;
 
-			default:
-				// unknown state
-				log.debug("[{}] Failing to default, status was: {}", task.getId(), task.getStatus());
-				abortTask(task, TaskStatus.ERROR);
+				case DONE:
+					// report it
+					try {
+						jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
+					} catch (JMSException e) {
+						log.error("[{}] Error trying to reportTaskStatus of {} to Dispatcher: {}", task.getId(), task, e);
+					}
+					try {
+						schedulingPool.removeTask(task.getId());
+					} catch (TaskStoreException e) {
+						log.error("[{}] Task could not be removed from SchedulingPool: {}", task.getId(), e);
+					}
+					break;
+
+				default:
+					// unknown state
+					log.debug("[{}] Failing to default, status was: {}", task.getId(), task.getStatus());
+					abortTask(task, TaskStatus.ERROR);
 			}
 		}
 	}

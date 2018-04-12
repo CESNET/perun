@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.engine.runners;
 
-
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
@@ -25,12 +24,27 @@ import java.util.concurrent.Future;
 import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENDING;
 
 /**
- * Takes all Tasks planned for sending, creates a SendTask for every one of their Destinations and puts it into queue,
- * where they wait to be sent.
+ * This class represents permanently running thread, which should run in a single instance.
+ *
+ * It takes all GENERATED Tasks from generatedTasks blocking queue provided by GenCollector
+ * and creates SendTask and SendWorker for each Destination and put them to BlockingSendExecutorCompletionService.
+ * Processing waits on call of blockingSubmit() for each SendWorker.
+ *
+ * Expected Task status change GENERATED -> SENDING is reported to Dispatcher.
+ * For Tasks without any Destination, status changes GENERATED -> ERROR and Task is removed from SchedulingPool (Engine).
+ *
+ * @see SchedulingPool#getGeneratedTasksQueue()
+ * @see SendTask
+ * @see SendWorkerImpl
+ * @see BlockingSendExecutorCompletionService
+ *
+ * @author David Šarman
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class SendPlanner extends AbstractRunner {
-	private final static Logger log = LoggerFactory
-			.getLogger(SendPlanner.class);
+
+	private final static Logger log = LoggerFactory.getLogger(SendPlanner.class);
+
 	@Autowired
 	private BlockingSendExecutorCompletionService sendCompletionService;
 	@Autowired
@@ -55,6 +69,9 @@ public class SendPlanner extends AbstractRunner {
 		while (!shouldStop()) {
 			try {
 				Task task = generatedTasks.take();
+				// set Task status immediately
+				// no destination -> ERROR
+				// has destinations -> SENDING
 				if (task.getDestinations().isEmpty()) {
 					task.setStatus(Task.TaskStatus.ERROR);
 					try {
@@ -65,11 +82,16 @@ public class SendPlanner extends AbstractRunner {
 					try {
 						schedulingPool.removeTask(task);
 					} catch (TaskStoreException e) {
-						log.error("[{}] Task {} could not be removed from SchedulingPool: {}", task.getId(), task, e);
+						log.error("[{}] Generated Task without destinations could not be removed from SchedulingPool: {}", task.getId(), e);
 					}
+					// skip to next generated Task
 					continue;
 				}
+				// Task has destinations
 				task.setStatus(Task.TaskStatus.SENDING);
+
+				// TODO - would be probably better to have this as one time call after first SendWorker is submitted
+				// TODO   but then processing stuck tasks must reflect, that SENDING task might have sendStartTime=NULL
 				task.setSendStartTime(new Date(System.currentTimeMillis()));
 				schedulingPool.addSendTaskCount(task.getId(), task.getDestinations().size());
 				try {
@@ -78,37 +100,40 @@ public class SendPlanner extends AbstractRunner {
 					jmsLogError(task);
 				}
 
-
+				// create SendTask and SendWorker for each Destination
 				for (Destination destination : task.getDestinations()) {
+
 					SendTask sendTask = new SendTask(task, destination);
 					SendWorker worker = new SendWorkerImpl(sendTask, directory);
-
+					// submit for execution
 					Future<SendTask> sendFuture = sendCompletionService.blockingSubmit(worker);
 					schedulingPool.addSendTaskFuture(sendTask, sendFuture);
 					sendTask.setStartTime(new Date(System.currentTimeMillis()));
 					sendTask.setStatus(SENDING);
+
 				}
 
 			} catch (InterruptedException e) {
+
 				String errorStr = "Thread planning SendTasks was interrupted.";
 				log.error(errorStr);
 				throw new RuntimeException(errorStr, e);
+
 			} catch (Throwable ex) {
-				log.error("Unexpected exception in SendPlanner thread: {}.", ex);
+				log.error("Unexpected exception in SendPlanner thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later. {}", ex);
 			}
 		}
 	}
 
 	private void jmsLogError(Task task) {
-		log.warn("Could not send status update to Dispatcher for [{}] .", task);
+		log.warn("[{}] Could not send SEND status update to {} to Dispatcher.", task.getId(), task.getStatus());
 	}
 
 	@Autowired
 	public void setPropertiesBean(Properties propertiesBean) {
-		//log.debug("TESTSTR --> Send property bean set");
 		if (propertiesBean != null) {
-			//log.debug("TESTSTR --> Send script path from properties is {}", propertiesBean.getProperty("engine.sendscript.path"));
 			directory = new File(propertiesBean.getProperty("engine.sendscript.path"));
 		}
 	}
+
 }

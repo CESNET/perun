@@ -1,17 +1,13 @@
 package cz.metacentrum.perun.engine.unit;
 
-import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.engine.AbstractEngineTest;
 import cz.metacentrum.perun.engine.runners.SendPlanner;
 import cz.metacentrum.perun.engine.scheduling.SendWorker;
 import cz.metacentrum.perun.engine.scheduling.impl.BlockingSendExecutorCompletionService;
-import cz.metacentrum.perun.taskslib.model.SendTask;
 import cz.metacentrum.perun.taskslib.model.Task;
-import cz.metacentrum.perun.taskslib.model.TaskResult;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 

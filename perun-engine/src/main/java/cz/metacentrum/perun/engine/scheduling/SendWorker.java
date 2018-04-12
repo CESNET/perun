@@ -12,6 +12,11 @@ public interface SendWorker extends EngineWorker<SendTask> {
 	@Override
 	SendTask call() throws Exception;
 
+	/**
+	 * Return SendTask associated with this SendWorker
+	 *
+	 * @return SendTask
+	 */
 	SendTask getSendTask();
 
 }

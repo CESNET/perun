@@ -55,7 +55,7 @@ public class GenCollectorTest extends AbstractEngineTest {
 	public void testGenCollectorTaskException() throws Exception {
 
 		when(schedulingPoolMock.getGeneratedTasksQueue()).thenReturn(generatedTasksQueue);
-		when(genCompletionServiceMock.blockingTake()).thenThrow(new TaskExecutionException(task1.getId(), "Test err"));
+		when(genCompletionServiceMock.blockingTake()).thenThrow(new TaskExecutionException(task1, "Test err"));
 		doReturn(false, true).when(spy).shouldStop();
 
 		spy.run();
