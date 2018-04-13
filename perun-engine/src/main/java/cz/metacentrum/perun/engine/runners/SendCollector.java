@@ -1,8 +1,6 @@
 package cz.metacentrum.perun.engine.runners;
 
-
 import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.engine.exceptions.TaskExecutionException;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
@@ -18,14 +16,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
 import java.util.Date;
-import java.util.concurrent.Future;
-
-import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENT;
+import java.util.Objects;
 
 /**
- * This class takes all executed SendTasks (both successfully and not) and reports their state to the Dispatcher.
- * It also watches for the number of SendTasks associated with their parent Task, which will be removed from Engine
- * once all its SendTask are executed.
+ * This class represents permanently running thread, which should run in a single instance.
+ *
+ * It takes all done SEND SendTasks (both successfully and not) from BlockingSendExecutorCompletionService.
+ * For each SendTask its outcome is reported to Dispatcher as a TaskResult.
+ *
+ * If any of SendTasks fails its processing (has ERROR status), whole Task is set to SENDERROR.
+ * Otherwise SENDING or DONE is kept for whole Task.
+ * Once all SendTasks are finished Task status is reported to Dispatcher.
+ *
+ * Expected Task status change is SENDING -> DONE | SENDERROR based on all SendWorkers outcome.
+ *
+ * @see BlockingSendExecutorCompletionService
+ * @see SchedulingPool#createTaskResult(int, int, String, String, int, Service)
+ * @see SchedulingPool#removeSendTaskFuture(int, Destination)
+ *
+ * @author David Šarman
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class SendCollector extends AbstractRunner {
 
@@ -50,71 +60,102 @@ public class SendCollector extends AbstractRunner {
 	@Override
 	public void run() {
 		while (!shouldStop()) {
-			Task.TaskStatus status = Task.TaskStatus.SENDERROR;
-			int taskId;
+
+			SendTask sendTask = null;
+			Task task = null;
+			Service service = null;
+			Destination destination = null;
 			String stderr;
 			String stdout;
 			int returnCode;
-			Service service;
+
+			// FIXME - doesn't provide nice output and clog the log
 			log.debug(schedulingPool.getReport());
-			SendTask sendTask = null;
-			Destination destination = null;
+
 			try {
+
 				sendTask = sendCompletionService.blockingTake();
-				status = null;
-				taskId = sendTask.getId().getLeft();
-				sendTask.setStatus(SENT);
-				sendTask.setEndTime(new Date(System.currentTimeMillis()));
+				task = sendTask.getTask();
+				if (!Objects.equals(task.getStatus(), Task.TaskStatus.SENDERROR)) {
+					// keep SENDING status only if if task previously doesn't failed
+					task.setStatus(Task.TaskStatus.SENDING);
+				}
+				/*
+				 Set Task "sendEndTime" immediately for each done SendTask, so it's not considered as stuck
+				 by PropagationMaintainer#endStuckTasks().
+				 Like this we can maximally propagate for "rescheduleTime" for each Destination and not
+				 all Destinations (whole Task). Default rescheduleTime is 3 hours * no.of destinations.
+				 */
+				task.setSendEndTime(new Date(System.currentTimeMillis()));
 				destination = sendTask.getDestination();
 				stderr = sendTask.getStderr();
 				stdout = sendTask.getStdout();
 				returnCode = sendTask.getReturnCode();
 				service = sendTask.getTask().getService();
+
 			} catch (InterruptedException e) {
+
 				String errorStr = "Thread collecting sent SendTasks was interrupted.";
-				log.error(errorStr);
+				log.error(errorStr + ": {}", e);
 				throw new RuntimeException(errorStr, e);
+
 			} catch (TaskExecutionException e) {
-				log.error("Execution exception: {}", e);
-				Pair<Integer, Destination> id = (Pair<Integer, Destination>) e.getId();
-				Task task = schedulingPool.getTask(id.getLeft());
-				log.warn("Error occurred while sending {} to destination {}", task, id.getRight());
-				taskId = task.getId();
-				destination = id.getRight();
+
+				task = e.getTask();
+				// set SENDERROR status immediately as first SendTask (Destination) fails
+				task.setStatus(Task.TaskStatus.SENDERROR);
+				/*
+				 Set Task "sendEndTime" immediately for each done SendTask, so it's not considered as stuck
+				 by PropagationMaintainer#endStuckTasks().
+				 Like this we can maximally propagate for "rescheduleTime" for each Destination and not
+				 all Destinations (whole Task). Default rescheduleTime is 3 hours * no.of destinations.
+				 */
+				task.setSendEndTime(new Date(System.currentTimeMillis()));
+				destination = e.getDestination();
 				stderr = e.getStderr();
 				stdout = e.getStdout();
 				returnCode = e.getReturnCode();
 				service = task.getService();
-			} catch (Exception ex) {
-				log.error("Unexpected exception in SendCollector thread: {}.", ex);
-				// TODO - determine, what should be done since we might not get TaskID here
-				throw ex;
+
+				log.error("[{}] Error occurred while sending Task to destination {}", task.getId(), e.getDestination());
+
+			} catch (Throwable ex) {
+				log.error("Unexpected exception in SendCollector thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later. {}", ex);
+				continue;
 			}
-			Task task = schedulingPool.getTask(taskId);
+
+			// this is just interesting cross-check
+			if (schedulingPool.getTask(task.getId()) == null) {
+				log.warn("[{}] Task retrieved from SendTask is no longer in SchedulingPool. Probably cleaning thread removed it before completion. " +
+						"This might create possibility of running GEN and SEND of same Task together!", task.getId());
+			}
 
 			try {
-				log.debug("TESTSTR --> Sending TaskResult: taskid {}, destionationId {}, stderr {}, stdout {}, " +
-						"returnCode {}, service {}", new Object[]{taskId, destination.getId(), stderr, stdout, returnCode, service});
-				jmsQueueManager.reportTaskResult(schedulingPool.createTaskResult(taskId, destination.getId(), stderr, stdout,
-						returnCode, service));
+
+				// report TaskResult to Dispatcher for this SendTask (Destination)
+				jmsQueueManager.reportTaskResult(schedulingPool.createTaskResult(task.getId(), destination.getId(), stderr, stdout, returnCode, service));
+
 			} catch (JMSException e1) {
-				jmsErrorLog(taskId, destination.getId());
+				log.error("[{}] Error trying to reportTaskResult for Destination: {} to Dispatcher: {}", task.getId(), destination, e1);
 			}
 
-			if (status != null) {
-				task.setStatus(status);
-				task.setSendEndTime(new Date(System.currentTimeMillis()));
-			}
 			try {
-				//schedulingPool.decreaseSendTaskCount(taskId, 1);
-				schedulingPool.removeSendTaskFuture(taskId, destination);
+
+				// Decrease SendTask count and remove its Future<SendTask>
+				// Consequently, if count is <=1, Task is reported to Dispatcher
+				// as DONE/SENDERROR and removed from SchedulingPool (Engine).
+				schedulingPool.removeSendTaskFuture(task.getId(), destination);
+				// FIXME - this method call rely on current pool content and consequently calls canceling gen/sendFutures twice,
+				// FIXME - which is bad, since it might interfere with another run of the same Task.
+				// FIXME - we should probably call 3 methods and update them to handle inconsistent state and not to call each other
+				// schedulingPool.removeSendTaskFuture(task.getId(), destination);
+				// schedulingPool.decreaseSendTaskCount(task.getId(),1 );
+				// schedulingPool.removeTask(task);
+
 			} catch (TaskStoreException e) {
-				log.error("Task {} could not be removed from SchedulingPool", e);
+				log.error("[{}] Task {} could not be removed from SchedulingPool: {}", task.getId(), task, e);
 			}
 		}
 	}
 
-	private void jmsErrorLog(Integer id, Integer destinationId) {
-		log.warn("Could not send status update to SendTask with id {} and destination with id {}.", id, destinationId);
-	}
 }

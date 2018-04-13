@@ -18,6 +18,7 @@ import java.util.concurrent.*;
 /**
  * Implementation of BlockingCompletionService<SendTask> for sending Tasks in Engine.
  * (SendTask is inner representation of <Task,Destination>)
+ * It provides blocking methods and size limit to javas CompletionService, which itself run SendWorkers.
  * Tasks are managed by separate threads SendPlanner and SendCollector.
  *
  * @see BlockingCompletionService
@@ -35,6 +36,7 @@ public class BlockingSendExecutorCompletionService implements BlockingCompletion
 	@Autowired
 	@Qualifier("sendingSendTasks")
 	private BlockingBoundedMap<Pair<Integer, Destination>, SendTask> executingTasks;
+	private int limit;
 
 	/**
 	 * Create new blocking CompletionService for SEND Tasks with specified limit
@@ -42,33 +44,36 @@ public class BlockingSendExecutorCompletionService implements BlockingCompletion
 	 * @param limit Limit for processing SEND Tasks
 	 */
 	public BlockingSendExecutorCompletionService(int limit) {
+		this.limit = limit;
 		completionService = new ExecutorCompletionService<SendTask>(Executors.newFixedThreadPool(limit), new LinkedBlockingQueue<Future<SendTask>>());
 	}
 
 	@Override
 	public Future<SendTask> blockingSubmit(EngineWorker<SendTask> taskWorker) throws InterruptedException {
 		SendWorker sendWorker = (SendWorker) taskWorker;
+		// FIXME - actual debug output differs, since object values are serialized later and might be modified by another thread
+		log.debug("Executing SEND tasks before submit: {}/{}", executingTasks.keySet().size(), limit);
 		executingTasks.blockingPut(sendWorker.getSendTask().getId(), sendWorker.getSendTask());
 		return completionService.submit(sendWorker);
 	}
 
 	@Override
 	public SendTask blockingTake() throws InterruptedException, TaskExecutionException {
+		// FIXME - actual debug output differs, since object values are serialized later and might be modified by another thread
+		log.debug("Executing SEND tasks before take: {}/{}", executingTasks.keySet().size(), limit);
 		Future<SendTask> taskFuture = completionService.take();
 		try {
 			SendTask taskResult = taskFuture.get();
 			SendTask removed = executingTasks.remove(taskResult.getId());
 			if (removed == null) {
-				String errorStr = "SendTask " + taskResult + " could not be removed from completion services pool " + completionService;
-				log.error(errorStr);
-				throw new TaskExecutionException(taskResult.getId(), errorStr);
+				log.warn("Finished {} was not present in executingTasks map. Probably cleaned by endStuckTasks().", taskResult);
 			}
 			return taskResult;
 		} catch (ExecutionException e) {
 			Throwable cause = e.getCause();
 			if (cause.getClass().equals(TaskExecutionException.class)) {
 				TaskExecutionException castedCause = (TaskExecutionException) cause;
-				executingTasks.remove((Pair<Integer, Destination>) castedCause.getId());
+				executingTasks.remove(new Pair<>(castedCause.getTask().getId(), castedCause.getDestination()));
 				throw castedCause;
 			} else {
 				String errorMsg = "Unexpected exception occurred during SendTask execution";
@@ -76,5 +81,6 @@ public class BlockingSendExecutorCompletionService implements BlockingCompletion
 				throw new RuntimeException(errorMsg, e);
 			}
 		}
+		// TODO - catch cancellation exception ?
 	}
 }

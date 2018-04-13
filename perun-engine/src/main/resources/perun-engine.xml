@@ -83,7 +83,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				<prop key="engine.cron.processpool">0 0/1 * * * ?</prop>
 				<prop key="engine.cron.taskexecutor">0 0/2 * * * ?</prop>
 				<prop key="engine.thread.gentasks.max">15</prop>
-				<prop key="engine.thread.sendtasks.max">1000</prop>
+				<prop key="engine.thread.sendtasks.max">150</prop>
 				<prop key="engine.genscript.path">gen</prop>
 				<prop key="engine.sendscript.path">send</prop>
 			</props>

@@ -12,6 +12,7 @@ import org.junit.Test;
 import java.util.Date;
 
 import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.ERROR;
+import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENDING;
 import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENT;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -37,30 +38,46 @@ public class SendCollectorTest extends AbstractEngineTest {
 
 		spy.run();
 
-		assertEquals(SENT, sendTask1.getStatus());
-		assertEquals(SENT, sendTask2.getStatus());
-		assertEquals(SENT, sendTask3.getStatus());
-		assertEquals(SENT, sendTask4.getStatus());
+		// SendTask status is no longer modified by SendCollector -> keep SENDING instead of SENT
+		// Only real SendWorker switches its initial state
+		assertEquals(SENDING, sendTask1.getStatus());
+		assertEquals(SENDING, sendTask2.getStatus());
+		assertEquals(SENDING, sendTask3.getStatus());
+		assertEquals(SENDING, sendTask4.getStatus());
+
 		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask1.getDestination());
 		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask2.getDestination());
 		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask3.getDestination());
 		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask4.getDestination());
 		verify(jmsQueueManagerMock, times(4)).reportTaskResult(null);
+
+		// since scheduling pool is mocked, it doesn't switch status to DONE (or ERROR) anymore
+		// when we call removeSendTaskFuture()
+		assertEquals(Task.TaskStatus.SENDING, task1.getStatus());
+
 	}
 
 	@Test
 	public void sendCollectorTaskExceptionTest() throws Exception {
+
+		task1.setStatus(Task.TaskStatus.SENDING);
+
 		doReturn(sendTask1)
-				.doThrow(new TaskExecutionException(sendTask2.getId(), "Test error"))
+				.doThrow(new TaskExecutionException(sendTask2.getTask(), sendTask2.getDestination(), "Test error"))
 				.when(sendCompletionServiceMock).blockingTake();
 		doReturn(false, false, true).when(spy).shouldStop();
 		doReturn(task1).when(schedulingPoolMock).getTask(task1.getId());
 
 		spy.run();
 
-		assertEquals(SENT, sendTask1.getStatus());
+		// SENDING instead of SENT, because only real SendWorker switches state
+		assertEquals(SENDING, sendTask1.getStatus());
+		// since one of SendTasks failed, Task status is changed to SENDERROR
 		assertEquals(Task.TaskStatus.SENDERROR, task1.getStatus());
+
 		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask1.getDestination());
+		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask2.getDestination());
 		verify(jmsQueueManagerMock, times(2)).reportTaskResult(null);
+
 	}
 }

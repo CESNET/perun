@@ -149,8 +149,8 @@ public abstract class AbstractEngineTest {
 		sendTask4.setReturnCode(0);
 
 		sendTaskFalse = new SendTask(task2, destination1);
-		sendTask4.setStartTime(new Date(System.currentTimeMillis()));
-		sendTask4.setStatus(SendTask.SendTaskStatus.SENDING);
+		sendTaskFalse.setStartTime(new Date(System.currentTimeMillis()));
+		sendTaskFalse.setStatus(SendTask.SendTaskStatus.SENDING);
 		sendTaskFalse.setReturnCode(1);
 	}
 

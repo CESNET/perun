@@ -37,4 +37,10 @@ public interface BlockingBoundedMap<K, V> {
 	 */
 	Collection<V> values();
 
+	/**
+	 * Get all keys currently held by this blocking map
+	 * @return
+	 */
+	Collection<K> keySet();
+
 }

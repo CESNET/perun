@@ -32,7 +32,8 @@ public class SendWorkerImplTest extends AbstractEngineTest {
 			worker.call();
 			fail("TaskExecutionException should be thrown");
 		} catch (TaskExecutionException e) {
-			assertEquals(sendTaskFalse.getId(), e.getId());
+			assertEquals(sendTaskFalse.getTask(), e.getTask());
+			assertEquals(sendTaskFalse.getDestination(), e.getDestination());
 			assertEquals(1, e.getReturnCode());
 		} catch (Exception e) {
 			fail("Unknown exception caught " + e);
