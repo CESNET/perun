@@ -39,8 +39,7 @@ public class SendPlannerTest extends AbstractEngineTest {
 
 		spy.run();
 
-		verify(schedulingPoolMock, times(1)).addSendTaskCount(task1.getId(),
-				task1.getDestinations().size());
+		verify(schedulingPoolMock, times(1)).addSendTaskCount(task1, task1.getDestinations().size());
 		verify(sendCompletionServiceMock, times(4)).blockingSubmit(any(SendWorker.class));
 		verify(jmsQueueManagerMock, times(1)).reportTaskStatus(eq(task1.getId()), eq(SENDING),
 				anyLong());

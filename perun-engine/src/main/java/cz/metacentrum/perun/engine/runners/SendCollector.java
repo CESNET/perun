@@ -32,7 +32,7 @@ import java.util.Objects;
  *
  * @see BlockingSendExecutorCompletionService
  * @see SchedulingPool#createTaskResult(int, int, String, String, int, Service)
- * @see SchedulingPool#removeSendTaskFuture(int, Destination)
+ * @see SchedulingPool#decreaseSendTaskCount(Task, int)
  *
  * @author David Šarman
  * @author Pavel Zlámal <zlamal@cesnet.cz>
@@ -76,10 +76,6 @@ public class SendCollector extends AbstractRunner {
 
 				sendTask = sendCompletionService.blockingTake();
 				task = sendTask.getTask();
-				if (!Objects.equals(task.getStatus(), Task.TaskStatus.SENDERROR)) {
-					// keep SENDING status only if if task previously doesn't failed
-					task.setStatus(Task.TaskStatus.SENDING);
-				}
 				/*
 				 Set Task "sendEndTime" immediately for each done SendTask, so it's not considered as stuck
 				 by PropagationMaintainer#endStuckTasks().
@@ -87,6 +83,10 @@ public class SendCollector extends AbstractRunner {
 				 all Destinations (whole Task). Default rescheduleTime is 3 hours * no.of destinations.
 				 */
 				task.setSendEndTime(new Date(System.currentTimeMillis()));
+				if (!Objects.equals(task.getStatus(), Task.TaskStatus.SENDERROR)) {
+					// keep SENDING status only if if task previously doesn't failed
+					task.setStatus(Task.TaskStatus.SENDING);
+				}
 				destination = sendTask.getDestination();
 				stderr = sendTask.getStderr();
 				stdout = sendTask.getStdout();
@@ -102,8 +102,6 @@ public class SendCollector extends AbstractRunner {
 			} catch (TaskExecutionException e) {
 
 				task = e.getTask();
-				// set SENDERROR status immediately as first SendTask (Destination) fails
-				task.setStatus(Task.TaskStatus.SENDERROR);
 				/*
 				 Set Task "sendEndTime" immediately for each done SendTask, so it's not considered as stuck
 				 by PropagationMaintainer#endStuckTasks().
@@ -111,6 +109,8 @@ public class SendCollector extends AbstractRunner {
 				 all Destinations (whole Task). Default rescheduleTime is 3 hours * no.of destinations.
 				 */
 				task.setSendEndTime(new Date(System.currentTimeMillis()));
+				// set SENDERROR status immediately as first SendTask (Destination) fails
+				task.setStatus(Task.TaskStatus.SENDERROR);
 				destination = e.getDestination();
 				stderr = e.getStderr();
 				stdout = e.getStdout();
@@ -141,16 +141,10 @@ public class SendCollector extends AbstractRunner {
 
 			try {
 
-				// Decrease SendTask count and remove its Future<SendTask>
+				// Decrease SendTasks count for Task
 				// Consequently, if count is <=1, Task is reported to Dispatcher
 				// as DONE/SENDERROR and removed from SchedulingPool (Engine).
-				schedulingPool.removeSendTaskFuture(task.getId(), destination);
-				// FIXME - this method call rely on current pool content and consequently calls canceling gen/sendFutures twice,
-				// FIXME - which is bad, since it might interfere with another run of the same Task.
-				// FIXME - we should probably call 3 methods and update them to handle inconsistent state and not to call each other
-				// schedulingPool.removeSendTaskFuture(task.getId(), destination);
-				// schedulingPool.decreaseSendTaskCount(task.getId(),1 );
-				// schedulingPool.removeTask(task);
+				schedulingPool.decreaseSendTaskCount(task, 1);
 
 			} catch (TaskStoreException e) {
 				log.error("[{}] Task {} could not be removed from SchedulingPool: {}", task.getId(), task, e);

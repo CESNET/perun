@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.Future;
 
 import static cz.metacentrum.perun.taskslib.model.Task.TaskStatus.GENERATING;
 
@@ -68,10 +67,7 @@ public class GenPlanner extends AbstractRunner {
 				*/
 				task.setStatus(GENERATING);
 				GenWorker worker = new GenWorkerImpl(task, directory);
-				Future<Task> taskFuture = genCompletionService.blockingSubmit(worker);
-				schedulingPool.addGenTaskFutureToPool(task.getId(), taskFuture);
-				// We actually started, set Time and notify Dispatcher
-				task.setGenStartTime(new Date(System.currentTimeMillis()));
+				genCompletionService.blockingSubmit(worker);
 				try {
 					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), task.getGenStartTime().getTime());
 				} catch (JMSException e) {

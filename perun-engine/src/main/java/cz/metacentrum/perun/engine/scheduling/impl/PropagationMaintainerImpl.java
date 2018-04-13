@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
 import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
@@ -20,6 +18,7 @@ import javax.jms.JMSException;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.Future;
 
@@ -33,11 +32,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 */
 	private final static int rescheduleTime = 180;
 
-	@Autowired
-	private BlockingBoundedHashMap<Integer, Task> generatingTasks;
-	@Autowired
-	private BlockingBoundedHashMap<Pair<Integer, Destination>, SendTask> sendingSendTasks;
-
+	private BlockingGenExecutorCompletionService generatingTasks;
+	private BlockingSendExecutorCompletionService sendingSendTasks;
 	private SchedulingPool schedulingPool;
 	private JMSQueueManager jmsQueueManager;
 
@@ -61,63 +57,126 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		this.schedulingPool = schedulingPool;
 	}
 
+	public BlockingGenExecutorCompletionService getGeneratingTasks() {
+		return generatingTasks;
+	}
+
+	@Autowired
+	public void setGeneratingTasks(BlockingGenExecutorCompletionService generatingTasks) {
+		this.generatingTasks = generatingTasks;
+	}
+
+	public BlockingSendExecutorCompletionService getSendingSendTasks() {
+		return sendingSendTasks;
+	}
+
+	@Autowired
+	public void setSendingSendTasks(BlockingSendExecutorCompletionService sendingSendTasks) {
+		this.sendingSendTasks = sendingSendTasks;
+	}
+
 	// ----- methods ------------------------------
 
 	public void endStuckTasks() {
 
 		// handle stuck GEN tasks
-		for (Task task : generatingTasks.values()) {
+		for (Map.Entry<Future<Task>,Task> generatingTask : generatingTasks.getRunningTasks().entrySet()) {
+
+			Task task = generatingTask.getValue();
+			Future<Task> future = generatingTask.getKey();
+
 			Date startTime = task.getGenStartTime();
 			int howManyMinutesAgo = 0;
 			if(startTime != null) {
 				howManyMinutesAgo = (int) (System.currentTimeMillis() - startTime.getTime()) / 1000 / 60;
 			}
-			// If too much time has passed something is broken
-			if (startTime == null || howManyMinutesAgo >= rescheduleTime) {
-				abortTask(task, TaskStatus.GENERROR);
+			if (startTime == null) {
+
+				// by implementation can't happen, we set time before adding to the generatingTasksMap
+				log.error("[{}] Task in generatingTasks has no start time. Shouldn't happen by implementation.", task.getId());
+
+			} else if (howManyMinutesAgo >= rescheduleTime) {
+
+				if (!future.isCancelled()) {
+					// Cancel running GEN Task - we expect that it will be picked by GenCollector
+					// and removed from the Engine.
+					log.debug("[{}] Cancelling stuck generating Future<Task>.", task.getId());
+					future.cancel(true);
+				} else {
+					// We cancelled Task in previous run, but it wasn't picked by GenCollector
+					// GenCollector probably doesn't run -> abort task manually
+					log.debug("[{}] Cancelled stuck generating Future<Task> was not picked by GenCollector, forcefully removing from Engine.", task.getId());
+					generatingTasks.removeStuckTask(future); // to release semaphore
+					abortTask(task, TaskStatus.GENERROR);
+				}
+
 			}
+
 		}
 
 		// handle stuck SEND tasks
-		for (SendTask sendTask : sendingSendTasks.values()) {
+		for (Map.Entry<Future<SendTask>,SendTask> sendingSendTask : sendingSendTasks.getRunningTasks().entrySet()) {
+
+			SendTask sendTask = sendingSendTask.getValue();
+			Future<SendTask> future = sendingSendTask.getKey();
+			Task task = sendTask.getTask();
+
 			Date startTime = sendTask.getStartTime();
 			int howManyMinutesAgo = 0;
 			if(startTime != null) {
 				howManyMinutesAgo = (int) (System.currentTimeMillis() - startTime.getTime()) / 1000 / 60;
 			}
-			// If too much time has passed something is broken
-			if (startTime == null || howManyMinutesAgo >= rescheduleTime) {
+			if (startTime == null) {
+
+				// by implementation can't happen, we set time before adding to the generatingTasksMap
+				log.error("[{}] SendTask in sendingSendTask has no start time for Destination {}. Shouldn't happen by implementation.", task.getId(), sendTask.getDestination());
+
+			} else if (howManyMinutesAgo >= rescheduleTime) {
+
 				sendTask.setStatus(SendTaskStatus.ERROR);
-				Future<SendTask> sendTaskFuture = null;
-				try {
-					sendTaskFuture = schedulingPool.removeSendTaskFuture(
-							sendTask.getId().getLeft(), sendTask.getId().getRight());
-				} catch (TaskStoreException e) {
-					log.error("[{}] Failed during removal of SendTaskFuture for {} from SchedulingPool: {}", sendTask.getId().getLeft(), sendTask, e);
-				}
-				if (sendTaskFuture == null) {
-					log.error("[{}] Stale SendTask {} was not removed. For some reason, SendTask is kept in 'sendingSendTasks' but actually has not SendTask futures.", sendTask.getId().getLeft(), sendTask);
-					log.error("  - Probably SendCollector failed and SendTask is kept in the structure, removing !!");
-					// probably because when we cancel send tasks, we might not be able to remove them all
-					// as mentioned in SchedulingPoolImpl TODOs in cancelSendTasks() method
-					sendingSendTasks.remove(sendTask.getId());
+				if (!future.isCancelled()) {
+					// Cancel running Send Task - we expect that it will be picked by SendCollector
+					// and removed from the Engine if all SendTasks are done
+					log.debug("[{}] Cancelling stuck sending Future<SendTask> for Destination: {}.", task.getId(), sendTask.getDestination());
+					future.cancel(true);
 				} else {
-					// report Task result only for Tasks, which had future
+
+					log.debug("[{}] Cancelled stuck sending Future<SendTask> for Destination: {} was not picked by SendCollector, forcefully removing from Engine.", task.getId(), sendTask.getDestination());
+
+					// We cancelled Task in previous run, but it wasn't picked by SendCollector
+					// SendCollector probably doesn't run
+					sendingSendTasks.removeStuckTask(future); // to release semaphore
+
+					// make sure Task is switched to SENDERROR
+					task.setSendEndTime(new Date(System.currentTimeMillis()));
+					task.setStatus(TaskStatus.SENDERROR);
+
+					// report result
 					TaskResult taskResult = null;
 					try {
-						taskResult = schedulingPool.createTaskResult(sendTask.getId().getLeft(),
+						taskResult = schedulingPool.createTaskResult(task.getId(),
 								sendTask.getDestination().getId(),
 								sendTask.getStderr(), sendTask.getStdout(),
-								sendTask.getReturnCode(), sendTask.getTask().getService());
+								sendTask.getReturnCode(), task.getService());
 						jmsQueueManager.reportTaskResult(taskResult);
 					} catch (JMSException e) {
-						log.error("[{}] Error trying to reportTaskResult {} of {} to Dispatcher: {}", sendTask.getId().getLeft(), taskResult, sendTask.getTask(), e);
+						log.error("[{}] Error trying to reportTaskResult {} of {} to Dispatcher: {}", task.getId(), taskResult, task, e);
 					}
+
+					// lower counter for stuck SendTask if count <= 1 remove from Engine
+					try {
+						schedulingPool.decreaseSendTaskCount(task, 1);
+					} catch (TaskStoreException e) {
+						log.error("[{}] Task {} could not be removed from SchedulingPool: {}", task.getId(), task, e);
+					}
+
 				}
+
 			}
 		}
 
-		// check all known tasks
+		// check all known Tasks
+
 		Collection<Task> allTasks = schedulingPool.getAllTasks();
 		if(allTasks == null) {
 			return;
@@ -152,10 +211,10 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					BlockingDeque<Task> newTasks = schedulingPool.getNewTasksQueue();
 					if(!newTasks.contains(task)) {
 						try {
+							log.debug("[{}] Re-adding PLANNED Task back to pool and newTasks queue. Probably GenPlanner failed.", task.getId());
 							schedulingPool.addTask(task);
 						} catch (TaskStoreException e) {
-							log.error("Could not save Task {} into Engine SchedulingPool because of {}, setting to ERROR",
-									task, e);
+							log.error("Could not save Task {} into Engine SchedulingPool because of {}, setting to ERROR", task, e);
 							abortTask(task, TaskStatus.ERROR);
 						}
 					}
@@ -164,7 +223,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 				case GENERATING:
 					/*
 					This is basically the same check as for the GENERATING Tasks above,
-					but now for Tasks missing in "generatingTasks" blocking bounded hash map.
+					but now for Tasks missing in "generatingTasks".
 					!! We can't abort GENERATING Tasks with startTime=NULL here,
 					because they are waiting to be started at genCompletionService#blockingSubmit() !!
 					*/
@@ -174,7 +233,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 						howManyMinutesAgo = (int) (System.currentTimeMillis() - startTime.getTime()) / 1000 / 60;
 					}
 					// If task started too long ago and is not in generating structure anymore
-					if (howManyMinutesAgo >= rescheduleTime && !generatingTasks.values().contains(task)) {
+					// somebody probably wrongly manipulated the structure
+					if (howManyMinutesAgo >= rescheduleTime && !generatingTasks.getRunningTasks().values().contains(task)) {
 						// probably GenCollector failed to pick task -> abort
 						abortTask(task, TaskStatus.GENERROR);
 					}
@@ -204,6 +264,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					break;
 
 				case SENDERROR:
+
 					Date endTime = task.getSendEndTime();
 					howManyMinutesAgo = 0;
 					if(endTime != null) {
@@ -213,24 +274,19 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					if(endTime == null || howManyMinutesAgo >= rescheduleTime) {
 						abortTask(task, TaskStatus.SENDERROR);
 					}
+
 					break;
 
 				case ERROR:
 					break;
 
 				case DONE:
-					// report it
-					try {
-						jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
-					} catch (JMSException e) {
-						log.error("[{}] Error trying to reportTaskStatus of {} to Dispatcher: {}", task.getId(), task, e);
-					}
-					try {
-						schedulingPool.removeTask(task.getId());
-					} catch (TaskStoreException e) {
-						log.error("[{}] Task could not be removed from SchedulingPool: {}", task.getId(), e);
-					}
-					break;
+
+					/*
+					 DONE Tasks are almost immediately reported to Dispatcher by schedulingPool#decreaseSendTaskCount().
+					 Only way Task is stuck in DONE in scheduling pool is that implementation of removal from schedulingPool fails.
+					 And in such case we can't fix it here anyway and spamming Dispatcher about finished state is pointless.
+					 */
 
 				default:
 					// unknown state

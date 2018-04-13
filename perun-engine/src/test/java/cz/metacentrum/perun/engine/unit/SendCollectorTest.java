@@ -45,10 +45,7 @@ public class SendCollectorTest extends AbstractEngineTest {
 		assertEquals(SENDING, sendTask3.getStatus());
 		assertEquals(SENDING, sendTask4.getStatus());
 
-		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask1.getDestination());
-		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask2.getDestination());
-		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask3.getDestination());
-		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask4.getDestination());
+		verify(schedulingPoolMock, times(4)).decreaseSendTaskCount(task1, 1);
 		verify(jmsQueueManagerMock, times(4)).reportTaskResult(null);
 
 		// since scheduling pool is mocked, it doesn't switch status to DONE (or ERROR) anymore
@@ -75,8 +72,7 @@ public class SendCollectorTest extends AbstractEngineTest {
 		// since one of SendTasks failed, Task status is changed to SENDERROR
 		assertEquals(Task.TaskStatus.SENDERROR, task1.getStatus());
 
-		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask1.getDestination());
-		verify(schedulingPoolMock, times(1)).removeSendTaskFuture(task1.getId(), sendTask2.getDestination());
+		verify(schedulingPoolMock, times(2)).decreaseSendTaskCount(task1, 1);
 		verify(jmsQueueManagerMock, times(2)).reportTaskResult(null);
 
 	}
