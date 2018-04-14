@@ -80,6 +80,31 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Copy "template" settings from user's another existing resource and create new resource with this template.
+	 * The settings are attributes, services, tags (if exists), groups and their members (if the resources are from the same VO and withGroups is true)
+	 * Template Resource can be from any of user's facilities.
+	 *
+	 * @param templateResource template resource to copy
+	 * @param destinationResource destination resource containing destination facility, VO and resource name.
+	 * @param withGroups if set to true and resources ARE from the same VO we also - copy all group-resource and member-resource attributes
+	 *                   														   - assign all groups same as on templateResource
+	 *	                 if set to true and resources ARE NOT from the same VO InternalErrorException is thrown,
+	 *                   if set to false we will NOT copy groups and group related attributes.
+	 * @return Resource new Resource with copied settings based on withGroups parameter.
+	 */
+	copyResource {
+		@Override
+		public Resource call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getResourcesManager().copyResource(ac.getSession(),
+					parms.read("templateResource", Resource.class),
+					parms.read("destinationResource", Resource.class),
+					parms.readBoolean("withGroups"));
+		}
+	},
+
+	/*#
 	 * Updates a resource.
 	 *
 	 * @param resource Resource JSON object

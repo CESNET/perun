@@ -59,14 +59,18 @@ public interface ResourcesManagerBl {
 
 	/**
 	 * Copy "template" settings from user's another existing resource and create new resource with this template.
-	 * Resource can be from any of user's facilities.
+	 * The settings are attributes, services, tags (if exists), groups and their members (if the resources are from the same VO and withGroups is true)
+	 * Template Resource can be from any of user's facilities.
 	 *
 	 * @param perunSession
-	 * @param templateResource "template" resource
-	 * @param destinationResource destination resource
-	 * @param withGroups if set to true and resources ARE from the same VO we also copy all group-resource and member-resource attributes,
-	 *                   if set to true and resources ARE NOT from the same VO we copy resource only attributes,
-	 *                   if set to false we copy resource only attributes.
+	 * @param templateResource template resource to copy
+	 * @param destinationResource destination resource containing destination facility, VO and resource name.
+	 * @param withGroups if set to true and resources ARE from the same VO we also - copy all group-resource and member-resource attributes
+	 *                   														   - assign all groups same as on templateResource,
+	 *	                 if set to true and resources ARE NOT from the same VO InternalErrorException is thrown,
+	 *                   if set to false we will NOT copy groups and group related attributes.
+	 * @throws InternalErrorException
+	 * @throws ResourceNotExistsException
 	 */
 	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException;
 

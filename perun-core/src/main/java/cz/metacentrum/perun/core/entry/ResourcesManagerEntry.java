@@ -101,26 +101,35 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
 	public Resource copyResource(PerunSession sess, Resource templateResource, Resource destinationResource, boolean withGroups) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException {
 		Utils.checkPerunSession(sess);
-		Vo destinationVo = getPerunBl().getVosManagerBl().getVoById(sess, destinationResource.getVoId());
-		Facility destinationFacility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, destinationResource.getFacilityId());
-		getPerunBl().getVosManagerBl().checkVoExists(sess, destinationVo);
-		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, destinationFacility);
+		Utils.notNull(templateResource, "Template Resource");
+		Utils.notNull(destinationResource, "Destination Resource");
+		getResourcesManagerBl().checkResourceExists(sess, templateResource);
 
+		Facility destinationFacility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, destinationResource.getFacilityId());
 		Facility templateResourceFacility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, templateResource.getFacilityId());
 
-		//check if user is part of template resource's facility
-		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, templateResource) &&
-				!AuthzResolver.isAuthorized(sess,Role.FACILITYADMIN, templateResourceFacility)){
-			throw new PrivilegeException(sess, "Problem with template Resource's facility in copyResource.");
+		//check if user is facility admin of template resource's facility
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, templateResourceFacility)) {
+			throw new PrivilegeException(sess, "User is not facility admin of template Resource's facility.");
 		}
 
-		//check if user is part of destination's facility
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, destinationVo) &&
-				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationFacility)) {
-			throw new PrivilegeException(sess, "Problem with new Resource's facility in copyResource.");
+		//check if user is facility admin of destination's facility
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationFacility)) {
+			throw new PrivilegeException(sess, "User is not facility admin of destination Resource's facility.");
 		}
 
-		getResourcesManagerBl().checkResourceExists(sess, templateResource);
+		if(withGroups) {
+			Vo destinationVo = getPerunBl().getVosManagerBl().getVoById(sess, destinationResource.getVoId());
+			Vo templateVo = getPerunBl().getVosManagerBl().getVoById(sess, templateResource.getVoId());
+
+			if(!destinationVo.equals(templateVo)) {
+				throw new InternalErrorException("Resources are not from the same VO.");
+			}
+
+			if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, templateVo)) {
+				throw new PrivilegeException(sess, "User needs vo admin rights for copying the groups and group related attributes.");
+			}
+		}
 
 		return getResourcesManagerBl().copyResource(sess, templateResource, destinationResource, withGroups);
 	}

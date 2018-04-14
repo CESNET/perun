@@ -76,8 +76,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				}
 			}
 
-			//if the VOs are same we also copy groups and group-resource/member-resource attributes
-			if(withGroups && destinationVo.equals(this.getVo(sess, templateResource))){
+			//if withGroups is true we also copy groups and group-resource/member-resource attributes
+			if(withGroups){
 				List<Group> templateResourceGroups = perunBl.getResourcesManagerBl().getAssignedGroups(sess, templateResource);
 				try {
 					assignGroupsToResource(sess, templateResourceGroups, newResource);
