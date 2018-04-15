@@ -137,7 +137,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 
-	@Test
+	@Test (expected=InternalErrorException.class)
 	public void copyResourceDifferentVO() throws Exception{
 		System.out.println(CLASS_NAME + "copyResourceDifferentVO");
 		facility = setUpFacility();
@@ -155,9 +155,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource1.setFacilityId(facility.getId());
 
 		resourcesManager.copyResource(sess, resource, resource1, true);
-
-		Resource existingResource = resourcesManager.getResourceByName(sess, diffVo, facility, resource1.getName());
-		assertNotNull("Resource was not created", existingResource);
 	}
 
 	@Test
