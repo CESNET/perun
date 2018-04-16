@@ -251,4 +251,37 @@ public class SearcherImpl implements SearcherImplApi {
 			}
 		}
 	}
+
+	@Override
+	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, Calendar date, int days) throws InternalErrorException {
+
+		// if date is null, use today
+		if (date == null) {
+			date = Calendar.getInstance();
+		}
+		date.add(Calendar.DAY_OF_MONTH, days);
+		// create sql toDate()
+		String compareDate = BeansUtils.getDateFormatterWithoutTime().format(date.getTime());
+		compareDate = "TO_DATE('"+compareDate+"','YYYY-MM-DD')";
+
+		if (operator == null || operator.isEmpty()) {
+			operator = "=";
+		}
+
+		if (!operator.equals("<") && !operator.equals("<=") && !operator.equals("=") && !operator.equals(">=") && !operator.equals(">")) {
+			throw new InternalErrorException("Operator '"+operator+"' is not allowed in SQL.");
+		}
+
+		try {
+			AttributeDefinition def = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:membershipExpiration");
+
+			String query = "select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from members left join member_group_attr_values val on " +
+					"val.member_id=members.id and val.attr_id=? where val.group_id=? and TO_DATE(val.attr_value, 'YYYY-MM-DD')"+operator+compareDate;
+
+			return jdbcTemplate.query(query, MembersManagerImpl.MEMBER_MAPPER, def.getId(), group.getId());
+
+		} catch (Exception e) {
+			throw new InternalErrorException(e);
+		}
+	}
 }

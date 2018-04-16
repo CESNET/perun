@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2920,5 +2921,40 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public void validateMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException {
 		groupsManagerImpl.setGroupStatus(sess, member, group, MemberGroupStatus.VALID);
 		getPerunBl().getAuditer().log(sess, "{} in {} validated.", member, group);
+	}
+
+	@Override
+	public MemberGroupStatus getMembersDirectGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException {
+		return groupsManagerImpl.getMemberGroupStatus(session, member, group);
+	}
+
+	@Override
+	public void validateMemberInGroupAsync(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		new Thread(() -> {
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				log.error("Interrupted exception before validationg member async. Cause: {}", e);
+			}
+			MemberGroupStatus oldStatus = null;
+			try {
+				oldStatus = getMembersDirectGroupStatus(sess, member, group);
+			} catch (InternalErrorException e) {
+				log.error("Failed to read members status in group in validateMemberInGroupAsync. Member: {}, Group: {}, Cause: {}",
+						member, group, e);
+			}
+			try {
+
+				((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
+			} catch(Exception ex) {
+				log.info("validateMemberInGroupAsync failed. Cause: {}", ex);
+				try {
+					getPerunBl().getAuditer().log(sess, "Validation in {} of {} failed. He stays in {} state.", group, member, oldStatus);
+					log.info("Validation in {} of {} failed. He stays in {} state.", group, member, oldStatus);
+				} catch(InternalErrorException internalError) {
+					log.error("Store message to auditer failed. message: Validation in {} of {} failed. He stays in {} state.", group, member, oldStatus, internalError);
+				}
+			}
+		}, "validateMemberAsync").start();
 	}
 }

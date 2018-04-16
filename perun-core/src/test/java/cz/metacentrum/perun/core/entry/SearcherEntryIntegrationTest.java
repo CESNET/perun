@@ -29,6 +29,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 	private User user2;
 	private Member member1;
 	private Member member2;
+	private Group group;
 	private Candidate candidate1;
 	private Candidate candidate2;
 	private Vo vo;
@@ -52,6 +53,9 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		candidate2 = setUpCandidate2();
 		setUpUser1();
 		setUpUser2();
+		group = setUpGroupInVo(group, vo);
+		perun.getGroupsManagerBl().addMember(sess, group, member1);
+		perun.getGroupsManagerBl().addMember(sess, group, member2);
 		integerAttr = setUpUserAttributeWithIntegerValue();
 		stringAttr = setUpUserAttributeWithStringValue();
 		listAttr = setUpUserAttributeWithListValue();
@@ -239,6 +243,40 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue("Member with expiration today was found for > tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, ">", calendar).contains(member1));
 		assertTrue("Member with expiration yesterday was not found for < tomorrow.", perun.getSearcher().getMembersByExpiration(sess, "<", calendar).contains(member2));
 
+	}
+
+	@Test
+	public void getMembersByGroupExpiration() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersByGroupExpiration");
+
+		// setup required attribute if not exists
+		try {
+			perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:membershipExpiration");
+		} catch (AttributeNotExistsException ex) {
+			setUpGroupMembershipExpirationAttribute();
+		}
+
+		// setup expiration dates
+		Calendar calendar = Calendar.getInstance();
+		String today = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		calendar.add(Calendar.DAY_OF_MONTH, -1);
+		String yesterday = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+
+		// set attributes
+		Attribute attribute = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:membershipExpiration"));
+		attribute.setValue(today);
+		perun.getAttributesManager().setAttribute(sess, member1, group, attribute);
+
+		Attribute attribute2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:membershipExpiration"));
+		attribute2.setValue(yesterday);
+		perun.getAttributesManager().setAttribute(sess, member2, group, attribute2);
+
+		assertTrue("Member with expiration yesterday was not found for = yesterday.", perun.getSearcher().getMembersByGroupExpiration(sess, group, "=", calendar).contains(member2));
+		assertTrue("Member with expiration today was not found for > yesterday.", perun.getSearcher().getMembersByGroupExpiration(sess, group, ">", calendar).contains(member1));
+		assertTrue("Member with expiration today was not found for >= yesterday.", perun.getSearcher().getMembersByGroupExpiration(sess, group, ">=", calendar).contains(member1));
+		assertTrue("Member with expiration yesterday was not found for >= yesterday.", perun.getSearcher().getMembersByGroupExpiration(sess, group, ">=", calendar).contains(member2));
+		assertTrue("Member with expiration today was found for = yesterday.", !perun.getSearcher().getMembersByGroupExpiration(sess, group, "=", calendar).contains(member1));
+		assertTrue("Member with expiration yesterday was found for > yesterday.", !perun.getSearcher().getMembersByGroupExpiration(sess, group, ">", calendar).contains(member2));
 	}
 
 	@Test
@@ -919,5 +957,26 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		Resource resource = new Resource(0, name, name, facility.getId());
 
 		return perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
+	}
+
+	private AttributeDefinition setUpGroupMembershipExpirationAttribute() throws Exception {
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+		attr.setFriendlyName("membershipExpiration");
+		attr.setType(String.class.getName());
+		attr.setDisplayName("Group membership expiration");
+		attr.setDescription("When the member expires in group, format YYYY-MM-DD.");
+
+		return perun.getAttributesManager().createAttribute(sess, attr);
+	}
+
+
+	private Group setUpGroupInVo(Group group, Vo vo) throws Exception {
+		group = new Group();
+		group.setName("test group");
+		group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+
+		return group;
 	}
 }

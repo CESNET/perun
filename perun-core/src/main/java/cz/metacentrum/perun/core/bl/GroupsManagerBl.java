@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunBean;
@@ -1299,7 +1300,7 @@ public interface GroupsManagerBl {
 	void expireMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
 
 	/**
-	 * Set member's status in givne group to VALID
+	 * Set member's status in given group to VALID
 	 *
 	 * @param sess perun session
 	 * @param member member whose status will be changed
@@ -1307,4 +1308,26 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException internal error
 	 */
 	void validateMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns members direct status in given group. This method doesn't
+	 * calculate status from subgroups!
+	 *
+	 * @param session session
+	 * @param member member
+	 * @param group group
+	 * @return status of member in given group
+	 * @throws InternalErrorException internal error
+	 */
+	MemberGroupStatus getMembersDirectGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Set member's status in given group to VALID asynchronously
+	 *
+	 * @param sess perun session
+	 * @param member member whose status will be changed
+	 * @param group group in which given member will be validated
+	 * @throws InternalErrorException internal error
+	 */
+	void validateMemberInGroupAsync(PerunSession sess, Member member, Group group) throws InternalErrorException;
 }
