@@ -875,4 +875,14 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
+
+	@Override
+	public MemberGroupStatus getMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException {
+		try {
+			return MemberGroupStatus.getMemberGroupStatus(jdbc.queryForInt("SELECT source_group_status FROM groups_members " +
+					"WHERE source_group_id=? AND group_id=? and member_id=?", group.getId(), group.getId(), member.getId()));
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
 }

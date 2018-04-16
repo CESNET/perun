@@ -658,4 +658,15 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException internal error
 	 */
 	void setGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException;
+
+	/**
+	 * Returns members status in given group
+	 *
+	 * @param session session
+	 * @param member member
+	 * @param group group
+	 * @return status of member in given group
+	 * @throws InternalErrorException internal error
+	 */
+	MemberGroupStatus getMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
 }
