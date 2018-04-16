@@ -936,7 +936,6 @@ public interface GroupsManagerBl {
 	/**
 	 * Return true if Member is member of the Group
 	 *
-	 *
 	 * @param sess
 	 * @param group
 	 * @param member
