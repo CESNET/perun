@@ -224,13 +224,13 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		perun.getGroupsManagerBl().expireMemberInGroup(session, member1, group);
 
 		// Check init state
-		MemberGroupStatus initMemberGroupStatus = perun.getGroupsManagerBl().getMembersDirectGroupStatus(session, member1, group);
+		MemberGroupStatus initMemberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member1, group);
 		assertEquals("Member should be set to expired state before testing!", MemberGroupStatus.EXPIRED, initMemberGroupStatus);
 
 		scheduler.checkMembersState();
 
 		// Check if state was switched
-		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getMembersDirectGroupStatus(session, member1, group);
+		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member1, group);
 		assertEquals("Member should be valid now (from expired)!", MemberGroupStatus.VALID, memberGroupStatus);
 	}
 
@@ -269,7 +269,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		scheduler.checkMembersState();
 
 		// Check if state was not switched
-		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getMembersDirectGroupStatus(session, member2, group);
+		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member2, group);
 		assertEquals("Member should not be validated!", MemberGroupStatus.EXPIRED, memberGroupStatus);
 	}
 
@@ -293,7 +293,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 
 		scheduler.checkMembersState();
 
-		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getMembersDirectGroupStatus(session, member1, group);
+		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member1, group);
 
 		assertEquals("Member should be expired now (from valid)!", MemberGroupStatus.EXPIRED, memberGroupStatus);
 	}
@@ -328,7 +328,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 
 		scheduler.checkMembersState();
 
-		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getMembersDirectGroupStatus(session, member2, group);
+		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member2, group);
 
 		assertEquals("Member should not be expired!", MemberGroupStatus.VALID, memberGroupStatus);
 	}

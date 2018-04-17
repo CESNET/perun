@@ -240,6 +240,129 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void validateMemberRecursively() throws Exception {
+		System.out.println(CLASS_NAME + "validateMemberRecursively");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+		groupsManagerBl.createGroup(sess, vo, group5);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.addMember(sess, group3, member);
+		groupsManagerBl.addMember(sess, group4, member);
+		groupsManagerBl.addMember(sess, group5, member);
+
+		// create realtions between groups
+		groupsManagerBl.moveGroup(sess, group, group2);
+		groupsManagerBl.moveGroup(sess, group2, group3);
+		groupsManagerBl.createGroupUnion(sess, group3, group4, false);
+		groupsManagerBl.createGroupUnion(sess, group4, group5, true);
+
+		// expire member everywhere
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+		groupsManagerBl.expireMemberInGroup(sess, member, group2);
+		groupsManagerBl.expireMemberInGroup(sess, member, group3);
+		groupsManagerBl.expireMemberInGroup(sess, member, group4);
+		groupsManagerBl.expireMemberInGroup(sess, member, group5);
+
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group5));
+
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's inti group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
+
+		// validate member in the very bottom group
+		groupsManagerBl.validateMemberInGroup(sess, member, group5);
+
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's direct init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group5));
+
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's inti group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
+	}
+
+	@Test
+	public void expireMemberRecursively() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberRecursively");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+		groupsManagerBl.createGroup(sess, vo, group5);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.addMember(sess, group3, member);
+		groupsManagerBl.addMember(sess, group4, member);
+		groupsManagerBl.addMember(sess, group5, member);
+
+		// create realtions between groups
+		groupsManagerBl.moveGroup(sess, group, group2);
+		groupsManagerBl.moveGroup(sess, group2, group3);
+		groupsManagerBl.createGroupUnion(sess, group3, group4, false);
+		groupsManagerBl.createGroupUnion(sess, group4, group5, true);
+
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's inti group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
+
+		// expire member in all groups except the very bottom group
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+		groupsManagerBl.expireMemberInGroup(sess, member, group2);
+		groupsManagerBl.expireMemberInGroup(sess, member, group3);
+		groupsManagerBl.expireMemberInGroup(sess, member, group4);
+
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's direct init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group5));
+
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's inti group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
+
+		// expire member in the very bottom group
+		groupsManagerBl.expireMemberInGroup(sess, member, group5);
+
+		assertEquals("Member's direct group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's direct group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's direct group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's direct group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's direct group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group));
+
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
+	}
+
+	@Test
 	public void getGroupsWithAssignedExtSourceInVo() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupsWithAssignedExtSourceInVo");
 

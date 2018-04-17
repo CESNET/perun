@@ -2913,23 +2913,79 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public void expireMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException {
-		groupsManagerImpl.setGroupStatus(sess, member, group, MemberGroupStatus.EXPIRED);
-		getPerunBl().getAuditer().log(sess, "{} in {} expired.", member, group);
+
+		if (group == null) {
+			throw new InternalErrorException("Group can not be null.");
+		}
+
+		if (VosManager.MEMBERS_GROUP.equals(group.getName())) {
+			throw new InternalErrorException("Can not expire member in members group.");
+		}
+
+		if (member == null) {
+			throw new InternalErrorException("Member to expire can not be null");
+		}
+
+		MemberGroupStatus previousStatus = getTotalMemberGroupStatus(sess, member, group);
+
+		if (MemberGroupStatus.EXPIRED.equals(previousStatus)) {
+			log.warn("Expiring member in group where is already expired. Member: {}, Group: {}", member, group);
+		}
+
+		// expire in given group
+		groupsManagerImpl.setDirectGroupStatus(sess, member, group, MemberGroupStatus.EXPIRED);
+
+		recalculateMemberGroupStateRecursively(sess, member, group, previousStatus);
 	}
 
 	@Override
 	public void validateMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException {
-		groupsManagerImpl.setGroupStatus(sess, member, group, MemberGroupStatus.VALID);
-		getPerunBl().getAuditer().log(sess, "{} in {} validated.", member, group);
+
+		if (group == null) {
+			throw new InternalErrorException("Group can not be null.");
+		}
+
+		if (VosManager.MEMBERS_GROUP.equals(group.getName())) {
+			throw new InternalErrorException("Can not expire member in members group.");
+		}
+
+		if (member == null) {
+			throw new InternalErrorException("Member to expire can not be null");
+		}
+
+		MemberGroupStatus previousStatus = getTotalMemberGroupStatus(sess, member, group);
+
+		if (MemberGroupStatus.VALID.equals(previousStatus)) {
+			log.warn("Validating member in group where is already validated. Member: {}, Group: {}", member, group);
+		}
+
+		// validate member in given group
+		groupsManagerImpl.setDirectGroupStatus(sess, member, group, MemberGroupStatus.VALID);
+
+		recalculateMemberGroupStateRecursively(sess, member, group, previousStatus);
+	}
+
+
+	@Override
+	public MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException {
+		return groupsManagerImpl.getDirectMemberGroupStatus(session, member, group);
 	}
 
 	@Override
-	public MemberGroupStatus getMembersDirectGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException {
-		return groupsManagerImpl.getMemberGroupStatus(session, member, group);
+	public MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException {
+		return groupsManagerImpl.getTotalMemberGroupStatus(session, member, group);
 	}
 
 	@Override
 	public void validateMemberInGroupAsync(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		if (group == null) {
+			throw new InternalErrorException("Group can not be null.");
+		}
+
+		if (member == null) {
+			throw new InternalErrorException("Member to validate can not be null");
+		}
+
 		new Thread(() -> {
 			try {
 				Thread.sleep(5000);
@@ -2938,14 +2994,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 			MemberGroupStatus oldStatus = null;
 			try {
-				oldStatus = getMembersDirectGroupStatus(sess, member, group);
+				oldStatus = getDirectMemberGroupStatus(sess, member, group);
 			} catch (InternalErrorException e) {
 				log.error("Failed to read members status in group in validateMemberInGroupAsync. Member: {}, Group: {}, Cause: {}",
 						member, group, e);
 			}
 			try {
-
-				((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
+				((PerunSessionImpl) sess).getPerunBl().getGroupsManagerBl().validateMemberInGroup(sess, member, group);
 			} catch(Exception ex) {
 				log.info("validateMemberInGroupAsync failed. Cause: {}", ex);
 				try {
@@ -2956,5 +3011,60 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			}
 		}, "validateMemberAsync").start();
+	}
+
+	/**
+	 * Calculates the state of given member in given group and if
+	 * it differs from given 'previousState' calls this method recursively
+	 * for all super groups.
+	 *
+	 * @param member member
+	 * @param group group
+	 * @param previousStatus previous status of member in given group
+	 * @throws InternalErrorException internal error
+	 */
+	@Override
+	public void recalculateMemberGroupStateRecursively(PerunSession sess, Member member, Group group, MemberGroupStatus previousStatus) throws InternalErrorException {
+
+		if (member == null) {
+			throw new InternalErrorException("Member, which should be checked, can not be null.");
+		}
+
+		if (group == null) {
+			throw new InternalErrorException("Group, where members status should be recalculated, can not be null.");
+		}
+
+		// skip members group
+		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+			return;
+		}
+
+		MemberGroupStatus newStatus = getTotalMemberGroupStatus(sess, member, group);
+
+		// nothing changed
+		if (newStatus.equals(previousStatus)) {
+			return;
+		}
+
+		// get all possibly affected groups and member's statuses for them
+		List<Group> affectedGroups = new ArrayList<>(groupsManagerImpl.getResultGroups(sess, group.getId()));
+		Map<Group, MemberGroupStatus> statuesInAffectedGroups = new HashMap<>();
+
+		for (Group affectedGroup : affectedGroups) {
+			statuesInAffectedGroups.put(affectedGroup, getTotalMemberGroupStatus(sess, member, affectedGroup));
+		}
+
+		groupsManagerImpl.setIndirectGroupStatus(sess, member, group, newStatus, false);
+
+		if (newStatus.equals(MemberGroupStatus.EXPIRED)) {
+			getPerunBl().getAuditer().log(sess, "{} in {} expired.", member, group);
+		} else if (newStatus.equals(MemberGroupStatus.VALID)) {
+			getPerunBl().getAuditer().log(sess, "{} in {} validated.", member, group);
+		}
+
+		// check recursively all super groups
+		for (Group affectedGroup : statuesInAffectedGroups.keySet()) {
+			recalculateMemberGroupStateRecursively(sess, member, affectedGroup, statuesInAffectedGroups.get(affectedGroup));
+		}
 	}
 }

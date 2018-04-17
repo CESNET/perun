@@ -345,7 +345,7 @@ public class ExpirationNotifScheduler {
 				//read members current group status
 				.filter(member -> {
 					try {
-						return perun.getGroupsManagerBl().getMembersDirectGroupStatus(sess, member, group).equals(MemberGroupStatus.VALID);
+						return perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, member, group).equals(MemberGroupStatus.VALID);
 					} catch (InternalErrorException e) {
 						log.error("Synchronizer: checkGroupMemberExpiration failed to read member's state in group. Member: {}, Group: {}, Exception: {}", member, group, e);
 						return false;
@@ -379,7 +379,7 @@ public class ExpirationNotifScheduler {
 				//read members current group status
 				.filter(member -> {
 					try {
-						return perun.getGroupsManagerBl().getMembersDirectGroupStatus(sess, member, group).equals(MemberGroupStatus.EXPIRED);
+						return perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, member, group).equals(MemberGroupStatus.EXPIRED);
 					} catch (InternalErrorException e) {
 						log.error("Synchronizer: checkGroupMemberExpiration failed to read member's state in group. Member: {}, Group: {}, Exception: {}", member, group, e);
 						return false;
