@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -867,20 +868,53 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public void setGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException {
+	public void setIndirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status, boolean setAlsoDirect) throws InternalErrorException {
 		try {
-			jdbc.update("UPDATE groups_members SET source_group_status=?, modified_by=?, modified_at=" + Compatibility.getSysdate() +
-					" WHERE source_group_id=? AND member_id=?", status.getCode(), sess.getPerunPrincipal().getActor(), group.getId(), member.getId());
+			if (setAlsoDirect) {
+				jdbc.update("UPDATE groups_members SET source_group_status=?, modified_by=?, modified_at=" + Compatibility.getSysdate() +
+						" WHERE source_group_id=? AND member_id=?", status.getCode(), sess.getPerunPrincipal().getActor(), group.getId(), member.getId());
+			} else {
+				jdbc.update("UPDATE groups_members SET source_group_status=?, modified_by=?, modified_at=" + Compatibility.getSysdate() +
+						" WHERE source_group_id=? AND group_id <> source_group_id AND member_id=?", status.getCode(), sess.getPerunPrincipal().getActor(), group.getId(), member.getId());
+			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public MemberGroupStatus getMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException {
+	public void setDirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException {
+		try {
+			jdbc.update("UPDATE groups_members SET source_group_status=?, modified_by=?, modified_at=" + Compatibility.getSysdate() +
+					" WHERE source_group_id=? AND group_id = source_group_id AND member_id=?", status.getCode(), sess.getPerunPrincipal().getActor(), group.getId(), member.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException {
 		try {
 			return MemberGroupStatus.getMemberGroupStatus(jdbc.queryForInt("SELECT source_group_status FROM groups_members " +
 					"WHERE source_group_id=? AND group_id=? and member_id=?", group.getId(), group.getId(), member.getId()));
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException {
+		try {
+			List<Integer> list = jdbc.queryForList("SELECT source_group_status FROM groups_members " +
+					"WHERE group_id=? and member_id=?",Integer.class, group.getId(), member.getId());
+			if (list.contains(0)) {
+				// found valid status
+				return MemberGroupStatus.VALID;
+			// check if contains any expired status
+			} else if (list.contains(1)) {
+				return MemberGroupStatus.EXPIRED;
+			}
+			throw new InternalErrorException("There is no relation between given member and group. Member: " + member +" , Group: " + group);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

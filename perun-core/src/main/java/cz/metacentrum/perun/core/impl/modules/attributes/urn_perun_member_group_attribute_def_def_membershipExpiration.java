@@ -51,7 +51,7 @@ public class urn_perun_member_group_attribute_def_def_membershipExpiration exten
 		//If there is some value and member is in status expired or disabled
 
 		// find out members status in given group
-		MemberGroupStatus status = session.getPerunBl().getGroupsManagerBl().getMembersDirectGroupStatus(session, member, group);
+		MemberGroupStatus status = session.getPerunBl().getGroupsManagerBl().getDirectMemberGroupStatus(session, member, group);
 		if(value != null && status.equals(MemberGroupStatus.EXPIRED)) {
 			Date expirationDate;
 			try {

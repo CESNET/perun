@@ -1319,7 +1319,18 @@ public interface GroupsManagerBl {
 	 * @return status of member in given group
 	 * @throws InternalErrorException internal error
 	 */
-	MemberGroupStatus getMembersDirectGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+	MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns total member's status in given group
+	 *
+	 * @param session session
+	 * @param member member
+	 * @param group group
+	 * @return total status of member in given group
+	 * @throws InternalErrorException internal error
+	 */
+	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
 
 	/**
 	 * Set member's status in given group to VALID asynchronously
@@ -1330,4 +1341,16 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException internal error
 	 */
 	void validateMemberInGroupAsync(PerunSession sess, Member member, Group group) throws InternalErrorException;
-}
+
+	/**
+	 * Calculates the state of given member in given group and if
+	 * it differs from given 'previousState' calls this method recursively
+	 * for all super groups.
+	 *
+	 * @param member member
+	 * @param group group
+	 * @param previousStatus previous status of member in given group
+	 * @throws InternalErrorException internal error
+	 */
+	void recalculateMemberGroupStateRecursively(PerunSession sess, Member member, Group group, MemberGroupStatus previousStatus) throws InternalErrorException;
+	}

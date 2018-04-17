@@ -650,17 +650,29 @@ public interface GroupsManagerImplApi {
 	List<Integer> getResultGroupsIds(PerunSession sess, int groupId) throws InternalErrorException;
 
 	/**
-	 * Set status of the member to specified status in given group group.
+	 * Set status of the member to specified status for indirect relations
+	 * where the given group is the source group.
+	 *
+	 * @param member member whose status will be changed
+	 * @param group group where member's status will be changed
+	 * @param status status that will be set
+	 * @param setAlsoDirect indicates, if also status for direct relation should be set
+	 * @throws InternalErrorException internal error
+	 */
+	void setIndirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status, boolean setAlsoDirect) throws InternalErrorException;
+
+	/**
+	 * Set direct status of the member to specified status in given group.
 	 *
 	 * @param member member whose status will be changed
 	 * @param group group where member's status will be changed
 	 * @param status status that will be set
 	 * @throws InternalErrorException internal error
 	 */
-	void setGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException;
+	void setDirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException;
 
 	/**
-	 * Returns members status in given group
+	 * Returns direct members status in given group.
 	 *
 	 * @param session session
 	 * @param member member
@@ -668,5 +680,16 @@ public interface GroupsManagerImplApi {
 	 * @return status of member in given group
 	 * @throws InternalErrorException internal error
 	 */
-	MemberGroupStatus getMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+	MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns total member's status in given group.
+	 *
+	 * @param session session
+	 * @param member member
+	 * @param group group
+	 * @return total status of member in given group
+	 * @throws InternalErrorException internal error
+	 */
+	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
 }
