@@ -339,6 +339,25 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Return true if Member is member of the Group
+	 *
+	 * @param group int Group ID
+	 * @param member int Member ID
+	 * @return boolean True if Member is member of the Group
+	 *
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
+	 */
+	isGroupMember {
+
+		@Override
+		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().isGroupMember(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					ac.getMemberById(parms.readInt("member")));
+		}
+	},
+
+	/*#
 	 * Returns count of group members.
 	 *
 	 * @param group int Group <code>id</code>

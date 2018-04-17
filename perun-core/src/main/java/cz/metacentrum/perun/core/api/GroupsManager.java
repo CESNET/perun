@@ -330,6 +330,20 @@ public interface GroupsManager {
 	List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
+	 * Return true if Member is member of the Group
+	 *
+	 * @param sess
+	 * @param group
+	 * @param member
+	 * @return true if Member is member of the Group
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws GroupNotExistsException
+	 */
+	boolean isGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+
+	/**
 	 * @param perunSession
 	 * @param group
 	 *

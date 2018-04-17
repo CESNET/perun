@@ -343,6 +343,22 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group, status), true);
 	}
 
+	@Override
+	public boolean isGroupMember(PerunSession sess, Group group, Member member) throws PrivilegeException, GroupNotExistsException, InternalErrorException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			throw new PrivilegeException(sess, "isGroupMember");
+		}
+
+		return getGroupsManagerBl().isGroupMember(sess, group, member);
+	}
+
 	public int getGroupMembersCount(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
