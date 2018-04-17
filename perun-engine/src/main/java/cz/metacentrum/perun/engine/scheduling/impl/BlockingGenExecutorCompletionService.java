@@ -30,6 +30,11 @@ public class BlockingGenExecutorCompletionService implements BlockingCompletionS
 	private final static Logger log = LoggerFactory.getLogger(BlockingGenExecutorCompletionService.class);
 	private CompletionService<Task> completionService;
 	private ConcurrentMap<Future<Task>, Task> executingGenTasks = new ConcurrentHashMap<>();
+	/**
+	 * Provide blocking-waiting behavior to GEN Tasks, which are not started, until semaphore is acquired.
+	 * When job is cancelled or done, semaphore is released. Semaphore shares limit for concurrently running
+	 * GEN Tasks with javas ExecutorCompletionService.
+	 */
 	private Semaphore semaphore;
 
 	/**
@@ -45,11 +50,18 @@ public class BlockingGenExecutorCompletionService implements BlockingCompletionS
 	@Override
 	public Future<Task> blockingSubmit(EngineWorker<Task> taskWorker) throws InterruptedException {
 		semaphore.acquire();
-		GenWorker genWorker = (GenWorker) taskWorker;
-		// We must have start time before adding Task to executingGenTasks
-		genWorker.getTask().setGenStartTime(new Date(System.currentTimeMillis()));
-		Future<Task> future = completionService.submit(genWorker);
-		executingGenTasks.put(future, genWorker.getTask());
+		Future<Task> future = null;
+		try {
+			GenWorker genWorker = (GenWorker) taskWorker;
+			// We must have start time before adding Task to executingGenTasks
+			genWorker.getTask().setGenStartTime(new Date(System.currentTimeMillis()));
+			future = completionService.submit(genWorker);
+			executingGenTasks.put(future, genWorker.getTask());
+		} catch (Exception ex) {
+			// release semaphore if submission fails
+			semaphore.release();
+			throw ex;
+		}
 		return future;
 	}
 

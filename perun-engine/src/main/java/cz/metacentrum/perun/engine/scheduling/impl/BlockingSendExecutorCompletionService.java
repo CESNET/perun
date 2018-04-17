@@ -33,6 +33,11 @@ public class BlockingSendExecutorCompletionService implements BlockingCompletion
 	private final static Logger log = LoggerFactory.getLogger(BlockingSendExecutorCompletionService.class);
 	private CompletionService<SendTask> completionService;
 	private ConcurrentMap<Future<SendTask>, SendTask> executingSendTasks = new ConcurrentHashMap<>();
+	/**
+	 * Provide blocking-waiting behavior to SEND Tasks, which are not started, until semaphore is acquired.
+	 * When job is cancelled or done, semaphore is released. Semaphore shares limit for concurrently running
+	 * SEND Tasks with javas ExecutorCompletionService.
+	 */
 	private Semaphore semaphore;
 
 	/**
@@ -48,11 +53,17 @@ public class BlockingSendExecutorCompletionService implements BlockingCompletion
 	@Override
 	public Future<SendTask> blockingSubmit(EngineWorker<SendTask> taskWorker) throws InterruptedException {
 		semaphore.acquire();
-		SendWorker sendWorker = (SendWorker) taskWorker;
-		sendWorker.getSendTask().setStartTime(new Date(System.currentTimeMillis()));
-		sendWorker.getSendTask().setStatus(SENDING);
-		Future<SendTask> future = completionService.submit(sendWorker);
-		executingSendTasks.put(future, sendWorker.getSendTask());
+		Future<SendTask> future = null;
+		try {
+			SendWorker sendWorker = (SendWorker) taskWorker;
+			sendWorker.getSendTask().setStartTime(new Date(System.currentTimeMillis()));
+			sendWorker.getSendTask().setStatus(SENDING);
+			future = completionService.submit(sendWorker);
+			executingSendTasks.put(future, sendWorker.getSendTask());
+		} catch (Exception ex) {
+			semaphore.release();
+			throw ex;
+		}
 		return future;
 	}
 
