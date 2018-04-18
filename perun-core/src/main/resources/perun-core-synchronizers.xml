@@ -9,7 +9,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 
 	<task:scheduler id="scheduler" pool-size="1"/>
 
-	<beans profile="production">
+	<beans profile="devel,production">
 		<task:scheduled-tasks scheduler="scheduler">
 			<task:scheduled ref="synchronizer" method="synchronizeGroups" cron="0 0/5 * * * ?"/> <!-- every 5 minutes -->
 			<task:scheduled ref="synchronizer" method="removeAllExpiredBans" cron="0 5 0 * * ?"/> <!-- every day at 00:05 -->
