@@ -1345,14 +1345,12 @@ public interface GroupsManagerBl {
 	void validateMemberInGroupAsync(PerunSession sess, Member member, Group group) throws InternalErrorException;
 
 	/**
-	 * Calculates the state of given member in given group and if
-	 * it differs from given 'previousState' calls this method recursively
-	 * for all super groups.
+	 * Calculates the state of given member in given group and calls
+	 * this method recursively for all super groups.
 	 *
 	 * @param member member
 	 * @param group group
-	 * @param previousStatus previous status of member in given group
 	 * @throws InternalErrorException internal error
 	 */
-	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group, MemberGroupStatus previousStatus) throws InternalErrorException;
+	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group) throws InternalErrorException;
 	}
