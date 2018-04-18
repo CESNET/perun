@@ -1312,6 +1312,7 @@ public interface GroupsManagerBl {
 	/**
 	 * Returns members direct status in given group. This method doesn't
 	 * calculate status from subgroups!
+	 * If there is no relation, null is returned.
 	 *
 	 * @param session session
 	 * @param member member
@@ -1322,7 +1323,8 @@ public interface GroupsManagerBl {
 	MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
 
 	/**
-	 * Returns total member's status in given group
+	 * Returns total member's status in given group.
+	 * If there is no relation, null is returned.
 	 *
 	 * @param session session
 	 * @param member member
@@ -1352,5 +1354,5 @@ public interface GroupsManagerBl {
 	 * @param previousStatus previous status of member in given group
 	 * @throws InternalErrorException internal error
 	 */
-	void recalculateMemberGroupStateRecursively(PerunSession sess, Member member, Group group, MemberGroupStatus previousStatus) throws InternalErrorException;
+	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group, MemberGroupStatus previousStatus) throws InternalErrorException;
 	}

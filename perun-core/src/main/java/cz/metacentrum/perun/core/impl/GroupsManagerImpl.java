@@ -897,6 +897,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		try {
 			return MemberGroupStatus.getMemberGroupStatus(jdbc.queryForInt("SELECT source_group_status FROM groups_members " +
 					"WHERE source_group_id=? AND group_id=? and member_id=?", group.getId(), group.getId(), member.getId()));
+		} catch (EmptyResultDataAccessException e) {
+			return null;
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -914,8 +916,11 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			} else if (list.contains(1)) {
 				return MemberGroupStatus.EXPIRED;
 			}
-			throw new InternalErrorException("There is no relation between given member and group. Member: " + member +" , Group: " + group);
-		} catch (RuntimeException e) {
+			return null;
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+		catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
