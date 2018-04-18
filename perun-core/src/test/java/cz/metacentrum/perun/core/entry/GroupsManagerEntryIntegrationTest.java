@@ -361,7 +361,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
 		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
 	}
-
+	
 	@Test
 	public void getGroupsWithAssignedExtSourceInVo() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupsWithAssignedExtSourceInVo");

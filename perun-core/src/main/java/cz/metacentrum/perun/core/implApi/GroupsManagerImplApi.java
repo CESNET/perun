@@ -673,22 +673,23 @@ public interface GroupsManagerImplApi {
 
 	/**
 	 * Returns direct members status in given group.
-	 *
+	 * If there is no relation, null is returned.
 	 * @param session session
 	 * @param member member
 	 * @param group group
-	 * @return status of member in given group
+	 * @return status of member in given group, if there is no relation, null is returned
 	 * @throws InternalErrorException internal error
 	 */
 	MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
 
 	/**
 	 * Returns total member's status in given group.
+	 * If there is no relation, null is returned.
 	 *
 	 * @param session session
 	 * @param member member
 	 * @param group group
-	 * @return total status of member in given group
+	 * @return total status of member in given group, if there is no relation, null is returned
 	 * @throws InternalErrorException internal error
 	 */
 	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
