@@ -238,26 +238,6 @@ public class AddGroupManagerTabItem implements TabItem {
 	protected void startSearching(String text){
 
 		users.clearTable();
-
-		// IS searched string IDs?
-		if (JsonUtils.isStringWithIds(text)) {
-
-			FindUsersByIdsNotInRpc req = new FindUsersByIdsNotInRpc(new JsonCallbackEvents(){
-				@Override
-				public void onFinished(JavaScriptObject jso){
-					ArrayList<User> usersList = JsonUtils.jsoAsList(jso);
-					for(User u : usersList) {
-						users.addToTable(u);
-					}
-				}
-
-			}, text);
-
-			req.retrieveData();
-			return;
-
-		}
-
 		users.searchFor(text);
 	}
 
