@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -190,10 +188,8 @@ public class Pubsub implements Runnable
             for (Listener l : list)
             {
                 //apply filter for params
-
-                //TODO... niekde je chyba. treba premysliet a opravit filtrovanie pomocou parametrov listenera
-                if(listOfParams.containsKey(new Pair<>(eventType,l))){  //contains params for listener and topic
-                    if(!listOfParams.get(new Pair<>(eventType,l)).isEmpty()){
+                if(listOfParams.containsKey(new Pair<>(eventType,l))){      //contains params for listener and topic
+                    if(!listOfParams.get(new Pair<>(eventType,l)).isEmpty()){ //check if eventype does not have specific params to filter
                         boolean satisfiesParams = true;
                         for (String param:
                                 listOfParams.get(new Pair<>(eventType,l))) {
@@ -211,7 +207,6 @@ public class Pubsub implements Runnable
                     }
 
                 }
-                //l.onEventReceived(eventType, o);
             }
         }
     }
@@ -223,7 +218,7 @@ public class Pubsub implements Runnable
                 Object bean = object;
                 int i = 0;
                 while(bean != null && i < parts.length ) {
-                    bean = hasProperty(bean, parts[i]);
+                    bean = getProperty(bean, parts[i]);
                     i++;
                 }
                 String result = bean.toString();
@@ -284,7 +279,7 @@ public class Pubsub implements Runnable
         }
     }
 
-    public Object hasProperty(Object bean,String propertyName) {
+    public Object getProperty(Object bean,String propertyName) {
         BeanInfo info = null;
         try {
             info = Introspector.getBeanInfo(bean.getClass(), Object.class);
@@ -300,7 +295,6 @@ public class Pubsub implements Runnable
                 if(propertyName.equals(name)){
                     return value;
                 }
-                //System.out.println(name + " = " + value + "; type = " + type);
             }
         }catch (IntrospectionException e) {
             e.printStackTrace();

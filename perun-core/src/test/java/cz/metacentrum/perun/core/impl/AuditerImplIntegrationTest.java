@@ -202,15 +202,31 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		perun.getAuditer().flush();
 		perun.getAuditer().clean();
 
+		List<String> shouldContain = new ArrayList<>();
+		shouldContain.add("Test subscriber gets filtered message : 3324");
+		shouldContain.add("Test subscriber gets message: All destinations removed from Facility:[id='3328', name='AuditorTestFacility', description='null'] for all services.");
+
 		FacilityCreatedSubscriber testSubscriber = new FacilityCreatedSubscriber();
 		testSubscriber.subscribe();
 		auditerPublisher.publishMessages(auditerPublisher.getMessages());
+		System.out.println("messages:");
+		Thread.sleep(1000); //
+
+		for (String m:
+			 testSubscriber.recievedMessages) {
+			System.out.println(m);
+		}
+
+		assertTrue("Should contain all filtered messages.",shouldContain.containsAll(testSubscriber.recievedMessages));
 	}
 
 	private static Pubsub pubsub = Pubsub.getInstance();
 
 	private class FacilityCreatedSubscriber implements Pubsub.Listener
 	{
+
+		List<String> recievedMessages = new ArrayList<>();
+
 		public void subscribe()
 		{
 			List<String> params = new ArrayList<String>();
@@ -224,9 +240,12 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		public void onEventReceived(Object event, Object object) {
 			if(object instanceof FacilityCreated){
 				FacilityCreated f = (FacilityCreated) object;
-				System.out.println("Test subscriber gets filtered message : " + f.getFacility().getId());
-			}else {
-				System.out.println("Test message");
+				recievedMessages.add("Test subscriber gets filtered message : " + f.getFacility().getId());
+			}else if (object instanceof DestinationsRemovedFromAllServices) {
+				DestinationsRemovedFromAllServices d = (DestinationsRemovedFromAllServices) object;
+				recievedMessages.add("Test subscriber gets message: " + d.toString());
+			}else{
+				recievedMessages.add("Test message with unknown event type.");
 			}
 
 		}
