@@ -1,24 +1,24 @@
 package cz.metacentrum.perun.core.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
  * BasicDataSource used instead of BasicDataSource in Perun to override getConnection.
- * 
+ *
  * @author Jiri Mauritz <jirmauritz at gmail dot com>
  */
-public class PerunBasicDataSource extends BasicDataSource {
+public class PerunBasicDataSource extends HikariDataSource {
 
 	private Auditer auditer;
 	private CacheManager cacheManager;
 
 	@Override
 	public Connection getConnection() throws SQLException {
-		
+
 		Connection con = super.getConnection();
 		//Set readOnly when working with any connection
 		if(BeansUtils.isPerunReadOnly()) {

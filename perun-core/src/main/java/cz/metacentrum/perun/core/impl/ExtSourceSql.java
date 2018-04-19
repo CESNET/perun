@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +17,6 @@ import java.util.Properties;
 
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -250,7 +250,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 			}
 
 			// create connection
-			this.con = (new DriverManagerConnectionFactory(connectionUrl, connectionProperties)).createConnection();
+			this.con = DriverManager.getConnection(connectionUrl, connectionProperties);
 
 			// Set connection to read-only mode for standard JDBC drivers
 			if (!isSQLite) {
