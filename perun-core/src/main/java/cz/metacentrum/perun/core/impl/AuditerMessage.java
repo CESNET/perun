@@ -29,7 +29,7 @@ public class AuditerMessage {
 
 	@Override
 	public String toString() {
-		return "AuditerMessage:[message='" + getMessage() + "]";
+		return "AuditerMessage:[message='" + getMessage() + "']";
 	}
 
 }

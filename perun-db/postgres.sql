@@ -448,6 +448,22 @@ create table auditer_consumers (
   constraint audcon_u unique(name)
 );
 
+-- AUDITER_SUBSCRIBERS - registers recently processed events
+create table auditer_subscribers(
+	id integer not null,
+	name varchar(256) not null,
+	last_processed_id integer,
+	filters clob,
+	created_at timestamp default statement_timestamp() not null,
+	created_by varchar(1300) default user not null,
+	modified_at timestamp default statement_timestamp() not null,
+	modified_by varchar(1300) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint audsub_pk primary key (id),
+  constraint audsub_u unique(name)
+);
+
 -- SERVICES - provided services, their atomic form
 create table services (
 	id integer not null,
@@ -1244,6 +1260,17 @@ create table auditer_log (
 	modified_by_uid integer,
 	constraint audlog_pk primary key (id)
 );
+--auditerlogjson
+-- AUDITER_LOG_JSON - logging in JSON
+create table auditer_log_json (
+	id integer not null,         --identifier of logged event
+	msg text not null,           --text of logging message
+	actor varchar(256) not null, --who causes the event
+	created_at timestamp default statement_timestamp() not null ,
+	created_by_uid integer,
+	modified_by_uid integer,
+	constraint audlog_pk primary key (id)
+);
 
 -- SERVICE_PRINCIPALS - principals for executing of services by engine, actually is not used
 create table service_principals (
@@ -1607,7 +1634,9 @@ create table authz (
 
 create sequence "attr_names_id_seq";
 create sequence "auditer_consumers_id_seq";
+create sequence "auditer_subscriers_id_seq"; --auditerSubscriber seq
 create sequence "auditer_log_id_seq";
+create sequence "auditer_log_json_id_seq"; --auditerJson seq
 create sequence "destinations_id_seq";
 create sequence "exec_services_id_seq";
 create sequence "ext_sources_id_seq";
@@ -1883,6 +1912,7 @@ grant all on application_data to perun;
 grant all on application_reserved_logins to perun;
 grant all on auditer_log to perun;
 grant all on auditer_consumers to perun;
+grant all on auditer_subscribers to perun;
 grant all on entityless_attr_values to perun;
 grant all on cabinet_categories to perun;
 grant all on cabinet_publication_systems to perun;

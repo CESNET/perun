@@ -1,18 +1,55 @@
-package cz.metacentrum.perun.audit.events;
+package cz.metacentrum.perun.audit.events.FacilityManagerEvents;
 
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Host;
 
 import java.util.List;
 
-public class HostsRemoved {
+public class HostsRemovedForFacility {
 
     private List<Host> hosts;
     private Facility facility;
+    private String name = this.getClass().getName();
+    private String message;
 
-    public HostsRemoved(List<Host> hosts, Facility facility) {
+    public String getMessage() {
+        return toString();
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public HostsRemovedForFacility(List<Host> hosts, Facility facility) {
         this.facility = facility;
         this.hosts = hosts;
+    }
+
+    public HostsRemovedForFacility() {
+    }
+
+    public List<Host> getHosts() {
+        return hosts;
+    }
+
+    public void setHosts(List<Host> hosts) {
+        this.hosts = hosts;
+    }
+
+    public Facility getFacility() {
+        return facility;
+    }
+
+    public void setFacility(Facility facility) {
+        this.facility = facility;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

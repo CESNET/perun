@@ -2,7 +2,7 @@ package cz.metacentrum.perun.core.blImpl;
 
 import java.util.*;
 
-import cz.metacentrum.perun.audit.events.*;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.*;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;

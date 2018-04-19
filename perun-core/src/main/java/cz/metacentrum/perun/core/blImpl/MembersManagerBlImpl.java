@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.audit.events.*;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.*;
 import cz.metacentrum.perun.core.api.*;
 
 import java.text.DateFormat;

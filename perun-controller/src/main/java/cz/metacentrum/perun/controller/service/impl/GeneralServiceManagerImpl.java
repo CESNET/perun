@@ -3,6 +3,7 @@ package cz.metacentrum.perun.controller.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,13 +107,15 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 		} catch (DuplicateKeyException ex) {
 			throw new ServiceAlreadyBannedException(execService.getService(), facility);
 		}
-		sess.getPerun().getAuditer().log(sess, "{} {} on {}", BAN_SERVICE, execService, facility);
+		//sess.getPerun().getAuditer().log(sess, "{} {} on {}", BAN_SERVICE, execService, facility);
+		sess.getPerun().getAuditer().log(sess, new BanExecServiceOnFacility(BAN_SERVICE, execService, facility));
 	}
 
 	@Override
 	public void banExecServiceOnDestination(PerunSession sess, ExecService execService, int destinationId) throws InternalErrorException {
 		execServiceDenialDao.banExecServiceOnDestination(execService.getId(), destinationId);
-		sess.getPerun().getAuditer().log(sess, "{} {} on {}", BAN_SERVICE, execService, destinationId);
+		//sess.getPerun().getAuditer().log(sess, "{} {} on {}", BAN_SERVICE, execService, destinationId);
+		sess.getPerun().getAuditer().log(sess, new BanExecServiceOnDestination(BAN_SERVICE, execService, destinationId));
 	}
 
 	@Override
@@ -137,25 +140,29 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	@Override
 	public void freeAllDenialsOnFacility(PerunSession sess, Facility facility) throws InternalErrorException{
 		execServiceDenialDao.freeAllDenialsOnFacility(facility.getId());
-		sess.getPerun().getAuditer().log(sess, "{} on {}" ,FREE_ALL_DEN, facility);
+		//sess.getPerun().getAuditer().log(sess, "{} on {}" ,FREE_ALL_DEN, facility);
+		sess.getPerun().getAuditer().log(sess, new DenialsOnFacilityFreed(FREE_ALL_DEN, facility));
 	}
 
 	@Override
 	public void freeAllDenialsOnDestination(PerunSession sess, int destinationId) throws InternalErrorException {
 		execServiceDenialDao.freeAllDenialsOnDestination(destinationId);
-		sess.getPerun().getAuditer().log(sess, "{} on {}", FREE_ALL_DEN, destinationId);
+		//sess.getPerun().getAuditer().log(sess, "{} on {}", FREE_ALL_DEN, destinationId);
+		sess.getPerun().getAuditer().log(sess, new DenialsOnDestinationFreed(FREE_ALL_DEN, destinationId));
 	}
 
 	@Override
 	public void freeDenialOfExecServiceOnFacility(PerunSession sess, ExecService execService, Facility facility) throws InternalErrorException {
 		execServiceDenialDao.freeDenialOfExecServiceOnFacility(execService.getId(), facility.getId());
-		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_EXECSERVICE, execService, facility);
+		//sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_EXECSERVICE, execService, facility);
+		sess.getPerun().getAuditer().log(sess, new DenialOfExecServiceOnFacilityFreed(FREE_DEN_OF_EXECSERVICE, execService, facility));
 	}
 
 	@Override
 	public void freeDenialOfExecServiceOnDestination(PerunSession sess, ExecService execService, int destinationId) throws InternalErrorException {
 		execServiceDenialDao.freeDenialOfExecServiceOnDestination(execService.getId(), destinationId);
-		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_EXECSERVICE, execService, destinationId);
+		//sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_EXECSERVICE, execService, destinationId);
+		sess.getPerun().getAuditer().log(sess, new DenialOfExecServiceOnDestinationFreed(FREE_DEN_OF_EXECSERVICE, execService, destinationId));
 	}
 
 	@Override
@@ -198,7 +205,8 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 			if(execServiceDenialDao.isExecServiceDeniedOnFacility(es.getId(), facility.getId())) return false;
 		}
 		//Call log method out of transaction
-		sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On {} and {}", facility, service);
+		//sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On {} and {}", facility, service);
+		sess.getPerun().getAuditer().log(sess, new ForcedServicePropagationOnFacilityAndService(FORCE_PROPAGATION,facility, service));
 		return true;
 	}
 
@@ -210,7 +218,8 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 			if(!es.isEnabled()) return false;
 		}
 		//Call log method out of transaction
-		sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On {} ", service);
+		//sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On {} ", service);
+		sess.getPerun().getAuditer().log(sess, new ForcedServicePropagationOnService(FORCE_PROPAGATION, service));
 		return true;
 	}
 
@@ -224,7 +233,8 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 			if(execServiceDenialDao.isExecServiceDeniedOnFacility(es.getId(), facility.getId())) return false;
 		}
 		//Call log method out of transaction
-		perunSession.getPerun().getAuditer().log(perunSession, PROPAGATION_PLANNED + "On {} and {}", facility, service);
+		//perunSession.getPerun().getAuditer().log(perunSession, PROPAGATION_PLANNED + "On {} and {}", facility, service);
+		perunSession.getPerun().getAuditer().log(perunSession, new ServicePropagationPlanedOnFacilityAndService(PROPAGATION_PLANNED, facility, service));
 		return true;
 	}
 
@@ -236,7 +246,8 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 			if(!es.isEnabled()) return false;
 		}
 		//Call log method out of transaction
-		perunSession.getPerun().getAuditer().log(perunSession, PROPAGATION_PLANNED + "On {} ", service);
+		//perunSession.getPerun().getAuditer().log(perunSession, PROPAGATION_PLANNED + "On {} ", service);
+		perunSession.getPerun().getAuditer().log(perunSession, new ServicePropagationPlanedOnService(PROPAGATION_PLANNED, service));
 		return true;
 	}
 

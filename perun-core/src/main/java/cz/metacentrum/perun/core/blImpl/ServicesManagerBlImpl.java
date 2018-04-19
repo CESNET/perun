@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cz.metacentrum.perun.audit.events.ServicesEvents.*;
+import cz.metacentrum.perun.audit.events.ServicesManagerEvents.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

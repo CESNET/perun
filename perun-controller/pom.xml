@@ -89,8 +89,13 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-core</artifactId>
+            <version>3.0.1-SNAPSHOT-default</version>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<profiles>
 

@@ -217,8 +217,18 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-engine</artifactId>
+            <version>3.0.1-SNAPSHOT-default</version>
+        </dependency>
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-engine</artifactId>
+            <version>3.0.1-SNAPSHOT-default</version>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<profiles>
 

@@ -142,4 +142,19 @@ public class AuditerConsumer {
 			throw new InternalErrorException(ex);
 		}
 	}
+
+	public List<String> getMessagesInJson() throws InternalErrorException {
+		try {
+			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
+			if(maxId > lastProcessedId) {
+				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log_json where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER, this.lastProcessedId, maxId);
+				this.lastProcessedId = maxId;
+				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", this.lastProcessedId, this.consumerName);
+				return messages;
+			}
+			return new ArrayList<String>();
+		} catch(Exception ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 }

@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.audit.events.VoEvents.VoCreated;
-import cz.metacentrum.perun.audit.events.VoEvents.VoDeleted;
-import cz.metacentrum.perun.audit.events.VoEvents.VoUpdated;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.VoCreated;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.VoDeleted;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.VoUpdated;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;

@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.*;
 
-import cz.metacentrum.perun.audit.events.UserEvents.*;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.*;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 

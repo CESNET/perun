@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.audit.events.SecurityTeamsEvents.*;
+import cz.metacentrum.perun.audit.events.SecurityTeamsManagerEvents.*;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;

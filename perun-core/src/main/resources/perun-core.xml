@@ -408,6 +408,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<constructor-arg ref="dataSource" />
 	</bean>
 
+	<!-- this bean is only for test -->
+	<bean id="auditerPublisher" class="cz.metacentrum.perun.core.impl.AuditerPublisher" scope="prototype" depends-on="databaseManagerBl">
+		<constructor-arg ref="auditerConsumer" />
+	</bean>
+
 	<!-- merged from perun-core-transaction-manager.xml -->
 	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
 		<property name="dataSource" ref="dataSource"/>

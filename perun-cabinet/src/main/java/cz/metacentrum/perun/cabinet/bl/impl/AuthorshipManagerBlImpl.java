@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import cz.metacentrum.perun.audit.events.AuthorshipCreated;
-import cz.metacentrum.perun.audit.events.AuthorshipDeleted;
+import cz.metacentrum.perun.audit.events.AuthorshipManagementEvents.AuthorshipCreated;
+import cz.metacentrum.perun.audit.events.AuthorshipManagementEvents.AuthorshipDeleted;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
