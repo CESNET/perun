@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.audit.events.FacilityManagerEvents;
 
-import cz.metacentrum.perun.audit.events.AbstractEvent;
 import cz.metacentrum.perun.core.api.Facility;
 
 
