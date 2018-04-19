@@ -173,7 +173,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
-	private final static String attributeDefinitionMappingSelectQuery =
+	protected final static String attributeDefinitionMappingSelectQuery =
 			"attr_names.id as attr_names_id," +
 			"attr_names.friendly_name as attr_names_friendly_name," +
 			"attr_names.namespace as attr_names_namespace," +
@@ -201,7 +201,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				", " + nameOfValueTable + ".modified_by as attr_value_modified_by";
 	}
 
-	private static final RowMapper<AttributeDefinition> ATTRIBUTE_DEFINITION_MAPPER = (rs, i) -> {
+	protected static final RowMapper<AttributeDefinition> ATTRIBUTE_DEFINITION_MAPPER = (rs, i) -> {
 		AttributeDefinition attribute = new AttributeDefinition();
 		attribute.setId(rs.getInt("attr_names_id"));
 		attribute.setFriendlyName(rs.getString("attr_names_friendly_name"));
@@ -332,41 +332,36 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				try {
 					Object manager = sess.getPerun().getClass().getMethod("get" + managerName).invoke(sess.getPerun());
 					attribute.setValue(manager.getClass().getMethod(methodName, PerunSession.class, attributeHolder.getClass()).invoke(manager, sess, attributeHolder));
-				} catch(NoSuchMethodException ex) {
+				} catch (NoSuchMethodException ex) {
 					throw new InternalErrorRuntimeException("Bad core-managed attribute definition.", ex);
-				} catch(IllegalAccessException ex) {
+				} catch (IllegalAccessException ex) {
 					throw new InternalErrorRuntimeException(ex);
-				} catch(InvocationTargetException ex) {
+				} catch (InvocationTargetException ex) {
 					throw new InternalErrorRuntimeException("An exception raise while geting core-managed attribute value.", ex);
 				}
 			}
 
 			//FIXME use ValueRowMapper
 			String stringValue;
-			if(attributesManagerImpl.isLargeAttribute(sess, attribute)) {
-
-				try {
-					if (Compatibility.isOracle()) {
-						//large attributes
-						Clob clob = rs.getClob("attr_value_text");
-						char[] cbuf = null;
-						if(clob == null) {
-							stringValue = null;
-						} else {
-							try {
-								cbuf = new char[(int) clob.length()];
-								clob.getCharacterStream().read(cbuf);
-							} catch(IOException ex) {
-								throw new InternalErrorRuntimeException(ex);
-							}
-							stringValue = new String(cbuf);
-						}
+			if (Utils.isLargeAttribute(sess, attribute)) {
+				if (Compatibility.isOracle()) {
+					//large attributes
+					Clob clob = rs.getClob("attr_value_text");
+					char[] cbuf;
+					if (clob == null) {
+						stringValue = null;
 					} else {
-						// POSTGRES READ CLOB AS STRING
-						stringValue = rs.getString("attr_value_text");
+						try {
+							cbuf = new char[(int) clob.length()];
+							//noinspection ResultOfMethodCallIgnored
+							clob.getCharacterStream().read(cbuf);
+						} catch (IOException ex) {
+							throw new InternalErrorRuntimeException(ex);
+						}
+						stringValue = new String(cbuf);
 					}
-				} catch (InternalErrorException ex) {
-					// WHEN CHECK FAILS TRY TO READ AS POSTGRES
+				} else {
+					// POSTGRES READ CLOB AS STRING
 					stringValue = rs.getString("attr_value_text");
 				}
 			} else {
@@ -376,7 +371,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 			try {
 				attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
-			} catch(InternalErrorException ex) {
+			} catch (InternalErrorException ex) {
 				throw new InternalErrorRuntimeException(ex);
 			}
 
@@ -409,30 +404,25 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 			//FIXME use ValueRowMapper
 			String stringValue;
-			if(this.attributesManagerImpl.isLargeAttribute(sess, attribute)) {
+			if(Utils.isLargeAttribute(sess, attribute)) {
 
-				try {
-					if (Compatibility.isOracle()) {
-						//large attributes
-						Clob clob = rs.getClob("attr_value_text");
-						char[] cbuf = null;
-						if(clob == null) {
-							stringValue = null;
-						} else {
-							try {
-								cbuf = new char[(int) clob.length()];
-								clob.getCharacterStream().read(cbuf);
-							} catch(IOException ex) {
-								throw new InternalErrorRuntimeException(ex);
-							}
-							stringValue = new String(cbuf);
-						}
+				if (Compatibility.isOracle()) {
+					//large attributes
+					Clob clob = rs.getClob("attr_value_text");
+					char[] cbuf = null;
+					if(clob == null) {
+						stringValue = null;
 					} else {
-						// POSTGRES READ CLOB AS STRING
-						stringValue = rs.getString("attr_value_text");
+						try {
+							cbuf = new char[(int) clob.length()];
+							clob.getCharacterStream().read(cbuf);
+						} catch(IOException ex) {
+							throw new InternalErrorRuntimeException(ex);
+						}
+						stringValue = new String(cbuf);
 					}
-				} catch (InternalErrorException ex) {
-					// WHEN CHECK FAILS TRY TO READ AS POSTGRES
+				} else {
+					// POSTGRES READ CLOB AS STRING
 					stringValue = rs.getString("attr_value_text");
 				}
 				try {
@@ -2135,7 +2125,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		List<Object> columnValues = Arrays.asList( attribute.getId(), identificator);
 
 		// save attribute
-		boolean changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues);
+		boolean changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues, holder, null);
 		if(changedDb && attribute.isUnique() && (object instanceof PerunBean)) {
 			setUniqueAttributeValues(attribute, columnNames, columnValues, (PerunBean)object, null);
 		}
@@ -2191,7 +2181,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		List<Object> columnValues = Arrays.asList( attribute.getId(), identificator1, identificator2);
 
 		// save attribute
-		boolean changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues);
+		boolean changedDb = setAttributeInDB(sess, attribute, tableName, columnNames, columnValues, holder1, holder2);
 		if(changedDb && attribute.isUnique()) {
 			setUniqueAttributeValues(attribute, columnNames, columnValues, bean1, bean2);
 		}
@@ -2241,7 +2231,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
+	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, List<String> columnNames, List<Object> columnValues, Object holder1, Object holder2) throws InternalErrorException {
 		try {
 			//check that attribute definition is current, non-altered by upper tiers
 			getAttributeDefinitionById(sess, attribute.getId()).checkEquality(attribute);
@@ -4217,6 +4207,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		return attribute.getNamespace().startsWith(namespace + ":") || attribute.getNamespace().equals(namespace);
 	}
 
+	public boolean isLargeAttribute(PerunSession sess, AttributeDefinition attribute) {
+		return (attribute.getType().equals(LinkedHashMap.class.getName()) ||
+				attribute.getType().equals(BeansUtils.largeStringClassName) ||
+				attribute.getType().equals(BeansUtils.largeArrayListClassName));
+	}
+
 	public void checkNamespace(PerunSession sess, AttributeDefinition attribute, String namespace) throws WrongAttributeAssignmentException {
 		if (!isFromNamespace(attribute, namespace)) throw new WrongAttributeAssignmentException(attribute);
 	}
@@ -5162,5 +5158,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		Timestamp time = new Timestamp(System.currentTimeMillis());
 		attribute.setModifiedAt(time.toString());
 		return attribute;
+	}
+
+	public void setPerun(Perun perun) {
+		this.perun = perun;
 	}
 }
