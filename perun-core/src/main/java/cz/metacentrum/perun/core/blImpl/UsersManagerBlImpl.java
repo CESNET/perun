@@ -492,6 +492,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		// Check if userExtsource is type of IDP (special testing behavior)
+		/* FIXME - temporary disable check on unique EPPN, so we could generate new UES for all users
+		   FIXME   without outage of authz process on ProxyIdP and OIDC side. Once they are switched to
+		   FIXME   new scheme, we can remove old UES and enable this check!
 		if (userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 			// If extSource of this userExtSource is type of IDP, test uniqueness of login in this extSource type for all users
 			String login = userExtSource.getLogin();
@@ -499,6 +502,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			if(userExtSources.size() == 1) throw new InternalErrorException("ExtLogin: " + login + " is already in used for extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
 			else if(userExtSources.size() > 1) throw new ConsistencyErrorException("There are " + userExtSources.size() + "   extLogins: " + login + " for  extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
 		}
+		*/
 
 		userExtSource = getUsersManagerImpl().addUserExtSource(sess, user, userExtSource);
 		getPerunBl().getAuditer().log(sess, "{} added to {}.", userExtSource, user);
