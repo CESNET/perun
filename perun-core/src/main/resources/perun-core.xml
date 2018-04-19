@@ -344,6 +344,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="self" ref="extSourcesManagerImpl"/>
 	</bean>
 	<bean id="attributesManagerImpl" class="cz.metacentrum.perun.core.impl.AttributesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+		<property name="perun" ref="perun"/>
 		<property name="self" ref="attributesManagerImpl"/>
 		<constructor-arg ref="dataSource" />
 	</bean>
@@ -424,6 +425,13 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="auditer" ref="auditer"/>
+		<property name="cacheManager" ref="cacheManager"/>
+		<property name="nestedTransactionAllowed" value="true"/>
+	</bean>
+
+	<bean id="perunTestTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTestTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="cacheManager" ref="cacheManager"/>
 		<property name="nestedTransactionAllowed" value="true"/>
 	</bean>
 
@@ -442,7 +450,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="@perun.jdbc@, file:${perun.conf.custom}/jdbc.properties"/>
 
 		<!-- DataSource implementation -->
-		<bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" destroy-method="close">
+		<bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" depends-on="cacheManager" destroy-method="close">
 			<property name="driverClassName" value="${jdbc.driver}"/>
 			<property name="url" value="${jdbc.url}"/>
 			<property name="username" value="${jdbc.username}"/>
