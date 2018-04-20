@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+#use Data::Dumper;
+
+sub help {
+	return qq{
+	Moves Group within structure of groups in VO with all it's subgroups. Group id or group name together with vo id or vo short name are required fields. Destination group is optional. If destination group is not defined, moving group (and it's subgroups) is moved as first level group in VO. 
+	------------------------------------
+	Available options:
+	--movingGroupId   | -g moving group Id
+	--movingGroupName | -G moving group name
+	--voId            | -v vo id
+	--voShortName     | -V vo short name
+	--destGroupId     | -d destination group Id 
+	--destGroupName   | -D destination group name
+	--batch           | -b batch
+	--help            | -h prints this help
+
+	};
+}
+
+our $batch;
+my ($movingGroupId, $movingGroupName, $voId, $voShortName, $destinationGroupId, $destinationGroupName);
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"movingGroupId|g=i"    => \$movingGroupId,
+	"movingGroupName|G=s" => \$movingGroupName,
+	"voId|v=i"       => \$voId, 
+	"voShortName|V=s" => \$voShortName,
+	"destGroupId|d=i" => \$destinationGroupId,
+	"destGroupName|D=s" => \$destinationGroupName
+	) || die help();
+
+# Check options
+unless (defined($movingGroupId) or ((defined($voShortName) or defined($voId)) and defined($movingGroupName))) {die "ERROR: movingGroupId or (movingGroupName and voId or voShortName) is required\n";}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+
+if (!defined($movingGroupId)) {
+	if (!defined($voId)) {
+		my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
+		$voId = $vo->getId;
+	}
+
+	my $group = $groupsAgent->getGroupByName( vo => $voId, name => $movingGroupName );
+	$movingGroupId = $group->getId;
+}
+
+my $groupBefore = $groupsAgent->getGroupById( id => $movingGroupId );
+
+my $mess ="Group with Id: ".$movingGroupId." successfully moved";
+
+if($destinationGroupId) {
+	$groupsAgent->moveGroup( movingGroup => $movingGroupId, destinationGroup => $destinationGroupId );
+	$mess = $mess." under group with Id: " . $destinationGroupId;
+} else {
+	$groupsAgent->moveGroup( movingGroup => $movingGroupId );
+}
+
+my $groupAfter = $groupsAgent->getGroupById( id => $movingGroupId );
+
+printMessage($mess , $batch);
+
+#print "GROUP BEFORE:\n--------------------\n";
+#print Dumper($groupBefore);
+#print "GROUP AFTER:\n--------------------\n";
+#print Dumper($groupAfter);
