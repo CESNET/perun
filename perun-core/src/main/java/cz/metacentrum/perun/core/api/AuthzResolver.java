@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -49,7 +50,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, primaryHolder, secondaryHolder);
-		} catch (AttributeNotExistsException | ActionTypeNotExistsException ex) {
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -219,7 +220,7 @@ public class AuthzResolver {
 	public static void setRole(PerunSession sess, User user, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, PrivilegeException, UserNotExistsException, AlreadyAdminException {
 		Utils.notNull(role, "role");
 		((PerunBl) sess.getPerun()).getUsersManagerBl().checkUserExists(sess, user);
-		
+
 		if(!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("You are not privileged to use this method setRole.");
 		AuthzResolverBlImpl.setRole(sess, user, role, complementaryObjects);
 	}
@@ -295,7 +296,7 @@ public class AuthzResolver {
 	public static void unsetRole(PerunSession sess, User user, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, PrivilegeException, UserNotExistsException, UserNotAdminException {
 		Utils.notNull(role, "role");
 		((PerunBl) sess.getPerun()).getUsersManagerBl().checkUserExists(sess, user);
-		
+
 		if(!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("You are not privileged to use this method unsetRole.");
 		AuthzResolverBlImpl.unsetRole(sess, user, role, complementaryObjects);
 	}
