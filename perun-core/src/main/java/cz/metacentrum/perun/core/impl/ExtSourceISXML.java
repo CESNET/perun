@@ -41,9 +41,9 @@ public class ExtSourceISXML extends ExtSourceXML {
 		// Get the query for the group
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 		//If there is no query for group, throw exception
-		if(queryForGroup == null || queryForGroup.isEmpty()) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " can't be null.");
+		if(queryForGroup == null || queryForGroup.isEmpty()) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
 		//Expected value like "workplaceId:groupName" with ':' as separator
-		if(!queryForGroup.contains(":")) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " has to contain separator ':' between workplaceId and groupName.");
+		if(!queryForGroup.contains(":")) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " has to contain separator ':' between workplaceId and groupName.");
 
 		//Parse workplace and groupName from queryForGroup
 		String parsedQuery[] = queryForGroup.split(":");

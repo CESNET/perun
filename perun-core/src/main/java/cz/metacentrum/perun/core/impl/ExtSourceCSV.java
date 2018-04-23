@@ -126,7 +126,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
             //If there is no query for group, throw exception
             if (queryForGroup == null) {
-                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " can't be null.");
+                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
             }
 
             //Get csv file

@@ -108,7 +108,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
 		//If there is no query for group, throw exception
-		if(queryForGroup == null) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " can't be null.");
+		if(queryForGroup == null) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
 
 		Integer groupId = Integer.valueOf(queryForGroup);
 

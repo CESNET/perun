@@ -134,7 +134,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
 
             if (queryForGroup == null) {
                 throw new InternalErrorException("Attribute " + 
-                        GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + 
+                        GroupsManager.GROUPMEMBERSQUERY_ATTRNAME +
                         " can't be null.");
             }
 
