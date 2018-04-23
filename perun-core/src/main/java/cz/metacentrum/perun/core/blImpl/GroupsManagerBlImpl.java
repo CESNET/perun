@@ -1,11 +1,16 @@
 package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.core.api.PerunPrincipal;
+
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,6 +20,7 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +35,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * GroupsManager business logic
@@ -46,6 +54,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private final PerunBeanProcessingPool<Group> poolOfGroupsToBeSynchronized;
 	private final ArrayList<GroupSynchronizerThread> groupSynchronizerThreads;
 	private static final String A_G_D_AUTHORITATIVE_GROUP = AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup";
+	private static final String A_G_D_EXPIRATION_RULES = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules";
+	private static final String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
+	private static final String A_U_D_LOA = AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa";
 
 	/**
 	 * Create new instance of this class.
@@ -709,6 +720,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			addRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), Collections.singletonList(member), group.getId());
 		}
 		setRequiredAttributes(sess, member, group);
+
+		// try to set init expiration
+		try {
+			extendMembershipInGroup(sess, member, group);
+		} catch (ExtendMembershipException e) {
+			throw new InternalErrorException("Failed to set initial member-group expiration date.");
+		}
 
 		if (!VosManager.MEMBERS_GROUP.equals(group.getName())) {
 
@@ -3236,5 +3254,441 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		for (Group affectedGroup : affectedGroups) {
 			recalculateMemberGroupStatusRecursively(sess, member, affectedGroup);
 		}
+	}
+
+	@Override
+	public boolean canExtendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		Attribute membershipExpirationRulesAttribute = getMembershipExpirationRulesAttribute(sess, group);
+		if (membershipExpirationRulesAttribute == null) {
+			return true;
+		}
+		try {
+			extendMembershipInGroup(sess, member, group, false);
+		} catch (ExtendMembershipException e) {
+			return false;
+		}
+		return true;
+	}
+
+	public void extendMembershipInGroup(PerunSession sess, Member member, Group group, boolean setValue) throws InternalErrorException, ExtendMembershipException {
+		Attribute membershipExpirationRulesAttribute = getMembershipExpirationRulesAttribute(sess, group);
+		if (membershipExpirationRulesAttribute == null) {
+			return;
+		}
+		LinkedHashMap<String, String> membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
+
+		Calendar calendar = Calendar.getInstance();
+
+		// Get current membershipExpiration date
+		Attribute membershipExpirationAttribute = getMemberExpiration(sess, member, group);
+
+		checkLoaForExpiration(sess, membershipExpirationRules, membershipExpirationAttribute, member);
+
+		String period = null;
+		// Default extension
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName) != null) {
+			period = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName);
+		}
+
+		String loaPeriod = getLoaPeriod(sess, member, membershipExpirationRules, membershipExpirationAttribute);
+
+		if (loaPeriod != null) {
+			period = loaPeriod;
+		}
+
+		// Do we extend for x months or for static date?
+		if (period != null) {
+			if (period.startsWith("+")) {
+				extendForMonths(calendar, period, membershipExpirationRules, membershipExpirationAttribute, member, group);
+			} else {
+				// We will extend to particular date
+
+				extendForStaticDate(calendar, period, membershipExpirationRules, membershipExpirationAttribute, member, group);
+			}
+		}
+
+		// Reset hours, minutes and seconds to 0
+		calendar.set(Calendar.HOUR, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+
+		if (setValue) {
+			// Set new value of the membershipExpiration for the member
+			membershipExpirationAttribute.setValue(BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime()));
+			try {
+				getPerunBl().getAttributesManagerBl().setAttribute(sess, member, group, membershipExpirationAttribute);
+			} catch (WrongAttributeValueException e) {
+				throw new InternalErrorException("Wrong value: " + membershipExpirationAttribute.getValue(),e);
+			} catch (WrongReferenceAttributeValueException | WrongAttributeAssignmentException | AttributeNotExistsException e) {
+				throw new InternalErrorException(e);
+			}
+		}
+	}
+
+	@Override
+	public void extendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException {
+		extendMembershipInGroup(sess, member, group, true);
+	}
+
+	private void extendForStaticDate(Calendar calendar, String period, LinkedHashMap<String, String> membershipExpirationRules, Attribute membershipExpirationAttribute, Member member, Group group) throws InternalErrorException, ExtendMembershipException {
+		// Parse date
+		Pattern p = Pattern.compile("([0-9]+).([0-9]+).");
+		Matcher m = p.matcher(period);
+		if (m.matches()) {
+			int day = Integer.valueOf(m.group(1));
+			int month = Integer.valueOf(m.group(2));
+
+			// Get current year
+			int year = calendar.get(Calendar.YEAR);
+
+			// We must detect if the extension date is in current year or in a next year
+			boolean extensionInNextYear;
+			Calendar extensionCalendar = Calendar.getInstance();
+			extensionCalendar.set(year, month-1, day);
+			Calendar today = Calendar.getInstance();
+			if (extensionCalendar.before(today)) {
+				// Extension date is in a next year
+				extensionInNextYear = true;
+			} else {
+				// Extension is in the current year
+				extensionInNextYear = false;
+			}
+
+			// Set the date to which the membershi should be extended, can be changed if there was grace period, see next part of the code
+			calendar.set(year, month-1, day); // month is 0-based
+			if (extensionInNextYear) {
+				calendar.add(Calendar.YEAR, 1);
+			}
+
+			// ***** GRACE PERIOD *****
+			// Is there a grace period?
+			if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName) != null) {
+				String gracePeriod = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName);
+				// If the extension is requested in period-gracePeriod then extend to next period
+
+				// Get the value of the grace period
+				p = Pattern.compile("([0-9]+)([dmy]?)");
+				m = p.matcher(gracePeriod);
+				if (m.matches()) {
+					String countString = m.group(1);
+					int amount = Integer.valueOf(countString);
+
+					// Set the gracePeriodCalendar to the extension date
+					Calendar gracePeriodCalendar = Calendar.getInstance();
+					gracePeriodCalendar.set(year, month-1, day);
+					if (extensionInNextYear) {
+						gracePeriodCalendar.add(Calendar.YEAR, 1);
+					}
+
+					int field;
+					String dmyString = m.group(2);
+					if (dmyString.equals("d")) {
+						field = Calendar.DAY_OF_YEAR;
+					} else if (dmyString.equals("m")) {
+						field = Calendar.MONTH;
+					} else if (dmyString.equals("y")) {
+						field = Calendar.YEAR;
+					} else {
+						throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
+					}
+					// subtracts period definition, e.g. 3m
+					gracePeriodCalendar.add(field, -amount);
+
+					// Check if we are in grace period
+					if (gracePeriodCalendar.before(Calendar.getInstance())) {
+						// We are in grace period, so extend to the next period
+						calendar.add(Calendar.YEAR, 1);
+					}
+
+					// If we do not need to set the attribute value, only check if the current member's expiration time is not in grace period
+					if (membershipExpirationAttribute.getValue() != null) {
+						try {
+							Date currentMemberExpiration = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpirationAttribute.getValue());
+							// subtracts grace period from the currentMemberExpiration
+							Calendar currentMemberExpirationCalendar = Calendar.getInstance();
+							currentMemberExpirationCalendar.setTime(currentMemberExpiration);
+
+							currentMemberExpirationCalendar.add(field, -amount);
+
+							// if today is before that time, user can extend his period
+							if (currentMemberExpirationCalendar.after(Calendar.getInstance())) {
+								throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
+											"Member " + member + " cannot extend because we are outside grace period for GROUP id " + group.getId() + ".");
+							}
+						} catch (ParseException e) {
+							throw new InternalErrorException("Wrong format of the membersExpiration: " + membershipExpirationAttribute.getValue(), e);
+						}
+					}
+				}
+			}
+		} else {
+			throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
+		}
+
+	}
+
+	private void extendForMonths(Calendar calendar, String period, Map<String, String> membershipExpirationRules,
+								 Attribute membershipExpirationAttribute, Member member, Group group) throws InternalErrorException, ExtendMembershipException {
+		if (!isMemberInGracePeriod(membershipExpirationRules, (String) membershipExpirationAttribute.getValue())) {
+			throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
+					"Member " + member + " cannot extend because we are outside grace period for Group id " + group.getId() + ".");
+		}
+		// By default do not add nothing
+		int amount = 0;
+		int field;
+
+		// We will add days/months/years
+		Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
+		Matcher m = p.matcher(period);
+		if (m.matches()) {
+			String countString = m.group(1);
+			amount = Integer.valueOf(countString);
+
+			String dmyString = m.group(2);
+			if (dmyString.equals("d")) {
+				field = Calendar.DAY_OF_YEAR;
+			} else if (dmyString.equals("m")) {
+				field = Calendar.MONTH;
+			} else if (dmyString.equals("y")) {
+				field = Calendar.YEAR;
+			} else {
+				throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
+			}
+		} else {
+			throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
+		}
+		// Add days/months/years
+		calendar.add(field, amount);
+	}
+
+
+
+
+
+	/**
+	 * Checks if given member has some loa which is defined in given
+	 *
+	 * @param sess
+	 * @param member
+	 * @param membershipExpirationRules
+	 * @param membershipExpirationAttribute
+	 * @return
+	 * @throws InternalErrorException
+	 * @throws ExtendMembershipException
+	 */
+	private String getLoaPeriod(PerunSession sess, Member member, LinkedHashMap<String, String> membershipExpirationRules, Attribute membershipExpirationAttribute) throws InternalErrorException, ExtendMembershipException {
+		// Get user LOA
+		String memberLoa = getMemberLoa(sess, member);
+		// Do we extend particular LoA? Attribute syntax LoA|[period][.]
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName) != null) {
+			// Which period
+			String[] membershipPeriodLoa = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName).split("\\|");
+			String loa = membershipPeriodLoa[0];
+			String periodLoa = membershipPeriodLoa[1];
+			// Does the user have this LoA?
+			if (loa.equals(memberLoa)) {
+				if (periodLoa.endsWith(".")) {
+					// If period ends with ., then we do not allow extension for users with particular LoA if they are already members
+					if (membershipExpirationAttribute.getValue() != null) {
+						throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION,
+								"Member " + member + " doesn't have required LOA for VO id " + member.getVoId() + ".");
+					}
+					// remove dot from the end of the string
+					return periodLoa.substring(0, periodLoa.length() - 1);
+				} else {
+					return periodLoa;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Checks user's loa for expiration
+	 *
+	 * @param sess session
+	 * @param memberLoa
+	 * @param membershipExpirationRules
+	 * @param membershipExpirationAttribute
+	 * @param member
+	 * @throws ExtendMembershipException
+	 * @throws InternalErrorException
+	 */
+	private void checkLoaForExpiration(PerunSession sess, LinkedHashMap<String, String> membershipExpirationRules,
+									   Attribute membershipExpirationAttribute, Member member) throws ExtendMembershipException, InternalErrorException {
+
+		boolean isServiceUser = isServiceUser(sess, member);
+
+		// Get user LOA
+		String memberLoa = getMemberLoa(sess, member);
+
+		// Which LOA we won't extend?
+		// This is applicable only for members who have already set expiration from the previous period
+		// and are not service users
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName) != null &&
+				membershipExpirationAttribute.getValue() != null &&
+				!isServiceUser) {
+			if (memberLoa == null) {
+				// Member doesn't have LOA defined and LOA is required for extension, so do not extend membership.
+				log.warn("Member {} doesn't have LOA defined, but 'doNotExtendLoa' option is set for VO id {}.", member, member.getVoId());
+				throw new ExtendMembershipException(ExtendMembershipException.Reason.NOUSERLOA,
+							"Member " + member + " doesn't have LOA defined, but 'doNotExtendLoa' option is set for VO id " + member.getVoId() + ".");
+
+			}
+
+			String[] doNotExtendLoas = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName).split(",");
+
+			for (String doNotExtendLoa : doNotExtendLoas) {
+				if (doNotExtendLoa.equals(memberLoa)) {
+					// Member has LOA which is not allowed for extension
+					throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION,
+							"Member " + member + " doesn't have required LOA for VO id " + member.getVoId() + ".");
+
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks if given user of given member is service user
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @return
+	 * @throws InternalErrorException internal error
+	 */
+	private boolean isServiceUser(PerunSession sess, Member member) throws InternalErrorException {
+		try {
+			User user = getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
+			return user.isServiceUser();
+		} catch (UserNotExistsException ex) {
+			throw new ConsistencyErrorException("User must exists for "+member+" when checking expiration rules.");
+		}
+	}
+
+	/**
+	 * Returns membershipExpirationAttribute for given member and group
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @return membership expiration attribute
+	 */
+	private Attribute getMemberExpiration(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		try {
+			return getPerunBl().getAttributesManagerBl().getAttribute(sess, member, group,	A_MG_D_MEMBERSHIP_EXPIRATION);
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException("Attribute: " +A_MG_D_MEMBERSHIP_EXPIRATION +
+					" must be defined in order to use membershipExpirationRules");
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	/**
+	 * Returns members loa
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @return member's loa
+	 * @throws InternalErrorException internal error
+	 */
+	private String getMemberLoa(PerunSession sess, Member member) throws InternalErrorException {
+		try {
+			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, A_U_D_LOA);
+			return (String) loa.getValue();
+		} catch (AttributeNotExistsException e) {
+			// Ignore, will be probably set further
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns membership expiration rules attribute for given group
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @return membership expiration attribute or null if not found
+	 * @throws InternalErrorException internal error
+	 */
+	private Attribute getMembershipExpirationRulesAttribute(PerunSession sess, Group group) throws InternalErrorException {
+		Attribute membershipExpirationRulesAttribute;
+
+		try {
+			membershipExpirationRulesAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, A_G_D_EXPIRATION_RULES);
+
+			// If attribute was not filled, then silently exit
+			if (membershipExpirationRulesAttribute.getValue() == null) return null;
+		} catch (AttributeNotExistsException e) {
+			// There is no attribute definition for membership expiration rules.
+			return null;
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException("Shouldn't happen.");
+		}
+
+		return membershipExpirationRulesAttribute;
+	}
+
+	/**
+	 * Return true if member is in grace period. If grace period is not set return always true.
+	 * If member has not expiration date return always true.
+	 *
+	 * @param membershipExpirationRules
+	 * @param membershipExpiration
+	 * @return true if member is in grace period. Be carefull about special cases - read method description.
+	 * @throws InternalErrorException
+	 */
+	private boolean isMemberInGracePeriod(Map<String, String> membershipExpirationRules, String membershipExpiration) throws InternalErrorException {
+		// Is a grace period set?
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName) == null) {
+			// If not grace period is infinite
+			return true;
+		}
+		// does member have expiration date?
+		if (membershipExpiration == null) {
+			// if not grace period is infinite
+			return true;
+		}
+
+		String gracePeriod = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName);
+
+		// If the extension is requested in period-gracePeriod then extend to next period
+		Pattern p = Pattern.compile("([0-9]+)([dmy]?)");
+		Matcher m = p.matcher(gracePeriod);
+
+		if (!m.matches()) {
+			throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
+		}
+
+		int amount = Integer.valueOf(m.group(1));
+
+		int field;
+		String dmyString = m.group(2);
+		if (dmyString.equals("d")) {
+			field = Calendar.DAY_OF_YEAR;
+		} else if (dmyString.equals("m")) {
+			field = Calendar.MONTH;
+		} else if (dmyString.equals("y")) {
+			field = Calendar.YEAR;
+		} else {
+			throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
+		}
+
+		try {
+			Calendar beginOfGracePeriod = Calendar.getInstance();
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			beginOfGracePeriod.setTime(format.parse(membershipExpiration));
+			beginOfGracePeriod.add(field, -amount);
+			if (beginOfGracePeriod.before(Calendar.getInstance())) {
+				return true;
+			}
+		} catch (ParseException e) {
+			throw new InternalErrorException("Wrong format of membership expiration attribute: " + membershipExpiration, e);
+		}
+
+		return false;
+
 	}
 }

@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -683,7 +684,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -718,7 +719,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "+10d");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+10d");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -746,7 +747,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipInGracePeriod() throws Exception {
-		System.out.println(CLASS_NAME + "extendMembershipInGracePeriod");
+		System.out.println(CLASS_NAME + "extendGroupMembershipInGracePeriod");
 
 		// Period will be set to the next day
 		Calendar calendar = Calendar.getInstance();
@@ -757,8 +758,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
 		// Set perid to day after today
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, day + "." + month + ".");
-		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "1m");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, day + "." + month + ".");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -787,7 +788,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipOutsideGracePeriod() throws Exception {
-		System.out.println(CLASS_NAME + "extendMembershipOutsideGracePeriod");
+		System.out.println(CLASS_NAME + "extendGroupMembershipOutsideGracePeriod");
 
 		// Set period to three months later
 		Calendar calendar = Calendar.getInstance();
@@ -799,8 +800,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
 		// Set perid to day after today
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, day + "." + month + ".");
-		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "1m");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, day + "." + month + ".");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -828,12 +829,12 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipForMemberWithSufficientLoa() throws Exception {
-		System.out.println(CLASS_NAME + "extendMembershipForMemberWithSufficientLoa");
+		System.out.println(CLASS_NAME + "extendGroupMembershipForMemberWithSufficientLoa");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
-		extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0,1");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0,1");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -872,12 +873,12 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipForMemberWithInsufficientLoa() throws Exception {
-		System.out.println(CLASS_NAME + "extendMembershipForMemberWithInsufficientLoa");
+		System.out.println(CLASS_NAME + "extendGroupMembershipForMemberWithInsufficientLoa");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
-		extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0,1");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0,1");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -913,13 +914,13 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipForDefinedLoaAllowed() throws Exception {
-		System.out.println(CLASS_NAME + "extendMembershipForDefinedLoaAllowed");
+		System.out.println(CLASS_NAME + "extendGroupMembershipForDefinedLoaAllowed");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
-		extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0");
-		extendMembershipRules.put(MembersManager.membershipPeriodLoaKeyName, "1|+1m");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -967,9 +968,9 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
-		extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0");
-		extendMembershipRules.put(MembersManager.membershipPeriodLoaKeyName, "1|+1m.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m.");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -1002,9 +1003,9 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
-		extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0");
-		extendMembershipRules.put(MembersManager.membershipPeriodLoaKeyName, "1|+1m.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m.");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -1049,9 +1050,9 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
-		extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0");
-		extendMembershipRules.put(MembersManager.membershipPeriodLoaKeyName, "1|+1m.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m.");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -1085,8 +1086,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "+6m");
-		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+6m");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
 		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
@@ -1117,8 +1118,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "+6m");
-		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+6m");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
 		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
@@ -1149,8 +1150,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
-		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
 		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
@@ -1181,8 +1182,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
-		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
 		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
@@ -1216,7 +1217,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipDoNotAllowLoaKeyName, loa);
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotAllowLoaKeyName, loa);
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -1239,7 +1240,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipDoNotAllowLoaKeyName, loa);
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotAllowLoaKeyName, loa);
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);
@@ -1278,7 +1279,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
-		extendMembershipRules.put(MembersManager.membershipDoNotAllowLoaKeyName, loa);
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotAllowLoaKeyName, loa);
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
 		extendMembershipRulesAttribute.setValue(extendMembershipRules);

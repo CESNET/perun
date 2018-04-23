@@ -21,7 +21,7 @@ import java.util.Date;
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-public class urn_perun_member_group_attribute_def_def_membershipExpiration extends MemberGroupAttributesModuleAbstract implements MemberGroupAttributesModuleImplApi {
+public class urn_perun_member_group_attribute_def_def_groupMembershipExpiration extends MemberGroupAttributesModuleAbstract implements MemberGroupAttributesModuleImplApi {
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String membershipExpTime = (String) attribute.getValue();
@@ -70,7 +70,7 @@ public class urn_perun_member_group_attribute_def_def_membershipExpiration exten
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
-		attr.setFriendlyName("membershipExpiration");
+		attr.setFriendlyName("groupMembershipExpiration");
 		attr.setDisplayName("Group membership expiration");
 		attr.setType(String.class.getName());
 		attr.setDescription("When the member expires in group, format YYYY-MM-DD.");

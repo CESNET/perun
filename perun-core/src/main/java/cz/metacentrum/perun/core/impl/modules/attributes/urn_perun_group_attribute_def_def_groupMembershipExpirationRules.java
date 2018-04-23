@@ -18,16 +18,16 @@ import java.util.LinkedHashMap;
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-public class urn_perun_group_attribute_def_def_membershipExpirationRules extends AbstractMembershipExpirationRulesModule<Group> implements GroupAttributesModuleImplApi {
+public class urn_perun_group_attribute_def_def_groupMembershipExpirationRules extends AbstractMembershipExpirationRulesModule<Group> implements GroupAttributesModuleImplApi {
 
 	@Override
 	protected boolean isAllowedParameter(String parameter) {
 		if(parameter == null) return false;
-		return parameter.equals(MembersManager.membershipPeriodKeyName) ||
-				parameter.equals(MembersManager.membershipDoNotExtendLoaKeyName) ||
-				parameter.equals(MembersManager.membershipGracePeriodKeyName) ||
-				parameter.equals(MembersManager.membershipPeriodLoaKeyName)	||
-				parameter.equals(MembersManager.membershipDoNotAllowLoaKeyName);
+		return parameter.equals(membershipPeriodKeyName) ||
+				parameter.equals(membershipDoNotExtendLoaKeyName) ||
+				parameter.equals(membershipGracePeriodKeyName) ||
+				parameter.equals(membershipPeriodLoaKeyName)	||
+				parameter.equals(membershipDoNotAllowLoaKeyName);
 	}
 
 	@Override
@@ -44,10 +44,10 @@ public class urn_perun_group_attribute_def_def_membershipExpirationRules extends
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-		attr.setFriendlyName("membershipExpirationRules");
-		attr.setDisplayName("Membership expiration rules");
+		attr.setFriendlyName("groupMembershipExpirationRules");
+		attr.setDisplayName("Group membership expiration rules");
 		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Rules which define how the membership is extended.");
+		attr.setDescription("Rules which define how the membership in group is extended.");
 		return attr;
 	}
 }

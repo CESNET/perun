@@ -23,11 +23,11 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends Ab
 	@Override
 	protected boolean isAllowedParameter(String parameter) {
 		if(parameter == null) return false;
-		return parameter.equals(MembersManager.membershipPeriodKeyName) ||
-				parameter.equals(MembersManager.membershipDoNotExtendLoaKeyName) ||
-				parameter.equals(MembersManager.membershipGracePeriodKeyName) ||
-				parameter.equals(MembersManager.membershipPeriodLoaKeyName)	||
-				parameter.equals(MembersManager.membershipDoNotAllowLoaKeyName);
+		return parameter.equals(membershipPeriodKeyName) ||
+				parameter.equals(membershipDoNotExtendLoaKeyName) ||
+				parameter.equals(membershipGracePeriodKeyName) ||
+				parameter.equals(membershipPeriodLoaKeyName)	||
+				parameter.equals(membershipDoNotAllowLoaKeyName);
 	}
 
 	@Override
