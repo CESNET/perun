@@ -6128,17 +6128,34 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		attributes.put(attr, rights);
 
-		//urn:perun:group:attribute-def:def:membershipExpirationRules
+		//urn:perun:group:attribute-def:def:groupMembershipExpirationRules
 		attr = new AttributeDefinition();
-		attr.setDisplayName("Membership expiration rules");
-		attr.setFriendlyName("membershipExpirationRules");
+		attr.setDisplayName("Group membership expiration rules");
+		attr.setFriendlyName("groupMembershipExpirationRules");
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
-		attr.setDescription("Set of rules to determine date of membership expiration. If not set, membership is not limited.");
+		attr.setDescription("Set of rules to determine date of group membership expiration. If not set, membership is not limited.");
 		attr.setType(LinkedHashMap.class.getName());
 		//set attribute rights (with dummy id of attribute - not known yet)
 		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
+
+		//urn:perun:member:group:attribute-def:def:groupMembershipExpiration
+		attr = new AttributeDefinition();
+		attr.setDisplayName("Group membership expiration");
+		attr.setFriendlyName("groupMembershipExpiration");
+		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+		attr.setDescription("When the member expires in group, format YYYY-MM-DD.");
+		attr.setType(String.class.getName());
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
 
 
 		//urn:perun:group:attribute-def:def:groupExtSource

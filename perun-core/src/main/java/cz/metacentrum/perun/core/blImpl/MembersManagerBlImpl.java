@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1476,8 +1477,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     }
 
     // Which LOA we won't extend? This is applicable only for members who have already set expiration from the previous period
-    if (membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName) != null) {
-      String[] doNotExtendLoas = membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName).split(",");
+    if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName) != null) {
+      String[] doNotExtendLoas = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName).split(",");
 
       for (String doNotExtendLoa : doNotExtendLoas) {
         if (doNotExtendLoa.equals(loa)) {
@@ -1492,14 +1493,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
     String period = null;
     // Default extension
-    if (membershipExpirationRules.get(MembersManager.membershipPeriodKeyName) != null) {
-      period = membershipExpirationRules.get(MembersManager.membershipPeriodKeyName);
+    if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName) != null) {
+      period = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName);
     }
 
     // Do we extend particular LoA? Attribute syntax LoA|[period][.]
-    if (membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName) != null) {
+    if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName) != null) {
       // Which period
-      String[] membershipPeriodLoa = membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName).split("\\|");
+      String[] membershipPeriodLoa = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName).split("\\|");
       String membershipLoa = membershipPeriodLoa[0];
       String periodLoa = membershipPeriodLoa[1];
       // Does the user have this LoA?
@@ -1572,8 +1573,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
           // ***** GRACE PERIOD *****
           // Is there a grace period?
-          if (membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName) != null) {
-            String gracePeriod = membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName);
+          if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName) != null) {
+            String gracePeriod = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName);
             // If the extension is requested in period-gracePeriod then extend to next period
 
             // Get the value of the grace period
@@ -1813,7 +1814,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		// Which LOA we won't allow?
-		if (membershipExpirationRules.get(MembersManager.membershipDoNotAllowLoaKeyName) != null) {
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotAllowLoaKeyName) != null) {
 			if (loa == null) {
 				// User doesn't have LOA defined and LOA is required for getting in, so do not allow membership.
 				log.warn("User {} doesn't have LOA defined, but 'doNotAllowLoa' option is set for VO {}.", user, vo);
@@ -1825,7 +1826,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				}
 			}
 
-			String[] doNotAllowLoas = membershipExpirationRules.get(MembersManager.membershipDoNotAllowLoaKeyName).split(",");
+			String[] doNotAllowLoas = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotAllowLoaKeyName).split(",");
 
 			for (String doNotAllowLoa : doNotAllowLoas) {
 				if (doNotAllowLoa.equals(loa)) {
@@ -1912,7 +1913,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// Which LOA we won't extend?
 		// This is applicable only for members who have already set expiration from the previous period
 		// and are not service users
-		if (membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName) != null &&
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName) != null &&
 				membershipExpirationAttribute.getValue() != null &&
 				!isServiceUser) {
 			if (memberLoa == null) {
@@ -1926,7 +1927,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				}
 			}
 
-			String[] doNotExtendLoas = membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName).split(",");
+			String[] doNotExtendLoas = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName).split(",");
 
 			for (String doNotExtendLoa : doNotExtendLoas) {
 				if (doNotExtendLoa.equals(memberLoa)) {
@@ -1961,14 +1962,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		String period = null;
 		// Default extension
-		if (membershipExpirationRules.get(MembersManager.membershipPeriodKeyName) != null) {
-			period = membershipExpirationRules.get(MembersManager.membershipPeriodKeyName);
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName) != null) {
+			period = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName);
 		}
 
 		// Do we extend particular LoA? Attribute syntax LoA|[period][.]
-		if (membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName) != null) {
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName) != null) {
 			// Which period
-			String[] membershipPeriodLoa = membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName).split("\\|");
+			String[] membershipPeriodLoa = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName).split("\\|");
 			String loa = membershipPeriodLoa[0];
 			String periodLoa = membershipPeriodLoa[1];
 			// Does the user have this LoA?
@@ -2063,8 +2064,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 					// ***** GRACE PERIOD *****
 					// Is there a grace period?
-					if (membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName) != null) {
-						String gracePeriod = membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName);
+					if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName) != null) {
+						String gracePeriod = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName);
 						// If the extension is requested in period-gracePeriod then extend to next period
 
 						// Get the value of the grace period
@@ -2165,7 +2166,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 */
 	private boolean isMemberInGracePeriod(Map<String, String> membershipExpirationRules, String membershipExpiration) throws InternalErrorException {
 		// Is a grace period set?
-		if (membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName) == null) {
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName) == null) {
 			// If not grace period is infinite
 			return true;
 		}
@@ -2175,7 +2176,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			return true;
 		}
 
-		String gracePeriod = membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName);
+		String gracePeriod = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName);
 
 		// If the extension is requested in period-gracePeriod then extend to next period
 		Pattern p = Pattern.compile("([0-9]+)([dmy]?)");

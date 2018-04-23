@@ -24,6 +24,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -1353,4 +1354,26 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException internal error
 	 */
 	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group) throws InternalErrorException;
-	}
+
+	/**
+	 * Extend member membership in given group using membershipExpirationRules attribute defined in Group.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @throws InternalErrorException internal error
+	 * @throws ExtendMembershipException extend membership exception
+	 */
+	void extendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException;
+
+	/**
+	 * Returns true if member in given group can extend membership or if no rules were set for the membershipExpiration
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @return true if given member can extend membership in given group  or if no rules were set for the
+	 * membership expiration, false otherwise
+	 */
+	boolean canExtendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
+}

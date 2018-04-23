@@ -28,6 +28,12 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
 	private static final Pattern loaPattern = Pattern.compile("^(([0-9]+,)|([0-9]+,[ ]))*[0-9]+$");
 	private static final Pattern periodLoaPattern = Pattern.compile("^[0-9]+[|](([0-9]+[.][0-9]+[.])|([+][0-9]+([dmy])))[.]?$");
 
+	public static final String membershipGracePeriodKeyName = "gracePeriod";
+	public static final String membershipPeriodKeyName = "period";
+	public static final String membershipDoNotExtendLoaKeyName = "doNotExtendLoa";
+	public static final String membershipPeriodLoaKeyName = "periodLoa";
+	public static final String membershipDoNotAllowLoaKeyName = "doNotAllowLoa";
+
 	public void checkAttributeValue(PerunSessionImpl sess, T entity, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Map<String, String> attrValue;
 
@@ -52,7 +58,7 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
 		//If all possibilities are correct, so check their values
 
 		//For period (only date like 1.1. or 29.4. without year) or (+xy where x is number and y is d/m/y - +35m or +80d)
-		String parameter = MembersManager.membershipPeriodKeyName;
+		String parameter = membershipPeriodKeyName;
 		if(keys.contains(parameter)) {
 			DateFormat dateFormatter = new SimpleDateFormat("dd.MM.");
 			Date date;
@@ -70,28 +76,28 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
 		}
 
 		//For gracePeriod (xy where x is number and y is d/m/y - 35m or 80d)
-		parameter = MembersManager.membershipGracePeriodKeyName;
+		parameter = membershipGracePeriodKeyName;
 		if(keys.contains(parameter)) {
 			Matcher dateMatcher = datePattern.matcher(attrValue.get(parameter));
 			if(!dateMatcher.find()) throw new WrongAttributeValueException(attribute, "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
 		}
 
 		//For doNotExtendLoa (exmp: '3,4,5' or '3, 4 ,5' or '325, 324,336')
-		parameter = MembersManager.membershipDoNotExtendLoaKeyName;
+		parameter = membershipDoNotExtendLoaKeyName;
 		if(keys.contains(parameter)) {
 			Matcher loaMatcher = loaPattern.matcher(attrValue.get(parameter));
 			if(!loaMatcher.find()) throw new WrongAttributeValueException(attribute, "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
 		}
 
 		//For doNotAllowLoa (exmp: '3,4,5' or '3, 4 ,5' or '325, 324,336')
-		parameter = MembersManager.membershipDoNotAllowLoaKeyName;
+		parameter = membershipDoNotAllowLoaKeyName;
 		if(keys.contains(parameter)) {
 			Matcher loaMatcher = loaPattern.matcher(attrValue.get(parameter));
 			if(!loaMatcher.find()) throw new WrongAttributeValueException(attribute, "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
 		}
 
 		//For periodLoa x|y. or x|y where x is loa format and y is period format and symbol '.' is not mandatory
-		parameter = MembersManager.membershipPeriodLoaKeyName;
+		parameter = membershipPeriodLoaKeyName;
 		if(keys.contains(parameter)) {
 			Matcher periodLoaMatcher = periodLoaPattern.matcher(attrValue.get(parameter));
 			if(!periodLoaMatcher.find()) throw new WrongAttributeValueException(attribute, "There is not allowed value for parameter '" + parameter + "': " + attrValue.get(parameter));
