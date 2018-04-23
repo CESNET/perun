@@ -160,7 +160,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
+		throw new ExtSourceUnsupportedOperationException("Using this method is not supported for ISMU");
 	}
 
 	protected Map<String,String> getAttributes() throws InternalErrorException {

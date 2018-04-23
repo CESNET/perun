@@ -130,7 +130,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
 
     @Override
     public void close() {
-        throw new UnsupportedOperationException("For Unity using this method is not optimized.");
+        throw new UnsupportedOperationException("Using this method is not supported for Unity");
     }
 
     protected Map<String, String> getAttributes() throws InternalErrorException {
