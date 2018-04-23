@@ -1,23 +1,17 @@
 package cz.metacentrum.perun.engine.unit;
 
-import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.engine.AbstractEngineTest;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
-import cz.metacentrum.perun.engine.scheduling.BlockingBoundedMap;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.engine.scheduling.impl.SchedulingPoolImpl;
 import cz.metacentrum.perun.taskslib.service.impl.TaskStoreImpl;
-import cz.metacentrum.perun.taskslib.model.SendTask;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
-import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -30,20 +24,14 @@ import static org.mockito.Mockito.mock;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class SchedulingPoolTest extends AbstractEngineTest {
+
 	private SchedulingPool schedulingPool;
 
-	/*
-	@Autowired
-	private BlockingBoundedMap<Integer, Task> generatingTasks;
-	@Autowired
-	private BlockingBoundedMap<Pair<Integer, Destination>, SendTask> sendingSendTasks;
-	*/
-	
 	@Before
 	public void setup() throws Exception {
 		super.setup();
 		schedulingPool = new SchedulingPoolImpl(
-				new TaskStoreImpl(), 
+				new TaskStoreImpl(),
 				mock(JMSQueueManager.class));
 		schedulingPool.addTask(task1);
 	}
@@ -108,17 +96,6 @@ public class SchedulingPoolTest extends AbstractEngineTest {
 	}
 
 	@Test
-	public void getGenTaskFutureById() {
-		Future<Task> future = schedulingPool.getGenTaskFutureById(task1.getId());
-		assertNull("There should be no Future under this id.", future);
-
-		Future<Task> futureMock = mock(Future.class);
-		schedulingPool.getGenTaskFuturesMap().put(task1.getId(), futureMock);
-		future = schedulingPool.getGenTaskFutureById(task1.getId());
-		assertEquals(futureMock, future);
-	}
-
-	@Test
 	public void getTaskByIdTest() throws Exception {
 		Task task = schedulingPool.getTask(task1.getId());
 		assertEquals(task1, task);
@@ -126,11 +103,11 @@ public class SchedulingPoolTest extends AbstractEngineTest {
 
 	@Test
 	public void removeSentTaskTest() throws Exception {
-		schedulingPool.addSendTaskCount(task1.getId(), 2);
+		schedulingPool.addSendTaskCount(task1, 2);
 		assertEquals(1, schedulingPool.getSize());
 
-		schedulingPool.decreaseSendTaskCount(task1.getId(), 1);
-		schedulingPool.decreaseSendTaskCount(task1.getId(), 1);
+		schedulingPool.decreaseSendTaskCount(task1, 1);
+		schedulingPool.decreaseSendTaskCount(task1, 1);
 
 		assertEquals("Task should be removed from pool when associated sendTask count reaches zero",
 				0, schedulingPool.getSize());

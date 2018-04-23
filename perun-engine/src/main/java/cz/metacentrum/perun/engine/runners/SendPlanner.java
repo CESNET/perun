@@ -19,7 +19,6 @@ import java.io.File;
 import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Future;
 
 import static cz.metacentrum.perun.taskslib.model.SendTask.SendTaskStatus.SENDING;
 
@@ -89,11 +88,11 @@ public class SendPlanner extends AbstractRunner {
 				}
 				// Task has destinations
 				task.setStatus(Task.TaskStatus.SENDING);
-
 				// TODO - would be probably better to have this as one time call after first SendWorker is submitted
 				// TODO   but then processing stuck tasks must reflect, that SENDING task might have sendStartTime=NULL
 				task.setSendStartTime(new Date(System.currentTimeMillis()));
-				schedulingPool.addSendTaskCount(task.getId(), task.getDestinations().size());
+
+				schedulingPool.addSendTaskCount(task, task.getDestinations().size());
 				try {
 					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), task.getSendStartTime().getTime());
 				} catch (JMSException e) {
@@ -102,15 +101,10 @@ public class SendPlanner extends AbstractRunner {
 
 				// create SendTask and SendWorker for each Destination
 				for (Destination destination : task.getDestinations()) {
-
+					// submit for execution
 					SendTask sendTask = new SendTask(task, destination);
 					SendWorker worker = new SendWorkerImpl(sendTask, directory);
-					// submit for execution
-					Future<SendTask> sendFuture = sendCompletionService.blockingSubmit(worker);
-					schedulingPool.addSendTaskFuture(sendTask, sendFuture);
-					sendTask.setStartTime(new Date(System.currentTimeMillis()));
-					sendTask.setStatus(SENDING);
-
+					sendCompletionService.blockingSubmit(worker);
 				}
 
 			} catch (InterruptedException e) {

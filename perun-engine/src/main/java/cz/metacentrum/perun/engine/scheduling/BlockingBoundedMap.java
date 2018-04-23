@@ -10,6 +10,7 @@ import java.util.Collection;
  *
  * @author David Šarman
  */
+@Deprecated
 public interface BlockingBoundedMap<K, V> {
 
 	/**

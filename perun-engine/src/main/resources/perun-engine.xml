@@ -32,14 +32,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		-->
     </bean>
 
-    <bean id="generatingTasks" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingBoundedHashMap">
-        <constructor-arg value="${engine.thread.gentasks.max}"/>
-    </bean>
-
-    <bean id="sendingSendTasks" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingBoundedHashMap">
-        <constructor-arg value="${engine.thread.sendtasks.max}"/>
-    </bean>
-
     <bean id="taskStore" class="cz.metacentrum.perun.taskslib.service.impl.TaskStoreImpl"/>
 
     <bean id="schedulingPool" class="cz.metacentrum.perun.engine.scheduling.impl.SchedulingPoolImpl"/>
