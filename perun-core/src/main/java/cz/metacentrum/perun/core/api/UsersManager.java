@@ -1099,4 +1099,13 @@ public interface UsersManager {
 	 */
 	List<RichUser> getSponsors(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
+	/**
+	 * Converts old UserExtSource scheme to the new one.
+	 *
+	 * @param sess
+	 * @return
+	 * @throws Exception
+	 */
+	Map<User,List<UserExtSource>> convertUserExtSources(PerunSession sess) throws PerunException;
+
 }

@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
@@ -736,4 +737,7 @@ public interface UsersManagerImplApi {
 	 * Implements search for #UsersManagerBl.findUsersWithExtSourceAttributeValueEnding().
 	 */
 	List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws InternalErrorException;
+
+	List<User> getUsersByExtSource(PerunSession sess, ExtSource extSource) throws PerunException;
+
 }

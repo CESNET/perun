@@ -1186,4 +1186,13 @@ public interface UsersManagerBl {
 	 */
 	List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws AttributeNotExistsException, InternalErrorException;
 
+	/**
+	 * Converts old UserExtSource scheme to the new one.
+	 *
+	 * @param sess
+	 * @return
+	 * @throws Exception
+	 */
+	Map<User,List<UserExtSource>> convertUserExtSources(PerunSession sess) throws PerunException;
+
 }

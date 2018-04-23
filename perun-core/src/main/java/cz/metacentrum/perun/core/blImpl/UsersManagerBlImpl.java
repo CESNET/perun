@@ -2094,4 +2094,118 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 		return usersManagerImpl.findUsersWithExtSourceAttributeValueEnding(sess,attributeName,valueEnd,excludeValueEnds);
 	}
+
+	@Override
+	public Map<User,List<UserExtSource>> convertUserExtSources(PerunSession sess) throws PerunException {
+
+		ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://extidp.cesnet.cz/idp/shibboleth");
+		List<User> users = getUsersManagerImpl().getUsersByExtSource(sess, extSource);
+		Map<User,List<UserExtSource>> result = new HashMap<>();
+
+		for (User user : users) {
+
+			log.debug("[CONVERT] Processing UES of {}", user);
+			result.put(user, new ArrayList<>());
+
+			List<UserExtSource> originalUeses = getUserExtSources(sess, user);
+
+			for (UserExtSource ues : originalUeses) {
+
+				if (ues.getExtSource().equals(extSource)) {
+
+					log.debug("[CONVERT] - Processing {}", ues);
+					result.get(user).add(ues);
+
+					if (ues.getLogin().split("@").length == 2) {
+
+						String prefix = ues.getLogin().split("@")[0];
+						String suffix = ues.getLogin().split("@")[1];
+
+						if (suffix.equals("github.extidp.cesnet.cz")) {
+
+							// create new identity using old eppn
+							ExtSource newExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.cesnet.cz/github-idp/");
+							UserExtSource newUserExtSource = new UserExtSource(0, newExtSource, ues.getLogin(), user.getId(), ues.getLoa());
+							newUserExtSource = createUes(sess, user, ues, newUserExtSource);
+							log.debug("[CONVERT] - Converting {} to {}", ues, newUserExtSource);
+							result.get(user).add(newUserExtSource);
+
+						} else if (suffix.equals("google.extidp.cesnet.cz")) {
+
+							// create new identity using old eppn
+							ExtSource newExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.cesnet.cz/google-idp/");
+							UserExtSource newUserExtSource = new UserExtSource(0, newExtSource, ues.getLogin(), user.getId(), ues.getLoa());
+							newUserExtSource = createUes(sess, user, ues, newUserExtSource);
+							log.debug("[CONVERT] - Converting {} to {}", ues, newUserExtSource);
+							result.get(user).add(newUserExtSource);
+
+						} else if (suffix.equals("orcid.extidp.cesnet.cz")) {
+
+							// create new identity using old eppn
+							ExtSource newExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.cesnet.cz/orcid-idp/");
+							UserExtSource newUserExtSource = new UserExtSource(0, newExtSource, ues.getLogin(), user.getId(), ues.getLoa());
+							newUserExtSource = createUes(sess, user, ues, newUserExtSource);
+							log.debug("[CONVERT] - Converting {} to {}", ues, newUserExtSource);
+							result.get(user).add(newUserExtSource);
+
+						} else if (suffix.equals("linkedin.extidp.cesnet.cz")) {
+
+							// create new identity using old eppn
+							ExtSource newExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.cesnet.cz/linkedin-idp/");
+							UserExtSource newUserExtSource = new UserExtSource(0, newExtSource, ues.getLogin(), user.getId(), ues.getLoa());
+							newUserExtSource = createUes(sess, user, ues, newUserExtSource);
+							log.debug("[CONVERT] - Converting {} to {}", ues, newUserExtSource);
+							result.get(user).add(newUserExtSource);
+
+						} else if (suffix.equals("facebook.extidp.cesnet.cz")) {
+
+							// FIXME - facebook must be kept, since its TargetedID and not EPPN so users can join identities in a future.
+							//getPerunBl().getUsersManagerBl().removeUserExtSource(sess, user, ues);
+							log.debug("[CONVERT] - Keeping {}", ues);
+							result.get(user).add(ues);
+
+						} else if (suffix.equals("mojeid.extidp.cesnet.cz")) {
+
+							// mojeID is not supported over old extIdP -> users already have generated new IdP ExtSource -> delete
+							getPerunBl().getUsersManagerBl().removeUserExtSource(sess, user, ues);
+							log.debug("[CONVERT] - Removing {}", ues);
+							result.get(user).add(null);
+
+						} else if (suffix.equals("extidp.cesnet.cz")) {
+
+							// this is a wrong UserExtSource
+							getPerunBl().getUsersManagerBl().removeUserExtSource(sess, user, ues);
+							log.debug("[CONVERT] - Removing {}", ues);
+							result.get(user).add(null);
+
+						}
+
+					}
+
+
+				}
+
+			}
+
+		}
+
+		//throw new InternalErrorException("Fake rollback!");
+		return result;
+
+	}
+
+	private UserExtSource createUes(PerunSession sess, User user, UserExtSource oldUserExtSource, UserExtSource newUserExtSource) throws PerunException {
+
+		newUserExtSource = getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, newUserExtSource);
+
+		List<Attribute> uesAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, oldUserExtSource);
+		// remove possible virt attrs, we can't set them !!
+		uesAttributes.removeIf(a -> a.getNamespace().startsWith(AttributesManager.NS_UES_ATTR_VIRT));
+		getPerunBl().getAttributesManagerBl().setAttributes(sess, newUserExtSource, uesAttributes);
+
+		return newUserExtSource;
+
+	}
+
+
 }
