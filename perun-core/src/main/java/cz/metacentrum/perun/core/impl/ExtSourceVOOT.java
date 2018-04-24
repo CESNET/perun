@@ -134,7 +134,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
 
             if (queryForGroup == null) {
                 throw new InternalErrorException("Attribute " + 
-                        GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + 
+                        GroupsManager.GROUPMEMBERSQUERY_ATTRNAME +
                         " can't be null.");
             }
 
@@ -159,7 +159,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     @Override
     public void close() throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException(
-                "For VOOT using this method is not optimized, use findSubjects instead.");
+                "Using this method is not supported for VOOT");
     }
 
     private HttpURLConnection createConnection(String uri) throws IOException, InternalErrorException {

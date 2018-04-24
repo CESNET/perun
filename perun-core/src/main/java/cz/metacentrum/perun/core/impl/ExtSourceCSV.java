@@ -126,7 +126,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
             //If there is no query for group, throw exception
             if (queryForGroup == null) {
-                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " can't be null.");
+                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
             }
 
             //Get csv file
@@ -142,7 +142,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
     @Override
     public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
-        throw new ExtSourceUnsupportedOperationException("For CSV, using this method is not optimized, use findSubjects instead.");
+        throw new ExtSourceUnsupportedOperationException("Using this method is not supported for CSV.");
     }
 
     private void prepareEnvironment() throws InternalErrorException {
