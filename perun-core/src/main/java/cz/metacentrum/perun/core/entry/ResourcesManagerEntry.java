@@ -119,14 +119,11 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		if(withGroups) {
-			Vo destinationVo = getPerunBl().getVosManagerBl().getVoById(sess, destinationResource.getVoId());
-			Vo templateVo = getPerunBl().getVosManagerBl().getVoById(sess, templateResource.getVoId());
-
-			if(!destinationVo.equals(templateVo)) {
+			if(destinationResource.getVoId() != templateResource.getVoId()) {
 				throw new InternalErrorException("Resources are not from the same VO.");
 			}
 
-			if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, templateVo)) {
+			if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, templateResource)) {
 				throw new PrivilegeException(sess, "User needs vo admin rights for copying the groups and group related attributes.");
 			}
 		}
