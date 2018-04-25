@@ -8,6 +8,5 @@
 	<!-- Default page to serve -->
 	<welcome-file-list>
 		<welcome-file>PerunWeb.html</welcome-file>
-		<welcome-file>ApplicationForm.html</welcome-file>
 	</welcome-file-list>
 </web-app>
