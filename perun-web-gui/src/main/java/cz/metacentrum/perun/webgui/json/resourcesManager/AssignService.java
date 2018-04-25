@@ -66,7 +66,7 @@ public class AssignService {
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Service: "+ serviceId +" sucessfully assigned to resource: "+ resourceId);
+				session.getUiElements().setLogSuccessText("Service: "+ serviceId +" successfully assigned to resource: "+ resourceId);
 				events.onFinished(jso);
 			};
 
