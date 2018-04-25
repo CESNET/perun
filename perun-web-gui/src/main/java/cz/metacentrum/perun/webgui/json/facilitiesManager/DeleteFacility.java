@@ -69,7 +69,7 @@ public class DeleteFacility {
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Faicility: "+ facilityId +" sucessfully deleted.");
+				session.getUiElements().setLogSuccessText("Facility: "+ facilityId +" successfully deleted.");
 				events.onFinished(jso);
 			};
 
