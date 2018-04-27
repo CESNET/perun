@@ -1267,6 +1267,20 @@ public enum UsersManagerMethod implements ManagerMethod {
 		public Map<User,List<UserExtSource>> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getUsersManager().convertUserExtSources(ac.getSession());
 		}
+	},
+
+	/*#
+	 * Returns user based on one of the userExtSource.
+	 *
+	 * @param userExtSource UserExtSource JSON object UserExtSource
+	 * @return User User object
+	 */
+	deleteOldUeses {
+
+		@Override
+		public Map<User,List<UserExtSource>> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().deleteOldUeses(ac.getSession());
+		}
 	};
 
 }

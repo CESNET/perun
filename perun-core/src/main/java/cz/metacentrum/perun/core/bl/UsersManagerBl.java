@@ -1190,9 +1190,18 @@ public interface UsersManagerBl {
 	 * Converts old UserExtSource scheme to the new one.
 	 *
 	 * @param sess
-	 * @return
-	 * @throws Exception
+	 * @return original and converted ueses per-user (null in case of delete UES)
+	 * @throws PerunException
 	 */
 	Map<User,List<UserExtSource>> convertUserExtSources(PerunSession sess) throws PerunException;
+
+	/**
+	 * Removes old UserExtSource scheme after everything is done
+	 *
+	 * @param sess
+	 * @return removed uses per-user
+	 * @throws PerunException
+	 */
+	Map<User,List<UserExtSource>> deleteOldUeses(PerunSession sess) throws PerunException;
 
 }

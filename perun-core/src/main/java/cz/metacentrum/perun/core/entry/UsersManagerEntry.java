@@ -1222,4 +1222,16 @@ public class UsersManagerEntry implements UsersManager {
 
 		return usersManagerBl.convertUserExtSources(sess);
 	}
+
+	@Override
+	public Map<User, List<UserExtSource>> deleteOldUeses(PerunSession sess) throws PerunException {
+
+		Utils.checkPerunSession(sess);
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "deleteOldUeses can be called only by PERUNADMIN");
+		}
+
+		return usersManagerBl.deleteOldUeses(sess);
+	}
+
 }

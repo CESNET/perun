@@ -2121,16 +2121,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						String prefix = ues.getLogin().split("@")[0];
 						String suffix = ues.getLogin().split("@")[1];
 
-						if (suffix.equals("github.extidp.cesnet.cz")) {
-
-							// create new identity using old eppn
-							ExtSource newExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.cesnet.cz/github-idp/");
-							UserExtSource newUserExtSource = new UserExtSource(0, newExtSource, ues.getLogin(), user.getId(), ues.getLoa());
-							newUserExtSource = createUes(sess, user, ues, newUserExtSource);
-							log.debug("[CONVERT] - Converting {} to {}", ues, newUserExtSource);
-							result.get(user).add(newUserExtSource);
-
-						} else if (suffix.equals("google.extidp.cesnet.cz")) {
+						if (suffix.equals("google.extidp.cesnet.cz")) {
 
 							// create new identity using old eppn
 							ExtSource newExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.cesnet.cz/google-idp/");
@@ -2194,6 +2185,47 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
+	@Override
+	public Map<User,List<UserExtSource>> deleteOldUeses(PerunSession sess) throws PerunException {
+
+		ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://extidp.cesnet.cz/idp/shibboleth");
+		List<User> users = getUsersManagerImpl().getUsersByExtSource(sess, extSource);
+		Map<User, List<UserExtSource>> result = new HashMap<>();
+
+		for (User user : users) {
+
+			log.debug("[CONVERT] Processing UES of {}", user);
+			result.put(user, new ArrayList<>());
+
+			List<UserExtSource> originalUeses = getUserExtSources(sess, user);
+
+			for (UserExtSource ues : originalUeses) {
+
+				if (ues.getExtSource().equals(extSource)) {
+
+					log.debug("[CONVERT] - Processing {}", ues);
+
+					if (ues.getLogin().split("@").length == 2) {
+
+						String suffix = ues.getLogin().split("@")[1];
+
+						if (suffix.equals("google.extidp.cesnet.cz") || suffix.equals("orcid.extidp.cesnet.cz") || suffix.equals("linkedin.extidp.cesnet.cz")) {
+
+							removeUserExtSource(sess, user, ues);
+							result.get(user).add(ues);
+							log.debug("[CONVERT] - Removing {}", ues);
+
+						}
+
+					}
+				}
+			}
+
+
+		}
+		return result;
+	}
+
 	private UserExtSource createUes(PerunSession sess, User user, UserExtSource oldUserExtSource, UserExtSource newUserExtSource) throws PerunException {
 
 		newUserExtSource = getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, newUserExtSource);
@@ -2206,6 +2238,5 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return newUserExtSource;
 
 	}
-
 
 }
