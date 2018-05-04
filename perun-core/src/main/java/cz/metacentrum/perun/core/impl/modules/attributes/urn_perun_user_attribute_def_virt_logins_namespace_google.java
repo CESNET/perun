@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public class urn_perun_user_attribute_def_virt_logins_namespace_google extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 	private static final String NAMESPACE = "google";
-	private static final String EXTSOURCE = "https://extidp.cesnet.cz/idp/shibboleth";
+	private static final String EXTSOURCE = "https://login.cesnet.cz/google-idp/";
 	private static final String LOGIN_REGEX = "^.+[@]google[.]extidp[.]cesnet[.]cz$";
 
 	@Override
