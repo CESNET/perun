@@ -540,6 +540,10 @@ public class Api extends HttpServlet {
 				// prevent cookie stealing (if remote user changed, rebuild session)
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				req.getSession(true).setAttribute(APICALLER, caller);
+			} else if (caller.getSession().getPerunPrincipal().getUser() == null) {
+				// we have authenticated user who doesn't have object User in his session -> try to find it by reinitializing the session
+				// this might happed when new user register himself (registrar creates new session without user object) and after approving of the application the user uses the same session to continue work with Perun  (e.g. open GUI or identity consolidator)
+				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 			}
 
 			// Does user want to logout from perun?
