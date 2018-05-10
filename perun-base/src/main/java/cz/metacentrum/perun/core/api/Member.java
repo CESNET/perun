@@ -132,6 +132,15 @@ public class Member extends Auditable {
 		return Collections.unmodifiableMap(groupsStatuses);
 	}
 
+	/**
+	 * Returns group status of member for given context.
+	 *
+	 * This value is used to calculate member's group status for groups
+	 * that are relevant to given context. E.g.: If this member is returned from call
+	 * ResourceManager.getAllowedMembers(), this status returns member's total group status
+	 * calculated from groups that can access this resource and contains this member.
+	 * @return memberGroup status for context relevant groups.
+	 */
 	public MemberGroupStatus getGroupStatus() {
 		if (groupsStatuses.containsValue(MemberGroupStatus.EXPIRED) && !groupsStatuses.containsValue(MemberGroupStatus.VALID)) {
 			return MemberGroupStatus.EXPIRED;
@@ -141,10 +150,16 @@ public class Member extends Auditable {
 	}
 
 	protected void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses) {
+		if (groupsStatuses == null) {
+			throw new IllegalArgumentException("Group statuses can not be null.");
+		}
 		this.groupsStatuses = new HashMap<>(groupsStatuses);
 	}
 
 	public void addGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses) {
+		if (groupStatuses == null) {
+			throw new IllegalArgumentException("GroupStatuses cannot be null.");
+		}
 		for (Integer integer : groupStatuses.keySet()) {
 			addGroupStatus(integer, groupStatuses.get(integer));
 		}

@@ -1336,18 +1336,8 @@ public interface GroupsManagerBl {
 	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
 
 	/**
-	 * Set member's status in given group to VALID asynchronously
-	 *
-	 * @param sess perun session
-	 * @param member member whose status will be changed
-	 * @param group group in which given member will be validated
-	 * @throws InternalErrorException internal error
-	 */
-	void validateMemberInGroupAsync(PerunSession sess, Member member, Group group) throws InternalErrorException;
-
-	/**
 	 * Calculates the state of given member in given group and calls
-	 * this method recursively for all super groups.
+	 * this method recursively for all parent groups.
 	 *
 	 * @param member member
 	 * @param group group

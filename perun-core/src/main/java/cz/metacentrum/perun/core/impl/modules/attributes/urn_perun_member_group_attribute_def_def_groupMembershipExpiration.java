@@ -61,7 +61,7 @@ public class urn_perun_member_group_attribute_def_def_groupMembershipExpiration 
 			}
 			Date date = new Date();
 			if(expirationDate.compareTo(date) > 0) {
-				session.getPerunBl().getGroupsManagerBl().validateMemberInGroupAsync(session, member, group);
+				session.getPerunBl().getGroupsManagerBl().validateMemberInGroup(session, member, group);
 			}
 		}
 	}

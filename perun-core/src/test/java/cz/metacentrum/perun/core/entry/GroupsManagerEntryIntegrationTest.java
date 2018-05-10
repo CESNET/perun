@@ -446,6 +446,40 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void moveGroupCorrectMemberGroupStatuses2() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupCorrectMemberGroupStatuses2");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+
+		groupsManagerBl.moveGroup(sess, group, group2);
+		groupsManagerBl.moveGroup(sess, group2, group3);
+
+		// set up members with statuses
+		groupsManagerBl.addMember(sess, group, member1);
+		groupsManagerBl.addMember(sess, group3, member1);
+		groupsManagerBl.expireMemberInGroup(sess, member1, group);
+
+		// verify init statuses
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+
+		groupsManagerBl.moveGroup(sess, null, group3);
+
+		// verify after statuses
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+	}
+
+	@Test
 	public void addMemberCorrectMemberGroupStatusesAreSet() throws Exception {
 		System.out.println(CLASS_NAME + "addMemberCorrectMemberGroupStatusesAreSet");
 

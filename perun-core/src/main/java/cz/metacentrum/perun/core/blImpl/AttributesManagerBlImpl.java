@@ -6432,7 +6432,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights = new ArrayList<>();
 		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
 		//urn:perun:member:group:attribute-def:def:groupMembershipExpiration
@@ -6446,7 +6445,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights = new ArrayList<>();
 		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
-		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
 
