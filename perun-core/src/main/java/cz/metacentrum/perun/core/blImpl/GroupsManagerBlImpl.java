@@ -3035,47 +3035,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return groupsManagerImpl.getTotalMemberGroupStatus(session, member, group);
 	}
 
-	@Override
-	public void validateMemberInGroupAsync(PerunSession sess, Member member, Group group) throws InternalErrorException {
-		if (group == null) {
-			throw new InternalErrorException("Group can not be null.");
-		}
-
-		if (member == null) {
-			throw new InternalErrorException("Member to validate can not be null");
-		}
-
-		new Thread(() -> {
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				log.error("Interrupted exception before validationg member async. Cause: {}", e);
-			}
-			MemberGroupStatus oldStatus = null;
-			try {
-				oldStatus = getDirectMemberGroupStatus(sess, member, group);
-			} catch (InternalErrorException e) {
-				log.error("Failed to read members status in group in validateMemberInGroupAsync. Member: {}, Group: {}, Cause: {}",
-						member, group, e);
-			}
-			try {
-				((PerunSessionImpl) sess).getPerunBl().getGroupsManagerBl().validateMemberInGroup(sess, member, group);
-			} catch(Exception ex) {
-				log.info("validateMemberInGroupAsync failed. Cause: {}", ex);
-				try {
-					getPerunBl().getAuditer().log(sess, "Validation in {} of {} failed. He stays in {} state.", group, member, oldStatus);
-					log.info("Validation in {} of {} failed. He stays in {} state.", group, member, oldStatus);
-				} catch(InternalErrorException internalError) {
-					log.error("Store message to auditer failed. message: Validation in {} of {} failed. He stays in {} state.", group, member, oldStatus, internalError);
-				}
-			}
-		}, "validateMemberAsync").start();
-	}
-
 	/**
 	 * Calculates the state of given member in given group and if
 	 * it differs from given 'previousState' calls this method recursively
-	 * for all super groups.
+	 * for all parent groups.
 	 *
 	 * @param member member
 	 * @param group group
@@ -3120,7 +3083,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
-		// check recursively all super groups
+		// check recursively all parent groups
 		for (Group affectedGroup : affectedGroups) {
 			recalculateMemberGroupStatusRecursively(sess, member, affectedGroup);
 		}
