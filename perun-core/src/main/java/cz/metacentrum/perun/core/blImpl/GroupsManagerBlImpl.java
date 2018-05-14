@@ -576,10 +576,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Member> movingGroupMembers = getGroupMembers(sess, movingGroup);
 
 		for(Member member : movingGroupMembers) {
-
-			// calculate new member-group statuses for members in moving group with new parent group
-			recalculateMemberGroupStatusRecursively(sess, member, movingGroup);
-
 			if (previousParent != null) {
 
 				// calculate new member-group statuses for members from previous moving group parent
@@ -3074,7 +3070,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		// if the new status is not null, update statuses received from the group to other groups
 		if (saveStatuses) {
-			groupsManagerImpl.setIndirectGroupStatus(sess, member, group, newStatus, false);
+			groupsManagerImpl.setIndirectGroupStatus(sess, member, group, newStatus);
 
 			if (newStatus.equals(MemberGroupStatus.EXPIRED)) {
 				getPerunBl().getAuditer().log(sess, "{} in {} expired.", member, group);
