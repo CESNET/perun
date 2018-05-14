@@ -870,13 +870,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	@Override
 	public void setIndirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status, boolean setAlsoDirect) throws InternalErrorException {
 		try {
-			if (setAlsoDirect) {
-				jdbc.update("UPDATE groups_members SET source_group_status=?, modified_by=?, modified_at=" + Compatibility.getSysdate() +
-						" WHERE source_group_id=? AND member_id=?", status.getCode(), sess.getPerunPrincipal().getActor(), group.getId(), member.getId());
-			} else {
-				jdbc.update("UPDATE groups_members SET source_group_status=?, modified_by=?, modified_at=" + Compatibility.getSysdate() +
-						" WHERE source_group_id=? AND group_id <> source_group_id AND member_id=?", status.getCode(), sess.getPerunPrincipal().getActor(), group.getId(), member.getId());
-			}
+			jdbc.update("UPDATE groups_members SET source_group_status=?, modified_by=?, modified_at=" + Compatibility.getSysdate() +
+					" WHERE source_group_id=? AND group_id <> source_group_id AND member_id=?", status.getCode(), sess.getPerunPrincipal().getActor(), group.getId(), member.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
