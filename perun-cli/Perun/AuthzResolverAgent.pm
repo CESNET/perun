@@ -53,4 +53,9 @@ sub unsetRole
 	return Perun::Common::callManagerMethod('unsetRole', '', @_);
 }
 
+sub getUserRoleNames
+{
+	return Perun::Common::callManagerMethod('getUserRoleNames', '', @_);
+}
+
 1;
