@@ -430,10 +430,12 @@ table.inputFormFlexTableDark {
 }
 
 /* PerunTable checkbox header */
-.GPBYFDEFD input, th .GPBYFDEIG .GPBYFDEGG input, th .GPBYFDEHG .GPBYFDEFG input {
+.GPBYFDEFD input, th .GPBYFDEIG .GPBYFDEGG input, th .GPBYFDEHG .GPBYFDEFG input, /* GWT 2.7 */
+.GPBYFDEFD input /* GWT 2.8 */
+{
     position:relative;
 }
-/* PerunTable checkbox header - GWT 2.7+ */
+/* PerunTable checkbox header - GWT 2.7+ - draft compile */
 th .com-google-gwt-user-cellview-client-CellTable-Style-cellTableHeader .com-google-gwt-user-cellview-client-CellTable-Style-cellTableFirstColumnHeader input {
 	position: relative;
 }
@@ -475,12 +477,14 @@ input[type=text], input[type=password], input[type=text]:disabled, input[type=pa
 }
 
 /* input-text in CellTables is 100% width by default */
-.GPBYFDEPC input[type=text], .GPBYFDEPD  input[type=text], .GPBYFDEPC input[type=text]:disabled, .GPBYFDEPD  input[type=text]:disabled {
+.GPBYFDEPC input[type=text], .GPBYFDEPD  input[type=text], .GPBYFDEPC input[type=text]:disabled, .GPBYFDEPD input[type=text]:disabled, /* GWT 2.7 */
+.GBG2FFLDPC input[type=text], .GBG2FFLDPD input[type=text], .GBG2FFLDPC input[type=text]:disabled, .GBG2FFLDPD input[type=text]:disabled /* GWT 2.8 */
+{
     display: block;
     width: 100%;
 }
 
-/* input-text in CellTables is 100% width by default - GWT 2.7+ */
+/* input-text in CellTables is 100% width by default - GWT 2.7+ - draft compile */
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRowCell input[type=text],
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRowCell input[type=text],
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRowCell input[type=text]:disabled,
@@ -530,7 +534,7 @@ input[type=text], input[type=password], input[type=text]:disabled, input[type=pa
     cursor: pointer;
     cursor: hand;
 }
-.green:hover, {
+.green:hover {
     background: #9CFFA7 !important;
     padding: 2px;
     cursor: pointer;
@@ -879,10 +883,10 @@ td.header {
 }
 
 /* GWT TABLE CELL STYLES */
-.GPBYFDEAE, .GPBYFDEOC, .GPBYFDEAD, .GPBYFDEBD, .GPBYFDECE, .GPBYFDEID, .GPBYFDEKD, .GPBYFDEHD, .GPBYFDEOC {
+.GPBYFDEAE, .GPBYFDEOC, .GPBYFDEAD, .GPBYFDEBD, .GPBYFDECE, .GPBYFDEID, .GPBYFDEKD, .GPBYFDEHD, .GBG2FFLDOC, .GBG2FFLDAD, .GBG2FFLDAE, .GBG2FFLDHD {
     border: 0px !important; /* disable borders */
 }
-/* GWT TABLE CELL STYLES - GWT 2.7+ */
+/* GWT TABLE CELL STYLES - GWT 2.7+ - draft compile */
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableCell,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRowCell,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRowCell,
@@ -894,14 +898,16 @@ td.header {
 
 /* Display all cells with padding */
 /* min height of all rows is based on rows with checkboxes */
-.GPBYFDEPC td, .GPBYFDEPD td {
+.GPBYFDEPC td, .GPBYFDEPD td,  /* GWT 2.7 */
+.GBG2FFLDPC td, .GBG2FFLDPD td /* GWT 2.8 */
+{
     min-height: 22px;
     padding-top: 4px;
     padding-bottom: 4px;
 }
 
 /* Display all cells with padding */
-/* min height of all rows is based on rows with checkboxes - GWT 2.7+ */
+/* min height of all rows is based on rows with checkboxes - GWT 2.7+ - draft compile */
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRow td,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRow td,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRow td {
@@ -910,13 +916,15 @@ td.header {
 	padding-bottom: 4px;
 }
 
-.GPBYFDEPC td div, .GPBYFDEPD td div {
+.GPBYFDEPC td div, .GPBYFDEPD td div,  /* GWT 2.7 */
+.GBG2FFLDPC td div, .GBG2FFLDPD td div /* GWT 2.8 */
+{
     height: 100%;
     width: 100%;
     min-height: 22px;
     line-height: 22px;
 }
-/* GWT 2.7+ */
+/* GWT 2.7+ - draft compile */
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRow td div,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRow td div,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRow td div {
@@ -926,11 +934,13 @@ td.header {
 	line-height: 22px;
 }
 
-.GPBYFDEPC td div > *, .GPBYFDEPD td div > * {
+.GPBYFDEPC td div > *, .GPBYFDEPD td div > *, /* GWT 2.7 */
+.GBG2FFLDPC td div > *, .GBG2FFLDPD td div  > * /* GWT 2.8 */
+{
     width: auto;
     height: auto;
 }
-/* GWT 2.7+ */
+/* GWT 2.7+ - draft compile */
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRow td div > *,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRow td div > *,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRow td div > * {
@@ -938,13 +948,15 @@ td.header {
 	height: auto;
 }
 
-.GPBYFDEPC td div > *.customClickableTextCell, .GPBYFDEPD td div > *.customClickableTextCell {
+.GPBYFDEPC td div > *.customClickableTextCell, .GPBYFDEPD td div > *.customClickableTextCell,  /* GWT 2.7 */
+.GBG2FFLDPC td div > *.customClickableTextCell, .GBG2FFLDPD td div  > *.customClickableTextCell /* GWT 2.8 */
+{
     min-height: 22px;
     line-height: 22px;
     padding-top: 0px;
     padding-bottom: 0px;
 }
-/* GWT 2.7+ */
+/* GWT 2.7+ - draft compile */
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRow td div > *.customClickableTextCell,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRow td div > *.customClickableTextCell,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRow td div > *.customClickableTextCell {
@@ -954,7 +966,9 @@ td.header {
 	padding-bottom: 0px;
 }
 
-.GPBYFDEPC td div a.customClickableTextCell, .GPBYFDEPD td div a.customClickableTextCell {
+.GPBYFDEPC td div a.customClickableTextCell, .GPBYFDEPD td div a.customClickableTextCell,  /* GWT 2.7 */
+.GBG2FFLDPC td div a.customClickableTextCell, .GBG2FFLDPD td div a.customClickableTextCell /* GWT 2.8 */
+{
 
     display: block;
     min-height: 22px;
@@ -979,7 +993,7 @@ td.header {
     width: calc(100% + 15px) !important;
 
 }
-/* GWT 2.7+ */
+/* GWT 2.7+  - draft compile */
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRow td div a.customClickableTextCell,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRow td div a.customClickableTextCell,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRow td div a.customClickableTextCell {
@@ -1018,11 +1032,16 @@ td div.customTextCell {
     word-break: break-all;
 }
 
-/* header row cell + GWT 2.7+ */
-.GPBYFDEFD, .com-google-gwt-user-cellview-client-CellTable-Style-cellTableHeader .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSortableHeader {
+/* header row cell  */
+.GPBYFDEFD, /* GWT 2.7 */
+.GBG2FFLDFD, /* GWT 2.8 */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableHeader .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSortableHeader /* GWT 2.7+ - draft compile */
+{
     padding-left: 15px !important;
     padding-right: 15px !important;
 }
+
+
 
 
 /* GWT GRID TABLE STYLES*/
@@ -1105,14 +1124,19 @@ td div.customTextCell {
 
 /* FIX COLORING OF SELECTED ROWS WHEN RECOLORED */
 .GALD-WOKD .customClickableTextCell,
-.GPBYFDEBE .customClickableTextCell,
-.GPBYFDEBE .customClickableTextCell a,
+.GPBYFDEBE .customClickableTextCell, /* GWT 2.7 */
+.GPBYFDEBE .customClickableTextCell a, /* GWT 2.7 */
+.GBG2FFLDBE .customClickableTextCell, /* GWT 2.8 */
+.GBG2FFLDBE .customClickableTextCell a, /* GWT 2.8 */
 /* Style of selected row */
-tr .GPBYFDEBE,
-tr .GPBYFDEBE td,
-/* Style of cell in selected row */
-td .GPBYFDECE,
-td .GPBYFDECE .GPBYFDEHD,
+tr .GPBYFDEBE, tr .GPBYFDEBE td, /* GWT 2.7 */
+tr .GBG2FFLDBE, tr .GBG2FFLDBE td, /* GWT 2.8 */
+
+/* Style of cell in selected row - GWT 2.7 */
+td .GPBYFDECE, td .GPBYFDECE .GPBYFDEHD,
+/* Style of cell in selected row - GWT 2.8 */
+td .GBG2FFLDCE, td .GBG2FFLDCE .GBG2FFLDHD,
+
 .GEATBOKCOC .customClickableTextCell,
 .GEATBOKCAD .customClickableTextCell,
 .GEATBOKCCE .customClickableTextCell,
@@ -1125,6 +1149,7 @@ tr .GPBYFDEGD td,
 tr:hover .GPBYFDEGD,
 tr:hover .GPBYFDEGD td
 */
+/* GWT 2.7 */
 .GPBYFDECE .customClickableTextCell,
 .GPBYFDECE .customClickableTextCell a,
 tr .GPBYFDECE,
@@ -1132,12 +1157,21 @@ tr .GPBYFDECE td,
 .GPBYFDECE:hover .customClickableTextCell,
 .GPBYFDECE:hover .customClickableTextCell a,
 tr:hover .GPBYFDECE,
-tr:hover .GPBYFDECE td
+tr:hover .GPBYFDECE td,
+/* GWT 2.8 */
+.GBG2FFLDCE .customClickableTextCell,
+.GBG2FFLDCE .customClickableTextCell a,
+tr .GBG2FFLDCE,
+tr .GBG2FFLDCE td,
+.GBG2FFLDCE:hover .customClickableTextCell,
+.GBG2FFLDCE:hover .customClickableTextCell a,
+tr:hover .GBG2FFLDCE,
+tr:hover .GBG2FFLDCE td
 {
     color:#fff !important;
     background: none repeat scroll 0 0 #628CD5 !important;
 }
-/* FIX COLORING OF SELECTED ROWS WHEN RECOLORED - GWT 2.7+ */
+/* FIX COLORING OF SELECTED ROWS WHEN RECOLORED - GWT 2.7+ - draft compile */
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell .customClickableTextCell,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell .customClickableTextCell a,
 tr .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell,
@@ -1145,7 +1179,18 @@ tr .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell:hover .customClickableTextCell,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell:hover .customClickableTextCell a,
 tr:hover .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell,
-tr:hover .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell td {
+tr:hover .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell td
+/* GWT 2.8
+.GBG2FFLDHD .customClickableTextCell,
+.GBG2FFLDHD .customClickableTextCell a,
+tr .GBG2FFLDHD,
+tr .GBG2FFLDHD td,
+.GBG2FFLDHD:hover .customClickableTextCell,
+.GBG2FFLDHD:hover .customClickableTextCell a,
+tr:hover .GBG2FFLDHD,
+tr:hover .GBG2FFLDHD td
+*/
+{
 	color:#fff !important;
 	background: none repeat scroll 0 0 #628CD5 !important;
 }
