@@ -3,10 +3,8 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.impl.CacheManager;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -15,8 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Simona Kruppova
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TransactionConfiguration(transactionManager = "perunTestTransactionManager", defaultRollback = true)
-@Transactional
+@Transactional(transactionManager = "perunTestTransactionManager")
 public class AttributesManagerEntryIntegrationCacheTest extends AttributesManagerEntryIntegrationTestAbstract {
 
 	private final static String CLASS_NAME = "AttributesManagerCache.";
@@ -26,5 +23,11 @@ public class AttributesManagerEntryIntegrationCacheTest extends AttributesManage
 		super.setUp();
 		super.setClassName(CLASS_NAME);
 		CacheManager.setCacheDisabled(false);
+		perun.getCacheManager().newTopLevelTransaction();
+	}
+
+	@After
+	public void rollback() {
+		perun.getCacheManager().rollback();
 	}
 }

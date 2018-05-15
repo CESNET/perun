@@ -515,6 +515,10 @@ public class PerunBlImpl implements PerunBl {
 		this.attributesManagerImpl = attributesManagerImpl;
 	}
 
+	public AttributesManagerImplApi getAttributesManagerImpl() {
+		return attributesManagerImpl;
+	}
+
 	@Override
 	public boolean isPerunReadOnly() {
 		return BeansUtils.isPerunReadOnly();

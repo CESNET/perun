@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Holder;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
@@ -69,6 +70,16 @@ public interface CacheManagerApi {
 	 * @throws InternalErrorException
 	 */
 	List<Attribute> getUserFacilityAttributesForAnyUser(int facilityId) throws InternalErrorException;
+
+	/**
+	 * Gets all <b>non-empty</b> attributes associated with the user and any facility.
+	 * Should be used only if wasCacheUpdatedInTransaction is false, else may return incorrect results.
+	 *
+	 * @param user User
+	 * @return list of attributes
+	 * @throws InternalErrorException
+	 */
+	List<Attribute> getAllUserFacilityAttributes(User user) throws InternalErrorException;
 
 	/**
 	 * Gets all attributes associated with the primary holder and secondary holder which have name in list attrNames (empty and virtual too).

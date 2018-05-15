@@ -57,7 +57,7 @@ public abstract class AbstractPerunIntegrationTest {
 	@Autowired
 	protected PerunBl perun;
 
-	protected PerunSession sess;
+	protected static PerunSession sess;
 
 	protected SortedSet<User> usersForDeletion = new TreeSet<User>();
 	protected Set<Host> hostsForDeletion = new HashSet<Host>();

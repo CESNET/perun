@@ -1,6 +1,14 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributeHolders;
+import cz.metacentrum.perun.core.api.AttributeIdWithHolders;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Holder;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
@@ -521,6 +529,23 @@ public class CacheManager implements CacheManagerApi {
 						.and().not().having(VALUE).isNull()
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.toBuilder().build();
+
+		return query.list();
+	}
+
+	@Override
+	public List<Attribute> getAllUserFacilityAttributes(User user) throws InternalErrorException {
+		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
+
+		org.infinispan.query.dsl.Query query =
+				qf.from(AttributeHolders.class)
+						.having(PRIMARY_HOLDER + "." + HOLDER_TYPE).eq(Holder.HolderType.USER)
+						.and().having(PRIMARY_HOLDER + "." + HOLDER_ID).eq(user.getId())
+						.and().having(SECONDARY_HOLDER + "." + HOLDER_TYPE).eq(Holder.HolderType.FACILITY)
+						.and().having(NAMESPACE).in(getNonEmptyAttributesNamespaces(Holder.HolderType.USER, Holder.HolderType.FACILITY))
+						.and().not().having(VALUE).isNull()
+						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
+						.build();
 
 		return query.list();
 	}

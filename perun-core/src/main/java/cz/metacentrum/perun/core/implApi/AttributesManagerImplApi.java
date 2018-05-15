@@ -523,6 +523,7 @@ public interface AttributesManagerImplApi {
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the user on the all facilities.
+	 * This method doesn't use cache.
 	 *
 	 * @param sess perun session
 	 * @param user
