@@ -10,8 +10,12 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Holder;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
+import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +29,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 
 	private final static String CLASS_NAME = "CacheManager.";
 
-	private CacheManager cacheManager;
+	private static CacheManager cacheManager;
 
 	private static int id = 0;
 
@@ -55,6 +59,12 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		cacheManager.clearCache();
 
 		this.setUpHolders();
+	}
+
+	@AfterClass
+	public static void initializeCache() throws Exception {
+		//Initialize cache again after this test class ended
+		cacheManager.initialize(sess, ((PerunBlImpl)sess.getPerun()).getAttributesManagerImpl());
 	}
 
 	private void setUpHolders() {
@@ -516,7 +526,6 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 
 		List<AttributeDefinition> attributeDefinitions = setUpAttributesDefinitions();
 		List<AttributeDefinition> returnedAttrDefinitions = cacheManager.getAttributesDefinitions();
-
 		assertEquals("returned attributes are not same as stored", attributeDefinitions, returnedAttrDefinitions);
 	}
 

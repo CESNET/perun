@@ -5,13 +5,14 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -26,16 +27,12 @@ import static org.junit.Assert.*;
  * @author Simona Kruppova
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TransactionConfiguration(transactionManager = "perunTestTransactionManager", defaultRollback = true)
-@Transactional
+@Transactional(transactionManager = "perunTestTransactionManager")
 public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 
 	private final static String CLASS_NAME = "CacheManagerTransactions.";
 
-	private CacheManager cacheManager;
-
-	@Autowired
-	private AttributesManagerImplApi attributesManagerImpl;
+	private static CacheManager cacheManager;
 
 	private static int id = 0;
 
@@ -57,6 +54,12 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		cacheManager.clearCache();
 
 		this.setUpWorld();
+	}
+
+	@AfterClass
+	public static void initializeCache() throws Exception {
+		//Initialize cache again after this test class ended
+		cacheManager.initialize(sess, ((PerunBlImpl)sess.getPerun()).getAttributesManagerImpl());
 	}
 
 	private void setUpWorld() throws Exception {
@@ -106,7 +109,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 
 		assertEquals("returned attribute definition is not same as stored", attributeDefinition, cacheManager.getAttributeDefinition(attributeDefinition.getId()));
 
-		cacheManager.deleteAttribute(attributeDefinition.getId(), sess, attributesManagerImpl);
+		cacheManager.deleteAttribute(attributeDefinition.getId(), sess, ((PerunBlImpl)perun).getAttributesManagerImpl());
 
 		try {
 			cacheManager.getAttributeDefinition(attributeDefinition.getId());
@@ -146,7 +149,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		assertEquals("returned attribute is not same as stored", groupAttr, cacheManager.getAttributeByName(groupAttr.getName(), groupHolder, null));
 		assertEquals("returned attribute is not same as stored", groupAttr, cacheManager.getAttributeByName(groupAttr.getName(), groupHolder1, null));
 
-		cacheManager.deleteAttribute(groupAttr.getId(), sess, attributesManagerImpl);
+		cacheManager.deleteAttribute(groupAttr.getId(), sess, ((PerunBlImpl)perun).getAttributesManagerImpl());
 
 		assertEquals("entityless attribute definition should exist", entitylessAttrDef, cacheManager.getAttributeDefinition(entitylessAttrDef.getId()));
 		assertEquals("group attribute should exist", groupAttr1, cacheManager.getAttributeByName(groupAttr1.getName(), groupHolder, null));
@@ -176,9 +179,9 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		Attribute groupAttr = setUpGroupAttributeForAttributesManager();
 		Attribute groupAttr1 = setUpGroupAttribute1ForAttributesManager();
 		Attribute entitylessAttr = setUpEntitylessAttributeForAttributesManager();
-		attributesManagerImpl.setAttribute(sess, group, groupAttr);
-		attributesManagerImpl.setAttribute(sess, group, groupAttr1);
-		attributesManagerImpl.setAttribute(sess, subject, entitylessAttr);
+		((PerunBlImpl)perun).getAttributesManagerImpl().setAttribute(sess, group, groupAttr);
+		((PerunBlImpl)perun).getAttributesManagerImpl().setAttribute(sess, group, groupAttr1);
+		((PerunBlImpl)perun).getAttributesManagerImpl().setAttribute(sess, subject, entitylessAttr);
 
 		Holder groupHolder = new Holder(group.getId(), Holder.HolderType.GROUP);
 
@@ -186,9 +189,9 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		assertEquals("returned attribute is not same as stored", groupAttr1, cacheManager.getAttributeByName(groupAttr1.getName(), groupHolder, null));
 		assertEquals("returned attribute is not same as stored", entitylessAttr, cacheManager.getEntitylessAttribute(entitylessAttr.getName(), subject));
 
-		int numOfAttrDefs = attributesManagerImpl.getAttributesDefinition(sess).size();
+		int numOfAttrDefs = ((PerunBlImpl)perun).getAttributesManagerImpl().getAttributesDefinition(sess).size();
 
-		attributesManagerImpl.deleteAttribute(sess, groupAttr);
+		((PerunBlImpl)perun).getAttributesManagerImpl().deleteAttribute(sess, groupAttr);
 
 		// commit is needed, else getAttributesDefinitions will not work (because index is updated only after commit happens)
 		cacheManager.commit();
@@ -837,7 +840,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 
 	private AttributeDefinition setUpAttributeDefinitionForAttributesManager(String namespace, String friendlyName) throws AttributeDefinitionExistsException, InternalErrorException {
 		AttributeDefinition attributeDefinition = setUpAttributeDefinition(namespace, friendlyName);
-		return attributesManagerImpl.createAttribute(sess, attributeDefinition);
+		return ((PerunBlImpl)perun).getAttributesManagerImpl().createAttribute(sess, attributeDefinition);
 	}
 
 	private AttributeDefinition setUpAttributeDefinitionForCacheManager(String namespace, String friendlyName) throws InternalErrorException {
