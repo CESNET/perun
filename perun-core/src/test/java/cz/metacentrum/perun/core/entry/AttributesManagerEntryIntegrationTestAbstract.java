@@ -424,7 +424,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		g_gn_BBB_def.setDescription("groupName in namespace BBB");
 		g_gn_BBB_def.setFriendlyName("unixGroupName-namespace:" + namespaceBBB);
 		g_gn_BBB_def.setType(String.class.getName());
-		g_gn_BBB_def = perun.getAttributesManagerBl().createAttribute(sess, g_gn_BBB_def);
+		perun.getAttributesManagerBl().createAttribute(sess, g_gn_BBB_def);
 
 		//create attribute gid in namespace aaa
 		AttributeDefinition g_gid_AAA_def = new AttributeDefinition();
@@ -448,7 +448,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		r_gn_AAA_def.setDescription("groupName in namespace AAA");
 		r_gn_AAA_def.setFriendlyName("unixGroupName-namespace:" + namespaceAAA);
 		r_gn_AAA_def.setType(String.class.getName());
-		r_gn_AAA_def = perun.getAttributesManagerBl().createAttribute(sess, r_gn_AAA_def);
+		perun.getAttributesManagerBl().createAttribute(sess, r_gn_AAA_def);
 
 		//create attribute group_name in namespace aaa
 		AttributeDefinition r_gn_BBB_def = new AttributeDefinition();
@@ -456,7 +456,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		r_gn_BBB_def.setDescription("groupName in namespace BBB");
 		r_gn_BBB_def.setFriendlyName("unixGroupName-namespace:" + namespaceBBB);
 		r_gn_BBB_def.setType(String.class.getName());
-		r_gn_BBB_def = perun.getAttributesManagerBl().createAttribute(sess, r_gn_BBB_def);
+		perun.getAttributesManagerBl().createAttribute(sess, r_gn_BBB_def);
 
 		//create attribute gid in namespace aaa
 		AttributeDefinition r_gid_AAA_def = new AttributeDefinition();
@@ -464,7 +464,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		r_gid_AAA_def.setDescription("gid in namespace AAA");
 		r_gid_AAA_def.setFriendlyName("unixGID-namespace:" + namespaceAAA);
 		r_gid_AAA_def.setType(Integer.class.getName());
-		r_gid_AAA_def = perun.getAttributesManagerBl().createAttribute(sess, r_gid_AAA_def);
+		perun.getAttributesManagerBl().createAttribute(sess, r_gid_AAA_def);
 
 		//create attribute gid in namespace bbb
 		AttributeDefinition r_gid_BBB_def = new AttributeDefinition();
@@ -472,7 +472,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		r_gid_BBB_def.setDescription("gid in namespace BBB");
 		r_gid_BBB_def.setFriendlyName("unixGID-namespace:" + namespaceBBB);
 		r_gid_BBB_def.setType(Integer.class.getName());
-		r_gid_BBB_def = perun.getAttributesManagerBl().createAttribute(sess, r_gid_BBB_def);
+		perun.getAttributesManagerBl().createAttribute(sess, r_gid_BBB_def);
 
 		//Create special enviroment
 		Vo v1 = new Vo(0, "TestingVo01", "TestingVo01");
@@ -493,21 +493,19 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		perun.getResourcesManagerBl().assignGroupToResource(sess, g1, r1);
 		perun.getResourcesManagerBl().assignGroupToResource(sess, g1, r2);
 
-		//Create minGID and maxGID for new namespace
-		AttributeDefinition maxGIDAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:entityless:attribute-def:def:namespace-maxGID");
-		Attribute maxGIDAAA = new Attribute(maxGIDAttrDef);
-		maxGIDAAA.setValue(10000);
-		Attribute maxGIDBBB = new Attribute(maxGIDAttrDef);
-		maxGIDBBB.setValue(10000);
-		AttributeDefinition minGIDAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:entityless:attribute-def:def:namespace-minGID");
-		Attribute minGIDAAA = new Attribute(minGIDAttrDef);
-		minGIDAAA.setValue(100);
-		Attribute minGIDBBB = new Attribute(minGIDAttrDef);
-		minGIDBBB.setValue(100);
-		perun.getAttributesManagerBl().setAttribute(sess, namespaceAAA, minGIDAAA);
-		perun.getAttributesManagerBl().setAttribute(sess, namespaceBBB, minGIDBBB);
-		perun.getAttributesManagerBl().setAttribute(sess, namespaceAAA, maxGIDAAA);
-		perun.getAttributesManagerBl().setAttribute(sess, namespaceBBB, maxGIDBBB);
+		//Create attribute def entityless gidRanges
+		AttributeDefinition gidRangesAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
+
+		//Create gidRanges for new namespace
+		Attribute gidRangesAAA = new Attribute(gidRangesAttrDef);
+		Attribute gidRangesBBB = new Attribute(gidRangesAttrDef);
+		Map<String, String> gidRangesValue = new LinkedHashMap<>();
+		gidRangesValue.put("100", "10000");
+		gidRangesAAA.setValue(gidRangesValue);
+		gidRangesBBB.setValue(gidRangesValue);
+
+		perun.getAttributesManagerBl().setAttribute(sess, namespaceAAA, gidRangesAAA);
+		perun.getAttributesManagerBl().setAttribute(sess, namespaceBBB, gidRangesBBB);
 
 		//set new namespace for facility (gid and groupName)
 		AttributeDefinition groupNameNamespaceForFacilitiesAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:facility:attribute-def:def:unixGroupName-namespace");
@@ -528,15 +526,15 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		perun.getResourcesManagerBl().assignService(sess, r1, s1);
 		perun.getResourcesManagerBl().assignService(sess, r2, s1);
 
+		//Create attribute virt facility gidRanges
+		AttributeDefinition gidRangesVirtualAttrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_VIRT + ":GIDRanges");
+
 		//create other required attributes and add them to the service
-		AttributeDefinition f_v_maxGID = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:facility:attribute-def:virt:maxGID");
-		AttributeDefinition f_v_minGID = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:facility:attribute-def:virt:minGID");
 		AttributeDefinition g_v_gn = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:group_resource:attribute-def:virt:unixGroupName");
 		AttributeDefinition g_v_gid = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:group_resource:attribute-def:virt:unixGID");
 		perun.getServicesManagerBl().addRequiredAttribute(sess, s1, groupNameNamespaceForFacilitiesAttrDef);
 		perun.getServicesManagerBl().addRequiredAttribute(sess, s1, GIDNamespaceForFacilitiesAttrDef);
-		perun.getServicesManagerBl().addRequiredAttribute(sess, s1, f_v_maxGID);
-		perun.getServicesManagerBl().addRequiredAttribute(sess, s1, f_v_minGID);
+		perun.getServicesManagerBl().addRequiredAttribute(sess, s1, gidRangesVirtualAttrDef);
 		perun.getServicesManagerBl().addRequiredAttribute(sess, s1, g_v_gn);
 		perun.getServicesManagerBl().addRequiredAttribute(sess, s1, g_v_gid);
 

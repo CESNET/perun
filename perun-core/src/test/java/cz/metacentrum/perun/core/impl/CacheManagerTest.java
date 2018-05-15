@@ -516,7 +516,6 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 
 		List<AttributeDefinition> attributeDefinitions = setUpAttributesDefinitions();
 		List<AttributeDefinition> returnedAttrDefinitions = cacheManager.getAttributesDefinitions();
-
 		assertEquals("returned attributes are not same as stored", attributeDefinitions, returnedAttrDefinitions);
 	}
 
