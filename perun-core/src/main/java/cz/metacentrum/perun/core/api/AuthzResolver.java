@@ -176,6 +176,21 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Get all user role names. Role is defined as a name, translation table is in Role class.
+	 *
+	 * @param sess perun session
+	 * @param user User
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @return list of integers, which represents role from enum Role.
+	 */
+	public static List<String> getUserRoleNames(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+		((PerunBl) sess.getPerun()).getUsersManagerBl().checkUserExists(sess, user);
+
+		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.getUserRoleNames(sess, user);
+	}
+
+	/**
 	 * Returns user which is associated with credentials used to log-in to Perun.
 	 *
 	 * @param sess perun session

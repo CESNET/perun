@@ -28,6 +28,17 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		}
 	},
 	/*#
+	 * Returns list of user's role names.
+	 * 
+	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
+	 * @return List<String> List of roles
+	 */
+	getUserRoleNames {
+		@Override
+		public List<String> call(ApiCaller ac, Deserializer parms ) throws PerunException {
+			return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoleNames(ac.getSession(), ac.getUserById(parms.readInt("user"))); } 
+	},
+	/*#
 	 * Get all managers for complementaryObject and role with specified attributes.
 	 *
 	 * @param role String Expected Role to filter managers by (perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator)
