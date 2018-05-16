@@ -96,6 +96,7 @@ if (defined $entitylessSubj) {
 	if ( $attributeDefinition->getNamespace !~ /.*entityless.*/) { die "ERROR: wrong attribute, entityless attribute is needed\n"; }  
 }
 
+my @attributes;
 my %parameters;
 if (defined $entitylessSubj) {
 	unless (defined $attributeName) {
@@ -104,8 +105,9 @@ if (defined $entitylessSubj) {
 	}
 	$parameters{attributeName}=$attributeName;
 	$parameters{key}=$entitylessSubj;
+	@attributes = $attributesAgent->getAttribute( %parameters );
 } else {
-	$parameters{attributeId} = $attributeId;
+#	$parameters{attributeId} = $attributeId;
 	defined ($userId) and $parameters{user} = $userId;
 	defined ($facilityId) and $parameters{facility} = $facilityId;
 	defined ($memberId) and $parameters{member} = $memberId;
@@ -116,7 +118,44 @@ if (defined $entitylessSubj) {
 	defined ($uesId) and $parameters{userExtSource} = $uesId;
 }
 
-my @attributes = $attributesAgent->getAttribute( %parameters );
+# find if exists combination of entered parameters
+my $is=0;
+if (exists($parameters{'resource'}) and exists($parameters{'member'})) {
+	my $resourcesAgent = $agent->getResourcesAgent;
+	my @members = $resourcesAgent->getAssignedMembers( resource => $resourceId );		             	
+	foreach my $member ( @members) {
+		if ($member->getId == $memberId) { $is=1;}
+	}
+	if ($is == 0) { die "ERROR: member is not assigned to resource \n";}
+}
+
+if (exists($parameters{'resource'}) and exists($parameters{'group'})) {
+	my $resourcesAgent = $agent->getResourcesAgent;
+	my @groups = $resourcesAgent->getAssignedGroups( resource => $resourceId );		             	
+	foreach my $group ( @groups) {
+		if ($group->getId == $groupId) { $is=1;}
+	}
+	if ($is == 0) { die "ERROR: group is not assigned to resource \n";}
+}
+
+if (exists($parameters{'member'}) and exists($parameters{'group'})) {
+	my $groupsAgent = $agent->getGroupsAgent;
+        
+	$is = $groupsAgent->isGroupMember(group => $groupId, member => $memberId);
+
+	if ($is == 0) { die "ERROR: member is not a member of group \n";}
+}
+
+if (exists($parameters{'user'}) and exists($parameters{'facility'})) {
+	my $facAgent = $agent->getFacilitiesAgent;
+	my @facilities = $facAgent->getAssignedFacilities( user => $userId );
+	foreach my $facility ( @facilities) {
+		if ($facility->getId == $facilityId) { $is=1;}
+	}
+	if ($is == 0) { die "ERROR: facility is not assigned to user \n";}
+}
+
+@attributes = $attributesAgent->getAttributes( %parameters );
 
 unless (@attributes) {
 	printMessage "No Attribute found", $batch;
@@ -127,8 +166,15 @@ unless (@attributes) {
 my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
 $table->setCols( 'ID', 'Name', 'Type','isUnique', 'Value' );
 
+my $aa=0;
 foreach my $attribute (sort $sortingFunction @attributes) {
-	$table->addRow( $attribute->getId, $attribute->getName, $attribute->getType, $attribute->isUniqueToPrint, $attribute->getValueAsScalar );
+        if ($attribute->getId == $attributeId) {
+		$table->addRow( $attribute->getId, $attribute->getName, $attribute->getType, $attribute->isUniqueToPrint, $attribute->getValueAsScalar );
+		$aa++;
+	}
 }
-
-print tableToPrint($table, $batch);
+if ($aa>0) { 
+	print tableToPrint($table, $batch);
+} else {
+	printMessage "Attribute not set", $batch;
+}
