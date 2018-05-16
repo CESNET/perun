@@ -28,18 +28,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private static final String SET_ROLE = "SET";
 
 	/**
-	 * Retrieves information about the perun principal (in which VOs the principal is admin, ...)
-	 *
-	 * @param sess perunSession
-	 * @throws InternalErrorException when problem
-	 */
-	protected static void init(PerunSession sess) throws InternalErrorException {
-		log.trace("Initializing AuthzResolver for [{}]", sess.getPerunPrincipal());
-		refreshAuthz(sess);
-		log.trace("AuthzResolver: Complete PerunPrincipal: {}", sess.getPerunPrincipal());
-	}
-
-	/**
 	 * Checks if the principal is authorized.
 	 *
 	 * @param sess                perunSession
@@ -54,7 +42,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		// We need to load additional information about the principal
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
-			init(sess);
+			refreshAuthz(sess);
 		}
 
 		// If the user has no roles, deny access
@@ -134,7 +122,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		// We need to load additional information about the principal
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
-			init(sess);
+			refreshAuthz(sess);
 		}
 
 		// If the user has no roles, deny access
@@ -1009,7 +997,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	public static List<String> getPrincipalRoleNames(PerunSession sess) throws InternalErrorException {
 		// We need to load the principals roles
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
-			init(sess);
+			refreshAuthz(sess);
 		}
 
 		return sess.getPerunPrincipal().getRoles().getRolesNames();
@@ -1024,7 +1012,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	public static User getLoggedUser(PerunSession sess) throws UserNotExistsException, InternalErrorException {
 		// We need to load additional information about the principal
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
-			init(sess);
+			refreshAuthz(sess);
 		}
 		return sess.getPerunPrincipal().getUser();
 	}
@@ -1038,14 +1026,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @return perunPrincipal object
 	 * @throws InternalErrorException if the PerunSession is not valid.
 	 */
-	public static PerunPrincipal getPerunPrincipal(PerunSession sess) throws InternalErrorException, UserNotExistsException {
+	public static PerunPrincipal getPerunPrincipal(PerunSession sess) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
-		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
-			init(sess);
-		} else {
-			refreshAuthz(sess);
-		}
+		refreshSession(sess);
 
 		return sess.getPerunPrincipal();
 	}
@@ -1220,7 +1204,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			User user = perunBl.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor());
 			sess.getPerunPrincipal().setUser(user);
 		} catch (Exception ex) {
-			// we don't care that user was not found
+			// we don't care that user was not found - clear it from session
+			sess.getPerunPrincipal().setUser(null);
 		}
 
 		AuthzResolverBlImpl.refreshAuthz(sess);

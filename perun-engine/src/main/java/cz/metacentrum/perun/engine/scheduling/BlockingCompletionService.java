@@ -2,6 +2,7 @@ package cz.metacentrum.perun.engine.scheduling;
 
 import cz.metacentrum.perun.engine.exceptions.TaskExecutionException;
 
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 
 /**
@@ -39,5 +40,23 @@ public interface BlockingCompletionService<V>{
 	 * @throws TaskExecutionException when worker failed
 	 */
 	V blockingTake() throws InterruptedException, TaskExecutionException;
+
+	/**
+	 * Return map of currently running Tasks. This map must NEVER be modified outside BlockingCompletionService !!
+	 * Its only for inspection reasons !!
+	 *
+	 * @return map of running Futures and Tasks
+	 */
+	ConcurrentMap<Future<V>, V> getRunningTasks();
+
+	/**
+	 * Remove Future from running tasks in completion service and release blocking semaphore.
+	 * This should be called only if we are sure, that Future is either stuck (running for more than
+	 * rescheduleTime) or GenCollector / SendCollector is not running and finished and failed Tasks are kept
+	 * in completion service.
+	 *
+	 * @param future to be removed
+	 */
+	void removeStuckTask(Future<V> future);
 
 }

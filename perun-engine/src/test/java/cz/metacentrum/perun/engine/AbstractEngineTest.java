@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -150,8 +149,8 @@ public abstract class AbstractEngineTest {
 		sendTask4.setReturnCode(0);
 
 		sendTaskFalse = new SendTask(task2, destination1);
-		sendTask4.setStartTime(new Date(System.currentTimeMillis()));
-		sendTask4.setStatus(SendTask.SendTaskStatus.SENDING);
+		sendTaskFalse.setStartTime(new Date(System.currentTimeMillis()));
+		sendTaskFalse.setStatus(SendTask.SendTaskStatus.SENDING);
 		sendTaskFalse.setReturnCode(1);
 	}
 

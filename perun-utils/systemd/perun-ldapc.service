@@ -1,0 +1,21 @@
+# Systemd unit file for perun-ldapc
+#
+# This is usefull only for RHEL instance.
+# On Debian we use init.d scripts and systemd unit is created on first service call
+#
+
+[Unit]
+Description=Perun-LDAPc
+After=perun.service
+
+[Service]
+Type=forking
+ExecStart=/bin/bash /home/perun/perun-ldapc/start_ldapc.sh
+ExecStop=/bin/bash /home/perun/perun-ldapc/stop_ldapc.sh
+#SuccessExitStatus=143
+User=perun
+Group=perun
+
+[Install]
+WantedBy=multi-user.target
+

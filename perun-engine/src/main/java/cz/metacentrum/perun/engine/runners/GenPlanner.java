@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.engine.runners;
 
-
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
 import cz.metacentrum.perun.engine.scheduling.GenWorker;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
@@ -17,16 +16,28 @@ import java.io.File;
 import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.Future;
 
 import static cz.metacentrum.perun.taskslib.model.Task.TaskStatus.GENERATING;
 
 /**
- * This class takes all new Tasks received from Dispatcher, and puts in a queue where they wait to be generated.
+ * This class represents permanently running thread, which should run in a single instance.
+ *
+ * It takes all new Tasks received from Dispatcher (from newTasks blocking deque),
+ * and put them to BlockingGenExecutorCompletionService. Processing waits on call of blockingSubmit()
+ *
+ * Expected Task status change PLANNED -> GENERATING is reported to Dispatcher.
+ *
+ * @see SchedulingPool#getNewTasksQueue()
+ * @see BlockingGenExecutorCompletionService
+ * @see GenWorkerImpl
+ *
+ * @author David Šarman
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class GenPlanner extends AbstractRunner {
-	private final static Logger log = LoggerFactory
-			.getLogger(GenPlanner.class);
+
+	private final static Logger log = LoggerFactory.getLogger(GenPlanner.class);
+
 	@Autowired
 	private SchedulingPool schedulingPool;
 	@Autowired
@@ -50,33 +61,35 @@ public class GenPlanner extends AbstractRunner {
 			try {
 				log.debug("Getting new Task in the newTasks BlockingDeque");
 				Task task = newTasks.take();
-				GenWorker worker = new GenWorkerImpl(task, directory);
-				Future<Task> taskFuture = genCompletionService.blockingSubmit(worker);
-				schedulingPool.addGenTaskFutureToPool(task.getId(), taskFuture);
+				/*
+				!! Change status immediately, so it won't be picked by PropagationMaintainer#endStuckTasks()
+				because we might be waiting on blockingSubmit() here !!
+				*/
 				task.setStatus(GENERATING);
-				task.setGenStartTime(new Date(System.currentTimeMillis()));
+				GenWorker worker = new GenWorkerImpl(task, directory);
+				genCompletionService.blockingSubmit(worker);
 				try {
 					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), task.getGenStartTime().getTime());
 				} catch (JMSException e) {
-					log.warn("Could not send Tasks [{}] GEN status update.", task);
+					log.warn("[{}] Could not send Tasks {} GEN status update: {}", task.getId(), task, e);
 				}
 			} catch (InterruptedException e) {
+
 				String errorStr = "Thread executing GEN tasks was interrupted.";
 				log.error(errorStr, e);
 				throw new RuntimeException(errorStr, e);
+
 			} catch (Throwable ex) {
-				// FIXME - what to do ?
-				log.error("Unexpected exception in GenPlanner thread: {}.", ex);
+				log.error("Unexpected exception in GenPlanner thread. Stuck Tasks will be cleaned by PropagationMaintainer#endStuckTasks() later {}.", ex);
 			}
 		}
 	}
 
 	@Autowired
 	public void setPropertiesBean(Properties propertiesBean) {
-		log.debug("TESTSTR --> Gen property bean set");
 		if (propertiesBean != null) {
-			log.debug("TESTSTR --> Gen script path from properties is {}", propertiesBean.getProperty("engine.genscript.path"));
 			directory = new File(propertiesBean.getProperty("engine.genscript.path"));
 		}
 	}
+
 }

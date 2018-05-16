@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -50,7 +49,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-base.xml", "classpath:perun-core.xml" })
-@Rollback
 @Transactional(transactionManager = "springTransactionManager")
 public abstract class AbstractPerunIntegrationTest {
 

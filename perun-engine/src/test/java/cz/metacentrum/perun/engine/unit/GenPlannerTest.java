@@ -47,7 +47,6 @@ public class GenPlannerTest extends AbstractEngineTest{
 		spy.run();
 
 		verify(genCompletionServiceMock, times(1)).blockingSubmit(any(GenWorker.class));
-		verify(schedulingPoolMock, times(1)).addGenTaskFutureToPool(task1.getId(), futureMock);
 		verify(jmsQueueManagerMock, times(1)).reportTaskStatus(
 				eq(task1.getId()), eq(task1.getStatus()), eq(task1.getGenStartTime().getTime()));
 

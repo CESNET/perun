@@ -163,4 +163,9 @@ sub isGroupMember
 	return Perun::Common::callManagerMethod('isGroupMember', '' , @_);
 }
 
+sub moveGroup
+{
+	return Perun::Common::callManagerMethod('moveGroup', '', @_);
+}
+
 1;

@@ -168,7 +168,7 @@ public class JMSQueueManager {
 		synchronized(producer) {
 			producer.send(message, DeliveryMode.PERSISTENT, 2, 0);
 		}
-		log.info("TaskResult for {} reported and destination {} sent to dispatcher.", taskResult.getTaskId(),
+		log.info("[{}] TaskResult for destination {} sent to dispatcher.", taskResult.getTaskId(),
 				taskResult.getDestinationId());
 	}
 
@@ -177,7 +177,7 @@ public class JMSQueueManager {
 				+ propertiesBean.getProperty("engine.unique.id") + ":"
 				+ id + ":" + status + ":" + miliseconds);
 		producer.send(message, DeliveryMode.PERSISTENT, 6, 0);
-		log.info("Task with id {} reported state {} to dispatcher.", id, status);
+		log.info("[{}] Task state {} sent to dispatcher.", id, status);
 	}
 
 	public void sendGoodByeAndClose() {

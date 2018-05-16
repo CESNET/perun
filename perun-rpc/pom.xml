@@ -19,7 +19,7 @@
 
 	<properties>
 		<skipTests>true</skipTests>
-		<tomcat7.plugin.tomcat.version>7.0.56</tomcat7.plugin.tomcat.version>
+		<tomcat7.plugin.tomcat.version>7.0.85</tomcat7.plugin.tomcat.version>
 	</properties>
 
 	<!-- common module build settings used by all profiles -->

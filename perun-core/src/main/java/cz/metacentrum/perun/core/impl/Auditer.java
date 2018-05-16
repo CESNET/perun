@@ -29,13 +29,16 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.sql.Array;
 import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -392,37 +395,6 @@ public class Auditer {
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
 			storeMessagesToDb(messages);
 		}
-
-		for(AuditerMessage message: messages) {
-			for(VirtualAttributesModuleImplApi virtAttrModuleImplApi : registeredAttributesModules) {
-				log.info("Message {} is given to module {}", message.getMessage(), virtAttrModuleImplApi.getClass().getSimpleName());
-
-				List<String> resolvingMessages = new ArrayList<String>();
-				try {
-					resolvingMessages.addAll(virtAttrModuleImplApi.resolveVirtualAttributeValueChange((PerunSessionImpl) message.getOriginaterPerunSession(), message.getMessage()));
-				} catch (InternalErrorException ex) {
-					log.error("Error when auditer trying to resolve messages in modules.", ex);
-				} catch (WrongAttributeAssignmentException ex) {
-					log.error("Error when auditer trying to resolve messages in modules.", ex);
-				} catch (WrongReferenceAttributeValueException ex) {
-					log.error("Error when auditer trying to resolve messages in modules.", ex);
-				} catch (AttributeNotExistsException ex) {
-					log.error("Error when auditer trying to resolve messages in modules.", ex);
-				} catch (Exception ex) {
-					log.info("An uncaught exception happened when trying to resolve message: {} in module {}, exception: {}",
-							message, virtAttrModuleImplApi.getAttributeDefinition().getFriendlyName(), ex);
-					throw ex;
-				}
-
-				if(!resolvingMessages.isEmpty()) {
-					List<AuditerMessage> resolvingAuditerMessages = new ArrayList<>();
-					for(String msg : resolvingMessages) {
-						resolvingAuditerMessages.add(new AuditerMessage(message.getOriginaterPerunSession(), msg));
-					}
-					storeMessagesToDb(resolvingAuditerMessages);
-				}
-			}
-		}
 	}
 
 	/**
@@ -533,18 +505,53 @@ public class Auditer {
 	}
 
 	/**
-	 * Stores the auditer messages to the DB in batch.
+	 * Stores the list of auditer messages to the DB in batch.
 	 *
-	 * @param messages list of AuditerMessages
+	 * It also checks if there are any messages which can be resolved by registered attribute modules.
+	 * Store these resolved messages too.
+	 *
+	 * @param auditerMessages list of AuditerMessages
 	 */
-	public void storeMessagesToDb(final List<AuditerMessage> messages) {
+	public void storeMessagesToDb(final List<AuditerMessage> auditerMessages) {
+		//Avoid working with empty list of auditer-messages
+		if(auditerMessages == null || auditerMessages.isEmpty()) {
+			log.trace("Trying to store empty list of messages to DB!");
+			return;
+		}
+
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
+
+			//Add all possible resolving messages to the bulk
+			try {
+				List<String> messages = new ArrayList<>();
+
+				//Get perun session from the first message (all sessions should be same from the same principal)
+				PerunSessionImpl session = (PerunSessionImpl) auditerMessages.get(0).getOriginaterPerunSession();
+
+				for (AuditerMessage auditerMessage : auditerMessages) {
+					messages.add(auditerMessage.getMessage());
+				}
+
+				//Check recursively all messages if they can create any resolving message
+				List<String> resolvingMessages = checkRegisteredAttributesModules(session, messages, new ArrayList<>());
+
+				//Add all resolving messages to the list of messages which will be written into the database in the batch
+				if (!resolvingMessages.isEmpty()) {
+					for (String resolvingMessage : resolvingMessages) {
+						auditerMessages.add(new AuditerMessage(session, resolvingMessage));
+					}
+				}
+			} catch (Throwable ex) {
+				log.error("There is a problem with processing resolving messages! It will be forcibly skipped to prevent unexpected behavior of auditer log!", ex);
+			}
+
+			//Write all messages to the database
 			try {
 				jdbc.batchUpdate("insert into auditer_log (id, msg, actor, created_at, created_by_uid) values (?,?,?," + Compatibility.getSysdate() + ",?)",
 						new BatchPreparedStatementSetter() {
 							@Override
 							public void setValues(PreparedStatement ps, int i) throws SQLException {
-								final AuditerMessage auditerMessage = messages.get(i);
+								final AuditerMessage auditerMessage = auditerMessages.get(i);
 								final String message = auditerMessage.getMessage();
 								final PerunSession session = auditerMessage.getOriginaterPerunSession();
 								log.info("AUDIT: {}", message);
@@ -560,11 +567,11 @@ public class Auditer {
 
 							@Override
 							public int getBatchSize() {
-								return messages.size();
+								return auditerMessages.size();
 							}
 						});
 			} catch (RuntimeException e) {
-				log.error("Cannot store auditer log message in batch for list ['{}'], exception: {}", messages, e);
+				log.error("Cannot store auditer log message in batch for list ['{}'], exception: {}", auditerMessages, e);
 			} catch (InternalErrorException e) {
 				log.error("Could not get system date identifier for the DB", e);
 			}
@@ -572,31 +579,19 @@ public class Auditer {
 	}
 
 	/**
-	 * Store the message to the DB.
+	 * Stores the message to the DB.
+	 *
+	 * It also checks if there are any messages which can be resolved by registered attribute modules.
+	 * Store these resolved messages too.
 	 *
 	 * @param sess
 	 * @param message
 	 */
 	public void storeMessageToDb(final PerunSession sess, final String message) {
-		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
-			try {
-				final int msgId = Utils.getNewId(jdbc, "auditer_log_id_seq");
-				jdbc.execute("insert into auditer_log (id, msg, actor, created_at, created_by_uid) values (?,?,?," + Compatibility.getSysdate() + ",?)",
-						new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-							public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-								ps.setInt(1, msgId);
-								lobCreator.setClobAsString(ps, 2, message);
-								ps.setString(3, sess.getPerunPrincipal().getActor());
-								ps.setInt(4, sess.getPerunPrincipal().getUserId());
-							}
-				}
-				);
-			} catch (RuntimeException e) {
-				log.error("Cannot store auditer log message ['{}'], exception: {}", message, e);
-			} catch (InternalErrorException e) {
-				log.error("Cannot get unique id for new auditer log message ['{}'], exception: {}", message, e);
-			}
-		}
+		ArrayList<AuditerMessage> auditerMessages = new ArrayList<>();
+		AuditerMessage auditerMessage = new AuditerMessage(sess, message);
+		auditerMessages.add(auditerMessage);
+		this.storeMessagesToDb(auditerMessages);
 	}
 
 	public void createAuditerConsumer(String consumerName) throws InternalErrorException {
@@ -789,6 +784,70 @@ public class Auditer {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	/**
+	 * Takes a list of input messages (messages) and list of already resolved messages (alreadyResolvedMessages). Then it process
+	 * these messages by all registered modules and for every such module can generate new resolved messages. If any resolved message was
+	 * generated by processing input messages it will check if there is a cycle (module X is generating message for module Y and otherwise)
+	 * and if not, it will continue by processing these new input messages by calling itself in recursion. It also updates the list of
+	 * already resolved messages and send this updated list too. If no new resolved message was generated, recursion will stop and
+	 * returns the list of all resolved messages.
+	 *
+	 * This method is recursive.
+	 *
+	 * When cycle is detected, method will end the recursion and return already generated resolved messages. Also inform about
+	 * this state to the error log. In this case list of resolved messages can be incomplete.
+	 *
+	 * @param session perun session
+	 * @param messages input messages which can cause generating of new resolving messages by registered attr modules
+	 * @param alreadyResolvedMessages list of all already generated messages (used for checking a cycle between two or more registered modules)
+	 *
+	 * @return list of all resolved messages generated by registered attr modules
+	 */
+	private List<String> checkRegisteredAttributesModules(PerunSession session, List<String> messages, List<String> alreadyResolvedMessages) {
+		List<String> addedResolvedMessages = new ArrayList<>();
+		for(String message: messages) {
+			for(VirtualAttributesModuleImplApi virtAttrModuleImplApi : registeredAttributesModules) {
+				log.info("Message {} is given to module {}", message, virtAttrModuleImplApi.getClass().getSimpleName());
+
+				try {
+					addedResolvedMessages.addAll(virtAttrModuleImplApi.resolveVirtualAttributeValueChange((PerunSessionImpl) session, message));
+				} catch (InternalErrorException ex) {
+					log.error("Error when auditer trying to resolve messages in modules.", ex);
+				} catch (WrongAttributeAssignmentException ex) {
+					log.error("Error when auditer trying to resolve messages in modules.", ex);
+				} catch (WrongReferenceAttributeValueException ex) {
+					log.error("Error when auditer trying to resolve messages in modules.", ex);
+				} catch (AttributeNotExistsException ex) {
+					log.error("Error when auditer trying to resolve messages in modules.", ex);
+				} catch (Exception ex) {
+					log.error("An unexpected exception happened when trying to resolve message: {} in module {}, exception: {}",
+							message, virtAttrModuleImplApi.getAttributeDefinition().getFriendlyName(), ex);
+				}
+			}
+		}
+
+		//We still have new resolving messages, so we need to detect if there isn't cycle and if not, continue the recursion
+		if(!addedResolvedMessages.isEmpty()) {
+			//Cycle detection
+			Iterator<String> msgIterator = addedResolvedMessages.iterator();
+			while(msgIterator.hasNext()) {
+				String addedResolvedMessage = msgIterator.next();
+				//If message is already present in the list of resovling messages, remove it from the list of added resolved messages, log it and continue
+				if(alreadyResolvedMessages.contains(addedResolvedMessage)) {
+					log.error("There is a cycle for resolving message {}. This message won't be processed more than once!", addedResolvedMessage);
+					msgIterator.remove();
+				}
+			}
+			//Update list of already resolved messages
+			alreadyResolvedMessages.addAll(addedResolvedMessages);
+			//Continue of processing newly generated messages
+			return checkRegisteredAttributesModules(session, addedResolvedMessages, alreadyResolvedMessages);
+		}
+
+		//Nothing new to resolve, we can return last state
+		return alreadyResolvedMessages;
 	}
 
 	private static class ListenerThread extends Thread {

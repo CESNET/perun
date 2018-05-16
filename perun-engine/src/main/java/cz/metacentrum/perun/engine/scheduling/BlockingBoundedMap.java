@@ -10,6 +10,7 @@ import java.util.Collection;
  *
  * @author David Šarman
  */
+@Deprecated
 public interface BlockingBoundedMap<K, V> {
 
 	/**
@@ -36,5 +37,11 @@ public interface BlockingBoundedMap<K, V> {
 	 * @return All values
 	 */
 	Collection<V> values();
+
+	/**
+	 * Get all keys currently held by this blocking map
+	 * @return
+	 */
+	Collection<K> keySet();
 
 }

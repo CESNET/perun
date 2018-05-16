@@ -120,6 +120,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	public static final String perunAttrEntityID = "entityID";
 	public static final String perunAttrClientID = "OIDCClientID";
 	public static final String perunAttrGroupNames = "groupNames";
+	public static final String perunAttrInstitutionsCountries = "institutionsCountries";
 
 	//LDAP ATTRIBUTES NAMES
 	public static final String ldapAttrAssignedToResourceId = "assignedToResourceId";
@@ -159,6 +160,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	public static final String ldapAttrIsServiceUser = "isServiceUser";
 	public static final String ldapAttrIsSponsoredUser = "isSponsoredUser";
 	public static final String ldapAttrGroupNames = perunAttrGroupNames;
+	public static final String ldapAttrInstitutionsCountries = perunAttrInstitutionsCountries;
 
 	//LDAP OBJECT CLASSES
 	public static final String objectClassTop = "top";
@@ -514,7 +516,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			if(set.find()) {
 				Matcher uidMatcher = userUidNamespacePattern.matcher(this.attribute.getName());
 				Matcher loginMatcher = userLoginNamespacePattern.matcher(this.attribute.getName());
-				//USER PREFERREDMAIL WILL BE SET
+
 				if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrPreferredMail)) {
 					//this mean change of attribute preferredMail in User
 					if(this.attribute.getValue() != null) {
@@ -528,7 +530,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 							updateUserAttribute(ldapAttrMail, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
-					//USER ORGANIZATION WILL BE SET
+
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrOrganization)) {
 					if(this.attribute.getValue() != null) {
 						updateUserAttribute(ldapAttrOrganization, (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
@@ -537,7 +539,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 							updateUserAttribute(ldapAttrOrganization, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
-					//USER PHONE WILL BE SET
+
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrPhone)) {
 					if(this.attribute.getValue() != null) {
 						updateUserAttribute(ldapAttrTelephoneNumber, (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
@@ -546,7 +548,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 							updateUserAttribute(ldapAttrTelephoneNumber, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
-					//USER CERT DNS WILL BE SET (special method for updating)
+
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrUserCertDNs)) {
 					Map<String, String> certDNsMap = (this.attribute.getValue() != null) ? (Map) this.attribute.getValue() : null;
 
@@ -564,7 +566,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 						String[] subjectsArray = Arrays.copyOf(certSubjectsWithoutPrefixes.toArray(), certSubjectsWithoutPrefixes.toArray().length, String[].class);
 						ldapConnector.updateUsersAttributeInLDAP(String.valueOf(this.user.getId()), ldapAttrUserCertDNs, subjectsArray);
 					}
-				//USER BONA FIDE STATUS WILL BE SET (special method for updating)
+
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrBonaFideStatus)) {
 					if(this.attribute.getValue() != null) {
 						updateUserAttribute(ldapAttrBonaFideStatus, (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
@@ -573,19 +575,22 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 							updateUserAttribute(ldapAttrBonaFideStatus, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
-				//USER SCHAC HOME ORGANIZATIONS WILL BE SET (special method for updating)
+
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrSchacHomeOrganizations)) {
 					updateUserMultivalueAttributeInLDAP((ArrayList) this.attribute.getValue(), this.user, ldapAttrSchacHomeOrganizations);
-				//USER EDU PERSON SPCOPED AFFILIATIONS WILL BE SET (special method for updating)
+
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrEduPersonScopedAffiliations)) {
 					updateUserMultivalueAttributeInLDAP((ArrayList) this.attribute.getValue(), this.user, ldapAttrEduPersonScopedAffiliations);
-				//USER GROUP NAMES WILL BE SET (special method for updating)
+
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrGroupNames)) {
 					updateUserMultivalueAttributeInLDAP((ArrayList) this.attribute.getValue(), this.user, ldapAttrGroupNames);
-				//USER LIBRARY IDs WILL BE SET (special method for updating)
+
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrInstitutionsCountries)) {
+					updateUserMultivalueAttributeInLDAP((ArrayList) this.attribute.getValue(), this.user, ldapAttrInstitutionsCountries);
+
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrLibraryIDs)) {
 					updateUserMultivalueAttributeInLDAP((ArrayList) this.attribute.getValue(), this.user, ldapAttrLibraryIDs);
-					//USER UID NUMBER WILL BE SET
+
 				} else if(uidMatcher.find()) {
 					if(this.attribute.getValue() != null) {
 						updateUserAttribute(ldapAttrUidNumber + this.attribute.getFriendlyNameParameter(), String.valueOf((Integer) this.attribute.getValue()), LdapOperation.REPLACE_ATTRIBUTE, this.user);
@@ -594,7 +599,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 							updateUserAttribute(ldapAttrUidNumber + this.attribute.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
-					//USER LOGIN WILL BE SET
+
 				} else if(loginMatcher.find()) {
 					if(this.attribute.getValue() != null) {
 						updateUserAttribute(ldapAttrLogin + this.attribute.getFriendlyNameParameter(), (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
@@ -635,38 +640,52 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrOrganization)) {
 						updateUserAttribute(ldapAttrOrganization, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
+
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrPhone)) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrTelephoneNumber)) {
 						updateUserAttribute(ldapAttrTelephoneNumber, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
+
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrUserCertDNs)) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrUserCertDNs)) {
 						updateUserAttribute(ldapAttrUserCertDNs, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
+
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrEduPersonScopedAffiliations)) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrEduPersonScopedAffiliations)) {
 						updateUserAttribute(ldapAttrEduPersonScopedAffiliations, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
+
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrGroupNames)) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrGroupNames)) {
 						updateUserAttribute(ldapAttrGroupNames, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
+
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrInstitutionsCountries)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrInstitutionsCountries)) {
+						updateUserAttribute(ldapAttrInstitutionsCountries, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					}
+
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrBonaFideStatus)) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrBonaFideStatus)) {
 						updateUserAttribute(ldapAttrBonaFideStatus, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
+
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrSchacHomeOrganizations)) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrSchacHomeOrganizations)) {
 						updateUserAttribute(ldapAttrSchacHomeOrganizations, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
+
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrLibraryIDs)) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrLibraryIDs)) {
 						updateUserAttribute(ldapAttrLibraryIDs, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
+
 				} else if(uidMatcher.find()) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrUidNumber + this.attributeDef.getFriendlyNameParameter())) {
 						updateUserAttribute(ldapAttrUidNumber + this.attributeDef.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
+
 				} else if(loginMatcher.find()) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrLogin + this.attributeDef.getFriendlyNameParameter())) {
 						updateUserAttribute(ldapAttrLogin + this.attributeDef.getFriendlyNameParameter(), null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
@@ -849,24 +868,30 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	 * @return true if attribute is removable, false if not
 	 */
 	private boolean isRemovableUserAttribute(String attributeName) {
-		List<String> nonOptionalAttributes = new ArrayList<String>();
-		nonOptionalAttributes.add(ldapAttrMail);
-		nonOptionalAttributes.add(ldapAttrPreferredMail);
-		nonOptionalAttributes.add(ldapAttrOrganization);
-		nonOptionalAttributes.add(ldapAttrUserCertDNs);
-		nonOptionalAttributes.add(ldapAttrSchacHomeOrganizations);
-		nonOptionalAttributes.add(ldapAttrBonaFideStatus);
-		nonOptionalAttributes.add(ldapAttrEduPersonScopedAffiliations);
-		nonOptionalAttributes.add(ldapAttrLibraryIDs);
-		if(nonOptionalAttributes.contains(attributeName)) return true;
+		List<String> attributesWithoutOption = new ArrayList<String>();
+		//Attributes without option like "x-ns-namespace"
+		attributesWithoutOption.add(ldapAttrMail);
+		attributesWithoutOption.add(ldapAttrPreferredMail);
+		attributesWithoutOption.add(ldapAttrOrganization);
+		attributesWithoutOption.add(ldapAttrUserCertDNs);
+		attributesWithoutOption.add(ldapAttrSchacHomeOrganizations);
+		attributesWithoutOption.add(ldapAttrBonaFideStatus);
+		attributesWithoutOption.add(ldapAttrEduPersonScopedAffiliations);
+		attributesWithoutOption.add(ldapAttrLibraryIDs);
+		attributesWithoutOption.add(ldapAttrTelephoneNumber);
+		attributesWithoutOption.add(ldapAttrInstitutionsCountries);
+		attributesWithoutOption.add(ldapAttrGroupNames);
+		attributesWithoutOption.add(ldapAttrMemberOfPerunVo);
+		attributesWithoutOption.add(ldapAttrEduPersonPrincipalNames);
+		if(attributesWithoutOption.contains(attributeName)) return true;
 
-		List<String> optionalAttributes = new ArrayList<String>();
-		optionalAttributes.add(ldapAttrUidNumber);
-		optionalAttributes.add(ldapAttrLogin);
-		optionalAttributes.add(ldapAttrUserPassword);
-		optionalAttributes.add(ldapAttrTelephoneNumber);
+		//Attributes with option like "x-ns-namespace"
+		List<String> attributesWithOption = new ArrayList<String>();
+		attributesWithOption.add(ldapAttrUidNumber);
+		attributesWithOption.add(ldapAttrLogin);
+		attributesWithOption.add(ldapAttrUserPassword);
 
-		for(String s: optionalAttributes) {
+		for(String s: attributesWithOption) {
 			if(attributeName.startsWith(s)) return true;
 		}
 

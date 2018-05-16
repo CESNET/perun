@@ -34,7 +34,7 @@ create unique index IDX_SRVDEN_U ON service_denials(COALESCE(service_id, 0), COA
 drop index IDX_FK_SRVDEN_EXSRV;
 alter table service_denials drop constraint SRVDEN_EXSRV_FK;
 alter table service_denials drop column exec_service_id;
-alter table tasks add column service_id integer;
+alter table tasks add service_id integer;
 update tasks set service_id=(select id from (select id as exec_service_id, service_id as id from exec_services) temp where temp.exec_service_id=tasks.exec_service_id);
 alter table tasks modify service_id not null;
 alter table tasks drop constraint TASK_EXSRV_FK;
@@ -70,6 +70,8 @@ alter table user_facility_attr_values drop constraint usrfacav_u;
 alter table user_facility_attr_values add constraint usrfacav_pk primary key(user_id,facility_id,attr_id);
 alter table user_attr_values drop constraint usrav_u;
 alter table user_attr_values add constraint usrav_pk primary key(user_id,attr_id);
+CREATE TABLE facility_attr_u_values (facility_id INT NOT NULL, attr_id INT NOT NULL, attr_value nvarchar2(4000), UNIQUE (attr_id, attr_value), FOREIGN KEY (facility_id,attr_id) REFERENCES facility_attr_values ON DELETE CASCADE);
+CREATE INDEX fauv_idx ON facility_attr_u_values (facility_id, attr_id);
 CREATE TABLE group_attr_u_values (group_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),	UNIQUE (attr_id, attr_value),FOREIGN KEY (group_id,attr_id) REFERENCES group_attr_values ON DELETE CASCADE);
 CREATE INDEX gauv_idx ON group_attr_u_values (group_id, attr_id);
 CREATE TABLE group_resource_attr_u_values (group_id INT NOT NULL,resource_id INT NOT NULL,attr_id INT NOT NULL,attr_value VARCHAR(4000),UNIQUE (attr_id, attr_value),FOREIGN KEY (group_id,resource_id,attr_id) REFERENCES group_resource_attr_values ON DELETE CASCADE);

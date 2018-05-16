@@ -330,6 +330,20 @@ public interface GroupsManager {
 	List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
+	 * Return true if Member is member of the Group
+	 *
+	 * @param sess
+	 * @param group
+	 * @param member
+	 * @return true if Member is member of the Group
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws GroupNotExistsException
+	 */
+	boolean isGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+
+	/**
 	 * @param perunSession
 	 * @param group
 	 *
@@ -909,6 +923,8 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
 	 */
-	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException;
+	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 }

@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
-import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
@@ -8,7 +7,6 @@ import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.service.TaskStore;
-import cz.metacentrum.perun.taskslib.model.SendTask;
 import cz.metacentrum.perun.taskslib.model.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,19 +17,19 @@ import javax.jms.JMSException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static cz.metacentrum.perun.taskslib.model.Task.TaskStatus.*;
 
 @org.springframework.stereotype.Service(value = "schedulingPool")
 public class SchedulingPoolImpl implements SchedulingPool {
+
 	private final static Logger log = LoggerFactory.getLogger(SchedulingPoolImpl.class);
-	private final ConcurrentMap<Integer, Future<Task>> genTaskFutures = new ConcurrentHashMap<>();
-	private final ConcurrentMap<Integer, ConcurrentMap<Destination, Future<SendTask>>> sendTasks = new ConcurrentHashMap<>();
 	private final ConcurrentMap<Integer, Integer> sendTaskCount = new ConcurrentHashMap<>();
 	private final BlockingDeque<Task> newTasksQueue = new LinkedBlockingDeque<>();
 	private final BlockingDeque<Task> generatedTasksQueue = new LinkedBlockingDeque<>();
@@ -48,27 +46,12 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		this.jmsQueueManager = jmsQueueManager;
 	}
 
-	public Future<Task> addGenTaskFutureToPool(Integer id, Future<Task> taskFuture) {
-		return genTaskFutures.put(id, taskFuture);
-	}
-
-	@Override
-	public Future<SendTask> addSendTaskFuture(SendTask sendTask, Future<SendTask> sendFuture) {
-		ConcurrentMap<Destination, Future<SendTask>> sendTaskFutures = sendTasks.get(sendTask.getId().getLeft());
-		if(sendTaskFutures == null) {
-			sendTaskFutures = new ConcurrentHashMap<Destination, Future<SendTask>>();
-			sendTasks.put(sendTask.getId().getLeft(), sendTaskFutures);
-		}
-		sendTaskFutures.putIfAbsent(sendTask.getDestination(), sendFuture);
-		return sendFuture;
-	}
-
 	@Override
 	public String getReport() {
 		return "Engine SchedulingPool Task report:\n" +
-				" PLANNED: " + getTasksWithStatus(WAITING) +
-				" GENERATING:" + getTasksWithStatus(GENERATING) +
-				" SENDING:" + getTasksWithStatus(SENDING) +
+				" PLANNED: " + printListWithWhitespace(getTasksWithStatus(PLANNED)) +
+				" GENERATING:" + printListWithWhitespace(getTasksWithStatus(GENERATING)) +
+				" SENDING:" + printListWithWhitespace(getTasksWithStatus(SENDING,SENDERROR)) +
 				" SENDTASKCOUNT map: " + sendTaskCount.toString();
 	}
 
@@ -96,10 +79,12 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	 */
 	public Task addTask(Task task) throws TaskStoreException {
 		if (task.getStatus() != PLANNED) {
-			throw new IllegalArgumentException("Only Tasks with PLANNED status can be added to SchedulingPool");
+			throw new IllegalArgumentException("Only Tasks with PLANNED status can be added to SchedulingPool.");
 		}
 
+		log.debug("[{}] Adding Task to scheduling pool: {}", task.getId(), task);
 		Task addedTask = taskStore.addTask(task);
+
 		if (task.isPropagationForced()) {
 			try {
 				newTasksQueue.putFirst(task);
@@ -127,18 +112,22 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	}
 
 	@Override
-	public Integer addSendTaskCount(int taskId, int count) {
-		return sendTaskCount.put(taskId, count);
+	public Integer addSendTaskCount(Task task, int count) {
+		return sendTaskCount.put(task.getId(), count);
 	}
 
 	@Override
-	public Integer decreaseSendTaskCount(int taskId, int decrease) throws TaskStoreException {
-		Integer count = sendTaskCount.get(taskId);
+	public Integer decreaseSendTaskCount(Task task, int decrease) throws TaskStoreException {
+
+		Integer count = sendTaskCount.get(task.getId());
+		log.debug("[{}] Task SendTasks count is {}", task.getId(), count);
+
 		if (count == null) {
 			return null;
+
 		} else if (count <= 1) {
-			Task task = taskStore.getTask(taskId);
-			if (task.getStatus() != SENDERROR) {
+
+			if (!Objects.equals(task.getStatus(), SENDERROR)) {
 				task.setStatus(DONE);
 			}
 			if(task.getSendEndTime() == null) {
@@ -147,12 +136,14 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			try {
 				jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());
 			} catch (JMSException e) {
-				log.error("Error while sending final status update for Task with ID {} to Dispatcher", taskId);
+				log.error("[{}] Error while sending final status update for Task to Dispatcher", task.getId());
 			}
-			removeTask(taskId);
+			log.debug("[{}] Trying to remove Task from allTasks since its done", task.getId());
+			removeTask(task);
 			return 1;
 		} else {
-			return sendTaskCount.replace(taskId, count - decrease);
+			log.debug("[{}] Task SendTasks count lowered by {}", task.getId(), decrease);
+			return sendTaskCount.replace(task.getId(), count - decrease);
 		}
 	}
 
@@ -167,30 +158,18 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	}
 
 	@Override
-	public ConcurrentMap<Integer, Future<Task>> getGenTaskFuturesMap() {
-		return genTaskFutures;
-	}
-
-	@Override
-	public Future<Task> getGenTaskFutureById(int id) {
-		return genTaskFutures.get(id);
-	}
-
-	@Override
 	public Task removeTask(Task task) throws TaskStoreException {
 		return removeTask(task.getId());
 	}
 
 	@Override
 	public Task removeTask(int id) throws TaskStoreException {
+		log.debug("[{}] Removing Task from scheduling pool.", id);
 		Task removed = taskStore.removeTask(id);
-		Future<Task> taskFuture = genTaskFutures.get(id);
-		if (taskFuture != null) {
-			taskFuture.cancel(true);
-		}
 		if (removed != null) {
-			cancelSendTasks(id);
 			sendTaskCount.remove(id);
+		} else {
+			log.debug("[{}] Task was not in TaskStore (all tasks)", id);
 		}
 		return removed;
 	}
@@ -198,47 +177,15 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Override
 	public void clear() {
 		taskStore.clear();
-		genTaskFutures.clear();
-		sendTasks.clear();
 		sendTaskCount.clear();
 		newTasksQueue.clear();
 		generatedTasksQueue.clear();
-	}
-
-	public Future<SendTask> removeSendTaskFuture(int taskId, Destination destination) throws TaskStoreException {
-		ConcurrentMap<Destination, Future<SendTask>> destinationSendTasks = sendTasks.get(taskId);
-		if (destinationSendTasks != null) {
-			log.debug("[{}] Removing SendTask futures for destination {}", taskId, destination);
-			Future<SendTask> removed = destinationSendTasks.remove(destination);
-			if (removed != null) {
-				log.debug("[{}] Lowering SendTask future counts for destination {}", taskId, destination);
-				decreaseSendTaskCount(taskId, 1);
-			} else {
-				log.debug("[{}] SendTask future hadn't had future for destination: {}", taskId, destination);
-			}
-			return removed;
-		} else {
-			log.debug("[{}] SendTask future hadn't had any destination for: {}", taskId, taskId);
-			return null;
-		}
 	}
 
 	private void handleInterruptedException(Task task, InterruptedException e) {
 		String errorMessage = "Thread was interrupted while trying to put Task " + task + " into new Tasks queue.";
 		log.error(errorMessage, e);
 		throw new RuntimeException(errorMessage, e);
-	}
-
-	private void cancelSendTasks(int taskId) {
-		//TODO: If SendPlanner is currently planning the Task, we may not cancel all sendTasks
-		ConcurrentMap<Destination, Future<SendTask>> futureSendTasks = sendTasks.get(taskId);
-		if (futureSendTasks == null) {
-			return;
-		}
-		for (Future<SendTask> sendTaskFuture : futureSendTasks.values()) {
-			//TODO: Set the with interrupt parameter to true or not?
-			sendTaskFuture.cancel(true);
-		}
 	}
 
 	// TODO this does not belong here, move it somewhere else
@@ -256,4 +203,16 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		taskResult.setService(service);
 		return taskResult;
 	}
+
+	private String printListWithWhitespace(List<Task> list) {
+
+		if (list == null) return "[]";
+		StringJoiner joiner = new StringJoiner(", ");
+		for (Task task : list) {
+			if (task != null) joiner.add(String.valueOf(task.getId()));
+		}
+		return "[" + joiner.toString() + "]";
+
+	}
+
 }

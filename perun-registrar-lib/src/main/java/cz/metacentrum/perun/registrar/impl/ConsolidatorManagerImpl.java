@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -322,6 +323,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		value.put("extSourceType", extSourceType);
 		value.put("extSourceLoa", extSourceLoa);
 		value.put("user", user);
+		value.put("additionalInformation", sess.getPerunPrincipal().getAdditionalInformations());
 
 		// create token from actual properties
 		String token = registrarManager.getMailManager().getMessageAuthenticationCode(System.currentTimeMillis() + actor + extSourceName + extSourceType + extSourceLoa);
@@ -375,16 +377,18 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		// merge original identity into current user
 		if (originalUser == null) {
-			createExtSourceAndUserExtSource(currentUser, (String) originalIdentity.get("actor"),
+			UserExtSource ues = createExtSourceAndUserExtSource(currentUser, (String) originalIdentity.get("actor"),
 					(String)originalIdentity.get("extSourceName"), (String)originalIdentity.get("extSourceType"),
 					(Integer) originalIdentity.get("extSourceLoa"));
+			((PerunBlImpl)perun).setUserExtSourceAttributes(sess, ues, (Map<String,String>)originalIdentity.get("additionalInformation"));
 		}
 
 		// merge current identity into original user
 		if (currentUser == null) {
-			createExtSourceAndUserExtSource(originalUser, sess.getPerunPrincipal().getActor(),
+			UserExtSource ues = createExtSourceAndUserExtSource(originalUser, sess.getPerunPrincipal().getActor(),
 					sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(),
 					sess.getPerunPrincipal().getExtSourceLoa());
+			((PerunBlImpl)perun).setUserExtSourceAttributes(sess, ues, sess.getPerunPrincipal().getAdditionalInformations());
 		}
 
 		AuthzResolverBlImpl.refreshSession(sess);
@@ -403,9 +407,10 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 	 * @param extSourceName ExtSource name to add
 	 * @param extSourceType ExtSource type to add
 	 * @param loa loa in ext source
+	 * @return created UserExtSource
 	 * @throws PerunException when anything fails
 	 */
-	private void createExtSourceAndUserExtSource(User user, String actor, String extSourceName, String extSourceType, int loa) throws PerunException {
+	private UserExtSource createExtSourceAndUserExtSource(User user, String actor, String extSourceName, String extSourceType, int loa) throws PerunException {
 
 		ExtSource extSource = new ExtSource(extSourceName, extSourceType);
 		try {
@@ -419,7 +424,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		ues.setLoa(loa);
 		ues.setExtSource(extSource);
 
-		perun.getUsersManager().addUserExtSource(registrarSession, user, ues);
+		return perun.getUsersManager().addUserExtSource(registrarSession, user, ues);
 
 	}
 

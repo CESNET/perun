@@ -936,7 +936,6 @@ public interface GroupsManagerBl {
 	/**
 	 * Return true if Member is member of the Group
 	 *
-	 *
 	 * @param sess
 	 * @param group
 	 * @param member
@@ -1265,6 +1264,8 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupMoveNotAllowedException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
 	 */
-	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException;
+	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 }

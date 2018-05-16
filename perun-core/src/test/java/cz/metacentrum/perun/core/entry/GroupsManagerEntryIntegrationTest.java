@@ -2216,6 +2216,20 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.moveGroup(sess, null, group4);
 	}
 
+	@Test (expected = GroupMoveNotAllowedException.class)
+	public void moveGroupUnionExists() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupUnionExists");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+
+		perun.getGroupsManager().createGroupUnion(sess, group, group2);
+
+		groupsManagerBl.moveGroup(sess, group, group2);
+	}
+
 	@Test
 	public void moveGroup() throws Exception {
 		System.out.println(CLASS_NAME + "moveGroup");
@@ -2380,6 +2394,107 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		List<Member> members = groupsManagerBl.getGroupMembers(sess, group3);
 		assertEquals("Indirect members have to be removed from group3", 1, members.size());
+
+	}
+
+	@Test
+	public void moveGroupCheckRelations() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupCheckRelations");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+		perun.getGroupsManager().createGroup(sess, group, group2);
+
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+		perun.getGroupsManager().createGroup(sess, group3, group4);
+		perun.getGroupsManager().createGroup(sess, group4, group5);
+		perun.getGroupsManager().createGroup(sess, group4, group6);
+		perun.getGroupsManager().createGroup(sess, group5, group7);
+		perun.getGroupsManager().createGroup(sess, group6, group8);
+
+		groupsManagerBl.moveGroup(sess, group2, group4);
+
+		List<Group> relationsGroup2 = groupsManagerBl.getGroupUnions(sess, group2, false);
+		List<Group> relationsGroup3 = groupsManagerBl.getGroupUnions(sess, group3, false);
+		List<Group> relationsGroup4 = groupsManagerBl.getGroupUnions(sess, group4, true);
+
+		assertTrue("There should be relation between group2 and group4", relationsGroup2.contains(groupsManager.getGroupById(sess, group4.getId())));
+		assertTrue("There should not be relation between group3 and group4", !relationsGroup3.contains(groupsManager.getGroupById(sess, group4.getId())));
+		assertTrue("There should be reverse relation between group2 and group4", relationsGroup4.contains(groupsManager.getGroupById(sess, group2.getId())));
+
+	}
+
+	@Test
+	public void moveGroupCheckRelationsNullDestination() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupCheckRelationsNullDestination");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group3);
+		perun.getGroupsManager().createGroup(sess, group3, group4);
+		perun.getGroupsManager().createGroup(sess, group4, group5);
+		perun.getGroupsManager().createGroup(sess, group4, group6);
+		perun.getGroupsManager().createGroup(sess, group5, group7);
+		perun.getGroupsManager().createGroup(sess, group6, group8);
+
+		groupsManagerBl.moveGroup(sess, null, group4);
+
+		List<Group> relationsGroup3 = groupsManagerBl.getGroupUnions(sess, group3, false);
+		List<Group> relationsGroup4 = groupsManagerBl.getGroupUnions(sess, group4, true);
+
+		assertTrue("There should not be relation between group3 and group4", !relationsGroup3.contains(groupsManager.getGroupById(sess, group4.getId())));
+		assertTrue("There should not be relation between group3 and group4", !relationsGroup4.contains(groupsManager.getGroupById(sess, group3.getId())));
+
+	}
+
+	@Test
+	public  void moveGroupComplexTest() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupComplexTest");
+
+		vo = setUpVo();
+
+		perun.getGroupsManager().createGroup(sess, vo, group);
+
+		perun.getGroupsManager().createGroup(sess, vo, group6);
+		perun.getGroupsManager().createGroup(sess, group6, group7);
+
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+		perun.getGroupsManager().createGroup(sess, group2, group3);
+		perun.getGroupsManager().createGroup(sess, group2, group4);
+		perun.getGroupsManager().createGroup(sess, group4, group5);
+
+		Member member1 = setUpMember(vo);
+		Member member2 = setUpMember(vo);
+		Member member3 = setUpMember(vo);
+		Member member4 = setUpMember(vo);
+		Member member5 = setUpMember(vo);
+		Member member6 = setUpMember(vo);
+		Member member7 = setUpMember(vo);
+
+		groupsManagerBl.addMember(sess, group, member1);
+		groupsManagerBl.addMember(sess, group2, member2);
+		groupsManagerBl.addMember(sess, group3, member3);
+		groupsManagerBl.addMember(sess, group4, member4);
+		groupsManagerBl.addMember(sess, group5, member5);
+		groupsManagerBl.addMember(sess, group6, member6);
+		groupsManagerBl.addMember(sess, group7, member7);
+
+		groupsManagerBl.moveGroup(sess, groupsManager.getGroupById(sess, group3.getId()), groupsManager.getGroupById(sess, group6.getId()));
+		groupsManagerBl.moveGroup(sess, groupsManager.getGroupById(sess, group.getId()), groupsManager.getGroupById(sess, group2.getId()));
+		groupsManagerBl.moveGroup(sess, groupsManager.getGroupById(sess, group6.getId()), groupsManager.getGroupById(sess, group5.getId()));
+
+		List<Group> relationsGroup4 = groupsManagerBl.getGroupUnions(sess, group4, false);
+		List<Group> relationsGroup5 = groupsManagerBl.getGroupUnions(sess, group5, true);
+		List<Group> relationsGroup6 = groupsManagerBl.getGroupUnions(sess, group6, false);
+
+		assertTrue("There should not be relation between group4 and group5", !relationsGroup4.contains(groupsManager.getGroupById(sess, group5.getId())));
+		assertTrue("There should not be relation between group4 and group5", !relationsGroup5.contains(groupsManager.getGroupById(sess, group4.getId())));
+		assertTrue("There should be relation between group5 and group6", relationsGroup5.contains(groupsManager.getGroupById(sess, group6.getId())));
+		assertTrue("There should be relation between group5 and group6", relationsGroup6.contains(groupsManager.getGroupById(sess, group5.getId())));
+		assertTrue("There should be 7 members in group1", groupsManagerBl.getGroupMembers(sess, group).size() == 7);
+		assertTrue("There should be just member4 in group4", groupsManagerBl.getGroupMembers(sess, group4).contains(member4) && groupsManagerBl.getGroupMembers(sess, group4).size() == 1);
+		assertEquals("Group5 has wrong name after moving", "GroupsManagerTestGroup1:GroupsManagerTestGroup2:GroupsManagerTestGroup3:GroupsManagerTestGroup6:GroupsManagerTestGroup5", groupsManager.getGroupById(sess, group5.getId()).getName());
 
 	}
 

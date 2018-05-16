@@ -188,8 +188,6 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			throw new InternalErrorException("Moving groups is temporary disabled.");
-			/*
 			if(parms.contains("destinationGroup")) {
 				ac.getGroupsManager().moveGroup(ac.getSession(),
 						ac.getGroupById(parms.readInt("destinationGroup")),
@@ -200,7 +198,6 @@ public enum GroupsManagerMethod implements ManagerMethod {
 						ac.getGroupById(parms.readInt("movingGroup")));
 			}
 			return null;
-			*/
 		}
 	},
 
@@ -338,6 +335,25 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getGroupsManager().getGroupRichMembersWithAttributes(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
+		}
+	},
+
+	/*#
+	 * Return true if Member is member of the Group
+	 *
+	 * @param group int Group ID
+	 * @param member int Member ID
+	 * @return boolean True if Member is member of the Group
+	 *
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
+	 */
+	isGroupMember {
+
+		@Override
+		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().isGroupMember(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					ac.getMemberById(parms.readInt("member")));
 		}
 	},
 

@@ -32,14 +32,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		-->
     </bean>
 
-    <bean id="generatingTasks" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingBoundedHashMap">
-        <constructor-arg value="${engine.thread.gentasks.max}"/>
-    </bean>
-
-    <bean id="sendingSendTasks" class="cz.metacentrum.perun.engine.scheduling.impl.BlockingBoundedHashMap">
-        <constructor-arg value="${engine.thread.sendtasks.max}"/>
-    </bean>
-
     <bean id="taskStore" class="cz.metacentrum.perun.taskslib.service.impl.TaskStoreImpl"/>
 
     <bean id="schedulingPool" class="cz.metacentrum.perun.engine.scheduling.impl.SchedulingPoolImpl"/>
@@ -83,7 +75,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				<prop key="engine.cron.processpool">0 0/1 * * * ?</prop>
 				<prop key="engine.cron.taskexecutor">0 0/2 * * * ?</prop>
 				<prop key="engine.thread.gentasks.max">15</prop>
-				<prop key="engine.thread.sendtasks.max">1000</prop>
+				<prop key="engine.thread.sendtasks.max">150</prop>
 				<prop key="engine.genscript.path">gen</prop>
 				<prop key="engine.sendscript.path">send</prop>
 			</props>

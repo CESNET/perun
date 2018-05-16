@@ -17,18 +17,11 @@
 	<name>perun-web-gui</name>
 	<description>JS web application based on GWT framework which provides GUI for Perun.</description>
 
-	<scm>
-		<connection>scm:git:https://github.com/zlamalp/perun.git</connection>
-		<url>scm:git:https://github.com/zlamalp/perun.git</url>
-		<tag>HEAD</tag>
-	</scm>
-
 	<properties>
 		<!-- Convenience property to set the GWT version -->
-		<gwtVersion>2.7.0</gwtVersion>
+		<gwtVersion>2.8.2</gwtVersion>
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
 		<gui.url.modifier/>
-		<maven.compiler.source>1.7</maven.compiler.source>
 	</properties>
 
 	<!-- common build settings used by all profiles -->
@@ -108,7 +101,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>
-				<version>2.7.0</version>
+				<version>2.8.2</version>
 				<executions>
 					<execution>
 						<goals>
@@ -119,11 +112,8 @@
 				<!-- Plugin configuration. There are many available options, see
 				  gwt-maven-plugin documentation at codehaus.org -->
 				<configuration>
+					<extraJvmArgs>-Xmx1024m</extraJvmArgs>
 					<modules>
-						<!-- We use new WUI apps for these
-						<module>cz.metacentrum.perun.webgui.application-form</module>
-						<module>cz.metacentrum.perun.webgui.password-reset</module>
-						-->
 						<module>cz.metacentrum.perun.webgui.perun-web</module>
 					</modules>
 					<runTarget>PerunWeb.html</runTarget>
@@ -187,13 +177,6 @@
 
 		<dependency>
 			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-servlet</artifactId>
-			<version>${gwtVersion}</version>
-			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-user</artifactId>
 			<version>${gwtVersion}</version>
 			<scope>provided</scope>
@@ -235,7 +218,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>gwt-maven-plugin</artifactId>
-						<version>2.7.0</version>
+						<version>2.8.2</version>
 						<executions>
 							<execution>
 								<goals>
@@ -246,11 +229,8 @@
 						<!-- Plugin configuration. There are many available options, see
 						  gwt-maven-plugin documentation at codehaus.org -->
 						<configuration>
+							<extraJvmArgs>-Xmx1024m</extraJvmArgs>
 							<modules>
-								<!-- We use new WUI apps for these
-								<module>cz.metacentrum.perun.webgui.application-form-prod</module>
-								<module>cz.metacentrum.perun.webgui.password-reset-prod</module>
-								-->
 								<module>cz.metacentrum.perun.webgui.perun-web-prod</module>
 							</modules>
 							<runTarget>PerunWeb.html</runTarget>

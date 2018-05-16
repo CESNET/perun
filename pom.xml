@@ -10,13 +10,13 @@
 	<version>3.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<!-- Spring Platform as parent project - this project inherits versions of dependencies and plugins -->
-	<!-- see http://docs.spring.io/platform/docs/current/reference/htmlsingle/#getting-started-using-spring-io-platform-maven -->
-	<!-- update Spring by changing the version here to the current release displayed at http://platform.spring.io/platform/ -->
+	<!-- Spring Boot Starter Parent as parent project - this project inherits versions of dependencies and plugins -->
+	<!-- see https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-build-systems.html#using-boot-maven-parent-pom -->
+	<!-- update Spring by changing the version here to the current release displayed at https://projects.spring.io/spring-boot/ -->
 	<parent>
-		<groupId>io.spring.platform</groupId>
-		<artifactId>platform-bom</artifactId>
-		<version>Brussels-SR7</version>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.2.RELEASE</version>
 		<relativePath/>
 	</parent>
 
@@ -63,26 +63,32 @@
 		<!-- by default we run perun in memory -->
 		<spring.profiles.default>default</spring.profiles.default>
 
-		<!-- redefine versions of some libraries defined by Spring platform -->
-		<postgresql.version>42.0.0</postgresql.version>
+		<!-- redefine versions of some libraries defined by Spring Boot Starter Parent -->
+		<postgresql.version>42.2.2</postgresql.version>
 		<hsqldb.version>2.3.2</hsqldb.version> <!-- 2.3.3 fails GroupsManagerEntryIntegrationTest.addAdminWhenAlreadyAdmin test -->
 		<javax-validation.version>1.0.0.GA</javax-validation.version>
-		<mockito.version>2.13.0</mockito.version>
-		
-		<!-- versions of libraries not defined by the Spring platform-->
+		<mockito.version>2.17.0</mockito.version>
+
+		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<cglib-nodep.version>2.2.2</cglib-nodep.version>
+		<commons-cli.version>1.4</commons-cli.version>
+		<commons-collections.version>3.2.2</commons-collections.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.4.3</expiringmap.version>
 		<google-api-services-admin-directory.version>directory_v1-rev78-1.22.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
+		<jackson1.version>1.9.13</jackson1.version>
+		<javax-activation.version>1.1.1</javax-activation.version>
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
-		<netty.version>3.2.1.Final</netty.version>
+		<json.version>20140107</json.version>
+		<netty3.version>3.2.1.Final</netty3.version>
 		<opencsv.version>3.3</opencsv.version>
 		<oracle.version>12.2.0.1.0</oracle.version>
 		<recaptcha4j.version>0.0.7</recaptcha4j.version>
 		<smack.version>3.1.0</smack.version>
+		<taglibs-standard.version>1.2.5</taglibs-standard.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS
@@ -420,7 +426,7 @@
 			<dependency>
 				<groupId>org.jboss.netty</groupId>
 				<artifactId>netty</artifactId>
-				<version>${netty.version}</version>
+				<version>${netty3.version}</version>
 			</dependency>
 
 			<dependency>
@@ -428,12 +434,6 @@
 				<artifactId>jboss-jms-api</artifactId>
 				<version>${jboss-jms-api.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>${jackson.version}</version>
-			</dependency>
-
 		</dependencies>
 	</dependencyManagement>
 

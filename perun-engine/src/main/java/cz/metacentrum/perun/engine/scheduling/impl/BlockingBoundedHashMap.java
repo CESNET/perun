@@ -20,6 +20,7 @@ import java.util.concurrent.Semaphore;
  * @param <K> key class
  * @param <V> value class
  */
+@Deprecated
 public class BlockingBoundedHashMap<K, V> implements BlockingBoundedMap<K, V> {
 
 	private ConcurrentMap<K, V> map = new ConcurrentHashMap<>();
@@ -54,6 +55,11 @@ public class BlockingBoundedHashMap<K, V> implements BlockingBoundedMap<K, V> {
 	@Override
 	public Collection<V> values() {
 		return map.values();
+	}
+
+	@Override
+	public Collection<K> keySet() {
+		return map.keySet();
 	}
 
 }

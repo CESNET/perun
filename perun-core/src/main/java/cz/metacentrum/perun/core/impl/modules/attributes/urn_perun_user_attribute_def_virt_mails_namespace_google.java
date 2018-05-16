@@ -27,7 +27,7 @@ import java.util.Set;
 public class urn_perun_user_attribute_def_virt_mails_namespace_google extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_mails_namespace_google.class);
-	private static final String EXTSOURCE = "https://extidp.cesnet.cz/idp/shibboleth";
+	private static final String EXTSOURCE = "https://login.cesnet.cz/google-idp/";
 	private static final String LOGIN_REGEX = "^.+[@]google[.]extidp[.]cesnet[.]cz$";
 	private static final String A_UES_MAIL = AttributesManager.NS_UES_ATTR_DEF + ":mail";
 

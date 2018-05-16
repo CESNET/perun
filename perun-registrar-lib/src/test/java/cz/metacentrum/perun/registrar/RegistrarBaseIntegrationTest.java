@@ -25,7 +25,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -40,11 +39,9 @@ import static org.junit.Assert.*;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
-@Transactional
-@TransactionConfiguration(defaultRollback=true, transactionManager = "perunTransactionManager")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-registrar-lib.xml" } )
+@Transactional(transactionManager = "perunTransactionManager")
 public class RegistrarBaseIntegrationTest {
 
 
@@ -126,7 +123,6 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 */
 
 	@Test
-	@Transactional
 	public void createAppMail() throws PerunException {
 		System.out.println("createAppMail()");
 
@@ -153,7 +149,6 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	}
 
 	@Test
-	@Transactional
 	public void createVOformIntegrationTest() throws PerunException, PrivilegeException, InternalErrorException {
 		System.out.println("createVOformIntegrationTest()");
 

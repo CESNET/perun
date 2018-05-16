@@ -114,6 +114,7 @@
 		<dependency>
 			<groupId>javax.activation</groupId>
 			<artifactId>activation</artifactId>
+			<version>${javax-activation.version}</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -152,6 +153,7 @@
 		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
+			<version>${commons-collections.version}</version>
 		</dependency>
 
 		<dependency>

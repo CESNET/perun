@@ -68,7 +68,7 @@ public class RemoveService {
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Service: "+ serviceId +" sucessfully removed from resource: "+ resourceId);
+				session.getUiElements().setLogSuccessText("Service: "+ serviceId +" successfully removed from resource: "+ resourceId);
 				events.onFinished(jso);
 			};
 
