@@ -158,4 +158,10 @@ sub getGroupUnions
 	return Perun::Common::callManagerMethod('getGroupUnions', '[]Group', @_);
 }
 
+sub moveGroup
+{
+	return Perun::Common::callManagerMethod('moveGroup', '', @_);
+}
+
+
 1;
