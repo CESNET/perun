@@ -12,7 +12,7 @@ done
 
 if [ ! ${TEST} ]; then
   #If LDAPc is running, inform us and exit without processing
-  LDAPC_PID_FILE=/home/perun/perun-ldapc/pid
+  LDAPC_PID_FILE=/var/run/perun/perun-ldapc.pid
   if [ -f "$LDAPC_PID_FILE" ]; then
     echo "LDAPc is still running, please stop it first before start initializing data!" 1>&2
     exit 10
