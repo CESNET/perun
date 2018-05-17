@@ -11,44 +11,59 @@ sub help {
 	Removes an external source from the user. User id and external login and external source id or name are required fields
 	------------------------------------
 	Available options:
-	--userId         | -u user id
-	--extSourceId    | -e external source id
-	--extSourceName  | -E external source name
-	--extSourceLogin | -l external login
-	--batch          | -b batch
-	--help           | -h prints this help
+	--userId          | -u user id
+	--extSourceId     | -e external source id
+	--extSourceName   | -E external source name
+	--extSourceLogin  | -l external login
+	--userExtSourceId | -x user external source id
+	--forceRemove     | -f remove persistent external source too
+	--batch           | -b batch
+	--help            | -h prints this help
 
 	};
 }
 
-my ($userId, $extSourceId, $extSourceName, $extSourceLogin, $batch);
+my ($userId, $extSourceId, $extSourceName, $extSourceLogin, $batch, $force,$userExtSourceId);
 GetOptions ("help|h"     => sub {
 		print help();
 		exit 0;
 	}, "userId|u=i"      => \$userId,
-	"extSourceId|e=i"    => \$extSourceId, "extSourceName|E=s" => \$extSourceName,
-	"extSourceLogin|l=s" => \$extSourceLogin, "batch|b" => \$batch) || die help();
+	"extSourceId|e=i"    => \$extSourceId, 
+	"extSourceName|E=s" => \$extSourceName,
+	"extSourceLogin|l=s" => \$extSourceLogin, 
+	"userExtSourceId|x=i" => \$userExtSourceId,
+	"forceRemove|f" => \$force,
+	"batch|b" => \$batch) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
-unless (defined($extSourceId) or defined($extSourceName)) { die "ERROR: extSourceId or extSourceName is required \n";}
+unless (defined $userExtSourceId) {
+	if ((!defined($extSourceId) and !defined($extSourceName)) or !defined($extSourceLogin)) { die "ERROR: extSourceId or extSourceName and extSourceLogin is required \n";}
+}
 
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
 my $extSourcesAgent = $agent->getExtSourcesAgent;
 
 my $extSource;
-if ($extSourceId) {
-	$extSource = $extSourcesAgent->getExtSourceById( id => $extSourceId );
+unless (defined $userExtSourceId) {
+	if ($extSourceId) {
+		$extSource = $extSourcesAgent->getExtSourceById( id => $extSourceId );
+	}
+	elsif ($extSourceName) {
+		$extSource = $extSourcesAgent->getExtSourceByName( name => $extSourceName );
+		$extSourceId = $extSource->getId;
+	}
+
+	my $userExtSource = $usersAgent->getUserExtSourceByExtLogin( "extSource" => $extSource, "extSourceLogin" => $extSourceLogin );
+	$userExtSourceId=$userExtSource->getId;
 }
-if ($extSourceName) {
-	$extSource = $extSourcesAgent->getExtSourceByName( name => $extSourceName );
-	$extSourceId = $extSource->getId;
+
+if (defined $force) {
+	$usersAgent->removeUserExtSource( user => $userId, userExtSource => $userExtSourceId, force => 1 );
+} else {
+	$usersAgent->removeUserExtSource( user => $userId, userExtSource => $userExtSourceId );
 }
 
-my $userExtSource = $usersAgent->getUserExtSourceByExtLogin( "extSource" => $extSource, "extSourceLogin" =>
-	$extSourceLogin );
-
-$usersAgent->removeUserExtSource( user => $userId, userExtSource => $userExtSource->getId );
-
-printMessage("External Source: $extSourceId with login: $extSourceLogin removed from user Id: $userId", $batch);
+printMessage("External Source: $extSourceId with login: $extSourceLogin removed from user Id: $userId", $batch) if defined $extSourceLogin;
+printMessage("User external Source: $userExtSourceId removed from user Id: $userId", $batch) if defined $userExtSourceId;
