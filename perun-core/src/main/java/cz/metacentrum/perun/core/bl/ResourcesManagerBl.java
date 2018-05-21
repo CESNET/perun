@@ -69,10 +69,11 @@ public interface ResourcesManagerBl {
 	 *                      copy all group-resource and member-resource attributes and assign all groups same as on templateResource,
 	 *                   if set to true and resources ARE NOT from the same VO InternalErrorException is thrown,
 	 *                   if set to false we will NOT copy groups and group related attributes.
+	 * @throws ResourceExistsException
 	 * @throws InternalErrorException
-	 * @throws ResourceNotExistsException
+	 * @throws FacilityNotExistsException
 	 */
-	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException;
+	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException, FacilityNotExistsException;
 
 	/**
 	 *  Deletes resource by id.

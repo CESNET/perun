@@ -105,16 +105,13 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		Utils.notNull(destinationResource, "Destination Resource");
 		getResourcesManagerBl().checkResourceExists(sess, templateResource);
 
-		Facility destinationFacility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, destinationResource.getFacilityId());
-		Facility templateResourceFacility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, templateResource.getFacilityId());
-
-		//check if user is facility admin of template resource's facility
-		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, templateResourceFacility)) {
+		//check if user is facility admin of the template resource
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, templateResource)) {
 			throw new PrivilegeException(sess, "User is not facility admin of template Resource's facility.");
 		}
 
-		//check if user is facility admin of destination's facility
-		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationFacility)) {
+		//check if user is facility admin of the destination resource
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationResource)) {
 			throw new PrivilegeException(sess, "User is not facility admin of destination Resource's facility.");
 		}
 
