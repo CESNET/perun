@@ -156,6 +156,46 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Set specific user type for specific user and set ownership of this user for the owner.
+	 *
+	 * @param specificUser int User <code>id</code>
+	 * @param specificUserType String specific user type
+	 * @param owner int User <code>id</code>
+	 * @return User user with specific type set
+	 */
+	setSpecificUser {
+
+		@Override
+		public User call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			User owner = ac.getUserById(parms.readInt("owner"));
+			User specificUser = ac.getUserById(parms.readInt("specificUser"));
+			SpecificUserType specificUserType = SpecificUserType.valueOf(parms.readString("specificUserType"));
+
+			return ac.getUsersManager().setSpecificUser(ac.getSession(), specificUser, specificUserType, owner);
+		}
+	},
+
+	/*#
+	 * Remove all ownerships of this specific user and unset this specific user type from this specific user.
+	 *
+	 * @param specificUser int User <code>id</code>
+	 * @param specificUserType String specific user type
+	 * @return User user without specific user type set
+	 */
+	unsetSpecificUser {
+
+		@Override
+		public User call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			User specificUser = ac.getUserById(parms.readInt("specificUser"));
+			SpecificUserType specificUserType = SpecificUserType.valueOf(parms.readString("specificUserType"));
+
+			return ac.getUsersManager().unsetSpecificUser(ac.getSession(), specificUser, specificUserType);
+		}
+	},
+
+	/*#
 	 * Get User to RichUser without attributes.
 	 *
 	 * @param user int user <code>id</code>

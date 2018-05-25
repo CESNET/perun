@@ -136,6 +136,42 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Transform non-sponsored member to sponsored one with defined sponsor
+	 *
+	 * @param sponsoredMember int member's ID
+	 * @param sponsor int sponsor's ID
+	 * @return RichMember sponsored member which was newly set
+	 */
+	setSponsorshipForMember {
+		@Override
+		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
+			ac.stateChangingCheck();
+			Member sponsoredMember = ac.getMemberById(params.readInt("sponsoredMember"));
+			User sponsor = null;
+			if (params.contains("sponsor")) {
+				sponsor = ac.getUserById(params.readInt("sponsor"));
+			}
+			return ac.getMembersManager().setSponsorshipForMember(ac.getSession(), sponsoredMember, sponsor);
+		}
+	},
+
+	/*#
+	 * Transform sponsored member to non-sponsored one. Delete all his sponsors.
+	 *
+	 * @param sponsoredMember int member's ID
+	 *
+	 * @return RichMember non-sponsored member
+	 */
+	unsetSponsorshipForMember {
+		@Override
+		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
+			ac.stateChangingCheck();
+			Member sponsoredMember = ac.getMemberById(params.readInt("sponsoredMember"));
+			return ac.getMembersManager().unsetSponsorshipForMember(ac.getSession(), sponsoredMember);
+		}
+	},
+
+	/*#
 	 * For an existing member, assigns a new sponsor.
 	 *
 	 * Can be called only by VO admin.

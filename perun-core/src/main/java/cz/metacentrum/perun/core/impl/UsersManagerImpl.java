@@ -353,6 +353,48 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public User setSpecificUserType(PerunSession sess, User user, SpecificUserType specificUserType) throws InternalErrorException {
+		try {
+			if(specificUserType.equals(SpecificUserType.SERVICE)) {
+				jdbc.update("update users set service_acc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
+						"1", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+				user.setServiceUser(true);
+			} else if(specificUserType.equals(SpecificUserType.SPONSORED)) {
+				jdbc.update("update users set sponsored_acc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
+						"1", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+				user.setSponsoredUser(true);
+			} else {
+				throw new InternalErrorException("Unsupported specific user type " + specificUserType.getSpecificUserType());
+			}
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+
+		return user;
+	}
+
+	@Override
+	public User unsetSpecificUserType(PerunSession sess, User user, SpecificUserType specificUserType) throws InternalErrorException {
+		try {
+			if(specificUserType.equals(SpecificUserType.SERVICE)) {
+				jdbc.update("update users set service_acc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
+						"0", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+				user.setServiceUser(false);
+			} else if(specificUserType.equals(SpecificUserType.SPONSORED)) {
+				jdbc.update("update users set sponsored_acc=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
+						"0", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
+				user.setSponsoredUser(false);
+			} else {
+				throw new InternalErrorException("Unsupported specific user type " + specificUserType.getSpecificUserType());
+			}
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+
+		return user;
+	}
+
+	@Override
 	public User updateUser(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			User userDb = jdbc.queryForObject("select " + userMappingSelectQuery + " from users where id=? ", USER_MAPPER, user.getId());

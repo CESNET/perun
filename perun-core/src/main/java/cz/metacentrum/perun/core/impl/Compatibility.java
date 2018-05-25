@@ -49,6 +49,19 @@ public class Compatibility {
 		}
 	}
 
+	public static String getFalse() throws InternalErrorException {
+		switch (getDbType()) {
+			case "oracle":
+				return "'0'";
+			case "postgresql":
+				return "FALSE";
+			case "hsqldb":
+				return "FALSE";
+			default:
+				throw new InternalErrorException("unknown DB type");
+		}
+	}
+
 	public static String getSysdate() throws InternalErrorException {
 		switch (getDbType()) {
 			case "oracle":

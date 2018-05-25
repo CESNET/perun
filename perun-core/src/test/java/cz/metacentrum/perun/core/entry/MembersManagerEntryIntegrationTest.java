@@ -1382,6 +1382,31 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void setAndUnsetSponsorshipForMember() throws Exception {
+		System.out.println(CLASS_NAME + "setAndUnsetSponsorshipForMember");
+		Member sponsorMember = setUpSponsor(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,createdVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess, sponsors, sponsorMember);
+
+		Member memberToBeSponsored = setUpMember(createdVo);
+		assertTrue("member shouldn't be created as sponsored one", !memberToBeSponsored.isSponsored());
+
+		perun.getMembersManager().setSponsorshipForMember(sess, memberToBeSponsored, sponsorUser);
+
+		Member newSponsoredMember = perun.getMembersManagerBl().getMemberById(sess, memberToBeSponsored.getId());
+		assertTrue("member should be sponsored now", newSponsoredMember.isSponsored());
+		assertEquals("there should be exactly 1 sponsor at this moment",1, perun.getUsersManagerBl().getSponsors(sess, newSponsoredMember).size());
+
+		perun.getMembersManager().unsetSponsorshipForMember(sess, memberToBeSponsored);
+
+		newSponsoredMember = perun.getMembersManagerBl().getMemberById(sess, memberToBeSponsored.getId());
+		assertTrue("member shouldn't be sponsored any more",!newSponsoredMember.isSponsored());
+	}
+
+	@Test
 	public void addSponsor() throws Exception {
 		System.out.println(CLASS_NAME + "addSponsor");
 		//create user which can sponsor

@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -192,6 +193,28 @@ public interface UsersManagerImplApi {
 	 */
 	User createUser(PerunSession perunSession, User user) throws InternalErrorException;
 
+
+	/**
+	 * Set flag for specific user type for the user.
+	 *
+	 * @param sess
+	 * @param user the user
+	 * @param specificUserType specific type of user
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	User setSpecificUserType(PerunSession sess, User user, SpecificUserType specificUserType) throws InternalErrorException;
+
+	/**
+	 * Unset flag for specific user type for the user.
+	 *
+	 * @param sess
+	 * @param user the user
+	 * @param specificUserType specific type of user
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	User unsetSpecificUserType(PerunSession sess, User user, SpecificUserType specificUserType) throws InternalErrorException;
 
 	/**
 	 *  Deletes user (normal or specific) including all relations to other users (normal,specific,sponsor)

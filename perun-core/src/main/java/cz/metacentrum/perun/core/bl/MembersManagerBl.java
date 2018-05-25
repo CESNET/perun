@@ -268,6 +268,36 @@ public interface MembersManagerBl {
 	Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
+	 * Transform non-sponsored member to sponsored one with defined sponsor
+	 *
+	 * @param session perun session
+	 * @param sponsoredMember member who will be set as sponsored one
+	 * @param sponsor new sponsor of this member
+	 *
+	 * @return sponsored member
+	 *
+	 * @throws MemberNotExistsException if member not exists by defined id in system Perun
+	 * @throws AlreadySponsoredMemberException if member was already flagged as sponsored
+	 * @throws UserNotInRoleException if sponsor has not right role in the member's VO
+	 * @throws InternalErrorException if something unexpected happened
+	 */
+	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws MemberNotExistsException, AlreadySponsoredMemberException, InternalErrorException, UserNotInRoleException;
+
+	/**
+	 * Transform sponsored member to non-sponsored one. Delete all his sponsors.
+	 *
+	 * @param session perun session
+	 * @param sponsoredMember member which who be unset from sponsoring
+	 *
+	 * @return non-sponsored member
+	 *
+	 * @throws MemberNotExistsException If member not exists by defined id in system Perun
+	 * @throws MemberNotSponsoredException If member was not set as sponsored before calling this method.
+	 * @throws InternalErrorException if something unexpected happend
+	 */
+	Member unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws MemberNotExistsException, MemberNotSponsoredException, InternalErrorException;
+
+	/**
 	 * Generates account with params in given namespace, which is used to create a new Candidate for MembersManager.createSpecificMember
 	 * with SPONSORED type and is asynchronously validated after that
 	 *
