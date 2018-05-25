@@ -139,14 +139,6 @@ public class Auditer {
         }
     };
 
-    protected static final RowMapper<AuditerPublisher> AUDITER_SUBSCRIBER_MAPPER = new RowMapper<AuditerPublisher>() {
-        @Override
-        public AuditerPublisher mapRow(ResultSet resultSet, int i) throws SQLException {
-            //TODO...
-            //namapovat subscribera
-            return null;
-        }
-    };
 
     protected static final AuditerConsumerExtractor AUDITER_CONSUMER_EXTRACTOR = new AuditerConsumerExtractor();
 
@@ -206,6 +198,7 @@ public class Auditer {
      * @param sess  Perun session
      * @param event Audit event to be logged.
      * @throws InternalErrorException
+     * @author Richard Husár 445238@mail.muni.cz
      */
     public void log(PerunSession sess, Object event) throws InternalErrorException {
 
@@ -213,21 +206,18 @@ public class Auditer {
         mapper.enableDefaultTyping();
         try {
             String jsonString = mapper.writeValueAsString(event);
-            //String jsonPretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(event);
-            //transactionLogger.info("event {} to Json! jsonPretty: {}",event.getClass().getSimpleName(),getMessageWithoutMessageAttribute(jsonPretty));
             log(sess, jsonString);
 
         } catch (IOException e) {
-            //e.printStackTrace();
             log.error("Could not map event {} to JSON.", event.getClass().getSimpleName());
         }
 
     }
 
     /**
-     * Return message attribute from json formated string
+     * @author Richard Husár 445238@mail.muni.cz
      * @param jsonString
-     * @return[
+     * @return message attribute from json formated string
      */
     public String getMessageFromJsonString(String jsonString) {
         try {
@@ -247,10 +237,11 @@ public class Auditer {
     }
 
     /**
-     * Return json string without message attribute
+     *
      * removes ',' characters as well as whitespaces and newline characters before message attribute and ',' directly after message attribute
+     * @author Richard Husár 445238@mail.muni.cz
      * @param jsonString
-     * @return
+     * @return json string without message attribute
      */
     public String getMessageWithoutMessageAttribute(String jsonString){
         return jsonString.replaceAll(",?(\\r\\n|\\r|\\n)?\\s*\"message\":\".*\",?","");
@@ -505,10 +496,10 @@ public class Auditer {
             log.error("There should be only one list of messages while cleaning.");
         }
 
-        //log transactions
+        //log erased transactions to logfile
         for (List<AuditerMessage> list :transactionChain) {
             for (AuditerMessage message : list){
-                transactionLogger.error("Unstored transaction message: {}", message);
+                transactionLogger.info("Unstored transaction message: {}", message);
             }
         }
 
@@ -548,12 +539,13 @@ public class Auditer {
     /**
      * Gets last count messages from auditer_log_json
      * @param count
-     * @return
+     * @return list of last count messages from auditer_log_json
      * @throws InternalErrorException
+     * @author Richard Husár 445238@mail.muni.cz
      */
     public List<AuditMessage> getJSONMessages(int count) throws InternalErrorException {
         try {
-            return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log_json) " + Compatibility.getAsAlias("temp") + " order by id desc limit ?",
+            return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log_json ORDER BY id Desc limit ?) " + Compatibility.getAsAlias("temp"),
                     AUDITMESSAGE_MAPPER, count);
         } catch (EmptyResultDataAccessException ex) {
             return new ArrayList<AuditMessage>();
@@ -624,6 +616,7 @@ public class Auditer {
      */
     public void storeMessagesToDb(final List<AuditerMessage> messages) {
         final List<Integer> ids = new ArrayList<>();
+        final List<PubsubMechanizm.Pair<AuditerMessage,Integer>> msgs = new ArrayList<>();
         synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
 
             try {
@@ -640,6 +633,7 @@ public class Auditer {
                                     final int msgId = Utils.getNewId(jdbc, "auditer_log_id_seq");
                                     ps.setInt(1, msgId);
                                     ids.add(msgId);
+                                    msgs.add(new PubsubMechanizm.Pair<AuditerMessage,Integer>(auditerMessage,msgId));
                                 } catch (InternalErrorException e) {
                                     throw new SQLException("Cannot get unique id for new auditer log message ['" + message + "']", e);
                                 }
@@ -660,24 +654,27 @@ public class Auditer {
             }
         }
 
-        //to auditer_log_json
-        this.storeMessagesToDbJson(messages, ids);
+        this.storeMessagesToDbJson(msgs);
     }
 
-    public void storeMessagesToDbJson(final List<AuditerMessage> messages, List<Integer> ids) {
+    /**
+     * Stores messages to audit_log_JSON table
+     * @param messages takes pair of auditer message to be stored and id of message from audit_log
+     * @author Richard Husár 445238@mail.muni.cz
+     */
+    public void storeMessagesToDbJson(final List<PubsubMechanizm.Pair<AuditerMessage,Integer>> messages) {
         synchronized (LOCK_DB_TABLE_AUDITER_LOG_JSON) {
             try {
                 jdbc.batchUpdate("insert into auditer_log_json (id, msg, actor, created_at, created_by_uid) values (?,?,?," + Compatibility.getSysdate() + ",?)",
                         new BatchPreparedStatementSetter() {
                             @Override
                             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                                final AuditerMessage auditerMessage = messages.get(i);
+                                final AuditerMessage auditerMessage = messages.get(i).getLeft();
                                 //store message without duplicit message attribute because it is stored in separate table
                                 final String message = getMessageWithoutMessageAttribute(auditerMessage.getMessage());
-                                //final String message = auditerMessage.getMessage();
                                 final PerunSession session = auditerMessage.getOriginaterPerunSession();
                                 log.info("AUDIT: {}", message);
-                                ps.setInt(1, ids.get(i));
+                                ps.setInt(1, messages.get(i).getRight());
                                 ps.setString(2, message);
                                 ps.setString(3, session.getPerunPrincipal().getActor());
                                 ps.setInt(4, session.getPerunPrincipal().getUserId());
@@ -732,6 +729,13 @@ public class Auditer {
 
     }
 
+    /**
+     * Stores message to audit_log_JSON table
+     * @param sess session
+     * @param message message to be stored
+     * @param id id of message in audit_log
+     * @author Richard Husár 445238@mail.muni.cz
+     */
     public void storeMessageToDbJson(final PerunSession sess, final String message, int id) {
         synchronized (LOCK_DB_TABLE_AUDITER_LOG_JSON) {
             try {
@@ -780,27 +784,6 @@ public class Auditer {
 
     }
 
-    //create auditerSubscriber
-    public void createAuditerSubscriber(String subscriberName) throws InternalErrorException {
-        try {
-            int lastProcessedId = jdbc.queryForInt("select max(id) from auditer_log_json");
-
-            int consumerId = Utils.getNewId(jdbc, "auditer_subscribers_id_seq");
-            jdbc.update("insert into auditer_subscribers (id, name, last_processed_id) values (?,?,?)", consumerId, subscriberName, lastProcessedId);
-            log.debug("New consumer [name: '{}', lastProcessedId: '{}'] created.", subscriberName, lastProcessedId);
-        } catch (Exception e) {
-            throw new InternalErrorException(e);
-        }
-    }
-
-    public void deleteAuditerSubscriber(String subscriberName) throws InternalErrorException{
-        try{
-            jdbc.update("delete from auditer_subscribers where name=?",subscriberName);
-            log.debug("Subscriber [name: '{}'] deleted.",subscriberName );
-        }catch (Exception e){
-            throw new InternalErrorException(e);
-        }
-    }
 
     public List<String> pollConsumerMessages(String consumerName) throws InternalErrorException {
 

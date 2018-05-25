@@ -9,7 +9,6 @@ public class AttributeCreated {
     private String name = this.getClass().getName();
     private String message;
 
-
     public AttributeCreated(AttributeDefinition attribute) {
         this.attribute = attribute;
     }

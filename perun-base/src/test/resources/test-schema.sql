@@ -1268,7 +1268,7 @@ create table auditer_log_json (
 	id integer not null,         --identifier of logged event
 	msg clob not null,           --text of logging message
 	actor varchar(256) not null, --who causes the event
-	created_at date default sysdate not null ,
+	created_at timestamp default current_date not null ,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint audlogjson_pk primary key (id)

@@ -143,6 +143,12 @@ public class AuditerConsumer {
 		}
 	}
 
+	/**
+	 * Get messages from audit_log_JSON table
+	 * @return list of audit messages in string form
+	 * @throws InternalErrorException
+     * @author Richard Husár 445238@mail.muni.cz
+	 */
 	public List<String> getMessagesInJson() throws InternalErrorException {
 		try {
 			int maxId = jdbc.queryForInt("select max(id) from auditer_log");

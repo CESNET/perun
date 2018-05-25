@@ -3,7 +3,7 @@ package cz.metacentrum.perun.audit.events.FacilityManagerEvents;
 import cz.metacentrum.perun.core.api.Facility;
 
 
-public class FacilityCreated{
+public class FacilityCreated {
 
     private Facility facility;
     private String name = this.getClass().getName();

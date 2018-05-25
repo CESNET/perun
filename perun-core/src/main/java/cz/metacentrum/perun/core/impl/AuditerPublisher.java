@@ -5,32 +5,33 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
-import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * This class represents wrapper for AuditerConsumer and publishes messages recieved
+ * from AuditerConsumer to PubSub mechanizm
+ * @author Richard Husár 445238@mail.muni.cz
+ */
 public class AuditerPublisher {
     private final static Logger log = LoggerFactory.getLogger(AuditerPublisher.class);
     private AuditerConsumer consumer;
-    private static Pubsub pubsub = Pubsub.getInstance();
+    private static PubsubMechanizm pubsubMechanizm = PubsubMechanizm.getInstance();
 
 
     public AuditerPublisher(AuditerConsumer auditerConsumer) throws InternalErrorException {
         this.consumer = auditerConsumer;
     }
 
+    /**
+     * Get json messages from auditer through auditerConsumer
+     * @return audit messages in JSON
+     */
     public List<String> getMessages(){
         List<String> messages = new ArrayList<>();
 
@@ -43,7 +44,10 @@ public class AuditerPublisher {
         return messages;
     }
 
-
+    /**
+     * Deserialize messages and pulishes them into pubsubMechanizm channel
+     * @param messages messages to be parsed
+     */
     public void publishMessages(List<String> messages){
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -56,23 +60,28 @@ public class AuditerPublisher {
                 Class clazz = Class.forName(getNameOfClassAttribute(m));
                 event = mapper.readValue(m, clazz);
             } catch (JsonParseException e) {
-                log.error("Bad parse: " + e.getMessage());
+                log.error("Could not parse message: " + e.getMessage());
                 continue;
             } catch (JsonMappingException e) {
-                log.error("Bad map: " + e.getMessage());
+                log.error("Could not map message for class. " + e.getMessage());
                 continue;
             } catch (IOException e) {
-                log.error("exception: " + e.getMessage());
+                log.error("IOException at message: " + e.getMessage());
                 continue;
             } catch (ClassNotFoundException e) {
                 log.error("ClassNotFoundException: " + e.getMessage() + " for message: " + m);
                 continue;
             }
-            //forward message to pubsub channel with given topic (event class)
-            pubsub.publish(event.getClass(), event);
+            //forward message to pubsubMechanizm channel with given topic (event class)
+            pubsubMechanizm.publish(event.getClass(), event);
         }
     }
 
+    /**
+     * Get name of class from json string
+     * @param jsonString
+     * @return name of class included in json string
+     */
     public String getNameOfClassAttribute(String jsonString){
         try {
             //get everything from in between of next quotes
@@ -89,8 +98,5 @@ public class AuditerPublisher {
         }
         return "";
     }
-
-
-
 
 }
