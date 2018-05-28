@@ -492,6 +492,9 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		// Check if userExtsource is type of IDP (special testing behavior)
+		/* FIXME - temporary disable check on unique EPPN, so we could generate new UES for all users
+		   FIXME   without outage of authz process on ProxyIdP and OIDC side. Once they are switched to
+		   FIXME   new scheme, we can remove old UES and enable this check!
 		if (userExtSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 			// If extSource of this userExtSource is type of IDP, test uniqueness of login in this extSource type for all users
 			String login = userExtSource.getLogin();
@@ -499,6 +502,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			if(userExtSources.size() == 1) throw new InternalErrorException("ExtLogin: " + login + " is already in used for extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
 			else if(userExtSources.size() > 1) throw new ConsistencyErrorException("There are " + userExtSources.size() + "   extLogins: " + login + " for  extSourceType: " + ExtSourcesManager.EXTSOURCE_IDP);
 		}
+		*/
 
 		userExtSource = getUsersManagerImpl().addUserExtSource(sess, user, userExtSource);
 		getPerunBl().getAuditer().log(sess, "{} added to {}.", userExtSource, user);
@@ -2090,4 +2094,149 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 		return usersManagerImpl.findUsersWithExtSourceAttributeValueEnding(sess,attributeName,valueEnd,excludeValueEnds);
 	}
+
+	@Override
+	public Map<User,List<UserExtSource>> convertUserExtSources(PerunSession sess) throws PerunException {
+
+		ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://extidp.cesnet.cz/idp/shibboleth");
+		List<User> users = getUsersManagerImpl().getUsersByExtSource(sess, extSource);
+		Map<User,List<UserExtSource>> result = new HashMap<>();
+
+		for (User user : users) {
+
+			log.debug("[CONVERT] Processing UES of {}", user);
+			result.put(user, new ArrayList<>());
+
+			List<UserExtSource> originalUeses = getUserExtSources(sess, user);
+
+			for (UserExtSource ues : originalUeses) {
+
+				if (ues.getExtSource().equals(extSource)) {
+
+					log.debug("[CONVERT] - Processing {}", ues);
+					result.get(user).add(ues);
+
+					if (ues.getLogin().split("@").length == 2) {
+
+						String prefix = ues.getLogin().split("@")[0];
+						String suffix = ues.getLogin().split("@")[1];
+
+						if (suffix.equals("google.extidp.cesnet.cz")) {
+
+							// create new identity using old eppn
+							ExtSource newExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.cesnet.cz/google-idp/");
+							UserExtSource newUserExtSource = new UserExtSource(0, newExtSource, ues.getLogin(), user.getId(), ues.getLoa());
+							newUserExtSource = createUes(sess, user, ues, newUserExtSource);
+							log.debug("[CONVERT] - Converting {} to {}", ues, newUserExtSource);
+							result.get(user).add(newUserExtSource);
+
+						} else if (suffix.equals("orcid.extidp.cesnet.cz")) {
+
+							// create new identity using old eppn
+							ExtSource newExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.cesnet.cz/orcid-idp/");
+							UserExtSource newUserExtSource = new UserExtSource(0, newExtSource, ues.getLogin(), user.getId(), ues.getLoa());
+							newUserExtSource = createUes(sess, user, ues, newUserExtSource);
+							log.debug("[CONVERT] - Converting {} to {}", ues, newUserExtSource);
+							result.get(user).add(newUserExtSource);
+
+						} else if (suffix.equals("linkedin.extidp.cesnet.cz")) {
+
+							// create new identity using old eppn
+							ExtSource newExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.cesnet.cz/linkedin-idp/");
+							UserExtSource newUserExtSource = new UserExtSource(0, newExtSource, ues.getLogin(), user.getId(), ues.getLoa());
+							newUserExtSource = createUes(sess, user, ues, newUserExtSource);
+							log.debug("[CONVERT] - Converting {} to {}", ues, newUserExtSource);
+							result.get(user).add(newUserExtSource);
+
+						} else if (suffix.equals("facebook.extidp.cesnet.cz")) {
+
+							// FIXME - facebook must be kept, since its TargetedID and not EPPN so users can join identities in a future.
+							//getPerunBl().getUsersManagerBl().removeUserExtSource(sess, user, ues);
+							log.debug("[CONVERT] - Keeping {}", ues);
+							result.get(user).add(ues);
+
+						} else if (suffix.equals("mojeid.extidp.cesnet.cz")) {
+
+							// mojeID is not supported over old extIdP -> users already have generated new IdP ExtSource -> delete
+							getPerunBl().getUsersManagerBl().removeUserExtSource(sess, user, ues);
+							log.debug("[CONVERT] - Removing {}", ues);
+							result.get(user).add(null);
+
+						} else if (suffix.equals("extidp.cesnet.cz")) {
+
+							// this is a wrong UserExtSource
+							getPerunBl().getUsersManagerBl().removeUserExtSource(sess, user, ues);
+							log.debug("[CONVERT] - Removing {}", ues);
+							result.get(user).add(null);
+
+						}
+
+					}
+
+
+				}
+
+			}
+
+		}
+
+		//throw new InternalErrorException("Fake rollback!");
+		return result;
+
+	}
+
+	@Override
+	public Map<User,List<UserExtSource>> deleteOldUeses(PerunSession sess) throws PerunException {
+
+		ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://extidp.cesnet.cz/idp/shibboleth");
+		List<User> users = getUsersManagerImpl().getUsersByExtSource(sess, extSource);
+		Map<User, List<UserExtSource>> result = new HashMap<>();
+
+		for (User user : users) {
+
+			log.debug("[CONVERT] Processing UES of {}", user);
+			result.put(user, new ArrayList<>());
+
+			List<UserExtSource> originalUeses = getUserExtSources(sess, user);
+
+			for (UserExtSource ues : originalUeses) {
+
+				if (ues.getExtSource().equals(extSource)) {
+
+					log.debug("[CONVERT] - Processing {}", ues);
+
+					if (ues.getLogin().split("@").length == 2) {
+
+						String suffix = ues.getLogin().split("@")[1];
+
+						if (suffix.equals("google.extidp.cesnet.cz") || suffix.equals("orcid.extidp.cesnet.cz") || suffix.equals("linkedin.extidp.cesnet.cz")) {
+
+							removeUserExtSource(sess, user, ues);
+							result.get(user).add(ues);
+							log.debug("[CONVERT] - Removing {}", ues);
+
+						}
+
+					}
+				}
+			}
+
+
+		}
+		return result;
+	}
+
+	private UserExtSource createUes(PerunSession sess, User user, UserExtSource oldUserExtSource, UserExtSource newUserExtSource) throws PerunException {
+
+		newUserExtSource = getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, newUserExtSource);
+
+		List<Attribute> uesAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, oldUserExtSource);
+		// remove possible virt attrs, we can't set them !!
+		uesAttributes.removeIf(a -> a.getNamespace().startsWith(AttributesManager.NS_UES_ATTR_VIRT));
+		getPerunBl().getAttributesManagerBl().setAttributes(sess, newUserExtSource, uesAttributes);
+
+		return newUserExtSource;
+
+	}
+
 }

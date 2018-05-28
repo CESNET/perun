@@ -1270,4 +1270,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 
 	}
+
+	@Override
+	public List<User> getUsersByExtSource(PerunSession sess, ExtSource extSource) throws PerunException {
+		try {
+			return jdbc.query("select distinct " + userMappingSelectQuery + " FROM user_ext_sources left join users on users.id=user_ext_sources.user_id and ext_sources_id=?", USER_MAPPER, extSource.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 }

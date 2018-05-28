@@ -1211,4 +1211,27 @@ public class UsersManagerEntry implements UsersManager {
 			return usersManagerBl.convertUsersToRichUsersWithAttributesByNames(sess, sponsors, attrNames);
 		}
 	}
+
+	@Override
+	public Map<User, List<UserExtSource>> convertUserExtSources(PerunSession sess) throws PerunException {
+
+		Utils.checkPerunSession(sess);
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "convertUserExtSources can be called only by PERUNADMIN");
+		}
+
+		return usersManagerBl.convertUserExtSources(sess);
+	}
+
+	@Override
+	public Map<User, List<UserExtSource>> deleteOldUeses(PerunSession sess) throws PerunException {
+
+		Utils.checkPerunSession(sess);
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "deleteOldUeses can be called only by PERUNADMIN");
+		}
+
+		return usersManagerBl.deleteOldUeses(sess);
+	}
+
 }
