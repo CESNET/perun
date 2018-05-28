@@ -166,7 +166,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 				if (newPass.getTextBox().getValue().trim().equals("")) {
 					newPass.setError("Password can't be empty!");
 					return false;
-				} else if (!newPass.getTextBox().getValue().trim().equals(confPass.getTextBox().getValue().trim())) {
+				} else if (!newPass.getTextBox().getValue().equals(confPass.getTextBox().getValue())) {
 					newPass.setError("Password in both textboxes must be the same!");
 					return false;
 				} else {
@@ -184,7 +184,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 				if (confPass.getTextBox().getValue().trim().equals("")) {
 					confPass.setError("Password can't be empty!");
 					return false;
-				} else if (!confPass.getTextBox().getValue().trim().equals(newPass.getTextBox().getValue().trim())) {
+				} else if (!confPass.getTextBox().getValue().equals(newPass.getTextBox().getValue())) {
 					confPass.setError("Password in both textboxes must be the same!");
 					return false;
 				} else {
@@ -225,11 +225,11 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 				if (session.isPerunAdmin() || user.isServiceUser()) {
 					if (!validator.validateTextBox() && !validator2.validateTextBox()) return;
 					ChangePassword changepw = new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab), false);
-					changepw.changePassword(user, namespace, oldPass.getTextBox().getValue().trim(), newPass.getTextBox().getValue().trim());
+					changepw.changePassword(user, namespace, oldPass.getTextBox().getValue(), newPass.getTextBox().getValue());
 				} else {
 					if (!validator.validateTextBox() && !validator2.validateTextBox() && !oldValidator.validateTextBox()) return;
 					ChangePassword changepw = new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab), true);
-					changepw.changePassword(user, namespace, oldPass.getTextBox().getValue().trim(), newPass.getTextBox().getValue().trim());
+					changepw.changePassword(user, namespace, oldPass.getTextBox().getValue(), newPass.getTextBox().getValue());
 				}
 
 			}
@@ -282,7 +282,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 								params.put("urn:perun:user:attribute-def:core:firstName", usr.getFirstName());
 								params.put("urn:perun:user:attribute-def:core:lastName", usr.getLastName());
 								params.put("urn:perun:member:attribute-def:def:mail", usr.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
-								generateAccount.generateAccount(namespace, newPass.getTextBox().getValue().trim(), params);
+								generateAccount.generateAccount(namespace, newPass.getTextBox().getValue(), params);
 
 							}
 						}));
@@ -292,7 +292,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 
 						// NORMAL PWD LOGIC
 						CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-						create.createPassword(userId, login, namespace, newPass.getTextBox().getValue().trim());
+						create.createPassword(userId, login, namespace, newPass.getTextBox().getValue());
 
 					}
 				}
@@ -398,7 +398,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 								params.put("urn:perun:user:attribute-def:core:firstName", usr.getFirstName());
 								params.put("urn:perun:user:attribute-def:core:lastName", usr.getLastName());
 								params.put("urn:perun:member:attribute-def:def:mail", usr.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
-								generateAccount.generateAccount(namespace, newPass.getTextBox().getValue().trim(), params);
+								generateAccount.generateAccount(namespace, newPass.getTextBox().getValue(), params);
 
 							}
 						}));

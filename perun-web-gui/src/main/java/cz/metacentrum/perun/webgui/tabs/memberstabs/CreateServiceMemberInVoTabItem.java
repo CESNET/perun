@@ -182,7 +182,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 				if (serviceUserPassword.getTextBox().getValue().trim().isEmpty()) {
 					serviceUserPassword.setError("Password can't be empty !");
 					return false;
-				} else if (!serviceUserPassword.getTextBox().getValue().trim().equals(serviceUserPassword2.getTextBox().getValue().trim())) {
+				} else if (!serviceUserPassword.getTextBox().getValue().equals(serviceUserPassword2.getTextBox().getValue())) {
 					serviceUserPassword.setError("Password in both textboxes must be the same !");
 					return false;
 				} else {
@@ -200,7 +200,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 				if (serviceUserPassword2.getTextBox().getValue().trim().isEmpty()) {
 					serviceUserPassword2.setError("Password can't be empty !");
 					return false;
-				} else if (!serviceUserPassword2.getTextBox().getValue().trim().equals(serviceUserPassword.getTextBox().getValue().trim())) {
+				} else if (!serviceUserPassword2.getTextBox().getValue().equals(serviceUserPassword.getTextBox().getValue())) {
 					serviceUserPassword2.setError("Password in both textboxes must be the same !");
 					return false;
 				} else {
@@ -433,7 +433,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 													params.put("urn:perun:user:attribute-def:core:lastName", rm.getUser().getLastName());
 													params.put("urn:perun:member:attribute-def:def:mail", serviceUserEmail.getTextBox().getValue().trim());
 
-													req.generateAccount(namespaceValue, serviceUserPassword.getTextBox().getValue().trim(), params);
+													req.generateAccount(namespaceValue, serviceUserPassword.getTextBox().getValue(), params);
 
 												}
 											}));
@@ -449,7 +449,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 													req2.validateMemberAsync(member);
 												}
 											}));
-											req.createPassword(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespaceValue, serviceUserPassword.getTextBox().getValue().trim());
+											req.createPassword(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespaceValue, serviceUserPassword.getTextBox().getValue());
 
 										}
 
