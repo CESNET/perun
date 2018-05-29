@@ -183,7 +183,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	 */
 	private String getGenerateAccountRequest(PerunSession session, Map<String, String> parameters, int requestID) {
 
-		log.debug("Making request with ID: " + requestID + " to IS MU.");
+		log.debug("Making 'Generate account' request with ID: " + requestID + " to IS MU.");
 
 		String params = "";
 		if (parameters != null && !parameters.isEmpty()) {
@@ -243,7 +243,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	 */
 	private String getPwdChangeRequest(PerunSession session, String login, String newPassword, int requestID) {
 
-		log.debug("Making request with ID: " + requestID + " to IS MU.");
+		log.debug("Making 'Change password' request with ID: " + requestID + " to IS MU.");
 
 		String params = "";
 		if (newPassword != null && !newPassword.isEmpty()) params += "<heslo>" + newPassword + "</heslo>\n";
@@ -322,6 +322,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		}
 
 		log.trace("Request ID: " + requestID + " Response: " + response);
+		log.debug("Processing response to request with ID: " + requestID + " from IS MU.");
 
 		Document doc;
 		try {
@@ -357,6 +358,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		}
 
 		log.trace("Request ID: " + requestID + " Response status: " + responseStatus);
+		log.debug("Response to request with ID: " + requestID + " from IS MU has status: " + responseStatus);
 
 		if ("OK".equals(responseStatus)) {
 
@@ -424,6 +426,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 					extSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 				String login = extSource.getLogin();
 				if (login != null) {
+					log.debug(" - Action triggered by {}", login.split("@")[0]);
 					return "<zmenil>" + login.split("@")[0] + "</zmenil>\n";
 				}
 			}
