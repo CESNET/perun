@@ -5,20 +5,20 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
+import cz.metacentrum.perun.core.bl.MembersManagerBl;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,9 +40,12 @@ public class urn_perun_user_attribute_def_virt_groupNamesTest {
     private static Group group2;
 
     @Before
-    public void SetUp() throws AttributeNotExistsException, InternalErrorException, WrongAttributeAssignmentException {
+    public void SetUp() {
         classInstance = new urn_perun_user_attribute_def_virt_groupNames();
-        session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
+        session = mock(PerunSessionImpl.class);
+        when(session.getPerunBl()).thenReturn(mock(PerunBl.class));
+        when(session.getPerunBl().getMembersManagerBl()).thenReturn(mock(MembersManagerBl.class));
+        when(session.getPerunBl().getGroupsManagerBl()).thenReturn(mock(GroupsManagerBl.class));
         user = new User();
         user.setId(1);
         member1 = new Member();
@@ -72,10 +75,10 @@ public class urn_perun_user_attribute_def_virt_groupNamesTest {
         );
 
         when(session.getPerunBl().getGroupsManagerBl().getMemberGroups(session, member1)).thenReturn(
-                Arrays.asList(group1)
+                Collections.singletonList(group1)
         );
         when(session.getPerunBl().getGroupsManagerBl().getMemberGroups(session, member2)).thenReturn(
-                Arrays.asList(group2)
+                Collections.singletonList(group2)
         );
 
         when(session.getPerunBl().getMembersManagerBl().getMemberVo(session, member1)).thenReturn(
@@ -87,9 +90,14 @@ public class urn_perun_user_attribute_def_virt_groupNamesTest {
 
         Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
         assertTrue(receivedAttr.getValue() instanceof List);
-        List<String> receivedValue = (List<String>) receivedAttr.getValue();
+        List<String> receivedValue = receivedAttr.valueAsList();
 
-        List<String> expected = Arrays.asList(vo1.getShortName()+":"+group1.getName(), vo2.getShortName()+":"+group2.getName());
+        List<String> expected = Arrays.asList(
+                vo1.getShortName(),
+                vo2.getShortName(),
+                vo1.getShortName()+":"+group1.getName(),
+                vo2.getShortName()+":"+group2.getName()
+        );
         assertEquals(new HashSet<>(expected), new HashSet<>(receivedValue));
     }
 

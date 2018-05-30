@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
@@ -18,7 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +33,8 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_groupNames.class);
 	private static final String FRIENDLY_NAME = "groupNames";
 
-	private Pattern memberAddedToPattern = Pattern.compile("Member:\\[(.*)\\] added to Group:\\[(.*)\\]");
-	private Pattern memberTotallyRemovedFromPattern = Pattern.compile("Member:\\[(.*)\\] was removed from Group:\\[(.*)\\] totally");
+	private Pattern memberAddedToPattern = Pattern.compile("Member:\\[(.*)] added to Group:\\[(.*)]");
+	private Pattern memberTotallyRemovedFromPattern = Pattern.compile("Member:\\[(.*)] was removed from Group:\\[(.*)] totally");
 
 
 	@Override
@@ -42,21 +43,24 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 		List<String> groupNames = new ArrayList<>();
 
 		List<Member> members = sess.getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		Set<String> voNames = new HashSet<>();
 		for (Member member : members) {
 			Vo vo = sess.getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+			voNames.add(vo.getShortName());
 
 			List<Group> groups = sess.getPerunBl().getGroupsManagerBl().getMemberGroups(sess, member);
 			for (Group group : groups) {
 				groupNames.add(vo.getShortName() +":"+ group.getName());
 			}
 		}
+		groupNames.addAll(voNames);
 
 		attribute.setValue(groupNames);
 		return attribute;
 	}
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl sess, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl sess, String message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<String> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
@@ -73,7 +77,7 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 				String messageAttributeSet;
 
 				attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_VIRT + ":" + FRIENDLY_NAME);
-				List<String> value = (ArrayList) attribute.getValue();
+				List<String> value = attribute.valueAsList();
 
 				if (value == null || value.isEmpty()) {
 					AttributeDefinition attributeDefinition = new AttributeDefinition(attribute);
