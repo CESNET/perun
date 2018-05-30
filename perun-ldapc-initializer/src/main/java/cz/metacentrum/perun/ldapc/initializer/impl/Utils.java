@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.ldapc.initializer.utils;
+package cz.metacentrum.perun.ldapc.initializer.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -19,7 +18,6 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Base64Coder;
 import cz.metacentrum.perun.ldapc.initializer.beans.PerunInitializer;
@@ -36,7 +34,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,48 +44,66 @@ import java.util.Set;
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public class Utils {
+public class Utils implements cz.metacentrum.perun.ldapc.initializer.api.UtilsApi {
 
 	private final static Logger log = LoggerFactory.getLogger(Utils.class);
 
-	/**
-	 * Method to set last processed id for concrete consumer
-	 *
-	 * @param consumerName name of consumer to set
-	 * @param lastProcessedId id to set
-	 * @param perunPrincipal perunPrincipal for initializing RpcCaller
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 */
-	public static void setLastProcessedId(PerunPrincipal perunPrincipal, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
+	@Override
+	public void initializeLDAPFromPerun(PerunInitializer perunInitializer, Boolean updateLastProcessedId) throws InternalErrorException {
+		try {
+			//get last message id before start of initializing
+			int lastMessageBeforeInitializingData = perunInitializer.getPerunBl().getAuditer().getLastMessageId();
+			System.err.println("Last message id before starting initializing: " + lastMessageBeforeInitializingData + '\n');
+
+			try {
+				this.generateAllVosToWriter(perunInitializer);
+				this.generateAllGroupsToWriter(perunInitializer);
+				this.generateAllResourcesToWriter(perunInitializer);
+				this.generateAllUsersToWriter(perunInitializer);
+			} catch (IOException ex) {
+				throw new InternalErrorException(ex);
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				System.err.println("Problem with initializing users, there is an attribute which probably not exists.");
+				throw new InternalErrorException(ex);
+			}
+
+			//get last message id after initializing
+			int lastMessageAfterInitializingData = perunInitializer.getPerunBl().getAuditer().getLastMessageId();
+			System.err.println("Last message id after initializing: " + lastMessageAfterInitializingData + '\n');
+
+			//This is the only operation of WRITING to the DB
+			//Call RPC-LIB for this purpose
+			if(updateLastProcessedId) {
+				try {
+					this.setLastProcessedId(perunInitializer.getPerunPrincipal(), perunInitializer.getConsumerName(), lastMessageAfterInitializingData);
+				} catch (InternalErrorException | PrivilegeException ex) {
+					System.err.println("Can't set last processed ID because of lack of privileges or some Internal error.");
+					throw new InternalErrorException(ex);
+				}
+			}
+		} finally {
+			//Close writer if already opened
+			if(perunInitializer != null) {
+				try {
+					perunInitializer.closeWriter();
+				} catch(IOException ex) {
+					System.err.println("Can't close writer by normal way.");
+					throw new InternalErrorException(ex);
+				}
+			}
+		}
+
+		System.err.println("Generating of initializing LDIF done without error!");
+	}
+
+	@Override
+	public void setLastProcessedId(PerunPrincipal perunPrincipal, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
 		RpcCaller rpcCaller = new RpcCallerImpl(perunPrincipal);
 		Rpc.AuditMessagesManager.setLastProcessedId(rpcCaller, consumerName, lastProcessedId);
 	}
 
-	/**
-	 * Return Writer for output for specific file with fileName.
-	 * If fileName is null, return standard output
-	 *
-	 * @param fileName fileName or null (if stdout)
-	 * @return writer with specific output
-	 *
-	 * @exception FileNotFoundException if defined file can't be created
-	 */
-	public static Writer getWriterForOutput(String fileName) throws FileNotFoundException {
-		if (fileName != null) return new PrintWriter(fileName);
-		else return new OutputStreamWriter(System.out);
-	}
-
-	/**
-	 * Method generate all Vos to the text for using in LDIF.
-	 * Write all these information to writer in perunInitializer object.
-	 *
-	 * @param perunInitializer need to be loaded to get all needed dependencies
-	 *
-	 * @throws InternalErrorException if some problem with initializer or objects in perun-core
-	 * @throws IOException if some problem with writer
-	 */
-	public static void generateAllVosToWriter(PerunInitializer perunInitializer) throws InternalErrorException, IOException {
+	@Override
+	public void generateAllVosToWriter(PerunInitializer perunInitializer) throws InternalErrorException, IOException {
 		//Load basic variables
 		if(perunInitializer == null) throw new InternalErrorException("PerunInitializer must be loaded before using in generating methods!");
 		PerunSession perunSession = perunInitializer.getPerunSession();
@@ -141,16 +156,8 @@ public class Utils {
 		}
 	}
 
-	/**
-	 * Method generate all Resources to the text for using in LDIF.
-	 * Write all these information to writer in perunInitializer object.
-	 *
-	 * @param perunInitializer need to be loaded to get all needed dependencies
-	 *
-	 * @throws InternalErrorException if some problem with initializer or objects in perun-core
-	 * @throws IOException if some problem with writer
-	 */
-	public static void generateAllResourcesToWriter(PerunInitializer perunInitializer) throws InternalErrorException, IOException {
+	@Override
+	public void generateAllResourcesToWriter(PerunInitializer perunInitializer) throws InternalErrorException, IOException {
 		//Load basic variables
 		if(perunInitializer == null) throw new InternalErrorException("PerunInitializer must be loaded before using in generating methods!");
 		PerunSession perunSession = perunInitializer.getPerunSession();
@@ -250,16 +257,8 @@ public class Utils {
 		}
 	}
 
-	/**
-	 * Method generate all Groups to the text for using in LDIF.
-	 * Write all these information to writer in perunInitializer object.
-	 *
-	 * @param perunInitializer need to be loaded to get all needed dependencies
-	 *
-	 * @throws InternalErrorException if some problem with initializer or objects in perun-core
-	 * @throws IOException if some problem with writer
-	 */
-	public static void generateAllGroupsToWriter(PerunInitializer perunInitializer) throws InternalErrorException, IOException {
+	@Override
+	public void generateAllGroupsToWriter(PerunInitializer perunInitializer) throws InternalErrorException, IOException {
 		//Load basic variables
 		if(perunInitializer == null) throw new InternalErrorException("PerunInitializer must be loaded before using in generating methods!");
 		PerunSession perunSession = perunInitializer.getPerunSession();
@@ -352,18 +351,8 @@ public class Utils {
 		}
 	}
 
-	/**
-	 * Method generate all Users to the text for using in LDIF.
-	 * Write all these information to writer in perunInitializer object.
-	 *
-	 * @param perunInitializer need to be loaded to get all needed dependencies
-	 *
-	 * @throws InternalErrorException if some problem with initializer or objects in perun-core
-	 * @throws IOException if some problem with writer
-	 * @throws AttributeNotExistsException
-	 * @throws WrongAttributeAssignmentException
-	 */
-	public static void generateAllUsersToWriter(PerunInitializer perunInitializer) throws IOException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	@Override
+	public void generateAllUsersToWriter(PerunInitializer perunInitializer) throws IOException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		//Load basic variables
 		if(perunInitializer == null) throw new InternalErrorException("PerunInitializer must be loaded before using in generating methods!");
 		PerunSession perunSession = perunInitializer.getPerunSession();
