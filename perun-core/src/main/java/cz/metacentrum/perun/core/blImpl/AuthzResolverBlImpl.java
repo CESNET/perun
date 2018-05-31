@@ -1016,6 +1016,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
+	 * Get all Group's roles. Role is defined as a name, translation table is in Role class.
+	 *
+	 * @param sess perun session
+	 * @param group Group
+	 * @return list of integers, which represents role from enum Role.
+	 */
+	public static List<String> getGroupRoleNames(PerunSession sess,Group group) throws InternalErrorException {
+
+		return authzResolverImpl.getRoles(group).getRolesNames();
+	}
+
+	/**
 	 * Returns user which is associated with credentials used to log-in to Perun.
 	 *
 	 * @param sess perun session

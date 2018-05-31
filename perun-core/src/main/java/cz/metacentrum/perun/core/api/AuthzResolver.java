@@ -171,6 +171,21 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Get all group role names. Role is defined as a name, translation table is in Role class.
+	 *
+	 * @param sess perun session
+	 * @param group Group
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 * @return list of integers, which represents role from enum Role.
+	 */
+	public static List<String> getGroupRoleNames(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException {
+		((PerunBl) sess.getPerun()).getGroupsManagerBl().checkGroupExists(sess, group);
+
+		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.getGroupRoleNames(sess, group);
+	}
+
+	/**
 	 * Returns user which is associated with credentials used to log-in to Perun.
 	 *
 	 * @param sess perun session

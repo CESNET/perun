@@ -128,6 +128,28 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		return authzRoles;
 	}
 
+	public AuthzRoles getRoles(Group group) throws InternalErrorException {
+		AuthzRoles authzRoles = new AuthzRoles();
+
+		if (group != null) {
+			try {
+				// Get roles from Authz table
+				List<Pair<Role, Map<String, Set<Integer>>>> authzRolesPairs = jdbc.query("select " + authzRoleMappingSelectQuery
+				+ ", roles.name as role_name from authz left join roles on authz.role_id=roles.id where authz.authorized_group_id=?",
+				AUTHZROLE_MAPPER, group.getId());
+
+				for (Pair<Role, Map<String, Set<Integer>>> pair : authzRolesPairs) {
+					authzRoles.putAuthzRoles(pair.getLeft(), pair.getRight());
+				}
+
+			} catch (RuntimeException e) {
+				throw new InternalErrorException(e);
+			}
+		}
+
+		return authzRoles;
+	}
+
 	public void initialize() throws InternalErrorException {
 
 		if(BeansUtils.isPerunReadOnly()) log.debug("Loading authzresolver manager init in readOnly version.");

@@ -29,7 +29,7 @@ GetOptions("help|h" => sub {
 my $agent = Perun::Agent->new();
 my $authzResolverAgent = $agent->getAuthzResolverAgent;
 
-my $role = $authzResolverAgent->getUserRoleNames;
+my $role = $authzResolverAgent->getUserRoleNames(user => $userId);
 unless ($role) {
 	printMessage "No Role found", $batch;
 	exit 0;
