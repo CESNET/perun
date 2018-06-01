@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.exceptions.rt.WrongAttributeAssignmentRuntimeException;
 
 /**
- * Thrown while assign atribute to wrong entity. For example if you try to set value for the facility to atrribut whis is only for resources.
+ * Thrown while assigning atribute to wrong entity. For example if you try to set value for the facility to atrribut whis is only for resources.
  *
  * @author Slavek Licehammer
  */
