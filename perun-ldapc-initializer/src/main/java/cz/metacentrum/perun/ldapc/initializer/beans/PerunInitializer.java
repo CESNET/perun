@@ -2,7 +2,8 @@ package cz.metacentrum.perun.ldapc.initializer.beans;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunClient;
-import cz.metacentrum.perun.ldapc.initializer.utils.Utils;
+import cz.metacentrum.perun.ldapc.initializer.api.UtilsApi;
+import cz.metacentrum.perun.ldapc.initializer.impl.Utils;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -11,6 +12,11 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Writer;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -32,10 +38,10 @@ public class PerunInitializer {
 
 	public PerunInitializer(String outputFileName) throws InternalErrorException, FileNotFoundException {
 		this.perunPrincipal = new PerunPrincipal("perunLdapInitializer", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		this.springCtx = new ClassPathXmlApplicationContext("perun-core.xml");
+		this.springCtx = new ClassPathXmlApplicationContext("perun-ldapc-initializer.xml");
 		this.perunBl = springCtx.getBean("perun", PerunBl.class);
 		this.perunSession = perunBl.getPerunSession(perunPrincipal, new PerunClient());
-		this.outputWriter = new BufferedWriter(Utils.getWriterForOutput(outputFileName));
+		this.outputWriter = new BufferedWriter(this.getWriterForOutput(outputFileName));
 	}
 
 	public PerunBl getPerunBl() {
@@ -72,6 +78,11 @@ public class PerunInitializer {
 
 	public void closeWriter() throws IOException {
 		this.outputWriter.close();
+	}
+
+	private Writer getWriterForOutput(String fileName) throws FileNotFoundException {
+		if (fileName != null) return new PrintWriter(fileName);
+		else return new OutputStreamWriter(System.out);
 	}
 }
 
