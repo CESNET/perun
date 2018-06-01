@@ -180,6 +180,57 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
+	public void copyResourceWithEverythingFilled() throws Exception{
+		System.out.println(CLASS_NAME + "copyResourceWithEverythingFilled");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		resource.setVoId(vo.getId());
+		resource.setFacilityId(facility.getId());
+		assertNotNull("resource", resource);
+
+		// Setup of groups,services and tags
+		Member member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		service = setUpService();
+		ResourceTag resTag = setUpResourceTag();
+		resourcesManager.assignService(sess, resource, service);
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		resourcesManager.assignResourceTagToResource(sess, resTag, resource);
+
+		Resource destinationResource = new Resource();
+		destinationResource.setName("DestinationResource");
+		destinationResource.setDescription("DestinationResource");
+		destinationResource.setVoId(vo.getId());
+		destinationResource.setFacilityId(facility.getId());
+
+		// Setup of resource-member attribute
+		AttributeDefinition resourceMemberAttrDef = new AttributeDefinition();
+		resourceMemberAttrDef.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
+		resourceMemberAttrDef.setFriendlyName("memberResourceAttribute");
+		resourceMemberAttrDef.setType(Integer.class.getName());
+		resourceMemberAttrDef = perun.getAttributesManagerBl().createAttribute(sess, resourceMemberAttrDef);
+
+		Attribute resourceMemberAttr = perun.getAttributesManagerBl().getAttribute(sess, resource, member, resourceMemberAttrDef.getName());
+		resourceMemberAttr.setValue(1);
+		perun.getAttributesManagerBl().setAttribute(sess, resource, member, resourceMemberAttr);
+
+		resourcesManager.copyResource(sess, resource, destinationResource, true);
+
+		Resource createdResource = resourcesManager.getResourceByName(sess, vo, facility, destinationResource.getName());
+		assertNotNull("Resource was not created.", createdResource);
+
+		// group, service and resource tags copy check
+		assertFalse("Group assigned to original resource not copied to destination resource.", resourcesManager.getAssignedGroups(sess, createdResource).isEmpty());
+		assertFalse("Service not copied to destination resource.", resourcesManager.getAssignedServices(sess, createdResource).isEmpty());
+		assertFalse("Resource tag not created for destination resource.", resourcesManager.getAllResourcesTagsForResource(sess, createdResource).isEmpty());
+
+		// group and resource-member attributes check
+		assertFalse("Created resource does not contain group attributes.", perun.getAttributesManagerBl().getAttributes(sess, group).isEmpty());
+		assertFalse("Created resource does not contain resource-member attributes.", perun.getAttributesManagerBl().getAttributes(sess, createdResource, member).isEmpty());
+	}
+
+	@Test
 	public void deleteResource() throws Exception {
 		System.out.println(CLASS_NAME + "deleteResource");
 
