@@ -656,10 +656,9 @@ public interface GroupsManagerImplApi {
 	 * @param member member whose status will be changed
 	 * @param group group where member's status will be changed
 	 * @param status status that will be set
-	 * @param setAlsoDirect indicates, if also status for direct relation should be set
 	 * @throws InternalErrorException internal error
 	 */
-	void setIndirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status, boolean setAlsoDirect) throws InternalErrorException;
+	void setIndirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException;
 
 	/**
 	 * Set direct status of the member to specified status in given group.

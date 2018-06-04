@@ -119,7 +119,14 @@ public class Member extends Auditable {
 		this.sponsored = sponsored;
 	}
 
-	public void addGroupStatus(int groupId, MemberGroupStatus status) {
+	/**
+	 * Adds member's status for given group. If member already had a VALID status
+	 * for given group, nothing is changed.
+	 *
+	 * @param groupId group ID
+	 * @param status member's status for given group
+	 */
+	public void putGroupStatus(int groupId, MemberGroupStatus status) {
 		MemberGroupStatus currentValue = this.groupsStatuses.get(groupId);
 		if (currentValue == MemberGroupStatus.VALID) {
 			return;
@@ -151,17 +158,23 @@ public class Member extends Auditable {
 
 	protected void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses) {
 		if (groupsStatuses == null) {
-			throw new IllegalArgumentException("Group statuses can not be null.");
+			throw new IllegalArgumentException("Group statuses cannot be null.");
 		}
 		this.groupsStatuses = new HashMap<>(groupsStatuses);
 	}
 
-	public void addGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses) {
+	/**
+	 * Adds member's statuses for given group. If member already had a VALID status
+	 * for any of given groups, then nothing is changed for the group.
+	 *
+	 * @param groupStatuses map containing group's IDs and member statuses
+	 */
+	public void putGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses) {
 		if (groupStatuses == null) {
 			throw new IllegalArgumentException("GroupStatuses cannot be null.");
 		}
 		for (Integer integer : groupStatuses.keySet()) {
-			addGroupStatus(integer, groupStatuses.get(integer));
+			putGroupStatus(integer, groupStatuses.get(integer));
 		}
 	}
 

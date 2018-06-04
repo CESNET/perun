@@ -14,11 +14,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.slf4j.Logger;
@@ -874,7 +874,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			removeRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), Collections.singletonList(member), group.getId());
 		}
 
-		recalculateMemberGroupStatusRecursively(sess, member, group);
+		if (!VosManager.MEMBERS_GROUP.equals(group.getName())) {
+			recalculateMemberGroupStatusRecursively(sess, member, group);
+		}
 	}
 
 	/**
@@ -1768,7 +1770,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Member> filterMembersByMembershipTypeInGroup(List<Member> members) throws InternalErrorException {
-		List<Member> filteredMembers = new ArrayList<Member>();
+		Set<Member> filteredMembers = new HashSet<>();
 		Iterator<Member> membersIterator = members.iterator();
 
 		//Add members with direct membership type
@@ -1786,7 +1788,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			for (Member filteredMember : filteredMembers) {
 				if (filteredMember.equals(m)) {
-					filteredMember.addGroupStatuses(m.getGroupStatuses());
+					filteredMember.putGroupStatuses(m.getGroupStatuses());
 					alreadyAdded = true;
 					break;
 				}
@@ -1797,7 +1799,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
-		return filteredMembers;
+		return new ArrayList<>(filteredMembers);
 	}
 
 	@Override
@@ -3131,11 +3133,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		if (VosManager.MEMBERS_GROUP.equals(group.getName())) {
-			throw new InternalErrorException("Can not expire member in members group.");
+			throw new InternalErrorException("Can not validate member in members group.");
 		}
 
 		if (member == null) {
-			throw new InternalErrorException("Member to expire can not be null");
+			throw new InternalErrorException("Member to validate can not be null");
 		}
 
 		MemberGroupStatus previousStatus = getDirectMemberGroupStatus(sess, member, group);
@@ -3229,7 +3231,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return true;
 	}
 
-	public void extendMembershipInGroup(PerunSession sess, Member member, Group group, boolean setValue) throws InternalErrorException, ExtendMembershipException {
+	private void extendMembershipInGroup(PerunSession sess, Member member, Group group, boolean setValue) throws InternalErrorException, ExtendMembershipException {
 		Attribute membershipExpirationRulesAttribute = getMembershipExpirationRulesAttribute(sess, group);
 		if (membershipExpirationRulesAttribute == null) {
 			return;
