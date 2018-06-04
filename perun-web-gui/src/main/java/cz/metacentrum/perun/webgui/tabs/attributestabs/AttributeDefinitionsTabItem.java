@@ -102,7 +102,7 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		deleteButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				final ArrayList<AttributeDefinition> attrDefToBeDeleted = attrDef.getTableSelectedList();
-				String text = "Following attribute definitions will be deleted.";
+				String text = "Following attribute definitions will be deleted.</p><p style=\"color: red;\">All stored values of such attributes will be deleted too!";
 				UiElements.showDeleteConfirm(attrDefToBeDeleted, text, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {

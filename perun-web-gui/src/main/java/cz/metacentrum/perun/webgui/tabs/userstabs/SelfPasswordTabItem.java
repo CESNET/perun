@@ -433,6 +433,12 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 			layout.getFlexCellFormatter().setStyleName(i, 0, "itemName");
 		}
 
+		int row = layout.getRowCount();
+		layout.setHTML(row, 0, "Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+		layout.getFlexCellFormatter().setColSpan(row, 0, 2);
+		layout.getCellFormatter().setStyleName(row, 0,"inputFormInlineComment");
+		layout.setWidth("400px");
+
 		if (!action.equals(Actions.CREATE)) {
 			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 				@Override

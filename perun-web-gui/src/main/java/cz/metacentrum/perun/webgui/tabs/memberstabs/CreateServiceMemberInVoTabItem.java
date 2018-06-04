@@ -547,14 +547,18 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 								ft.setHTML(0, 0, "Password:");
 								ft.setWidget(0, 1, serviceUserPassword);
 								ft.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-								ft.setHTML(1, 0, "Re-type password:");
+								ft.setHTML(1, 0, "Re-type&nbsp;password:");
 								ft.setWidget(1, 1, serviceUserPassword2);
 								ft.getFlexCellFormatter().setStyleName(1, 0, "itemName");
 
-								ft.setWidget(2, 1, skipButton);
-								ft.getFlexCellFormatter().setHorizontalAlignment(2, 1, HasHorizontalAlignment.ALIGN_RIGHT);
-								ft.setWidget(3, 1, button);
-								ft.getFlexCellFormatter().setHorizontalAlignment(3, 1, HasHorizontalAlignment.ALIGN_RIGHT);
+								ft.setHTML(2, 0, "Please <b>avoid using accented characters</b>. It might not be supported by all backend components and services.");
+								ft.getFlexCellFormatter().setColSpan(2, 0, 2);
+								ft.getCellFormatter().setStyleName(2, 0,"inputFormInlineComment");
+
+								ft.setWidget(3, 1, skipButton);
+								ft.getFlexCellFormatter().addStyleName(3, 1, "align-right");
+								ft.setWidget(4, 1, button);
+								ft.getFlexCellFormatter().addStyleName(4, 1, "align-right");
 
 								secondTabPanel.add(ft);
 
