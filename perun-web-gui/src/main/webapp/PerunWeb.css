@@ -368,6 +368,10 @@ table.inputFormFlexTableDark {
     border-collapse: collapse;
 }
 
+.align-right {
+    text-align: right !important;
+}
+
 /* ======== TAB MENU ========== */
 
 /* Buttons position */
