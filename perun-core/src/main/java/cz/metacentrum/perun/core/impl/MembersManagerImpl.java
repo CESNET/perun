@@ -17,7 +17,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +43,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
 		member.setSponsored(rs.getBoolean("members_sponsored"));
 		try {
-			member.addGroupStatus(rs.getInt("group_id"), MemberGroupStatus.getMemberGroupStatus(rs.getInt("source_group_status")));
+			member.putGroupStatus(rs.getInt("group_id"), MemberGroupStatus.getMemberGroupStatus(rs.getInt("source_group_status")));
 			member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
 			member.setSourceGroupId(rs.getInt("source_group_id"));
 		} catch (SQLException ex) {
@@ -60,7 +59,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		while(resultSet.next()) {
 			Member member = MembersManagerImpl.MEMBER_MAPPER.mapRow(resultSet, resultSet.getRow());
 			if (members.containsKey(member.getId())) {
-				members.get(member.getId()).addGroupStatuses(member.getGroupStatuses());
+				members.get(member.getId()).putGroupStatuses(member.getGroupStatuses());
 			} else {
 				member.setSourceGroupId(null);
 				member.setMembershipType((String)null);
