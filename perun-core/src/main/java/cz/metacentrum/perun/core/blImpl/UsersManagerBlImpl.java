@@ -1199,7 +1199,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
 				}
 
-			} else if (loginNamespace.equals("ics.muni.cz")) {
+			} else if (loginNamespace.equals("ics-muni-cz")) {
 
 				List<String> kerberosLogins = new ArrayList<String>();
 

@@ -105,7 +105,7 @@ public interface AttributesManager {
 
 	String LOGIN_NAMESPACE = "login-namespace";
 
-	String ATTRIBUTES_REGEXP = "^[-a-zA-Z0-9.]+([:][-a-zA-Z0-9.]+)?$";
+	String ATTRIBUTES_REGEXP = "^[-a-zA-Z0-9]+([:][-a-zA-Z0-9]+)?$";
 
 	String[] ENTITY_TYPES = {"facility", "resource", "member_resource", "member_group",
 			"member", "user_facility", "user", "vo", "group", "host", "group_resource", "entityless", "ues"};
