@@ -58,4 +58,9 @@ sub getUserRoleNames
 	return Perun::Common::callManagerMethod('getUserRoleNames', '', @_);
 }
 
+sub getGroupRoleNames
+{
+	return Perun::Common::callManagerMethod('getGroupRoleNames', '', @_);
+}
+
 1;

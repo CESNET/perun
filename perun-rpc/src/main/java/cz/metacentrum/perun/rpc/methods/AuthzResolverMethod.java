@@ -36,7 +36,20 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	getUserRoleNames {
 		@Override
 		public List<String> call(ApiCaller ac, Deserializer parms ) throws PerunException {
-			return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoleNames(ac.getSession(), ac.getUserById(parms.readInt("user"))); } 
+			return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoleNames(ac.getSession(), ac.getUserById(parms.readInt("user"))); 
+		} 
+	},
+	/*#
+	 * Returns list of group's role names.
+	 * 
+	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
+	 * @return List<String> List of roles
+	 */
+	getGroupRoleNames {
+		@Override
+		public List<String> call(ApiCaller ac, Deserializer parms ) throws PerunException {
+			return cz.metacentrum.perun.core.api.AuthzResolver.getGroupRoleNames(ac.getSession(), ac.getGroupById(parms.readInt("group"))); 
+		} 
 	},
 	/*#
 	 * Get all managers for complementaryObject and role with specified attributes.

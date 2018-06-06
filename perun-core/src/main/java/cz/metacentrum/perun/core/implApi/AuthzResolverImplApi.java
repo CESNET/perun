@@ -26,6 +26,14 @@ public interface AuthzResolverImplApi {
 	AuthzRoles getRoles(User user) throws InternalErrorException;
 
 	/**
+	 * Returns all group's roles.
+	 *
+	 * @param group
+	 * @return AuthzRoles object which contains all roles with perunbeans
+	 */
+	AuthzRoles getRoles(Group group) throws InternalErrorException;
+
+	/**
 	 * Removes all authz entries for the sponsoredUser.
 	 *
 	 * @param sess

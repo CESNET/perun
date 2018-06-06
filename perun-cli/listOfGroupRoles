@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+
+sub help {
+	return qq{
+	Prints list of Group Roles
+	---------------------------------
+	Available options:
+	--groupId     | -g  Group identifier
+	--groupName   | -G  Group name
+	--voId        | -v  VO idetifier
+	--voShortName | -V  VO short name
+	--batch       | -b batch
+	--help        | -h prints this help
+	};
+}
+
+our $batch;
+my ($groupId, $groupName, $voId, $voShortName);
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"groupId|g=i"     => \$groupId,
+	"groupName|G=s"   => \$groupName,
+	"voId|v=i"        => \$voId,
+	"voShortName|V=s" => \$voShortName,
+	"batch|b"       => \$batch) || die help;
+
+my $agent = Perun::Agent->new();
+my $authzResolverAgent = $agent->getAuthzResolverAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+
+#options check
+unless (defined $groupId) {
+	unless (defined $groupName) { die "ERROR: Group specification required.\n"; }
+	unless (defined $voId) {
+		unless (defined $voShortName) { die "ERROR: VO specification required.\n"; }
+		my $vo = $agent->getVosAgent->getVoByShortName( shortName => $voShortName );
+		$voId = $vo->getId;
+	}
+	my $group = $groupsAgent->getGroupByName( vo => $voId, name => $groupName );
+	$groupId = $group->getId;
+}
+
+
+my $role = $authzResolverAgent->getGroupRoleNames(group => $groupId);
+unless ($role) {
+	printMessage "No Role found", $batch;
+	exit 0;
+}
+
+#output
+my $table = Text::ASCIITable->new({ reportErrors => 0, utf8 => 0 });
+$table->setCols('Role Name');
+
+my @roles = @$role;
+foreach my $rol (@roles) {
+	$table->addRow($rol);
+}
+
+print tableToPrint($table, $batch);
