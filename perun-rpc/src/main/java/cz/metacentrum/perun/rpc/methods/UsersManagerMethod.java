@@ -870,17 +870,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param login String Users login
 	 * @param loginNamespace String Namespace
 	 * @param newPassword String New password
-	 * @param checkOldPassword boolean Must be false
-	 */
-	/*#
-	 * Changes user password in defined login-namespace.
-	 * You must send the old password, which will be checked
-	 *
-	 * @param login String Users login
-	 * @param loginNamespace String Namespace
-	 * @param oldPassword String Old password which will be checked.
-	 * @param newPassword String New password
-	 * @param checkOldPassword boolean Must be true
+	 * @param oldPassword String Old password which will be checked. This parameter is required only if checkOldPassword is set to true.
+	 * @param checkOldPassword boolean True if the oldPassword have to be checked. When omitted it defaults to false.
 	 */
 	/*#
 	 * Changes user password in defined login-namespace.
@@ -888,17 +879,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param loginNamespace String Namespace
 	 * @param newPassword String New password
-	 * @param checkOldPassword boolean Must be false
-	 */
-	/*#
-	 * Changes user password in defined login-namespace.
-	 * You must send the old password, which will be checked
-	 *
-	 * @param user int User <code>id</code>
-	 * @param loginNamespace String Namespace
-	 * @param oldPassword String Old password which will be checked.
-	 * @param newPassword String New password
-	 * @param checkOldPassword boolean Must be true
+	 * @param oldPassword String Old password which will be checked. This parameter is required only if checkOldPassword is set to true.
+	 * @param checkOldPassword boolean True if the oldPassword have to be checked. When omitted it defaults to false.
 	 */
 	changePassword {
 		@Override
@@ -907,14 +889,14 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 			if (parms.contains("login")) {
 				String login = parms.readString("login");
-				if (parms.readBoolean("checkOldPassword")) {
+				if (parms.contains("checkOldPassword") && parms.readBoolean("checkOldPassword")) {
 					ac.getUsersManager().changePassword(ac.getSession(), login, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
 				} else {
 					ac.getUsersManager().changePassword(ac.getSession(), login, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);
 				}
 			} else {
 				User user = ac.getUserById(parms.readInt("user"));
-				if (parms.readBoolean("checkOldPassword")) {
+				if (parms.contains("checkOldPassword") && parms.readBoolean("checkOldPassword")) {
 					ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
 				} else {
 					ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);
