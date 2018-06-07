@@ -6143,6 +6143,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
+		//urn:perun:user:attribute-def:virt:groupNames
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
+		attr.setType(ArrayList.class.getName());
+		attr.setFriendlyName("groupNames");
+		attr.setDisplayName("Group names");
+		attr.setDescription("Names of groups where user is member");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
 		if (perunBl.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");
 
 		for (Map.Entry<AttributeDefinition, List<AttributeRights>> entry : attributes.entrySet()) {
