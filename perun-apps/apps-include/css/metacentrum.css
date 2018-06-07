@@ -19,11 +19,11 @@ body {
     height: auto !important;
     height: 100%;
     padding-top: 52px;
-    margin: 0 auto -205px;
+    margin: 0 auto -105px;
 }
 #push,
 #footer {
-    height: 305px;
+    height: 105px;
 }
 .page-header {
     margin-top: 0px;
@@ -470,7 +470,7 @@ small {
     color: #e1e5e9;
     background-color: #4b4d4a;
     border-top: 10px solid #dcdcda;
-    padding-top: 40px;
+    padding-top: 20px;
     overflow: hidden;
 }
 #footer a:link,
