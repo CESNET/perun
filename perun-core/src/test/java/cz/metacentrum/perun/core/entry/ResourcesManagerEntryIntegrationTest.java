@@ -225,9 +225,10 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertFalse("Service not copied to destination resource.", resourcesManager.getAssignedServices(sess, createdResource).isEmpty());
 		assertFalse("Resource tag not created for destination resource.", resourcesManager.getAllResourcesTagsForResource(sess, createdResource).isEmpty());
 
-		// group and resource-member attributes check
-		assertFalse("Created resource does not contain group attributes.", perun.getAttributesManagerBl().getAttributes(sess, group).isEmpty());
-		assertFalse("Created resource does not contain resource-member attributes.", perun.getAttributesManagerBl().getAttributes(sess, createdResource, member).isEmpty());
+		// resource-member attributes check
+		List<Attribute> resMembAttrs = perun.getAttributesManagerBl().getAttributes(sess, createdResource, member);
+		assertFalse("Created resource does not contain any resource-member attributes.", resMembAttrs.isEmpty());
+		assertTrue("Created resource does not contain template resource-member attribute (or copied value of attribute is wrong).",resMembAttrs.contains(resourceMemberAttr));
 	}
 
 	@Test
