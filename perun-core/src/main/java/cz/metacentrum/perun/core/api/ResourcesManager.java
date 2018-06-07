@@ -66,6 +66,23 @@ public interface ResourcesManager {
 	Resource createResource(PerunSession perunSession, Resource resource, Vo vo, Facility facility) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException, ResourceExistsException;
 
 	/**
+	 * Copy "template" settings from user's another existing resource and create new resource with this template.
+	 * The settings are attributes, services, tags (if exists), groups and their members (if the resources are from the same VO and withGroups is true)
+	 * Template Resource can be from any of user's facilities.
+	 *
+	 * @param perunSession
+	 * @param templateResource template resource to copy
+	 * @param destinationResource destination resource containing IDs of destination facility, VO and resource name.
+	 * @param withGroups if set to true and resources ARE from the same VO we also
+	 *                      copy all group-resource and member-resource attributes and assign all groups same as on templateResource
+	 *                   if set to true and resources ARE NOT from the same VO InternalErrorException is thrown,
+	 *                   if set to false we will NOT copy groups and group related attributes.
+	 * @throws InternalErrorException
+	 * @throws ResourceNotExistsException
+	 */
+	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException;
+
+	/**
 	 *  Deletes resource by id.
 	 *
 	 * @param perunSession

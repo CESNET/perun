@@ -99,6 +99,35 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return getResourcesManagerBl().createResource(sess, resource, vo, facility);
 	}
 
+	public Resource copyResource(PerunSession sess, Resource templateResource, Resource destinationResource, boolean withGroups) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(templateResource, "Template Resource");
+		Utils.notNull(destinationResource, "Destination Resource");
+		getResourcesManagerBl().checkResourceExists(sess, templateResource);
+
+		//check if user is facility admin of the template resource
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, templateResource)) {
+			throw new PrivilegeException(sess, "User is not facility admin of template Resource's facility.");
+		}
+
+		//check if user is facility admin of the destination resource
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, destinationResource)) {
+			throw new PrivilegeException(sess, "User is not facility admin of destination Resource's facility.");
+		}
+
+		if(withGroups) {
+			if(destinationResource.getVoId() != templateResource.getVoId()) {
+				throw new InternalErrorException("Resources are not from the same VO.");
+			}
+
+			if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, templateResource)) {
+				throw new PrivilegeException(sess, "User needs vo admin rights for copying the groups and group related attributes.");
+			}
+		}
+
+		return getResourcesManagerBl().copyResource(sess, templateResource, destinationResource, withGroups);
+	}
+
 	public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId());
