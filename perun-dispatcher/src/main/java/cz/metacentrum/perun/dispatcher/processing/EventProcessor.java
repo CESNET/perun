@@ -18,10 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * This class ensure periodic blocking polling of EventQueue with Events parsed from audit messages by AuditerListener.
@@ -31,7 +33,6 @@ import java.util.Set;
  * Each Event is converted to Task if possible and added to pool (if new) or updated in pool (if exists).
  * New Tasks are also planned immediately.
  *
- * @see cz.metacentrum.perun.dispatcher.processing.EventQueue
  * @see cz.metacentrum.perun.dispatcher.model.Event
  * @see cz.metacentrum.perun.dispatcher.processing.AuditerListener
  * @see cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool
@@ -46,7 +47,7 @@ public class EventProcessor extends AbstractRunner {
 
 	private final static Logger log = LoggerFactory.getLogger(EventProcessor.class);
 
-	private EventQueue eventQueue;
+	private BlockingQueue<Event> eventQueue;
 	private EngineMessageProducerPool engineMessageProducerPool;
 	private EventServiceResolver eventServiceResolver;
 	private ServiceDenialDao serviceDenialDao;
@@ -54,12 +55,12 @@ public class EventProcessor extends AbstractRunner {
 
 	// ----- setters -------------------------------------
 
-	public EventQueue getEventQueue() {
+	public BlockingQueue<Event> getEventQueue() {
 		return eventQueue;
 	}
 
-	@Autowired
-	public void setEventQueue(EventQueue eventQueue) {
+	@Resource(name = "eventQueue")
+	public void setEventQueue(BlockingQueue<Event> eventQueue) {
 		this.eventQueue = eventQueue;
 	}
 
@@ -109,11 +110,9 @@ public class EventProcessor extends AbstractRunner {
 	public void run() {
 		while (!shouldStop()) {
 			try {
-				Event event = eventQueue.poll();
-				if (event != null) {
-					createTaskFromEvent(event);
-					log.debug("Remaining events in a Queue = {}, Engines = {}", eventQueue.size(), engineMessageProducerPool.poolSize());
-				}
+				Event event = eventQueue.take();
+				createTaskFromEvent(event);
+				log.debug("Remaining events in a Queue = {}, Engines = {}", eventQueue.size(), engineMessageProducerPool.poolSize());
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}

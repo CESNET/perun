@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.dispatcher.AbstractDispatcherTest;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
 import cz.metacentrum.perun.dispatcher.model.Event;
-import cz.metacentrum.perun.dispatcher.processing.EventQueue;
 import cz.metacentrum.perun.dispatcher.processing.EventProcessor;
 import cz.metacentrum.perun.dispatcher.scheduling.impl.SchedulingPoolImpl;
 import cz.metacentrum.perun.taskslib.model.ExecService;
@@ -19,6 +18,7 @@ import org.springframework.util.Assert;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author Michal Voců
@@ -31,14 +31,23 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 	@Autowired
 	private EventProcessor eventProcessor;
 
-	//@Test(timeout = 10000)
 	@Test
 	public void eventProcessorTest() {
 		System.out.println("EventProcessor.eventProcessorTest()");
 
 		EngineMessageProducer engineMessageProducer = new EngineMessageProducerMock(1, "testQueue");
 		eventProcessor.getEngineMessageProducerPool().addProducer(engineMessageProducer);
-		eventProcessor.setEventQueue(new EventQueueMock());
+
+		LinkedBlockingQueue<Event> mockQueue = new LinkedBlockingQueue<>();
+
+		Event event = new Event();
+		event.setTimeStamp(System.currentTimeMillis());
+		event.setHeader("portishead");
+		event.setData(member1.serializeToString() + " added to " + group1.serializeToString() + ".");
+
+		mockQueue.add(event);
+
+		eventProcessor.setEventQueue(mockQueue);
 		SchedulingPoolMock pool = new SchedulingPoolMock(2);
 		eventProcessor.setSchedulingPool(pool);
 		// runs inside this thread, should end when message is delivered
@@ -56,37 +65,6 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 		}
 	}
 
-	private class EventQueueMock implements EventQueue {
-
-		private boolean eventConsumed = false;
-
-		@Override
-		public void add(Event event) {
-		}
-
-		@Override
-		public Event poll() {
-			if (eventConsumed) {
-				return null;
-			}
-			Event event = new Event();
-			event.setTimeStamp(System.currentTimeMillis());
-			event.setHeader("portishead");
-			event.setData(member1.serializeToString() + " added to " + group1.serializeToString() + ".");
-			eventConsumed = true;
-			return event;
-		}
-
-		@Override
-		public int size() {
-			if (eventConsumed) {
-				return 0;
-			} else {
-				return 1;
-			}
-		}
-
-	}
 
 	private class EngineMessageProducerMock extends EngineMessageProducer {
 
