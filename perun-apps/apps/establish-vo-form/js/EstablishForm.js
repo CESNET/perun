@@ -40,22 +40,57 @@ $(document).ready(function() {
     $("form#establishForm").submit(function(e) {
         e.preventDefault();
 
-        var fullName = document.getElementById("fullName").value;
+        var voFullName = document.getElementById("fullName").value;
         var shortName = document.getElementById("shortName").value;
 
-        callPerunPost("vosManager", "createVo", { vo :{name: fullName, shortName: shortName, beanName : "Vo"}}, function(vo) {
+        callPerunPost("vosManager", "createVo", { vo :{name: voFullName, shortName: shortName, beanName : "Vo"}}, function(vo) {
             var voId = vo.id;
 
-            createApplicationForm(voId, fullName);
+            createVoApplicationFormItems(voId, voFullName);
 
-            createNotifications(voId);
+            createVoNotifications(voId);
 
-            setVoEmailToAttribute(voId);
+            setVoEmailAttributes(voId);
+
+            createWpGroup(voId, voFullName);
 
             showSuccessMessage();
         });
     });
 });
+
+function createWpGroup(voId, voFullName) {
+
+    callPerunPost("groupsManager", "createGroup", {vo: voId, group: wpGroup}, function (createdGroup) {
+        var groupId = createdGroup.id;
+
+        createGroupApplicationFormAndNotifications(groupId, voFullName);
+    })
+}
+
+function createGroupNotifications(groupId) {
+    for (var i = 0; i < groupNotifications.length; i++) {
+        var notification = groupNotifications[i];
+
+        callPerunPost("registrarManager", "addApplicationMail", {group: groupId, mail: notification})
+    }
+}
+
+function createGroupApplicationFormAndNotifications(groupId, voFullName) {
+    callPerunPost("registrarManager", "createApplicationForm", {group: groupId}, function () {
+        for (var i = 0; i < groupFormItems.length; i++) {
+            var formItem = groupFormItems[i];
+
+            if (i === 0) {
+                formItem.i18n.cs.label = "<h2>Přihláška do skupiny wp-admin v organizaci" + voFullName + "</h2>";
+                formItem.i18n.en.label = "<h2>Application for wp-admin group within the " + voFullName + " VO</h2>";
+            }
+            callPerunPost("registrarManager", "addFormItem", {group: groupId, item: formItem})
+        }
+
+        createGroupNotifications(groupId);
+    });
+}
 
 function showSuccessMessage() {
     var modal = new Modal("Your VO was created.", "success", $("body"));
@@ -65,42 +100,150 @@ function showSuccessMessage() {
     modal.getSelf().modal('show');
 }
 
-function setVoEmailToAttribute(voId) {
+function setVoEmailAttributes(voId) {
 
-    // load attribute definition
-    callPerunPost("attributesManager", "getAttributeDefinition", {attributeName: "urn:perun:vo:attribute-def:def:toEmail"}, function (attrDef) {
+    // load user's email
+    callPerunPost("attributesManager", "getAttribute", {user: user.id, attributeName: "urn:perun:user:attribute-def:def:preferredMail"}, function (userMailAttr) {
 
-        // load user's email
-        callPerunPost("attributesManager", "getAttribute", {user: user.id, attributeName: "urn:perun:user:attribute-def:def:preferredMail"}, function (preferredMailAttr) {
-            attrDef.value = [preferredMailAttr.value];
+        // load toEmail attribute definition
+        callPerunPost("attributesManager", "getAttributeDefinition", {attributeName: "urn:perun:vo:attribute-def:def:toEmail"}, function (toEmailAttrDef) {
 
             // set user's email as a vo's 'toEmail'
-            callPerunPost("attributesManager", "setAttribute", {vo: voId, attribute: attrDef});
+            toEmailAttrDef.value = [userMailAttr.value];
+            callPerunPost("attributesManager", "setAttribute", {vo: voId, attribute: toEmailAttrDef});
+        });
+
+        // load toEmail attribute definition
+        callPerunPost("attributesManager", "getAttributeDefinition", {attributeName: "urn:perun:vo:attribute-def:def:fromEmail"}, function (fromEmailAttrDef) {
+
+            // set user's email as a vo's 'fromEmail'
+            fromEmailAttrDef.value = userMailAttr.value;
+            callPerunPost("attributesManager", "setAttribute", {vo: voId, attribute: fromEmailAttrDef});
         });
     });
 }
 
-function createNotifications(voId) {
-    for (var i = 0; i < notifications.length; i++) {
-        var notification = notifications[i];
+function createVoNotifications(voId) {
+    for (var i = 0; i < voNotifications.length; i++) {
+        var notification = voNotifications[i];
 
         callPerunPost("registrarManager", "addApplicationMail", {vo: voId, mail: notification})
     }
 }
 
-function createApplicationForm(voId, voName) {
-    for (var i = 0; i < formItems.length; i++) {
-        var formItem = formItems[i];
+function createVoApplicationFormItems(voId, voName) {
+    for (var i = 0; i < voFormItems.length; i++) {
+        var formItem = voFormItems[i];
+
         if (i === 0) {
-            formItem.i18n.cs.label = "<h2>Application for " + voName + " VO membership</h2>";
+            formItem.i18n.cs.label = "<h2>Přihláška do " + voName + " VO</h2>";
             formItem.i18n.en.label = "<h2>Application for " + voName + " VO membership</h2>";
         }
-        callPerunPost("registrarManager", "addFormItem", {vo: voId, item: formItems[i]})
+        callPerunPost("registrarManager", "addFormItem", {vo: voId, item: formItem})
     }
 }
 
-var notifications = [{
-    "id": 1,
+var wpGroup = {
+    "parentGroupId": null,
+    "name": "wp-admins",
+    "description": "Wordpress Administartors",
+    "shortName": "wp-admins",
+    "beanName": "Group"
+};
+
+var groupNotifications = [{
+    "appType": "INITIAL",
+    "formId": 7,
+    "mailType": "APP_CREATED_USER",
+    "send": true,
+    "message": {
+        "en": {
+            "locale": "en",
+            "subject": "Confimation of application submission for {groupName} group within VO {voName}",
+            "text": "Dear user,\n\nThank you for your application for {groupName} group membership. The information you submitted has been successfully received. Your application will be reviewed by a VO {voName} administrator.\n\nName: {displayName} \nApplication ID: {appId}\n\nApplication state can be checked in \"Applications\" section:\n\n{appGuiUrl-fed}\n\nYou will be notified by another mail once your application approved or rejected.\n\n--------------------------------------------------\nYours sincerely {voName}"
+        },
+        "cs": {
+            "locale": "cs",
+            "subject": "Potrzení přijetí přihlášky do skupiny {groupName} ve VO {voName}",
+            "text": "Vážený uživateli,\n\nděkujeme Vám za registraci do dkupiny {groupName}. \n\nJméno: {displayName} \nPřihláška č. {appId}\n\nStav své přihlášky můžete sledovat v části \"Applications\" na adrese:\n\n{appGuiUrl-fed}\n\nO schválení nebo zamítnutí přihlášky budete informován(a) dalším mailem.\n\n--------------------------------------------------\nVaše {voName}"
+        }
+    },
+    "beanName": "ApplicationMail"
+}, {
+    "appType": "INITIAL",
+    "formId": 7,
+    "mailType": "APP_CREATED_VO_ADMIN",
+    "send": true,
+    "message": {
+        "en": {
+            "locale": "en",
+            "subject": "New application for group {groupName} within VO {voName} created",
+            "text": "Dear administrator,\n\nnew application for {groupName} group membership within VO {voName} was created under ID={appId} by user: {displayName}.\n\nApplication detail with all user submitted data where you can approve / reject application:\n\n{appDetailUrl-fed}\n\nIf there was an error during application creation, information follows:\n\n{errors}\n\n--------------------------------------------------\neduTEAMS Perun membership management service"
+        },
+        "cs": {
+            "locale": "cs",
+            "subject": "Nová přihláška do skupiny {groupName} ve VO {voName}",
+            "text": "Vážený administrátore,\n\nbyla podána nová přihláška do skupiny {groupName} ve VO {voName} pod ID={appId} uživatelem: {displayName}, {actor} / {extSource}. \n\nDetail přihlášky s možností přijetí/zamítnutí:\n\n{appDetailUrl-fed}\n\n\nPokud při vytvoření přihlášky došlo k chybám, výpis následuje:\n\n{errors}\n\n--------------------------------------------------\neduTEAMS Perun membership management service"
+        }
+    },
+    "beanName": "ApplicationMail"
+}, {
+    "appType": "INITIAL",
+    "formId": 7,
+    "mailType": "APP_APPROVED_USER",
+    "send": true,
+    "message": {
+        "en": {
+            "locale": "en",
+            "subject": "{voName}: Application for {groupName} group membership approved",
+            "text": "Dear user,\n\nYour application for {groupName} group membership within VO {voName} under ID={appId} was approved by VO administrator.\n\nName: {displayName} \n \n-------------------------------------------\nYours sincerely {voName}"
+        },
+        "cs": {
+            "locale": "cs",
+            "subject": "{voName}: Přihláška č. {appId} byla schválena",
+            "text": "Vážený uživateli,\n\nVaše přihláška do skupiny {groupName} ve VO {voName} s číslem {appId} byla schválena administrátorem VO.\n\nJméno: {displayName} \n\n-------------------------------------------\nVaše {voName}"
+        }
+    },
+    "beanName": "ApplicationMail"
+}, {
+    "appType": "INITIAL",
+    "formId": 7,
+    "mailType": "APP_REJECTED_USER",
+    "send": true,
+    "message": {
+        "en": {
+            "locale": "en",
+            "subject": "{voName}: Application for {groupName} group membership rejected",
+            "text": "Dear user,\n\nyour application for {groupName} group membership in VO {voName} under ID={appId} was rejected by VO administrator. Reason (if attached by administrator) follows:\n\n{customMessage}\n\n--------------------------\nYour VO {voName}"
+        },
+        "cs": {
+            "locale": "cs",
+            "subject": "{voName}: Žádost ID {appId} byla zamítnuta administrátorem",
+            "text": "Vážený uživateli,\n\nVaše přihláška do skupiny {groupName} pod ID={appId} byla zamítnuta administrátorem VO. Pokud uvedl důvod zamítnutí, text následuje:\n\n{customMessage}\n\n----------------------------\nVaše VO {voName}"
+        }
+    },
+    "beanName": "ApplicationMail"
+}, {
+    "appType": "INITIAL",
+    "formId": 7,
+    "mailType": "USER_INVITE",
+    "send": true,
+    "message": {
+        "en": {
+            "locale": "en",
+            "subject": "Invitation to {groupName} group within VO {voName}",
+            "text": "Dear {displayName},\n\nYou have been invited to {groupName} group within VO {voName}. Please follow the link below and fill the registration form.\n\n{invitationLink-fed}\n"
+        },
+        "cs": {
+            "locale": "cs",
+            "subject": "Pozvánka do skupiny {groupName} ve VO {voName}",
+            "text": "Vážený {displayName},\n\nByl(a) jste pozván(a) do skupiny {groupName} ve VO {voName}. Po kliknutí na následující odkaz přejdete na stránku s registračním formulářem.\n\n{invitationLink-fed}"
+        }
+    },
+    "beanName": "ApplicationMail"
+}];
+
+var voNotifications = [{
     "appType": "INITIAL",
     "formId": 1,
     "mailType": "APP_CREATED_USER",
@@ -119,7 +262,6 @@ var notifications = [{
     },
     "beanName": "ApplicationMail"
 }, {
-    "id": 2,
     "appType": "INITIAL",
     "formId": 1,
     "mailType": "APP_CREATED_VO_ADMIN",
@@ -138,7 +280,6 @@ var notifications = [{
     },
     "beanName": "ApplicationMail"
 }, {
-    "id": 6,
     "appType": "INITIAL",
     "formId": 1,
     "mailType": "MAIL_VALIDATION",
@@ -157,7 +298,6 @@ var notifications = [{
     },
     "beanName": "ApplicationMail"
 }, {
-    "id": 7,
     "appType": "INITIAL",
     "formId": 1,
     "mailType": "APP_APPROVED_USER",
@@ -176,7 +316,6 @@ var notifications = [{
     },
     "beanName": "ApplicationMail"
 }, {
-    "id": 8,
     "appType": "INITIAL",
     "formId": 1,
     "mailType": "APP_REJECTED_USER",
@@ -195,7 +334,6 @@ var notifications = [{
     },
     "beanName": "ApplicationMail"
 }, {
-    "id": 9,
     "appType": "INITIAL",
     "formId": 1,
     "mailType": "USER_INVITE",
@@ -215,7 +353,7 @@ var notifications = [{
     "beanName": "ApplicationMail"
 }];
 
-var formItems = [{
+var voFormItems = [{
     "shortname": "Heading",
     "required": false,
     "type": "HEADING",
@@ -311,6 +449,107 @@ var formItems = [{
     "regex": "",
     "applicationTypes": ["EXTENSION", "INITIAL"],
     "ordnum": 5,
+    "forDelete": false,
+    "i18n": {
+        "en": {"locale": "en", "label": "Submit", "options": null, "help": "", "errorMessage": ""},
+        "cs": {"locale": "cs", "label": "Odeslat", "options": null, "help": "", "errorMessage": ""}
+    },
+    "beanName": "ApplicationFormItem"
+}];
+
+var groupFormItems = [{
+    "shortname": "Heading",
+    "required": false,
+    "type": "HEADING",
+    "federationAttribute": "",
+    "perunDestinationAttribute": null,
+    "regex": "",
+    "applicationTypes": ["INITIAL", "EXTENSION"],
+    "ordnum": 0,
+    "forDelete": false,
+    "i18n": {
+        "en": {
+            "locale": "en",
+            "label": "<h2>Application for wp-admin group within the eduTEAMS catch-all VO</h2>",
+            "options": null,
+            "help": "",
+            "errorMessage": ""
+        },
+        "cs": {
+            "locale": "cs",
+            "label": "<h2>Přihláška do eduTEAMS catch-all VO</h2>",
+            "options": null,
+            "help": "",
+            "errorMessage": ""
+        }
+    },
+    "beanName": "ApplicationFormItem"
+}, {
+    "shortname": "displayName",
+    "required": true,
+    "type": "FROM_FEDERATION_SHOW",
+    "federationAttribute": "displayName",
+    "perunDestinationAttribute": "urn:perun:user:attribute-def:core:displayName",
+    "regex": "",
+    "applicationTypes": ["EXTENSION", "INITIAL"],
+    "ordnum": 1,
+    "forDelete": false,
+    "i18n": {
+        "en": {"locale": "en", "label": "Name", "options": null, "help": "", "errorMessage": ""},
+        "cs": {"locale": "cs", "label": "Jméno", "options": null, "help": "", "errorMessage": ""}
+    },
+    "beanName": "ApplicationFormItem"
+}, {
+    "shortname": "mail",
+    "required": false,
+    "type": "FROM_FEDERATION_HIDDEN",
+    "federationAttribute": "mail",
+    "perunDestinationAttribute": null,
+    "regex": "",
+    "applicationTypes": ["INITIAL", "EXTENSION"],
+    "ordnum": 2,
+    "forDelete": false,
+    "i18n": {
+        "en": {"locale": "en", "label": "", "options": null, "help": "", "errorMessage": ""},
+        "cs": {"locale": "cs", "label": "", "options": null, "help": "", "errorMessage": ""}
+    },
+    "beanName": "ApplicationFormItem"
+}, {
+    "shortname": "reason",
+    "required": false,
+    "type": "TEXTAREA",
+    "federationAttribute": "",
+    "perunDestinationAttribute": null,
+    "regex": "",
+    "applicationTypes": ["INITIAL", "EXTENSION"],
+    "ordnum": 3,
+    "forDelete": false,
+    "i18n": {
+        "en": {
+            "locale": "en",
+            "label": "Reason",
+            "options": null,
+            "help": "Write down the reason why you are applying for the group membership. Based on that VO manager will approve or reject your application.",
+            "errorMessage": ""
+        },
+        "cs": {
+            "locale": "cs",
+            "label": "Důvod",
+            "options": null,
+            "help": "Prosím uveďte důvod Vaší žádosti",
+            "errorMessage": ""
+        }
+    },
+    "beanName": "ApplicationFormItem"
+}, {
+    "shortname": "submit",
+    "required": false,
+    "type": "SUBMIT_BUTTON",
+    "federationAttribute": "",
+    "perunDestinationAttribute": null,
+    "regex": "",
+    "applicationTypes": ["INITIAL", "EXTENSION"],
+    "ordnum": 4,
     "forDelete": false,
     "i18n": {
         "en": {"locale": "en", "label": "Submit", "options": null, "help": "", "errorMessage": ""},
