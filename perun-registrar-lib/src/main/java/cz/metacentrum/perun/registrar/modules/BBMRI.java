@@ -80,6 +80,10 @@ public class BBMRI implements RegistrarModule {
 			}
 		}
 
+		if (app.getGroup() != null && app.getGroup().getName().equals("addNewCollections")) {
+			perun.getGroupsManager().removeMember(session, app.getGroup(), member);
+		}
+
 		return app;
 	}
 
