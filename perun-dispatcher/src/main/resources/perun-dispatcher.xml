@@ -49,6 +49,9 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<bean id="waitingTasksQueue" class="java.util.concurrent.DelayQueue"/>
 	<bean id="waitingForcedTasksQueue" class="java.util.concurrent.DelayQueue"/>
 
+	<!-- EventQueue -->
+	<bean id="eventQueue" class="java.util.concurrent.LinkedBlockingQueue"/>
+
 	<!-- DAOs -->
 	<bean id="rulesDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.RulesDaoJdbc">
 		<property name="dataSource" ref="dataSource"/>
@@ -77,7 +80,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 			</props>
 		</property>
 	</bean>
-	
+
 	<!-- pass properties values to Spring placeholders i.e. ${dispatcher.cron.cleantaskresults} -->
 	<context:property-placeholder properties-ref="dispatcherPropertiesBean"	ignore-unresolvable="true"/>
 

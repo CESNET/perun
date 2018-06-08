@@ -16,6 +16,7 @@ import cz.metacentrum.perun.dispatcher.model.Event;
 import org.springframework.stereotype.Service;
 
 import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * This class wraps AuditerConsumer for Dispatcher.
@@ -25,7 +26,6 @@ import java.util.Properties;
  *
  * Its started by DispatcherManager when Spring context is initialized.
  *
- * @see cz.metacentrum.perun.dispatcher.processing.EventQueue
  * @see cz.metacentrum.perun.dispatcher.processing.EventProcessor
  * @see cz.metacentrum.perun.dispatcher.service.DispatcherManager
  *
@@ -39,18 +39,18 @@ public class AuditerListener extends AbstractRunner {
 
 	private final static Logger log = LoggerFactory.getLogger(AuditerListener.class);
 
-	private EventQueue eventQueue;
+	private BlockingQueue<Event> eventQueue;
 	private DataSource dataSource;
 	private Properties dispatcherProperties;
 
 	// ----- setters -------------------------------------
 
-	public EventQueue getEventQueue() {
+	public BlockingQueue<Event> getEventQueue() {
 		return eventQueue;
 	}
 
-	@Autowired
-	public void setEventQueue(EventQueue eventQueue) {
+	@Resource(name = "eventQueue")
+	public void setEventQueue(BlockingQueue<Event> eventQueue) {
 		this.eventQueue = eventQueue;
 	}
 
@@ -100,7 +100,7 @@ public class AuditerListener extends AbstractRunner {
 							}
 							event.setData(message);
 							// pass event to queue for further processing
-							eventQueue.add(event);
+							eventQueue.put(event);
 						}
 						Thread.sleep(1000);
 					}
@@ -112,7 +112,7 @@ public class AuditerListener extends AbstractRunner {
 			}
 			log.debug("AuditerListener has stopped.");
 		} catch (InterruptedException e) {
-			log.error("Error in AuditerLister: {}" + e);
+			log.error("Error in AuditerListener: {}" + e);
 			throw new RuntimeException("Somebody has interrupted us...", e);
 		}
 
