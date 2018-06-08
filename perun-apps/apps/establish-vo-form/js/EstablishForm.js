@@ -360,7 +360,7 @@ var voFormItems = [{
     "federationAttribute": "",
     "perunDestinationAttribute": null,
     "regex": "",
-    "applicationTypes": ["INITIAL", "EXTENSION"],
+    "applicationTypes": ["INITIAL"],
     "ordnum": 0,
     "forDelete": false,
     "i18n": {
@@ -387,7 +387,7 @@ var voFormItems = [{
     "federationAttribute": "displayName",
     "perunDestinationAttribute": "urn:perun:user:attribute-def:core:displayName",
     "regex": "",
-    "applicationTypes": ["INITIAL", "EXTENSION"],
+    "applicationTypes": ["INITIAL"],
     "ordnum": 1,
     "forDelete": false,
     "i18n": {
@@ -402,7 +402,7 @@ var voFormItems = [{
     "federationAttribute": "displayName",
     "perunDestinationAttribute": null,
     "regex": "",
-    "applicationTypes": ["EXTENSION", "INITIAL"],
+    "applicationTypes": ["INITIAL"],
     "ordnum": 2,
     "forDelete": false,
     "i18n": {
@@ -417,7 +417,7 @@ var voFormItems = [{
     "federationAttribute": "mail",
     "perunDestinationAttribute": "urn:perun:user:attribute-def:def:preferredMail",
     "regex": "",
-    "applicationTypes": ["EXTENSION", "INITIAL"],
+    "applicationTypes": ["INITIAL"],
     "ordnum": 3,
     "forDelete": false,
     "i18n": {
@@ -432,7 +432,7 @@ var voFormItems = [{
     "federationAttribute": "mail",
     "perunDestinationAttribute": null,
     "regex": "",
-    "applicationTypes": ["EXTENSION", "INITIAL"],
+    "applicationTypes": ["INITIAL"],
     "ordnum": 4,
     "forDelete": false,
     "i18n": {
@@ -447,7 +447,7 @@ var voFormItems = [{
     "federationAttribute": "",
     "perunDestinationAttribute": null,
     "regex": "",
-    "applicationTypes": ["EXTENSION", "INITIAL"],
+    "applicationTypes": ["INITIAL"],
     "ordnum": 5,
     "forDelete": false,
     "i18n": {
