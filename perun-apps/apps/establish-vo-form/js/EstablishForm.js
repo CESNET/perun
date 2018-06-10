@@ -360,7 +360,7 @@ var voFormItems = [{
     "federationAttribute": "",
     "perunDestinationAttribute": null,
     "regex": "",
-    "applicationTypes": ["INITIAL"],
+    "applicationTypes": ["INITIAL", "EXTENSION"],
     "ordnum": 0,
     "forDelete": false,
     "i18n": {
@@ -453,6 +453,33 @@ var voFormItems = [{
     "i18n": {
         "en": {"locale": "en", "label": "Submit", "options": null, "help": "", "errorMessage": ""},
         "cs": {"locale": "cs", "label": "Odeslat", "options": null, "help": "", "errorMessage": ""}
+    },
+    "beanName": "ApplicationFormItem"
+}, {
+    "shortname": "alreadyMember",
+    "required": false,
+    "type": "HTML_COMMENT",
+    "federationAttribute": "",
+    "perunDestinationAttribute": null,
+    "regex": "",
+    "applicationTypes": ["EXTENSION"],
+    "ordnum": 6,
+    "forDelete": false,
+    "i18n": {
+        "en": {
+            "locale": "en",
+            "label": "<p>You are already a member of this VO. Please continue to a <a href=\"https://perun-eduteams.cesnet.cz/\">eduTEAMS Perun info page</a> to discover more.</p>",
+            "options": null,
+            "help": "",
+            "errorMessage": ""
+        },
+        "cs": {
+            "locale": "cs",
+            "label": "<p>Již jste členem této virtuální organizace. Prosím pokračujte na <a href=\"https://perun-eduteams.cesnet.cz/\">informační stánku o Perunovi v eduTEAMS</a>, kde se dozvíte více.</p>",
+            "options": null,
+            "help": "",
+            "errorMessage": ""
+        }
     },
     "beanName": "ApplicationFormItem"
 }];
