@@ -115,12 +115,12 @@ sub new {
 		}
 	}
 
-	# Some error occured during connection
+	# Some error occur during connection
 	if ($response->is_error) {
 		die Perun::Exception->fromHash( { type => SERVER_ERROR } );
 	}
 
-	# Check if the reponse contains string 'OK'
+	# Check if the response contains string 'OK'
 	if ($response->content !~ /^OK! /) {
 		die Perun::Exception->fromHash( { type => WRONG_URL, errorInfo => $self->{_url} } );
 	}
@@ -143,7 +143,19 @@ sub call
 	my $fullUrl = "$self->{_url}/$format/$class/$method";
 
 	my $content = $self->{_jsonXs}->encode( $hash );
-	my $response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
+
+	# process XSRF-TOKEN
+	my $url = URI->new( $self->{_url} );
+	my $domain = $url->host;
+	if ($domain eq "localhost") {
+		# LWP resolves localhost as localhost.local
+		$domain="localhost.local";
+	}
+
+	$self->{_lwpUserAgent}->default_header('X-XSRF-TOKEN' => $self->{_lwpUserAgent}->cookie_jar()->{"COOKIES"}->{$domain}->{"/"}->{"XSRF-TOKEN"}[1]);
+
+	# make call
+	my $response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content ) );
 	my $code = $response->code;
 	my $decodedContent = $response->decoded_content;
 

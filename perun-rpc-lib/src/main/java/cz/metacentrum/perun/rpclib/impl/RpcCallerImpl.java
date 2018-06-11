@@ -6,14 +6,19 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.Authenticator;
 import java.net.CookieHandler;
 import java.net.CookieManager;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.ProtocolException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -30,6 +35,7 @@ public class RpcCallerImpl implements RpcCaller {
 	private static String format = "json";
 	private String perunUrl;
 	private PerunPrincipal perunPrincipal;
+	private CookieManager cookieManager;
 
 	private final static Logger log = LoggerFactory.getLogger(RpcCallerImpl.class);
 
@@ -43,7 +49,7 @@ public class RpcCallerImpl implements RpcCaller {
 		this.perunPrincipal = perunPrincipal;
 
 		// Set system wide cookie manager
-		CookieManager cookieManager = new CookieManager();
+		cookieManager = new CookieManager();
 		CookieHandler.setDefault(cookieManager);
 	}
 
@@ -187,6 +193,27 @@ public class RpcCallerImpl implements RpcCaller {
 			conn = (HttpURLConnection) url.openConnection();
 
 			conn.setRequestProperty("content-type", "application/json; charset=utf-8");
+
+			// XSRF protection
+			URI domainUri = null;
+			try {
+				domainUri = new URI(perunUrl);
+			} catch (URISyntaxException e) {
+				log.error("Can't parse perunUrl property to URI: {}", perunUrl);
+			}
+			if (domainUri != null) {
+
+				List<HttpCookie> cookies = cookieManager.getCookieStore().get(domainUri);
+
+				for (HttpCookie cookie : cookies) {
+					if (Objects.equals(cookie.getDomain(), domainUri.getHost()) &&
+					Objects.equals(cookie.getName(), "XSRF-TOKEN")) {
+						conn.setRequestProperty("X-XSRF-TOKEN", cookie.getValue());
+						break;
+					}
+				}
+			}
+
 			// Try Keep-Alive
 			conn.setRequestProperty("Connection", "Close");
 			// We will send output

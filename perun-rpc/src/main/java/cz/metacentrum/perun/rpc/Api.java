@@ -206,7 +206,7 @@ public class Api extends HttpServlet {
 		String remoteUser = req.getRemoteUser();
 
 		CoreConfig config = BeansUtils.getCoreConfig();
-		
+
 		// If we have header Shib-Identity-Provider, then the user uses identity federation to authenticate
 		if (isNotEmpty(shibIdentityProvider)) {
 			extSourceName = getOriginalIdP(shibIdentityProvider, sourceIdpEntityId);
@@ -435,9 +435,18 @@ public class Api extends HttpServlet {
 
 	private void mirrorOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
 		String origin = req.getHeader("Origin");
-		if(origin==null) origin = "*";
-		resp.setHeader("Access-Control-Allow-Origin",origin);
-		resp.setHeader("Vary","Origin");
+
+		if (origin != null) {
+			List<String> allowedDomains = BeansUtils.getCoreConfig().getAllowedCorsDomains();
+			if (allowedDomains.contains(origin)) {
+				resp.setHeader("Access-Control-Allow-Origin",origin);
+				resp.setHeader("Vary","Origin");
+			}
+		} else {
+			// no origin, don't modify header
+			// origin = "*";
+		}
+
 	}
 
 	@SuppressWarnings("ConstantConditions")

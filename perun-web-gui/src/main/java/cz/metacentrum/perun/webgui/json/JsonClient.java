@@ -1,10 +1,12 @@
 package cz.metacentrum.perun.webgui.json;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
@@ -109,6 +111,11 @@ public class JsonClient {
 
 		// request building
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, requestUrl);
+
+		if (Cookies.getCookie("XSRF-TOKEN") != null) {
+			// FIXME - we protect only POST/PUT calls
+			//builder.setHeader("X-XSRF-TOKEN", Cookies.getCookie("XSRF-TOKEN"));
+		}
 		try {
 
 			// sends the request
