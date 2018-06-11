@@ -1159,7 +1159,7 @@ create table tasks (
   constraint task_srv_fk foreign key (service_id) references services(id),
   constraint task_fac_fk foreign key (facility_id) references facilities(id),
   constraint task_eng_fk foreign key (engine_id) references engines (id),
-  constraint task_stat_chk check (status in ('NONE','OPEN','PLANNED','PROCESSING','DONE','ERROR'))
+  constraint task_stat_chk check (status in ('WAITING', 'PLANNED', 'GENERATING', 'GENERROR', 'GENERATED', 'SENDING', 'DONE', 'SENDERROR', 'ERROR'))
 );
 
 -- TASKS_RESULTS - contains partial results of tasks (executing, waiting and at near past finished)
