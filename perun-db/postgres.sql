@@ -1877,5 +1877,10 @@ insert into configurations values ('DATABASE VERSION','3.1.47');
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 
+-- insert action types
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write', 'Can write, rewrite and remove value.');
+
+-- insert default engine on default port
+insert into engines (id, ip_address, port, last_check_in, created_at, created_by, modified_at, modified_by, status, created_by_uid, modified_by_uid) VALUES (1, '127.0.0.1', 6061, statement_timestamp(), statement_timestamp(), 'perun', statement_timestamp(), 'perun', '1', null, null);
+

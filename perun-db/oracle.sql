@@ -1780,3 +1780,6 @@ insert into membership_types (id, membership_type, description) values (2, 'INDI
 -- insert action types
 insert into action_types (id, action_type, description) values (ACTION_TYPES_SEQ.nextval, 'read', 'Can read value.');
 insert into action_types (id, action_type, description) values (ACTION_TYPES_SEQ.nextval, 'write', 'Can write, rewrite and remove value.');
+
+-- insert default engine on default port
+insert into engines (id, ip_address, port, last_check_in, created_at, created_by, modified_at, modified_by, status, created_by_uid, modified_by_uid) VALUES (1, '127.0.0.1', 6061, sysdate, sysdate, 'perun', sysdate, 'perun', '1', null, null);
