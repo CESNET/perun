@@ -33,6 +33,7 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Detail of Attribute definition
@@ -203,7 +204,7 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 					}
 				}
 
-				if ((!def.getDescription().equals(description.getTextBox().getText().trim()) || !def.getDisplayName().equals(displayName.getTextBox().getText().trim()))) {
+				if ((!Objects.equals(def.getDescription(), description.getTextBox().getText().trim()) || !Objects.equals(def.getDisplayName(), displayName.getTextBox().getText().trim()))) {
 
 					if (!validator.validateTextBox() || !validatorName.validateTextBox()) return;
 
