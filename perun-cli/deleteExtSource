@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Deletes an external source. External source id or name are required fields.
+	------------------------------------
+	Available options:
+	--extSourceId    | -e external source id
+	--extSourceName  | -E external source name
+	--batch          | -b batch
+	--help           | -h prints this help
+
+	};
+}
+
+my ($extSourceId, $extSourceName, $batch);
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"extSourceId|e=i" => \$extSourceId, 
+	"extSourceName|E=s" => \$extSourceName ) || die help();
+
+# Check options
+unless (defined($extSourceId) or defined($extSourceName)) { die "ERROR: extSourceId or extSourceName is required\n"; }
+
+my $agent = Perun::Agent->new();
+my $extSourcesAgent = $agent->getExtSourcesAgent;
+
+if (!defined($extSourceId)) {
+	my $extSource = $extSourcesAgent->getExtSourceByName( name => $extSourceName );
+	$extSourceId = $extSource->getId;
+}
+
+$extSourcesAgent->deleteExtSource( id => $extSourceId );
+
+printMessage("External source Id: $extSourceId successfully deleted", $batch);
+
+

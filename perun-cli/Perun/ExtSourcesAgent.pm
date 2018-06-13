@@ -57,4 +57,9 @@ sub loadExtSourcesDefinitions
 	return Perun::Common::callManagerMethod('loadExtSourcesDefinitions', '', @_);
 }
 
+sub deleteExtSource
+{
+	return Perun::Common::callManagerMethod('deleteExtSource', '', @_);
+}
+
 1;
