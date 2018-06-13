@@ -454,6 +454,27 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().removeUserExtSource(sess, user, userExtSource);
 	}
 
+	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource, boolean forceDelete) throws InternalErrorException, UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException {
+		Utils.checkPerunSession(sess);
+
+		if (forceDelete) {
+
+			// Authorization
+			if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN, user)) {
+				throw new PrivilegeException(sess, "removeUserExtSource");
+			}
+
+			getUsersManagerBl().checkUserExists(sess, user);
+			// set userId, so checkUserExtSourceExists can check the userExtSource for the particular user
+			userExtSource.setUserId(user.getId());
+			getUsersManagerBl().checkUserExtSourceExists(sess, userExtSource);
+
+			getUsersManagerBl().removeUserExtSource(sess, user, userExtSource);
+		} else {
+			removeUserExtSource(sess, user, userExtSource);
+		}
+	}
+
 	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
