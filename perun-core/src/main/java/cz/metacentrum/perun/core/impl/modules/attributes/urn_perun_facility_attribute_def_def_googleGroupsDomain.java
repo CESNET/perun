@@ -14,18 +14,22 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
 
 /**
- * Module of googleGroupNameNamespace attribute
+ * Module of googleGroupsDomain attribute
  *
  * @author Michal Holič  holic.michal@gmail.com
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_facility_attribute_def_def_googleGroupNameNamespace extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
+public class urn_perun_facility_attribute_def_def_googleGroupsDomain extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Attribute value can't be null");
 
+		// we don't allow dots in attribute friendlyName, so we convert domain dots to dash.
+		String namespace = ((String) attribute.getValue()).replaceAll("\\.", "-");
+
 		try {
-			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + (String) attribute.getValue());
+			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + namespace);
 		} catch (AttributeNotExistsException e) {
 			throw new WrongAttributeValueException(attribute, e);
 		}
@@ -34,10 +38,10 @@ public class urn_perun_facility_attribute_def_def_googleGroupNameNamespace exten
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
-		attr.setFriendlyName("googleGroupNameNamespace");
-		attr.setDisplayName("Google group name namespace");
+		attr.setFriendlyName("googleGroupsDomain");
+		attr.setDisplayName("Google groups domain");
 		attr.setType(String.class.getName());
-		attr.setDescription("Allowed google group name namespace on facility.");
+		attr.setDescription("Google groups domain on facility. Namespace attribute for group names is derived from the domain value by replacing all dots by dashes.");
 		return attr;
 	}
 }
