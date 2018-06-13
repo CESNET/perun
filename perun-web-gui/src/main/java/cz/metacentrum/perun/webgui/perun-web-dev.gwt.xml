@@ -6,10 +6,10 @@
 
 	<!--  Support only these browsers for devel -->
 	<set-property name="user.agent" value="gecko1_8" />
-    <extend-property name="user.agent" values="safari" />
+	<extend-property name="user.agent" values="safari" />
 
 	<!-- enable source maps -->
-    <set-configuration-property name="devModeRedirectEnabled" value="true"/>
-    <set-property name="compiler.useSourceMaps" value="true" />
+	<set-configuration-property name="devModeRedirectEnabled" value="true"/>
+	<set-property name="compiler.useSourceMaps" value="true" />
 
 </module>
