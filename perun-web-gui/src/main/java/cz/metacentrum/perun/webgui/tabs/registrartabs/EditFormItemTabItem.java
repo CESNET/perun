@@ -434,6 +434,7 @@ public class EditFormItemTabItem implements TabItem {
 		federationAttributes.addItem("EduPersonScopedAffiliation", "eduPersonScopedAffiliation");
 		federationAttributes.addItem("Forwarded Affiliation from Proxy", "forwardedScopedAffiliation");
 		federationAttributes.addItem("schacHomeOrganization", "schacHomeOrganization");
+		federationAttributes.addItem("Login", "uid");
 
 		// application types
 		GetAttributesDefinition attrDef = new GetAttributesDefinition(new JsonCallbackEvents() {
