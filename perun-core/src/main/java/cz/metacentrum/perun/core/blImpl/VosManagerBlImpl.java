@@ -54,7 +54,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 				} else throw new RelationExistsException("Vo vo=" + vo + " contains members");
 			}
 
-			log.debug("Removing vo {} resources and theirs atributes", vo);
+			log.debug("Removing vo {} resources and theirs attributes", vo);
 			// Delete resources
 			List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
 			if ((resources.size() == 0) || forceDelete) {

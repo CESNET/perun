@@ -410,7 +410,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				throw new ConsistencyErrorException(e);
 			}
 		}
-		getPerunBl().getAuditer().log(sess, "All group in {} deleted.", vo);
 	}
 
 	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
@@ -2815,7 +2814,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		return false;
 	}
-	
+
 	/**
 	 * Method sets subGroups names by their parent group
 	 * Private method for moving groups
