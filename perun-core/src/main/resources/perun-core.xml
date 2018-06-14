@@ -454,8 +454,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<property name="jdbcUrl" value="${jdbc.url}"/>
 			<property name="username" value="${jdbc.username}"/>
 			<property name="password" value="${jdbc.password}"/>
-			<property name="maximumPoolSize" value="150"/>
-			<property name="minimumIdle" value="10"/>
+			<property name="maximumPoolSize" value="${jdbc.maximumPoolSize}"/>
+			<property name="minimumIdle" value="${jdbc.minimumIdle}"/>
 			<!--
 			<property name="maxTotal" value="150" />
 			<property name="maxIdle" value="30" />
