@@ -444,8 +444,8 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 	public List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws InternalErrorException, HostExistsException {
 		//check if hosts not exist in cluster
-		List<Host> alreadyAssignedHosts = getHosts(sess, facility);	
-		
+		List<Host> alreadyAssignedHosts = getHosts(sess, facility);
+
 		Set<String> alreadyAssignedHostnames = new HashSet<String>();
 		Set<String> newHostnames = new HashSet<String>();
 		for(Host h : alreadyAssignedHosts) alreadyAssignedHostnames.add(h.getHostname());
@@ -509,7 +509,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public void addAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, AlreadyAdminException {
 		List<Group> listOfAdmins = getAdminGroups(sess, facility);
 		if (listOfAdmins.contains(group)) throw new AlreadyAdminException(group);
-		
+
 		AuthzResolverBlImpl.setRole(sess, group, facility, Role.FACILITYADMIN);
 		getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", group, facility);
 	}
@@ -523,7 +523,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
 		List<Group> listOfAdmins = getAdminGroups(sess, facility);
 		if (!listOfAdmins.contains(group)) throw new GroupNotAdminException(group);
-		
+
 		AuthzResolverBlImpl.unsetRole(sess, group, facility, Role.FACILITYADMIN);
 		getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", group, facility);
 	}
@@ -612,6 +612,11 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	public void removeHost(PerunSession sess, Host host) throws InternalErrorException, HostAlreadyRemovedException {
+		try {
+			perunBl.getAttributesManagerBl().removeAllAttributes(sess, host);
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+			throw new InternalErrorException(e);
+		}
 		facilitiesManagerImpl.removeHost(sess, host);
 		getPerunBl().getAuditer().log(sess, "{} removed.", host);
 	}
@@ -857,7 +862,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		this.facilitiesManagerImpl.removeAllGroupContacts(sess, group);
 
 		for (ContactGroup contactGroup : contactGroups) {
-			sess.getPerun().getAuditer().log(sess, "Group (" + group.getId() + ") successfully removed from contact groups " + contactGroup.toString() + ".");		
+			sess.getPerun().getAuditer().log(sess, "Group (" + group.getId() + ") successfully removed from contact groups " + contactGroup.toString() + ".");
 		}
 	}
 
