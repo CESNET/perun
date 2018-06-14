@@ -733,19 +733,6 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithoutVoAssigned(sess));
 	}
 
-	public void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, NotSpecificUserExpectedException {
-		Utils.checkPerunSession(sess);
-
-		getUsersManagerBl().checkUserExists(sess, user);
-
-		// Authorization
-		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "makeUserPerunAdmin");
-		}
-
-		getUsersManagerBl().makeUserPerunAdmin(sess, user);
-	}
-
 	public boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 

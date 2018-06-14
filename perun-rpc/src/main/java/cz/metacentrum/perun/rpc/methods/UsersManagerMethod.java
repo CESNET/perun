@@ -858,22 +858,6 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Adds PERUNADMIN role to the user.
-	 *
-	 * @param user int User <code>id</code>
-	 */
-	makeUserPerunAdmin {
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
-			User user = ac.getUserById(parms.readInt("user"));
-			ac.getUsersManager().makeUserPerunAdmin(ac.getSession(), user);
-			return null;
-		}
-	},
-
-
-	/*#
 	 * Changes user password in defined login-namespace.
 	 *
 	 * @param login String Users login
