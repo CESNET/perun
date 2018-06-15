@@ -677,16 +677,6 @@ public interface UsersManagerBl {
 	 */
 	List<RichUser> getRichUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException, UserNotExistsException;
 
-
-	/**
-	 * Adds PERUNADMIN role to the user.
-	 *
-	 * @param sess
-	 * @param user
-	 * @throws InternalErrorException
-	 */
-	void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException;
-
 	/**
 	 * Returns true if the user is PERUNADMIN.
 	 *

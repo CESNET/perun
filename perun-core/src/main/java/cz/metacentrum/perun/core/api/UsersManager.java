@@ -662,18 +662,6 @@ public interface UsersManager {
 	List<User> getUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException, PrivilegeException;
 
 	/**
-	 * Adds PERUNADMIN role to the user.
-	 *
-	 * @param sess
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws NotSpecificUserExpectedException if the user is specific User
-	 * @throws PrivilegeException
-	 * @throws UserNotExistsException
-	 */
-	void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, NotSpecificUserExpectedException;
-
-	/**
 	 * Returns true if the user is PERUNADMIN.
 	 *
 	 * @param sess

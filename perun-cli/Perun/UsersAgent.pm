@@ -138,11 +138,6 @@ sub getUsersByAttributeValue
 	return Perun::Common::callManagerMethod('getUsersByAttributeValue', '[]User', @_);
 }
 
-sub makeUserPerunAdmin
-{
-	return Perun::Common::callManagerMethod('makeUserPerunAdmin', 'null', @_);
-}
-
 sub getSpecificUsersByUser
 {
 	return Perun::Common::callManagerMethod('getSpecificUsersByUser', '[]User', @_);
