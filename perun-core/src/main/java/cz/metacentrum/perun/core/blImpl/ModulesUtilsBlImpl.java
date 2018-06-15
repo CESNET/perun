@@ -36,7 +36,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public static final String A_R_unixGroupName_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace";
 	public static final String A_F_unixGID_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace";
 	public static final String A_F_unixGroupName_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace";
-	public static final String A_F_googleGroupName_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupNameNamespace";
+	public static final String A_F_googleGroupsDomain = AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupsDomain";
 	private static final String A_E_usedGids = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids";
 
 	//Often used patterns
@@ -522,7 +522,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public Attribute getGoogleGroupNameNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws InternalErrorException, WrongReferenceAttributeValueException {
 		Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 		try {
-			Attribute googleGroupNameNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_F_googleGroupName_namespace);
+			Attribute googleGroupNameNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_F_googleGroupsDomain);
 			if(googleGroupNameNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(googleGroupNameNamespaceAttribute);
 			return googleGroupNameNamespaceAttribute;
 		} catch(AttributeNotExistsException ex) {

@@ -31,7 +31,7 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 			// if this is group attribute, its ok
 			return;
 		}else if(!groupName.matches("^[-_a-zA-Z0-9']+$")){
-			throw new WrongAttributeValueException(attribute, group, "GroupName attributte content invalid characters. Allowed are only letters, numbers and characters _ and -.");
+			throw new WrongAttributeValueException(attribute, group, "GroupName attribute content invalid characters. Allowed are only letters, numbers and characters _ and -.");
 		}
 
 		//TODO Check reserved google group names

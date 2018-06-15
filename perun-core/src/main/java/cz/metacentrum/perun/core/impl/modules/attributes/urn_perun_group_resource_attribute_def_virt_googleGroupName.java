@@ -28,9 +28,11 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute googleGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getGoogleGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
+		// we don't allow dots in attribute friendlyName, so we convert domain dots to dash.
+		String namespace = ((String) googleGroupNameNamespaceAttribute.getValue()).replaceAll("\\.", "-");
 		Attribute groupNameAttribute;
 		try {
-			groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + googleGroupNameNamespaceAttribute.getValue());
+			groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + namespace);
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -57,7 +59,9 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 		}
 		Attribute groupNameAttribute;
 		try {
-			groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + googleGroupNameNamespaceAttribute.getValue());
+			// we don't allow dots in attribute friendlyName, so we convert domain dots to dash.
+			String namespace = ((String) googleGroupNameNamespaceAttribute.getValue()).replaceAll("\\.", "-");
+			groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + namespace);
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -90,7 +94,9 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 		}
 
 		try {
-			Attribute groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + googleGroupNameNamespaceAttribute.getValue());
+			// we don't allow dots in attribute friendlyName, so we convert domain dots to dash.
+			String namespace = ((String) googleGroupNameNamespaceAttribute.getValue()).replaceAll("\\.", "-");
+			Attribute groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + namespace);
 			attribute = Utils.copyAttributeToVirtualAttributeWithValue(groupNameAttribute, attribute);
 			return attribute;
 		} catch(WrongAttributeAssignmentException ex) {
@@ -105,7 +111,9 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 		Attribute googleGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getGoogleGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
 
 		try {
-			Attribute groupNameAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + googleGroupNameNamespaceAttribute.getValue()));
+			// we don't allow dots in attribute friendlyName, so we convert domain dots to dash.
+			String namespace = ((String) googleGroupNameNamespaceAttribute.getValue()).replaceAll("\\.", "-");
+			Attribute groupNameAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + namespace));
 			groupNameAttribute.setValue(attribute.getValue());
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, group, groupNameAttribute);
 		} catch(AttributeNotExistsException ex) {
@@ -124,10 +132,10 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<String>();
-		dependecies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace" + ":*");
-		dependecies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupNameNamespace");
-		return dependecies;
+		List<String> dependencies = new ArrayList<String>();
+		dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace" + ":*");
+		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupsDomain");
+		return dependencies;
 	}
 
 	@Override
