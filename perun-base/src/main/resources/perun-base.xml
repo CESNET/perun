@@ -46,6 +46,7 @@
 		<property name="attributesForUpdateX509" value="#{'${perun.attributesForUpdate.x509}'.split('\s*,\s*')}"/>
 		<property name="oidcIssuers" value="#{'${perun.oidc.issuers}'.split('\s*,\s*')}"/>
 		<property name="allowedCorsDomains" value="#{'${perun.allowedCorsDomains}'.split('\s*,\s*')}" />
+		<property name="csrfEnabled" value="${perun.csrfEnabled}" />
 	</bean>
 
 
@@ -101,6 +102,7 @@
 				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
 				<prop key="perun.instanceName">LOCAL</prop>
 				<prop key="perun.allowedCorsDomains"></prop>
+				<prop key="perun.csrfEnabled">false</prop>
 				<!--
 				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
 				-->

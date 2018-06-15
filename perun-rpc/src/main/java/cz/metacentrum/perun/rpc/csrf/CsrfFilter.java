@@ -31,6 +31,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +93,11 @@ public final class CsrfFilter implements Filter {
 			if (this.allowedMethods.contains(request.getMethod())) {
 				log.trace("Skip CSRF check on GET | HEAD | TRACE | OPTIONS method.");
 				filterChain.doFilter(request, response);
+				return;
+			}
+			// Is CSRF protection enabled ?
+			if (!BeansUtils.getCoreConfig().isCsrfEnabled()) {
+				filterChain.doFilter(servletRequest, servletResponse);
 				return;
 			}
 

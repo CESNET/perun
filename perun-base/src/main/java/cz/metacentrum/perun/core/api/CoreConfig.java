@@ -62,6 +62,7 @@ public class CoreConfig {
 	private String smsProgram;
 	private String userExtSourcesPersistent;
 	private List<String> allowedCorsDomains;
+	private boolean isCsrfEnabled;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -472,4 +473,13 @@ public class CoreConfig {
 	public void setAllowedCorsDomains(List<String> allowedCorsDomains) {
 		this.allowedCorsDomains = allowedCorsDomains;
 	}
+
+	public boolean isCsrfEnabled() {
+		return isCsrfEnabled;
+	}
+
+	public void setCsrfEnabled(boolean csrfEnabled) {
+		isCsrfEnabled = csrfEnabled;
+	}
+
 }
