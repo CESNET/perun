@@ -80,9 +80,12 @@ public final class CsrfFilter implements Filter {
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
 			HttpServletResponse response = (HttpServletResponse)servletResponse;
 
-			// load token from cookie or create cookie
+			// get all instances of tokens
+			CsrfToken httpSessionToken = (CsrfToken)request.getSession(true).getAttribute(CSRF_REQUEST_ATTR_NAME);
 			CsrfToken cookieCsrfToken = loadToken(request);
-			final boolean missingToken = (cookieCsrfToken == null);
+			String actualToken = request.getHeader(CSRF_HEADER_NAME);
+
+			final boolean missingToken = (cookieCsrfToken == null || httpSessionToken == null);
 			if (missingToken) {
 				log.debug("Missing CSRF token - generating new.");
 				cookieCsrfToken = generateToken();
@@ -103,10 +106,6 @@ public final class CsrfFilter implements Filter {
 
 			log.trace("Perform CSRF check.");
 
-			CsrfToken httpSessionToken = (CsrfToken)request.getSession(true).getAttribute(CSRF_REQUEST_ATTR_NAME);
-
-			String actualToken = request.getHeader(CSRF_HEADER_NAME);
-
 			// check if sent Cookie and Header are the same
 			if (!Objects.equals(cookieCsrfToken.getValue(), actualToken)) {
 
@@ -124,6 +123,7 @@ public final class CsrfFilter implements Filter {
 
 			// since caller might forge both Cookie and Header
 			// check if sent Header and stored HttpSession token are the same
+			httpSessionToken = (CsrfToken)request.getSession(true).getAttribute(CSRF_REQUEST_ATTR_NAME);
 			if (!Objects.equals(httpSessionToken.getValue(), actualToken)) {
 
 				log.trace("Invalid CSRF token found for {} SESSION: {} | HEADER: {}.", request.getRequestURI(), httpSessionToken.getValue(), actualToken);
