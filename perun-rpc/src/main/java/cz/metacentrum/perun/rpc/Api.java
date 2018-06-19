@@ -426,11 +426,13 @@ public class Api extends HttpServlet {
 	 */
 	@Override
 	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		checkOriginHeader(req,resp);
-		resp.setHeader("Access-Control-Allow-Methods","GET, POST, OPTIONS");
-		resp.setHeader("Access-Control-Allow-Headers","Authorization, Content-Type");
-		resp.setIntHeader("Access-Control-Max-Age",86400);
-		resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		if (checkOriginHeader(req,resp)) {
+			resp.setHeader("Access-Control-Allow-Methods","GET, POST, OPTIONS");
+			resp.setHeader("Access-Control-Allow-Headers","Authorization, Content-Type");
+			resp.setHeader("Access-Control-Allow-Credentials", "true");
+			resp.setIntHeader("Access-Control-Max-Age",86400);
+			resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		}
 	}
 
 	/**
@@ -439,7 +441,7 @@ public class Api extends HttpServlet {
 	 * @param req HttpServletRequest to check
 	 * @param resp HttpServletResponse to modify
 	 */
-	private void checkOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
+	private boolean checkOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
 		String origin = req.getHeader("Origin");
 		log.debug("Incoming Origin header: {}", origin);
 
@@ -455,12 +457,14 @@ public class Api extends HttpServlet {
 				log.debug("ADDING HEADER Access-Control-Allow-Origin to response: {}", origin);
 				resp.setHeader("Access-Control-Allow-Origin",origin);
 				resp.setHeader("Vary","Origin");
+				return true;
 			}
 		} else {
 			// no origin, don't modify header
 			// origin = "*";
 		}
 
+		return false;
 	}
 
 	@SuppressWarnings("ConstantConditions")
