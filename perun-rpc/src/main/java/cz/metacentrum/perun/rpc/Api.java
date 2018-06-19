@@ -441,10 +441,18 @@ public class Api extends HttpServlet {
 	 */
 	private void checkOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
 		String origin = req.getHeader("Origin");
+		log.debug("Incoming Origin header: {}", origin);
+
+		log.debug("Available headers: {}", Collections.list(req.getHeaderNames()));
+		for (String headerName : Collections.list(req.getHeaderNames())) {
+			log.debug("Header: {}={}", headerName, req.getHeader(headerName));
+		}
 
 		if (origin != null) {
 			List<String> allowedDomains = BeansUtils.getCoreConfig().getAllowedCorsDomains();
+			log.debug("Allowed domains: {}", allowedDomains);
 			if (allowedDomains.contains(origin)) {
+				log.debug("ADDING HEADER Access-Control-Allow-Origin to response: {}", origin);
 				resp.setHeader("Access-Control-Allow-Origin",origin);
 				resp.setHeader("Vary","Origin");
 			}
