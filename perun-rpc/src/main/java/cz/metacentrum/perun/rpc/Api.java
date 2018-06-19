@@ -385,7 +385,7 @@ public class Api extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		mirrorOriginHeader(req,resp);
+		checkOriginHeader(req,resp);
 		if (req.getPathInfo() == null || req.getPathInfo().equals("/")) {
 			resp.setContentType("text/plain; charset=utf-8");
 			Writer wrt = resp.getWriter();
@@ -408,13 +408,13 @@ public class Api extends HttpServlet {
 
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		mirrorOriginHeader(req,resp);
+		checkOriginHeader(req,resp);
 		serve(req, resp, false, true);
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		mirrorOriginHeader(req,resp);
+		checkOriginHeader(req,resp);
 		serve(req, resp, false, false);
 	}
 
@@ -426,14 +426,20 @@ public class Api extends HttpServlet {
 	 */
 	@Override
 	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		mirrorOriginHeader(req,resp);
+		checkOriginHeader(req,resp);
 		resp.setHeader("Access-Control-Allow-Methods","GET, POST, OPTIONS");
 		resp.setHeader("Access-Control-Allow-Headers","Authorization, Content-Type");
 		resp.setIntHeader("Access-Control-Max-Age",86400);
 		resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
-	private void mirrorOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
+	/**
+	 * Check Origin header, if it's between allowed domains for CORS
+	 *
+	 * @param req HttpServletRequest to check
+	 * @param resp HttpServletResponse to modify
+	 */
+	private void checkOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
 		String origin = req.getHeader("Origin");
 
 		if (origin != null) {

@@ -99,7 +99,7 @@ public final class CsrfFilter implements Filter {
 				return;
 			}
 			// Is CSRF protection enabled ?
-			if (!BeansUtils.getCoreConfig().isCsrfEnabled()) {
+			if (!BeansUtils.getCoreConfig().isCsrfProtectionEnabled()) {
 				filterChain.doFilter(servletRequest, servletResponse);
 				return;
 			}
