@@ -43,6 +43,8 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attribute_def_virt_GIDRanges;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
@@ -6153,6 +6155,26 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//set attribute rights (with dummy id of attribute - not known yet)
 		rights = new ArrayList<>();
 		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn_perun_facility_attribute_def_virt_GIDRanges
+		attr = new AttributeDefinition( (new urn_perun_facility_attribute_def_virt_GIDRanges()).getAttributeDefinition() );
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn_perun_entityless_attribute_def_def_namespace_GIDRanges
+		attr = new AttributeDefinition( (new urn_perun_entityless_attribute_def_def_namespace_GIDRanges()).getAttributeDefinition() );
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
 		if (perunBl.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");

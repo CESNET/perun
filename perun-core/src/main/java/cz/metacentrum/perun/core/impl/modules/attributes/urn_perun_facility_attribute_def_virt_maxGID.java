@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttri
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
+@Deprecated
 public class urn_perun_facility_attribute_def_virt_maxGID extends FacilityVirtualAttributesModuleAbstract implements FacilityVirtualAttributesModuleImplApi {
 
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {

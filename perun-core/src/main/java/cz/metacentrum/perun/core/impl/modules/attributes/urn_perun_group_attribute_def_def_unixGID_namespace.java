@@ -141,7 +141,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 				}
 				return;   //Group is not propagated to any facility in this GID namespace or it doesn't have set unix name there so it doesn't need to have unix GID.
 			}
-			
+
 			//Special behaviour if gid is null
 			Integer attrValue = null;
 			if(attribute.getValue() == null) {
@@ -224,7 +224,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		String gidNamespace = attribute.getFriendlyNameParameter();
-		
+
 		//get attribute with usedGids for update
 		//IMPORTANT: for update lock row in table of attr values, be careful when using
 		Attribute usedGids;
@@ -233,17 +233,17 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
-		
+
 		//Get Map of gids (if there is no value, use empty map
 		Map<String, String> usedGidsValue = new LinkedHashMap<>();
 		if(usedGids.getValue() != null) usedGidsValue = (Map<String,String>) usedGids.getValue();
-		
+
 		//initial settings
 		String key = "G" + group.getId();
 		String oldGid = usedGidsValue.get(key);
-		
+
 		//for removing gid
-		if(attribute.getValue() == null) {			
+		if(attribute.getValue() == null) {
 			//remove record from map
 			if(oldGid != null) {
 				usedGidsValue.remove(key);
@@ -262,7 +262,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 				usedGidsValue.put("D" + oldGid, oldGid);
 			}
 		}
-		
+
 		//set new attribute value for usedGids
 		usedGids.setValue(usedGidsValue);
 		try {
@@ -273,12 +273,11 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	@Override
 	public List<String> getDependencies() {
 		List<String> dependencies = new ArrayList<String>();
-		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
-		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID");
+		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
 		//Temporary disallowed for performance reason
 		//dependencies.add(A_E_usedGids);
 		return dependencies;

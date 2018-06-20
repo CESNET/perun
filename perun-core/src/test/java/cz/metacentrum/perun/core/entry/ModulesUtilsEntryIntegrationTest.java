@@ -40,6 +40,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -70,7 +71,6 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	@Before
 	public void setUp() throws Exception {
 		modulesUtilsBl = perun.getModulesUtilsBl();
-
 	}
 
 	@Test
@@ -191,14 +191,12 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		List<Resource> resources = new ArrayList<Resource>();
 		resources.add(resource);
 
-		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
-		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
+		Attribute gidRanges = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+		Map<String, String> gidRangesValue = new LinkedHashMap<>();
+		gidRangesValue.put("100", "100500");
+		gidRanges.setValue(gidRangesValue);
 
-		minGID.setValue(100);
-		maxGID.setValue(100500);
-
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, gidRanges);
 
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
 		Attribute resourceGID = null;
@@ -226,14 +224,12 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		List<Group> groups = new ArrayList<Group>();
 		groups.add(group);
 
-		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
-		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
+		Attribute gidRanges = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+		Map<String, String> gidRangesValue = new LinkedHashMap<>();
+		gidRangesValue.put("100", "100500");
+		gidRanges.setValue(gidRangesValue);
 
-		minGID.setValue(100);
-		maxGID.setValue(100500);
-
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, gidRanges);
 
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
 
@@ -260,14 +256,12 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource = setUpResource();
 		group = setUpGroup();
 
-		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
-		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
+		Attribute gidRanges = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+		Map<String, String> gidRangesValue = new LinkedHashMap<>();
+		gidRangesValue.put("100", "100500");
+		gidRanges.setValue(gidRangesValue);
 
-		minGID.setValue(100000);
-		maxGID.setValue(100500);
-
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, gidRanges);
 
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
 		Attribute groupGID = null;
@@ -291,14 +285,12 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void checkIfGIDIsWithinRange() throws Exception {
 		System.out.println(CLASS_NAME + "checkIfGIDIsWithinRange");
 
-		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
-		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
+		Attribute gidRanges = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+		Map<String, String> gidRangesValue = new LinkedHashMap<>();
+		gidRangesValue.put("100000", "100500");
+		gidRanges.setValue(gidRangesValue);
 
-		minGID.setValue(100000);
-		maxGID.setValue(100500);
-
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, gidRanges);
 
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
 		int i = 0;
@@ -320,8 +312,11 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void haveRightToWriteAttributeInAnyGroupOrResource() throws Exception {
 		System.out.println(CLASS_NAME + "haveRightToWriteAttributeInAnyGroupOrResource");
 
-		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
+		Attribute gidRanges = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+		Map<String, String> gidRangesValue = new LinkedHashMap<>();
+		gidRangesValue.put("100", "100500");
+		gidRanges.setValue(gidRangesValue);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, gidRanges);
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -333,10 +328,10 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		groups.add(group);
 		resources.add(resource);
 
-		assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, groups, null, minGID, minGID));
-		assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, null, resources, minGID, minGID));
-		assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, groups, resources, minGID, minGID));
-		assertFalse(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, null, null, minGID, minGID));
+		assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, groups, null, gidRanges, gidRanges));
+		assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, null, resources, gidRanges, gidRanges));
+		assertTrue(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, groups, resources, gidRanges, gidRanges));
+		assertFalse(modulesUtilsBl.haveRightToWriteAttributeInAnyGroupOrResource((PerunSessionImpl) sess, null, null, gidRanges, gidRanges));
 	}
 
 	@Test
@@ -489,14 +484,11 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource = setUpResource();
 		group = setUpGroup();
 
-		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
-		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
-
-		minGID.setValue(100);
-		maxGID.setValue(100500);
-
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
-		perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
+		Attribute gidRanges = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
+		Map<String, String> gidRangesValue = new LinkedHashMap<>();
+		gidRangesValue.put("100", "100500");
+		gidRanges.setValue(gidRangesValue);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, gidRanges);
 
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
 

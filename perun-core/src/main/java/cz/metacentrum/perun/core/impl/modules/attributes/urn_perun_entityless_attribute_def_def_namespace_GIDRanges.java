@@ -28,7 +28,7 @@ public class urn_perun_entityless_attribute_def_def_namespace_GIDRanges extends 
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-		attr.setFriendlyName("namespace_GIDRanges");
+		attr.setFriendlyName("namespace-GIDRanges");
 		attr.setDisplayName("GID ranges in namespace");
 		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Manageable GID ranges in a namespace - key of map is minimum and assigned value is maximum of one range, minimum and maximum can be equal");
