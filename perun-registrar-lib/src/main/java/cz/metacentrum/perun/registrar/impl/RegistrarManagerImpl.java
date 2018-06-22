@@ -1140,6 +1140,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				Type itemType = itemData.getFormItem().getType();
 				if (itemType == USERNAME || itemType == PASSWORD) {
+					// skip logins with empty/null value
+					if (itemData.getValue() == null || itemData.getValue().isEmpty() || itemData.getValue().equals("null")) continue;
 					// skip unchanged pre-filled logins, since they must have been handled last time
 					if (itemData.getValue().equals(itemData.getPrefilledValue()) && itemType != PASSWORD) continue;
 					logins.add(itemData);
