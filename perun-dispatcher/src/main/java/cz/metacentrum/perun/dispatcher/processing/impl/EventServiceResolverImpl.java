@@ -124,7 +124,6 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 
 			// Prepare variables
 			AttributeDefinition attributeDefinition = null;
-			Attribute attribute = null;
 			Facility facility = null;
 			Resource resource = null;
 			Group group = null;
@@ -136,8 +135,8 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 			// Recognize every object in List of PerunBeans from eventData
 			// TODO: What about more than 1 resources, or more than 1 facilities etc. ?
 			for (PerunBean pb : listOfBeans) {
-				if (pb instanceof AttributeDefinition && pb instanceof Attribute) {
-					attribute = (Attribute) pb;
+				if (pb instanceof AttributeDefinition) {
+					attributeDefinition = (AttributeDefinition) pb;
 				} else if (pb instanceof Facility) {
 					facility = (Facility) pb;
 				} else if (pb instanceof Resource) {
@@ -156,8 +155,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 			}
 
 			// If there is any attribute, so create AttributeDefinition
-			if (attribute != null) {
-				attributeDefinition = new AttributeDefinition(attribute);
+			if (attributeDefinition != null) {
 				log.debug("Attribute found in event. {}.", attributeDefinition);
 			}
 
