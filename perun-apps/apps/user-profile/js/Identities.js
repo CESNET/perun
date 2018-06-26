@@ -86,18 +86,26 @@ function fillFederations(federations) {
     $("#federations-table").html(federationsTable.draw());
 
     $('#federations-table button[id^="removeFed-"]').click(function() {
-        var fedId = parseInt(this.id.split('-')[1]);
-        var loadImage = new LoadImage($("#federations-table"), "auto");
 
-        callPerunPost("usersManager", "removeUserExtSource", {user: user.id, userExtSource: fedId}, function () {
-            loadIdentities(user);
-            loadImage.hide();
-            (flowMessager.newMessage("Federated identity", "was removed successfully", "success")).draw();
-        }, function(perunError) {
-	        loadIdentities(user);
-	        loadImage.hide();
-	        (flowMessager.newMessage("Federated identity", "was not removed. " + perunError.message, "danger")).draw();
-        });
+        var response = confirm("WARNING: If you remove your identity, some services might not work for you anymore. Do not remove it, if you don't know what you are doing or you are unable to add it later again (you can't login-in by that identity).");
+
+        if (response == true) {
+
+	        var fedId = parseInt(this.id.split('-')[1]);
+	        var loadImage = new LoadImage($("#federations-table"), "auto");
+
+	        callPerunPost("usersManager", "removeUserExtSource", {user: user.id, userExtSource: fedId}, function () {
+		        loadIdentities(user);
+		        loadImage.hide();
+		        (flowMessager.newMessage("Federated identity", "was removed successfully", "success")).draw();
+	        }, function(perunError) {
+		        loadIdentities(user);
+		        loadImage.hide();
+		        (flowMessager.newMessage("Federated identity", "was not removed. " + perunError.message, "danger")).draw();
+	        });
+
+        }
+
     });
 }
 
@@ -144,6 +152,7 @@ social["@mojeid.extidp.cesnet.cz"] = "mojeID";
 social["@linkedin.extidp.cesnet.cz"] = "LinkedIn";
 social["@twitter.extidp.cesnet.cz"] = "Twitter";
 social["@seznam.extidp.cesnet.cz"] = "Seznam";
+social["@github.extidp.cesnet.cz"] = "Github";
 
 var orgs = [];
 orgs["https://idp.upce.cz/idp/shibboleth"] = "University in Pardubice";
