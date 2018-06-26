@@ -206,7 +206,7 @@ public class Api extends HttpServlet {
 		String remoteUser = req.getRemoteUser();
 
 		CoreConfig config = BeansUtils.getCoreConfig();
-		
+
 		// If we have header Shib-Identity-Provider, then the user uses identity federation to authenticate
 		if (isNotEmpty(shibIdentityProvider)) {
 			extSourceName = getOriginalIdP(shibIdentityProvider, sourceIdpEntityId);
@@ -385,7 +385,7 @@ public class Api extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		mirrorOriginHeader(req,resp);
+		checkOriginHeader(req,resp);
 		if (req.getPathInfo() == null || req.getPathInfo().equals("/")) {
 			resp.setContentType("text/plain; charset=utf-8");
 			Writer wrt = resp.getWriter();
@@ -408,13 +408,13 @@ public class Api extends HttpServlet {
 
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		mirrorOriginHeader(req,resp);
+		checkOriginHeader(req,resp);
 		serve(req, resp, false, true);
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		mirrorOriginHeader(req,resp);
+		checkOriginHeader(req,resp);
 		serve(req, resp, false, false);
 	}
 
@@ -426,18 +426,45 @@ public class Api extends HttpServlet {
 	 */
 	@Override
 	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		mirrorOriginHeader(req,resp);
-		resp.setHeader("Access-Control-Allow-Methods","GET, POST, OPTIONS");
-		resp.setHeader("Access-Control-Allow-Headers","Authorization, Content-Type");
-		resp.setIntHeader("Access-Control-Max-Age",86400);
+		if (checkOriginHeader(req,resp)) {
+			resp.setHeader("Access-Control-Allow-Methods","GET, POST, OPTIONS");
+			resp.setHeader("Access-Control-Allow-Headers","Authorization, Content-Type");
+			resp.setHeader("Access-Control-Allow-Credentials", "true");
+			resp.setIntHeader("Access-Control-Max-Age",86400);
+		}
 		resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
-	private void mirrorOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
+	/**
+	 * Check Origin header, if it's between allowed domains for CORS
+	 *
+	 * @param req HttpServletRequest to check
+	 * @param resp HttpServletResponse to modify
+	 */
+	private boolean checkOriginHeader(HttpServletRequest req, HttpServletResponse resp) {
 		String origin = req.getHeader("Origin");
-		if(origin==null) origin = "*";
-		resp.setHeader("Access-Control-Allow-Origin",origin);
-		resp.setHeader("Vary","Origin");
+		log.debug("Incoming Origin header: {}", origin);
+
+		log.debug("Available headers: {}", Collections.list(req.getHeaderNames()));
+		for (String headerName : Collections.list(req.getHeaderNames())) {
+			log.debug("Header: {}={}", headerName, req.getHeader(headerName));
+		}
+
+		if (origin != null) {
+			List<String> allowedDomains = BeansUtils.getCoreConfig().getAllowedCorsDomains();
+			log.debug("Allowed domains: {}", allowedDomains);
+			if (allowedDomains.contains(origin)) {
+				log.debug("ADDING HEADER Access-Control-Allow-Origin to response: {}", origin);
+				resp.setHeader("Access-Control-Allow-Origin",origin);
+				resp.setHeader("Vary","Origin");
+				return true;
+			}
+		} else {
+			// no origin, don't modify header
+			// origin = "*";
+		}
+
+		return false;
 	}
 
 	@SuppressWarnings("ConstantConditions")

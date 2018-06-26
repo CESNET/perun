@@ -2,7 +2,6 @@ package cz.metacentrum.perun.ldapc.main;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -52,7 +51,8 @@ public class LdapcStarter {
 		PerunPrincipal pp = new PerunPrincipal("perunLdapc", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 
 		try {
-			RpcCaller rpcCaller = new RpcCallerImpl(pp);
+
+			RpcCaller rpcCaller = new RpcCallerImpl(pp, 300000);
 
 			LdapcStarter ldapcStarter = new LdapcStarter();
 

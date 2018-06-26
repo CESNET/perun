@@ -78,7 +78,6 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
 			throw new PrivilegeException(perunSession, "pollConsumerMessagesForParser");
 		}
-
 		return getAuditMessagesManagerBl().pollConsumerMessagesForParser(consumerName);
 	}
 
