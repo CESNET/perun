@@ -48,7 +48,7 @@
                     <div class="row">
                         <div class="col-sm-2">
                             <div class="logo">
-                                <a href="https://perun.cesnet.cz"><img src="/apps-include/img/perun-color-logo.png" alt="perun logo"></a>
+                                <a href="https://perun.cesnet.cz"><img src="/apps-include/img/eduteams_logo.png" alt="perun logo"></a>
                             </div>
                         </div>
                         <div class="col-sm-8">
@@ -96,75 +96,23 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="shortName" class="col-md-2 control-label">Abbreviation</label>
+                                        <label for="shortName" class="col-md-2 control-label required">Abbreviation</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control" id="shortName" placeholder="Abbreviation">
+                                            <input type="text" class="form-control" id="shortName" placeholder="Abbreviation" required>
                                             <p class="help-block">Provide abbreviation or nickname of the project/Virtual organization.</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="managers" class="col-md-2 control-label">Managers</label>
-                                        <div class="col-md-8">
-                                            <input type="text" class="form-control" id="managers" placeholder="Managers">
-                                            <p class="help-block">Persons who will manage the project/Virtual organization. If left empty you will be set a manager.</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="contactMails" class="col-md-2 control-label required">Contacts</label>
-                                        <div class="col-md-8">
-                                            <input type="text" class="form-control" id="contactMails" placeholder="Contacts" required>
-                                            <p class="help-block">E-mail or list of e-mails which will be used for primary contact with the project/Virtual organization support.</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="notificationsMails" class="col-md-2 control-label required">Notifications</label>
-                                        <div class="col-md-8">
-                                            <input type="text" class="form-control" id="notificationsMails" placeholder="Notifications" required>
-                                            <p class="help-block">E-mail or list of e-mails where Perun will send all the notifications concerning the Project/Virtual organization.</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="voWeb" class="col-md-2 control-label">Project/Virtual organization web pages</label>
-                                        <div class="col-md-8">
-                                            <input type="url" class="form-control" id="voWeb" placeholder="Project/Virtual organization web pages">
-                                            <p class="help-block">URL of the project/Virtual organization web pages.</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="logo" class="col-md-2 control-label">Logo</label>
-                                        <div class="col-md-8">
-                                            <input type="url" class="form-control" id="logo" placeholder="Logo">
-                                            <p class="help-block">URL pointing the the project/Virtual organization logo.</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="language" class="col-md-2 control-label">Preferred language</label>
-                                        <div class="col-md-8">
-                                            <input type="text" class="form-control" id="language" placeholder="Preferred language" value="English">
-                                            <p class="help-block">Perun system is multilingual, define which language do you prefer to be used for notifications, application forms, etc.</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="membershipDuration" class="col-md-2 control-label">Membership renewal rules</label>
-                                        <div class="col-md-8">
-                                            <textarea class="form-control" rows="3" id="membershipDuration" placeholder="Membership renewal rules"></textarea>
-                                            <p class="help-block">Describe when and under which conditions you would like to extend users’ membership in the project/Virtual organization.</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="application" class="col-md-2 control-label">Application form</label>
-                                        <div class="col-md-8">
-                                            <textarea class="form-control" rows="3" id="application" placeholder="Application form"></textarea>
-                                            <p class="help-block">Describe what kind of information do you need from you users, e.g. name, organization, e-mail.</p>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <div class="col-md-offset-2 col-md-10">
-                                            <button type="submit" class="btn btn-success">Send Application</button>
+                                            <button type="submit" class="btn btn-success" id="submitButton">Create the VO</button>
                                         </div>
                                     </div>
                                 </form>
+                                <div class="alert alert-danger" role="alert" style="display: none;" id="alert">
+                                    To create a new virtual organization, please <a href='https://perun-eduteams.cesnet.cz/fed/registrar/?vo=eduTEAMS&targetnew=https%3A%2F%2Fperun-eduteams.cesnet.cz%2Fa%2Festablish-vo-form%2Ffed%2F&targetexisting=https%3A%2F%2Fperun-eduteams.cesnet.cz%2Fa%2Festablish-vo-form%2Ffed%2F&targetextended=https%3A%2F%2Fperun-eduteams.cesnet.cz%2Fa%2Festablish-vo-form%2Ffed%2F'>register yourself first</a>.
+                                    <p class=\"help-block\">(You will be redirected back to this form after the registration.)</p>
+                                </div>
 
                             </div>
 
@@ -183,35 +131,7 @@
                 <div class="container">
                     <div class="row">
                         <div class="col col-md-3">
-                            <div class="logo-wrapper">
-                                <a href="https://www.cesnet.cz/">
-                                    <img src="/apps-include/img/logo-cesnet.png" class="img-responsive" alt="cesnet logo">
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-lg-7 col-lg-push-2 col-md-push-1 col-md-8">
-                            <div class="row">
-                                <div class="col col-sm-6">
-                                    <h2>Contact</h2>
-                                    CESNET, z. s. p. o.<br/>
-                                    ZIKOVA 4, 16000 PRAHA <br/>
-                                    TEL : +420 234 680 222<br/>
-                                    FAX : +420 224 320 269<br/>
-                                    <a href="mailto:info@cesnet.cz">info@cesnet.cz</a>
-                                </div>
-                                <div class="col col-sm-6">
-                                    <h2>Permanent service</h2>
-                                    TEL: +420 234 680 222<br/>
-                                    GSM: +420 602 252 531<br/>
-                                    FAX: +420 224 313 211<br/>
-                                    <a href="mailto:support@cesnet.cz">support@cesnet.cz</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col col-sm-12 copyright">
-                            © 1991-2018 CESNET, z. s. p. o.
+                            <p>Powered by <img width="135" height="50" src="/apps-include/img/perun_0.png" style="display: inline" alt="perun"></p>
                         </div>
                     </div>
                 </div>

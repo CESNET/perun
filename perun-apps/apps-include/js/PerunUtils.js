@@ -24,7 +24,7 @@ function getAuthz() {
 
 function getRpcUrl() {
     if (isDevel()) {
-        return "https://perun-dev.meta.zcu.cz/krb/rpc/"
+        return "http://localhost/krb/rpc/"
     }
     return "/" + getAuthz() + "/rpc/";
 }

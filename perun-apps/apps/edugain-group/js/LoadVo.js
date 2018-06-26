@@ -95,7 +95,7 @@ function createGroupInVo(form, vo) {
     callPerunPost("groupsManager", "createGroup", {vo: vo.id, group: newGroup},
     function (createdGroup) {
 
-        callPerunPost("registrarManager", "createApplicationForm", {group: createdGroup.id},
+        callPerunPost("registrarManager", "createVoApplicationFormItems", {group: createdGroup.id},
             function (none) {
 
                 var copyForm = callPerunPost("registrarManager", "copyForm", {

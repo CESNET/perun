@@ -26,7 +26,7 @@ function loadUser() {
 
 function fillUserInfo(user) {
     if (!user) {
-        (flowMessager.newMessage("User info","can't be fill because user isn't loaded.","danger")).draw();
+        // (flowMessager.newMessage("User info","can't be fill because user isn't loaded.","danger")).draw();
         return;
     }
     $(".user-id").text(user.id);
