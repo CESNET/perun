@@ -133,6 +133,7 @@ public class Attribute extends AttributeDefinition {
 		int hash = 7;
 		hash = 53 * hash + getId();
 		hash = 53 * hash + (getFriendlyName() == null ? 0 : getFriendlyName().hashCode());
+		hash = 53 * hash + (getNamespace() == null ? 0 : getNamespace().hashCode());
 		hash = 53 * hash + (value == null ? 0 : value.hashCode());
 		return hash;
 	}
