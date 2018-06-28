@@ -171,7 +171,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<String> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
-		System.out.println(getPatternsForMatch().size());
+
 		if (messageNeedsResolve(message)) {
 			log.debug("Resolving virtual attribute value change for message: " + message);
 			User user = perunSession.getPerunBl().getModulesUtilsBl().getUserFromMessage(perunSession, message);
