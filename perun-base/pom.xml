@@ -122,6 +122,11 @@
 			<version>${tomcat.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>guru.nidi</groupId>
+			<artifactId>graphviz-java</artifactId>
+			<version>${graphviz.version}</version>
+		</dependency>
 
 	</dependencies>
 

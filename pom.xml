@@ -72,6 +72,7 @@
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.4.3</expiringmap.version>
 		<google-api-services-admin-directory.version>directory_v1-rev78-1.22.0</google-api-services-admin-directory.version>
+		<graphviz.version>0.2.3</graphviz.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<jackson1.version>1.9.13</jackson1.version>
 		<javax-activation.version>1.1.1</javax-activation.version>

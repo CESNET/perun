@@ -21,6 +21,8 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
+import guru.nidi.graphviz.engine.Graphviz;
 
 import java.util.HashMap;
 import java.util.List;
@@ -3655,4 +3657,51 @@ public interface AttributesManager {
 	 */
 	void convertAttributeToUnique(PerunSession session, int attrId) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException;
 
+	/**
+	 * Generates graph describing attribute modules dependencies.
+	 * Text output format can be specified by {@link GraphTextFormat} format.
+	 *
+	 * @param session session
+	 * @param format text output format
+	 * @return body of text file containing description of modules dependencies.
+	 * @throws InternalErrorException internal error
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	String getModulesDependenciesGraphText(PerunSession session, GraphTextFormat format) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Generates graph describing dependencies for given AttributeDefinition.
+	 * Text output format can be specified by {@link GraphTextFormat} format.
+	 *
+	 * @param session session
+	 * @param format text output format
+	 * @param attributeName attribute definition which dependencies will be used
+	 * @return body of text file containing description of modules dependencies.
+	 * @throws InternalErrorException internal error
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	String getModulesDependenciesGraphText(PerunSession session, GraphTextFormat format, String attributeName) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
+
+	/**
+	 * Generates Graphviz representation of a graph describing dependencies
+	 * of attribute modules.
+	 *
+	 * @param session session
+	 * @return {@link Graphviz} representation of modules dependencies.
+	 * @throws InternalErrorException internal error
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	Graphviz getModulesDependenciesGraphImage(PerunSession session) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Generates Graphviz represenRtation of a graph describing dependencies
+	 * for given AttributeDefinition of attribute modules.
+	 *
+	 * @param session session
+	 * @param attributeName attribute definition which dependencies will be used
+	 * @return {@link Graphviz} representation of modules dependencies.
+	 * @throws InternalErrorException internal error
+	 * @throws PrivilegeException insufficient permissions
+	 */
+	Graphviz getModulesDependenciesGraphImage(PerunSession session, String attributeName) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
 }

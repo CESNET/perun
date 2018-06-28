@@ -704,4 +704,55 @@ public class BeansUtils {
 		}
 		return null;
 	}
+
+
+	/**
+	 * Returns abbreviation in format [Entity]:[V/D/C]:[friendlyName]
+	 * [Entity] is something like 'U' for user, 'G-R' for group-resource etc.
+	 *
+	 * @param ad attribute definition
+	 * @return abbreviation in format [Entity]:[V/D/C]:[friendlyName]
+	 */
+	public static String getAttributeDefinitionAbbreviation(AttributeDefinition ad) {
+		String entity = parseEntityAbbreviation(ad);
+		String type;
+		if (ad.getNamespace().endsWith("virt")) {
+			type = "V";
+		} else if (ad.getNamespace().endsWith("def")) {
+			type = "D";
+		} else {
+			type = "C";
+		}
+
+		String formattedFriendlyName;
+
+		String[] splitFriendlyName = ad.getFriendlyName().split(":");
+		formattedFriendlyName = splitFriendlyName[0];
+		if (splitFriendlyName.length > 1) {
+			formattedFriendlyName += ":*";
+		}
+
+		return entity + ":" + type + ":" + formattedFriendlyName;
+	}
+
+	public static String parseEntityAbbreviation(AttributeDefinition ad) {
+		String entity = "";
+		String[] split = ad.getEntity().split("_");
+
+		if (split.length == 1) {
+			entity = firstLetterCap(split[0]);
+		} else if (split.length == 2) {
+			entity = firstLetterCap(split[0]) + "-" + firstLetterCap(split[1]);
+		}
+
+		return entity;
+	}
+
+	private static String firstLetterCap(String s) {
+		if (!s.isEmpty()) {
+			s = s.substring(0, 1).toUpperCase();
+		}
+
+		return s;
+	}
 }

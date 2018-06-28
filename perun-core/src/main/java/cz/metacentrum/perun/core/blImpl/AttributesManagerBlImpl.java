@@ -41,6 +41,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.utils.graphs.Graph;
+import cz.metacentrum.perun.utils.graphs.GraphEdge;
+import cz.metacentrum.perun.utils.graphs.Node;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
@@ -49,9 +52,19 @@ import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.utils.graphs.generators.GraphDefinition;
+import cz.metacentrum.perun.utils.graphs.generators.ModuleDependencyNodeGenerator;
+import cz.metacentrum.perun.utils.graphs.generators.NoDuplicatedEdgesGraphGenerator;
+import cz.metacentrum.perun.utils.graphs.generators.NodeGenerator;
+import cz.metacentrum.perun.utils.graphs.serializers.GraphSerializer;
+import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
+import guru.nidi.graphviz.engine.Graphviz;
+import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.parse.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -6504,8 +6517,81 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		log.info("attribute {} was converted to unique in {} ms",attrDef.getName(),(endTime-startTime));
 	}
 
+	@Override
+	public String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format) throws InternalErrorException {
+		Graph graph = getAttributeModulesDependenciesGraph(session);
+
+		return format.getSerializer().generateTextFileContent(graph);
+	}
+
+	@Override
+	public String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format, AttributeDefinition attributeDefinition) throws InternalErrorException {
+		NodeGenerator<AttributeDefinition> nodeGenerator = new ModuleDependencyNodeGenerator();
+		Graph graph = getAttributeModulesDependenciesGraph(session, nodeGenerator);
+
+		Set<Node> componentNodes = graph.getComponentNodes(nodeGenerator.generate(attributeDefinition, 0L));
+
+		Set<Node> notUsedNodes = new HashSet<>(graph.getNodes().keySet());
+		notUsedNodes.removeAll(componentNodes);
+
+		graph.removeNodes(notUsedNodes);
+
+		GraphSerializer graphSerializer = format.getSerializer();
+
+		return graphSerializer.generateTextFileContent(graph);
+	}
+
+	@Override
+	public Graphviz getAttributeModulesDependenciesGraphAsImage(PerunSession session) throws InternalErrorException {
+
+		String graphText = getAttributeModulesDependenciesGraphAsString(session, GraphTextFormat.DOT);
+
+		return convertDotStringGraph(graphText);
+	}
+
+	@Override
+	public Graphviz getAttributeModulesDependenciesGraphAsImage(PerunSession session, AttributeDefinition attributeDefinition) throws InternalErrorException {
+
+		String graphText = getAttributeModulesDependenciesGraphAsString(session, GraphTextFormat.DOT, attributeDefinition);
+
+		return convertDotStringGraph(graphText);
+	}
+
+	@Override
+	public Graph getAttributeModulesDependenciesGraph(PerunSession session) throws InternalErrorException {
+		return getAttributeModulesDependenciesGraph(session, new ModuleDependencyNodeGenerator());
+	}
+
+	private Graph getAttributeModulesDependenciesGraph(PerunSession session, NodeGenerator<AttributeDefinition> nodeGenerator) {
+		GraphDefinition<AttributeDefinition> graphDefinition = new GraphDefinition<AttributeDefinition>()
+				.addEntitiesData(strongDependencies).withEdgeType(GraphEdge.Type.BOLD)
+				.addEntitiesData(dependencies).withEdgeType(GraphEdge.Type.DASHED);
+
+		return new NoDuplicatedEdgesGraphGenerator().generate(nodeGenerator, graphDefinition);
+	}
+
 	public Map<AttributeDefinition, Set<AttributeDefinition>> getAllDependencies() {
 		return allDependencies;
+	}
+
+	/**
+	 * Converts DOT String graph representation to Graphviz.
+	 *
+	 * @param graphString graph string
+	 * @return converted graph
+	 * @throws InternalErrorException internal error
+	 */
+	private Graphviz convertDotStringGraph(String graphString) throws InternalErrorException {
+
+		MutableGraph graph;
+
+		try {
+			graph = Parser.read(graphString);
+		} catch (IOException e) {
+			throw new InternalErrorException("Generated invalid format of DOT graph.");
+		}
+
+		return Graphviz.fromGraph(graph);
 	}
 
 	/**

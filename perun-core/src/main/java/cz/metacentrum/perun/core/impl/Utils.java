@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
+import cz.metacentrum.perun.utils.graphs.Graph;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
