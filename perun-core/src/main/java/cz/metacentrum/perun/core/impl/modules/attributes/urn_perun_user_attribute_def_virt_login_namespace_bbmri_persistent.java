@@ -12,6 +12,10 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Class for access def:bbmri-persistent-shadow attribute. It generates value if you call it for the first time.
  *
@@ -55,7 +59,12 @@ public class urn_perun_user_attribute_def_virt_login_namespace_bbmri_persistent 
 		}
 	}
 
-        public AttributeDefinition getAttributeDefinition() {
+	@Override
+	public List<String> getStrongDependencies() {
+		return Collections.singletonList(SHADOW);
+	}
+
+	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName("login-namespace:bbmri-persistent");

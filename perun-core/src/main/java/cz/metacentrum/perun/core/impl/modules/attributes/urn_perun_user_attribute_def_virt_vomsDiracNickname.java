@@ -11,8 +11,11 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Dirac Nickname is defined like login in egi-ui, if not exists, then it is empty
@@ -21,12 +24,14 @@ import java.util.LinkedHashMap;
  */
 public class urn_perun_user_attribute_def_virt_vomsDiracNickname extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
+	private static final String A_U_D_loginNamespace_egiUi = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:egi-ui";
+
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		try {
-			Attribute loginInEgiui = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:egi-ui");
+			Attribute loginInEgiui = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_loginNamespace_egiUi);
 			attribute = Utils.copyAttributeToVirtualAttributeWithValue(loginInEgiui, attribute);
 		} catch (AttributeNotExistsException ex) {
 			//That means that egi-ui attribute not exists at all, return empty attribute
@@ -35,6 +40,11 @@ public class urn_perun_user_attribute_def_virt_vomsDiracNickname extends UserVir
 			throw new InternalErrorException(ex);
 		}
 		return attribute;
+	}
+
+	@Override
+	public List<String> getStrongDependencies() {
+		return Collections.singletonList(A_U_D_loginNamespace_egiUi);
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

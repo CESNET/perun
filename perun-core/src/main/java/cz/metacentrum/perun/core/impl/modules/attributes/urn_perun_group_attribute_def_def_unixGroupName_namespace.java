@@ -29,6 +29,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 
 	private static final String A_R_unixGroupName_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace";
 	private static final String A_G_unixGID_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace";
+	private static final String A_R_unixGID_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace";
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
@@ -159,6 +160,17 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<>();
+		//Disallowed because of crosschecks between modules and performance reason
+		//dependencies.add(A_G_unixGID_namespace + ":*");
+		//dependencies.add(A_R_unixGID_namespace + ":*");
+		//Disallowed because it does not affect value of dependent attribute
+		//dependencies.add(A_R_unixGroupName_namespace + ":*");
+		return dependencies;
 	}
 
 	/*public AttributeDefinition getAttributeDefinition() {

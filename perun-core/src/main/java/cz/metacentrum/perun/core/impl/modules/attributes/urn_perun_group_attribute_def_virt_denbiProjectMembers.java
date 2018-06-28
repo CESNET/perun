@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,6 +64,16 @@ public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends Grou
 		Attribute members = new Attribute(attribute);
 		members.setValue(jsonMembers.toString());
 		return members;
+	}
+
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> strongDependencies = new ArrayList<>();
+		strongDependencies.add(USER_ID);
+		strongDependencies.add(ELIXIR_PERSISTENT);
+		strongDependencies.add(PREFERRED_MAIL);
+		strongDependencies.add(ELIXIR_LOGIN);
+		return strongDependencies;
 	}
 
 	@Override

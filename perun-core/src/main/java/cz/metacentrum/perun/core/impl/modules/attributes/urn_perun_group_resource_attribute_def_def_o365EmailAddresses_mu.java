@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -125,6 +126,10 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 		}
 	}
 
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(ADNAME_ATTRIBUTE);
+	}
 
 	@Override
 	public AttributeDefinition getAttributeDefinition() {

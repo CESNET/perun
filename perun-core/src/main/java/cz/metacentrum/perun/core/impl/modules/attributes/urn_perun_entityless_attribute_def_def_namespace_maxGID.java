@@ -13,6 +13,9 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  *
  * @author Michal Stava <stavamichal@gmail.com>
@@ -20,12 +23,14 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
 @Deprecated
 public class urn_perun_entityless_attribute_def_def_namespace_maxGID extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
+	private static final String A_E_namespaceMinGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID";
+
 	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer maxGID = (Integer) attribute.getValue();
 		if(maxGID != null) {
 			if(maxGID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
 			try {
-				Attribute minGIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
+				Attribute minGIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, A_E_namespaceMinGID);
 				Integer minGID = (Integer) minGIDAttr.getValue();
 				if(minGID != null) {
 					if(maxGID < minGID) throw new WrongAttributeValueException(attribute, "Attribute value must be more than minGID. MinGID = " + minGID + ", and maxGID try to set = " + maxGID);
@@ -45,5 +50,10 @@ public class urn_perun_entityless_attribute_def_def_namespace_maxGID extends Ent
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Maximal value of Group ID.");
 		return attr;
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(A_E_namespaceMinGID);
 	}
 }

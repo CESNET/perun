@@ -87,8 +87,6 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 		return attr;
 	}
 
-	//TODO what dependencies of this attribute???
-
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		if(attribute.getValue() == null) {

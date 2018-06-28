@@ -25,6 +25,9 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttri
  */
 public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVirtualAttributesModuleAbstract implements FacilityVirtualAttributesModuleImplApi {
 
+	private static final String A_FAC_unixGIDNamespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace";
+	private static final String A_E_namespaceGIDRanges = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges";
+
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		try {
 			Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
@@ -58,7 +61,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 
 	private Attribute getNamespaceGIDRangesAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException {
 		try {
-			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
+			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespaceGIDRanges);
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) {
@@ -68,7 +71,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 
 	private Attribute getUnixGIDNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
 		try {
-			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_unixGIDNamespace);
 		} catch(AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) {
@@ -77,10 +80,18 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 	}
 
 	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(A_E_namespaceGIDRanges);
+		dependencies.add(A_FAC_unixGIDNamespace);
+		return dependencies;
+	}
+
+	@Override
 	public List<String> getStrongDependencies() {
 		List<String> strongDependencies = new ArrayList<String>();
-		strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
-		strongDependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
+		strongDependencies.add(A_FAC_unixGIDNamespace);
+		strongDependencies.add(A_E_namespaceGIDRanges);
 		return strongDependencies;
 	}
 

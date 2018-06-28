@@ -24,12 +24,15 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttri
  */
 public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtualAttributesModuleAbstract implements ResourceVirtualAttributesModuleImplApi {
 
+	private static final String A_F_unixGID_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace";
+	private static final String A_R_unixGID_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:";
+
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 		Attribute gidAttribute;
 		try {
-			gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
+			gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_unixGID_namespace + unixGIDNamespaceAttribute.getValue());
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -56,7 +59,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 		}
 		Attribute gidAttribute;
 		try {
-			gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
+			gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_unixGID_namespace + unixGIDNamespaceAttribute.getValue());
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -89,7 +92,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 		}
 
 		try {
-			Attribute gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
+			Attribute gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_unixGID_namespace + unixGIDNamespaceAttribute.getValue());
 			attribute = Utils.copyAttributeToVirtualAttributeWithValue(gidAttribute, attribute);
 			return attribute;
 		} catch(WrongAttributeAssignmentException ex) {
@@ -104,7 +107,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 		Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 
 		try {
-			Attribute gidAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue()));
+			Attribute gidAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_R_unixGID_namespace + unixGIDNamespaceAttribute.getValue()));
 			gidAttribute.setValue(attribute.getValue());
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, resource, gidAttribute);
 		} catch(WrongAttributeValueException ex) {
@@ -121,7 +124,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 		Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 
 		try {
-			AttributeDefinition groupGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
+			AttributeDefinition groupGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_R_unixGID_namespace + unixGIDNamespaceAttribute.getValue());
 			return sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, resource, groupGidAttribute);
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
@@ -130,10 +133,18 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 		}
 	}
 
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(A_R_unixGID_namespace + "*");
+		dependencies.add(A_F_unixGID_namespace);
+		return dependencies;
+	}
+
 	public List<String> getStrongDependencies() {
 		List<String> strongDependencies = new ArrayList<String>();
-		strongDependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*");
-		strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+		strongDependencies.add(A_R_unixGID_namespace + "*");
+		strongDependencies.add(A_F_unixGID_namespace);
 		return strongDependencies;
 	}
 

@@ -16,8 +16,10 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -69,6 +71,11 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 			throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
 		}
 
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(usedMailsUrn);
 	}
 
 	@Override

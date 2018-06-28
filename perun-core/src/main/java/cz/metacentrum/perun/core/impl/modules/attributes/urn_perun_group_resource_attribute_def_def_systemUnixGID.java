@@ -95,9 +95,10 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGID extends Re
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependecies = new ArrayList<String>();
-		dependecies.add(A_GR_systemUnixGroupName);
-		return dependecies;
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(A_GR_systemUnixGroupName);
+		dependencies.add(A_GR_systemIsUnixGroup);
+		return dependencies;
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

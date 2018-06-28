@@ -15,6 +15,10 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.math.BigDecimal;
@@ -141,6 +145,11 @@ public class urn_perun_group_resource_attribute_def_def_projectDataQuota extends
 				throw new WrongReferenceAttributeValueException(attribute, attrProjectDataLimit, attribute + " must be less than or equals to " + projectDataLimit);
 			}
 		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(A_GR_projectDataLimit);
 	}
 
 	@Override
