@@ -120,8 +120,8 @@
 		</property>
 	</bean>
 
-	<!-- active in Spring profiles "devel" and "production", packs default properties with properties from files as a bean -->
-	<beans profile="devel,production">
+	<!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
+	<beans profile="production">
 		<bean id="coreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 			<property name="properties" ref="defaultCoreProperties"/>
 			<property name="locations">

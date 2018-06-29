@@ -6,12 +6,12 @@
 	<parent>
 		<artifactId>perun</artifactId>
 		<groupId>cz.metacentrum</groupId>
-		<version>3.0.1-SNAPSHOT</version>
+		<version>3.1.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
 	<artifactId>perun-web-gui</artifactId>
-	<version>3.0.1-SNAPSHOT-${perun.build.type}</version>
+	<version>3.1.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 
 	<name>perun-web-gui</name>
@@ -213,7 +213,6 @@
 			</activation>
 
 			<properties>
-				<perun.build.type>production</perun.build.type>
 				<skipTests>true</skipTests>
 			</properties>
 
@@ -265,14 +264,5 @@
 		</profile>
 
 	</profiles>
-
-	<!-- uncomment for drag and drop
-	<repositories>
-		<repository>
-			<id>plugins</id>
-			<url>http://gwtquery-plugins.googlecode.com/svn/mavenrepo</url>
-		</repository>
-	</repositories>
-	-->
 
 </project>

@@ -84,8 +84,8 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<!-- pass properties values to Spring placeholders i.e. ${dispatcher.cron.cleantaskresults} -->
 	<context:property-placeholder properties-ref="dispatcherPropertiesBean"	ignore-unresolvable="true"/>
 
-	<!-- active in Spring profiles "devel" and "production", packs default properties with properties from files as a bean -->
-	<beans profile="devel,production">
+	<!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
+	<beans profile="production">
 		<bean id="dispatcherPropertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 			<property name="properties" ref="dispatcherDefaultProperties"/>
 			<property name="locations">
