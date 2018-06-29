@@ -61,6 +61,7 @@ public class CoreConfig {
 	private String rtUrl;
 	private String smsProgram;
 	private String userExtSourcesPersistent;
+	private List<String> allowedCorsDomains;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -463,4 +464,13 @@ public class CoreConfig {
 	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
+
+	public List<String> getAllowedCorsDomains() {
+		return allowedCorsDomains;
+	}
+
+	public void setAllowedCorsDomains(List<String> allowedCorsDomains) {
+		this.allowedCorsDomains = allowedCorsDomains;
+	}
+
 }
