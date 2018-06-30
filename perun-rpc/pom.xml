@@ -61,14 +61,6 @@
 				<version>${maven-war-plugin.version}</version>
 				<configuration>
 					<warName>perun-rpc</warName>
-					<webResources>
-						<resource>
-							<!-- Enable custom location of log4j.xml per webapp -->
-							<filtering>true</filtering>
-							<directory>src/main/webapp/WEB-INF/</directory>
-							<targetPath>WEB-INF</targetPath> <!-- relative to webapp root -->
-						</resource>
-					</webResources>
 				</configuration>
 			</plugin>
 

@@ -26,7 +26,7 @@
 
 	<!-- common build settings used by all profiles -->
 	<build>
-		<finalName>${project.name}-${project.version}</finalName>
+		<finalName>${project.name}</finalName>
 		<plugins>
 
 			<plugin>
