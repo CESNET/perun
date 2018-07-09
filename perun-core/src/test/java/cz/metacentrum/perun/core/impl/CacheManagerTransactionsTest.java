@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -26,8 +25,8 @@ import static org.junit.Assert.*;
  * @author Simona Kruppova
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TransactionConfiguration(transactionManager = "perunTestTransactionManager", defaultRollback = true)
-@Transactional
+//@TransactionConfiguration(transactionManager = "perunTestTransactionManager", defaultRollback = true)
+@Transactional(transactionManager = "perunTestTransactionManager")
 public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 
 	private final static String CLASS_NAME = "CacheManagerTransactions.";
