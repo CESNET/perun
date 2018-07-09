@@ -14,7 +14,8 @@ import java.sql.SQLException;
 public class PerunBasicDataSource extends BasicDataSource {
 
 	private Auditer auditer;
-	
+	private CacheManager cacheManager;
+
 	@Override
 	public Connection getConnection() throws SQLException {
 		
@@ -26,7 +27,7 @@ public class PerunBasicDataSource extends BasicDataSource {
 			con.setReadOnly(false);
 		}
 
-		return new PerunConnection(con, auditer);
+		return new PerunConnection(con, auditer, cacheManager);
 	}
 
 	public Auditer getAuditer() {
@@ -35,5 +36,13 @@ public class PerunBasicDataSource extends BasicDataSource {
 
 	public void setAuditer(Auditer auditer) {
 		this.auditer = auditer;
+	}
+
+	public CacheManager getCacheManager() {
+		return cacheManager;
+	}
+
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 }

@@ -17,6 +17,11 @@ public class Service extends Auditable implements Comparable<PerunBean> {
 		super();
 	}
 
+	public Service(int id, String name){
+		super(id);
+		this.name = name;
+	}
+
 	public Service(int id, String name, String description){
 		super(id);
 		this.name = name;

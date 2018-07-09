@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
@@ -52,10 +53,18 @@ import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
+import cz.metacentrum.perun.core.bl.*;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import cz.metacentrum.perun.core.impl.CacheManager;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.List;
 import java.util.Map;
@@ -103,6 +112,8 @@ public class PerunBlImpl implements PerunBl {
 	private SearcherBl searcherBl = null;
 
 	private Auditer auditer = null;
+	private CacheManager cacheManager = null;
+	private AttributesManagerImplApi attributesManagerImpl = null;
 
 	final static Logger log = LoggerFactory.getLogger(PerunBlImpl.class);
 
@@ -459,6 +470,18 @@ public class PerunBlImpl implements PerunBl {
 		this.searcherBl = searcherBl;
 	}
 
+	public CacheManager getCacheManager() {
+		return cacheManager;
+	}
+
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
+	}
+
+	public void setAttributesManagerImpl(AttributesManagerImplApi attributesManagerImpl) {
+		this.attributesManagerImpl = attributesManagerImpl;
+	}
+
 	@Override
 	public boolean isPerunReadOnly() {
 		return BeansUtils.isPerunReadOnly();
@@ -470,6 +493,8 @@ public class PerunBlImpl implements PerunBl {
 	public void initialize() throws InternalErrorException {
 		this.extSourcesManagerBl.initialize(this.getPerunSession());
 		this.auditer.initialize();
+		this.cacheManager.initialize(getPerunSession(), attributesManagerImpl);
+		CacheManager.setCacheDisabled(false);
 	}
 
 	public String toString() {

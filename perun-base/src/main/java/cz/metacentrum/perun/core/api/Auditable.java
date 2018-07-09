@@ -1,11 +1,13 @@
 package cz.metacentrum.perun.core.api;
 
+import java.io.Serializable;
+
 /**
  * This class represent audit information.
  *
  * @author Michal Stava stavamichal@gmail.com
  */
-public abstract class Auditable extends PerunBean {
+public abstract class Auditable extends PerunBean implements Serializable {
 
 	/**
 	 * Attribute with information about time when it was created.
