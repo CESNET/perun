@@ -1,18 +1,59 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
- * All affiliations collected from UserExtSources attributes.
+ * All affiliations collected from UserExtSources attributes and eduPersonScopedAffiliationsManuallyAssigned.
  *
  * @author Martin Kuba makub@ics.muni.cz
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
 @SuppressWarnings("unused")
 public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations extends UserVirtualAttributeCollectedFromUserExtSource {
 
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	private final Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)]");
+	private final Pattern userEPSAMASetPattern = Pattern.compile("Attribute:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() +">(.*)] set for User:\\[(.*)]");
+	private final Pattern userEPSAMARemovePattern = Pattern.compile("AttributeDefinition:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() + ">(.*)] removed for User:\\[(.*)]");
+
+
 	@Override
 	public String getSourceAttributeFriendlyName() {
 		return "affiliation";
+	}
+
+	/**
+	 * Get friendly name of secondary source attribute
+	 * @return friendly name of secondary source attribute
+	 */
+	public String getSecondarySourceAttributeFriendlyName() {
+		return "eduPersonScopedAffiliationsManuallyAssigned";
+	}
+
+	/**
+	 * Get name of secondary source attribute
+	 * @return name of secondary source attribute
+	 */
+	public String getSecondarySourceAttributeName() {
+		return AttributesManager.NS_USER_ATTR_DEF + ":" + getSecondarySourceAttributeFriendlyName();
 	}
 
 	@Override
@@ -20,4 +61,46 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 		return "eduPersonScopedAffiliations";
 	}
 
+	@Override
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition destinationAttributeDefinition) throws InternalErrorException {
+		//get already filled value obtained from UserExtSources
+		Attribute attribute = super.getAttributeValue(sess, user, destinationAttributeDefinition);
+
+		Attribute destinationAttribute = new Attribute(destinationAttributeDefinition);
+		//get values previously obtained and add them to Set representing final value
+		//for values use set because of avoiding duplicities
+		Set<String> valuesWithoutDuplicities = new HashSet<>(attribute.valueAsList());
+
+		Attribute manualEPSAAttr = null;
+		try {
+			//get value from urn:perun:user:attribute-def:def:eduPersonScopedAffiliationsManuallyAssigned
+			manualEPSAAttr = sess.getPerunBl().getAttributesManagerBl()
+					.getAttribute(sess, user, getSecondarySourceAttributeName());
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException("Wrong assignment of " + getSecondarySourceAttributeFriendlyName() + " for user " + user.getId(), e);
+		} catch (AttributeNotExistsException e) {
+			log.debug("Attribute " + getSecondarySourceAttributeFriendlyName() + " of user " + user.getId() + "does not exist, values will be skipped", e);
+		}
+
+		if (manualEPSAAttr != null) {
+			Map<String, String> value = manualEPSAAttr.valueAsMap();
+			if (value != null) {
+				valuesWithoutDuplicities.addAll(value.keySet());
+			}
+		}
+
+		//convert set to list (values in list will be without duplicities)
+		destinationAttribute.setValue(new ArrayList<>(valuesWithoutDuplicities));
+		return destinationAttribute;
+	}
+
+	@Override
+	public List<Pattern> getPatternsForMatch() {
+		List<Pattern> patterns = super.getPatternsForMatch();
+		patterns.add(userAllAttrsRemovedPattern);
+		patterns.add(userEPSAMARemovePattern);
+		patterns.add(userEPSAMASetPattern);
+
+		return patterns;
+	}
 }
