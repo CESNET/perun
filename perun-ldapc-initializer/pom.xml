@@ -9,9 +9,7 @@
     </parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
-
     <artifactId>perun-ldapc-initializer</artifactId>
-	<version>3.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
 	<name>perun-ldapc-initializer</name>
