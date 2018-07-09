@@ -109,11 +109,12 @@
 	<profiles>
 
 		<profile>
-			<!-- adds Oracle JDBC drivers -->
+			<!-- adds Oracle JDBC drivers if run with "mvn -Doracle=True"-->
 			<id>oracle</id>
 			<activation>
 				<property>
 					<name>oracle</name>
+					<value>True</value>
 				</property>
 			</activation>
 			<dependencies>

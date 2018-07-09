@@ -237,4 +237,35 @@
 
 	</dependencies>
 
+	<profiles>
+
+		<profile>
+			<!--
+			Run tests against Oracle DB with the following command:
+			  mvn -Dspring.profiles.active=production -Dperun.conf.custom=$HOME/perun_test -Doracle=True test
+			where $HOME/perun_test/ directory contains files jdbc.properties and perun.properties
+			-->
+			<id>oracle</id>
+			<activation>
+				<property>
+					<name>oracle</name>
+					<value>True</value>
+				</property>
+			</activation>
+			<dependencies>
+				<!-- Oracle jdbc driver -->
+				<dependency>
+					<groupId>com.oracle</groupId>
+					<artifactId>ojdbc8</artifactId>
+				</dependency>
+				<!-- Oracle internationalization -->
+				<dependency>
+					<groupId>com.oracle</groupId>
+					<artifactId>orai18n</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+
+	</profiles>
+	
 </project>
