@@ -256,11 +256,13 @@
 				<dependency>
 					<groupId>com.oracle</groupId>
 					<artifactId>ojdbc8</artifactId>
+					<scope>test</scope>
 				</dependency>
 				<!-- Oracle internationalization -->
 				<dependency>
 					<groupId>com.oracle</groupId>
 					<artifactId>orai18n</artifactId>
+					<scope>test</scope>
 				</dependency>
 			</dependencies>
 		</profile>
