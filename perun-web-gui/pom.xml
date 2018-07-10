@@ -19,13 +19,13 @@
 	<properties>
 		<!-- Convenience property to set the GWT version -->
 		<gwtVersion>2.8.2</gwtVersion>
-		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
+		<webappDirectory>${project.build.directory}/${project.name}</webappDirectory>
 		<gui.url.modifier/>
 	</properties>
 
 	<!-- common build settings used by all profiles -->
 	<build>
-		<finalName>${project.name}</finalName>
+
 		<plugins>
 
 			<plugin>
@@ -117,8 +117,7 @@
 					</modules>
 					<runTarget>PerunWeb.html</runTarget>
 					<hostedWebapp>${webappDirectory}</hostedWebapp>
-					<!-- skip code optimization for devel not necessary -->
-					<draftCompile>true</draftCompile>
+					<outputDirectory>${webappDirectory}</outputDirectory>
 				</configuration>
 			</plugin>
 
@@ -126,7 +125,7 @@
 
 		<resources>
 			<resource>
-				<directory>src/main/resources/devel/</directory>
+				<directory>src/main/resources/</directory>
 				<filtering>true</filtering>
 				<includes>
 					<include>**/*.properties</include>
@@ -134,7 +133,7 @@
 				</includes>
 			</resource>
 			<resource>
-				<directory>src/main/resources/common/</directory>
+				<directory>src/main/resources/</directory>
 			</resource>
 		</resources>
 
@@ -198,70 +197,5 @@
 		-->
 
 	</dependencies>
-
-	<profiles>
-
-		<profile>
-
-			<id>production</id>
-
-			<activation>
-				<property>
-					<name>production</name>
-				</property>
-			</activation>
-
-			<properties>
-				<skipTests>true</skipTests>
-			</properties>
-
-			<build>
-
-				<plugins>
-
-					<!-- GWT Maven Plugin -->
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>gwt-maven-plugin</artifactId>
-						<version>2.8.2</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>compile</goal>
-								</goals>
-							</execution>
-						</executions>
-						<!-- Plugin configuration. There are many available options, see
-						  gwt-maven-plugin documentation at codehaus.org -->
-						<configuration>
-							<extraJvmArgs>-Xmx1024m</extraJvmArgs>
-							<modules>
-								<module>cz.metacentrum.perun.webgui.perun-web-prod</module>
-							</modules>
-							<runTarget>PerunWeb.html</runTarget>
-							<hostedWebapp>${webappDirectory}</hostedWebapp>
-						</configuration>
-					</plugin>
-
-				</plugins>
-
-				<resources>
-					<resource>
-						<directory>src/main/resources/production/</directory>
-						<filtering>true</filtering>
-						<includes>
-							<include>**/*.properties</include>
-							<include>**/*.gwt.xml</include>
-						</includes>
-					</resource>
-					<resource>
-						<directory>src/main/resources/common/</directory>
-					</resource>
-				</resources>
-
-			</build>
-		</profile>
-
-	</profiles>
 
 </project>
