@@ -13,7 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
-import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -49,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -393,7 +393,7 @@ public class Api extends HttpServlet {
 			PerunPrincipal perunPrincipal;
 			try {
 				perunPrincipal = setupPerunPrincipal(req,null);
-				wrt.write("OK! Version: " + PerunBl.PERUNVERSION + ", User: " + perunPrincipal.getActor() + ", extSource: " + perunPrincipal.getExtSourceName());
+				wrt.write("OK! Version: " + getPerunRpcVersion() + ", User: " + perunPrincipal.getActor() + ", extSource: " + perunPrincipal.getExtSourceName());
 			} catch (InternalErrorException | UserNotExistsException e) {
 				wrt.write("ERROR! Exception " + e.getMessage());
 			}
@@ -404,6 +404,23 @@ public class Api extends HttpServlet {
 		} else {
 			serve(req, resp, true, false);
 		}
+	}
+
+	private static final String PERUN_RPC_POM_FILE = "/META-INF/maven/cz.metacentrum.perun/perun-rpc/pom.properties";
+	private String version = null;
+
+	private synchronized String getPerunRpcVersion() {
+		if (version == null) {
+			try {
+				Properties p = new Properties();
+				p.load(getServletContext().getResourceAsStream(PERUN_RPC_POM_FILE));
+				version = p.getProperty("version");
+			} catch (IOException e) {
+				log.error("cannot read file " + PERUN_RPC_POM_FILE, e);
+				version = "UNKNOWN";
+			}
+		}
+		return version;
 	}
 
 	@Override
