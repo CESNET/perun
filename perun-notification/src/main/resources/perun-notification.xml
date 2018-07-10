@@ -44,7 +44,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	</bean>
 
 	<!-- Properties Bean -->
-	<beans profile="devel,production">
+	<beans profile="production">
 		<bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 			<property name="locations">
 				<list>

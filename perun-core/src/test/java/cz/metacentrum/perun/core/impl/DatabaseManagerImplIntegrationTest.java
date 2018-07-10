@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class DatabaseManagerImplIntegrationTest extends AbstractPerunIntegration
 	@Before
 	public void setUp() throws Exception {
 		dbManager = perun.getDatabaseManagerBl();
+		System.out.println("DB information: "+dbManager.getDatabaseInformation());
 	}
 
 	@Test(expected=InternalErrorException.class)

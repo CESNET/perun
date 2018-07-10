@@ -89,7 +89,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="publicationManagerBl" ref="publicationManagerBl" />
 	</bean>
 
-	<beans profile="devel,production">
+	<beans profile="production">
 		<!-- Properties Bean, so far used in tests -->
 		<bean id="cabinetProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 			<property name="locations">

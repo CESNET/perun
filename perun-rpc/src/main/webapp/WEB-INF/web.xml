@@ -9,10 +9,6 @@
 	</servlet>
 
 	<context-param>
-		<param-name>spring.profiles.default</param-name>
-		<param-value>@spring.profiles.default@</param-value>
-	</context-param>
-	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>classpath:perun-rpc.xml</param-value>
 	</context-param>

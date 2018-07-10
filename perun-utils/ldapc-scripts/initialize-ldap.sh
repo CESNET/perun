@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PERUN_LDAP_INITIALIZATOR=/home/perun/perun-ldapc/perun-ldapc-initializer-3.0.1-SNAPSHOT-production.jar
+PERUN_LDAP_INITIALIZATOR=/home/perun/perun-ldapc/perun-ldapc-initializer.jar
 LDIF_DIFF_LIBRARY=/home/perun/perun-ldapc/ldifdiff.pl
 LDIF_SORT_LIBRARY=/home/perun/perun-ldapc/ldifsort.pl
 LDIF_DIFF_SORT_LIBRARY=/home/perun/perun-ldapc/ldifdiff-sort.pl
