@@ -184,6 +184,7 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 		int hash = 7;
 		hash = 53 * hash + getId();
 		hash = 53 * hash + (friendlyName == null ? 0 : friendlyName.hashCode());
+		hash = 53 * hash + (namespace == null ? 0 : namespace.hashCode());
 		return hash;
 	}
 
@@ -195,7 +196,8 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 
 		final AttributeDefinition other = (AttributeDefinition) obj;
 
-		return this.getId() == other.getId() && (this.friendlyName == null ? other.friendlyName == null : this.friendlyName.equals(other.friendlyName));
+		return this.getId() == other.getId() && (this.friendlyName == null ? other.friendlyName == null : this.friendlyName.equals(other.friendlyName))
+				&& (this.namespace == null ? other.namespace == null : this.namespace.equals(other.namespace));
 	}
 
 	/**

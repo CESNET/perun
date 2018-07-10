@@ -9,6 +9,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,12 +18,14 @@ import java.util.List;
  */
 public class urn_perun_user_attribute_def_def_preferredEduPersonPrincipalName extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	private static final String A_U_eduPersonPrincipalNames = AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonPrincipalNames";
+
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 
 		String value = null;
 		try {
-			Attribute eppns = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonPrincipalNames");
+			Attribute eppns = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, A_U_eduPersonPrincipalNames);
 			if (eppns.getValue() != null) {
 				List<String> values = (List<String>)eppns.getValue();
 				if (!values.isEmpty()) {
@@ -31,7 +35,7 @@ public class urn_perun_user_attribute_def_def_preferredEduPersonPrincipalName ex
 			}
 
 		} catch (AttributeNotExistsException ex) {
-			throw new ConsistencyErrorException("Can't fill attribute value because source attribute "+AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonPrincipalNames not exist!", ex);
+			throw new ConsistencyErrorException("Can't fill attribute value because source attribute " + A_U_eduPersonPrincipalNames +" not exist!", ex);
 		}
 
 		Attribute attributeWithValue = new Attribute(attribute);
@@ -45,7 +49,7 @@ public class urn_perun_user_attribute_def_def_preferredEduPersonPrincipalName ex
 
 		String value = (String)attribute.getValue();
 		try {
-			Attribute eppns = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonPrincipalNames");
+			Attribute eppns = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, A_U_eduPersonPrincipalNames);
 			if (eppns.getValue() != null) {
 				List<String> values = (List<String>)eppns.getValue();
 				if (!values.contains(value)) {
@@ -57,9 +61,14 @@ public class urn_perun_user_attribute_def_def_preferredEduPersonPrincipalName ex
 				if (value != null) throw new WrongReferenceAttributeValueException(attribute, eppns, user, null, user, null, "Value '"+value+"' is not allowed. Please use one of allowed.");
 			}
 		} catch (AttributeNotExistsException ex) {
-			throw new ConsistencyErrorException("Can't check attribute value because source attribute "+AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonPrincipalNames not exist!", ex);
+			throw new ConsistencyErrorException("Can't check attribute value because source attribute " + A_U_eduPersonPrincipalNames + " not exist!", ex);
 		}
 
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(A_U_eduPersonPrincipalNames);
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

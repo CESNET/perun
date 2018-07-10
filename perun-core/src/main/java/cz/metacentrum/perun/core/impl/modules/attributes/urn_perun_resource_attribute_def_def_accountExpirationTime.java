@@ -6,6 +6,7 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -29,6 +30,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  */
 public class urn_perun_resource_attribute_def_def_accountExpirationTime extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
+	private static final String A_F_accountExpirationTime = AttributesManager.NS_FACILITY_ATTR + ":accountExpirationTime";
 
 	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		return new Attribute(attribute);
@@ -44,7 +46,7 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
 		Integer facilityAccExpTime = null;
 		try {
 			//FIXME this can't work (different namespace!!)
-			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, fac, attribute.getName()).getValue();
+			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, fac, A_F_accountExpirationTime).getValue();
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -54,6 +56,11 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
 		if(facilityAccExpTime < accExpTime) {
 			throw new WrongAttributeValueException("value can be higher than same facility attribute");
 		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(A_F_accountExpirationTime);
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

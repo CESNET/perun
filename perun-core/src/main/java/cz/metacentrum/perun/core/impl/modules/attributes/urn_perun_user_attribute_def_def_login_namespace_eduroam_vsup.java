@@ -13,8 +13,10 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -87,6 +89,13 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup exten
 
 		return filledAttribute;
 
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(VSUP_NAMESPACE);
+		return dependencies;
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupVirtualAttributesModuleAbstract;
@@ -128,6 +129,15 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 	@Override
 	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		return false;
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupNameNamespace");
+		//Disallowed because it does not affect value of dependent attribute
+		//dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:*");
+		return dependencies;
 	}
 
 	@Override

@@ -12,19 +12,25 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public class  urn_perun_entityless_attribute_def_def_namespace_minUID extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
+	private static final String A_E_namespaceMaxUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID";
 
 	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer minUID = (Integer) attribute.getValue();
 		if(minUID != null) {
 			if(minUID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
 			try {
-				Attribute maxUIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID");
+				Attribute maxUIDAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, key, A_E_namespaceMaxUID);
 				Integer maxUID = (Integer) maxUIDAttr.getValue();
 				if(maxUID != null) {
 					if(minUID > maxUID) throw new WrongAttributeValueException(attribute, "Attribute value must be less than maxUID. MaxUID = " + maxUID + ", and minUID try to set = " + minUID);
@@ -44,5 +50,10 @@ public class  urn_perun_entityless_attribute_def_def_namespace_minUID extends En
 		attr.setType(Integer.class.getName());
 		attr.setDescription("Minimal value of User ID.");
 		return attr;
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(A_E_namespaceMaxUID);
 	}
 }

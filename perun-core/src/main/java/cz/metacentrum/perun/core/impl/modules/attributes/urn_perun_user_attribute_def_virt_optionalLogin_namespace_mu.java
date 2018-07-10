@@ -13,6 +13,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,14 +29,15 @@ public class urn_perun_user_attribute_def_virt_optionalLogin_namespace_mu extend
 
 	private final String EXTSOURCE_MUNI_IDP2 = "https://idp2.ics.muni.cz/idp/shibboleth";
 	private final Pattern loginMUPattern = Pattern.compile("^([0-9]+)[@]muni[.]cz$");
-	
+
+	private static final String A_U_D_loginNamespace_mu = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu";
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		try {
-			Attribute loginInMU = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu");
+			Attribute loginInMU = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_loginNamespace_mu);
 			attribute = Utils.copyAttributeToVirtualAttributeWithValue(loginInMU, attribute);
 		} catch (AttributeNotExistsException ex) {
 			//That means that mu login attribute not exists at all
@@ -65,6 +69,11 @@ public class urn_perun_user_attribute_def_virt_optionalLogin_namespace_mu extend
 		}
 
 		return attribute;
+	}
+
+	@Override
+	public List<String> getStrongDependencies() {
+		return Collections.singletonList(A_U_D_loginNamespace_mu);
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

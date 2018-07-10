@@ -32,6 +32,9 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_group_resource_attribute_def_def_projectName extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
 
+	private static final String A_R_projectsBasePath = AttributesManager.NS_RESOURCE_ATTR_DEF + ":projectsBasePath";
+	private static final String A_GR_projectName = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectName";
+
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String name = (String) attribute.getValue();
 		if (name == null) return;
@@ -46,7 +49,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 		//Prepare this resource projectsBasePath
 		Attribute thisResourceProjectsBasePath = null;
 		try {
-			thisResourceProjectsBasePath = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":projectsBasePath");
+			thisResourceProjectsBasePath = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_projectsBasePath);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute projectBasePath not exists!", ex);
 		}
@@ -70,7 +73,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 			Resource r = iterator.next();
 			Attribute otherResourceProjectsBasePath = null;
 			try {
-				otherResourceProjectsBasePath = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, r, AttributesManager.NS_RESOURCE_ATTR_DEF + ":projectsBasePath");
+				otherResourceProjectsBasePath = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, r, A_R_projectsBasePath);
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute projectBasePath not exists!", ex);
 			}
@@ -92,7 +95,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 			for(Group g: groups) {
 				Attribute groupProjectName = null;
 				try {
-					groupProjectName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, r, g, AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectName");
+					groupProjectName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, r, g, A_GR_projectName);
 				} catch (AttributeNotExistsException ex) {
 					throw new ConsistencyErrorException("Attribute projectName not exists!", ex);
 				} catch (GroupResourceMismatchException ex) {
@@ -114,8 +117,9 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
-		dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":projectsBasePath");
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(A_GR_projectName);
+		dependencies.add(A_R_projectsBasePath);
 		return dependencies;
 	}
 

@@ -45,6 +45,7 @@
 		<property name="attributesForUpdateIdP" value="#{'${perun.attributesForUpdate.idp}'.split('\s*,\s*')}"/>
 		<property name="attributesForUpdateX509" value="#{'${perun.attributesForUpdate.x509}'.split('\s*,\s*')}"/>
 		<property name="oidcIssuers" value="#{'${perun.oidc.issuers}'.split('\s*,\s*')}"/>
+		<property name="allowedCorsDomains" value="#{'${perun.allowedCorsDomains}'.split('\s*,\s*')}" />
 	</bean>
 
 
@@ -99,6 +100,7 @@
 				<prop key="perun.attributesForUpdate.x509">mail,cn,o,dn,cadn,certificate</prop>
 				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
 				<prop key="perun.instanceName">LOCAL</prop>
+				<prop key="perun.allowedCorsDomains"></prop>
 				<!--
 				   this creates a map from OIDC issuer to user extsources that are used for looking up a user identified by "sub" claim
 				-->
@@ -120,8 +122,8 @@
 		</property>
 	</bean>
 
-	<!-- active in Spring profiles "devel" and "production", packs default properties with properties from files as a bean -->
-	<beans profile="devel,production">
+	<!-- active in Spring profile "production", packs default properties with properties from files as a bean -->
+	<beans profile="production">
 		<bean id="coreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 			<property name="properties" ref="defaultCoreProperties"/>
 			<property name="locations">

@@ -426,7 +426,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 
 	<!-- merged from perun-core-jdbc.xml -->
 
-	<beans profile="devel,production">
+	<beans profile="production">
 		<context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="@perun.jdbc@, file:${perun.conf.custom}/jdbc.properties"/>
 
 		<!-- DataSource implementation -->

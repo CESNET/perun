@@ -54,13 +54,16 @@ public class urn_perun_user_attribute_def_virt_elixirBonaFideStatus extends User
 	private static final String USER_AFFILIATIONS_ATTR_NAME = "eduPersonScopedAffiliations";
 	private static final String USER_PUBLICATIONS_ATTR_NAME = "publications";
 
+	private static final String A_U_D_userRemsAttrName = AttributesManager.NS_USER_ATTR_DEF + ":" + USER_REMS_ATTR_NAME;
+	private static final String A_U_V_userAffiliations = AttributesManager.NS_USER_ATTR_VIRT + ":" + USER_AFFILIATIONS_ATTR_NAME;
+
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		// get value from 'elixirBonaFideStatusREMS'
 		try {
-			Attribute statusAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + USER_REMS_ATTR_NAME);
+			Attribute statusAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_userRemsAttrName);
 			String statusAttrValue = (String) statusAttr.getValue();
 			if (statusAttrValue != null && !statusAttrValue.isEmpty()) {
 				attribute.setValue(URL);
@@ -72,7 +75,7 @@ public class urn_perun_user_attribute_def_virt_elixirBonaFideStatus extends User
 		// fallback on users affiliations
 		if (attribute.getValue() == null) {
 			try {
-				Attribute userAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_VIRT + ":" + USER_AFFILIATIONS_ATTR_NAME);
+				Attribute userAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_V_userAffiliations);
 				if (userAttribute.getValue() != null) {
 					List<String> affiliations = (List<String>) userAttribute.getValue();
 					for (String affiliation : affiliations) {
@@ -114,6 +117,14 @@ public class urn_perun_user_attribute_def_virt_elixirBonaFideStatus extends User
 		}
 
 		return attribute;
+	}
+
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(A_U_D_userRemsAttrName);
+		dependencies.add(A_U_V_userAffiliations);
+		return dependencies;
 	}
 
 	@Override

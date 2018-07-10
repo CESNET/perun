@@ -19,7 +19,7 @@
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Perun LDAPc"
 DAEMON="/usr/bin/java"
-JAR=/home/perun/perun-ldapc/perun-ldapc-3.0.1-SNAPSHOT-production.jar
+JAR=/home/perun/perun-ldapc/perun-ldapc.jar
 NAME=perun-ldapc
 SCRIPTNAME=/etc/init.d/$NAME
 PIDFILE=/var/run/perun/$NAME.pid

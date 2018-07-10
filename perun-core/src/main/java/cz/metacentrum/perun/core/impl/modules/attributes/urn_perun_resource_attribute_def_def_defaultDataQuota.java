@@ -13,6 +13,10 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.math.BigDecimal;
@@ -136,6 +140,11 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuota extends Resou
 				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataLimit, resource, null, resource, null, attribute + " must be less than or equals to " + defaultDataLimit);
 			}
 		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(A_R_defaultDataLimit);
 	}
 
 	@Override

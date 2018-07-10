@@ -105,9 +105,11 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Fa
 		public List<String> getDependencies() {
 			List<String> dependencies = new ArrayList<String>();
 			dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
-			dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*");
-			dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace" + ":*");
-			dependencies.add( AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isUnixGroup");
+			dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
+			//Disallowed because of crosschecks between modules and peformance reason
+			//dependencies.add(A_G_unixGID_namespace + ":*");
+			//dependencies.add(A_R_unixGID_namespace + ":*");
+			//dependencies.add(A_G_unixGroupName_namespace + ":*");
 			return dependencies;
 		}
 

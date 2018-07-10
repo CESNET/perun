@@ -7,7 +7,7 @@
 	<!-- PERUN -->
 	<groupId>cz.metacentrum</groupId>
 	<artifactId>perun</artifactId>
-	<version>3.0.1-SNAPSHOT</version>
+	<version>3.1.0</version>
 	<packaging>pom</packaging>
 
 	<!-- Spring Boot Starter Parent as parent project - this project inherits versions of dependencies and plugins -->
@@ -49,10 +49,6 @@
 		<!-- USE UTF-8 in whole project -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-		<!-- by default we build devel version of perun and do tests -->
-		<perun.build.type>default</perun.build.type>
-		<skipTests>false</skipTests>
 
 		<!-- macros @perun.conf@ @perun.jdbc@ etc replaced in all filtered resources in /src/main/resources during maven build-->
 		<perun.conf>/etc/perun/</perun.conf>

@@ -239,7 +239,12 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 	@Override
 	public List<String> getDependencies() {
 		List<String> dependencies = new ArrayList<String>();
-		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges");
+		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
+		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID");
+		//Disallowed because of crosschecks between modules and performance reason
+		//dependencies.add(A_R_unixGroupName_namespace + ":*");
+		//dependencies.add(A_G_unixGID_namespace + ":*");
+		//dependencies.add(A_G_unixGroupName_namespace + ":*");
 		//Temporary disallowed for performance reason
 		//dependencies.add(A_E_usedGids);
 		return dependencies;

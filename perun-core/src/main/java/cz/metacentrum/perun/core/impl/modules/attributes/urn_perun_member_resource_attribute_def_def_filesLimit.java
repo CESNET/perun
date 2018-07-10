@@ -84,6 +84,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Reso
 	@Override
 	public List<String> getDependencies() {
 		List<String> dependecies = new ArrayList<String>();
+		dependecies.add(A_MR_filesQuota);
 		dependecies.add(A_R_defaultFilesLimit);
 		dependecies.add(A_R_defaultFilesQuota);
 		return dependecies;

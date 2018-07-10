@@ -136,6 +136,14 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
 	}
 
 	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
+		dependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace" + ":*");
+		return dependencies;
+	}
+
+	@Override
 	public List<String> getStrongDependencies() {
 		List<String> StrongDependencies = new ArrayList<String>();
 		StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");

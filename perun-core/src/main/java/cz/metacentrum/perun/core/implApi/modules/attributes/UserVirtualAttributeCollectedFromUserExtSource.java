@@ -154,16 +154,26 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 		return destinationAttribute;
 	}
 
+	/**
+	 * Get list of message patterns used for resolving attribute value change.
+	 * @return List of Patterns
+	 */
+	public List<Pattern> getPatternsForMatch() {
+		List<Pattern> patterns = new ArrayList<>();
+		patterns.add(allAttributesRemovedForUserExtSource);
+		patterns.add(setUserExtSourceAttribute);
+		patterns.add(removeUserExtSourceAttribute);
+
+		return patterns;
+	}
 
 	@Override
 	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<String> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
-		if (allAttributesRemovedForUserExtSource.matcher(message).find() ||
-				removeUserExtSourceAttribute.matcher(message).find() ||
-				setUserExtSourceAttribute.matcher(message).find()) {
-			log.debug("Resolving virtual attribute value change for attribute " + this.getSourceAttributeFriendlyName() + " and message: " + message);
+		if (messageNeedsResolve(message)) {
+			log.debug("Resolving virtual attribute value change for message: " + message);
 			User user = perunSession.getPerunBl().getModulesUtilsBl().getUserFromMessage(perunSession, message);
 			if (user != null) {
 				Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, getDestinationAttributeName());
@@ -192,5 +202,17 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription(getDestinationAttributeDescription());
 		return attr;
+	}
+
+	private boolean messageNeedsResolve(String message) {
+		List<Pattern> patterns = getPatternsForMatch();
+
+		for (Pattern p: patterns) {
+			if (p.matcher(message).find()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

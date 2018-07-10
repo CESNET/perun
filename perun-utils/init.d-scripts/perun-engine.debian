@@ -22,7 +22,7 @@
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Perun Engine"
 DAEMON="/usr/bin/java"
-JAR=/home/perun/perun-engine/perun-engine-3.0.1-SNAPSHOT-production.jar
+JAR=/home/perun/perun-engine/perun-engine.jar
 NAME=perun-engine
 SCRIPTNAME=/etc/init.d/$NAME
 PIDFILE=/var/run/perun/$NAME.pid

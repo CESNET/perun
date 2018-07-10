@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleImplApi;
 
@@ -24,6 +23,9 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttri
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
 public class urn_perun_facility_attribute_def_virt_minUID extends FacilityVirtualAttributesModuleAbstract implements FacilityVirtualAttributesModuleImplApi {
+
+	private static final String A_E_namespaceMinUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID";
+	private static final String A_FAC_uidNamespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace";
 
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		try {
@@ -72,7 +74,7 @@ public class urn_perun_facility_attribute_def_virt_minUID extends FacilityVirtua
 
 	private Attribute getNamespaceMinUidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException, WrongReferenceAttributeValueException {
 		try {
-			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, (String) uidNamespace, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID");
+			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, (String) uidNamespace, A_E_namespaceMinUID);
 		} catch(AttributeNotExistsException ex) { throw new ConsistencyErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
 		}
@@ -80,17 +82,25 @@ public class urn_perun_facility_attribute_def_virt_minUID extends FacilityVirtua
 
 	private Attribute getUidNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
 		try {
-			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
+			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_uidNamespace);
 		} catch(AttributeNotExistsException ex) { throw new InternalErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<String>();
+		dependencies.add(A_E_namespaceMinUID);
+		dependencies.add(A_FAC_uidNamespace);
+		return dependencies;
+	}
+
+	@Override
 	public List<String> getStrongDependencies() {
 		List<String> strongDependencies = new ArrayList<String>();
-		strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
-		strongDependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID");
+		strongDependencies.add(A_E_namespaceMinUID);
+		strongDependencies.add(A_FAC_uidNamespace);
 		return strongDependencies;
 	}
 

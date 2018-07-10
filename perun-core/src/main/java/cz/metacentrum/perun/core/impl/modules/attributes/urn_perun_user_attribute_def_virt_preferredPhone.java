@@ -11,12 +11,21 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Get phone number for VŠUP from all possibilities.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+
+	private static final String A_U_D_phoneDc2 = AttributesManager.NS_USER_ATTR_DEF + ":phoneDc2";
+	private static final String A_U_O_mobilePhone = AttributesManager.NS_USER_ATTR_OPT + ":mobilePhone";
+	private static final String A_U_O_privatePhone = AttributesManager.NS_USER_ATTR_OPT + ":privatePhone";
+	private static final String A_U_O_privatePhoneKos = AttributesManager.NS_USER_ATTR_OPT + ":privatePhoneKos";
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
@@ -25,25 +34,25 @@ public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtua
 
 		try {
 
-			Attribute sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:phoneDc2");
+			Attribute sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_phoneDc2);
 			if (sourceAttribute.getValue() != null) {
 				attribute.setValue(sourceAttribute.getValue());
 				return attribute;
 			}
 
-			sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:opt:mobilePhone");
+			sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_O_mobilePhone);
 			if (sourceAttribute.getValue() != null) {
 				attribute.setValue(sourceAttribute.getValue());
 				return attribute;
 			}
 
-			sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:opt:privatePhone");
+			sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_O_privatePhone);
 			if (sourceAttribute.getValue() != null) {
 				attribute.setValue(sourceAttribute.getValue());
 				return attribute;
 			}
 
-			sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:opt:privatePhoneKos");
+			sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_O_privatePhoneKos);
 			if (sourceAttribute.getValue() != null) {
 				attribute.setValue(sourceAttribute.getValue());
 				return attribute;
@@ -58,6 +67,15 @@ public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtua
 		}
 	}
 
+	@Override
+	public List<String> getStrongDependencies() {
+		List<String> strongDependencies = new ArrayList<>();
+		strongDependencies.add(A_U_D_phoneDc2);
+		strongDependencies.add(A_U_O_mobilePhone);
+		strongDependencies.add(A_U_O_privatePhone);
+		strongDependencies.add(A_U_O_privatePhoneKos);
+		return strongDependencies;
+	}
 
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();

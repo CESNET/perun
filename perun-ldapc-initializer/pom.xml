@@ -5,13 +5,11 @@
     <parent>
         <groupId>cz.metacentrum</groupId>
         <artifactId>perun</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.1.0</version>
     </parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
-
     <artifactId>perun-ldapc-initializer</artifactId>
-	<version>3.0.1-SNAPSHOT-${perun.build.type}</version>
     <packaging>jar</packaging>
 
 	<name>perun-ldapc-initializer</name>
@@ -23,6 +21,7 @@
 
 	<!-- common build settings used by all profiles -->
 	<build>
+        <finalName>${project.name}</finalName>
 		<plugins>
 
 			<plugin>
@@ -108,52 +107,26 @@
 	<profiles>
 
 		<profile>
-
-			<id>devel</id>
-
+			<!-- adds Oracle JDBC drivers if run with "mvn -Doracle=True"-->
+			<id>oracle</id>
 			<activation>
 				<property>
-					<name>devel</name>
+					<name>oracle</name>
+					<value>True</value>
 				</property>
 			</activation>
-
-			<properties>
-				<perun.build.type>devel</perun.build.type>
-				<spring.profiles.default>devel</spring.profiles.default>
-			</properties>
-
-			<build>
-				<plugins>
-					<plugin>
-						<!-- Make "devel" tests to run against real DB -->
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<systemPropertyVariables>
-								<spring.profiles.default>devel</spring.profiles.default>
-							</systemPropertyVariables>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-
-		</profile>
-
-		<profile>
-
-			<id>production</id>
-
-			<activation>
-				<property>
-					<name>production</name>
-				</property>
-			</activation>
-
-			<properties>
-				<perun.build.type>production</perun.build.type>
-				<skipTests>true</skipTests>
-			</properties>
-
+			<dependencies>
+				<!-- Oracle jdbc driver -->
+				<dependency>
+					<groupId>com.oracle</groupId>
+					<artifactId>ojdbc8</artifactId>
+				</dependency>
+				<!-- Oracle internationalization -->
+				<dependency>
+					<groupId>com.oracle</groupId>
+					<artifactId>orai18n</artifactId>
+				</dependency>
+			</dependencies>
 		</profile>
 
 	</profiles>

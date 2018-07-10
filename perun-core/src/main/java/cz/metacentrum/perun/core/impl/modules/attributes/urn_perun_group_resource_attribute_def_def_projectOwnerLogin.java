@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,8 @@ import java.util.regex.Pattern;
  * @date 25.2.2014
  */
 public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
+
+	private static final String A_UF_V_login = AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login";
 
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String ownerLogin = (String) attribute.getValue();
@@ -53,7 +56,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 		for(User u: users) {
 			Attribute userLogin = null;
 			try {
-				userLogin = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, u, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login");
+				userLogin = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, u, A_UF_V_login);
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException("Not existing attribute user_login", ex);
 			}
@@ -65,9 +68,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
-		strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login");
-		return strongDependencies;
+		return Collections.singletonList(A_UF_V_login);
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

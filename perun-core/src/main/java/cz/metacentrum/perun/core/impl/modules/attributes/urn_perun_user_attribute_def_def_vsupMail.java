@@ -10,13 +10,16 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -50,6 +53,8 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 	public static final String vsupMailAliasesUrn = "urn:perun:user:attribute-def:def:vsupMailAliases";
 	public static final String vsupPreferredMailUrn = "urn:perun:user:attribute-def:def:vsupPreferredMail";
 
+	private static final String A_U_D_loginNamespace_vsup = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:vsup";
+
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 
@@ -58,7 +63,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 
 			// check that mail matches login
 			try {
-				Attribute login = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:login-namespace:vsup");
+				Attribute login = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_loginNamespace_vsup);
 
 				// if login and mail value is set, they must match !!
 				if (login.getValue() != null && attribute.getValue() != null) {
@@ -81,6 +86,11 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 
 		// We check uniqueness on all related attributes change, so we don't need to do it here.
 
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		return Collections.singletonList(A_U_D_loginNamespace_vsup);
 	}
 
 	@Override
