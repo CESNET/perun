@@ -438,7 +438,7 @@ public class CacheManager implements CacheManagerApi {
 											.and().having(SUBJECT).isNull())))
 						.toBuilder().build();
 
-		return query.list();
+		return BeansUtils.getAttributesFromAttributeHolders(query.list());
 	}
 
 	@Override
@@ -455,7 +455,7 @@ public class CacheManager implements CacheManagerApi {
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.toBuilder().build();
 
-		return query.list();
+		return BeansUtils.getAttributesFromAttributeHolders(query.list());
 	}
 
 	@Override
@@ -478,28 +478,28 @@ public class CacheManager implements CacheManagerApi {
 										.and().having(SUBJECT).isNull()))
 						.toBuilder().build();
 
-		return removeDuplicates(query.<Attribute>list());
+		return removeDuplicates(query.list());
 	}
 
 	/**
 	 * Removes duplicate attributes.
 	 * Duplicate means that the same attribute is there with and also without value. If that happens, it removes the attribute without value.
 	 *
-	 * @param attributesWithDuplicates attribute list with duplicates
+	 * @param attributeHoldersWithDuplicates list of attribute holders with duplicates
 	 * @return list of attributes without duplicates
 	 */
-	private List<Attribute> removeDuplicates(List<Attribute> attributesWithDuplicates) {
+	private List<Attribute> removeDuplicates(List<AttributeHolders> attributeHoldersWithDuplicates) {
 		List<Integer> definitionIds = new ArrayList<>();
 		List<Integer> valuesIds = new ArrayList<>();
-		List<Attribute> attrsToReturn = new ArrayList<>();
+		List<AttributeHolders> attrHoldersToReturn = new ArrayList<>();
 
 		//find all attributes with value
-		for (Attribute attr: attributesWithDuplicates) {
-			if(attr.getValue() != null) {
-				valuesIds.add(attr.getId());
-				attrsToReturn.add(attr);
+		for (AttributeHolders attrHolder: attributeHoldersWithDuplicates) {
+			if(attrHolder.getValue() != null) {
+				valuesIds.add(attrHolder.getId());
+				attrHoldersToReturn.add(attrHolder);
 			} else {
-				definitionIds.add(attr.getId());
+				definitionIds.add(attrHolder.getId());
 			}
 		}
 
@@ -508,12 +508,12 @@ public class CacheManager implements CacheManagerApi {
 
 		//add definitions for which no attribute with value was found
 		for(Integer defId: definitionIds) {
-			for(Attribute attr: attributesWithDuplicates) {
-				if(attr.getId() == defId) attrsToReturn.add(attr);
+			for(AttributeHolders attrHolder: attributeHoldersWithDuplicates) {
+				if(attrHolder.getId() == defId) attrHoldersToReturn.add(attrHolder);
 			}
 		}
 
-		return attrsToReturn;
+		return BeansUtils.getAttributesFromAttributeHolders(attrHoldersToReturn);
 	}
 
 	@Override
@@ -530,7 +530,7 @@ public class CacheManager implements CacheManagerApi {
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.toBuilder().build();
 
-		return query.list();
+		return BeansUtils.getAttributesFromAttributeHolders(query.list());
 	}
 
 	@Override
@@ -547,7 +547,7 @@ public class CacheManager implements CacheManagerApi {
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.build();
 
-		return query.list();
+		return BeansUtils.getAttributesFromAttributeHolders(query.list());
 	}
 
 	@Override
@@ -648,7 +648,7 @@ public class CacheManager implements CacheManagerApi {
 							.toBuilder().build();
 		}
 
-		return query.list();
+		return BeansUtils.getAttributesFromAttributeHolders(query.list());
 	}
 
 	@Override
@@ -664,7 +664,7 @@ public class CacheManager implements CacheManagerApi {
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.toBuilder().build();
 
-		return query.list();
+		return BeansUtils.getAttributesFromAttributeHolders(query.list());
 	}
 
 	@Override
@@ -696,16 +696,15 @@ public class CacheManager implements CacheManagerApi {
 			return getAttributeInNestedTransaction(attrId);
 		} else {
 			Cache<Object, Object> cache = this.getCache(AccessType.READ_NOT_UPDATED_CACHE);
-			Attribute attr = (Attribute) cache.get(attrId);
-
+			AttributeHolders attr = (AttributeHolders) cache.get(attrId);
 			if(attr != null) {
-				return attr;
+				return new Attribute(attr, true);
 			} else {
 				//attribute with holders does not exist, try to find attribute definition by name or id
 				if(attributeName != null) {
-					return (Attribute) this.getAttributeDefinition(attributeName);
+					return new Attribute(this.getAttributeDefinition(attributeName));
 				} else {
-					return (Attribute) this.getAttributeDefinition(attributeId);
+					return new Attribute(this.getAttributeDefinition(attributeId));
 				}
 			}
 		}
@@ -730,32 +729,32 @@ public class CacheManager implements CacheManagerApi {
 			if(cacheForRemove.get(attributeIdWithHolders) != null) {
 
 				if(attributeIdWithHolders.getAttributeName() != null) {
-					return (Attribute) this.getAttributeDefinition(attributeIdWithHolders.getAttributeName());
+					return new Attribute(this.getAttributeDefinition(attributeIdWithHolders.getAttributeName()));
 				} else {
-					return (Attribute) this.getAttributeDefinition(attributeIdWithHolders.getAttributeId());
+					return new Attribute(this.getAttributeDefinition(attributeIdWithHolders.getAttributeId()));
 				}
 			}
 
 			Cache<Object, Object> cacheForSet = this.getCache(cacheNameForSet);
 			//if attribute was set in nested transaction, return it
-			Attribute attr = (Attribute) cacheForSet.get(attributeIdWithHolders);
+			AttributeHolders attr = (AttributeHolders) cacheForSet.get(attributeIdWithHolders);
 			if(attr != null) {
-				return attr;
+				return new Attribute(attr, true);
 			}
 		}
 
 		//attribute was not set, nor removed in nested transaction, look into normal cache
 		Cache<Object, Object> cache = this.getCache(AccessType.READ_NOT_UPDATED_CACHE);
-		Attribute attr = (Attribute) cache.get(attributeIdWithHolders);
+		AttributeHolders attr = (AttributeHolders) cache.get(attributeIdWithHolders);
 
 		if(attr != null) {
-			return attr;
+			return new Attribute(attr, true);
 		}
 
 		if(attributeIdWithHolders.getAttributeName() != null) {
-			return (Attribute) this.getAttributeDefinition(attributeIdWithHolders.getAttributeName());
+			return new Attribute(this.getAttributeDefinition(attributeIdWithHolders.getAttributeName()));
 		} else {
-			return (Attribute) this.getAttributeDefinition(attributeIdWithHolders.getAttributeId());
+			return new Attribute(this.getAttributeDefinition(attributeIdWithHolders.getAttributeId()));
 		}
 	}
 
@@ -794,7 +793,7 @@ public class CacheManager implements CacheManagerApi {
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.toBuilder().build();
 
-		return query.list();
+		return BeansUtils.getAttributeDefinitionsFromAttributeHolders(query.list());
 	}
 
 	@Override
@@ -810,7 +809,7 @@ public class CacheManager implements CacheManagerApi {
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.toBuilder().build();
 
-		return query.list();
+		return BeansUtils.getAttributeDefinitionsFromAttributeHolders(query.list());
 	}
 
 	@Override
@@ -853,15 +852,15 @@ public class CacheManager implements CacheManagerApi {
 		if(isInNestedTransaction()) {
 			return this.getAttributeDefinitionInNestedTransaction(attributeIdWithHolders);
 		} else {
-			Attribute attr = (Attribute) this.getCache(AccessType.READ_NOT_UPDATED_CACHE).get(attributeIdWithHolders);
-			if(attr == null) {
+			AttributeHolders attrHolders = (AttributeHolders) this.getCache(AccessType.READ_NOT_UPDATED_CACHE).get(attributeIdWithHolders);
+			if(attrHolders == null) {
 				if(attributeName != null) {
 					throw new AttributeNotExistsException("Attribute - attribute.name='" + attributeName + "'");
 				} else {
 					throw new AttributeNotExistsException("Attribute - attribute.id='" + attributeId + "'");
 				}
 			}
-			return attr;
+			return new AttributeDefinition(attrHolders);
 		}
 	}
 
@@ -879,14 +878,14 @@ public class CacheManager implements CacheManagerApi {
 
 			//if attributeDefinition was set in nested transaction, return it
 			Cache<Object, Object> cacheForSet = this.getCache(cacheNameForSet);
-			AttributeDefinition attr = (AttributeDefinition) cacheForSet.get(attributeIdWithHolders);
+			AttributeHolders attr = (AttributeHolders) cacheForSet.get(attributeIdWithHolders);
 			if(attr != null) {
-				return attr;
+				return new AttributeDefinition(attr);
 			}
 		}
 
 		//attribute definition was not set in nested transaction, look into normal cache
-		Attribute attr = (Attribute) this.getCache(AccessType.READ_NOT_UPDATED_CACHE).get(attributeIdWithHolders);
+		AttributeHolders attr = (AttributeHolders) this.getCache(AccessType.READ_NOT_UPDATED_CACHE).get(attributeIdWithHolders);
 
 		if(attr == null) {
 			if(attributeIdWithHolders.getAttributeName() != null) {
@@ -895,7 +894,7 @@ public class CacheManager implements CacheManagerApi {
 				throw new AttributeNotExistsException("Attribute - attribute.id='" + attributeIdWithHolders.getAttributeId() + "'");
 			}
 		}
-		return attr;
+		return new AttributeDefinition(attr);
 	}
 
 	@Override
@@ -912,7 +911,7 @@ public class CacheManager implements CacheManagerApi {
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.toBuilder().build();
 
-		return query.list();
+		return BeansUtils.getAttributesFromAttributeHolders(query.list());
 	}
 
 	@Override
@@ -929,7 +928,7 @@ public class CacheManager implements CacheManagerApi {
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.toBuilder().build();
 
-		return query.list();
+		return BeansUtils.getAttributesFromAttributeHolders(query.list());
 	}
 
 	@Override
@@ -944,7 +943,7 @@ public class CacheManager implements CacheManagerApi {
 		if(isInNestedTransaction()) {
 			return this.getEntitylessAttrValueInNestedTransaction(id);
 		} else {
-			Attribute attr = (Attribute) this.getCache(AccessType.READ_NOT_UPDATED_CACHE).get(id);
+			AttributeHolders attr = (AttributeHolders) this.getCache(AccessType.READ_NOT_UPDATED_CACHE).get(id);
 			if(attr != null) {
 				return BeansUtils.attributeValueToString(attr);
 			}
@@ -974,7 +973,7 @@ public class CacheManager implements CacheManagerApi {
 
 			Cache<Object, Object> cacheForSet = this.getCache(cacheNameForSet);
 			//if attribute was set in nested transaction, return its value
-			Attribute attr = (Attribute) cacheForSet.get(attributeIdWithHolders);
+			AttributeHolders attr = (AttributeHolders) cacheForSet.get(attributeIdWithHolders);
 			if(attr != null) {
 				return BeansUtils.attributeValueToString(attr);
 			}
@@ -982,7 +981,7 @@ public class CacheManager implements CacheManagerApi {
 
 		//attribute was not set, nor removed in nested transactions, look into normal cache
 		Cache<Object, Object> cache = this.getCache(AccessType.READ_NOT_UPDATED_CACHE);
-		Attribute attr = (Attribute) cache.get(attributeIdWithHolders);
+		AttributeHolders attr = (AttributeHolders) cache.get(attributeIdWithHolders);
 
 		if(attr != null) {
 			return BeansUtils.attributeValueToString(attr);
@@ -1026,10 +1025,10 @@ public class CacheManager implements CacheManagerApi {
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.toBuilder().build();
 
-		List<Attribute> attrs = query.list();
+		List<AttributeHolders> attrs = query.list();
 		List<Object> values = new ArrayList<>();
 
-		for(Attribute a: attrs) {
+		for(AttributeHolders a: attrs) {
 			values.add(a.getValue());
 		}
 
@@ -1048,10 +1047,10 @@ public class CacheManager implements CacheManagerApi {
 						.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
 						.toBuilder().build();
 
-		List<Attribute> attrs = query.list();
+		List<AttributeHolders> attrs = query.list();
 		List<Object> values = new ArrayList<>();
 
-		for(Attribute a: attrs) {
+		for(AttributeHolders a: attrs) {
 			values.add(a.getValue());
 		}
 
@@ -1077,7 +1076,7 @@ public class CacheManager implements CacheManagerApi {
 										.and().having(SUBJECT).isNull()))
 						.toBuilder().build();
 
-		return removeDuplicates(query.<Attribute>list());
+		return removeDuplicates(query.list());
 	}
 
 	@Override
@@ -1100,7 +1099,7 @@ public class CacheManager implements CacheManagerApi {
 										.and().having(SUBJECT).isNull()))
 						.toBuilder().build();
 
-		return removeDuplicates(query.<Attribute>list());
+		return removeDuplicates(query.list());
 	}
 
 	@Override

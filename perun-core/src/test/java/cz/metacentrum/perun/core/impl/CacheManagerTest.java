@@ -526,7 +526,8 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 
 		List<AttributeDefinition> attributeDefinitions = setUpAttributesDefinitions();
 		List<AttributeDefinition> returnedAttrDefinitions = cacheManager.getAttributesDefinitions();
-		assertEquals("returned attributes are not same as stored", attributeDefinitions, returnedAttrDefinitions);
+		assertTrue("Returned attribute definitions don't contain all set attribute definitions.", returnedAttrDefinitions.containsAll(attributeDefinitions));
+		assertEquals("Returned list doesn't have same size as expected.", attributeDefinitions.size(), returnedAttrDefinitions.size());
 	}
 
 	@Test
@@ -1353,7 +1354,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 
 	private AttributeDefinition setUpAttributeDefinition(String namespace, String friendlyName) throws InternalErrorException {
 
-		AttributeDefinition attr = new Attribute();
+		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(namespace);
 		attr.setFriendlyName(friendlyName);
 		attr.setType(String.class.getName());

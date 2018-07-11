@@ -4418,7 +4418,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		Utils.notNull(attribute.getNamespace(), "attribute.namespace");
 		Utils.notNull(attribute.getType(), "attribute.type");
 
-		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().checkAttributeExists(attribute);
+		//if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().checkAttributeExists(attribute);
 
 		try {
 			return 1 == jdbc.queryForInt("select count('x') from attr_names where attr_name=? and friendly_name=? and namespace=? and id=? and type=?", attribute.getName(), attribute.getFriendlyName(), attribute.getNamespace(), attribute.getId(), attribute.getType());
