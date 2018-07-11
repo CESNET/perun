@@ -624,6 +624,38 @@ public class BeansUtils {
 	}
 
 	/**
+	 * Get list of AttributeDefinitions from list of AttributeHolders
+	 * Used in CacheManager to transform result of query (list of AttributeHolders) to list of AttributeDefinitions.
+	 *
+	 * @param attrHolders list of AttributeHolders
+	 * @return list of AttributeDefinitions
+	 */
+	public static List<AttributeDefinition> getAttributeDefinitionsFromAttributeHolders(List<AttributeHolders> attrHolders) {
+		List<AttributeDefinition> attrDefs = new ArrayList<>();
+		for (AttributeHolders attrHolder: attrHolders) {
+			attrDefs.add(new AttributeDefinition(attrHolder));
+		}
+
+		return attrDefs;
+	}
+
+	/**
+	 * Get list of Attributes from list of AttributeHolders
+	 * Used in CacheManager to transform result of query (list of AttributeHolders) to list of Attributes.
+	 *
+	 * @param attrHolders list of AttributeHolders
+	 * @return list of Attributes
+	 */
+	public static List<Attribute> getAttributesFromAttributeHolders(List<AttributeHolders> attrHolders) {
+		List<Attribute> attrs = new ArrayList<>();
+		for (AttributeHolders attrHolder: attrHolders) {
+			attrs.add(new Attribute(attrHolder, true));
+		}
+
+		return attrs;
+	}
+
+	/**
 	 * True if this instance of perun is read only.
 	 * False if not.
 	 *
