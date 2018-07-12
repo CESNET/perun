@@ -19,7 +19,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * author: Oliver Mrázik
  * version: 2015-03-22
  */
-public class MemberGroupAttributesModuleAbstract extends AttributesModuleAbstract implements MemberGroupAttributesModuleImplApi {
+public abstract class MemberGroupAttributesModuleAbstract extends AttributesModuleAbstract implements MemberGroupAttributesModuleImplApi {
 
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
