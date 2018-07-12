@@ -140,6 +140,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return true;
 		}
 
+		// RPC can read attributes
+		if (sess.getPerunPrincipal().getRoles().hasRole(Role.RPC) && actionType.equals(ActionType.READ)) {
+			return true;
+		}
+
 		//If attrDef is type of entityless, return false (only perunAdmin can read and write to entityless)
 		if (getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attrDef, AttributesManager.NS_ENTITYLESS_ATTR))
 			return false;
