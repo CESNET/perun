@@ -20,7 +20,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * @author Pavel Vyskocil <vyskocilpavel@muni.com>
  *
  */
-public class GroupVirtualAttributesModuleAbstract extends GroupAttributesModuleAbstract implements GroupVirtualAttributesModuleImplApi{
+public abstract class GroupVirtualAttributesModuleAbstract extends GroupAttributesModuleAbstract implements GroupVirtualAttributesModuleImplApi{
 
 	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) throws InternalErrorException {
 		return new Attribute(attribute);
