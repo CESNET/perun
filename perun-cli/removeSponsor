@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Removes a sponsor from sponsored member
+	-----------------------------------------------------
+	Available options:
+	--member      | -m sponsored member ID
+	--sponsor     | -s sponsor user ID
+	--batch       | -b batch
+	--help        | -h prints this help
+
+};
+}
+
+my ($memberId, $sponsorId, $batch);
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"member|m=i" => \$memberId,
+	"sponsor|s=i"   => \$sponsorId
+) || die help();
+
+# Check options
+unless (defined($memberId)) { die "ERROR: sponsored member ID is required \n";}
+unless (defined($sponsorId)) { die "ERROR: sponsor user ID is required \n";}
+
+my $agent = Perun::Agent->new();
+my $membersAgent = $agent->getMembersAgent;
+
+
+$membersAgent->removeSponsor( member => $memberId, sponsor => $sponsorId );
+
+printMessage("Sponsor with User ID: $sponsorId successfully removed from Member ID:$memberId", $batch);
+
+
