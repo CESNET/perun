@@ -93,4 +93,14 @@ sub validateMemberAsync
 	return Perun::Common::callManagerMethod('validateMemberAsync', 'Member', @_);
 }
 
+sub sponsorMember
+{
+	return Perun::Common::callManagerMethod('sponsorMember', '', @_);
+}
+
+sub removeSponsor
+{
+	return Perun::Common::callManagerMethod('removeSponsor', '', @_);
+}
+
 1;
