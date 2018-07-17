@@ -21,6 +21,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * THIS ATTRIBUTE IS REPLACED BY urn:perun:user:attribute:def:def:elixirBonaFideStatus.
+ * THIS ATTRIBUTE MODULE AND ATTRIBUTE WILL BE DELETED IN FUTURE.
+ *
  * This module determines if user is a researcher. If so,
  * it provides URL: 'http://www.ga4gh.org/beacon/bonafide/ver1.0'.
  *
@@ -34,6 +37,7 @@ import java.util.regex.Pattern;
  *
  * @author Vojtech Sassmann &lt;vojtech.sassmann@gmail.com&gt;
  */
+@Deprecated
 public class urn_perun_user_attribute_def_virt_elixirBonaFideStatus extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_elixirBonaFideStatus.class);
