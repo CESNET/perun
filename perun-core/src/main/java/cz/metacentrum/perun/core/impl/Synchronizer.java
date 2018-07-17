@@ -52,7 +52,7 @@ public class Synchronizer {
 					log.error("Synchronizer: group synchronization out of sync, resetting.");
 					synchronizeGroupsRunning.set(false);
 				}
-			} catch (InternalErrorException e) {
+			} catch (Throwable e) {
 				log.error("Cannot synchronize groups:", e);
 				synchronizeGroupsRunning.set(false);
 			}
