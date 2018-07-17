@@ -971,7 +971,16 @@ public class UiElements {
 		Anchor a2 = new Anchor("BSD 2", "https://github.com/CESNET/perun/blob/master/LICENSE");
 		a2.setTarget("_blank");
 
-		HTML foot = new HTML("<strong>About: </strong>" + a + "&nbsp;|&nbsp;<strong>License: </strong>"+a2+"&nbsp;|&nbsp;<strong>Support: </strong>" + mail+", "+lnk);
+		String link = PerunWebSession.getInstance().getConfiguration().getCustomProperty("privacyPolicyLink");
+		HTML foot = null;
+		if (link != null && !link.isEmpty()) {
+			Anchor a3 = new Anchor("Privacy policy", link);
+			a3.setTarget("_blank");
+			foot = new HTML("<strong>About: </strong>" + a + "<strong>&nbsp;|&nbsp;License: </strong>"+a2+"&nbsp;|&nbsp;"+a3+"&nbsp;|&nbsp;<strong>Support: </strong>" + mail+", "+lnk);
+		} else {
+			foot = new HTML("<strong>About: </strong>" + a + "&nbsp;|&nbsp;<strong>License: </strong>"+a2+"&nbsp;|&nbsp;<strong>Support: </strong>" + mail+", "+lnk);
+		}
+
 		ft.setWidget(0, 0, foot);
 
 		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright() + " " + JsonUtils.getCurrentYear() + ", version: " + PerunWebConstants.INSTANCE.guiVersion()));
