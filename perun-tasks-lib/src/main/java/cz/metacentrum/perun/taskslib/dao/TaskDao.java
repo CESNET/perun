@@ -41,13 +41,13 @@ public interface TaskDao {
 
 	int countTasks();
 
-	Task getTask(int execServiceId, int facilityId);
+	Task getTask(int serviceId, int facilityId);
 
 	int scheduleNewTask(Task task, int engineID) throws InternalErrorException;
 
 	Task getTask(Service service, Facility facility, int engineID);
 
-	Task getTask(int execServiceId, int facilityId, int engineID);
+	Task getTask(int serviceId, int facilityId, int engineID);
 
 	Task getTaskById(int id);
 

@@ -20,15 +20,15 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 
     <!-- DAOs -->
     <bean id="taskDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskDaoJdbc">
-      <property name="dataSource" ref="dataSource"/>
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
     <bean id="taskResult" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskResultDaoJdbc">
-      <property name="dataSource" ref="dataSource"/>
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <bean id="execServiceDenialDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ServiceDenialDaoJdbc">
-      <property name="dataSource" ref="dataSource"/>
+    <bean id="serviceDenialDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ServiceDenialDaoJdbc">
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
 </beans>

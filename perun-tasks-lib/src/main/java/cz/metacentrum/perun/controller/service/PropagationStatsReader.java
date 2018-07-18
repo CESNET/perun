@@ -49,7 +49,7 @@ public interface PropagationStatsReader {
 
 	int countTasks();
 
-	Task getTask(PerunSession perunSession, int execServiceId, int facilityId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	Task getTask(PerunSession perunSession, int serviceId, int facilityId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
 
 	List<TaskResult> getTaskResults();
 
@@ -109,7 +109,7 @@ public interface PropagationStatsReader {
 	List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException, PrivilegeException;
 
 	/**
-	 * Returns list of ResourceStates for VO with tasks which have ExecServiceType SEND.
+	 * Returns list of ResourceStates for VO.
 	 *
 	 * @param session PerunSession
 	 * @param vo VirtualOrganization

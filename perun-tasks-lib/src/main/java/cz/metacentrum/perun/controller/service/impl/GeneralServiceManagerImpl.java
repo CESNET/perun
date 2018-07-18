@@ -37,7 +37,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	public final static String PROPAGATION_PLANNED = "propagation planned: ";
 	public final static String FORCE_PROPAGATION = "force propagation: ";
 	public final static String FREE_ALL_DEN = "free all denials: ";
-	public final static String FREE_DEN_OF_EXECSERVICE = "free denial: ";
+	public final static String FREE_DEN_OF_SERVICE = "free denial: ";
 	public final static String BAN_SERVICE = "ban :";
 
 	@Autowired
@@ -96,13 +96,13 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	@Override
 	public void unblockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
 		serviceDenialDao.unblockServiceOnFacility(service.getId(), facility.getId());
-		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_EXECSERVICE, service, facility);
+		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_SERVICE, service, facility);
 	}
 
 	@Override
 	public void unblockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException {
 		serviceDenialDao.unblockServiceOnDestination(service.getId(), destinationId);
-		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_EXECSERVICE, service, destinationId);
+		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_SERVICE, service, destinationId);
 	}
 
 	@Override
