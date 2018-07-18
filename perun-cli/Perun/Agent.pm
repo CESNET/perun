@@ -1,5 +1,8 @@
 package Perun::Agent;
-my $agentVersion = '3.0.0';
+my $agentVersionMajor = '3';
+my $agentVersionMinor = '2';
+my $agentVersionPatch = '0';
+my $agentVersion = $agentVersionMajor . "." . $agentVersionMinor . "." . $agentVersionPatch;
 
 use strict;
 use warnings;
@@ -126,8 +129,8 @@ sub new {
 	}
 
 	# Check the version of the Perun server
-	if ($response->content !~ /Version: $agentVersion/) {
-		$response->content =~ m/Version: ([0-9]+.[0-9]+.[0-9]+)/;
+	if ($response->content !~ /Version: $agentVersionMajor.[0-9]+.[0-9]+/) {
+		$response->content =~ m/Version: ([0-9]+.[0-9]+.[0-9]+([^ ]*))/;
 		my $perunVersion = $1;
 		die Perun::Exception->fromHash( { type => WRONG_AGENT_VERSION, errorInfo =>
 					"Tools version $agentVersion, Perun version $perunVersion" } );
