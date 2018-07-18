@@ -133,9 +133,9 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<configuration>
-						<!-- disable hard errors when generating javadoc -->
-						<additionalparam>-Xdoclint:none</additionalparam>
 						<detectLinks/>
+						<!-- disable hard errors when generating javadoc -->
+						<doclint>none</doclint>
 						<links>
 							<link>http://docs.spring.io/spring/docs/current/javadoc-api/</link>
 						</links>
