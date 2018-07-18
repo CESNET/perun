@@ -28,7 +28,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  */
 public interface PerunBl extends Perun {
 
-	String PERUNVERSION = "3.0.0";
 	String INTERNALPRINCIPAL = "INTERNAL";
 
 	/**
