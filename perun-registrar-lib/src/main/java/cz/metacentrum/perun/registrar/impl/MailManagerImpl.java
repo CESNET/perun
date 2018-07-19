@@ -763,14 +763,33 @@ public class MailManagerImpl implements MailManager {
 	public void sendMessage(PerunSession sess, Application app, MailType mailType, String reason) throws PerunException {
 
 		// authz
+		boolean pass = false;
+
+		// managers can
 		if (app.getGroup() == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
-				throw new PrivilegeException(sess, "sendMessage");
+			if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
+				pass = true;
 			}
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
-				throw new PrivilegeException(sess, "sendMessage");
+			if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) || AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+				pass = true;
 			}
+		}
+
+		// self can
+		if (Objects.equals(sess.getPerunPrincipal().getUser(), app.getUser())) {
+			pass = true;
+		} else {
+			if (Objects.equals(app.getCreatedBy(), sess.getPerunPrincipal().getActor()) &&
+					Objects.equals(app.getExtSourceName(), sess.getPerunPrincipal().getExtSourceName()) &&
+					Objects.equals(app.getExtSourceType(), sess.getPerunPrincipal().getExtSourceType())
+					) {
+				pass = true;
+			}
+		}
+
+		if (!pass) {
+			throw new PrivilegeException(sess, "sendMessage");
 		}
 
 		if (MailType.USER_INVITE.equals(mailType)) {
