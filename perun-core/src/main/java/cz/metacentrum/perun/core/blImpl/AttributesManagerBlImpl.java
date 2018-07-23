@@ -6234,52 +6234,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			if (attributeModule != null) {
 				module = (AttributesModuleImplApi) attributeModule;
 				depList = module.getDependencies();
-				if(attributeModule instanceof VirtualAttributesModuleImplApi) {
-					strongDepList = ((VirtualAttributesModuleImplApi) module).getStrongDependencies();
-				}
-				//Fill Set of dependencies
-				for (String s : depList) {
-					if (!s.endsWith("*")) {
-						try {
-							AttributeDefinition attrDef = getAttributeDefinition(sess, s);
-							depSet.add(attrDef);
-						} catch (AttributeNotExistsException ex) {
-							log.error("For attribute name " + s + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
-						}
-						//If there is something like AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*" we need to replace * by all possibilities
-					} else {
-						List<String> allVariantOfDependence = getAllSimilarAttributeNames(sess, s.substring(0, s.length() - 2));
-						for (String variant : allVariantOfDependence) {
-							try {
-								AttributeDefinition attrDef = getAttributeDefinition(sess, variant);
-								depSet.add(attrDef);
-							} catch (AttributeNotExistsException ex) {
-								log.error("For attribute name " + variant + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
-							}
-						}
-					}
-				}
-				//Fil Set of strongDependencies
-				for (String s : strongDepList) {
-					if (!s.endsWith("*")) {
-						try {
-							AttributeDefinition attrDef = getAttributeDefinition(sess, s);
-							strongDepSet.add(attrDef);
-						} catch (AttributeNotExistsException ex) {
-							log.error("For attribute name " + s + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
-						}
-						//If there is something like AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*" we need to replace * by all possibilities
-					} else {
-						List<String> allVariantOfDependence = getAllSimilarAttributeNames(sess, s.substring(0, s.length() - 2));
-						for (String variant : allVariantOfDependence) {
-							try {
-								AttributeDefinition attrDef = getAttributeDefinition(sess, variant);
-								strongDepSet.add(attrDef);
-							} catch (AttributeNotExistsException ex) {
-								log.error("For attribute name " + variant + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
-							}
-						}
-					}
+
+				depSet = getDependenciesForModule(sess, module);
+
+				if(module instanceof VirtualAttributesModuleImplApi) {
+					strongDepSet = getStrongDependenciesForModule(sess, ((VirtualAttributesModuleImplApi) module));
 				}
 			}
 			dependencies.put(ad, depSet);
@@ -6368,6 +6327,72 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//DEBUG end
 
 		log.debug("AttributesManagerBlImpl initialize ended.");
+	}
+
+	/**
+	 * Finds all attribute definitions that the given module depends on.
+	 *
+	 * @param sess session
+	 * @param module module
+	 * @return Set of attributedefinitions that the given module depends on.
+	 * @throws InternalErrorException internal error
+	 */
+	private Set<AttributeDefinition> getDependenciesForModule(PerunSession sess, AttributesModuleImplApi module) throws InternalErrorException {
+		List<String> depList = module.getDependencies();
+		Set<AttributeDefinition> depSet = new HashSet<>();
+		//Fill Set of dependencies
+		for (String s : depList) {
+			if (!s.endsWith("*")) {
+				try {
+					AttributeDefinition attrDef = getAttributeDefinition(sess, s);
+					depSet.add(attrDef);
+				} catch (AttributeNotExistsException ex) {
+					log.error("For attribute name " + s + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
+				}
+				//If there is something like AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*" we need to replace * by all possibilities
+			} else {
+				List<String> allVariantOfDependence = getAllSimilarAttributeNames(sess, s.substring(0, s.length() - 2));
+				for (String variant : allVariantOfDependence) {
+					try {
+						AttributeDefinition attrDef = getAttributeDefinition(sess, variant);
+						depSet.add(attrDef);
+					} catch (AttributeNotExistsException ex) {
+						log.error("For attribute name " + variant + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
+					}
+				}
+			}
+		}
+
+		return depSet;
+	}
+
+	private Set<AttributeDefinition> getStrongDependenciesForModule(PerunSession sess, VirtualAttributesModuleImplApi module) throws InternalErrorException {
+		Set<AttributeDefinition> strongDepSet = new HashSet<>();
+		List<String> strongDepList = module.getStrongDependencies();
+
+		for (String s : strongDepList) {
+			if (!s.endsWith("*")) {
+				try {
+					AttributeDefinition attrDef = getAttributeDefinition(sess, s);
+					strongDepSet.add(attrDef);
+				} catch (AttributeNotExistsException ex) {
+					log.error("For attribute name " + s + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
+				}
+				//If there is something like AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*" we need to replace * by all possibilities
+			} else {
+				List<String> allVariantOfDependence = getAllSimilarAttributeNames(sess, s.substring(0, s.length() - 2));
+				for (String variant : allVariantOfDependence) {
+					try {
+						AttributeDefinition attrDef = getAttributeDefinition(sess, variant);
+						strongDepSet.add(attrDef);
+					} catch (AttributeNotExistsException ex) {
+						log.error("For attribute name " + variant + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
+					}
+				}
+			}
+		}
+
+		return strongDepSet;
 	}
 
 	/**
