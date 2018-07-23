@@ -478,7 +478,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 			int ueaId = Utils.getNewId(jdbc, "user_ext_sources_id_seq");
 
-			log.debug("ueaId {}, user.getId() {}, userExtSource.getLogin() {}, userExtSource.getLoa() {}, userExtSource.getExtSource().getId() {}, " +
+			log.debug("Adding new user ext source: ueaId {}, user.getId() {}, userExtSource.getLogin() {}, userExtSource.getLoa() {}, userExtSource.getExtSource().getId() {}, " +
 					"sess.getPerunPrincipal().getActor() {}, sess.getPerunPrincipal().getActor() {}, " +
 					"sess.getPerunPrincipal().getUser().getId() {}, sess.getPerunPrincipal().getUser().getId() {}", new Object[]{ueaId, user.getId(), userExtSource.getLogin(),
 						userExtSource.getLoa(), userExtSource.getExtSource().getId(),
