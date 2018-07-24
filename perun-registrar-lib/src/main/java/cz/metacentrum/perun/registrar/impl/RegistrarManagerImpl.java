@@ -1,6 +1,17 @@
 package cz.metacentrum.perun.registrar.impl;
 
-import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.*;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.ApplicationApproved;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.ApplicationCreated;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.ApplicationDeleted;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.ApplicationRejected;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.ApplicationVerified;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.FormItemAdded;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.FormItemDeleted;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.FormItemUpdated;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.FormItemsUpdated;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.FormUpdated;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.MemberCreatedForApprovedApp;
+import cz.metacentrum.perun.audit.events.RegistrarManagerEvents.MembershipExtendedForMemberInApprovedApp;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
@@ -791,7 +802,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// set new properties back to object & return
 		item.setOrdnum(ordnum);
 		item.setId(itemId);
-		//perun.getAuditer().log(user, "Application form item ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has been added");
 		perun.getAuditer().log(user, new FormItemAdded(form));
 		return item;
 
@@ -870,7 +880,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
-		//perun.getAuditer().log(sess, "Application form ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has had its items updated.");
 		perun.getAuditer().log(sess, new FormItemsUpdated(form));
 		// return number of updated rows
 		return finalResult;
@@ -892,7 +901,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
-		//perun.getAuditer().log(user, "Application form ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has been updated.");
 		perun.getAuditer().log(user, new FormUpdated((form)));
 		return jdbc.update(
 				"update application_form set automatic_approval=?, automatic_approval_extension=?, module_name=? where id=?",
@@ -909,7 +917,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		jdbc.update("delete from application_form_items where form_id=? and ordnum=?", form.getId(), ordnum);
 		jdbc.update("update application_form_items set ordnum=ordnum-1 where form_id=? and ordnum>?", form.getId(), ordnum);
 
-		//perun.getAuditer().log(user, "Application form item ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has been deleted");
 		perun.getAuditer().log(user, new FormItemDeleted(form));
 
 	}
@@ -1237,7 +1244,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					throw ex;
 				}
 				log.info("New application {} created.", application);
-				//perun.getAuditer().log(session, "New {} created.", application);
 				perun.getAuditer().log(session, new ApplicationCreated(application));
 
 			}
@@ -1292,7 +1298,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (AppState.VERIFIED.equals(app.getState())) throw new RegistrarException("Submitted application can't be deleted. Please reject the application first.");
 			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
 		}
-		//perun.getAuditer().log(sess, "Application ID=" + app.getId() + " voID=" + app.getVo().getId() + ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : "") + " has been deleted");
 		perun.getAuditer().log(sess, new ApplicationDeleted(app));
 
 	}
@@ -1314,7 +1319,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		// proceed
 		markApplicationVerified(sess, appId);
-		//perun.getAuditer().log(sess, "Application ID=" + appId + " voID=" + app.getVo().getId() + ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : "") + " has been verified.");
 		perun.getAuditer().log(sess, new ApplicationVerified(app));
 		// return updated application
 		return getApplicationById(appId);
@@ -1379,7 +1383,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		jdbc.update("delete from application_reserved_logins where app_id=?", appId);
 
 		// log
-		//perun.getAuditer().log(sess, "{} rejected.", app);
 		perun.getAuditer().log(sess, new ApplicationRejected(app));
 
 		// call registrar module
@@ -1396,7 +1399,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// send mail
 		getMailManager().sendMessage(app, MailType.APP_REJECTED_USER, reason, null);
 
-		//perun.getAuditer().log(sess, "Application ID=" + app.getId() + " voID=" + app.getVo().getId() + ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : "") + " has been rejected.");
 		perun.getAuditer().log(sess, new ApplicationRejected(app));
 		// return updated application
 		return app;
@@ -1434,7 +1436,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// we skip any exception thrown from here
 			log.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
 		}
-		//perun.getAuditer().log(sess, "Application ID=" + appId + " voID=" + app.getVo().getId() + ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : "") + " was approved.");
 		perun.getAuditer().log(sess, new ApplicationApproved(app));
 
 		return app;
@@ -1696,7 +1697,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				}
 
 				// log
-				//perun.getAuditer().log(sess, "{} created for approved {}.", member, app);
 				perun.getAuditer().log(sess, new MemberCreatedForApprovedApp(member,app));
 
 			}
@@ -1731,7 +1731,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			updateUserNameTitles(app);
 
 			// log
-			//perun.getAuditer().log(sess, "Membership extended for {} in {} for approved {}.", member, app.getVo(), app);
 			perun.getAuditer().log(sess, new MembershipExtendedForMemberInApprovedApp(member,app,app.getVo()));
 
 		}
@@ -2108,7 +2107,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					item.getId(), appType.toString());
 		}
 
-		//perun.getAuditer().log(sess, "Application form ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has had it itemID="+item.getId()+" updated.");
 		perun.getAuditer().log(sess, new FormItemUpdated(form,item));
 
 	}

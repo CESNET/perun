@@ -6,7 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.*;
+import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceAddedToGroup;
+import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceAddedToVo;
+import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceCreated;
+import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceDeleted;
+import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceRemovedFromGroup;
+import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceRemovedFromVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,14 +63,12 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException {
-		//getPerunBl().getAuditer().log(sess, "{} created.", extSource);
 		getPerunBl().getAuditer().log(sess, new ExtSourceCreated(extSource));
 		return getExtSourcesManagerImpl().createExtSource(sess, extSource, attributes);
 	}
 
 	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException {
 		getExtSourcesManagerImpl().deleteExtSource(sess, extSource);
-		//getPerunBl().getAuditer().log(sess, "{} deleted.", extSource);
 		getPerunBl().getAuditer().log(sess, new ExtSourceDeleted(extSource));
 	}
 
@@ -91,14 +94,12 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 	public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
 		getExtSourcesManagerImpl().addExtSource(sess, vo, source);
-		//getPerunBl().getAuditer().log(sess, "{} added to {}.", source, vo);
 		getPerunBl().getAuditer().log(sess, new ExtSourceAddedToVo(source, vo));
 	}
 
 	@Override
 	public void addExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
 		getExtSourcesManagerImpl().addExtSource(sess, group, source);
-		//getPerunBl().getAuditer().log(sess, "{} added to {}.", source, group);
 		getPerunBl().getAuditer().log(sess, new ExtSourceAddedToGroup(source, group));
 	}
 
@@ -126,14 +127,12 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		}
 
 		getExtSourcesManagerImpl().removeExtSource(sess, vo, source);
-		//getPerunBl().getAuditer().log(sess, "{} removed from {}.", source, vo);
 		getPerunBl().getAuditer().log(sess,new ExtSourceRemovedFromVo(source, vo));
 	}
 
 	@Override
 	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
 		getExtSourcesManagerImpl().removeExtSource(sess, group, source);
-		//getPerunBl().getAuditer().log(sess, "{} removed from {}.", source, group);
 		getPerunBl().getAuditer().log(sess,new ExtSourceRemovedFromGroup(source, group));
 	}
 

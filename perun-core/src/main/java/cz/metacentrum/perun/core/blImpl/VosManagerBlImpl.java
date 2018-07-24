@@ -129,7 +129,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 		// Finally delete the VO
 		getVosManagerImpl().deleteVo(sess, vo);
-		//getPerunBl().getAuditer().log(sess, "{} deleted.", vo);
 		getPerunBl().getAuditer().log(sess, new VoDeleted(vo));
 	}
 
@@ -141,7 +140,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 	public Vo createVo(PerunSession sess, Vo vo) throws VoExistsException, InternalErrorException {
 		// Create entries in the DB and Grouper
 		vo = getVosManagerImpl().createVo(sess, vo);
-		//getPerunBl().getAuditer().log(sess, "{} created.", vo);
 		getPerunBl().getAuditer().log(sess, new VoCreated(vo));
 
 		try {
@@ -173,7 +171,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	public Vo updateVo(PerunSession sess, Vo vo) throws InternalErrorException {
-		//getPerunBl().getAuditer().log(sess, "{} updated.", vo);
 		getPerunBl().getAuditer().log(sess, new VoUpdated(vo));
 		return getVosManagerImpl().updateVo(sess, vo);
 	}

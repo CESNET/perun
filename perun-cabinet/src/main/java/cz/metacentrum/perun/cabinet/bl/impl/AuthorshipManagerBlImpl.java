@@ -123,7 +123,6 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		}
 
 		// log
-		//perun.getAuditer().log(sess, "Authorship {} created.", authorship);
 		perun.getAuditer().log(sess,new AuthorshipCreated(authorship));
 		return authorship;
 
@@ -167,7 +166,6 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 			getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
 		}
 
-		//perun.getAuditer().log(sess, "Authorship {} deleted.", authorship);
 		perun.getAuditer().log(sess, new AuthorshipDeleted(authorship));
 
 	}
