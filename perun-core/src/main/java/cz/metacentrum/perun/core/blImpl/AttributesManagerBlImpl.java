@@ -6267,18 +6267,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			log.debug("Filling map of allDependencies started.");
 
 			for (AttributeDefinition key : allDependencies.keySet()) {
-				List<AttributeDefinition> stackingAttributes = new ArrayList<>();
-				Set<AttributeDefinition> dependenciesOfAttribute = new HashSet<>();
-				dependenciesOfAttribute.addAll(inverseStrongDependencies.get(key));
-				dependenciesOfAttribute.addAll(inverseDependencies.get(key));
-				stackingAttributes.addAll(inverseStrongDependencies.get(key));
-				while (!stackingAttributes.isEmpty()) {
-					AttributeDefinition firstAttr = stackingAttributes.get(0);
-					stackingAttributes.remove(firstAttr);
-					dependenciesOfAttribute.addAll(inverseStrongDependencies.get(firstAttr));
-					dependenciesOfAttribute.addAll(inverseDependencies.get(firstAttr));
-					stackingAttributes.addAll(inverseStrongDependencies.get(firstAttr));
-				}
+				Set<AttributeDefinition> dependenciesOfAttribute = findAllAttributeDependencies(key,
+						inverseDependencies, inverseStrongDependencies);
+
 				allDependencies.put(key, dependenciesOfAttribute);
 			}
 
@@ -6307,6 +6298,35 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//DEBUG end
 
 		log.debug("AttributesManagerBlImpl initialize ended.");
+	}
+
+	/**
+	 * Finds all attributes that depend on given attribute definition.
+	 * ATTENTION: before using this method, make sure there is no cycle in given dependencies.
+	 *
+	 * @param key attribute definition
+	 * @param inverseDependencies inverse dependencies
+	 * @param inverseStrongDependencies inverse strong dependencies
+	 * @return Set of all attribute definitions that depend on given attribute definition
+	 */
+	private Set<AttributeDefinition> findAllAttributeDependencies(
+			AttributeDefinition key,
+			Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies,
+			Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependencies) {
+		Set<AttributeDefinition> dependenciesOfAttribute = new HashSet<>();
+
+		dependenciesOfAttribute.addAll(inverseStrongDependencies.get(key));
+		dependenciesOfAttribute.addAll(inverseDependencies.get(key));
+		List<AttributeDefinition> stackingAttributes = new ArrayList<>(inverseStrongDependencies.get(key));
+		while (!stackingAttributes.isEmpty()) {
+			AttributeDefinition firstAttr = stackingAttributes.get(0);
+			stackingAttributes.remove(firstAttr);
+			dependenciesOfAttribute.addAll(inverseStrongDependencies.get(firstAttr));
+			dependenciesOfAttribute.addAll(inverseDependencies.get(firstAttr));
+			stackingAttributes.addAll(inverseStrongDependencies.get(firstAttr));
+		}
+
+		return dependenciesOfAttribute;
 	}
 
 	/**
