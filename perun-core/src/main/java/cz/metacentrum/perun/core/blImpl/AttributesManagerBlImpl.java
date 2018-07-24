@@ -6250,30 +6250,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		log.debug("InverseDependencies and InverseStrongDependencies filling started.");
 
 		//First create inversion map for simple dependencies
-		Set<AttributeDefinition> depSet = dependencies.keySet();
-		for (AttributeDefinition key : depSet) {
-			Set<AttributeDefinition> keySet;
-			keySet = dependencies.get(key);
-			for (AttributeDefinition keySetItem : keySet) {
-				Set<AttributeDefinition> changeSet;
-				changeSet = inverseDependencies.get(keySetItem);
-				changeSet.add(key);
-				//inverseDependencies.put(keySetItem, changeSet);
-			}
-		}
+		generateInverseDependencies(dependencies, inverseDependencies);
 
 		//Second create inversion map for strong dependencies
-		depSet = strongDependencies.keySet();
-		for (AttributeDefinition key : depSet) {
-			Set<AttributeDefinition> keySet;
-			keySet = strongDependencies.get(key);
-			for (AttributeDefinition keySetItem : keySet) {
-				Set<AttributeDefinition> changeSet;
-				changeSet = inverseStrongDependencies.get(keySetItem);
-				changeSet.add(key);
-				//inverseDependencies.put(keySetItem, changeSet);
-			}
-		}
+		generateInverseDependencies(strongDependencies, inverseStrongDependencies);
 
 		log.debug("InverseDependencies and InverseStrongDependencies was filled successfully.");
 
@@ -6328,6 +6308,37 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		log.debug("AttributesManagerBlImpl initialize ended.");
 	}
+
+	/**
+	 * Generates inverse dependencies from given dependencies
+	 *
+	 * @param dependencies input dependencies
+	 * @param inverseDependencies output inversed dependencies
+	 */
+	private void generateInverseDependencies(Map<AttributeDefinition, Set<AttributeDefinition>> dependencies,
+		                                       Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies) {
+		Set<AttributeDefinition> depSet = dependencies.keySet();
+		depSet.forEach(ad -> generateInverseDependenciesForAttribute(ad, dependencies, inverseDependencies));
+	}
+
+	/**
+	 * Generates inverse dependencies for given attribute definition
+	 * @param attributeDefinition attribute definition
+	 * @param dependencies input dependencies
+	 * @param inverseDependencies output inverse dependencies
+	 */
+	private void generateInverseDependenciesForAttribute(AttributeDefinition attributeDefinition,
+		                                       Map<AttributeDefinition, Set<AttributeDefinition>> dependencies,
+		                                       Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies) {
+		Set<AttributeDefinition> keySet;
+		keySet = dependencies.get(attributeDefinition);
+		for (AttributeDefinition keySetItem : keySet) {
+			Set<AttributeDefinition> changeSet;
+			changeSet = inverseDependencies.get(keySetItem);
+			changeSet.add(attributeDefinition);
+		}
+	}
+
 
 	/**
 	 * Finds all attribute definitions that the given module depends on.
