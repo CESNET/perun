@@ -83,7 +83,10 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 		}
 
 		//check for presence of uco@muni.cz
-		String ucoEmail = getUserUco(sess, member) + "@muni.cz";
+		String UCO = getUserUco(sess, member);
+		//Throw an exception if UCO is null (we need to have this value not-null to correctly check value of this attribute)
+		if(UCO == null) throw new WrongReferenceAttributeValueException(UCO_ATTRIBUTE + " has null value!");
+		String ucoEmail = UCO + "@muni.cz";
 		if (!emails.contains(ucoEmail)) {
 			throw new WrongAttributeValueException(attribute, member, "does not contain " + ucoEmail);
 		}
@@ -117,19 +120,18 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 	 */
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, WrongAttributeAssignmentException {
-		if (!NAMESPACE.equals(attrDef.getNamespace())) throw new WrongAttributeAssignmentException(attrDef);
 		return new Attribute(attrDef, getUserUcoEmails(sess, member));
 	}
 
 	/**
 	 * Gets user uco from attribute urn:perun:user:attribute-def:def:login-namespace:mu.
+	 *
+	 * @return UCO if exists, null if not
 	 */
 	private String getUserUco(PerunSessionImpl sess, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
 		try {
 			User user = sess.getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
 			String uco = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, UCO_ATTRIBUTE).valueAsString();
-			if (uco == null)
-				throw new InternalErrorException("user " + user.getId() + " does not have string attribute " + UCO_ATTRIBUTE);
 			return uco;
 		} catch (UserNotExistsException | AttributeNotExistsException e) {
 			throw new InternalErrorException(e.getMessage(), e);
@@ -141,7 +143,8 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 	 */
 	private ArrayList<String> getUserUcoEmails(PerunSessionImpl sess, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
 		String uco = getUserUco(sess, member);
-		return Lists.newArrayList(uco + "@muni.cz");
+		if(uco == null) return new ArrayList<>();
+		else return Lists.newArrayList(uco + "@muni.cz");
 	}
 
 	public AttributeDefinition getAttributeDefinition() {
