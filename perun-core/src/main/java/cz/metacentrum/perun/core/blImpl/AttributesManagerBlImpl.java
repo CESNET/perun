@@ -95,11 +95,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	private PerunBl perunBl;
 
 	//Attributes dependencies. Attr => dependent attributes (and inverse version)
-	private final Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = new ConcurrentHashMap<>();
-	private final Map<AttributeDefinition, Set<AttributeDefinition>> strongDependencies = new ConcurrentHashMap<>();
-	private final Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies = new ConcurrentHashMap<>();
-	private final Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependencies = new ConcurrentHashMap<>();
-	private final Map<AttributeDefinition, Set<AttributeDefinition>> allDependencies = new ConcurrentHashMap<>();
+	private Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = new ConcurrentHashMap<>();
+	private Map<AttributeDefinition, Set<AttributeDefinition>> strongDependencies = new ConcurrentHashMap<>();
+	private Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies = new ConcurrentHashMap<>();
+	private Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependencies = new ConcurrentHashMap<>();
+	private Map<AttributeDefinition, Set<AttributeDefinition>> allDependencies = new ConcurrentHashMap<>();
+
+	private final Object dependenciesMonitor = new Object();
 
 	private final static int MAX_SIZE_OF_BULK_IN_SQL = 10000;
 
@@ -2107,7 +2109,25 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+
 	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeDefinitionExistsException {
+		return createAttribute(sess, attribute, true);
+	}
+
+	/**
+	 * Creates an attribute, the attribute is stored into the appropriate DB table according to the namespace.
+	 * The calculateDependencies value specifies if the attribute module dependencies should be calculated.
+	 *
+	 * @param sess perun session
+	 * @param attributeDefinition attribute to create
+	 * @param calculateDependencies should calculate module dependencies
+	 *
+	 * @return attribute with set id
+	 *
+	 * @throws AttributeDefinitionExistsException if attribute already exists
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	private AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute, boolean calculateDependencies) throws InternalErrorException, AttributeDefinitionExistsException {
 		Utils.notNull(attribute.getName(), "attribute.getName");
 		Utils.notNull(attribute.getNamespace(), "attribute.getNamespace");
 		Utils.notNull(attribute.getFriendlyName(), "attribute.getFriendlyName");
@@ -2139,8 +2159,75 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 
+
 		getPerunBl().getAuditer().log(sess, "{} created.", attribute);
-		return getAttributesManagerImpl().createAttribute(sess, attribute);
+		attribute = getAttributesManagerImpl().createAttribute(sess, attribute);
+
+		if (calculateDependencies) {
+			handleAttributeModuleDependencies(sess, attribute);
+		}
+
+		return attribute;
+	}
+
+	/**
+	 * For given attribute finds its dependencies and adds them to the all maps containing any dependencies.
+	 *
+	 * @param sess session
+	 * @param attribute attribute
+	 * @throws InternalErrorException internal error
+	 */
+	private void handleAttributeModuleDependencies(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+		synchronized (dependenciesMonitor) {
+			// create attribute definition in case of receiving Attribute instance
+			AttributeDefinition attributeDef = new AttributeDefinition(attribute);
+
+			AttributesModuleImplApi module = (AttributesModuleImplApi) getAttributesManagerImpl().getAttributesModule(sess, attributeDef);
+
+			if (module == null) {
+				dependencies.put(attributeDef, new HashSet<>());
+				strongDependencies.put(attributeDef, new HashSet<>());
+				inverseDependencies.put(attributeDef, new HashSet<>());
+				inverseStrongDependencies.put(attributeDef, new HashSet<>());
+				allDependencies.put(attributeDef, new HashSet<>());
+				return;
+			}
+
+			// we need to create deep copies to prevent a creation of inconsistency state of dependencies if anything goes wrong
+			Map<AttributeDefinition, Set<AttributeDefinition>> dependenciesCopy = Utils.createDeepCopyOfMapWithSets(dependencies);
+			Map<AttributeDefinition, Set<AttributeDefinition>> strongDependenciesCopy = Utils.createDeepCopyOfMapWithSets(strongDependencies);
+			Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependenciesCopy = Utils.createDeepCopyOfMapWithSets(inverseDependencies);
+			Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependenciesCopy = Utils.createDeepCopyOfMapWithSets(inverseStrongDependencies);
+			Map<AttributeDefinition, Set<AttributeDefinition>> allDependenciesCopy = Utils.createDeepCopyOfMapWithSets(allDependencies);
+
+			Set<AttributeDefinition> moduleDependencies = getDependenciesForModule(sess, module);
+			Set<AttributeDefinition> moduleStrongDependencies = new HashSet<>();
+
+			if (module instanceof VirtualAttributesModuleImplApi) {
+				moduleStrongDependencies = getStrongDependenciesForModule(sess, (VirtualAttributesModuleImplApi) module);
+			}
+
+			dependenciesCopy.put(attributeDef, moduleDependencies);
+			strongDependenciesCopy.put(attributeDef, moduleStrongDependencies);
+
+			updateInverseDependenciesForAttribute(inverseDependenciesCopy, attributeDef, dependenciesCopy);
+			updateInverseDependenciesForAttribute(inverseStrongDependenciesCopy, attributeDef, strongDependenciesCopy);
+
+			if (isMapOfAttributesDefCyclic(inverseStrongDependenciesCopy)) {
+				throw new InternalErrorException("There is a cycle in strong dependencies after adding new attribute definition: " + attributeDef.getNamespace());
+			}
+
+			Set<AttributeDefinition> allAttributeDependencies =
+					findAllAttributeDependencies(attributeDef, inverseDependenciesCopy, inverseStrongDependenciesCopy);
+			allDependenciesCopy.put(attributeDef, allAttributeDependencies);
+
+			// if all went well, switch dependencies maps
+			dependencies = dependenciesCopy;
+			strongDependencies = strongDependenciesCopy;
+			inverseDependencies = inverseDependenciesCopy;
+			inverseStrongDependencies = inverseStrongDependenciesCopy;
+			allDependencies = allDependenciesCopy;
+		}
 	}
 
 	private boolean isCorrectNameSpace(String value) {
@@ -2156,10 +2243,93 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Remove services' required attributes
 		//TODO
 
+		AttributeDefinition attributeDef = new AttributeDefinition(attribute);
+		//Remove attribute dependencies
+		synchronized (dependenciesMonitor) {
+
+			removeOppositeDependenciesForAttribute(attributeDef);
+
+			if (dependencies.containsKey(attributeDef)) {
+				dependencies.remove(attributeDef);
+			} else {
+				log.warn("Dependencies inconsistency. Dependencies should contain information about {}. ", attributeDef);
+			}
+			if (strongDependencies.containsKey(attributeDef)) {
+				strongDependencies.remove(attributeDef);
+			} else {
+				log.warn("Strong dependencies inconsistency. Strong dependencies should contain information about {}. ", attributeDef);
+			}
+			if (inverseDependencies.containsKey(attributeDef)) {
+				inverseDependencies.remove(attributeDef);
+			} else {
+				log.warn("Inverse dependencies inconsistency. Inverse dependencies should contain information about {}. ", attributeDef);
+			}
+			if (inverseStrongDependencies.containsKey(attributeDef)) {
+				inverseStrongDependencies.remove(attributeDef);
+			} else {
+				log.warn("Inverse strong dependencies inconsistency. Inverse strong dependencies should contain information about {}. ", attributeDef);
+			}
+		}
+
 		//Remove attribute and all it's values
 		getPerunBl().getAuditer().log(sess, "{} deleted.", attribute);
 		this.deleteAllAttributeAuthz(sess, attribute);
 		getAttributesManagerImpl().deleteAttribute(sess, attribute);
+	}
+
+	/**
+	 * This method for given attribute A removes from dependencies all relations of type
+	 * B => A (B depends on A) where B is any other attribute. If it finds any inconsistency
+	 * in dependencies data, it logs information about it.
+	 *
+	 * @param attribute attribute which dependency relations are removed
+	 */
+	private void removeOppositeDependenciesForAttribute(AttributeDefinition attribute) {
+		Set<AttributeDefinition> attributeDeps = dependencies.get(attribute);
+		Set<AttributeDefinition> attributeInverseDeps = inverseDependencies.get(attribute);
+		Set<AttributeDefinition> attributeStrongDeps = strongDependencies.get(attribute);
+		Set<AttributeDefinition> attributeInverseStrongDeps = inverseStrongDependencies.get(attribute);
+
+		attributeInverseDeps.forEach(attr -> {
+			if (dependencies.containsKey(attr)) {
+				if (!dependencies.get(attr).remove(attribute)) {
+					log.warn("Dependencies inconsistency. Atribute {} should have dependency on attribute {}.", attr, attribute);
+				}
+			} else {
+				log.warn("Dependencies inconsistency. Dependencies should contain information about {}.", attr);
+			}
+		});
+		attributeStrongDeps.forEach(attr -> {
+			if (inverseStrongDependencies.containsKey(attr)) {
+				if (!inverseStrongDependencies.get(attr).remove(attribute)) {
+					log.warn("Inverse strong dependencies inconsistency. Atribute {} should have inverse strong dependency on attribute {}.", attr, attribute);
+				}
+			} else {
+				log.warn("Inverse strong dependencies inconsistency. Inverse strong dependencies inconsistency should contain information about {}.", attr);
+			}
+		});
+		attributeInverseStrongDeps.forEach(attr -> {
+			if (strongDependencies.containsKey(attr)) {
+				if (!strongDependencies.get(attr).remove(attribute)) {
+					log.warn("Strong dependencies inconsistency. Atribute {} should have strong dependency on attribute {}.", attr, attribute);
+				}
+			} else {
+				log.warn("Strong dependencies inconsistency. Strong dependencies should have contained information about {}.", attr);
+			}
+		});
+		attributeDeps.forEach(attr -> {
+			if (inverseDependencies.containsKey(attr)) {
+				if (!inverseDependencies.get(attr).remove(attribute)) {
+					log.warn("Inverse dependencies inconsistency. Atribute {} should have inverse dependency on attribute {}.", attr, attribute);
+				}
+			} else {
+				log.warn("Inverse dependencies inconsistency. Inverse dependencies should have contained information about {}.", attr);
+			}
+		});
+
+		// there is no inverse version of all dependencies so we have to walk through all
+		allDependencies.remove(attribute);
+		allDependencies.values().forEach(attributes -> attributes.remove(attribute));
 	}
 
 	public void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
@@ -6190,7 +6360,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new InternalErrorException("There is missing required attribute " + attribute + " and can't be created because this instance is read only.");
 				} else {
 					try {
-						attribute = createAttribute(sess, attribute);
+						attribute = createAttribute(sess, attribute, false);
 					} catch (AttributeDefinitionExistsException ex) {
 						//should not happen
 						throw new InternalErrorException("Attribute " + attribute + " already exists in Perun when attributeInitializer tried to create it.");
@@ -6233,12 +6403,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			//If there is any existing module
 			if (attributeModule != null) {
 				module = (AttributesModuleImplApi) attributeModule;
-				depList = module.getDependencies();
 
 				depSet = getDependenciesForModule(sess, module);
 
 				if(module instanceof VirtualAttributesModuleImplApi) {
-					strongDepSet = getStrongDependenciesForModule(sess, ((VirtualAttributesModuleImplApi) module));
+					strongDepSet = getStrongDependenciesForModule(sess, (VirtualAttributesModuleImplApi) module);
 				}
 			}
 			dependencies.put(ad, depSet);
@@ -6250,10 +6419,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		log.debug("InverseDependencies and InverseStrongDependencies filling started.");
 
 		//First create inversion map for simple dependencies
-		generateInverseDependencies(dependencies, inverseDependencies);
+		inverseDependencies = generateInverseDependencies(dependencies);
 
 		//Second create inversion map for strong dependencies
-		generateInverseDependencies(strongDependencies, inverseStrongDependencies);
+		inverseStrongDependencies = generateInverseDependencies(inverseStrongDependencies);
 
 		log.debug("InverseDependencies and InverseStrongDependencies was filled successfully.");
 
@@ -6309,10 +6478,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * @param inverseStrongDependencies inverse strong dependencies
 	 * @return Set of all attribute definitions that depend on given attribute definition
 	 */
-	private Set<AttributeDefinition> findAllAttributeDependencies(
-			AttributeDefinition key,
+	private Set<AttributeDefinition> findAllAttributeDependencies(AttributeDefinition key,
 			Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies,
 			Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependencies) {
+
 		Set<AttributeDefinition> dependenciesOfAttribute = new HashSet<>();
 
 		dependenciesOfAttribute.addAll(inverseStrongDependencies.get(key));
@@ -6330,28 +6499,42 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	/**
-	 * Generates inverse dependencies from given dependencies
+	 * Generates inverse dependencies from given dependencies.
 	 *
 	 * @param dependencies input dependencies
-	 * @param inverseDependencies output inversed dependencies
 	 */
-	private void generateInverseDependencies(Map<AttributeDefinition, Set<AttributeDefinition>> dependencies,
-		                                       Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies) {
+	private Map<AttributeDefinition, Set<AttributeDefinition>> generateInverseDependencies(Map<AttributeDefinition,
+			Set<AttributeDefinition>> dependencies) {
+
+		Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies = new HashMap<>();
+		dependencies.keySet().forEach(attr -> inverseDependencies.put(attr, new HashSet<>()));
+
 		Set<AttributeDefinition> depSet = dependencies.keySet();
-		depSet.forEach(ad -> generateInverseDependenciesForAttribute(ad, dependencies, inverseDependencies));
+		depSet.forEach(ad -> updateInverseDependenciesForAttribute(inverseDependencies, ad, dependencies));
+
+		return inverseDependencies;
 	}
 
 	/**
-	 * Generates inverse dependencies for given attribute definition
+	 * Into given inverse dependencies adds data about inverse dependencies for
+	 * given AttributeDefinition. The inverse dependencies are calculated from
+	 * given normal dependencies.
+	 *
 	 * @param attributeDefinition attribute definition
 	 * @param dependencies input dependencies
-	 * @param inverseDependencies output inverse dependencies
+	 * @param inverseDependencies inverse dependencies that will be updated
 	 */
-	private void generateInverseDependenciesForAttribute(AttributeDefinition attributeDefinition,
-		                                       Map<AttributeDefinition, Set<AttributeDefinition>> dependencies,
-		                                       Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies) {
+	private void updateInverseDependenciesForAttribute(Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies,
+		                                               AttributeDefinition attributeDefinition,
+		                                               Map<AttributeDefinition, Set<AttributeDefinition>> dependencies) {
+
+		if (!inverseDependencies.containsKey(attributeDefinition)) {
+			inverseDependencies.put(attributeDefinition, new HashSet<>());
+		}
+
 		Set<AttributeDefinition> keySet;
 		keySet = dependencies.get(attributeDefinition);
+
 		for (AttributeDefinition keySetItem : keySet) {
 			Set<AttributeDefinition> changeSet;
 			changeSet = inverseDependencies.get(keySetItem);
@@ -6365,49 +6548,49 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 *
 	 * @param sess session
 	 * @param module module
-	 * @return Set of attributedefinitions that the given module depends on.
+	 * @return Set of attribute definitions that the given module depends on.
 	 * @throws InternalErrorException internal error
 	 */
 	private Set<AttributeDefinition> getDependenciesForModule(PerunSession sess, AttributesModuleImplApi module) throws InternalErrorException {
 		List<String> depList = module.getDependencies();
-		Set<AttributeDefinition> depSet = new HashSet<>();
-		//Fill Set of dependencies
-		for (String s : depList) {
-			if (!s.endsWith("*")) {
-				try {
-					AttributeDefinition attrDef = getAttributeDefinition(sess, s);
-					depSet.add(attrDef);
-				} catch (AttributeNotExistsException ex) {
-					log.error("For attribute name " + s + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
-				}
-				//If there is something like AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*" we need to replace * by all possibilities
-			} else {
-				List<String> allVariantOfDependence = getAllSimilarAttributeNames(sess, s.substring(0, s.length() - 2));
-				for (String variant : allVariantOfDependence) {
-					try {
-						AttributeDefinition attrDef = getAttributeDefinition(sess, variant);
-						depSet.add(attrDef);
-					} catch (AttributeNotExistsException ex) {
-						log.error("For attribute name " + variant + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
-					}
-				}
-			}
-		}
 
-		return depSet;
+		return findAttributeDefinitionsForDependencies(sess, depList);
 	}
 
+	/**
+	 * Find modules strong dependencies.
+	 *
+	 * For given virtual attribute module find all of its strong dependencies.
+	 *
+	 * @param sess session
+	 * @param module module
+	 * @return strong dependencies of given module
+	 * @throws InternalErrorException internal error
+	 */
 	private Set<AttributeDefinition> getStrongDependenciesForModule(PerunSession sess, VirtualAttributesModuleImplApi module) throws InternalErrorException {
-		Set<AttributeDefinition> strongDepSet = new HashSet<>();
 		List<String> strongDepList = module.getStrongDependencies();
 
-		for (String s : strongDepList) {
+		return findAttributeDefinitionsForDependencies(sess, strongDepList);
+	}
+
+	/**
+	 * For given list of dependencies names find theirs attributeDefinitions.
+	 *
+	 * @param sess session
+	 * @param dependenciesNames names of attribute modules for dependencies
+	 * @return Set of attribute definitions for given dependencies
+	 * @throws InternalErrorException internal error
+	 */
+	private Set<AttributeDefinition> findAttributeDefinitionsForDependencies(PerunSession sess, List<String> dependenciesNames) throws InternalErrorException {
+		Set<AttributeDefinition> strongDepSet = new HashSet<>();
+
+		for (String s : dependenciesNames) {
 			if (!s.endsWith("*")) {
 				try {
 					AttributeDefinition attrDef = getAttributeDefinition(sess, s);
 					strongDepSet.add(attrDef);
 				} catch (AttributeNotExistsException ex) {
-					log.error("For attribute name " + s + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
+					log.error("For attribute dependency name " + s + "can't be found attributeDefinition.");
 				}
 				//If there is something like AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*" we need to replace * by all possibilities
 			} else {
@@ -6417,7 +6600,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 						AttributeDefinition attrDef = getAttributeDefinition(sess, variant);
 						strongDepSet.add(attrDef);
 					} catch (AttributeNotExistsException ex) {
-						log.error("For attribute name " + variant + "can't be found attributeDefinition at Inicialization in AttributesManagerBlImpl.");
+						log.error("For attribute dependency name " + variant + "can't be found attributeDefinition.");
 					}
 				}
 			}
