@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.entry;
 
+import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 
 import static org.junit.Assert.assertEquals;
@@ -54,7 +55,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 		int count = AuditMessagesManager.COUNTOFMESSAGES;
 
 		for (int i = 0; i < count; i++) {
-			perun.getAuditer().logWithoutTransaction(sess, "Test cislo: "+ i, null);
+			perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: "+ i));
 		}
 
 		List<AuditMessage> messages = perun.getAuditMessagesManager().getMessages(sess);
@@ -70,7 +71,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 		int count = 33;
 
 		for (int i = 0; i < count; i++) {
-			perun.getAuditer().logWithoutTransaction(sess, "Test cislo: "+ i, null);
+			perun.getAuditer().logWithoutTransaction(sess, new StringMessageEvent("Test cislo: "+ i));
 		}
 		List<AuditMessage> messages = perun.getAuditMessagesManager().getMessages(sess, count);
 		assertEquals("getMessage(sess, count) returns wrong count of messages", count , messages.size());

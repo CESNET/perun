@@ -55,6 +55,6 @@ public class GroupsRemovedFromContactGroupOfFacility implements AuditEvent {
 
 	@Override
 	public String toString() {
-		return String.format("Groups (%d) successfully removed from contact groups %s.", groupsId.toString(), contactGroup.toString());
+		return String.format("Groups (%s) successfully removed from contact groups %s.", groupsId.toString(), contactGroup.toString());
 	}
 }

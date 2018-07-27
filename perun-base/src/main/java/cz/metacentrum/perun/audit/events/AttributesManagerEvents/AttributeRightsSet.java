@@ -42,6 +42,6 @@ public class AttributeRightsSet implements AuditEvent {
 
 	@Override
 	public String toString() {
-		return String.format("Attribute right set: {}", right);
+		return String.format("Attribute right set: %s", right);
 	}
 }

@@ -8,6 +8,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityCreated;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.DestinationsRemovedFromAllServices;
+import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.core.api.*;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -41,11 +42,11 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 	public void logMessage() throws Exception {
 		System.out.println("AuditerTest.logMessage");
 
-		perun.getAuditer().log(sess, "test message");
+		perun.getAuditer().log(sess, new StringMessageEvent("test message"));
 		//
 		boolean contains = false;
 		for(AuditerMessage m : perun.getAuditer().getMessages()){
-			if(m.getMessage().equals("test message")){
+			if(m.getEvent().getMessage().equals("test message")){
 				contains = true;
 			}
 		}
@@ -68,7 +69,7 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		boolean contains = false;
 		for(AuditerMessage m : perun.getAuditer().getMessages()){
 			System.out.println(m);
-			if(m.getMessage().contains("{\"facility\":{\"id\":3325,")){
+			if(m.getEvent().getMessage().contains("{\"facility\":{\"id\":3325,")){
 				contains = true;
 			}
 		}
@@ -87,7 +88,7 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		boolean contains = false;
 		for(AuditerMessage m : perun.getAuditer().getMessages()){
 			System.out.println(m);
-			if(m.getMessage().contains("test message with Facility:[id=<3323>, name=<AuditorTestFacility>, description=<test description>]")){
+			if(m.getEvent().getMessage().contains("test message with Facility:[id=<3323>, name=<AuditorTestFacility>, description=<test description>]")){
 				contains = true;
 			}
 		}
@@ -122,7 +123,7 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 	public void getLastMessages() throws Exception {
 		System.out.println("AuditeTest.getLastMessages");
 		for (int i = 0; i < 20; i++) {
-			perun.getAuditer().log(sess, "Testovaci text c."+ i +".");
+			perun.getAuditer().log(sess, new StringMessageEvent("Testovaci text c."+ i +"."));
 		}
 		List<AuditMessage> messages = perun.getAuditer().getMessages(20);
 		assertEquals("getMessage(count) returns wrong count of messages", 20, messages.size());
@@ -134,8 +135,8 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		System.out.println("AuditeTest.getCorrectMessageFromLastMessages");
 		perun.getAuditer().clean();
 		for (int i = 0; i < 20; i++) {
-			if(i==5) perun.getAuditer().log(sess, "Abdjsj&#(234JSK");
-			else perun.getAuditer().log(sess, "Testovaci text c."+ i +".");
+			if(i==5) perun.getAuditer().log(sess, new StringMessageEvent("Abdjsj&#(234JSK"));
+			else perun.getAuditer().log(sess, new StringMessageEvent("Testovaci text c."+ i +"."));
 
 		}
 		perun.getAuditer().flush();
@@ -171,9 +172,6 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 			same=false;
 		assertTrue("Messages do not correspond", same);
 	}
-
-
-
 
 	@Test
 	public void getSubscriberMessagesFacilityCreated() throws Exception{
@@ -239,14 +237,28 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		}
 	}
 	
-	
-
-
-
 	public void setAuditerConsumer(AuditerConsumer auditerConsumer) {
 		this.auditerConsumer = auditerConsumer;
 	}
 
+	private class AuditerListenerDummy implements AuditerListener {
+
+		private List<String> messages = new ArrayList<String>();
+
+		@Override
+		public void notifyWith(String message) {
+
+			messages.add(message);
+
+		}
+
+		public List<String> getMessages() {
+
+			return messages;
+
+		}
+
+	}
 
 	// ------------- private methods ----------------------------------
 
@@ -256,5 +268,4 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		facility = new Facility(0,"AuditorTestFacility", "test description", "testCreatedAt","testCreatedBy", "testModifiedAt", "testModifiedBy", 0, 0 );
 		facility = perun.getFacilitiesManager().createFacility(sess, facility);
 	}
-
 }

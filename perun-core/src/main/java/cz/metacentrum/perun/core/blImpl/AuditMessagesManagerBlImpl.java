@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.PerunSession;
 
@@ -82,7 +83,7 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	@Override
 	public void log(PerunSession perunSession, String message) throws InternalErrorException {
 
-		perunBl.getAuditer().log(perunSession, message);
+		perunBl.getAuditer().log(perunSession, new StringMessageEvent(message));
 	}
 
 	@Override
