@@ -27,14 +27,14 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Autowired
 	private AuditerConsumer auditerConsumer;
-	@Autowired
+
 	private AuditerPublisher auditerPublisher;
 
 	@Before
 	public void checkAuditerExists() throws Exception {
 
 		assertNotNull("unable to get auditer",perun.getAuditer());
-
+		auditerPublisher = new AuditerPublisher(auditerConsumer);
 	}
 
 	@Test
@@ -94,30 +94,6 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
 		assertTrue("shoud contain logged message",contains);
 		//assertTrue("shoud contain logged message",perun.getAuditer().getMessages().contains("test message with "+facility));
-
-	}
-
-	@Test
-	@Ignore //deprecated
-	public void logMessagesWithTwoObjects() throws Exception {
-		System.out.println("AuditerTest.logMessagesWithTwoObjects");
-
-		setUpFacility();
-
-		perun.getAuditer().log(sess, "test message with {} {}", facility, facility);
-		assertTrue("shoud contain logged message",perun.getAuditer().getMessages().contains("test message with "+facility+" "+facility));
-
-	}
-
-	@Test
-	@Ignore //deprecated
-	public void logMessagesWithThreeObjects() throws Exception {
-		System.out.println("AuditerTest.logMessagesWithThreeObjects");
-
-		setUpFacility();
-
-		perun.getAuditer().log(sess, "test message with {} {} {}", facility, facility, facility);
-		assertTrue("shoud contain logged message",perun.getAuditer().getMessages().contains("test message with "+facility+" "+facility+" "+facility));
 
 	}
 
@@ -185,7 +161,7 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		for (int i = 1; i < 20; i = i++) {
 			Facility testFacility = new Facility(++i,"AuditorTestFacility number "+ String.valueOf(i));
 			testFacility = perun.getFacilitiesManager().createFacility(sess, testFacility);
-			perun.getAuditer().log(sess, testFacility);
+//			perun.getAuditer().log(sess, testFacility);
 		}
 		perun.getAuditer().flush();
 		List<AuditMessage> messages = perun.getAuditer().getJSONMessages(20);
@@ -267,31 +243,6 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
 
 
-	/*
-	 * XXX deprecated
-	 @Test
-	 public void auditerConsumerTest() throws Exception {
-	 System.out.println("AuditerTest.auditerConsumerTest");
-
-//get all odl mesages and throw them away
-auditerConsumer.getMessages();
-
-// system event creates message in auditer (check it)
-setUpFacility();
-assertTrue("auditer should contain four messages, currently contains " + perun.getAuditer().getMessages().size(),perun.getAuditer().getMessages().size()==4);
-
-// save auditer messages and flush => process them with listener
-List<String> messagesFromAuditer = perun.getAuditer().getMessages();
-perun.getAuditer().flush();
-
-// get messages from consumer
-List<String> messagesFromConsumer = auditerConsumer.getMessages();
-
-assertTrue("Auditer and Consumer should contain same messages!",messagesFromConsumer.containsAll(messagesFromAuditer));
-
-	 }
-	 */
-
 	public void setAuditerConsumer(AuditerConsumer auditerConsumer) {
 		this.auditerConsumer = auditerConsumer;
 	}
@@ -305,10 +256,5 @@ assertTrue("Auditer and Consumer should contain same messages!",messagesFromCons
 		facility = new Facility(0,"AuditorTestFacility", "test description", "testCreatedAt","testCreatedBy", "testModifiedAt", "testModifiedBy", 0, 0 );
 		facility = perun.getFacilitiesManager().createFacility(sess, facility);
 	}
-
-
-
-
-
 
 }
