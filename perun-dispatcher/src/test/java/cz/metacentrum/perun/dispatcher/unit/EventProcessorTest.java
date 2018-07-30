@@ -7,7 +7,6 @@ import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
 import cz.metacentrum.perun.dispatcher.model.Event;
 import cz.metacentrum.perun.dispatcher.processing.EventProcessor;
 import cz.metacentrum.perun.dispatcher.scheduling.impl.SchedulingPoolImpl;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import org.junit.Test;
@@ -54,7 +53,6 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 		// this necessitates the use of test timeout
 		eventProcessor.run();
 		List<Task> addedTasks = pool.getTasks();
-		List<ExecService> execServices = new LinkedList<>();
 		List<Facility> facilities = new LinkedList<>();
 
 		for (Task task : addedTasks) {

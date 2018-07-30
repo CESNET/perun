@@ -75,8 +75,8 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	}
 
 	@Override
-	public Task getTask(PerunSession perunSession,int execServiceId, int facilityId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-		return taskDao.getTask(execServiceId, facilityId);
+	public Task getTask(PerunSession perunSession,int serviceId, int facilityId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+		return taskDao.getTask(serviceId, facilityId);
 	}
 
 	@Override

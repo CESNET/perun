@@ -112,7 +112,7 @@ public class ServiceDenialDaoTest {
 	}
 
 	@Test
-	public void testIsExecServiceDeniedOnFacility() throws Exception {
+	public void testIsServiceDeniedOnFacility() throws Exception {
 		System.out.println("ServiceDenialDaoTest.isServiceBlockedOnFacility");
 
 		assertFalse(serviceDenialDao.isServiceBlockedOnFacility(testService1.getId(), testFacilityId1));
@@ -120,7 +120,7 @@ public class ServiceDenialDaoTest {
 	}
 
 	@Test
-	public void testIsExecServiceDeniedOnDestination() throws Exception {
+	public void testIsServiceDeniedOnDestination() throws Exception {
 		System.out.println("ServiceDenialDaoTest.isServiceBlockedOnDestination");
 
 		assertFalse(serviceDenialDao.isServiceBlockedOnDestination(testService1.getId(), testDestinationId1));
@@ -128,7 +128,7 @@ public class ServiceDenialDaoTest {
 	}
 
 	@Test
-	public void testBanExecServiceOnFacility() throws Exception {
+	public void testBanServiceOnFacility() throws Exception {
 		System.out.println("ServiceDenialDaoTest.blockServiceOnFacility");
 
 		serviceDenialDao.blockServiceOnFacility(testService1.getId(), testFacilityId1);
@@ -137,7 +137,7 @@ public class ServiceDenialDaoTest {
 	}
 
 	@Test
-	public void testBanExecServiceOnDestination() throws Exception {
+	public void testBanServiceOnDestination() throws Exception {
 		System.out.println("ServiceDenialDaoTest.blockServiceOnDestination");
 
 		serviceDenialDao.blockServiceOnDestination(testService1.getId(), testDestinationId1);
@@ -201,7 +201,7 @@ public class ServiceDenialDaoTest {
 	}
 
 	@Test
-	public void testFreeDenialOfExecServiceOnFacility() throws Exception {
+	public void testFreeDenialOfServiceOnFacility() throws Exception {
 		System.out.println("ServiceDenialDaoTest.unblockServiceOnFacility");
 
 		serviceDenialDao.blockServiceOnFacility(testService1.getId(), testFacilityId1);
@@ -214,7 +214,7 @@ public class ServiceDenialDaoTest {
 	}
 
 	@Test
-	public void testFreeDenialOfExecServiceOnDestination() throws Exception {
+	public void testFreeDenialOfServiceOnDestination() throws Exception {
 		System.out.println("ServiceDenialDaoTest.unblockServiceOnDestination");
 
 		serviceDenialDao.blockServiceOnDestination(testService1.getId(), testDestinationId1);

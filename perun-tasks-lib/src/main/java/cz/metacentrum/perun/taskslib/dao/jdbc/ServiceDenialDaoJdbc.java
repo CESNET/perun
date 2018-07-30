@@ -37,12 +37,12 @@ public class ServiceDenialDaoJdbc extends JdbcDaoSupport implements ServiceDenia
 
 	@Override
 	public List<Service> getServicesBlockedOnFacility(int facilityId) {
-		List<Service> deniedExecServices = getJdbcTemplate()
+		List<Service> deniedServices = getJdbcTemplate()
 			.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
 					" from services left join service_denials on service_denials.service_id = services.id where service_denials.facility_id = ?",
 					ServicesManagerImpl.SERVICE_MAPPER, facilityId);
-		if (deniedExecServices != null) {
-			return deniedExecServices;
+		if (deniedServices != null) {
+			return deniedServices;
 		} else {
 			return new ArrayList<Service>();
 		}
@@ -50,12 +50,12 @@ public class ServiceDenialDaoJdbc extends JdbcDaoSupport implements ServiceDenia
 
 	@Override
 	public List<Service> getServicesBlockedOnDestination(int destinationId) {
-		List<Service> deniedExecServices = getJdbcTemplate()
+		List<Service> deniedServices = getJdbcTemplate()
 			.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
 					" from services left join service_denials on service_denials.service_id = services.id where service_denials.destination_id = ?",
 					ServicesManagerImpl.SERVICE_MAPPER, destinationId);
-		if (deniedExecServices != null) {
-			return deniedExecServices;
+		if (deniedServices != null) {
+			return deniedServices;
 		} else {
 			return new ArrayList<Service>();
 		}

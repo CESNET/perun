@@ -52,8 +52,8 @@ public class TaskStoreImpl implements TaskStore {
 	@Override
 	public Task addTask(Task task) throws TaskStoreException {
 		if (task.getService() == null) {
-			log.error("Tried to insert Task {} with no ExecService", task);
-			throw new IllegalArgumentException("Tasks ExecService not set.");
+			log.error("Tried to insert Task {} with no Service", task);
+			throw new IllegalArgumentException("Tasks Service not set.");
 		} else if (task.getFacility() == null) {
 			log.error("Tried to insert Task {} with no Facility", task);
 			throw new IllegalArgumentException("Tasks Facility not set.");
@@ -66,7 +66,7 @@ public class TaskStoreImpl implements TaskStore {
 					new Pair<>(task.getFacility(), task.getService()), task);
 		}
 		if (idAdded != otherAdded) {
-			log.error("Task returned from both Maps after insert differ. taskById {}, taskByFacilityAndExecService {}", idAdded, otherAdded);
+			log.error("Task returned from both Maps after insert differ. taskById {}, taskByFacilityAndService {}", idAdded, otherAdded);
 			throw new TaskStoreException("Tasks returned after insert into both Maps differ.");
 		} else {
 			return idAdded;

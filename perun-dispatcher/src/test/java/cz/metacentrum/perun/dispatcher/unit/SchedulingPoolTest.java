@@ -19,7 +19,6 @@ import org.springframework.util.Assert;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.dispatcher.jms.EngineMessageProducer;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
@@ -35,7 +34,6 @@ public class SchedulingPoolTest extends AbstractDispatcherTest {
 	@Autowired
 	private SchedulingPool schedulingPool;
 	private EngineMessageProducer engineMessageProducer;
-	private List<Pair<ExecService, Facility>> testPairs = new ArrayList<Pair<ExecService, Facility>>();
 	private List<Destination> destinations = new ArrayList<Destination>() {{
 		add(new Destination(1, "par_dest1", "host", "PARALLEL"));
 		add(new Destination(2, "par_dest2", "host", "PARALLEL"));

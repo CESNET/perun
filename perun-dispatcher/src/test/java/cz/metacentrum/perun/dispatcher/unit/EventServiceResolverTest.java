@@ -12,7 +12,6 @@ import cz.metacentrum.perun.dispatcher.AbstractDispatcherTest;
 import cz.metacentrum.perun.dispatcher.exceptions.InvalidEventMessageException;
 import cz.metacentrum.perun.dispatcher.model.Event;
 import cz.metacentrum.perun.dispatcher.processing.EventServiceResolver;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 
 import org.junit.Assert;
 import org.junit.Test;
