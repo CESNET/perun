@@ -957,7 +957,9 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		public interface LoginGeneratorFunction {
 
 			/**
-			 * Generate login for user using his name
+			 * Generate login for user using his name.
+			 * Implementation must handle empty/null input on both fields.
+			 *
 			 * @param firstName
 			 * @param lastName
 			 * @return generated login
@@ -988,11 +990,6 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 				List<String> names = Arrays.asList(lastName.split(" "));
 				lastName = names.get(names.size() - 1);
 				lastName = ModulesUtilsBlImpl.normalizeStringForLogin(lastName.split(" ")[0]);
-			}
-
-			// unable to fill login for users without name or with partial name
-			if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
-				return null;
 			}
 
 			return function.generateLogin(firstName, lastName);
