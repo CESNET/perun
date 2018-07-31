@@ -165,7 +165,7 @@ public class PerunBeanProcessingPool<T extends PerunBean> {
 			//get lock for any operation with structures of jobs
 			jobsAccessLock.lock();
 
-			runningJobs = Collections.unmodifiableSet(this.runningJobs);
+			runningJobs = new HashSet<>(this.runningJobs);
 
 		} finally {
 			//in any case unlock access lock
@@ -186,7 +186,7 @@ public class PerunBeanProcessingPool<T extends PerunBean> {
 			//get lock for any operation with structures of jobs
 			jobsAccessLock.lock();
 
-			waitingJobs = Collections.unmodifiableList(this.waitingJobs);
+			waitingJobs = new ArrayList<>(this.waitingJobs);
 		} finally {
 			//in any case unlock access lock
 			jobsAccessLock.unlock();
