@@ -980,13 +980,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			return new ArrayList<User>();
 		}
 
-		MapSqlParameterSource parameters = new MapSqlParameterSource();
-		parameters.addValue("ids", usersIds);
-
 		try {
 			return namedParameterJdbcTemplate.query("select " + userMappingSelectQuery +
-					"  from users where users.id in ( :ids )",
-					parameters, USER_MAPPER);
+					"  from users where " + BeansUtils.prepareInSQLClause(usersIds, "users.id"),
+			        USER_MAPPER);
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<User>();
 		} catch(RuntimeException ex) {

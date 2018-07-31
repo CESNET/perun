@@ -978,6 +978,24 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue(count>0);
 	}
 
+	@Test
+	public void getUsersByIds() throws Exception {
+		System.out.println(CLASS_NAME + "getUsersByIds");
+
+		List ids = new ArrayList();
+		List users = new ArrayList();
+
+		for (int i = 1; i < 1002; i++) {
+			User user2 = new User();
+			user2.setFirstName(userFirstName+i);
+			perun.getUsersManagerBl().createUser(sess, user2);
+			ids.add(user2.getId());
+			users.add(user2);
+		}
+
+		assertEquals(users, perun.getUsersManagerBl().getUsersByIds(sess, ids));
+
+	}
 
 	// PRIVATE METHODS -------------------------------------------------------------
 

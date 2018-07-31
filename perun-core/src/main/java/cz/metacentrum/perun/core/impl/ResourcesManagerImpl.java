@@ -553,12 +553,10 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			return new ArrayList<Resource>();
 		}
 
-		MapSqlParameterSource parameters = new MapSqlParameterSource();
-		parameters.addValue("ids", resourcesIds);
-
 		try {
-			return this.namedParameterJdbcTemplate.query("select " + resourceMappingSelectQuery + "  from resources where resources.id in ( :ids )",
-					parameters, RESOURCE_MAPPER);
+			return this.namedParameterJdbcTemplate.query("select " + resourceMappingSelectQuery + "  from resources where " +
+					BeansUtils.prepareInSQLClause(resourcesIds, "resources.id"),
+					RESOURCE_MAPPER);
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
