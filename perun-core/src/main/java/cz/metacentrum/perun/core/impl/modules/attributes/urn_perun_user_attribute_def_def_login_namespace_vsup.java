@@ -90,6 +90,12 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 			String login = generator.generateLogin(user, new ModulesUtilsBlImpl.LoginGenerator.LoginGeneratorFunction() {
 				@Override
 				public String generateLogin(String firstName, String lastName) {
+
+					// unable to fill login for users without name or with partial name
+					if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
+						return null;
+					}
+
 					String login = firstName.substring(0, 1)+lastName.substring(0, (6 <= lastName.length()) ? 6 : lastName.length());
 					if (login.length()>20) {
 						login = login.substring(0, 20);
