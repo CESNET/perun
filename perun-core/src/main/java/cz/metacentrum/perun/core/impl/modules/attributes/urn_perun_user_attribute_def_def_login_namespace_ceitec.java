@@ -86,6 +86,13 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 			String login = generator.generateLogin(user, new ModulesUtilsBlImpl.LoginGenerator.LoginGeneratorFunction() {
 				@Override
 				public String generateLogin(String firstName, String lastName) {
+
+					// unable to fill login for users without name or with partial name - use "External.customer1" like logins
+					if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
+						firstName = "External";
+						lastName = "customer";
+					}
+
 					String login = firstName+ "." + lastName;
 					if (login.length()>20) {
 						login = login.substring(0, 20);

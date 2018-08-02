@@ -83,7 +83,13 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 		}
 
 		//check for presence of uco@muni.cz
-		String ucoEmail = getUserUco(sess, member) + "@muni.cz";
+		Attribute attrUCO = getUserUco(sess, member);
+		String UCO = attrUCO.valueAsString();
+		//Throw an exception if UCO is null (we need to have this value not-null to correctly check value of this attribute)
+		if(UCO == null) {
+			throw new WrongReferenceAttributeValueException(attribute, attrUCO, member, null, UCO_ATTRIBUTE + " has null value!");
+		}
+		String ucoEmail = UCO + "@muni.cz";
 		if (!emails.contains(ucoEmail)) {
 			throw new WrongAttributeValueException(attribute, member, "does not contain " + ucoEmail);
 		}
@@ -117,31 +123,31 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 	 */
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Member member, AttributeDefinition attrDef) throws InternalErrorException, WrongAttributeAssignmentException {
-		if (!NAMESPACE.equals(attrDef.getNamespace())) throw new WrongAttributeAssignmentException(attrDef);
 		return new Attribute(attrDef, getUserUcoEmails(sess, member));
 	}
 
 	/**
-	 * Gets user uco from attribute urn:perun:user:attribute-def:def:login-namespace:mu.
+	 * Gets user uco attribute urn:perun:user:attribute-def:def:login-namespace:mu.
+	 *
+	 * @return Attribute with STRING UCO value if exists, with null value if not exists
 	 */
-	private String getUserUco(PerunSessionImpl sess, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
+	private Attribute getUserUco(PerunSessionImpl sess, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
 		try {
 			User user = sess.getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
-			String uco = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, UCO_ATTRIBUTE).valueAsString();
-			if (uco == null)
-				throw new InternalErrorException("user " + user.getId() + " does not have string attribute " + UCO_ATTRIBUTE);
-			return uco;
+			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, UCO_ATTRIBUTE);
 		} catch (UserNotExistsException | AttributeNotExistsException e) {
 			throw new InternalErrorException(e.getMessage(), e);
 		}
 	}
 
 	/**
-	 * Returns uco@mail.muni.cz and uco@muni.cz
+	 * @returns uco@muni.cz in list if UCO exists, null if not exists
 	 */
 	private ArrayList<String> getUserUcoEmails(PerunSessionImpl sess, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
-		String uco = getUserUco(sess, member);
-		return Lists.newArrayList(uco + "@muni.cz");
+		Attribute attributeUCO = getUserUco(sess, member);
+		String uco = attributeUCO.valueAsString();
+		if(uco == null) return null;
+		else return Lists.newArrayList(uco + "@muni.cz");
 	}
 
 	public AttributeDefinition getAttributeDefinition() {
