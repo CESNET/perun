@@ -18,7 +18,6 @@
 
 	<properties>
 		<skipTests>true</skipTests>
-		<tomcat7.plugin.tomcat.version>7.0.85</tomcat7.plugin.tomcat.version>
 	</properties>
 
 	<!-- common module build settings used by all profiles -->
@@ -63,129 +62,51 @@
 				</configuration>
 			</plugin>
 
-			<!-- Allow to run Perun locally in Tomcat7 container by command "mvn tomcat7:run-war"
-				 Server is started at ajp://localhost:8009/perun-rpc/
-				 You need to setup Apache web server to provide (or fake) authentication in AJP headers
-				 and to provide http->ajp rewrite so that calls from GUI (browser) are passed to Perun app. -->
+			<!-- Allow to run Perun locally in Tomcat container by command "mvn cargo:run"
+				Server is started at ajp://localhost:8009/perun-rpc/
+				You need to setup Apache web server to provide (or fake) authentication in AJP headers
+				and to provide http->ajp rewrite so that calls from GUI (browser) are passed to Perun app. -->
 			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.2</version>
+				<groupId>org.codehaus.cargo</groupId>
+				<artifactId>cargo-maven2-plugin</artifactId>
+				<version>1.6.8</version>
 				<configuration>
-					<serverXml>tomcat.xml</serverXml>
+					<container>
+						<containerId>tomcat8x</containerId>
+						<artifactInstaller>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat</artifactId>
+							<version>${tomcat.version}</version>
+						</artifactInstaller>
+						<systemProperties>
+							<!-- Force running against real DB -->
+							<spring.profiles.active>production</spring.profiles.active>
+						</systemProperties>
+					</container>
+					<configuration>
+						<home>${basedir}/target/cargo/tomcat8x</home>
+						<files>
+							<copy>
+								<file>${basedir}/tomcat.xml</file>
+								<tofile>conf/server.xml</tofile>
+								<configfile>true</configfile>
+								<overwrite>true</overwrite>
+							</copy>
+						</files>
+					</configuration>
+					<deployables>
+						<deployable>
+							<groupId>cz.metacentrum.perun</groupId>
+							<artifactId>perun-rpc</artifactId>
+							<type>war</type>
+							<!-- force using renamed war -->
+							<location>target/perun-rpc.war</location>
+							<properties>
+								<context>/perun-rpc</context>
+							</properties>
+						</deployable>
+					</deployables>
 				</configuration>
-				<dependencies>
-
-					<!-- Match Tomcat7 version with our Tomcat libraries version -->
-
-					<dependency>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-core</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-util</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-coyote</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-api</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jdbc</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-dbcp</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-servlet-api</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jsp-api</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jasper</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jasper-el</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-el-api</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-catalina</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-tribes</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-catalina-ha</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-annotations-api</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<!-- tomcat i18n too ?? -->
-
-					<!-- not sure we need that -->
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-juli</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-logging-juli</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-logging-log4j</artifactId>
-						<version>${tomcat7.plugin.tomcat.version}</version>
-					</dependency>
-
-				</dependencies>
 			</plugin>
 
 		</plugins>
