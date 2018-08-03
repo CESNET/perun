@@ -6,6 +6,17 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.48
+ALTER TABLE application_form_item_texts ADD (long_label clob);
+ALTER TABLE application_form_item_texts ADD (long_options clob);
+UPDATE application_form_item_texts SET long_label = label;
+UPDATE application_form_item_texts SET long_options = options;
+ALTER TABLE application_form_item_texts DROP COLUMN label;
+ALTER TABLE application_form_item_texts DROP COLUMN options;
+ALTER TABLE application_form_item_texts RENAME COLUMN long_label TO label;
+ALTER TABLE application_form_item_texts RENAME COLUMN long_options TO options;
+update configurations set value='3.1.48' where property='DATABASE VERSION';
+
 3.1.47
 delete from service_dependencies where dependency_id in (select id from exec_services where exec_services.type='GENERATE');
 delete from service_denials where exec_service_id in (select id from exec_services where exec_services.type='GENERATE');

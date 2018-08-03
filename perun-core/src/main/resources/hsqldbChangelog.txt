@@ -6,6 +6,11 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.48
+ALTER TABLE application_form_item_texts ALTER COLUMN label TYPE text;
+ALTER TABLE application_form_item_texts ALTER COLUMN options TYPE text;
+update configurations set value='3.1.48' where property='DATABASE VERSION';
+
 -- this update is not supported on hsql since its used only as in-memory db
 3.1.47
 delete from service_dependencies where dependency_id in (select id from exec_services where exec_services.type='GENERATE');
