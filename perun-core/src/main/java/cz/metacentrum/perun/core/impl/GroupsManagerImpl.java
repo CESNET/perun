@@ -476,12 +476,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return new ArrayList<Group>();
 		}
 
-		MapSqlParameterSource parameters = new MapSqlParameterSource();
-		parameters.addValue("ids", groupsIds);
-
 		try {
-			return this.namedParameterJdbcTemplate.query("select " + groupMappingSelectQuery + " from groups where groups.id in ( :ids )",
-					parameters, GROUP_MAPPER);
+			return this.namedParameterJdbcTemplate.query("select " + groupMappingSelectQuery + " from groups where " + BeansUtils.prepareInSQLClause(groupsIds, "groups.id"),
+					GROUP_MAPPER);
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Group>();
 		} catch(RuntimeException ex) {
