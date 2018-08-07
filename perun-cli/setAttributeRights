@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+#use Data::Dumper;
+
+sub help {
+	return qq{
+	Sets attribute rights of roles
+	--------------------------------
+	Available options:
+	--attributeId   | -a attribute identifier
+	--attributeName | -A attribute name (including namespace)
+	--userRole      | -R user role (VOADMIN/GROUPADMIN/FACILITYADMIN/SELF)
+	--rolesRights   | -r list of rights for role (READ WRITE empty=no right)
+	--batch         | -b batch
+	--help          | -h prints this help
+	};
+}
+
+my ($attributeId, $attributeName, $reqRole, @rights, $batch);
+GetOptions("help|h"   => sub {
+		print help;
+		exit 0;
+	},
+	"attributeId|a=i"       => \$attributeId,
+	"attributeName|A=s"     => \$attributeName,
+	"userRole|R=s"          => \$reqRole,
+	'rolesRights|r=s@{0,}'  => \@rights,
+	"batch|b"               => \$batch) || die help;
+
+#options check
+unless (defined $attributeId or defined $attributeName) { die "ERROR: attributeId or attributeName are required\n";}
+unless (defined $reqRole) { die "ERROR: user role required\n";}
+$reqRole=uc($reqRole);
+
+my $agent = Perun::Agent->new();
+my $attributesAgent = $agent->getAttributesAgent;
+my $attributeDefinition;
+if (defined $attributeName and not defined $attributeId) {
+	$attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
+	$attributeId=$attributeDefinition->getId;
+}
+
+my @actions;
+push (@actions,uc($rights[0])) if defined $rights[0];
+push (@actions,uc($rights[1])) if defined $rights[1];
+@actions=() if $rights[0] eq "";
+
+my @attrRights = $attributesAgent->getAttributeRights(attributeId => $attributeId);
+
+foreach my $right (@attrRights) {
+	my $role=$right->getRole;
+	if ($role eq $reqRole) {
+		$right->setRights(\@actions);
+		#print Dumper($right);
+	}
+}
+
+$attributesAgent->setAttributeRights(attributeId => $attributeId, rights => \@attrRights);
+printMessage "For attribute $attributeId rights '@rights' successfully set for $reqRole", $batch;
+
