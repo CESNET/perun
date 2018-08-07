@@ -42,7 +42,11 @@ our %objectExamples;
 my $listPrepend = "[ ";
 my $listAppend = " , {...} , {...} ]";
 
-$objectExamples{"Attribute"} = "{ \"id\" : 2820 , \"friendlyName\" : \"createdAt\" , \"namespace\" : \"urn:perun:vo:attribute-def:core\" , \"value\" : \"2011-05-17 00:50:06.3\" , \"type\" : \"java.lang.String\" , \"entity\" : \"vo\" , \"writable\" : true , \"baseFriendlyName\" : \"createdAt\" , \"friendlyNameParameter\" : \"\" , \"displayName\" : \"VO created date\" , \"description\" : \"Date when VO was created.\" , \"beanName\" : \"Attribute\" }";
+$objectExamples{"AttributeDefinition"} = "{ \"id\" : 2820 , \"friendlyName\" : \"createdAt\" , \"namespace\" : \"urn:perun:vo:attribute-def:core\" , \"type\" : \"java.lang.String\" , \"entity\" : \"vo\" , \"writable\" : true , \"baseFriendlyName\" : \"createdAt\" , \"friendlyNameParameter\" : \"\" , \"unique\" : false , \"displayName\" : \"VO created date\" , \"description\" : \"Date when VO was created.\" , \"beanName\" : \"AttributeDefinition\" }";
+$objectExamples{"List&lt;AttributeDefinition&gt;"} = $listPrepend . $objectExamples{"AttributeDefinition"} . $listAppend;
+$objectExamples{"List<AttributeDefinition>"} = $objectExamples{"List&lt;AttributeDefinition&gt;"};
+
+$objectExamples{"Attribute"} = "{ \"id\" : 2820 , \"friendlyName\" : \"createdAt\" , \"namespace\" : \"urn:perun:vo:attribute-def:core\" , \"value\" : \"2011-05-17 00:50:06.3\" , \"type\" : \"java.lang.String\" , \"entity\" : \"vo\" , \"writable\" : true , \"baseFriendlyName\" : \"createdAt\" , \"friendlyNameParameter\" : \"\" , \"unique\" : false , \"displayName\" : \"VO created date\" , \"description\" : \"Date when VO was created.\" , \"beanName\" : \"Attribute\" }";
 $objectExamples{"List&lt;Attribute&gt;"} = $listPrepend . $objectExamples{"Attribute"} . $listAppend;
 $objectExamples{"List<Attribute>"} = $objectExamples{"List&lt;Attribute&gt;"};
 
@@ -78,15 +82,15 @@ $objectExamples{"Group"} = "{ \"id\" : 1061 , \"name\" : \"My group\" , \"shortN
 $objectExamples{"List&lt;Group&gt;"} = $listPrepend . $objectExamples{"Group"} . $listAppend;
 $objectExamples{"List<Group>"} = $objectExamples{"List&lt;Group&gt;"};
 
-$objectExamples{"RichGroup"} = "{ \"id\" : 1061 , \"name\" : \"My Group\" , \"shortName\" : \"My Group\" , \"description\" : \"My testing group\" , \"parentGroupId\" : null , \"voId\" : 201 , \"beanName\" : \"RichGroup\" , \"attributes\" : [ { \"value\" : null , \"type\" : \"java.lang.String\" , \"entity\" : \"group\" , \"namespace\" : \"urn:perun:group:attribute-def:def\" , \"friendlyName\" : \"synchronizationEnabled\" , \"writable\" : true , \"baseFriendlyName\" : \"synchronizationEnabled\" , \"friendlyNameParameter\" : \"\" , \"displayName\" : \"Synchronization enabled\" , \"description\" : \"Enables group synchronization from external source.\" , \"id\" : 103 , \"beanName\" : \"Attribute\" } ] }";
+$objectExamples{"RichGroup"} = "{ \"id\" : 1061 , \"name\" : \"My Group\" , \"shortName\" : \"My Group\" , \"description\" : \"My testing group\" , \"parentGroupId\" : null , \"voId\" : 201 , \"beanName\" : \"RichGroup\" , \"attributes\" : [ { \"value\" : null , \"type\" : \"java.lang.String\" , \"entity\" : \"group\" , \"namespace\" : \"urn:perun:group:attribute-def:def\" , \"friendlyName\" : \"synchronizationEnabled\" , \"writable\" : true , \"baseFriendlyName\" : \"synchronizationEnabled\" , \"friendlyNameParameter\" : \"\" , \"unique\" : false , \"displayName\" : \"Synchronization enabled\" , \"description\" : \"Enables group synchronization from external source.\" , \"id\" : 103 , \"beanName\" : \"Attribute\" } ] }";
 $objectExamples{"List&lt;RichGroup&gt;"} = $listPrepend . $objectExamples{"RichGroup"} . $listAppend;
 $objectExamples{"List<RichGroup>"} = $objectExamples{"List&lt;RichGroup&gt;"};
 
-$objectExamples{"Member"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"beanName\" : \"Member\" }";
+$objectExamples{"Member"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"sponsored\" : false , \"beanName\" : \"Member\" }";
 $objectExamples{"List&lt;Member&gt;"} = $listPrepend . $objectExamples{"Member"} . $listAppend;
 $objectExamples{"List<Member>"} = $objectExamples{"List&lt;Member&gt;"};
 
-$objectExamples{"User"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Body\" , \"middleName\" : null , \"titleBefore\" : \"Mgr.\" , \"titleAfter\" : null , \"serviceUser\" : false , \"id\" : 34 , \"beanName\" : \"User\" }";
+$objectExamples{"User"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Body\" , \"middleName\" : null , \"titleBefore\" : \"Mgr.\" , \"titleAfter\" : null , \"serviceUser\" : false , \"sponsoredUser\" : false , \"specificUser\" : false , \"majorSpecificType\" : \"NORMAL\" , \"id\" : 34 , \"beanName\" : \"User\" }";
 $objectExamples{"List&lt;User&gt;"} = $listPrepend . $objectExamples{"User"} . $listAppend;
 $objectExamples{"List<User>"} = $objectExamples{"List&lt;User&gt;"};
 
@@ -94,21 +98,21 @@ $objectExamples{"ExtSource"} = "{ \"name\" : \"PERUNPEOPLE\" , \"type\" : \"cz.m
 $objectExamples{"List&lt;ExtSource&gt;"} = $listPrepend . $objectExamples{"ExtSource"} . $listAppend;
 $objectExamples{"List<ExtSource>"} = $objectExamples{"List&lt;ExtSource&gt;"};
 
-$objectExamples{"UserExtSource"} = "{ \"userId\": 34 , \"loa\" : 0 , \"extSource\" : " . $objectExamples{"ExtSource"} . " , \"login\" : \"my_login\" , \"id\" : 312 , \"beanName\" : \"UserExtSource\" }";
+$objectExamples{"UserExtSource"} = "{ \"userId\": 34 , \"loa\" : 0 , \"extSource\" : " . $objectExamples{"ExtSource"} . " , \"login\" : \"my_login\" , \"persistent\" : true , \"id\" : 312 , \"beanName\" : \"UserExtSource\" }";
 $objectExamples{"List&lt;UserExtSource&gt;"} = $listPrepend . $objectExamples{"UserExtSource"} . $listAppend;
 $objectExamples{"List<UserExtSource>"} = $objectExamples{"List&lt;UserExtSource&gt;"};
 
-$objectExamples{"RichUser"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Body\" , \"middleName\" : null , \"titleBefore\" : \"Mgr.\" , \"titleAfter\" : null , \"serviceUser\" : false , \"id\" : 34 , \"beanName\" : \"User\" , \"userExtSources\" : " . $objectExamples{"List<UserExtSource>"} . ", \"userAttributes\" : [ { \"value\" : \"my_login\" , \"type\" : \"java.lang.String\" , \"entity\" : \"user\" , \"namespace\" : \"urn:perun:user:attribute-def:def\" , \"friendlyName\" : \"login-namespace:perun\" , \"writable\" : true , \"baseFriendlyName\" : \"login-namespace\" , \"friendlyNameParameter\" : \"perun\" , \"displayName\" : \"Login in namespace: perun\" , \"description\" : \"Logname in namespace 'perun'.\" , \"id\" : 1905 , \"beanName\" : \"Attribute\" } ] }";
+$objectExamples{"RichUser"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Body\" , \"middleName\" : null , \"titleBefore\" : \"Mgr.\" , \"titleAfter\" : null , \"serviceUser\" : false , \"sponsoredUser\" : false , \"specificUser\" : false , \"majorSpecificType\" : \"NORMAL\" , \"id\" : 34 , \"beanName\" : \"User\" , \"userExtSources\" : " . $objectExamples{"List<UserExtSource>"} . ", \"userAttributes\" : [ { \"value\" : \"my_login\" , \"type\" : \"java.lang.String\" , \"entity\" : \"user\" , \"namespace\" : \"urn:perun:user:attribute-def:def\" , \"friendlyName\" : \"login-namespace:perun\" , \"writable\" : true , \"baseFriendlyName\" : \"login-namespace\" , \"friendlyNameParameter\" : \"perun\" , \"unique\" : false , \"displayName\" : \"Login in namespace: perun\" , \"description\" : \"Logname in namespace 'perun'.\" , \"id\" : 1905 , \"beanName\" : \"Attribute\" } ] }";
 $objectExamples{"List&lt;RichUser&gt;"} = $listPrepend . $objectExamples{"RichUser"} . $listAppend;
 $objectExamples{"List<RichUser>"} = $objectExamples{"List&lt;RichUser&gt;"};
 
-$objectExamples{"RichMember"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"beanName\" : \"RichMember\" , \"user\" : " . $objectExamples{"User"} . " , \"userExtSources\" : " . $objectExamples{"List<UserExtSource>"} . " , \"memberAttributes\" : [ ] , \"userAttributes\" : [ { \"value\" : \"my_login\" , \"type\" : \"java.lang.String\" , \"entity\" : \"user\" , \"namespace\" : \"urn:perun:user:attribute-def:def\" , \"friendlyName\" : \"login-namespace:perun\" , \"writable\" : true , \"baseFriendlyName\" : \"login-namespace\" , \"friendlyNameParameter\" : \"perun\" , \"displayName\" : \"Login in namespace: perun\" , \"description\" : \"Logname in namespace 'perun'.\" , \"id\" : 1905 , \"beanName\" : \"Attribute\" } ] }";
+$objectExamples{"RichMember"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"sponsored\" : false , \"beanName\" : \"RichMember\" , \"user\" : " . $objectExamples{"User"} . " , \"userExtSources\" : " . $objectExamples{"List<UserExtSource>"} . " , \"memberAttributes\" : [ ] , \"userAttributes\" : [ { \"value\" : \"my_login\" , \"type\" : \"java.lang.String\" , \"entity\" : \"user\" , \"namespace\" : \"urn:perun:user:attribute-def:def\" , \"friendlyName\" : \"login-namespace:perun\" , \"writable\" : true , \"baseFriendlyName\" : \"login-namespace\" , \"friendlyNameParameter\" : \"perun\" , \"unique\" : false , \"displayName\" : \"Login in namespace: perun\" , \"description\" : \"Logname in namespace 'perun'.\" , \"id\" : 1905 , \"beanName\" : \"Attribute\" } ] }";
 $objectExamples{"List&lt;RichMember&gt;"} = $listPrepend . $objectExamples{"RichMember"} . $listAppend;
 $objectExamples{"List<RichMember>"} = $objectExamples{"List&lt;RichMember&gt;"};
 
 $objectExamples{"RTMessage"} = "{ \"ticketNumber\" : 32525 , \"memberPreferredEmail\" : \"mail\@mail.com\" }";
 
-$objectExamples{"Service"} = "{ \"id\" : 290 , \"name\" : \"passwd\" }";
+$objectExamples{"Service"} = "{ \"id\" : 290 , \"name\" : \"passwd\" , \"description\" : \"Provision /etc/passwd file.\" , \"delay\" : 10 , \"recurrence\" : 2 , \"enabled\" : true , \"script\" : \"./passwd\" }";
 $objectExamples{"List&lt;Service&gt;"} = $listPrepend . $objectExamples{"Service"} . $listAppend;
 $objectExamples{"List<Service>"} = $objectExamples{"List&lt;Service&gt;"};
 
@@ -119,6 +123,10 @@ $objectExamples{"List<ServicesPackage>"} = $objectExamples{"List&lt;ServicesPack
 $objectExamples{"Destination"} = "{ \"id\" : 99 , \"destination\" : \"host\@host.cz\" , \"type\" : \"HOST\" , \"propagationType\" : \"PARALLEL\" }";
 $objectExamples{"List&lt;Destination&gt;"} = $listPrepend . $objectExamples{"Destination"} . $listAppend;
 $objectExamples{"List<Destination>"} = $objectExamples{"List&lt;Destination&gt;"};
+
+$objectExamples{"RichDestination"} = "{ \"id\" : 99 , \"destination\" : \"host\@host.cz\" , \"type\" : \"HOST\" , \"propagationType\" : \"PARALLEL\" , \"service\" : " . $objectExamples{"Service"} . " , \"facility\" : " . $objectExamples{"Facility"} . " }";
+$objectExamples{"List&lt;RichDestination&gt;"} = $listPrepend . $objectExamples{"RichDestination"} . $listAppend;
+$objectExamples{"List<RichDestination>"} = $objectExamples{"List&lt;RichDestination&gt;"};
 
 $objectExamples{"Host"} = "{ \"id\" : 523 , \"hostname\" : \"host1.host.cz\" }";
 $objectExamples{"List&lt;Host&gt;"} = $listPrepend . $objectExamples{"Host"} . $listAppend;
@@ -135,9 +143,9 @@ $objectExamples{"Candidate"} = "{ \"id\" : 0 , \"serviceUser\" : false , \"first
 $objectExamples{"List&lt;Candidate&gt;"} = $listPrepend . $objectExamples{"Candidate"} . $listAppend;
 $objectExamples{"List<Candidate>"} = $objectExamples{"List&lt;Candidate&gt;"};
 
-$objectExamples("MemberCandidate") = "{ \"candidate\" : " . objectExamples("Candidate") . " , \"member\" : " . objectExamples("Member") . " , \"richUser\" : " . objectExamples("RichUser") . " }";
-$objectExamples("List&lt;MemberCandidate&gt;") = $listPrepend . $objectExamples("MemberCandidate") . $listAppend;
-$objectExamples("List<MemberCandidate>") = $objectExamples("List&lt;MemberCandidate&gt;");
+$objectExamples{"MemberCandidate"} = "{ \"candidate\" : " . $objectExamples{"Candidate"} . " , \"member\" : " . $objectExamples{"Member"} . " , \"richUser\" : " . $objectExamples{"RichUser"} . " }";
+$objectExamples{"List&lt;MemberCandidate&gt;"} = $listPrepend . $objectExamples{"MemberCandidate"} . $listAppend;
+$objectExamples{"List<MemberCandidate>"} = $objectExamples{"List&lt;MemberCandidate&gt;"};
 
 $objectExamples{"SecurityTeam"} = "{ \"id\" : 924 , \"name\" : \"CSIRT\" , \"description\" : \"My CSIRT\" }";
 $objectExamples{"List&lt;SecurityTeam&gt;"} = $listPrepend . $objectExamples{"SecurityTeam"} . $listAppend;
@@ -146,6 +154,18 @@ $objectExamples{"List<SecurityTeam>"} = $objectExamples{"List&lt;SecurityTeam&gt
 $objectExamples{"Pair<User,String>"} = "{ \"left\" : " . $objectExamples{"User"} ." , \"right\" : \"Some reason\" }";
 $objectExamples{"List&lt;Pair&lt;User,String&gt;&gt;"} = $listPrepend . $objectExamples{"Pair<User,String>"} . $listAppend;
 $objectExamples{"List<Pair<User,String>>"} = $objectExamples{"List&lt;Pair&lt;User,String&gt;&gt;"};
+
+$objectExamples{"AttributeRights"} = "{ \"attributeId\" : 5 , \"role\" : \"VOADMIN\", \"rights\" : [ \"READ\" , \"WRITE\"] }";
+$objectExamples{"List&lt;AttributeRights&gt;"} = $listPrepend . $objectExamples{"AttributeRights"} . $listAppend;
+$objectExamples{"List<AttributeRights>"} = $objectExamples{"List&lt;AttributeRights&gt;"};
+
+$objectExamples{"BanOnFacility"} = "{ \"id\" : 3 , \"validityTo\" : 1533638919 , \"description\" : \"banned\" , \"userId\" : 2341 , \"facilityId\" : 233 , \"beanName\" : \"BanOnFacility\" }";
+$objectExamples{"List&lt;BanOnFacility&gt;"} = $listPrepend . $objectExamples{"BanOnFacility"} . $listAppend;
+$objectExamples{"List<BanOnFacility>"} = $objectExamples{"List&lt;BanOnFacility&gt;"};
+
+$objectExamples{"BanOnResource"} = "{ \"id\" : 4 , \"validityTo\" : 1533638919 , \"description\" : \"banned\" , \"memberId\" : 13541 , \"resourceId\" : 2234 , \"beanName\" : \"BanOnResource\" }";
+$objectExamples{"List&lt;BanOnResource&gt;"} = $listPrepend . $objectExamples{"BanOnResource"} . $listAppend;
+$objectExamples{"List<BanOnResource>"} = $objectExamples{"List&lt;BanOnResource&gt;"};
 
 # SUB HELP
 # help info
@@ -534,6 +554,9 @@ foreach my $manager (sort(keys %{$managers})) {
 						my $par1 = (split(/ /, $par))[1];
 						$par1 =~ s/\Q<\E/&lt;/g;
 						$par1 =~ s/\Q>\E/&gt;/g;
+						unless($par1) {
+							print $sortedMethod . "\n";
+						}
 
 						$methodAnnotation .= $par1;
 						$methodAnnotation .= " ";
