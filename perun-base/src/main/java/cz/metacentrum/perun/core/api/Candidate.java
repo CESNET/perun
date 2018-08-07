@@ -92,46 +92,6 @@ public class Candidate extends User {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-			+ ((attributes == null) ? 0 : attributes.hashCode());
-		result = prime * result
-			+ ((userExtSource == null) ? 0 : userExtSource.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		Candidate other = (Candidate) obj;
-		if (attributes == null) {
-			if (other.attributes != null) {
-				return false;
-			}
-		} else if (!attributes.equals(other.attributes)) {
-			return false;
-		}
-		if (userExtSource == null) {
-			if (other.userExtSource != null) {
-				return false;
-			}
-		} else if (!userExtSource.equals(other.userExtSource)) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
 	public String serializeToString() {
 		StringBuilder str = new StringBuilder();
 
