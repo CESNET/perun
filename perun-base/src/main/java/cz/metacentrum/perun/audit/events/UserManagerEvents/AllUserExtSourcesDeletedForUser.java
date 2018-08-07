@@ -3,46 +3,27 @@ package cz.metacentrum.perun.audit.events.UserManagerEvents;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.User;
 
-public class AllUserExtSourcesDeletedForUser implements AuditEvent {
+public class AllUserExtSourcesDeletedForUser extends AuditEvent {
 
-	private User user;
-	private String name = this.getClass().getName();
-	private String message;
-
-	public AllUserExtSourcesDeletedForUser() {
-	}
+	private final User user;
+	private final String message;
 
 	public AllUserExtSourcesDeletedForUser(User user) {
 		this.user = user;
+		this.message = String.format("All user ext sources removed for %s.", user);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public User getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return "All user ext sources removed for " + user + ".";
+		return message;
 	}
 }

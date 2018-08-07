@@ -3,55 +3,33 @@ package cz.metacentrum.perun.audit.events.GroupManagerEvents;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Group;
 
-public class AdminGroupRemovedFromGroup implements AuditEvent {
+public class AdminGroupRemovedFromGroup extends AuditEvent {
 
-	private Group group, authorizedGroup;
-	private String name = this.getClass().getName();
-	private String message;
+	private final Group group;
+	private final Group authorizedGroup;
+	private final String message;
 
 	public AdminGroupRemovedFromGroup(Group authorizedGroup, Group group) {
 		this.group = group;
 		this.authorizedGroup = authorizedGroup;
-	}
-
-	public AdminGroupRemovedFromGroup() {
+		this.message = String.format("Group %s was removed from admins of %s.", authorizedGroup, group);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public Group getGroup() {
 		return group;
 	}
 
-	public void setGroup(Group group) {
-		this.group = group;
-	}
-
 	public Group getAuthorizedGroup() {
 		return authorizedGroup;
 	}
 
-	public void setAuthorizedGroup(Group authorizedGroup) {
-		this.authorizedGroup = authorizedGroup;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return "Group " + authorizedGroup + " was removed from admins of " + group + ".";
+		return message;
 	}
 }

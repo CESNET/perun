@@ -8,13 +8,9 @@ package cz.metacentrum.perun.audit.events;
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-public class StringMessageEvent implements AuditEvent {
+public class StringMessageEvent extends AuditEvent {
 
-	private String message;
-
-	public StringMessageEvent() {
-
-	}
+	private final String message;
 
 	public StringMessageEvent(String message) {
 		this.message = message;

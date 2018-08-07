@@ -4,56 +4,33 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Service;
 
-public class RequiredAttributeRemovedFromService implements AuditEvent {
+public class RequiredAttributeRemovedFromService extends AuditEvent {
 
-	private AttributeDefinition attributeDefinition;
-	private Service service;
-	private String name = this.getClass().getName();
-	private String message;
-
-	public RequiredAttributeRemovedFromService() {
-	}
+	private final AttributeDefinition attributeDefinition;
+	private final Service service;
+	private final String message;
 
 	public RequiredAttributeRemovedFromService(AttributeDefinition attribute, Service service) {
 		this.attributeDefinition = attribute;
 		this.service = service;
+		this.message = String.format("%s removed from %s as required attribute.", attribute, service);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public AttributeDefinition getAttributeDefinition() {
 		return attributeDefinition;
 	}
 
-	public void setAttributeDefinition(AttributeDefinition attributeDefinition) {
-		this.attributeDefinition = attributeDefinition;
-	}
-
 	public Service getService() {
 		return service;
 	}
 
-	public void setService(Service service) {
-		this.service = service;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return attributeDefinition + " removed from " + service + " as required attribute.";
+		return message;
 	}
 }

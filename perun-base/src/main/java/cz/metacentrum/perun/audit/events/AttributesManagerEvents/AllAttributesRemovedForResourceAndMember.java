@@ -4,57 +4,33 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 
-public class AllAttributesRemovedForResourceAndMember implements AuditEvent {
+public class AllAttributesRemovedForResourceAndMember extends AuditEvent {
 
-	private Resource resource;
-	private Member member;
-	private String name = this.getClass().getName();
-	private String message;
-
-	public AllAttributesRemovedForResourceAndMember() {
-	}
-
+	private final Resource resource;
+	private final Member member;
+	private final String message;
 
 	public AllAttributesRemovedForResourceAndMember(Resource resource, Member member) {
 		this.resource = resource;
 		this.member = member;
+		this.message = String.format("All attributes removed for %s and %s.", resource, member);
 	}
 
 	public Resource getResource() {
 		return resource;
 	}
 
-	public void setResource(Resource resource) {
-		this.resource = resource;
-	}
-
 	public Member getMember() {
 		return member;
 	}
 
-	public void setMember(Member member) {
-		this.member = member;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("All attributes removed for %s and %s.", resource, member);
+		return message;
 	}
 }

@@ -4,56 +4,33 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.User;
 
-public class SponsorRemoved implements AuditEvent {
+public class SponsorRemoved extends AuditEvent {
 
-	private Member sponsoredMember;
-	private User sponsor;
-	private String name = this.getClass().getName();
-	private String message;
+	private final Member sponsoredMember;
+	private final User sponsor;
+	private final String message;
 
 	public SponsorRemoved(Member sponsoredMember, User sponsorToRemove) {
 		this.sponsoredMember = sponsoredMember;
-		sponsor = sponsorToRemove;
-	}
-
-	public SponsorRemoved() {
+		this.sponsor = sponsorToRemove;
+		this.message = String.format("Sponsorship of %s by %s canceled.", sponsoredMember, sponsor);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public Member getSponsoredMember() {
 		return sponsoredMember;
 	}
 
-	public void setSponsoredMember(Member sponsoredMember) {
-		this.sponsoredMember = sponsoredMember;
-	}
-
 	public User getSponsor() {
 		return sponsor;
 	}
 
-	public void setSponsor(User sponsor) {
-		this.sponsor = sponsor;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return "Sponsorship of " + sponsoredMember + " by " + sponsor + " canceled.";
+		return message;
 	}
 }

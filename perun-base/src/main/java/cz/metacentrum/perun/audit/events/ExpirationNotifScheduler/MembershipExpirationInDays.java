@@ -4,68 +4,39 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;
 
-public class MembershipExpirationInDays implements AuditEvent {
+public class MembershipExpirationInDays extends AuditEvent {
 
-
-	private Member member;
-	private int daysToExpiration;
-	private Vo vo;
-
-	private String name = this.getClass().getName();
-	private String message;
+	private final Member member;
+	private final int daysToExpiration;
+	private final Vo vo;
+	private final String message;
 
 	public MembershipExpirationInDays(Member member, int daysToExpiration, Vo vo) {
 		this.member = member;
 		this.daysToExpiration = daysToExpiration;
 		this.vo = vo;
-	}
-
-	public MembershipExpirationInDays() {
+		this.message = String.format("%s will expire in %s days in %d.", member, vo, daysToExpiration);
 	}
 
 	public Member getMember() {
 		return member;
 	}
 
-	public void setMember(Member member) {
-		this.member = member;
-	}
-
 	public int getDaysToExpiration() {
 		return daysToExpiration;
-	}
-
-	public void setDaysToExpiration(int daysToExpiration) {
-		this.daysToExpiration = daysToExpiration;
 	}
 
 	public Vo getVo() {
 		return vo;
 	}
 
-	public void setVo(Vo vo) {
-		this.vo = vo;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s will expire in %s days in %d.", member, vo, daysToExpiration);
+		return message;
 	}
 }

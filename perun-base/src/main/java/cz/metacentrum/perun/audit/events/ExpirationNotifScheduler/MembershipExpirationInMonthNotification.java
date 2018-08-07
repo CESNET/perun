@@ -4,57 +4,33 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;
 
-public class MembershipExpirationInMonthNotification implements AuditEvent {
+public class MembershipExpirationInMonthNotification extends AuditEvent {
 
-	private Member member;
-	private Vo vo;
-
-	private String name = this.getClass().getName();
-	private String message;
+	private final Member member;
+	private final Vo vo;
+	private final String message;
 
 	public MembershipExpirationInMonthNotification(Member member, Vo vo) {
 		this.member = member;
 		this.vo = vo;
-	}
-
-	public MembershipExpirationInMonthNotification() {
+		this.message = String.format("%s will expire in a month in %s.", member, vo);
 	}
 
 	public Member getMember() {
 		return member;
 	}
 
-	public void setMember(Member member) {
-		this.member = member;
-	}
-
 	public Vo getVo() {
 		return vo;
 	}
 
-	public void setVo(Vo vo) {
-		this.vo = vo;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s will expire in a month in %s.", member, vo);
+		return message;
 	}
 }

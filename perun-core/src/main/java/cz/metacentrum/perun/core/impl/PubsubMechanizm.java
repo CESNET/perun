@@ -71,9 +71,9 @@ public class PubsubMechanizm implements Runnable {
 	}
 
 	private PubsubMechanizm() {
-		listeners = new ConcurrentHashMap<Object, Set<Listener>>();
-		listOfParams = new ConcurrentHashMap<Pair<Object, Listener>, List<String>>();
-		mQueue = new LinkedBlockingQueue<Operation>();
+		listeners = new ConcurrentHashMap<>();
+		listOfParams = new ConcurrentHashMap<>();
+		mQueue = new LinkedBlockingQueue<>();
 		ex = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 		ex.submit(this);
 	}
@@ -147,13 +147,11 @@ public class PubsubMechanizm implements Runnable {
 	 * @param listener
 	 * @param params    parameters to be removed
 	 */
-	public void removeListener(Object eventType, Listener listener, List<String> params) {
+	public void removeListenerParameters(Object eventType, Listener listener, List<String> params) {
 		List<String> paramsOfListener = listOfParams.get(new Pair<Object, Listener>(eventType, listener));
-		if (paramsOfListener != null || !paramsOfListener.isEmpty()) {
-			for (String param :
-					paramsOfListener) {
-				for (String paramToRemove :
-						params) {
+		if (paramsOfListener != null) {
+			for (String param :	paramsOfListener) {
+				for (String paramToRemove :	params) {
 					if (param.equals(paramToRemove)) {
 						paramsOfListener.remove(param);
 					}
@@ -176,10 +174,9 @@ public class PubsubMechanizm implements Runnable {
 	}
 
 	private void remove(Object eventType, Listener listener) {
-		Set<Listener> l = null;
-		l = listeners.get(eventType);
-		if (l != null) {
-			l.remove(listener);
+		Set<Listener> eventListeners = listeners.get(eventType);
+		if (eventListeners != null) {
+			eventListeners.remove(listener);
 		}
 	}
 
@@ -192,7 +189,7 @@ public class PubsubMechanizm implements Runnable {
 	 */
 	public boolean publish(Object eventType, Object object) {
 		Set<Listener> l = listeners.get(eventType);
-		if (l != null && l.size() >= 0) {
+		if (l != null && l.size() > 0) {
 			mQueue.add(new Operation(eventType, object));
 			return true;
 		}

@@ -3,46 +3,27 @@ package cz.metacentrum.perun.audit.events.AttributesManagerEvents;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.User;
 
-public class AllUserFacilityAttributesRemovedForFacilitiesAndUser implements AuditEvent {
+public class AllUserFacilityAttributesRemovedForFacilitiesAndUser extends AuditEvent {
 
-	private User user;
-	private String name = this.getClass().getName();
-	private String message = String.format("All non-virtual user-facility attributes removed for all facilities and %s", user);
+	private final User user;
+	private final String message;
 
 	public AllUserFacilityAttributesRemovedForFacilitiesAndUser(User user) {
 		this.user = user;
-	}
-
-	public AllUserFacilityAttributesRemovedForFacilitiesAndUser() {
+		this.message = String.format("All non-virtual user-facility attributes removed for all facilities and %s", user);
 	}
 
 	public User getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return "All non-virtual user-facility attributes removed for all facilities and " + user;
+		return message;
 	}
 }

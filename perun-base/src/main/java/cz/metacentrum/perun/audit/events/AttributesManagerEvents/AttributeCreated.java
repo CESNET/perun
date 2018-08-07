@@ -4,46 +4,27 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 
-public class AttributeCreated implements AuditEvent {
+public class AttributeCreated extends AuditEvent {
 
-	private AttributeDefinition attribute;
-	private String name = this.getClass().getName();
-	private String message;
+	private final AttributeDefinition attribute;
+	private final String message;
 
 	public AttributeCreated(AttributeDefinition attribute) {
 		this.attribute = attribute;
-	}
-
-	public AttributeCreated() {
+		this.message = String.format("%s created.", attribute);
 	}
 
 	public AttributeDefinition getAttribute() {
 		return attribute;
 	}
 
-	public void setAttribute(AttributeDefinition attribute) {
-		this.attribute = attribute;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return attribute + " created.";
+		return message;
 	}
 }

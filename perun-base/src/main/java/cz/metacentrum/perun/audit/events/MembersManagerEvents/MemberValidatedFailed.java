@@ -4,56 +4,33 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Status;
 
-public class MemberValidatedFailed implements AuditEvent {
+public class MemberValidatedFailed extends AuditEvent {
 
-	private Member member;
-	private Status status;
-	private String name = this.getClass().getName();
-	private String message;
+	private final Member member;
+	private final Status status;
+	private final String message;
 
 	public MemberValidatedFailed(Member member, Status oldStatus) {
 		this.member = member;
 		this.status = oldStatus;
-	}
-
-	public MemberValidatedFailed() {
+		this.message = String.format("Validation of %s failed. He stays in %s state.", member, status);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public Member getMember() {
 		return member;
 	}
 
-	public void setMember(Member member) {
-		this.member = member;
-	}
-
 	public Status getStatus() {
 		return status;
 	}
 
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return "Validation of " + member + " failed. He stays in " + status + " state.";
+		return message;
 	}
 }

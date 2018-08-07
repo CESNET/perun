@@ -3,46 +3,28 @@ package cz.metacentrum.perun.audit.events.RegistrarManagerEvents;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 
-public class FormItemsUpdated implements AuditEvent {
+public class FormItemsUpdated extends AuditEvent {
 
-	private ApplicationForm form;
-	private String name = this.getClass().getName();
-	private String message;
+	private final ApplicationForm form;
+	private final String message;
 
 	public FormItemsUpdated(ApplicationForm form) {
 		this.form = form;
-	}
-
-	public FormItemsUpdated() {
-	}
-
-	@Override
-	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	@Override
-	public String toString() {
-		return "Application form ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has had its items updated.";
+		this.message = String.format("Application form ID=%d voID=%d %s has had its items updated.", form.getId(),
+				form.getVo().getId(), ((form.getGroup() != null) ? " groupID=" + form.getGroup().getId() : ""));
 	}
 
 	public ApplicationForm getForm() {
 		return form;
 	}
 
-	public void setForm(ApplicationForm form) {
-		this.form = form;
+	@Override
+	public String getMessage() {
+		return message;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
+	@Override
+	public String toString() {
+		return message;
 	}
 }

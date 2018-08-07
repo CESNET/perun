@@ -25,7 +25,7 @@ public class AuditerPublisher {
 	private static PubsubMechanizm pubsubMechanizm = PubsubMechanizm.getInstance();
 
 
-	public AuditerPublisher(AuditerConsumer auditerConsumer) throws InternalErrorException {
+	public AuditerPublisher(AuditerConsumer auditerConsumer) {
 		this.consumer = auditerConsumer;
 	}
 
@@ -54,7 +54,7 @@ public class AuditerPublisher {
 	public void publishMessages(List<String> messages) {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		Object event = null;
+		Object event;
 
 		//get event type (topic for subscribtion)
 		for (int i = 0; i < messages.size(); i++) {

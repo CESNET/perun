@@ -5,56 +5,33 @@ import cz.metacentrum.perun.core.api.ContactGroup;
 
 import java.util.List;
 
-public class GroupsRemovedFromContactGroupOfFacility implements AuditEvent {
-	private List<Integer> groupsId;
-	private ContactGroup contactGroup;
+public class GroupsRemovedFromContactGroupOfFacility extends AuditEvent {
 
-	private String name = this.getClass().getName();
-	private String message;
+	private final List<Integer> groupsId;
+	private final ContactGroup contactGroup;
+	private final String message;
 
 	public GroupsRemovedFromContactGroupOfFacility(List<Integer> groupsId, ContactGroup contactGroup) {
 		this.groupsId = groupsId;
 		this.contactGroup = contactGroup;
-	}
-
-	public GroupsRemovedFromContactGroupOfFacility() {
+		this.message = String.format("Groups (%s) successfully removed from contact groups %s.", groupsId, contactGroup);
 	}
 
 	public List<Integer> getGroupsId() {
 		return groupsId;
 	}
 
-	public void setGroupsId(List<Integer> groupsId) {
-		this.groupsId = groupsId;
-	}
-
 	public ContactGroup getContactGroup() {
 		return contactGroup;
 	}
 
-	public void setContactGroup(ContactGroup contactGroup) {
-		this.contactGroup = contactGroup;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Groups (%s) successfully removed from contact groups %s.", groupsId.toString(), contactGroup.toString());
+		return message;
 	}
 }

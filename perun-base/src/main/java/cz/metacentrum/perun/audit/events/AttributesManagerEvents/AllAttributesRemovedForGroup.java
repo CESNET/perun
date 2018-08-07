@@ -4,47 +4,27 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Group;
 
 
-public class AllAttributesRemovedForGroup implements AuditEvent {
+public class AllAttributesRemovedForGroup extends AuditEvent {
 
-	private Group group;
-
-	private String name = this.getClass().getName();
-	private String message;
+	private final Group group;
+	private final String message;
 
 	public AllAttributesRemovedForGroup(Group group) {
 		this.group = group;
-	}
-
-	public AllAttributesRemovedForGroup() {
+		this.message = String.format("All attributes removed for %s.", group);
 	}
 
 	public Group getGroup() {
 		return group;
 	}
 
-	public void setGroup(Group group) {
-		this.group = group;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return String.format("All attributes removed for %s", group);
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("All attributes removed for %s", group);
+		return message;
 	}
 }

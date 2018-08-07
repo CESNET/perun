@@ -3,46 +3,27 @@ package cz.metacentrum.perun.audit.events.FacilityManagerEvents;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Facility;
 
-public class FacilityDeleted implements AuditEvent {
+public class FacilityDeleted extends AuditEvent {
 
-	private Facility facility;
-	private String name = this.getClass().getName();
-	private String message;
+	private final Facility facility;
+	private final String message;
 
 	public FacilityDeleted(Facility facility) {
 		this.facility = facility;
-	}
-
-	public FacilityDeleted() {
+		this.message = String.format("Facility deleted %s.", facility);
 	}
 
 	public Facility getFacility() {
 		return facility;
 	}
 
-	public void setFacility(Facility facility) {
-		this.facility = facility;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Facility deleted %s.", facility);
+		return message;
 	}
 }

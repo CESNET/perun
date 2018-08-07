@@ -4,59 +4,33 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 
-public class ExtSourceAddedToGroup implements AuditEvent {
+public class ExtSourceAddedToGroup extends AuditEvent {
 
-	private ExtSource source;
-	private Group group;
-
-	private String name = this.getClass().getName();
-	private String message;
+	private final ExtSource source;
+	private final Group group;
+	private final String message;
 
 	public ExtSourceAddedToGroup(ExtSource source, Group group) {
 		this.source = source;
 		this.group = group;
-	}
-
-	public ExtSourceAddedToGroup() {
+		this.message = String.format("%s added to %s.", source, group);
 	}
 
 	public ExtSource getSource() {
 		return source;
 	}
 
-	public void setSource(ExtSource source) {
-		this.source = source;
-	}
-
 	public Group getGroup() {
 		return group;
 	}
 
-	public void setGroup(Group group) {
-		this.group = group;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s added to %s.", source, group);
+		return message;
 	}
-
-
 }

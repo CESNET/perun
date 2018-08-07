@@ -4,55 +4,33 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 
-public class SecurityTeamRemovedFromFacility implements AuditEvent {
-	private SecurityTeam securityTeam;
-	private Facility facility;
-	private String message;
-	private String name = this.getClass().getName();
+public class SecurityTeamRemovedFromFacility extends AuditEvent {
+
+	private final SecurityTeam securityTeam;
+	private final Facility facility;
+	private final String message;
 
 	public SecurityTeamRemovedFromFacility(SecurityTeam securityTeam, Facility facility) {
 		this.securityTeam = securityTeam;
 		this.facility = facility;
-	}
-
-	public SecurityTeamRemovedFromFacility() {
+		this.message = String.format("%s was removed from %s.", securityTeam, facility);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public SecurityTeam getSecurityTeam() {
 		return securityTeam;
 	}
 
-	public void setSecurityTeam(SecurityTeam securityTeam) {
-		this.securityTeam = securityTeam;
-	}
-
 	public Facility getFacility() {
 		return facility;
 	}
 
-	public void setFacility(Facility facility) {
-		this.facility = facility;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return securityTeam + " was removed from " + facility + ".";
+		return message;
 	}
 }

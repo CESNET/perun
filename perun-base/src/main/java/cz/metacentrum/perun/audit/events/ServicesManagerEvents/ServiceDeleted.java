@@ -3,46 +3,27 @@ package cz.metacentrum.perun.audit.events.ServicesManagerEvents;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Service;
 
-public class ServiceDeleted implements AuditEvent {
+public class ServiceDeleted extends AuditEvent {
 
-	private Service service;
-	private String name = this.getClass().getName();
-	private String message;
-
-	public ServiceDeleted() {
-	}
+	private final Service service;
+	private final String message;
 
 	public ServiceDeleted(Service service) {
 		this.service = service;
+		this.message = String.format("%s deleted.", service);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public Service getService() {
 		return service;
 	}
 
-	public void setService(Service service) {
-		this.service = service;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return service + " deleted.";
+		return message;
 	}
 }

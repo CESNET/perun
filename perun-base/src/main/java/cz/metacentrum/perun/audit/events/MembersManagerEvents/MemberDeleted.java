@@ -3,46 +3,27 @@ package cz.metacentrum.perun.audit.events.MembersManagerEvents;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Member;
 
-public class MemberDeleted implements AuditEvent {
+public class MemberDeleted extends AuditEvent {
 
-	private Member member;
-	private String name = this.getClass().getName();
-	private String message;
-
-	public MemberDeleted() {
-	}
+	private final Member member;
+	private final String message;
 
 	public MemberDeleted(Member member) {
 		this.member = member;
+		this.message = String.format("%s deleted.", member);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public Member getMember() {
 		return member;
 	}
 
-	public void setMember(Member member) {
-		this.member = member;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return member + " deleted.";
+		return message;
 	}
 }

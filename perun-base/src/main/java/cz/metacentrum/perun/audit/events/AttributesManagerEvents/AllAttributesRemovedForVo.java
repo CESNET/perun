@@ -3,47 +3,27 @@ package cz.metacentrum.perun.audit.events.AttributesManagerEvents;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Vo;
 
-public class AllAttributesRemovedForVo implements AuditEvent {
+public class AllAttributesRemovedForVo extends AuditEvent {
 
-	private Vo vo;
-	private String name = this.getClass().getName();
-	private String message;
-
+	private final Vo vo;
+	private final String message;
 
 	public AllAttributesRemovedForVo(Vo vo) {
 		this.vo = vo;
-	}
-
-	public AllAttributesRemovedForVo() {
+		this.message = String.format("All attributes removed for %s.", vo);
 	}
 
 	public Vo getVo() {
 		return vo;
 	}
 
-	public void setVo(Vo vo) {
-		this.vo = vo;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("All attributes removed for %s.", vo);
+		return message;
 	}
 }

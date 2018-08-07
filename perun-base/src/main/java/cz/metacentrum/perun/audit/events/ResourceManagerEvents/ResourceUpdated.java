@@ -3,46 +3,27 @@ package cz.metacentrum.perun.audit.events.ResourceManagerEvents;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Resource;
 
-public class ResourceUpdated implements AuditEvent {
+public class ResourceUpdated extends AuditEvent {
 
-	private Resource resource;
-	private String name = this.getClass().getName();
-	private String message;
-
-	public ResourceUpdated() {
-	}
+	private final Resource resource;
+	private final String message;
 
 	public ResourceUpdated(Resource resource) {
 		this.resource = resource;
+		this.message = String.format("%s updated.", resource);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public Resource getResource() {
 		return resource;
 	}
 
-	public void setResource(Resource resource) {
-		this.resource = resource;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return resource + " updated.";
+		return message;
 	}
 }

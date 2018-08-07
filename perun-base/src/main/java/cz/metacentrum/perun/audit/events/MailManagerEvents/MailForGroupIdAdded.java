@@ -4,54 +4,34 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 
-public class MailForGroupIdAdded implements AuditEvent {
+public class MailForGroupIdAdded extends AuditEvent {
 
-
-	private ApplicationMail mail;
-	private Group group;
-	private String name = this.getClass().getName();
-	private String message;
+	private final ApplicationMail mail;
+	private final Group group;
+	private final String message;
 
 	public MailForGroupIdAdded(ApplicationMail mail, Group group) {
 		this.mail = mail;
 		this.group = group;
+		this.message = String.format("Mail ID: %d of Type: %s/%s added for Group ID: %d.", mail.getId(),
+				mail.getMailType(), mail.getAppType(), group.getId());
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public Group getGroup() {
 		return group;
 	}
 
-	public void setGroup(Group group) {
-		this.group = group;
-	}
-
 	public ApplicationMail getMail() {
 		return mail;
 	}
 
-	public void setMail(ApplicationMail mail) {
-		this.mail = mail;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return "Mail ID: " + mail.getId() + " of Type: " + mail.getMailType() + "/" + mail.getAppType() + " added for Group ID: " + group.getId() + ".";
+		return message;
 	}
 }

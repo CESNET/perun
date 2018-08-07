@@ -4,56 +4,33 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.User;
 
-public class UserContactsRemovedForFacility implements AuditEvent {
+public class UserContactsRemovedForFacility extends AuditEvent {
 
-	private User userId;
-	private ContactGroup contactGroup;
-	private String name = this.getClass().getName();
-	private String message;
+	private final User user;
+	private final ContactGroup contactGroup;
+	private final String message;
 
-	public UserContactsRemovedForFacility(User id, ContactGroup contactGroup) {
-		userId = id;
+	public UserContactsRemovedForFacility(User user, ContactGroup contactGroup) {
+		this.user = user;
 		this.contactGroup = contactGroup;
-	}
-
-	public UserContactsRemovedForFacility() {
+		this.message = String.format("User (%d) successfully removed from contact groups %s.", user.getId(), contactGroup);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
+		return message;
 	}
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public User getUserId() {
-		return userId;
-	}
-
-	public void setUserId(User userId) {
-		this.userId = userId;
+	public User getUser() {
+		return user;
 	}
 
 	public ContactGroup getContactGroup() {
 		return contactGroup;
 	}
 
-	public void setContactGroup(ContactGroup contactGroup) {
-		this.contactGroup = contactGroup;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return "User (" + userId.getId() + ") successfully removed from contact groups " + contactGroup.toString() + ".";
+		return message;
 	}
 }

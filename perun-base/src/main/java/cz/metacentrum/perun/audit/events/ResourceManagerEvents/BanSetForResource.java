@@ -3,66 +3,40 @@ package cz.metacentrum.perun.audit.events.ResourceManagerEvents;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.BanOnResource;
 
-public class BanSetForResource implements AuditEvent {
+public class BanSetForResource extends AuditEvent {
 
-	private BanOnResource banOnResource;
-	private int memberId;
-	private int resourceId;
-	private String name = this.getClass().getName();
-	private String message;
-
-	public BanSetForResource() {
-	}
+	private final BanOnResource banOnResource;
+	private final int memberId;
+	private final int resourceId;
+	private final String message;
 
 	public BanSetForResource(BanOnResource banOnResource, int memberId, int resourceId) {
 		this.banOnResource = banOnResource;
 		this.memberId = memberId;
 		this.resourceId = resourceId;
+		this.message = String.format("Ban %s was set for memberId %d on resourceId %d.", banOnResource, memberId,
+				resourceId);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public BanOnResource getBanOnResource() {
 		return banOnResource;
 	}
 
-	public void setBanOnResource(BanOnResource banOnResource) {
-		this.banOnResource = banOnResource;
-	}
-
 	public int getMemberId() {
 		return memberId;
-	}
-
-	public void setMemberId(int memberId) {
-		this.memberId = memberId;
 	}
 
 	public int getResourceId() {
 		return resourceId;
 	}
 
-	public void setResourceId(int resourceId) {
-		this.resourceId = resourceId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return "Ban " + banOnResource + " was set for memberId " + memberId + " on resourceId " + resourceId + ".";
+		return message;
 	}
 }

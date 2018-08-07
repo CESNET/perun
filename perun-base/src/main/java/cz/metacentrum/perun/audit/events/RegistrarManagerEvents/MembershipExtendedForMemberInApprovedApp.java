@@ -5,66 +5,39 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.registrar.model.Application;
 
-public class MembershipExtendedForMemberInApprovedApp implements AuditEvent {
+public class MembershipExtendedForMemberInApprovedApp extends AuditEvent {
 
-	private Member member;
-	private Application app;
-	private Vo vo;
-	private String name = this.getClass().getName();
-	private String message;
-
-	public MembershipExtendedForMemberInApprovedApp() {
-	}
+	private final Member member;
+	private final Application app;
+	private final Vo vo;
+	private final String message;
 
 	public MembershipExtendedForMemberInApprovedApp(Member member, Application app, Vo vo) {
 		this.member = member;
 		this.app = app;
 		this.vo = vo;
+		this.message = String.format("Membership extended for %s in %s for approved %s.", member, app.getVo(), app);
 	}
 
 	public Member getMember() {
 		return member;
 	}
 
-	public void setMember(Member member) {
-		this.member = member;
-	}
-
 	public Application getApp() {
 		return app;
-	}
-
-	public void setApp(Application app) {
-		this.app = app;
 	}
 
 	public Vo getVo() {
 		return vo;
 	}
 
-	public void setVo(Vo vo) {
-		this.vo = vo;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Membership extended for {} in {} for approved {}.", member, app.getVo(), app);
+		return message;
 	}
 }

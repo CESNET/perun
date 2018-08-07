@@ -4,56 +4,33 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Host;
 
-public class HostAddedToFacility implements AuditEvent {
-	private Host host;
-	private Facility facility;
+public class HostAddedToFacility extends AuditEvent {
 
-	private String name = this.getClass().getName();
-	private String message;
+	private final Host host;
+	private final Facility facility;
+	private final String message;
 
 	public HostAddedToFacility(Host host, Facility facility) {
 		this.facility = facility;
 		this.host = host;
-	}
-
-	public HostAddedToFacility() {
+		this.message = String.format("%s added to facility %s", host, facility);
 	}
 
 	public Host getHost() {
 		return host;
 	}
 
-	public void setHost(Host host) {
-		this.host = host;
-	}
-
 	public Facility getFacility() {
 		return facility;
 	}
 
-	public void setFacility(Facility facility) {
-		this.facility = facility;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	@Override
 	public String toString() {
-		return host + " added to facility " + facility;
+		return message;
 	}
 }

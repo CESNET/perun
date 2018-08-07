@@ -7,67 +7,39 @@ import cz.metacentrum.perun.core.api.Service;
 
 import java.util.List;
 
-public class ResourceDeleted implements AuditEvent {
+public class ResourceDeleted extends AuditEvent {
 
-	private Resource resource;
-	private Facility facility;
-	private List<Service> services;
-
-	private String name = this.getClass().getName();
-	private String message;
-
-	public ResourceDeleted() {
-	}
+	private final Resource resource;
+	private final Facility facility;
+	private final List<Service> services;
+	private final String message;
 
 	public ResourceDeleted(Resource resource, Facility facility, List<Service> services) {
 		this.resource = resource;
 		this.facility = facility;
 		this.services = services;
+		this.message = String.format("%s deleted.#%s. Afected services:%s.", resource, facility, services);
 	}
 
 	@Override
 	public String getMessage() {
-		return toString();
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
+		return message;
 	}
 
 	public Resource getResource() {
 		return resource;
 	}
 
-	public void setResource(Resource resource) {
-		this.resource = resource;
-	}
-
 	public Facility getFacility() {
 		return facility;
-	}
-
-	public void setFacility(Facility facility) {
-		this.facility = facility;
 	}
 
 	public List<Service> getServices() {
 		return services;
 	}
 
-	public void setServices(List<Service> services) {
-		this.services = services;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String toString() {
-		return resource + " deleted.#" + facility + ". Afected services:" + services + ".";
+		return message;
 	}
 }
