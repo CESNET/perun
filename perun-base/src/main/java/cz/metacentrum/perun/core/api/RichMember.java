@@ -90,8 +90,8 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
-			return false;
+		if (!(obj instanceof RichMember)) {
+			return super.equals(obj);
 		}
 		RichMember other = (RichMember) obj;
 		if (memberAttributes == null) {
