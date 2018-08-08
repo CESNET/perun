@@ -351,6 +351,16 @@ public interface GroupsManagerBl {
 	List<Member> getGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
+	 * Return all direct group members.
+	 *
+	 * @param perunSession perun session
+	 * @param group group
+	 * @return list of direct members
+	 * @throws InternalErrorException internal error
+	 */
+	List<Member> getGroupDirectMembers(PerunSession perunSession, Group group) throws InternalErrorException;
+
+	/**
 	 * Return only valid, suspended, expired and disabled group members.
 	 *
 	 * @param perunSession
@@ -406,6 +416,16 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<RichMember> getGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns direct group members in the RichMember object, which contains Member+User data.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @return list of direct RichMembers
+	 * @throws InternalErrorException internal error
+	 */
+	List<RichMember> getGroupDirectRichMembers(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * Returns only valid, suspended and expired group members in the RichMember object, which contains Member+User data.

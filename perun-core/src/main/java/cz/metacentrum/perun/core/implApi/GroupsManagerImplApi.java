@@ -291,6 +291,17 @@ public interface GroupsManagerImplApi {
 	List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
+	 * Get only group members which has given membership type ignoring their status.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param membershipType type of membership
+	 * @return list of direct members
+	 * @throws InternalErrorException internal error
+	 */
+	List<Member> getGroupMembersByMembership(PerunSession sess, Group group, MembershipType membershipType) throws InternalErrorException;
+
+	/**
 	 * Get all groups of the VO.
 	 *
 	 * @param perunSession

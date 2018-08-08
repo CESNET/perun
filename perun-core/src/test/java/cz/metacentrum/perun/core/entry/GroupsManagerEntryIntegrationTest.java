@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -2515,6 +2517,57 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		assertEquals(groups, groupsManagerBl.getGroupsByIds(sess, ids));
 
+	}
+
+	@Test
+	public void getGroupDirectMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupDirectMembers");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+
+		List<Member> foundMembers = groupsManagerBl.getGroupDirectMembers(sess, g1);
+
+		assertEquals("Found more members than expected", foundMembers.size(), 1);
+		assertEquals("Found invalid member.", foundMembers.get(0), m1);
+	}
+
+	@Test
+	public void getGroupDirectRichMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupDirectRichMembers");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+
+		List<RichMember> foundMembers = groupsManagerBl.getGroupDirectRichMembers(sess, g1);
+
+		RichMember expectedRichMember = perun.getMembersManagerBl()
+				.convertMembersToRichMembers(sess, Collections.singletonList(m1)).get(0);
+
+		assertEquals("Found more members than expected", foundMembers.size(), 1);
+		assertEquals("Found invalid member.", foundMembers.get(0), expectedRichMember);
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------
