@@ -335,10 +335,41 @@ while (my $file = readdir(DIR)) {
 
 # PRINT MAIN FILE
 
-open FILE,">$OUTPUT_DIR/rpc-javadoc-howto.shtml" or die "Cannot open $OUTPUT_DIR/rpc-javadoc-howto.shtml: $! \n";
+open FILE,">$OUTPUT_DIR/index.html" or die "Cannot open $OUTPUT_DIR/index.html: $! \n";
 
 print FILE qq{
-<!--#include virtual="header.shtml" -->
+<!DOCTYPE html>
+
+<html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths overthrow-enabled"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <!--[if IE]>
+            <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <![endif]-->
+        <title>RPC API documentation | Perun - Identity and Access Management System</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <link rel="stylesheet" href="css/fonts.css" type="text/css">
+        <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+        <link rel="stylesheet" href="css/main.css" type="text/css">
+        <link rel="stylesheet" href="css/style.css" type="text/css">
+
+        <link rel="shortcut icon" href="img/favicons/favicon.ico">
+	<link rel="icon" sizes="16x16 32x32 64x64" href="img/favicons/favicon.ico">
+	<link rel="icon" type="image/png" sizes="64x64" href="img/favicons/favicon-64.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="img/favicons/favicon-32.png">
+	<link rel="apple-touch-icon" href="img/favicons/favicon-57.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="img/favicons/favicon-144.png">
+	<meta name="msapplication-TileImage" content="img/favicons/favicon-white-144.png">
+        <meta name="msapplication-TileColor" content="#00569c">
+
+        <script src="js/jquery-1.10.2.min.js"></script>
+        <script src="js/bootstrap.js" type="text/javascript"></script>
+</head>
+
+<body class="front-page">
+
+    <div id="wrap">
 
 <div class="techspec content">
 
@@ -349,14 +380,14 @@ print FILE qq{
 	<h2>RPC API documentation</h2>
 
 	<div class="col-md-3 list-group">
-		<a style="color: #005b99;" class="list-group-item" href="documentation.shtml">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="icon-chevron-left pull-left"></i></a>
+		<a style="color: #005b99;" class="list-group-item" href="/documentation/technical-documentation">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="glyphicon glyphicon-chevron-left pull-left"></i></a>
 		<span class="list-group-item"><b><u>General</u></b></span>
-		<a style="color: #005b99;" class="list-group-item" href="rpc-javadoc-howto.shtml"><b>How to use Perun RPC</b></a>
+		<a style="color: #005b99;" class="list-group-item" href="index.html"><b>How to use Perun RPC</b></a>
 		<span class="list-group-item"><b><u>Managers</u></b></span>
 };
 
 foreach my $manager (sort(keys %{$managers})) {
-	print FILE "<a class=\"list-group-item\" style=\"color: #005b99;\" href=\"rpc-javadoc-$manager.shtml\">$manager</a>"
+	print FILE "<a class=\"list-group-item\" style=\"color: #005b99;\" href=\"rpc-javadoc-$manager.html\">$manager</a>"
 }
 
 print FILE "</div><div class=\"col-md-9 pull-right\">";
@@ -455,31 +486,60 @@ print FILE qq{
 		\$("#nav-documentation").addClass('active');
 	});
 </script>
-
-<!--#include virtual="footer.shtml" -->
 };
 
 close (FILE);
 
 foreach my $manager (sort(keys %{$managers})) {
 
-	open FILE,">$OUTPUT_DIR/rpc-javadoc-$manager.shtml" or die "Cannot open $OUTPUT_DIR/rpc-javadoc-$manager.shtml: $! \n";
+	open FILE,">$OUTPUT_DIR/rpc-javadoc-$manager.html" or die "Cannot open $OUTPUT_DIR/rpc-javadoc-$manager.html: $! \n";
 
 	print FILE qq{
-	<!--#include virtual="header.shtml" -->
+<!DOCTYPE html>
 
-	<div class="techspec content">
+<html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths overthrow-enabled"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <!--[if IE]>
+            <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <![endif]-->
+        <title>RPC API documentation - $manager | Perun - Identity and Access Management System</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
 
-		<div class="push-under-menu"></div>
+        <link rel="stylesheet" href="css/fonts.css" type="text/css">
+        <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+        <link rel="stylesheet" href="css/main.css" type="text/css">
+        <link rel="stylesheet" href="css/style.css" type="text/css">
 
-		<div class="container">
+        <link rel="shortcut icon" href="img/favicons/favicon.ico">
+	<link rel="icon" sizes="16x16 32x32 64x64" href="img/favicons/favicon.ico">
+	<link rel="icon" type="image/png" sizes="64x64" href="img/favicons/favicon-64.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="img/favicons/favicon-32.png">
+	<link rel="apple-touch-icon" href="img/favicons/favicon-57.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="img/favicons/favicon-144.png">
+	<meta name="msapplication-TileImage" content="img/favicons/favicon-white-144.png">
+        <meta name="msapplication-TileColor" content="#00569c">
+
+        <script src="js/jquery-1.10.2.min.js"></script>
+         <script src="js/bootstrap.js" type="text/javascript"></script>
+</head>
+
+<body class="front-page">
+
+    <div id="wrap">
+
+<div class="techspec content">
+
+	<div class="push-under-menu"></div>
+
+	<div class="container">
 
 		<a id="$manager-title"></a><h2>RPC API documentation</h2>
 
 		<div class="col-md-3 list-group">
-		<a style="color: #005b99;" class="list-group-item" href="documentation.shtml">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="icon-chevron-left pull-left"></i></a>
+		<a style="color: #005b99;" class="list-group-item" href="/documentation/technical-documentation">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="glyphicon glyphicon-chevron-left pull-left"></i></a>
 		<span class="list-group-item"><b><u>General</u></b></span>
-		<a class="list-group-item" style="color: #005b99;" href="rpc-javadoc-howto.shtml">How to use RPC</a>
+		<a class="list-group-item" style="color: #005b99;" href="index.html">How to use RPC</a>
 		<span class="list-group-item"><b><u>Managers</u></b></span>
 	};
 
@@ -492,7 +552,7 @@ foreach my $manager (sort(keys %{$managers})) {
 			$activeLink = $menuManager;
 		}
 
-		print FILE qq{<a class="list-group-item" style="color: #005b99;" href="rpc-javadoc-$menuManager.shtml">$activeLink</a>};
+		print FILE qq{<a class="list-group-item" style="color: #005b99;" href="rpc-javadoc-$menuManager.html">$activeLink</a>};
 
 	}
 
@@ -668,7 +728,7 @@ foreach my $manager (sort(keys %{$managers})) {
             	<p><b>Example URL</b><pre><code>https://[hostname]/krb/rpc/json/$managerUrl/$sortedMethod</code></pre>
             };
 
-			print FILE "<ul><li><a href=\"rpc-javadoc-howto.shtml#url-structure\"><i>see URL structure</i></a></li></ul>";
+			print FILE "<ul><li><a href=\"index.html#url-structure\"><i>see URL structure</i></a></li></ul>";
 
 			# PRINT EXAMPLE PARAMS
 
@@ -709,7 +769,7 @@ foreach my $manager (sort(keys %{$managers})) {
 
 				print FILE " }</code></pre>";
 
-				print FILE "<ul><li><a href=\"rpc-javadoc-howto.shtml#passing-parameters\"><i>see Passing params</i></a></li></ul>";
+				print FILE "<ul><li><a href=\"index.html#passing-parameters\"><i>see Passing params</i></a></li></ul>";
 
 			}
 
@@ -732,7 +792,7 @@ foreach my $manager (sort(keys %{$managers})) {
 			}
 			print FILE "</code></pre>";
 
-			print FILE "<ul><li><a href=\"rpc-javadoc-howto.shtml#return-values\"><i>see Return values</i></a></li><li><a href=\"rpc-javadoc-howto.shtml#http-return-codes\"><i>see HTTP return codes</i></a></li></ul>";
+			print FILE "<ul><li><a href=\"index.html#return-values\"><i>see Return values</i></a></li><li><a href=\"index.html#http-return-codes\"><i>see HTTP return codes</i></a></li></ul>";
 
 			print FILE "</p></div></div></div>";
 
@@ -755,7 +815,6 @@ foreach my $manager (sort(keys %{$managers})) {
 
     </script>
 
-    <!--#include virtual="footer.shtml" -->
     };
 
 	close (FILE);
