@@ -307,6 +307,22 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns direct members of a group.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @return List<Member> Group members
+	 */
+	getGroupDirectMembers {
+
+		@Override
+		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getGroupDirectMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+
+		}
+	},
+
+	/*#
 	 * Returns members of a group.
 	 * RichMember contains User object.
 	 *
@@ -318,6 +334,22 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getGroupsManager().getGroupRichMembers(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")));
+		}
+	},
+
+	/*#
+	 * Returns direct members of a group.
+	 * RichMember contains User object.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @return List<RichMember> Group members
+	 */
+	getGroupDirectRichMembers {
+
+		@Override
+		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupDirectRichMembers(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
 		}
 	},
