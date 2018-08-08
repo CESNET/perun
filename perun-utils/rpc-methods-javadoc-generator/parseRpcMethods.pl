@@ -42,7 +42,11 @@ our %objectExamples;
 my $listPrepend = "[ ";
 my $listAppend = " , {...} , {...} ]";
 
-$objectExamples{"Attribute"} = "{ \"id\" : 2820 , \"friendlyName\" : \"createdAt\" , \"namespace\" : \"urn:perun:vo:attribute-def:core\" , \"value\" : \"2011-05-17 00:50:06.3\" , \"type\" : \"java.lang.String\" , \"entity\" : \"vo\" , \"writable\" : true , \"baseFriendlyName\" : \"createdAt\" , \"friendlyNameParameter\" : \"\" , \"displayName\" : \"VO created date\" , \"description\" : \"Date when VO was created.\" , \"beanName\" : \"Attribute\" }";
+$objectExamples{"AttributeDefinition"} = "{ \"id\" : 2820 , \"friendlyName\" : \"createdAt\" , \"namespace\" : \"urn:perun:vo:attribute-def:core\" , \"type\" : \"java.lang.String\" , \"entity\" : \"vo\" , \"writable\" : true , \"baseFriendlyName\" : \"createdAt\" , \"friendlyNameParameter\" : \"\" , \"unique\" : false , \"displayName\" : \"VO created date\" , \"description\" : \"Date when VO was created.\" , \"beanName\" : \"AttributeDefinition\" }";
+$objectExamples{"List&lt;AttributeDefinition&gt;"} = $listPrepend . $objectExamples{"AttributeDefinition"} . $listAppend;
+$objectExamples{"List<AttributeDefinition>"} = $objectExamples{"List&lt;AttributeDefinition&gt;"};
+
+$objectExamples{"Attribute"} = "{ \"id\" : 2820 , \"friendlyName\" : \"createdAt\" , \"namespace\" : \"urn:perun:vo:attribute-def:core\" , \"value\" : \"2011-05-17 00:50:06.3\" , \"type\" : \"java.lang.String\" , \"entity\" : \"vo\" , \"writable\" : true , \"baseFriendlyName\" : \"createdAt\" , \"friendlyNameParameter\" : \"\" , \"unique\" : false , \"displayName\" : \"VO created date\" , \"description\" : \"Date when VO was created.\" , \"beanName\" : \"Attribute\" }";
 $objectExamples{"List&lt;Attribute&gt;"} = $listPrepend . $objectExamples{"Attribute"} . $listAppend;
 $objectExamples{"List<Attribute>"} = $objectExamples{"List&lt;Attribute&gt;"};
 
@@ -78,15 +82,15 @@ $objectExamples{"Group"} = "{ \"id\" : 1061 , \"name\" : \"My group\" , \"shortN
 $objectExamples{"List&lt;Group&gt;"} = $listPrepend . $objectExamples{"Group"} . $listAppend;
 $objectExamples{"List<Group>"} = $objectExamples{"List&lt;Group&gt;"};
 
-$objectExamples{"RichGroup"} = "{ \"id\" : 1061 , \"name\" : \"My Group\" , \"shortName\" : \"My Group\" , \"description\" : \"My testing group\" , \"parentGroupId\" : null , \"voId\" : 201 , \"beanName\" : \"RichGroup\" , \"attributes\" : [ { \"value\" : null , \"type\" : \"java.lang.String\" , \"entity\" : \"group\" , \"namespace\" : \"urn:perun:group:attribute-def:def\" , \"friendlyName\" : \"synchronizationEnabled\" , \"writable\" : true , \"baseFriendlyName\" : \"synchronizationEnabled\" , \"friendlyNameParameter\" : \"\" , \"displayName\" : \"Synchronization enabled\" , \"description\" : \"Enables group synchronization from external source.\" , \"id\" : 103 , \"beanName\" : \"Attribute\" } ] }";
+$objectExamples{"RichGroup"} = "{ \"id\" : 1061 , \"name\" : \"My Group\" , \"shortName\" : \"My Group\" , \"description\" : \"My testing group\" , \"parentGroupId\" : null , \"voId\" : 201 , \"beanName\" : \"RichGroup\" , \"attributes\" : [ { \"value\" : null , \"type\" : \"java.lang.String\" , \"entity\" : \"group\" , \"namespace\" : \"urn:perun:group:attribute-def:def\" , \"friendlyName\" : \"synchronizationEnabled\" , \"writable\" : true , \"baseFriendlyName\" : \"synchronizationEnabled\" , \"friendlyNameParameter\" : \"\" , \"unique\" : false , \"displayName\" : \"Synchronization enabled\" , \"description\" : \"Enables group synchronization from external source.\" , \"id\" : 103 , \"beanName\" : \"Attribute\" } ] }";
 $objectExamples{"List&lt;RichGroup&gt;"} = $listPrepend . $objectExamples{"RichGroup"} . $listAppend;
 $objectExamples{"List<RichGroup>"} = $objectExamples{"List&lt;RichGroup&gt;"};
 
-$objectExamples{"Member"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"beanName\" : \"Member\" }";
+$objectExamples{"Member"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"sponsored\" : false , \"beanName\" : \"Member\" }";
 $objectExamples{"List&lt;Member&gt;"} = $listPrepend . $objectExamples{"Member"} . $listAppend;
 $objectExamples{"List<Member>"} = $objectExamples{"List&lt;Member&gt;"};
 
-$objectExamples{"User"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Body\" , \"middleName\" : null , \"titleBefore\" : \"Mgr.\" , \"titleAfter\" : null , \"serviceUser\" : false , \"id\" : 34 , \"beanName\" : \"User\" }";
+$objectExamples{"User"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Body\" , \"middleName\" : null , \"titleBefore\" : \"Mgr.\" , \"titleAfter\" : null , \"serviceUser\" : false , \"sponsoredUser\" : false , \"specificUser\" : false , \"majorSpecificType\" : \"NORMAL\" , \"id\" : 34 , \"beanName\" : \"User\" }";
 $objectExamples{"List&lt;User&gt;"} = $listPrepend . $objectExamples{"User"} . $listAppend;
 $objectExamples{"List<User>"} = $objectExamples{"List&lt;User&gt;"};
 
@@ -94,21 +98,21 @@ $objectExamples{"ExtSource"} = "{ \"name\" : \"PERUNPEOPLE\" , \"type\" : \"cz.m
 $objectExamples{"List&lt;ExtSource&gt;"} = $listPrepend . $objectExamples{"ExtSource"} . $listAppend;
 $objectExamples{"List<ExtSource>"} = $objectExamples{"List&lt;ExtSource&gt;"};
 
-$objectExamples{"UserExtSource"} = "{ \"userId\": 34 , \"loa\" : 0 , \"extSource\" : " . $objectExamples{"ExtSource"} . " , \"login\" : \"my_login\" , \"id\" : 312 , \"beanName\" : \"UserExtSource\" }";
+$objectExamples{"UserExtSource"} = "{ \"userId\": 34 , \"loa\" : 0 , \"extSource\" : " . $objectExamples{"ExtSource"} . " , \"login\" : \"my_login\" , \"persistent\" : true , \"id\" : 312 , \"beanName\" : \"UserExtSource\" }";
 $objectExamples{"List&lt;UserExtSource&gt;"} = $listPrepend . $objectExamples{"UserExtSource"} . $listAppend;
 $objectExamples{"List<UserExtSource>"} = $objectExamples{"List&lt;UserExtSource&gt;"};
 
-$objectExamples{"RichUser"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Body\" , \"middleName\" : null , \"titleBefore\" : \"Mgr.\" , \"titleAfter\" : null , \"serviceUser\" : false , \"id\" : 34 , \"beanName\" : \"User\" , \"userExtSources\" : " . $objectExamples{"List<UserExtSource>"} . ", \"userAttributes\" : [ { \"value\" : \"my_login\" , \"type\" : \"java.lang.String\" , \"entity\" : \"user\" , \"namespace\" : \"urn:perun:user:attribute-def:def\" , \"friendlyName\" : \"login-namespace:perun\" , \"writable\" : true , \"baseFriendlyName\" : \"login-namespace\" , \"friendlyNameParameter\" : \"perun\" , \"displayName\" : \"Login in namespace: perun\" , \"description\" : \"Logname in namespace 'perun'.\" , \"id\" : 1905 , \"beanName\" : \"Attribute\" } ] }";
+$objectExamples{"RichUser"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Body\" , \"middleName\" : null , \"titleBefore\" : \"Mgr.\" , \"titleAfter\" : null , \"serviceUser\" : false , \"sponsoredUser\" : false , \"specificUser\" : false , \"majorSpecificType\" : \"NORMAL\" , \"id\" : 34 , \"beanName\" : \"User\" , \"userExtSources\" : " . $objectExamples{"List<UserExtSource>"} . ", \"userAttributes\" : [ { \"value\" : \"my_login\" , \"type\" : \"java.lang.String\" , \"entity\" : \"user\" , \"namespace\" : \"urn:perun:user:attribute-def:def\" , \"friendlyName\" : \"login-namespace:perun\" , \"writable\" : true , \"baseFriendlyName\" : \"login-namespace\" , \"friendlyNameParameter\" : \"perun\" , \"unique\" : false , \"displayName\" : \"Login in namespace: perun\" , \"description\" : \"Logname in namespace 'perun'.\" , \"id\" : 1905 , \"beanName\" : \"Attribute\" } ] }";
 $objectExamples{"List&lt;RichUser&gt;"} = $listPrepend . $objectExamples{"RichUser"} . $listAppend;
 $objectExamples{"List<RichUser>"} = $objectExamples{"List&lt;RichUser&gt;"};
 
-$objectExamples{"RichMember"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"beanName\" : \"RichMember\" , \"user\" : " . $objectExamples{"User"} . " , \"userExtSources\" : " . $objectExamples{"List<UserExtSource>"} . " , \"memberAttributes\" : [ ] , \"userAttributes\" : [ { \"value\" : \"my_login\" , \"type\" : \"java.lang.String\" , \"entity\" : \"user\" , \"namespace\" : \"urn:perun:user:attribute-def:def\" , \"friendlyName\" : \"login-namespace:perun\" , \"writable\" : true , \"baseFriendlyName\" : \"login-namespace\" , \"friendlyNameParameter\" : \"perun\" , \"displayName\" : \"Login in namespace: perun\" , \"description\" : \"Logname in namespace 'perun'.\" , \"id\" : 1905 , \"beanName\" : \"Attribute\" } ] }";
+$objectExamples{"RichMember"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"sponsored\" : false , \"beanName\" : \"RichMember\" , \"user\" : " . $objectExamples{"User"} . " , \"userExtSources\" : " . $objectExamples{"List<UserExtSource>"} . " , \"memberAttributes\" : [ ] , \"userAttributes\" : [ { \"value\" : \"my_login\" , \"type\" : \"java.lang.String\" , \"entity\" : \"user\" , \"namespace\" : \"urn:perun:user:attribute-def:def\" , \"friendlyName\" : \"login-namespace:perun\" , \"writable\" : true , \"baseFriendlyName\" : \"login-namespace\" , \"friendlyNameParameter\" : \"perun\" , \"unique\" : false , \"displayName\" : \"Login in namespace: perun\" , \"description\" : \"Logname in namespace 'perun'.\" , \"id\" : 1905 , \"beanName\" : \"Attribute\" } ] }";
 $objectExamples{"List&lt;RichMember&gt;"} = $listPrepend . $objectExamples{"RichMember"} . $listAppend;
 $objectExamples{"List<RichMember>"} = $objectExamples{"List&lt;RichMember&gt;"};
 
 $objectExamples{"RTMessage"} = "{ \"ticketNumber\" : 32525 , \"memberPreferredEmail\" : \"mail\@mail.com\" }";
 
-$objectExamples{"Service"} = "{ \"id\" : 290 , \"name\" : \"passwd\" }";
+$objectExamples{"Service"} = "{ \"id\" : 290 , \"name\" : \"passwd\" , \"description\" : \"Provision /etc/passwd file.\" , \"delay\" : 10 , \"recurrence\" : 2 , \"enabled\" : true , \"script\" : \"./passwd\" }";
 $objectExamples{"List&lt;Service&gt;"} = $listPrepend . $objectExamples{"Service"} . $listAppend;
 $objectExamples{"List<Service>"} = $objectExamples{"List&lt;Service&gt;"};
 
@@ -119,6 +123,10 @@ $objectExamples{"List<ServicesPackage>"} = $objectExamples{"List&lt;ServicesPack
 $objectExamples{"Destination"} = "{ \"id\" : 99 , \"destination\" : \"host\@host.cz\" , \"type\" : \"HOST\" , \"propagationType\" : \"PARALLEL\" }";
 $objectExamples{"List&lt;Destination&gt;"} = $listPrepend . $objectExamples{"Destination"} . $listAppend;
 $objectExamples{"List<Destination>"} = $objectExamples{"List&lt;Destination&gt;"};
+
+$objectExamples{"RichDestination"} = "{ \"id\" : 99 , \"destination\" : \"host\@host.cz\" , \"type\" : \"HOST\" , \"propagationType\" : \"PARALLEL\" , \"service\" : " . $objectExamples{"Service"} . " , \"facility\" : " . $objectExamples{"Facility"} . " }";
+$objectExamples{"List&lt;RichDestination&gt;"} = $listPrepend . $objectExamples{"RichDestination"} . $listAppend;
+$objectExamples{"List<RichDestination>"} = $objectExamples{"List&lt;RichDestination&gt;"};
 
 $objectExamples{"Host"} = "{ \"id\" : 523 , \"hostname\" : \"host1.host.cz\" }";
 $objectExamples{"List&lt;Host&gt;"} = $listPrepend . $objectExamples{"Host"} . $listAppend;
@@ -135,9 +143,9 @@ $objectExamples{"Candidate"} = "{ \"id\" : 0 , \"serviceUser\" : false , \"first
 $objectExamples{"List&lt;Candidate&gt;"} = $listPrepend . $objectExamples{"Candidate"} . $listAppend;
 $objectExamples{"List<Candidate>"} = $objectExamples{"List&lt;Candidate&gt;"};
 
-$objectExamples("MemberCandidate") = "{ \"candidate\" : " . objectExamples("Candidate") . " , \"member\" : " . objectExamples("Member") . " , \"richUser\" : " . objectExamples("RichUser") . " }";
-$objectExamples("List&lt;MemberCandidate&gt;") = $listPrepend . $objectExamples("MemberCandidate") . $listAppend;
-$objectExamples("List<MemberCandidate>") = $objectExamples("List&lt;MemberCandidate&gt;");
+$objectExamples{"MemberCandidate"} = "{ \"candidate\" : " . $objectExamples{"Candidate"} . " , \"member\" : " . $objectExamples{"Member"} . " , \"richUser\" : " . $objectExamples{"RichUser"} . " }";
+$objectExamples{"List&lt;MemberCandidate&gt;"} = $listPrepend . $objectExamples{"MemberCandidate"} . $listAppend;
+$objectExamples{"List<MemberCandidate>"} = $objectExamples{"List&lt;MemberCandidate&gt;"};
 
 $objectExamples{"SecurityTeam"} = "{ \"id\" : 924 , \"name\" : \"CSIRT\" , \"description\" : \"My CSIRT\" }";
 $objectExamples{"List&lt;SecurityTeam&gt;"} = $listPrepend . $objectExamples{"SecurityTeam"} . $listAppend;
@@ -146,6 +154,18 @@ $objectExamples{"List<SecurityTeam>"} = $objectExamples{"List&lt;SecurityTeam&gt
 $objectExamples{"Pair<User,String>"} = "{ \"left\" : " . $objectExamples{"User"} ." , \"right\" : \"Some reason\" }";
 $objectExamples{"List&lt;Pair&lt;User,String&gt;&gt;"} = $listPrepend . $objectExamples{"Pair<User,String>"} . $listAppend;
 $objectExamples{"List<Pair<User,String>>"} = $objectExamples{"List&lt;Pair&lt;User,String&gt;&gt;"};
+
+$objectExamples{"AttributeRights"} = "{ \"attributeId\" : 5 , \"role\" : \"VOADMIN\", \"rights\" : [ \"READ\" , \"WRITE\"] }";
+$objectExamples{"List&lt;AttributeRights&gt;"} = $listPrepend . $objectExamples{"AttributeRights"} . $listAppend;
+$objectExamples{"List<AttributeRights>"} = $objectExamples{"List&lt;AttributeRights&gt;"};
+
+$objectExamples{"BanOnFacility"} = "{ \"id\" : 3 , \"validityTo\" : 1533638919 , \"description\" : \"banned\" , \"userId\" : 2341 , \"facilityId\" : 233 , \"beanName\" : \"BanOnFacility\" }";
+$objectExamples{"List&lt;BanOnFacility&gt;"} = $listPrepend . $objectExamples{"BanOnFacility"} . $listAppend;
+$objectExamples{"List<BanOnFacility>"} = $objectExamples{"List&lt;BanOnFacility&gt;"};
+
+$objectExamples{"BanOnResource"} = "{ \"id\" : 4 , \"validityTo\" : 1533638919 , \"description\" : \"banned\" , \"memberId\" : 13541 , \"resourceId\" : 2234 , \"beanName\" : \"BanOnResource\" }";
+$objectExamples{"List&lt;BanOnResource&gt;"} = $listPrepend . $objectExamples{"BanOnResource"} . $listAppend;
+$objectExamples{"List<BanOnResource>"} = $objectExamples{"List&lt;BanOnResource&gt;"};
 
 # SUB HELP
 # help info
@@ -315,10 +335,41 @@ while (my $file = readdir(DIR)) {
 
 # PRINT MAIN FILE
 
-open FILE,">$OUTPUT_DIR/rpc-javadoc-howto.shtml" or die "Cannot open $OUTPUT_DIR/rpc-javadoc-howto.shtml: $! \n";
+open FILE,">$OUTPUT_DIR/index.html" or die "Cannot open $OUTPUT_DIR/index.html: $! \n";
 
 print FILE qq{
-<!--#include virtual="header.shtml" -->
+<!DOCTYPE html>
+
+<html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths overthrow-enabled"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <!--[if IE]>
+            <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <![endif]-->
+        <title>RPC API documentation | Perun - Identity and Access Management System</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <link rel="stylesheet" href="css/fonts.css" type="text/css">
+        <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+        <link rel="stylesheet" href="css/main.css" type="text/css">
+        <link rel="stylesheet" href="css/style.css" type="text/css">
+
+        <link rel="shortcut icon" href="img/favicons/favicon.ico">
+	<link rel="icon" sizes="16x16 32x32 64x64" href="img/favicons/favicon.ico">
+	<link rel="icon" type="image/png" sizes="64x64" href="img/favicons/favicon-64.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="img/favicons/favicon-32.png">
+	<link rel="apple-touch-icon" href="img/favicons/favicon-57.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="img/favicons/favicon-144.png">
+	<meta name="msapplication-TileImage" content="img/favicons/favicon-white-144.png">
+        <meta name="msapplication-TileColor" content="#00569c">
+
+        <script src="js/jquery-1.10.2.min.js"></script>
+        <script src="js/bootstrap.js" type="text/javascript"></script>
+</head>
+
+<body class="front-page">
+
+    <div id="wrap">
 
 <div class="techspec content">
 
@@ -329,14 +380,14 @@ print FILE qq{
 	<h2>RPC API documentation</h2>
 
 	<div class="col-md-3 list-group">
-		<a style="color: #005b99;" class="list-group-item" href="documentation.shtml">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="icon-chevron-left pull-left"></i></a>
+		<a style="color: #005b99;" class="list-group-item" href="/documentation/technical-documentation">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="glyphicon glyphicon-chevron-left pull-left"></i></a>
 		<span class="list-group-item"><b><u>General</u></b></span>
-		<a style="color: #005b99;" class="list-group-item" href="rpc-javadoc-howto.shtml"><b>How to use Perun RPC</b></a>
+		<a style="color: #005b99;" class="list-group-item" href="index.html"><b>How to use Perun RPC</b></a>
 		<span class="list-group-item"><b><u>Managers</u></b></span>
 };
 
 foreach my $manager (sort(keys %{$managers})) {
-	print FILE "<a class=\"list-group-item\" style=\"color: #005b99;\" href=\"rpc-javadoc-$manager.shtml\">$manager</a>"
+	print FILE "<a class=\"list-group-item\" style=\"color: #005b99;\" href=\"rpc-javadoc-$manager.html\">$manager</a>"
 }
 
 print FILE "</div><div class=\"col-md-9 pull-right\">";
@@ -435,31 +486,60 @@ print FILE qq{
 		\$("#nav-documentation").addClass('active');
 	});
 </script>
-
-<!--#include virtual="footer.shtml" -->
 };
 
 close (FILE);
 
 foreach my $manager (sort(keys %{$managers})) {
 
-	open FILE,">$OUTPUT_DIR/rpc-javadoc-$manager.shtml" or die "Cannot open $OUTPUT_DIR/rpc-javadoc-$manager.shtml: $! \n";
+	open FILE,">$OUTPUT_DIR/rpc-javadoc-$manager.html" or die "Cannot open $OUTPUT_DIR/rpc-javadoc-$manager.html: $! \n";
 
 	print FILE qq{
-	<!--#include virtual="header.shtml" -->
+<!DOCTYPE html>
 
-	<div class="techspec content">
+<html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths overthrow-enabled"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <!--[if IE]>
+            <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <![endif]-->
+        <title>RPC API documentation - $manager | Perun - Identity and Access Management System</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
 
-		<div class="push-under-menu"></div>
+        <link rel="stylesheet" href="css/fonts.css" type="text/css">
+        <link rel="stylesheet" href="css/bootstrap.css" type="text/css">
+        <link rel="stylesheet" href="css/main.css" type="text/css">
+        <link rel="stylesheet" href="css/style.css" type="text/css">
 
-		<div class="container">
+        <link rel="shortcut icon" href="img/favicons/favicon.ico">
+	<link rel="icon" sizes="16x16 32x32 64x64" href="img/favicons/favicon.ico">
+	<link rel="icon" type="image/png" sizes="64x64" href="img/favicons/favicon-64.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="img/favicons/favicon-32.png">
+	<link rel="apple-touch-icon" href="img/favicons/favicon-57.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="img/favicons/favicon-144.png">
+	<meta name="msapplication-TileImage" content="img/favicons/favicon-white-144.png">
+        <meta name="msapplication-TileColor" content="#00569c">
+
+        <script src="js/jquery-1.10.2.min.js"></script>
+         <script src="js/bootstrap.js" type="text/javascript"></script>
+</head>
+
+<body class="front-page">
+
+    <div id="wrap">
+
+<div class="techspec content">
+
+	<div class="push-under-menu"></div>
+
+	<div class="container">
 
 		<a id="$manager-title"></a><h2>RPC API documentation</h2>
 
 		<div class="col-md-3 list-group">
-		<a style="color: #005b99;" class="list-group-item" href="documentation.shtml">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="icon-chevron-left pull-left"></i></a>
+		<a style="color: #005b99;" class="list-group-item" href="/documentation/technical-documentation">Back to Documentation<i style="margin-top: 3px; vertical-align: baseline;" class="glyphicon glyphicon-chevron-left pull-left"></i></a>
 		<span class="list-group-item"><b><u>General</u></b></span>
-		<a class="list-group-item" style="color: #005b99;" href="rpc-javadoc-howto.shtml">How to use RPC</a>
+		<a class="list-group-item" style="color: #005b99;" href="index.html">How to use RPC</a>
 		<span class="list-group-item"><b><u>Managers</u></b></span>
 	};
 
@@ -472,7 +552,7 @@ foreach my $manager (sort(keys %{$managers})) {
 			$activeLink = $menuManager;
 		}
 
-		print FILE qq{<a class="list-group-item" style="color: #005b99;" href="rpc-javadoc-$menuManager.shtml">$activeLink</a>};
+		print FILE qq{<a class="list-group-item" style="color: #005b99;" href="rpc-javadoc-$menuManager.html">$activeLink</a>};
 
 	}
 
@@ -534,6 +614,9 @@ foreach my $manager (sort(keys %{$managers})) {
 						my $par1 = (split(/ /, $par))[1];
 						$par1 =~ s/\Q<\E/&lt;/g;
 						$par1 =~ s/\Q>\E/&gt;/g;
+						unless($par1) {
+							print $sortedMethod . "\n";
+						}
 
 						$methodAnnotation .= $par1;
 						$methodAnnotation .= " ";
@@ -645,7 +728,7 @@ foreach my $manager (sort(keys %{$managers})) {
             	<p><b>Example URL</b><pre><code>https://[hostname]/krb/rpc/json/$managerUrl/$sortedMethod</code></pre>
             };
 
-			print FILE "<ul><li><a href=\"rpc-javadoc-howto.shtml#url-structure\"><i>see URL structure</i></a></li></ul>";
+			print FILE "<ul><li><a href=\"index.html#url-structure\"><i>see URL structure</i></a></li></ul>";
 
 			# PRINT EXAMPLE PARAMS
 
@@ -686,7 +769,7 @@ foreach my $manager (sort(keys %{$managers})) {
 
 				print FILE " }</code></pre>";
 
-				print FILE "<ul><li><a href=\"rpc-javadoc-howto.shtml#passing-parameters\"><i>see Passing params</i></a></li></ul>";
+				print FILE "<ul><li><a href=\"index.html#passing-parameters\"><i>see Passing params</i></a></li></ul>";
 
 			}
 
@@ -709,7 +792,7 @@ foreach my $manager (sort(keys %{$managers})) {
 			}
 			print FILE "</code></pre>";
 
-			print FILE "<ul><li><a href=\"rpc-javadoc-howto.shtml#return-values\"><i>see Return values</i></a></li><li><a href=\"rpc-javadoc-howto.shtml#http-return-codes\"><i>see HTTP return codes</i></a></li></ul>";
+			print FILE "<ul><li><a href=\"index.html#return-values\"><i>see Return values</i></a></li><li><a href=\"index.html#http-return-codes\"><i>see HTTP return codes</i></a></li></ul>";
 
 			print FILE "</p></div></div></div>";
 
@@ -732,7 +815,6 @@ foreach my $manager (sort(keys %{$managers})) {
 
     </script>
 
-    <!--#include virtual="footer.shtml" -->
     };
 
 	close (FILE);

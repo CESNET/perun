@@ -87,7 +87,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param extSource int extSource ID
 	 * @param extSourcePostfix String extSource login postfix, e.g. "@muni.cz"
 	 * @param vo int VO ID
-	 * @param loa
+	 * @param loa int Level of assurance (0,1,2)
 	 * @return Member newly created sponsored member
 	 */
 	@Deprecated
