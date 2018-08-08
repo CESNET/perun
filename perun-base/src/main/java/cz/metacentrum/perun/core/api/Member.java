@@ -131,7 +131,7 @@ public class Member extends Auditable {
 		if (obj == null) {
 			return false;
 		}
-		if (!getClass().equals(obj.getClass())) {
+		if (!(obj instanceof Member)) {
 			return false;
 		}
 		Member other = (Member) obj;

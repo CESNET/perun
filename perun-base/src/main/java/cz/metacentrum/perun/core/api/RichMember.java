@@ -69,63 +69,6 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-			+ ((memberAttributes == null) ? 0 : memberAttributes.hashCode());
-		result = prime * result + ((user == null) ? 0 : user.hashCode());
-		result = prime * result
-			+ ((userAttributes == null) ? 0 : userAttributes.hashCode());
-		result = prime * result
-			+ ((userExtSources == null) ? 0 : userExtSources.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		RichMember other = (RichMember) obj;
-		if (memberAttributes == null) {
-			if (other.memberAttributes != null) {
-				return false;
-			}
-		} else if (!memberAttributes.equals(other.memberAttributes)) {
-			return false;
-		}
-		if (user == null) {
-			if (other.user != null) {
-				return false;
-			}
-		} else if (!user.equals(other.user)) {
-			return false;
-		}
-		if (userAttributes == null) {
-			if (other.userAttributes != null) {
-				return false;
-			}
-		} else if (!userAttributes.equals(other.userAttributes)) {
-			return false;
-		}
-		if (userExtSources == null) {
-			if (other.userExtSources != null) {
-				return false;
-			}
-		} else if (!userExtSources.equals(other.userExtSources)) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
 	public String serializeToString() {
 		StringBuilder str = new StringBuilder();
 
