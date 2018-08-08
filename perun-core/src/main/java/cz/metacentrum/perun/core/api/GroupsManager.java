@@ -264,6 +264,18 @@ public interface GroupsManager {
 	List<Member> getGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
+	 * Return all direct group members.
+	 *
+	 * @param perunSession perun session
+	 * @param group group
+	 * @return list of direct members
+	 * @throws InternalErrorException internal error
+	 * @throws PrivilegeException insufficient permission
+	 * @throws GroupNotExistsException when group does not exist
+	 */
+	List<Member> getGroupDirectMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;;
+
+	/**
 	 * Return group members with specified vo membership status.
 	 *
 	 * @param perunSession
@@ -278,7 +290,6 @@ public interface GroupsManager {
 	 */
 	List<Member> getGroupMembers(PerunSession perunSession, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
-
 	/**
 	 * Returns group members in the RichMember object, which contains Member+User data.
 	 *
@@ -290,6 +301,18 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 */
 	List<RichMember> getGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+
+	/**
+	 * Returns direct group members in the RichMember object, which contains Member+User data.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @return list of direct RichMembers
+	 * @throws InternalErrorException internal error
+	 * @throws PrivilegeException insufficient permission
+	 * @throws GroupNotExistsException when group does not exist
+	 */
+	List<RichMember> getGroupDirectRichMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
 	 * Returns group members with specified membership status in the RichMember object, which contains Member+User data.
