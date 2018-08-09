@@ -1221,8 +1221,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			Map<Candidate, RichMember> membersToUpdate = new HashMap<>();
 			List<RichMember> membersToRemove = new ArrayList<>();
 
-			//get all actual members of group
-			List<RichMember> actualGroupMembers = getPerunBl().getGroupsManagerBl().getGroupRichMembers(sess, group);
+			//get all direct members of synchronized group (only direct, because we want to set direct membership with this group by synchronization)
+			List<RichMember> actualGroupMembers = getPerunBl().getGroupsManagerBl().getGroupDirectRichMembers(sess, group);
 
 			if(lightweightSynchronization) {
 				categorizeMembersForLightweightSynchronization(sess, group, source, membersSource, actualGroupMembers, candidatesToAdd, membersToRemove, skippedMembers);
