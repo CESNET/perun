@@ -18,7 +18,33 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllUserFacility
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeAuthzDeleted;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeCreated;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeDeleted;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForFacility;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForFacilityAndUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForGroup;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForGroupAndResource;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForHost;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForKey;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForMember;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForMemberAndGroup;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForResource;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForResourceAndMember;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUes;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForVo;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRightsSet;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForFacility;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForFacilityAndUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForGroup;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForGroupAndResource;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForHost;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForKey;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForMember;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForMemberAndGroup;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForResource;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForResourceAndMember;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUes;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForVo;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeUpdated;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.FacilityAllAttributesRemoved;
 import cz.metacentrum.perun.core.api.ActionType;
@@ -1735,7 +1761,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			changed = getAttributesManagerImpl().setAttribute(sess, facility, attribute);
 		}
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, facility);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForFacility(attribute, facility));
 			getAttributesManagerImpl().changedAttributeHook(sess, facility, attribute);
 		}
 		return changed;
@@ -1767,7 +1793,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			changed = getAttributesManagerImpl().setAttribute(sess, vo, attribute);
 		}
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, vo);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForVo(attribute, vo));
 			getAttributesManagerImpl().changedAttributeHook(sess, vo, attribute);
 		}
 		return changed;
@@ -1817,7 +1843,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, resource);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForResource(attribute, resource));
 			getAttributesManagerImpl().changedAttributeHook(sess, resource, attribute);
 		}
 
@@ -1841,7 +1867,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			changed = getAttributesManagerImpl().setAttribute(sess, group, attribute);
 		}
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, group);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForGroup(attribute, group));
 			getAttributesManagerImpl().changedAttributeHook(sess, group, attribute);
 		}
 
@@ -1916,7 +1942,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {} and {}.", attribute, facility, user);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForFacilityAndUser(attribute, facility, user));
 			getAttributesManagerImpl().changedAttributeHook(sess, facility, user, attribute);
 		}
 
@@ -1937,7 +1963,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			} else {
 				changed = getAttributesManagerImpl().setAttribute(sess, resource, member, attribute);
 				if (changed) {
-					getPerunBl().getAuditer().log(sess, "{} set for {} and {}.", attribute, resource, member);
+					getPerunBl().getAuditer().log(sess, new AttributeSetForResourceAndMember(attribute, resource, member));
 					getAttributesManagerImpl().changedAttributeHook(sess, resource, member, attribute);
 				}
 			}
@@ -1986,7 +2012,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			} else {
 				changed = getAttributesManagerImpl().setAttribute(sess, member, group, attribute);
 				if (changed) {
-					getPerunBl().getAuditer().log(sess, "{} set for {} and {}.", attribute, member, group);
+					getPerunBl().getAuditer().log(sess, new AttributeSetForMemberAndGroup(attribute, member, group));
 					getAttributesManagerImpl().changedAttributeHook(sess, member, group, attribute);
 				}
 			}
@@ -2056,7 +2082,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			changed = getAttributesManagerImpl().setAttribute(sess, member, attribute);
 		}
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, member);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForMember(attribute, member));
 			getAttributesManagerImpl().changedAttributeHook(sess, member, attribute);
 		}
 		return changed;
@@ -2107,7 +2133,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, user);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForUser(attribute, user));
 			getAttributesManagerImpl().changedAttributeHook(sess, user, attribute);
 		}
 
@@ -2140,7 +2166,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			changed = getAttributesManagerImpl().setAttribute(sess, host, attribute);
 		}
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, host);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForHost(attribute, host));
 			getAttributesManagerImpl().changedAttributeHook(sess, host, attribute);
 		}
 
@@ -2193,7 +2219,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			changed = getAttributesManagerImpl().setAttribute(sess, resource, group, attribute);
 		}
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {} and {}.", attribute, group, resource);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForGroupAndResource(attribute, group, resource));
 			getAttributesManagerImpl().changedAttributeHook(sess, resource, group, attribute);
 		}
 
@@ -2213,7 +2239,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, ues);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForUes(attribute, ues));
 			getAttributesManagerImpl().changedAttributeHook(sess, ues, attribute);
 		}
 
@@ -2233,7 +2259,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			changed = getAttributesManagerImpl().setAttribute(sess, key, attribute);
 		}
 		if (changed) {
-			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, key);
+			getPerunBl().getAuditer().log(sess, new AttributeSetForKey(attribute, key));
 			getAttributesManagerImpl().changedAttributeHook(sess, key, attribute);
 		}
 
@@ -3711,7 +3737,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute: {} by key {}.",sess.getLogId(), attribute.getName(), key);
-			getPerunBl().getAuditer().log(sess, "{} removed for {}.", new AttributeDefinition(attribute), key);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForKey(new AttributeDefinition(attribute), key));
 		}
 		return changed;
 	}
@@ -3753,7 +3779,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute: {} from facility {}.",sess.getLogId(), attribute.getName(), facility.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {}.", new AttributeDefinition(attribute), facility);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForFacility(new AttributeDefinition(attribute), facility));
 		}
 		return changed;
 	}
@@ -3955,7 +3981,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from host {}.", sess.getLogId(), attribute.getName(), host.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {}", new AttributeDefinition(attribute), host);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForHost(new AttributeDefinition(attribute), host));
 		}
 		return changed;
 	}
@@ -4026,7 +4052,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from vo {}.",sess.getLogId(), attribute.getName(), vo.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {}.", new AttributeDefinition(attribute), vo);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForVo(new AttributeDefinition(attribute), vo));
 		}
 		return changed;
 	}
@@ -4091,7 +4117,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from group {}.",sess.getLogId(), attribute.getName(), group.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {}.", new AttributeDefinition(attribute), group);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForGroup(new AttributeDefinition(attribute), group));
 		}
 		return changed;
 	}
@@ -4165,7 +4191,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if (changed)
 			log.info("{} removed attribute {} from resource {}.",sess.getLogId(), attribute.getName(), resource.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {}.", new AttributeDefinition(attribute), resource);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForResource(new AttributeDefinition(attribute), resource));
 		return changed;
 	}
 
@@ -4235,7 +4261,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from member {} on resource {}.",sess.getLogId(), attribute.getName(), member.getId(), resource.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}.", new AttributeDefinition(attribute), resource, member);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForResourceAndMember(new AttributeDefinition(attribute), resource, member));
 		}
 
 		return changed;
@@ -4331,7 +4357,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from member {} in group {}.",sess.getLogId(), attribute.getName(), member.getId(), group.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}.", new AttributeDefinition(attribute), member, group);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForMemberAndGroup(new AttributeDefinition(attribute), member, group));
 		}
 
 		return changed;
@@ -4424,7 +4450,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from member {}.",sess.getLogId(), attribute.getName(), member.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {}.", new AttributeDefinition(attribute), member);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForMember(new AttributeDefinition(attribute), member));
 		}
 
 		return changed;
@@ -4497,7 +4523,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from user {} on facility {}.",sess.getLogId(), attribute.getName(), user.getId(), facility.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}.", new AttributeDefinition(attribute), facility, user);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForFacilityAndUser(new AttributeDefinition(attribute), facility, user));
 		}
 		return changed;
 	}
@@ -4604,7 +4630,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from  user {}.", sess.getLogId(), attribute.getName(), user.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {}.", new AttributeDefinition(attribute), user);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForUser(new AttributeDefinition(attribute), user));
 		}
 		return changed;
 	}
@@ -4674,7 +4700,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		if (changed)
 			log.info("{} removed attribute {} from group {} on resource {}.", sess.getLogId(), attribute.getName(), group.getId(), resource.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}.", new AttributeDefinition(attribute), group, resource);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForGroupAndResource(new AttributeDefinition(attribute), group, resource));
 		return changed;
 	}
 
@@ -4769,7 +4795,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from user external source {}.", sess.getLogId(), attribute.getName(), ues.getId());
-			getPerunBl().getAuditer().log(sess, "{} removed for {}.", new AttributeDefinition(attribute), ues);
+			getPerunBl().getAuditer().log(sess, new AttributeRemovedForUes(new AttributeDefinition(attribute), ues));
 		}
 		return changed;
 	}

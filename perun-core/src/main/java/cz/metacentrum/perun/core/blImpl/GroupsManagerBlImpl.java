@@ -3072,7 +3072,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			getGroupsManagerImpl().updateGroupName(sess, subGroup);
 
 			// create auditer message for every updated group
-			getPerunBl().getAuditer().log(sess, "{} updated.", subGroup);
+			getPerunBl().getAuditer().log(sess, new GroupUpdated(subGroup));
 
 			setSubGroupsNames(sess, getSubGroups(sess, subGroup), subGroup);
 		}

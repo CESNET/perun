@@ -166,44 +166,15 @@ public class Auditer {
 		lobHandler = new DefaultLobHandler();
 	}
 
-
 	/**
 	 * Log message.
-	 * Message is stored in actual transaction. If no transaction is active message will be immediatelly flushed out.
-	 *
-	 * @param message
-	 * @throws InternalErrorException
-	 */
-	/*@Deprecated
-	//TODO remove and create new version of this method that will accept object of AuditEvent
-	public void log(PerunSession sess, String message) throws InternalErrorException {
-		if(TransactionSynchronizationManager.isActualTransactionActive()) {
-			log.trace("Auditer stores audit message to current transaction. Message: {}.", message);
-			List<List<List<AuditerMessage>>> topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
-			if (topLevelTransactions == null) {
-				newTopLevelTransaction();
-				topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
-			}
-			// pick last top-level messages chain
-			List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
-			// pick last messages in that chain
-			List<AuditerMessage> messages = transactionChain.get(transactionChain.size() - 1);
-			messages.add(new AuditerMessage(sess, message));
-		} else {
-			this.storeMessageToDb(sess, message);
-		}
-	}*/
-
-	/**
-	 * Log message.
-	 * Takes event object and maps it to JSON string.
+	 * Takes AuditEvent object and logs it to db.
 	 *
 	 * @param sess  Perun session
 	 * @param event Audit event to be logged.
-	 * @throws InternalErrorException
 	 * @author Richard Husár 445238@mail.muni.cz
 	 */
-	public void log(PerunSession sess, AuditEvent event) throws InternalErrorException {
+	public void log(PerunSession sess, AuditEvent event) {
 
 		if(TransactionSynchronizationManager.isActualTransactionActive()) {
 			log.trace("Auditer stores audit message to current transaction. Message: {}.", event.getMessage());
@@ -233,20 +204,6 @@ public class Auditer {
 		return jsonString.replaceAll(",?(\\r\\n|\\r|\\n)?\\s*\"message\":\".*\",?", "");
 	}
 
-
-	/**
-	 * Log mesage. Substitute first {} with arg1.toString().
-	 *
-	 * @param message
-	 * @param arg1
-	 * @throws InternalErrorException
-	 */
-	@Deprecated
-	//TODO remove and replace usages
-	public void log(PerunSession sess, String message, Object arg1) throws InternalErrorException {
-		log(sess, message, arg1, null);
-	}
-
 	/**
 	 * Log mesage. Substitute first {} with arg1.toString().
 	 *
@@ -254,36 +211,8 @@ public class Auditer {
 	 *
 	 * @throws InternalErrorException
 	 */
-	public void logWithoutTransaction(PerunSession sess, AuditEvent event) throws InternalErrorException {
+	public void logWithoutTransaction(PerunSession sess, AuditEvent event) {
 		storeMessageToDb(sess, event);
-	}
-
-	/**
-	 * Log mesage. Substitute first two {} with arg1.toString() and arg2.toString().
-	 *
-	 * @param message
-	 * @param arg1
-	 * @param arg2
-	 * @throws InternalErrorException
-	 */
-	@Deprecated
-	//TODO remove these method and replace its usages
-	public void log(PerunSession sess, String message, Object arg1, Object arg2) throws InternalErrorException {
-		message = BeansUtils.createEscaping(message);
-		String formatedMessage = MessageFormatter.format(message, this.serializeObject(arg1), this.serializeObject(arg2)).getMessage();
-		log(sess, new StringMessageEvent(formatedMessage));
-	}
-
-	@Deprecated
-	//TODO remove this method and replace its usages
-	public void log(PerunSession sess, String message, Object arg1, Object arg2, Object arg3) throws InternalErrorException {
-		message = BeansUtils.createEscaping(message);
-		Object[] objects = new Object[3];
-		objects[0] = serializeObject(arg1);
-		objects[1] = serializeObject(arg2);
-		objects[2] = serializeObject(arg3);
-		String formatedMessage = MessageFormatter.arrayFormat(message, objects).getMessage();
-		log(sess, new StringMessageEvent(formatedMessage));
 	}
 
 	/**

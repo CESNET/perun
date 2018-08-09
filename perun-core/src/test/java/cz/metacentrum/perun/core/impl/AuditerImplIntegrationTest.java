@@ -78,27 +78,6 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void logMessagesWithObject() throws Exception {
-		System.out.println("AuditerTest.logMessagesWithObject");
-
-		setUpFacility();
-
-		perun.getAuditer().log(sess, "test message with {}", facility);
-		//
-		boolean contains = false;
-		for(AuditerMessage m : perun.getAuditer().getMessages()){
-			System.out.println(m);
-			if(m.getEvent().getMessage().contains("test message with Facility:[id=<3323>, name=<AuditorTestFacility>, description=<test description>]")){
-				contains = true;
-			}
-		}
-
-		assertTrue("shoud contain logged message",contains);
-		//assertTrue("shoud contain logged message",perun.getAuditer().getMessages().contains("test message with "+facility));
-
-	}
-
-	@Test
 	public void flushAllMessages() throws Exception {
 		System.out.println("AuditerTest.flushAllMessages");
 

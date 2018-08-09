@@ -1428,7 +1428,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					try {
 						getPerunBl().getAuditer().log(sess, new MemberValidatedFailed(member, oldStatus));
 						log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
-					} catch(InternalErrorException internalError) {
+					} catch(RuntimeException internalError) {
 						log.error("Store message to auditer failed. message: Validation of {} failed. He stays in {} state. cause: {}", new Object[] {member, oldStatus, internalError});
 					}
 				}
