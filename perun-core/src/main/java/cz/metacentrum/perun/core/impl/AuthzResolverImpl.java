@@ -174,15 +174,30 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
-	public static List<Role> getRolesWhichCanWorkWithAttribute(ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException {
-		String actType = actionType.getActionType().toLowerCase();
+	public static Map<Role, Set<ActionType>> getRolesWhichCanWorkWithAttribute(ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException {
+		String actType = actionType.getActionType().toLowerCase() + "%";
 		try {
-			return jdbc.query("select distinct roles.name from attributes_authz " +
-					"join roles on attributes_authz.role_id=roles.id " +
-					"join action_types on attributes_authz.action_type_id=action_types.id " +
-					"where attributes_authz.attr_id=? and action_types.action_type=?", AUTHZROLE_MAPPER_FOR_ATTRIBUTES, attrDef.getId(), actType);
+			List<Pair<Role, ActionType>> pairs = jdbc.query("select distinct roles.name, action_types.action_type from attributes_authz " +
+							"join roles on attributes_authz.role_id=roles.id " +
+							"join action_types on attributes_authz.action_type_id=action_types.id " +
+							"where attributes_authz.attr_id=? and action_types.action_type like ?",
+					(rs, arg1) -> new Pair<>(Role.valueOf(rs.getString("name").toUpperCase()), ActionType.valueOf(rs.getString("action_type").toUpperCase())),
+					attrDef.getId(), actType);
+
+			Map<Role, Set<ActionType>> result = new HashMap<>();
+			for (Pair<Role, ActionType> pair : pairs) {
+				if (result.containsKey(pair.getLeft())) {
+					result.get(pair.getLeft()).add(pair.getRight());
+				} else {
+					Set<ActionType> rights = new HashSet<>();
+					rights.add(pair.getRight());
+					result.put(pair.getLeft(), rights);
+				}
+			}
+			return result;
+
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
+			return new HashMap<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
