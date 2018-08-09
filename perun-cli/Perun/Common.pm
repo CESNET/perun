@@ -44,6 +44,7 @@ use Perun::beans::ContactGroup;
 use Perun::beans::SecurityTeam;
 use Perun::beans::BanOnResource;
 use Perun::beans::BanOnFacility;
+use Perun::beans::AttributeRights;
 
 sub newEmptyBean
 {
