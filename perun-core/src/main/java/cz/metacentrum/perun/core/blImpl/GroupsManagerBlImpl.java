@@ -1226,7 +1226,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//Get info about type of synchronization (with or without update)
 			boolean lightweightSynchronization = isThisLightweightSynchronization(sess, group);
 
-			log.info("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", new Object[] {group, membersSource, membersSource.getName()});
+			log.info("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", new Object[]{group, membersSource, membersSource.getName()});
 
 			//Prepare containers for work with group members
 			List<Candidate> candidatesToAdd = new ArrayList<>();
@@ -1236,15 +1236,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//get all direct members of synchronized group (only direct, because we want to set direct membership with this group by synchronization)
 			List<RichMember> actualGroupMembers = getPerunBl().getGroupsManagerBl().getGroupDirectRichMembers(sess, group);
 
-			if(lightweightSynchronization) {
+			if (lightweightSynchronization) {
+				//Do not care about updating users, just create new one and remove former members (membership is important)
 				categorizeMembersForLightweightSynchronization(sess, group, source, membersSource, actualGroupMembers, candidatesToAdd, membersToRemove, skippedMembers);
 			} else {
-				//Get subjects from extSource
-				List<Map<String, String>> subjects = getSubjectsFromExtSource(sess, source, group);
-				//Convert subjects to candidates
-				List<Candidate> candidates = convertSubjectsToCandidates(sess, subjects, membersSource, source, skippedMembers);
-
-				categorizeMembersForSynchronization(sess, actualGroupMembers, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
+				//Also care about updating attributes of members
+				categorizeMembersForSynchronization(sess, group, source, membersSource, actualGroupMembers, candidatesToAdd, membersToRemove, membersToUpdate, skippedMembers);
 			}
 
 			//Update members already presented in group
@@ -1257,6 +1254,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			removeFormerMembersWhileSynchronization(sess, group, membersToRemove);
 
 			log.info("Group synchronization {}: ended.", group);
+		} catch (ExtSourceUnsupportedOperationException ex) {
+			throw new InternalErrorException("ExtSource do not support specific operation.", ex);
 		} finally {
 			closeExtSourcesAfterSynchronization(membersSource, source);
 		}
@@ -1855,7 +1854,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	//----------- PRIVATE METHODS FOR  GROUP SYNCHRONIZATION -----------
 
 	/**
-	 * For lightweight synchronization prepare candidate to add and members to remove.
+	 * For lightweight synchronization prepare candidates to add and members to remove.
 	 *
 	 * Get all subjects from loginSource and try to find users in Perun by their login and this ExtSource.
 	 * If found, look if this user is already in synchronized Group. If yes skip him, if not add him to candidateToAdd
@@ -1868,19 +1867,22 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * 2. membersToRemove - Former members who are not in synchronized ExtSource now
 	 *
 	 * @param sess
-	 * @param group
-	 * @param loginSource
-	 * @param memberSource
-	 * @param groupMembers
-	 * @param candidatesToAdd
-	 * @param membersToRemove
-	 * @param skippedMembers
+	 * @param group to be synchronized
+	 * @param loginSource extSource for getting logins
+	 * @param memberSource extSource for getting members (can be same if there is just one extSource for both)
+	 * @param groupMembers actual members of group before synchronization
+	 * @param candidatesToAdd 1. container (more above)
+	 * @param membersToRemove 2. container (more above)
+	 * @param skippedMembers list of all skipped members
+	 *
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotExistsException
+	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	private void categorizeMembersForLightweightSynchronization(PerunSession sess, Group group, ExtSource loginSource, ExtSource memberSource, List<RichMember> groupMembers, List<Candidate> candidatesToAdd, List<RichMember> membersToRemove, List<String> skippedMembers) throws InternalErrorException, ExtSourceNotExistsException {
+	private void categorizeMembersForLightweightSynchronization(PerunSession sess, Group group, ExtSource loginSource, ExtSource memberSource, List<RichMember> groupMembers, List<Candidate> candidatesToAdd, List<RichMember> membersToRemove, List<String> skippedMembers) throws InternalErrorException, ExtSourceNotExistsException, ExtSourceUnsupportedOperationException {
 		//Get subjects from loginSource
-		List<Map<String, String>> subjects = getSubjectsFromExtSource(sess, loginSource, group);
+		List<Map<String, String>> subjects;
+		subjects = getSubjectsFromExtSource(sess, loginSource, group, null);
 
 		//Prepare structure of userIds with richMembers to better work with actual members
 		Map<Integer, RichMember> idsOfUsersInGroup = new HashMap<>();
@@ -1889,6 +1891,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		//try to find users by login and loginSource
+		List<String> loginsToAdd = new ArrayList<>();
 		for(Map<String, String> subjectFromLoginSource : subjects) {
 			String login = subjectFromLoginSource.get("login");
 			// Skip subjects, which doesn't have login
@@ -1904,64 +1907,106 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			try {
 				UserExtSource userExtSource = getPerunBl().getUsersManagerBl().getUserExtSourceByExtLogin(sess, memberSource, login);
 				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
-				if(!idsOfUsersInGroup.containsKey(user.getId())) {
+				if (!idsOfUsersInGroup.containsKey(user.getId())) {
 					candidate = new Candidate(user, userExtSource);
 					//for lightweight synchronization we want to skip all update of attributes
 					candidate.setAttributes(new HashMap<String, String>());
-				}
-			} catch (UserExtSourceNotExistsException | UserNotExistsException ex) {
-				//If not find, get more information about him from member extSource
-				List<Map<String, String>> subjectToConvert = Arrays.asList(subjectFromLoginSource);
-				List<Candidate> converetedCandidatesList = convertSubjectsToCandidates(sess, subjectToConvert, memberSource, loginSource, skippedMembers);
-				//Empty means not found (skipped)
-				if(!converetedCandidatesList.isEmpty()) {
-					//We add one subject so we take the one converted candidate
-					candidate = converetedCandidatesList.get(0);
-				}
-			}
-
-			//If user is not null now, we found it so we can use it from perun, in other case he is not in perun at all
-			if(user != null && candidate == null) {
-				//we can skip this one, because he is already in group, and remove him from the map
-				//but first we need to also validate him if he was disabled before (invalidate and then validate)
-				RichMember richMember = idsOfUsersInGroup.get(user.getId());
-				if(richMember != null && Status.DISABLED.equals(richMember.getStatus())) {
+					candidatesToAdd.add(candidate);
+				} else {
+					//we can skip this one, because he is already in group, and remove him from the map
+					//but first we need to also validate him if he was disabled before (invalidate and then validate)
+					RichMember richMember = idsOfUsersInGroup.get(user.getId());
+					if(richMember != null && Status.DISABLED.equals(richMember.getStatus())) {
 						getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
 						try {
 							getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
 						} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 							log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
 						}
+					}
+					idsOfUsersInGroup.remove(user.getId());
 				}
-				idsOfUsersInGroup.remove(user.getId());
-			} else if (candidate != null) {
-				candidatesToAdd.add(candidate);
-			} else {
-				//Both null means that we can't find subject by login in extSource at all (will be in skipped members)
-				log.debug("Subject with login {} was skipped because can't be found in extSource {}.", login, memberSource);
+				//If not found
+			} catch (UserExtSourceNotExistsException | UserNotExistsException ex) {
+				loginsToAdd.add(login);
 			}
 		}
+
+		//If possible get subjects from ExtSource by bulk, if not, get them one by one
+		try {
+			subjects = getSubjectsFromExtSource(sess, memberSource, group, loginsToAdd);
+			candidatesToAdd.addAll(convertSubjectsToCandidates(sess, subjects, memberSource, skippedMembers, false));
+		} catch (ExtSourceUnsupportedOperationException ex) {
+			for(String login: loginsToAdd) {
+				Map<String, String> subjectByLogin = new HashMap<>();
+				subjectByLogin.put("login", login);
+				List<Map<String, String>> subjectToConvert = Arrays.asList(subjectByLogin);
+				candidatesToAdd.addAll(convertSubjectsToCandidates(sess, subjectToConvert, memberSource, skippedMembers, true));
+ 			}
+ 		}
 
 		//Rest of them need to be removed
 		membersToRemove.addAll(idsOfUsersInGroup.values());
 	}
 
 	/**
-	 * This method fill 3 member structures which get as parameters:
-	 * 1. membersToUpdate - Candidates with equivalent Members from Perun for purpose of updating attributes and statuses
-	 * 2. candidateToAdd - New members of the group
-	 * 3. membersToRemove - Former members who are not in synchronized ExtSource now
+	 * For normal synchronization prepare candidates to add, members to remove and members for update.
 	 *
-	 * @param sess
-	 * @param groupMembers current group members
-	 * @param candidates to be synchronized from extSource
-	 * @param membersToUpdate 1. container (more above)
-	 * @param candidatesToAdd 2. container (more above)
-	 * @param membersToRemove 3. container (more above)
+	 * Get all subjects by loginSource and try to convert them to Candidates. It can be done
+	 * from the list of subjects itself (if there are all attributes) or by logins one
+	 * by one (or by bulks) from membersSource.
+	 *
+	 * This method fill 3 member structures which get as parameters:
+	 * 1. candidateToAdd - New members of the group
+	 * 2. membersToRemove - Former members who are not in synchronized ExtSource now
+	 * 3. membersToUpdate - Candidates with equivalent Members from Perun for purpose of updating attributes and statuses
+	 *
+	 * @param group  to be synchronized
+	 * @param loginSource extSource for getting logins
+	 * @param memberSource extSource for getting members (can be same if there is just one extSource for both)
+	 * @param groupMembers actual members of group before synchronization
+	 * @param candidatesToAdd 1. container (more above)
+	 * @param membersToRemove 2. container (more above)
+	 * @param membersToUpdate 3. container (more above)
+	 * @param skippedMembers list of all skipped members
+	 *
+	 * @throws InternalErrorException
+	 * @throws ExtSourceNotExistsException
+	 * @throws ExtSourceUnsupportedOperationException
 	 *
 	 * @throws InternalErrorException if getting RichMembers without attributes for the group fail
 	 */
-	private void categorizeMembersForSynchronization(PerunSession sess, List<RichMember> groupMembers, List<Candidate> candidates, List<Candidate> candidatesToAdd, Map<Candidate, RichMember> membersToUpdate, List<RichMember> membersToRemove) throws InternalErrorException {
+	private void categorizeMembersForSynchronization(PerunSession sess, Group group, ExtSource loginSource, ExtSource memberSource, List<RichMember> groupMembers, List<Candidate> candidatesToAdd, List<RichMember> membersToRemove, Map<Candidate, RichMember> membersToUpdate, List<String> skippedMembers) throws InternalErrorException, ExtSourceNotExistsException, ExtSourceUnsupportedOperationException {
+		//Get subjects from login extSource
+		List<Map<String, String>> subjectsFromLoginSource = getSubjectsFromExtSource(sess, loginSource, group, null);
+		//Convert subjects to candidates
+		List<Candidate> candidates;
+
+		//Choose the way converting subjects to candidates (get from loginSource itself, get by login again from memberSource or get by list of logins from membersSource)
+		if(!loginSource.equals(memberSource)) {
+			//get all logins from map
+			List<String> logins = new ArrayList<>();
+			for(Map<String, String> subject: subjectsFromLoginSource) {
+				if(subject.containsKey("login")) logins.add(subject.get("login"));
+			}
+			try {
+				List<Map<String, String>> subjectsFromMemberSource = getSubjectsFromExtSource(sess, memberSource, group, logins);
+				candidates = convertSubjectsToCandidates(sess, subjectsFromMemberSource, memberSource, skippedMembers, false);
+			} catch (ExtSourceUnsupportedOperationException ex) {
+				//do not support getting subject by list of logins, so use the old way
+				candidates = convertSubjectsToCandidates(sess, subjectsFromLoginSource, memberSource, skippedMembers, true);
+			}
+
+		} else if (memberSource instanceof ExtSourceApi) {
+			//They are the same and extSourceApi is
+			candidates = convertSubjectsToCandidates(sess, subjectsFromLoginSource, memberSource, skippedMembers, false);
+		} else if (memberSource instanceof ExtSourceSimpleApi) {
+			candidates = convertSubjectsToCandidates(sess, subjectsFromLoginSource, memberSource, skippedMembers, true);
+		} else {
+			// this should not happen without change in extSource API code
+			throw new InternalErrorException("ExtSource is other instance than SimpleApi or Api and this is not supported!");
+		}
+
 		candidatesToAdd.addAll(candidates);
 		membersToRemove.addAll(groupMembers);
 		//mapping structure for more efficient searching
@@ -2125,12 +2170,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param sess
 	 * @param source to get subjects from
 	 * @param group to be synchronized
+	 * @param logins if not null, use it for filtering logins from extSource
 	 *
 	 * @return list of subjects
 	 *
 	 * @throws InternalErrorException if internal error occurs
+	 * @throws ExtSourceUnsupportedOperationException if extSource do not support getGroupBySubject with or without logins
 	 */
-	private List<Map<String, String>> getSubjectsFromExtSource(PerunSession sess, ExtSource source, Group group) throws InternalErrorException {
+	private List<Map<String, String>> getSubjectsFromExtSource(PerunSession sess, ExtSource source, Group group, List<String> logins) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		//Get all group attributes and store tham to map (info like query, time interval etc.)
 		List<Attribute> groupAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, group);
 		Map<String, String> groupAttributesMap = new HashMap<String, String>();
@@ -2141,37 +2188,34 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 		//-- Get Subjects in form of map where left string is name of attribute and right string is value of attribute, every subject is one map
 		List<Map<String, String>> subjects;
-		try {
+		if(logins == null) {
 			subjects = ((ExtSourceSimpleApi) source).getGroupSubjects(groupAttributesMap);
-			log.debug("Group synchronization {}: external group contains {} members.", group, subjects.size());
-		} catch (ExtSourceUnsupportedOperationException e2) {
-			throw new InternalErrorException("ExtSource " + source.getName() + " doesn't support getGroupSubjects", e2);
+			log.debug("Group synchronization {}: get members for external group. It contains {} members.", group, subjects.size());
+		} else {
+			subjects = ((ExtSourceSimpleApi) source).getGroupSubjects(groupAttributesMap, logins);
+			log.debug("Group synchronization {}: get members for external group by list of logins. It contains {} members.", group, subjects.size());
 		}
+
 		return subjects;
 	}
 
 	/**
-	 * Convert List of subjects to list of Candidates.
+	 * Convert all subjects to candidates.
 	 *
-	 * To getting Candidate can use 1 of 3 possible options:
-	 * 1] membersSource and source are not equals => we have just login, other attributes neet to get from membersSource
-	 * 2] membersSource==source and membersSource is instance of ExtSourceApi => we already have all attributes in subject
-	 * 3] membersSource==source and membersSource is instance of SimplExtSourceApi => we have just login, need to read other attributes again
-	 *
-	 * If candidate cannot be get for some reason, add this reason to skippedMembers list and skip him.
+	 * If "onlyLoginInMap" is true, it means we need to get all data from membersSource by login (one by one).
+	 * If "onlyLoginInMap" is false, it means we have all data already so we can just create candidate without
+	 * query to membersSource.
 	 *
 	 * @param sess
-	 * @param subjects list of subjects from ExtSource (at least login should be here)
-	 * @param membersSource optional member ExtSource (if members attributes are from other source then their logins)
-	 * @param source default group ExtSource
-	 * @param skippedMembers not successfully synchronized members are skipped and information about it should be added here
-	 *
+	 * @param subjects list of subjects or just their logins
+	 * @param membersSource extSource for getting members with attributes
+	 * @param skippedMembers list of skipped members
+	 * @param onlyLoginsInMap true if only logins in subjects, false if all other attributes are already there
 	 * @return list of successfully created candidates from subjects
-	 *
-	 * @throws InternalErrorException if some internal error occurs
-	 * @throws ExtSourceNotExistsException if membersSource not exists in Perun
+	 * @throws InternalErrorException
+	 * @throws ExtSourceNotExistsException
 	 */
-	private List<Candidate> convertSubjectsToCandidates(PerunSession sess, List<Map<String, String>> subjects, ExtSource membersSource, ExtSource source, List<String> skippedMembers) throws InternalErrorException, ExtSourceNotExistsException {
+	private List<Candidate> convertSubjectsToCandidates(PerunSession sess, List<Map<String, String>> subjects, ExtSource membersSource, List<String> skippedMembers, boolean onlyLoginsInMap) throws InternalErrorException, ExtSourceNotExistsException {
 		List<Candidate> candidates = new ArrayList<>();
 		for (Map<String, String> subject: subjects) {
 			String login = subject.get("login");
@@ -2182,35 +2226,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				continue;
 			}
 			try {
-				// One of three possible ways should happen to get Candidate
-				// 1] sources of login and other attributes are not same
-				if(!membersSource.equals(source)) {
-					//need to read attributes from the new memberSource, we can't use locally data there (there are from other extSource)
-					candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
-				// 2] sources are same and we work with source which is instance of ExtSourceApi
-				} else if (membersSource instanceof ExtSourceApi) {
-					// we can use the data from this source without reading them again (all exists in the map of subject attributes)
-					candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login)));
-				// 3] sources are same and we work with source which is instace of ExtSourceSimpleApi
-				} else if (membersSource instanceof ExtSourceSimpleApi) {
-					// we can't use the data from this source, we need to read them again (they are not in the map of subject attributes)
+				if(onlyLoginsInMap) {
 					candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
 				} else {
-					// this could not happen without change in extSource API code
-					throw new InternalErrorException("ExtSource is other instance than SimpleApi or Api and this is not supported!");
+					candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login)));
 				}
 			} catch (CandidateNotExistsException e) {
 				log.warn("getGroupSubjects subjects returned login {}, but it cannot be obtained using getCandidate()", login);
 				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because candidate can't be found by login:'" + login + "' in extSource " + membersSource);
-				continue;
 			} catch (ExtSourceUnsupportedOperationException e) {
 				log.warn("ExtSource {} doesn't support getCandidate operation.", membersSource);
 				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because extSource " + membersSource + " not support method getCandidate");
-				continue;
 			} catch (ParserException e) {
 				log.warn("Can't parse value {} from candidate with login {}", e.getParsedValue(), login);
 				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because of problem with parsing value '" + e.getParsedValue() + "'");
-				continue;
 			}
 		}
 

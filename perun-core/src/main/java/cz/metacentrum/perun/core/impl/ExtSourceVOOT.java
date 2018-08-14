@@ -125,7 +125,14 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+        return getGroupSubjects(attributes, null);
+    }
+
+    @Override
+    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes, List<String> logins) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+        if(logins != null) throw new ExtSourceUnsupportedOperationException("Not supported to get subjects for this extSource by list of logins.");
+
         List<Map<String, String>> subjects = new ArrayList<>();
 
         try {
@@ -133,7 +140,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
                     GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
             if (queryForGroup == null) {
-                throw new InternalErrorException("Attribute " + 
+                throw new InternalErrorException("Attribute " +
                         GroupsManager.GROUPMEMBERSQUERY_ATTRNAME +
                         " can't be null.");
             }
@@ -179,7 +186,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
         if (responseCode == 200) {
             return connection;
         } else {
-            log.warn("Cannot establish connection to " + uri + ". Response code is " 
+            log.warn("Cannot establish connection to " + uri + ". Response code is "
                     + responseCode + ". Error message is \'" + new BufferedReader(
                             new InputStreamReader(connection.getErrorStream())).readLine() + "\'.");
         }
