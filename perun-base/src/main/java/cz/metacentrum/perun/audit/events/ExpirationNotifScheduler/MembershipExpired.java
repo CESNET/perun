@@ -6,16 +6,20 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class MembershipExpired extends AuditEvent {
 
-	private final Member member;
-	private final int daysAfterExpiration;
-	private final Vo vo;
-	private final String message;
+	private Member member;
+	private int daysAfterExpiration;
+	private Vo vo;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MembershipExpired() {
+	}
 
 	public MembershipExpired(Member member, int daysAfterExpiration, Vo vo) {
 		this.member = member;
 		this.daysAfterExpiration = daysAfterExpiration;
 		this.vo = vo;
-		this.message = String.format("%s has expired %d days ago in %s.", member, daysAfterExpiration, vo);
+		this.message = formatMessage("%s has expired %d days ago in %s.", member, daysAfterExpiration, vo);
 	}
 
 	public Member getMember() {

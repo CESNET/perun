@@ -5,14 +5,18 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class GroupSyncFinishedWithErrors extends AuditEvent {
 
-	private final Group group;
-	private final String originalExceptionMessage;
-	private final String message;
+	private Group group;
+	private String originalExceptionMessage;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public GroupSyncFinishedWithErrors() {
+	}
 
 	public GroupSyncFinishedWithErrors(Group group, String originalExceptionMessage) {
 		this.group = group;
 		this.originalExceptionMessage = originalExceptionMessage;
-		this.message = String.format("%s synchronization finished with errors: %s.", group, originalExceptionMessage);
+		this.message = formatMessage("%s synchronization finished with errors: %s.", group, originalExceptionMessage);
 	}
 
 	@Override

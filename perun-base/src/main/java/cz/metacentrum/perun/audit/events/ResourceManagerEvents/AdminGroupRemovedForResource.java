@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Resource;
 
 public class AdminGroupRemovedForResource extends AuditEvent {
 
-	private final Group group;
-	private final Resource resource;
-	private final String message;
+	private Group group;
+	private Resource resource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AdminGroupRemovedForResource() {
+	}
 
 	public AdminGroupRemovedForResource(Group group, Resource resource) {
 		this.group = group;
 		this.resource = resource;
-		this.message = String.format("Group %s was removed from admins of %s.", group, resource);
+		this.message = formatMessage("Group %s was removed from admins of %s.", group, resource);
 	}
 
 	@Override

@@ -6,16 +6,20 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class GroupCreatedAsSubgroup extends AuditEvent {
 
-	private final Group group;
-	private final Group parentGroup;
-	private final Vo vo;
-	private final String message;
+	private Group group;
+	private Group parentGroup;
+	private Vo vo;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public GroupCreatedAsSubgroup() {
+	}
 
 	public GroupCreatedAsSubgroup(Group group, Vo vo, Group parentGroup) {
 		this.group = group;
 		this.parentGroup = parentGroup;
 		this.vo = vo;
-		this.message = String.format("%s created in %s as subgroup of %s", group, vo, parentGroup);
+		this.message = formatMessage("%s created in %s as subgroup of %s", group, vo, parentGroup);
 	}
 
 	@Override

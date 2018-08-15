@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class VoDeleted extends AuditEvent {
 
-	private final Vo vo;
-	private final String message;
+	private Vo vo;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public VoDeleted() {
+	}
 
 	public VoDeleted(Vo vo) {
 		this.vo = vo;
-		this.message = String.format("%s deleted.", vo);
+		this.message = formatMessage("%s deleted.", vo);
 	}
 
 	@Override

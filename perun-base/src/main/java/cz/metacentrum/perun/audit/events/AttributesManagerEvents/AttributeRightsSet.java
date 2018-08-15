@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.AttributeRights;
 
 public class AttributeRightsSet extends AuditEvent {
 
-	private final AttributeRights rights;
-	private final String message;
+	private AttributeRights rights;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeRightsSet() {
+	}
 
 	public AttributeRightsSet(AttributeRights rights) {
 		this.rights = rights;
-		this.message = String.format("Attribute right set: %s", rights);
+		this.message = formatMessage("Attribute right set: %s", rights);
 	}
 
 	public AttributeRights getRights() {

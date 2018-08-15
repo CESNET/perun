@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class MemberInvalidated extends AuditEvent {
 
-	private final Member member;
-	private final String message;
+	private Member member;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MemberInvalidated() {
+	}
 
 	public MemberInvalidated(Member member) {
 		this.member = member;
-		this.message = String.format("%s invalidated.", member);
+		this.message = formatMessage("%s invalidated.", member);
 	}
 
 	@Override

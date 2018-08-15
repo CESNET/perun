@@ -6,12 +6,16 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 
 public class AttributeCreated extends AuditEvent {
 
-	private final AttributeDefinition attribute;
-	private final String message;
+	private AttributeDefinition attribute;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeCreated() {
+	}
 
 	public AttributeCreated(AttributeDefinition attribute) {
 		this.attribute = attribute;
-		this.message = String.format("%s created.", attribute);
+		this.message = formatMessage("%s created.", attribute);
 	}
 
 	public AttributeDefinition getAttribute() {

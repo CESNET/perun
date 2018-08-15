@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Status;
 
 public class MemberValidatedFailed extends AuditEvent {
 
-	private final Member member;
-	private final Status status;
-	private final String message;
+	private Member member;
+	private Status status;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MemberValidatedFailed() {
+	}
 
 	public MemberValidatedFailed(Member member, Status oldStatus) {
 		this.member = member;
 		this.status = oldStatus;
-		this.message = String.format("Validation of %s failed. He stays in %s state.", member, status);
+		this.message = formatMessage("Validation of %s failed. He stays in %s state.", member, status);
 	}
 
 	@Override

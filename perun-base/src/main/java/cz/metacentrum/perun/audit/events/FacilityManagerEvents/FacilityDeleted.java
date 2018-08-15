@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Facility;
 
 public class FacilityDeleted extends AuditEvent {
 
-	private final Facility facility;
-	private final String message;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public FacilityDeleted() {
+	}
 
 	public FacilityDeleted(Facility facility) {
 		this.facility = facility;
-		this.message = String.format("Facility deleted %s.", facility);
+		this.message = formatMessage("Facility deleted %s.", facility);
 	}
 
 	public Facility getFacility() {

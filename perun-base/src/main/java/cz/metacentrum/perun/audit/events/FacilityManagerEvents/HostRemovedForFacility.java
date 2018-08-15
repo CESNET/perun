@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Host;
 
 public class HostRemovedForFacility extends AuditEvent {
 
-	private final Host host;
-	private final String message;
+	private Host host;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public HostRemovedForFacility() {
+	}
 
 	public HostRemovedForFacility(Host host) {
 		this.host = host;
-		this.message = String.format("%s removed.", host);
+		this.message = formatMessage("%s removed.", host);
 	}
 
 	public Host getHost() {

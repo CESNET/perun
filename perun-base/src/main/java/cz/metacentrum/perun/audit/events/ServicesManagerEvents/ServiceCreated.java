@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Service;
 
 public class ServiceCreated extends AuditEvent {
 
-	private final Service service;
-	private final String message;
+	private Service service;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ServiceCreated() {
+	}
 
 	public ServiceCreated(Service service) {
 		this.service = service;
-		this.message = String.format("%s created.", service);
+		this.message = formatMessage("%s created.", service);
 	}
 
 	@Override

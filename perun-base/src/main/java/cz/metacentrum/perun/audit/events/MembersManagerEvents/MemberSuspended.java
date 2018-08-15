@@ -5,14 +5,18 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class MemberSuspended extends AuditEvent {
 
-	private final Member member;
-	private final String engineForceKeyword;
-	private final String message;
+	private Member member;
+	private String engineForceKeyword;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MemberSuspended() {
+	}
 
 	public MemberSuspended(Member member, String engineForceKeyword) {
 		this.member = member;
 		this.engineForceKeyword = engineForceKeyword;
-		this.message = String.format("%s suspended #%s.", member, engineForceKeyword);
+		this.message = formatMessage("%s suspended #%s.", member, engineForceKeyword);
 	}
 
 	@Override

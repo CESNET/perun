@@ -6,14 +6,18 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail;
 
 public class MailForVoIdAdded extends AuditEvent {
 
-	private final ApplicationMail mail;
-	private final Vo vo;
-	private final String message;
+	private ApplicationMail mail;
+	private Vo vo;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MailForVoIdAdded() {
+	}
 
 	public MailForVoIdAdded(ApplicationMail mail, Vo vo) {
 		this.mail = mail;
 		this.vo = vo;
-		this.message = String.format("Mail ID: %d of Type: %s/%s added for VO ID: %d.", mail.getId(),
+		this.message = formatMessage("Mail ID: %d of Type: %s/%s added for VO ID: %d.", mail.getId(),
 				mail.getMailType(), mail.getAppType(), vo.getId());
 	}
 

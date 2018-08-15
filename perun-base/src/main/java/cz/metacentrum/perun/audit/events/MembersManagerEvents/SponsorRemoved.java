@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.User;
 
 public class SponsorRemoved extends AuditEvent {
 
-	private final Member sponsoredMember;
-	private final User sponsor;
-	private final String message;
+	private Member sponsoredMember;
+	private User sponsor;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public SponsorRemoved() {
+	}
 
 	public SponsorRemoved(Member sponsoredMember, User sponsorToRemove) {
 		this.sponsoredMember = sponsoredMember;
 		this.sponsor = sponsorToRemove;
-		this.message = String.format("Sponsorship of %s by %s canceled.", sponsoredMember, sponsor);
+		this.message = formatMessage("Sponsorship of %s by %s canceled.", sponsoredMember, sponsor);
 	}
 
 	@Override

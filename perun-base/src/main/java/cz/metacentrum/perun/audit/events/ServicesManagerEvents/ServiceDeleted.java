@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Service;
 
 public class ServiceDeleted extends AuditEvent {
 
-	private final Service service;
-	private final String message;
+	private Service service;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ServiceDeleted() {
+	}
 
 	public ServiceDeleted(Service service) {
 		this.service = service;
-		this.message = String.format("%s deleted.", service);
+		this.message = formatMessage("%s deleted.", service);
 	}
 
 	@Override

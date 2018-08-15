@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Service;
 
 public class ServiceAssignedToResource extends AuditEvent {
 
-	private final Service service;
-	private final Resource resource;
-	private final String message;
+	private Service service;
+	private Resource resource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ServiceAssignedToResource() {
+	}
 
 	public ServiceAssignedToResource(Service service, Resource resource) {
 		this.service = service;
 		this.resource = resource;
-		this.message = String.format("%s asigned to %s", service, resource);
+		this.message = formatMessage("%s asigned to %s", service, resource);
 	}
 
 	@Override

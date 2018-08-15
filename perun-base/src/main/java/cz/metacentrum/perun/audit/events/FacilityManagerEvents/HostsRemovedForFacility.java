@@ -8,14 +8,18 @@ import java.util.List;
 
 public class HostsRemovedForFacility extends AuditEvent {
 
-	private final List<Host> hosts;
-	private final Facility facility;
-	private final String message;
+	private List<Host> hosts;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public HostsRemovedForFacility() {
+	}
 
 	public HostsRemovedForFacility(List<Host> hosts, Facility facility) {
 		this.facility = facility;
 		this.hosts = hosts;
-		this.message = String.format("Hosts %s removed from cluster %s", hosts, facility);
+		this.message = formatMessage("Hosts %s removed from cluster %s", hosts, facility);
 	}
 
 	@Override

@@ -8,14 +8,18 @@ import cz.metacentrum.perun.core.api.Service;
  */
 public class BanServiceOnDestination extends AuditEvent {
 
-	private final Service service;
-	private final int destinationId;
-	private final String message;
+	private Service service;
+	private int destinationId;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public BanServiceOnDestination() {
+	}
 
 	public BanServiceOnDestination(Service service, int destinationId) {
 		this.service = service;
 		this.destinationId = destinationId;
-		this.message = String.format("ban : %s on %s.", service, destinationId);
+		this.message = formatMessage("ban : %s on %s.", service, destinationId);
 	}
 
 	public Service getService() {

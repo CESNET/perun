@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.User;
 
 public class AdminRemovedForFacility extends AuditEvent {
 
-	private final User user;
-	private final Facility facility;
-	private final String message;
+	private User user;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AdminRemovedForFacility() {
+	}
 
 	public AdminRemovedForFacility(User user, Facility facility) {
 		this.user = user;
 		this.facility = facility;
-		this.message = String.format("%s was removed from admin of %s.", user, facility);
+		this.message = formatMessage("%s was removed from admin of %s.", user, facility);
 	}
 
 	public User getUser() {

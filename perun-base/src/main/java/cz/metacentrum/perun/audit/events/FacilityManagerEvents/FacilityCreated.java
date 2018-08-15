@@ -6,12 +6,16 @@ import cz.metacentrum.perun.core.api.Facility;
 
 public class FacilityCreated extends AuditEvent {
 
-	private final Facility facility;
-	private final String message;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public FacilityCreated() {
+	}
 
 	public FacilityCreated(Facility facility) {
 		this.facility = facility;
-		this.message = String.format("Facility created: %s",facility);
+		this.message = formatMessage("Facility created: %s",facility);
 	}
 
 	public Facility getFacility() {

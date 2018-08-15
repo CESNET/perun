@@ -11,9 +11,13 @@ public class PropagationPlannedOnService extends AuditEvent {
 	private Service service;
 	private String message;
 
+	@SuppressWarnings("unused") // used by jackson mapper
+	public PropagationPlannedOnService() {
+	}
+
 	public PropagationPlannedOnService(Service service) {
 		this.service = service;
-		this.message = String.format("propagation planned: On %s.", service);
+		this.message = formatMessage("propagation planned: On %s.", service);
 	}
 
 	public Service getService() {

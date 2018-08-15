@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.User;
 
 public class UserCreated extends AuditEvent {
 
-	private final User user;
-	private final String message;
+	private User user;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public UserCreated() {
+	}
 
 	public UserCreated(User user) {
 		this.user = user;
-		this.message = String.format("%s created.", user);
+		this.message = formatMessage("%s created.", user);
 	}
 
 	@Override

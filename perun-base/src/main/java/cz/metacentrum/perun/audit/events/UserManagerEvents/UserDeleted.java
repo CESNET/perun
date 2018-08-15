@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.User;
 
 public class UserDeleted extends AuditEvent {
 
-	private final User user;
-	private final String message;
+	private User user;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public UserDeleted() {
+	}
 
 	public UserDeleted(User user) {
 		this.user = user;
-		this.message = String.format("%s deleted.", user);
+		this.message = formatMessage("%s deleted.", user);
 	}
 
 	@Override

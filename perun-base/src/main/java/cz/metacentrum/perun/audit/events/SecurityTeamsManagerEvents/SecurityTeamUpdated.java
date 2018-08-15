@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.SecurityTeam;
 
 public class SecurityTeamUpdated extends AuditEvent {
 
-	private final SecurityTeam securityTeam;
-	private final String message;
+	private SecurityTeam securityTeam;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public SecurityTeamUpdated() {
+	}
 
 	public SecurityTeamUpdated(SecurityTeam securityTeam) {
 		this.securityTeam = securityTeam;
-		this.message = String.format("%s was updated.", securityTeam);
+		this.message = formatMessage("%s was updated.", securityTeam);
 	}
 
 	@Override

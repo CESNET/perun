@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 
 public class UserExtSourceAddedToUser extends AuditEvent {
 
-	private final UserExtSource userExtSource;
-	private final User user;
-	private final String message;
+	private UserExtSource userExtSource;
+	private User user;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public UserExtSourceAddedToUser() {
+	}
 
 	public UserExtSourceAddedToUser(UserExtSource userExtSource, User user) {
 		this.user = user;
 		this.userExtSource = userExtSource;
-		this.message = String.format("%s added to %s.", userExtSource, user);
+		this.message = formatMessage("%s added to %s.", userExtSource, user);
 	}
 
 	@Override

@@ -6,14 +6,18 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 
 public class FormItemUpdated extends AuditEvent {
 
-	private final ApplicationForm form;
-	private final ApplicationFormItem item;
-	private final String message;
+	private ApplicationForm form;
+	private ApplicationFormItem item;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public FormItemUpdated() {
+	}
 
 	public FormItemUpdated(ApplicationForm form, ApplicationFormItem item) {
 		this.form = form;
 		this.item = item;
-		this.message = String.format("Application form ID=%d voID=%d %s has had it itemID=%d updated.", form.getId(),
+		this.message = formatMessage("Application form ID=%d voID=%d %s has had it itemID=%d updated.", form.getId(),
 				form.getVo().getId(), ((form.getGroup() != null) ? " groupID=" + form.getGroup().getId() : ""), item.getId());
 	}
 

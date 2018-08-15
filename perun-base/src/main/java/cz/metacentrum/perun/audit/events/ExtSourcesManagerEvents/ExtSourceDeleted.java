@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.ExtSource;
 
 public class ExtSourceDeleted extends AuditEvent {
 
-	private final ExtSource extSource;
-	private final String message;
+	private ExtSource extSource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ExtSourceDeleted() {
+	}
 
 	public ExtSourceDeleted(ExtSource extSource) {
 		this.extSource = extSource;
-		this.message = String.format("%s deleted.", extSource);
+		this.message = formatMessage("%s deleted.", extSource);
 	}
 
 	public ExtSource getExtSource() {

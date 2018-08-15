@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Service;
 
 public class AttributeAddedAsRequiredToService extends AuditEvent {
 
-	private final AttributeDefinition attribute;
-	private final Service service;
-	private final String message;
+	private AttributeDefinition attribute;
+	private Service service;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeAddedAsRequiredToService() {
+	}
 
 	public AttributeAddedAsRequiredToService(AttributeDefinition attribute, Service service) {
 		this.attribute = attribute;
 		this.service = service;
-		this.message = String.format("%s added to %s as required attribute.", attribute, service);
+		this.message = formatMessage("%s added to %s as required attribute.", attribute, service);
 	}
 
 	@Override

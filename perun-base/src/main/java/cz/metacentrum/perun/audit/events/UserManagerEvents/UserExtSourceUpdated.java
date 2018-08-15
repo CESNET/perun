@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 
 public class UserExtSourceUpdated extends AuditEvent {
 
-	private final UserExtSource userExtSource;
-	private final String message;
+	private UserExtSource userExtSource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public UserExtSourceUpdated() {
+	}
 
 	public UserExtSourceUpdated(UserExtSource userExtSource) {
 		this.userExtSource = userExtSource;
-		this.message = String.format("%s updated.", userExtSource);
+		this.message = formatMessage("%s updated.", userExtSource);
 	}
 
 	@Override

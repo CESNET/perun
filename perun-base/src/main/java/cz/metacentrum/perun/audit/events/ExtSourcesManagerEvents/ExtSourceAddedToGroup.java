@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class ExtSourceAddedToGroup extends AuditEvent {
 
-	private final ExtSource source;
-	private final Group group;
-	private final String message;
+	private ExtSource source;
+	private Group group;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ExtSourceAddedToGroup() {
+	}
 
 	public ExtSourceAddedToGroup(ExtSource source, Group group) {
 		this.source = source;
 		this.group = group;
-		this.message = String.format("%s added to %s.", source, group);
+		this.message = formatMessage("%s added to %s.", source, group);
 	}
 
 	public ExtSource getSource() {

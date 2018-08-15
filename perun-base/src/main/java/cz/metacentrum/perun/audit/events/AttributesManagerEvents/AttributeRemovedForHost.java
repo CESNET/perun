@@ -9,14 +9,18 @@ import cz.metacentrum.perun.core.api.Host;
  */
 public class AttributeRemovedForHost extends AuditEvent {
 
-	private final AttributeDefinition attribute;
-	private final Host host;
-	private final String message;
+	private AttributeDefinition attribute;
+	private Host host;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeRemovedForHost() {
+	}
 
 	public AttributeRemovedForHost(AttributeDefinition attribute, Host host) {
 		this.attribute = attribute;
 		this.host = host;
-		this.message = String.format("%s removed for %s.", attribute, host);
+		this.message = formatMessage("%s removed for %s.", attribute, host);
 	}
 
 	public AttributeDefinition getAttribute() {

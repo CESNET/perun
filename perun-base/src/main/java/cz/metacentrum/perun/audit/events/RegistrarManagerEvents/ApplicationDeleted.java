@@ -5,12 +5,16 @@ import cz.metacentrum.perun.registrar.model.Application;
 
 public class ApplicationDeleted extends AuditEvent {
 
-	private final Application app;
-	private final String message;
+	private Application app;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ApplicationDeleted() {
+	}
 
 	public ApplicationDeleted(Application app) {
 		this.app = app;
-		this.message = String.format("Application ID=%d voID=%d %s has been deleted", app.getId(),
+		this.message = formatMessage("Application ID=%d voID=%d %s has been deleted", app.getId(),
 				app.getVo().getId(), ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : ""));
 	}
 

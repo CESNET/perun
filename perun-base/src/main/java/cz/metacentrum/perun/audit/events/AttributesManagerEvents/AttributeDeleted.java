@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 
 public class AttributeDeleted extends AuditEvent {
 
-	private final AttributeDefinition attributeDefinition;
-	private final String message;
+	private AttributeDefinition attributeDefinition;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeDeleted() {
+	}
 
 	public AttributeDeleted(AttributeDefinition attribute) {
 		attributeDefinition = attribute;
-		this.message = String.format("%s deleted.", attributeDefinition);
+		this.message = formatMessage("%s deleted.", attributeDefinition);
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.User;
 
 public class AllUserExtSourcesDeletedForUser extends AuditEvent {
 
-	private final User user;
-	private final String message;
+	private User user;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AllUserExtSourcesDeletedForUser() {
+	}
 
 	public AllUserExtSourcesDeletedForUser(User user) {
 		this.user = user;
-		this.message = String.format("All user ext sources removed for %s.", user);
+		this.message = formatMessage("All user ext sources removed for %s.", user);
 	}
 
 	@Override

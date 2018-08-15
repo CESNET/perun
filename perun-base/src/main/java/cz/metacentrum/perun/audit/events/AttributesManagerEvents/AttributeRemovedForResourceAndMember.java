@@ -10,16 +10,20 @@ import cz.metacentrum.perun.core.api.Resource;
  */
 public class AttributeRemovedForResourceAndMember extends AuditEvent {
 
-	private final AttributeDefinition attribute;
-	private final Resource resource;
-	private final Member member;
-	private final String message;
+	private AttributeDefinition attribute;
+	private Resource resource;
+	private Member member;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeRemovedForResourceAndMember() {
+	}
 
 	public AttributeRemovedForResourceAndMember(AttributeDefinition attribute, Resource resource, Member member) {
 		this.attribute = attribute;
 		this.resource = resource;
 		this.member = member;
-		this.message = String.format("%s removed for %s and %s.", attribute, resource, member);
+		this.message = formatMessage("%s removed for %s and %s.", attribute, resource, member);
 	}
 
 	public AttributeDefinition getAttribute() {

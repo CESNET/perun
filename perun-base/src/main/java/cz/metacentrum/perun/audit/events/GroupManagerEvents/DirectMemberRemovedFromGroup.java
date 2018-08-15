@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class DirectMemberRemovedFromGroup extends AuditEvent {
 
-	private final Member member;
-	private final Group group;
-	private final String message;
+	private Member member;
+	private Group group;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public DirectMemberRemovedFromGroup() {
+	}
 
 	public DirectMemberRemovedFromGroup(Member member, Group group) {
 		this.member = member;
 		this.group = group;
-		this.message = String.format("%s was removed from %s.", member, group);
+		this.message = formatMessage("%s was removed from %s.", member, group);
 	}
 
 	@Override

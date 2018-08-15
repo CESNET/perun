@@ -6,14 +6,18 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail;
 
 public class MailForGroupIdAdded extends AuditEvent {
 
-	private final ApplicationMail mail;
-	private final Group group;
-	private final String message;
+	private ApplicationMail mail;
+	private Group group;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MailForGroupIdAdded() {
+	}
 
 	public MailForGroupIdAdded(ApplicationMail mail, Group group) {
 		this.mail = mail;
 		this.group = group;
-		this.message = String.format("Mail ID: %d of Type: %s/%s added for Group ID: %d.", mail.getId(),
+		this.message = formatMessage("Mail ID: %d of Type: %s/%s added for Group ID: %d.", mail.getId(),
 				mail.getMailType(), mail.getAppType(), group.getId());
 	}
 

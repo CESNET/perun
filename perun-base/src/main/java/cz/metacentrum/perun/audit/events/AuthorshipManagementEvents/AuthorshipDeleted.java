@@ -5,12 +5,16 @@ import cz.metacentrum.perun.cabinet.model.Authorship;
 
 public class AuthorshipDeleted extends AuditEvent {
 
-	private final Authorship authorship;
-	private final String message;
+	private Authorship authorship;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AuthorshipDeleted() {
+	}
 
 	public AuthorshipDeleted(Authorship authorship) {
 		this.authorship = authorship;
-		this.message = String.format("Authorship %s deleted.", authorship.serializeToString());
+		this.message = formatMessage("Authorship %s deleted.", authorship.serializeToString());
 	}
 
 	public Authorship getAuthorship() {

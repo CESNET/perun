@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class MemberRemovedFromGroupTotally extends AuditEvent {
 
-	private final Member member;
-	private final Group group;
-	private final String message;
+	private Member member;
+	private Group group;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MemberRemovedFromGroupTotally() {
+	}
 
 	public MemberRemovedFromGroupTotally(Member member, Group group) {
 		this.member = member;
 		this.group = group;
-		this.message = String.format("%s was removed from %s totally.", member, group);
+		this.message = formatMessage("%s was removed from %s totally", member, group);
 	}
 
 	@Override

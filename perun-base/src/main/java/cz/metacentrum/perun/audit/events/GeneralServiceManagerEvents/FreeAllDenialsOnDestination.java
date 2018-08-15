@@ -7,12 +7,16 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
  */
 public class FreeAllDenialsOnDestination extends AuditEvent {
 
-	private final int destinationId;
-	private final String message;
+	private int destinationId;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public FreeAllDenialsOnDestination() {
+	}
 
 	public FreeAllDenialsOnDestination(int destinationId) {
 		this.destinationId = destinationId;
-		this.message = String.format("free all denials: on %d.", destinationId);
+		this.message = formatMessage("free all denials: on %d.", destinationId);
 	}
 
 	public int getDestinationId() {

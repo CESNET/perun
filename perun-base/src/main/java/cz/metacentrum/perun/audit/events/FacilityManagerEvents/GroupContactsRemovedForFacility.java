@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class GroupContactsRemovedForFacility extends AuditEvent {
 
-	private final Group group;
-	private final ContactGroup contactGroup;
-	private final String message;
+	private Group group;
+	private ContactGroup contactGroup;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public GroupContactsRemovedForFacility() {
+	}
 
 	public GroupContactsRemovedForFacility(Group group, ContactGroup contactGroup) {
 		this.group = group;
 		this.contactGroup = contactGroup;
-		this.message = String.format("Group (%d) successfully removed from contact groups %s.", group.getId(), contactGroup);
+		this.message = formatMessage("Group (%d) successfully removed from contact groups %s.", group.getId(), contactGroup);
 	}
 
 	public Group getGroup() {

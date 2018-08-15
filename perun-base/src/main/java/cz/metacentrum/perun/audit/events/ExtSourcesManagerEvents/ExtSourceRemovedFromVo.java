@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class ExtSourceRemovedFromVo extends AuditEvent {
 
-	private final ExtSource source;
-	private final Vo vo;
-	private final String message;
+	private ExtSource source;
+	private Vo vo;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ExtSourceRemovedFromVo() {
+	}
 
 	public ExtSourceRemovedFromVo(ExtSource source, Vo vo) {
 		this.source = source;
 		this.vo = vo;
-		this.message = String.format("%s removed from %s.", source, vo);
+		this.message = formatMessage("%s removed from %s.", source, vo);
 	}
 
 	public ExtSource getSource() {

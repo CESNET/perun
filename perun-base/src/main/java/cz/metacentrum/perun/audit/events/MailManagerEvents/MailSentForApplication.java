@@ -5,14 +5,18 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail;
 
 public class MailSentForApplication extends AuditEvent {
 
-	private final ApplicationMail.MailType mailType;
-	private final int appId;
-	private final String message;
+	private ApplicationMail.MailType mailType;
+	private int appId;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MailSentForApplication() {
+	}
 
 	public MailSentForApplication(ApplicationMail.MailType mailType, int appId) {
 		this.mailType = mailType;
 		this.appId = appId;
-		this.message = String.format("Mail of Type: %s sent for Application: %d", mailType, appId);
+		this.message = formatMessage("Mail of Type: %s sent for Application: %d", mailType, appId);
 	}
 
 	@Override

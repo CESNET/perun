@@ -9,14 +9,18 @@ import cz.metacentrum.perun.core.api.Service;
  */
 public class FreeDenialServiceOnFacility extends AuditEvent {
 
-	private final Service service;
-	private final Facility facility;
-	private final String message;
+	private Service service;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public FreeDenialServiceOnFacility() {
+	}
 
 	public FreeDenialServiceOnFacility(Service service, Facility facility) {
 		this.service = service;
 		this.facility = facility;
-		this.message = String.format("free denial: %s on %s.", service, facility);
+		this.message = formatMessage("free denial: %s on %s.", service, facility);
 	}
 
 	public Service getService() {

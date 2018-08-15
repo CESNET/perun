@@ -9,14 +9,18 @@ import cz.metacentrum.perun.core.api.Facility;
  */
 public class AttributeSetForFacility extends AuditEvent {
 
-	private final Attribute attribute;
-	private final Facility facility;
-	private final String message;
+	private Attribute attribute;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeSetForFacility() {
+	}
 
 	public AttributeSetForFacility(Attribute attribute, Facility facility) {
 		this.attribute = attribute;
 		this.facility = facility;
-		this.message = String.format("%s set for %s.", attribute, facility);
+		this.message = formatMessage("%s set for %s.", attribute, facility);
 	}
 
 	public Attribute getAttribute() {

@@ -7,16 +7,20 @@ import cz.metacentrum.perun.core.api.Service;
 
 public class DestinationAddedToServiceAndFacility extends AuditEvent {
 
-	private final Destination destination;
-	private final Service service;
-	private final Facility facility;
-	private final String message;
+	private Destination destination;
+	private Service service;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public DestinationAddedToServiceAndFacility() {
+	}
 
 	public DestinationAddedToServiceAndFacility(Destination destination, Service service, Facility facility) {
 		this.destination = destination;
 		this.facility = facility;
 		this.service = service;
-		this.message = String.format("%s added to %s and %s.", destination, service, facility);
+		this.message = formatMessage("%s added to %s and %s.", destination, service, facility);
 	}
 
 	@Override

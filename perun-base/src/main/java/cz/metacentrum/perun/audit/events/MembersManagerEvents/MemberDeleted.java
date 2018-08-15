@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class MemberDeleted extends AuditEvent {
 
-	private final Member member;
-	private final String message;
+	private Member member;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MemberDeleted() {
+	}
 
 	public MemberDeleted(Member member) {
 		this.member = member;
-		this.message = String.format("%s deleted.", member);
+		this.message = formatMessage("%s deleted.", member);
 	}
 
 	@Override

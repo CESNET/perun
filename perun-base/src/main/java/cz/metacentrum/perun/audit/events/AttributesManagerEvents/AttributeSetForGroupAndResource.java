@@ -10,16 +10,20 @@ import cz.metacentrum.perun.core.api.Resource;
  */
 public class AttributeSetForGroupAndResource extends AuditEvent {
 
-	private final Attribute attribute;
-	private final Group group;
-	private final Resource resource;
-	private final String message;
+	private Attribute attribute;
+	private Group group;
+	private Resource resource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeSetForGroupAndResource() {
+	}
 
 	public AttributeSetForGroupAndResource(Attribute attribute, Group group, Resource resource) {
 		this.attribute = attribute;
 		this.group = group;
 		this.resource = resource;
-		this.message = String.format("%s set for %s and %s.", attribute, group, resource);
+		this.message = formatMessage("%s set for %s and %s.", attribute, group, resource);
 	}
 
 	public Attribute getAttribute() {

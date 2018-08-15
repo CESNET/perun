@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class VoUpdated extends AuditEvent {
 
-	private final Vo vo;
-	private final String message;
+	private Vo vo;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public VoUpdated() {
+	}
 
 	public VoUpdated(Vo vo) {
 		this.vo = vo;
-		this.message = String.format("%s updated.", vo);
+		this.message = formatMessage("%s updated.", vo);
 	}
 
 	@Override

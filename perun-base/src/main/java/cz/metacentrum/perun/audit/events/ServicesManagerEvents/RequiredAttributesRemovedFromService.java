@@ -8,14 +8,18 @@ import java.util.List;
 
 public class RequiredAttributesRemovedFromService extends AuditEvent {
 
-	private final Service service;
-	private final List<? extends AttributeDefinition> attributes;
-	private final String message;
+	private Service service;
+	private List<? extends AttributeDefinition> attributes;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public RequiredAttributesRemovedFromService() {
+	}
 
 	public RequiredAttributesRemovedFromService(List<? extends AttributeDefinition> attributes, Service service) {
 		this.service = service;
 		this.attributes = attributes;
-		this.message = String.format("%s removed from %s as required attributes.", attributes, service);
+		this.message = formatMessage("%s removed from %s as required attributes.", attributes, service);
 	}
 
 	@Override

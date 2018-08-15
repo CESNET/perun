@@ -9,16 +9,20 @@ import java.util.List;
 
 public class ResourceDeleted extends AuditEvent {
 
-	private final Resource resource;
-	private final Facility facility;
-	private final List<Service> services;
-	private final String message;
+	private Resource resource;
+	private Facility facility;
+	private List<Service> services;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ResourceDeleted() {
+	}
 
 	public ResourceDeleted(Resource resource, Facility facility, List<Service> services) {
 		this.resource = resource;
 		this.facility = facility;
 		this.services = services;
-		this.message = String.format("%s deleted.#%s. Afected services:%s.", resource, facility, services);
+		this.message = formatMessage("%s deleted.#%s. Afected services:%s.", resource, facility, services);
 	}
 
 	@Override

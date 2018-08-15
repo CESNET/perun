@@ -5,14 +5,18 @@ import cz.metacentrum.perun.core.api.User;
 
 public class UserAddedToOwnersOfSpecificUser extends AuditEvent {
 
-	private final User user;
-	private final User specificUser;
-	private final String message;
+	private User user;
+	private User specificUser;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public UserAddedToOwnersOfSpecificUser() {
+	}
 
 	public UserAddedToOwnersOfSpecificUser(User user, User specificUser) {
 		this.user = user;
 		this.specificUser = specificUser;
-		this.message = String.format("%s was added to owners of %s.", user, specificUser);
+		this.message = formatMessage("%s was added to owners of %s.", user, specificUser);
 	}
 
 	@Override

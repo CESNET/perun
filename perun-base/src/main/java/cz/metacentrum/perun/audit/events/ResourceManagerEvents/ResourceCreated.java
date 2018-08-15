@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Resource;
 
 public class ResourceCreated extends AuditEvent {
 
-	private final Resource resource;
-	private final String message;
+	private Resource resource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ResourceCreated() {
+	}
 
 	public ResourceCreated(Resource resource) {
 		this.resource = resource;
-		this.message = String.format("%s created.", resource);
+		this.message = formatMessage("%s created.", resource);
 	}
 
 	@Override

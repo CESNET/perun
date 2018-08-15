@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.ServicesPackage;
 
 public class ServicesPackageUpdated extends AuditEvent {
 
-	private final ServicesPackage servicesPackage;
-	private final String message;
+	private ServicesPackage servicesPackage;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ServicesPackageUpdated() {
+	}
 
 	public ServicesPackageUpdated(ServicesPackage servicesPackage) {
 		this.servicesPackage = servicesPackage;
-		this.message = String.format("%s updated.", servicesPackage);
+		this.message = formatMessage("%s updated.", servicesPackage);
 	}
 
 	@Override

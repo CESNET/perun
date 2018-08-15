@@ -6,14 +6,18 @@ import cz.metacentrum.perun.registrar.model.Application;
 
 public class MemberCreatedForApprovedApp extends AuditEvent {
 
-	private final Member member;
-	private final Application app;
-	private final String message;
+	private Member member;
+	private Application app;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MemberCreatedForApprovedApp() {
+	}
 
 	public MemberCreatedForApprovedApp(Member member, Application app) {
 		this.member = member;
 		this.app = app;
-		this.message = String.format("%s created for approved %s.", member, app);
+		this.message = formatMessage("%s created for approved %s.", member, app);
 	}
 
 	public Member getMember() {

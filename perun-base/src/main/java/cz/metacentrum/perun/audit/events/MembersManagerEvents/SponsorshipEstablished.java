@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.User;
 
 public class SponsorshipEstablished extends AuditEvent {
 
-	private final Member sponsoredMember;
-	private final User sponsor;
-	private final String message;
+	private Member sponsoredMember;
+	private User sponsor;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public SponsorshipEstablished() {
+	}
 
 	public SponsorshipEstablished(Member sponsoredMember, User sponsor) {
 		this.sponsoredMember = sponsoredMember;
 		this.sponsor = sponsor;
-		this.message = String.format("Sponsorship of %s by %s established.", sponsoredMember, sponsor);
+		this.message = formatMessage("Sponsorship of %s by %s established.", sponsoredMember, sponsor);
 	}
 
 	@Override

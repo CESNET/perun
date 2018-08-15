@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class AdminGroupAddedForFacility extends AuditEvent {
 
-	private final Group group;
-	private final Facility facility;
-	private final String message;
+	private Group group;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AdminGroupAddedForFacility() {
+	}
 
 	public AdminGroupAddedForFacility(Group group, Facility facility) {
 		this.group = group;
 		this.facility = facility;
-		this.message = String.format("Group %s was added as admin of %s.", group, facility);
+		this.message = formatMessage("Group %s was added as admin of %s.", group, facility);
 	}
 
 	public Group getGroup() {

@@ -5,16 +5,20 @@ import cz.metacentrum.perun.core.api.BanOnResource;
 
 public class BanSetForResource extends AuditEvent {
 
-	private final BanOnResource banOnResource;
-	private final int memberId;
-	private final int resourceId;
-	private final String message;
+	private BanOnResource banOnResource;
+	private int memberId;
+	private int resourceId;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public BanSetForResource() {
+	}
 
 	public BanSetForResource(BanOnResource banOnResource, int memberId, int resourceId) {
 		this.banOnResource = banOnResource;
 		this.memberId = memberId;
 		this.resourceId = resourceId;
-		this.message = String.format("Ban %s was set for memberId %d on resourceId %d.", banOnResource, memberId,
+		this.message = formatMessage("Ban %s was set for memberId %d on resourceId %d.", banOnResource, memberId,
 				resourceId);
 	}
 

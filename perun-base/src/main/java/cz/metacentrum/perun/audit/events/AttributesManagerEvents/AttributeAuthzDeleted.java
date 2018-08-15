@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 
 public class AttributeAuthzDeleted extends AuditEvent {
 
-	private final AttributeDefinition attributeDefinition;
-	private final String message;
+	private AttributeDefinition attributeDefinition;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeAuthzDeleted() {
+	}
 
 	public AttributeAuthzDeleted(AttributeDefinition attribute) {
 		attributeDefinition = attribute;
-		this.message = String.format("All authorization information were deleted for %s.", attributeDefinition);
+		this.message = formatMessage("All authorization information were deleted for %s.", attributeDefinition);
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

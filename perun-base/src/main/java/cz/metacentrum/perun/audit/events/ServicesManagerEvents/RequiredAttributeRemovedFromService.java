@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Service;
 
 public class RequiredAttributeRemovedFromService extends AuditEvent {
 
-	private final AttributeDefinition attributeDefinition;
-	private final Service service;
-	private final String message;
+	private AttributeDefinition attributeDefinition;
+	private Service service;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public RequiredAttributeRemovedFromService() {
+	}
 
 	public RequiredAttributeRemovedFromService(AttributeDefinition attribute, Service service) {
 		this.attributeDefinition = attribute;
 		this.service = service;
-		this.message = String.format("%s removed from %s as required attribute.", attribute, service);
+		this.message = formatMessage("%s removed from %s as required attribute.", attribute, service);
 	}
 
 	@Override

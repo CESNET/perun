@@ -6,16 +6,20 @@ import cz.metacentrum.perun.core.api.User;
 
 public class UserAddedToBlackListOfSecurityTeam extends AuditEvent {
 
-	private final User user;
-	private final SecurityTeam securityTeam;
-	private final String description;
-	private final String message;
+	private User user;
+	private SecurityTeam securityTeam;
+	private String description;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public UserAddedToBlackListOfSecurityTeam() {
+	}
 
 	public UserAddedToBlackListOfSecurityTeam(User user, SecurityTeam securityTeam, String description) {
 		this.user = user;
 		this.securityTeam = securityTeam;
 		this.description = description;
-		this.message = String.format("%s add to blacklist of %s with description '%s'.", user, securityTeam, description);
+		this.message = formatMessage("%s add to blacklist of %s with description '%s'.", user, securityTeam, description);
 	}
 
 	@Override

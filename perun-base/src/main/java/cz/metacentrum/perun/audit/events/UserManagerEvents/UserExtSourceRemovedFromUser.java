@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 
 public class UserExtSourceRemovedFromUser extends AuditEvent {
 
-	private final User user;
-	private final UserExtSource userExtSource;
-	private final String message;
+	private User user;
+	private UserExtSource userExtSource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public UserExtSourceRemovedFromUser() {
+	}
 
 	public UserExtSourceRemovedFromUser(UserExtSource userExtSource, User user) {
 		this.userExtSource = userExtSource;
 		this.user = user;
-		this.message = String.format("%s removed from %s.", userExtSource, user);
+		this.message = formatMessage("%s removed from %s.", userExtSource, user);
 	}
 
 	@Override

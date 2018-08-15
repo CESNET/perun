@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.ServicesPackage;
 
 public class ServiceAddedToServicePackage extends AuditEvent {
 
-	private final Service service;
-	private final ServicesPackage servicesPackage;
-	private final String message;
+	private Service service;
+	private ServicesPackage servicesPackage;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ServiceAddedToServicePackage() {
+	}
 
 	public ServiceAddedToServicePackage(Service service, ServicesPackage servicesPackage) {
 		this.service = service;
 		this.servicesPackage = servicesPackage;
-		this.message = String.format("%s added to %s.", service, servicesPackage);
+		this.message = formatMessage("%s added to %s.", service, servicesPackage);
 	}
 
 	@Override

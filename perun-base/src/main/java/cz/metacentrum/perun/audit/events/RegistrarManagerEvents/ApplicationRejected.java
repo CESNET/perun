@@ -5,12 +5,16 @@ import cz.metacentrum.perun.registrar.model.Application;
 
 public class ApplicationRejected extends AuditEvent {
 
-	private final Application app;
-	private final String message;
+	private Application app;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ApplicationRejected() {
+	}
 
 	public ApplicationRejected(Application application) {
 		this.app = application;
-		this.message = String.format("Application ID=%d voID=%d %s has been rejected.", app.getId(),
+		this.message = formatMessage("Application ID=%d voID=%d %s has been rejected.", app.getId(),
 				app.getVo().getId(), ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : ""));
 	}
 

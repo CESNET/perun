@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.User;
 
 public class AdminUserAddedForResource extends AuditEvent {
 
-	private final User user;
-	private final Resource resource;
-	private final String message;
+	private User user;
+	private Resource resource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AdminUserAddedForResource() {
+	}
 
 	public AdminUserAddedForResource(User user, Resource resource) {
 		this.user = user;
 		this.resource = resource;
-		this.message = String.format("%s was added as admin of %s.", user, resource);
+		this.message = formatMessage("%s was added as admin of %s.", user, resource);
 	}
 
 	@Override

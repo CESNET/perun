@@ -10,16 +10,20 @@ import cz.metacentrum.perun.core.api.Resource;
  */
 public class AttributeSetForResourceAndMember extends AuditEvent {
 
-	private final Attribute attribute;
-	private final Resource resource;
-	private final Member member;
-	private final String message;
+	private Attribute attribute;
+	private Resource resource;
+	private Member member;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeSetForResourceAndMember() {
+	}
 
 	public AttributeSetForResourceAndMember(Attribute attribute, Resource resource, Member member) {
 		this.attribute = attribute;
 		this.resource = resource;
 		this.member = member;
-		this.message = String.format("%s set for %s and %s.", attribute, resource, member);
+		this.message = formatMessage("%s set for %s and %s.", attribute, resource, member);
 	}
 
 	public Attribute getAttribute() {

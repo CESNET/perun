@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Resource;
 
 public class AllAttributesRemovedForResource extends AuditEvent {
 
-	private final Resource resource;
-	private final String message;
+	private Resource resource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AllAttributesRemovedForResource() {
+	}
 
 	public AllAttributesRemovedForResource(Resource resource) {
 		this.resource = resource;
-		this.message = String.format("All attributes removed for %s.", resource);
+		this.message = formatMessage("All attributes removed for %s.", resource);
 	}
 
 	public Resource getResource() {

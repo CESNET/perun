@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Service;
 
 public class DestinationsRemovedFromService extends AuditEvent {
 
-	private final Facility facility;
-	private final Service service;
-	private final String message;
+	private Facility facility;
+	private Service service;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public DestinationsRemovedFromService() {
+	}
 
 	public DestinationsRemovedFromService(Service service, Facility facility) {
 		this.facility = facility;
 		this.service = service;
-		this.message = String.format("All destinations removed from %s and %s.", service, facility);
+		this.message = formatMessage("All destinations removed from %s and %s.", service, facility);
 	}
 
 	@Override

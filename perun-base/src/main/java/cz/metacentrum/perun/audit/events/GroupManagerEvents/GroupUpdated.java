@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class GroupUpdated extends AuditEvent {
 
-	private final Group group;
-	private final String message;
+	private Group group;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public GroupUpdated() {
+	}
 
 	public GroupUpdated(Group group) {
 		this.group = group;
-		this.message = String.format("%s updated.", group);
+		this.message = formatMessage("%s updated.", group);
 	}
 
 	@Override

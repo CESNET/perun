@@ -10,7 +10,7 @@ package cz.metacentrum.perun.audit.events;
  */
 public class StringMessageEvent extends AuditEvent {
 
-	private final String message;
+	private String message;
 
 	public StringMessageEvent(String message) {
 		this.message = message;

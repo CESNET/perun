@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class AllAttributesRemovedForVo extends AuditEvent {
 
-	private final Vo vo;
-	private final String message;
+	private Vo vo;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AllAttributesRemovedForVo() {
+	}
 
 	public AllAttributesRemovedForVo(Vo vo) {
 		this.vo = vo;
-		this.message = String.format("All attributes removed for %s.", vo);
+		this.message = formatMessage("All attributes removed for %s.", vo);
 	}
 
 	public Vo getVo() {

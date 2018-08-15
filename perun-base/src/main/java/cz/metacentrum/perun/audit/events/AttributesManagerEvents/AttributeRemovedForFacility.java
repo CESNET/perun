@@ -9,14 +9,18 @@ import cz.metacentrum.perun.core.api.Facility;
  */
 public class AttributeRemovedForFacility extends AuditEvent {
 
-	private final AttributeDefinition attribute;
-	private final Facility facility;
-	private final String message;
+	private AttributeDefinition attribute;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeRemovedForFacility() {
+	}
 
 	public AttributeRemovedForFacility(AttributeDefinition attribute, Facility facility) {
 		this.attribute = attribute;
 		this.facility = facility;
-		this.message = String.format("%s removed for %s.", attribute, facility);
+		this.message = formatMessage("%s removed for %s.", attribute, facility);
 	}
 
 	public AttributeDefinition getAttribute() {

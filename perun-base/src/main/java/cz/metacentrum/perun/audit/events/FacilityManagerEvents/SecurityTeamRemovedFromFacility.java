@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.SecurityTeam;
 
 public class SecurityTeamRemovedFromFacility extends AuditEvent {
 
-	private final SecurityTeam securityTeam;
-	private final Facility facility;
-	private final String message;
+	private SecurityTeam securityTeam;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public SecurityTeamRemovedFromFacility() {
+	}
 
 	public SecurityTeamRemovedFromFacility(SecurityTeam securityTeam, Facility facility) {
 		this.securityTeam = securityTeam;
 		this.facility = facility;
-		this.message = String.format("%s was removed from %s.", securityTeam, facility);
+		this.message = formatMessage("%s was removed from %s.", securityTeam, facility);
 	}
 
 	@Override

@@ -7,77 +7,46 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityCreated;
-import cz.metacentrum.perun.audit.events.ServicesManagerEvents.DestinationsRemovedFromAllServices;
-import cz.metacentrum.perun.audit.events.StringMessageEvent;
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.AuditMessage;
+import cz.metacentrum.perun.core.api.Facility;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.implApi.AuditerListener;
 
-@Ignore
 public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private Facility facility;      // uses creation of facility to store same system message in Auditer
-	private String consumerName = "testConsumer";
 
-	@Autowired
-	private AuditerConsumer auditerConsumer;
-
-	private AuditerPublisher auditerPublisher;
 
 	@Before
 	public void checkAuditerExists() throws Exception {
 
 		assertNotNull("unable to get auditer",perun.getAuditer());
-		auditerPublisher = new AuditerPublisher(auditerConsumer);
 	}
 
 	@Test
 	public void logMessage() throws Exception {
 		System.out.println("AuditerTest.logMessage");
 
-		perun.getAuditer().log(sess, new StringMessageEvent("test message"));
-		//
-		boolean contains = false;
-		for(AuditerMessage m : perun.getAuditer().getMessages()){
-			if(m.getEvent().getMessage().equals("test message")){
-				contains = true;
-			}
-		}
+		perun.getAuditer().clean();
 
-		assertTrue("shoud contain logged message",contains);
-		//assertTrue("shoud contain logged message",perun.getAuditer().getMessages().contains("test message"));
+		Facility testFacility = new Facility(0,"AuditorTestFacility");
+		FacilityCreated facilityCreatedEvent = new FacilityCreated(testFacility);
 
-	}
+		perun.getAuditer().log(sess, facilityCreatedEvent);
+		perun.getAuditer().flush();
 
-	/**
-	 *
-	 * @author Richard Husar 445238@mail.muni.cz
-	 * @throws Exception
-	 */
-	@Test
-	public void logMessageToJson() throws Exception{
-		System.out.println("AuditerTest.logMessageToJson");
-		setUpFacility();
-		perun.getAuditer().log(sess, new FacilityCreated(facility));
-		boolean contains = false;
-		for(AuditerMessage m : perun.getAuditer().getMessages()){
-			System.out.println(m);
-			if(m.getEvent().getMessage().contains("{\"facility\":{\"id\":3325,")){
-				contains = true;
-			}
-		}
-		assertTrue("shoud contain logged message",contains);
+		List<AuditMessage> messages = perun.getAuditer().getMessagesByCount(1);
+
+		assertEquals("Invalid number of messages.", 1, messages.size());
+		assertTrue("Invalid message received.", messages.get(0).getMsg().contains("Facility created: Facility:"));
 
 	}
 
 	@Test
+	@Ignore
 	public void flushAllMessages() throws Exception {
 		System.out.println("AuditerTest.flushAllMessages");
 
@@ -85,158 +54,23 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue("auditer should contain at least one message",perun.getAuditer().getMessages().size()>=1);
 		perun.getAuditer().flush();
 		assertTrue("auditer should be empty after flush", perun.getAuditer().getMessages().isEmpty());
-
 	}
 
-	@Test
-	public void cleanMessages() throws Exception {
-		System.out.println("AuditerTest.cleanMessages");
-
-		setUpFacility();
-		assertTrue("auditer should contain at least one message",perun.getAuditer().getMessages().size()>=1);
-		perun.getAuditer().clean();
-		assertTrue("auditer should be empty after flush", perun.getAuditer().getMessages().isEmpty());
-	}
-
-	@Test
-	public void getLastMessages() throws Exception {
-		System.out.println("AuditeTest.getLastMessages");
-		for (int i = 0; i < 20; i++) {
-			perun.getAuditer().log(sess, new StringMessageEvent("Testovaci text c."+ i +"."));
-		}
-		List<AuditMessage> messages = perun.getAuditer().getMessages(20);
-		assertEquals("getMessage(count) returns wrong count of messages", 20, messages.size());
-	}
-
-	@Test
-	@Ignore //deprecated
-	public void getCorrectMessageFromLastMessages() throws Exception {
-		System.out.println("AuditeTest.getCorrectMessageFromLastMessages");
-		perun.getAuditer().clean();
-		for (int i = 0; i < 20; i++) {
-			if(i==5) perun.getAuditer().log(sess, new StringMessageEvent("Abdjsj&#(234JSK"));
-			else perun.getAuditer().log(sess, new StringMessageEvent("Testovaci text c."+ i +"."));
-
-		}
-		perun.getAuditer().flush();
-		List<AuditMessage> messages = perun.getAuditer().getMessagesByCount(20);
-
-		boolean contain=false;
-		for (AuditMessage m:messages){
-			if(m.getMsg().contains("Abdjsj&#(234JSK")) contain=true;
-		}
-		assertTrue("One of messages need to contain specific message.", contain);
-	}
-
-	/**
-	 *
-	 * @author Richard Husar 445238@mail.muni.cz
-	 * @throws Exception
-	 */
 	@Test
 	public void getCorrectJsonMessages() throws Exception{
 		System.out.println("AuditerTest.getCorrectJsonMessages");
 		perun.getAuditer().clean();
 
-		for (int i = 1; i < 20; i = i++) {
-			Facility testFacility = new Facility(++i,"AuditorTestFacility number "+ String.valueOf(i));
-			testFacility = perun.getFacilitiesManager().createFacility(sess, testFacility);
-//			perun.getAuditer().log(sess, testFacility);
-		}
-		perun.getAuditer().flush();
-		List<AuditMessage> messages = perun.getAuditer().getJSONMessages(20);
+		Facility testFacility = new Facility(0,"AuditorTestFacility");
+		FacilityCreated facilityCreatedEvent = new FacilityCreated(testFacility);
 
-		boolean same=true;
-		if(!messages.get(0).getMsg().contains("\"name\":\"AuditorTestFacility number "+ 20))
-			same=false;
-		assertTrue("Messages do not correspond", same);
-	}
-
-	@Test
-	public void getSubscriberMessagesFacilityCreated() throws Exception{
-		System.out.println("AuditerTest.getSubscriberMessagesFileredByFacilityCreated");
-		perun.getAuditer().clean();
-		//set up facility
-		setUpFacility();
-
+		perun.getAuditer().log(sess, facilityCreatedEvent);
 		perun.getAuditer().flush();
 
-		List<String> shouldContain = new ArrayList<>();
-		shouldContain.add("Test subscriber gets filtered message : 3326");
+		List<AuditMessage> messages = perun.getAuditer().getJSONMessages(1);
 
-		//set up subscriber
-		FacilityCreatedSubscriber testSubscriber = new FacilityCreatedSubscriber();
-		testSubscriber.subscribe();
-		auditerPublisher.publishMessages(auditerPublisher.getMessages());
-
-		//wait for pubsubmechanizm to distribute message
-		int counter = 100;
-		boolean recieved = false;
-		while(counter > 0 && !recieved){
-			Thread.sleep(200);
-			if(!testSubscriber.recievedMessages.isEmpty()){
-				recieved = true;
-			}
-			counter--;
-		}
-		assertTrue("Subscriber did not recieve messages.",recieved);
-		assertTrue("Should contain all filtered messages.",testSubscriber.recievedMessages.containsAll(shouldContain) && testSubscriber.recievedMessages.size() == 1);
-	}
-
-
-	private static PubsubMechanizm pubsubMechanizm = PubsubMechanizm.getInstance();
-
-	/**
-	 * Subscriber which is registered for listening to audit messages of FacilityCreated type with id of 3328
-	 */
-	private class FacilityCreatedSubscriber implements PubsubMechanizm.Listener
-	{
-
-		List<String> recievedMessages = new ArrayList<>();
-
-		public void subscribe()
-		{
-			List<String> params = new ArrayList<String>();
-			params.add("facility.id=3326");
-			pubsubMechanizm.addListener(FacilityCreated.class, this, params);
-
-		}
-		@Override
-		public void onEventReceived(Object event, Object object) {
-			if(object instanceof FacilityCreated){
-				FacilityCreated f = (FacilityCreated) object;
-				recievedMessages.add("Test subscriber gets filtered message : " + f.getFacility().getId());
-			}else if (object instanceof DestinationsRemovedFromAllServices) {
-				DestinationsRemovedFromAllServices d = (DestinationsRemovedFromAllServices) object;
-				recievedMessages.add("Test subscriber gets message: " + d.toString());
-			}else{
-				recievedMessages.add("Test message with unknown event type.");
-			}
-
-		}
-	}
-	
-	public void setAuditerConsumer(AuditerConsumer auditerConsumer) {
-		this.auditerConsumer = auditerConsumer;
-	}
-
-	private class AuditerListenerDummy implements AuditerListener {
-
-		private List<String> messages = new ArrayList<String>();
-
-		@Override
-		public void notifyWith(String message) {
-
-			messages.add(message);
-
-		}
-
-		public List<String> getMessages() {
-
-			return messages;
-
-		}
-
+		assertEquals("Invalid number of messages.", 1, messages.size());
+		assertTrue("Invalid message received.", messages.get(0).getMsg().contains("\"message\":\"Facility created: Facility:"));
 	}
 
 	// ------------- private methods ----------------------------------

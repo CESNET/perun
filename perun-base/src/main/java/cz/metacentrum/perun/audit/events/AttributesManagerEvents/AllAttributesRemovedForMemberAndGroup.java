@@ -6,15 +6,18 @@ import cz.metacentrum.perun.core.api.Member;
 
 public class AllAttributesRemovedForMemberAndGroup extends AuditEvent {
 
-	private final Member member;
-	private final Group group;
-	private final String message;
+	private Member member;
+	private Group group;
+	private String message;
 
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AllAttributesRemovedForMemberAndGroup() {
+	}
 
 	public AllAttributesRemovedForMemberAndGroup(Member member, Group group) {
 		this.member = member;
 		this.group = group;
-		this.message = String.format("All attributes removed for %s and %s.", member, group);
+		this.message = formatMessage("All attributes removed for %s and %s.", member, group);
 	}
 
 	public Member getMember() {

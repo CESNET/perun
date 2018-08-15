@@ -8,12 +8,16 @@ import cz.metacentrum.perun.core.api.Service;
  */
 public class ForcePropagationOnService extends AuditEvent {
 
-	private final Service service;
-	private final String message;
+	private Service service;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ForcePropagationOnService() {
+	}
 
 	public ForcePropagationOnService(Service service) {
 		this.service = service;
-		this.message = String.format("force propagation: On %s.", service);
+		this.message = formatMessage("force propagation: On %s.", service);
 	}
 
 	public Service getService() {

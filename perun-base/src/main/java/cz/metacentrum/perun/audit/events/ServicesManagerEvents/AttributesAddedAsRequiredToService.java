@@ -8,14 +8,18 @@ import java.util.List;
 
 public class AttributesAddedAsRequiredToService extends AuditEvent {
 
-	private final List<? extends AttributeDefinition> attributes;
-	private final Service service;
-	private final String message;
+	private List<? extends AttributeDefinition> attributes;
+	private Service service;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributesAddedAsRequiredToService() {
+	}
 
 	public AttributesAddedAsRequiredToService(List<? extends AttributeDefinition> attributes, Service service) {
 		this.attributes = attributes;
 		this.service = service;
-		this.message = String.format("%s added to %s as required attributes.", attributes, service);
+		this.message = formatMessage("%s added to %s as required attributes.", attributes, service);
 	}
 
 	@Override

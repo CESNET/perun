@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Resource;
 
 public class FacilitySetForResource extends AuditEvent {
 
-	private final Facility facility;
-	private final Resource resource;
-	private final String message;
+	private Facility facility;
+	private Resource resource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public FacilitySetForResource() {
+	}
 
 	public FacilitySetForResource(Facility facility, Resource resource) {
 		this.facility = facility;
 		this.resource = resource;
-		this.message = String.format("%s set for %s", facility, resource);
+		this.message = formatMessage("%s set for %s", facility, resource);
 	}
 
 	@Override

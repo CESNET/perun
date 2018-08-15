@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class ExtSourceRemovedFromGroup extends AuditEvent {
 
-	private final ExtSource source;
-	private final Group group;
-	private final String message;
+	private ExtSource source;
+	private Group group;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ExtSourceRemovedFromGroup() {
+	}
 
 	public ExtSourceRemovedFromGroup(ExtSource source, Group group) {
 		this.source = source;
 		this.group = group;
-		this.message = String.format("%s removed from %s.", source, group);
+		this.message = formatMessage("%s removed from %s.", source, group);
 	}
 
 	public ExtSource getSource() {

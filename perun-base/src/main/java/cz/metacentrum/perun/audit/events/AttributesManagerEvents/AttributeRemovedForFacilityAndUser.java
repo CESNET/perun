@@ -10,16 +10,20 @@ import cz.metacentrum.perun.core.api.User;
  */
 public class AttributeRemovedForFacilityAndUser extends AuditEvent {
 
-	private final AttributeDefinition attribute;
-	private final Facility facility;
-	private final User user;
-	private final String message;
+	private AttributeDefinition attribute;
+	private Facility facility;
+	private User user;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeRemovedForFacilityAndUser() {
+	}
 
 	public AttributeRemovedForFacilityAndUser(AttributeDefinition attribute, Facility facility, User user) {
 		this.attribute = attribute;
 		this.facility = facility;
 		this.user = user;
-		this.message = String.format("%s removed for %s and %s.", attribute, facility, user);
+		this.message = formatMessage("%s removed for %s and %s.", attribute, facility, user);
 	}
 
 	public AttributeDefinition getAttribute() {

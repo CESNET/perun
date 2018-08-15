@@ -152,7 +152,7 @@ public class AuditerConsumer {
 	 */
 	public List<String> getMessagesInJson() throws InternalErrorException {
 		try {
-			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
+			int maxId = jdbc.queryForInt("select max(id) from auditer_log_json");
 			if (maxId > lastProcessedId) {
 				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log_json where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER, this.lastProcessedId, maxId);
 				this.lastProcessedId = maxId;

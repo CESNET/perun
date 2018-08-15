@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class AllGroupsFromVoDeleted extends AuditEvent {
 
-	private final Vo vo;
-	private final String message;
+	private Vo vo;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AllGroupsFromVoDeleted() {
+	}
 
 	public AllGroupsFromVoDeleted(Vo vo) {
 		this.vo = vo;
-		this.message = String.format("All group in %s deleted.", vo);
+		this.message = formatMessage("All group in %s deleted.", vo);
 	}
 
 	@Override

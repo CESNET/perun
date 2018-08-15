@@ -7,14 +7,18 @@ import java.util.List;
 
 public class UsersRemovedFromContactGroupOfFacility extends AuditEvent {
 
-	private final List<Integer> usersId;
-	private final ContactGroup contactGroup;
-	private final String message;
+	private List<Integer> usersId;
+	private ContactGroup contactGroup;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public UsersRemovedFromContactGroupOfFacility() {
+	}
 
 	public UsersRemovedFromContactGroupOfFacility(List<Integer> usersId, ContactGroup contactGroup) {
 		this.usersId = usersId;
 		this.contactGroup = contactGroup;
-		this.message = String.format("Users (%s) successfully removed from contact group %s.", usersId, contactGroup);
+		this.message = formatMessage("Users (%s) successfully removed from contact group %s.", usersId, contactGroup);
 	}
 
 	@Override

@@ -5,14 +5,18 @@ import cz.metacentrum.perun.registrar.model.ApplicationMail;
 
 public class MailSending extends AuditEvent {
 
-	private final ApplicationMail mail;
-	private final String message;
-	private final boolean enabled;
+	private ApplicationMail mail;
+	private String message;
+	private boolean enabled;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public MailSending() {
+	}
 
 	public MailSending(ApplicationMail mail, boolean enabled) {
 		this.mail = mail;
 		this.enabled = enabled;
-		this.message = String.format("Sending of Mail ID: %d %s.", mail.getId(),
+		this.message = formatMessage("Sending of Mail ID: %d %s.", mail.getId(),
 				(enabled) ? " enabled." : " disabled.");
 	}
 

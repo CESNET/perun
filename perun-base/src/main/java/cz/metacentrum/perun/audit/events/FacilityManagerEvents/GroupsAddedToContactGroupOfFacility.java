@@ -7,14 +7,18 @@ import java.util.List;
 
 public class GroupsAddedToContactGroupOfFacility extends AuditEvent {
 
-	private final List<Integer> groupsId;
-	private final ContactGroup contactGroup;
-	private final String message;
+	private List<Integer> groupsId;
+	private ContactGroup contactGroup;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public GroupsAddedToContactGroupOfFacility() {
+	}
 
 	public GroupsAddedToContactGroupOfFacility(List<Integer> groupsId, ContactGroup contactGroup) {
 		this.groupsId = groupsId;
 		this.contactGroup = contactGroup;
-		this.message = String.format("Groups (%s) successfully added from contact groups %s.", groupsId, contactGroup);
+		this.message = formatMessage("Groups (%s) successfully added from contact groups %s.", groupsId, contactGroup);
 	}
 
 	public List<Integer> getGroupsId() {

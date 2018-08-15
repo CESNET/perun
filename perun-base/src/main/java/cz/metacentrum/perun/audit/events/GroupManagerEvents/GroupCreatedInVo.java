@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Vo;
 
 public class GroupCreatedInVo extends AuditEvent {
 
-	private final Group group;
-	private final Vo vo;
-	private final String message;
+	private Group group;
+	private Vo vo;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public GroupCreatedInVo() {
+	}
 
 	public GroupCreatedInVo(Group group, Vo vo) {
 		this.group = group;
 		this.vo = vo;
-		this.message = String.format("%s created in %s.", group, vo);
+		this.message = formatMessage("%s created in %s.", group, vo);
 	}
 
 	@Override

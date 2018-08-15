@@ -5,14 +5,18 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class GroupSyncFailed extends AuditEvent {
 
-	private final Group group;
-	private final String originalExceptionMessage;
-	private final String message;
+	private Group group;
+	private String originalExceptionMessage;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public GroupSyncFailed() {
+	}
 
 	public GroupSyncFailed(Group group, String originalExceptionMessage) {
 		this.group = group;
 		this.originalExceptionMessage = originalExceptionMessage;
-		this.message = String.format( "%s synchronization failed because of %s.", group, originalExceptionMessage);
+		this.message = formatMessage( "%s synchronization failed because of %s.", group, originalExceptionMessage);
 	}
 
 	@Override

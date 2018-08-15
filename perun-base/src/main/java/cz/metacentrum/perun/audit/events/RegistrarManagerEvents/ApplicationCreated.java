@@ -5,12 +5,16 @@ import cz.metacentrum.perun.registrar.model.Application;
 
 public class ApplicationCreated extends AuditEvent {
 
-	private final Application app;
-	private final String message;
+	private Application app;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ApplicationCreated() {
+	}
 
 	public ApplicationCreated(Application app) {
 		this.app = app;
-		this.message = String.format("New %s created.", app);
+		this.message = formatMessage("New %s created.", app);
 	}
 
 	@Override

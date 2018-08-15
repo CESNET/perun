@@ -4,6 +4,7 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -194,17 +195,6 @@ public class Auditer {
 	}
 
 	/**
-	 * removes ',' characters as well as whitespaces and newline characters before message attribute and ',' directly after message attribute
-	 *
-	 * @param jsonString
-	 * @return json string without message attribute
-	 * @author Richard Husár 445238@mail.muni.cz
-	 */
-	public String getMessageWithoutMessageAttribute(String jsonString) {
-		return jsonString.replaceAll(",?(\\r\\n|\\r|\\n)?\\s*\"message\":\".*\",?", "");
-	}
-
-	/**
 	 * Log mesage. Substitute first {} with arg1.toString().
 	 *
 	 * IMPORTANT: This method stores the message aside from DB transaction.
@@ -221,6 +211,7 @@ public class Auditer {
 	 * in the list.
 	 *
 	 * @param arg (object)
+	 *
 	 * @return arg (object)
 	 */
 	private Object serializeObject(Object arg) {
@@ -250,6 +241,7 @@ public class Auditer {
 
 	/**
 	 * Initialize new lists for sotring Audit messages.
+	 *
 	 */
 	public void newTopLevelTransaction() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
@@ -270,6 +262,7 @@ public class Auditer {
 
 	/**
 	 * Creates new list for saving auditer messages of a new nested transactions.
+	 *
 	 */
 	public void newNestedTransaction() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
@@ -281,6 +274,7 @@ public class Auditer {
 	/**
 	 * Flush auditer messages of the last messages to the store of the outer transaction.
 	 * There should be at least one nested transaction.
+	 *
 	 */
 	public void flushNestedTransaction() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
@@ -297,6 +291,7 @@ public class Auditer {
 
 	/**
 	 * Erases the auditer messages for the last transaction.
+	 *
 	 */
 	public void cleanNestedTransation() {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
@@ -490,7 +485,7 @@ public class Auditer {
 		}
 
 		final List<Integer> ids = new ArrayList<>();
-		final List<PubsubMechanizm.Pair<AuditerMessage, Integer>> msgs = new ArrayList<>();
+		final List<Pair<AuditerMessage, Integer>> msgs = new ArrayList<>();
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
 
 			//Add all possible resolving messages to the bulk
@@ -533,7 +528,7 @@ public class Auditer {
 									final int msgId = Utils.getNewId(jdbc, "auditer_log_id_seq");
 									ps.setInt(1, msgId);
 									ids.add(msgId);
-									msgs.add(new PubsubMechanizm.Pair<AuditerMessage, Integer>(auditerMessage, msgId));
+									msgs.add(new Pair<>(auditerMessage, msgId));
 								} catch (InternalErrorException e) {
 									throw new SQLException("Cannot get unique id for new auditer log message ['" + message + "']", e);
 								}
@@ -563,7 +558,7 @@ public class Auditer {
 	 * @param messages takes pair of auditer message to be stored and id of message from audit_log
 	 * @author Richard Husár 445238@mail.muni.cz
 	 */
-	public void storeMessagesToDbJson(final List<PubsubMechanizm.Pair<AuditerMessage, Integer>> messages) {
+	public void storeMessagesToDbJson(final List<Pair<AuditerMessage, Integer>> messages) {
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG_JSON) {
 			try {
 				jdbc.batchUpdate("insert into auditer_log_json (id, msg, actor, created_at, created_by_uid) values (?,?,?," + Compatibility.getSysdate() + ",?)",
@@ -581,11 +576,10 @@ public class Auditer {
 									log.error("Could not map event {} to JSON.", message.getEvent().getClass().getSimpleName());
 								}
 								//store message without duplicit message attribute because it is stored in separate table
-								final String jsonMessage = getMessageWithoutMessageAttribute(jsonString);
 								final PerunSession session = messages.get(i).getLeft().getOriginaterPerunSession();
-								log.info("AUDIT_JSON: {}", jsonMessage);
+								log.info("AUDIT_JSON: {}", jsonString);
 								ps.setInt(1, messages.get(i).getRight());
-								ps.setString(2, jsonMessage);
+								ps.setString(2, jsonString);
 								ps.setString(3, session.getPerunPrincipal().getActor());
 								ps.setInt(4, session.getPerunPrincipal().getUserId());
 							}

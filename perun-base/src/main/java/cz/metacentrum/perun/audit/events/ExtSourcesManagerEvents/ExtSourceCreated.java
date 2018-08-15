@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.ExtSource;
 
 public class ExtSourceCreated extends AuditEvent {
 
-	private final ExtSource extSource;
-	private final String message;
+	private ExtSource extSource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ExtSourceCreated() {
+	}
 
 	public ExtSourceCreated(ExtSource extSource) {
 		this.extSource = extSource;
-		this.message = String.format("%s created.", extSource);
+		this.message = formatMessage("%s created.", extSource);
 	}
 
 	public ExtSource getExtSource() {

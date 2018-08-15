@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Facility;
 
 public class AllUserFacilityAttributesRemoved extends AuditEvent {
 
-	private final Facility facility;
-	private final String message;
+	private Facility facility;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AllUserFacilityAttributesRemoved() {
+	}
 
 	public AllUserFacilityAttributesRemoved(Facility facility) {
 		this.facility = facility;
-		this.message = String.format("All user-facility attributes removed for %s for any user.", facility);
+		this.message = formatMessage("All user-facility attributes removed for %s for any user.", facility);
 	}
 
 	public Facility getFacility() {

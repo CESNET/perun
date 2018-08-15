@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.Owner;
 
 public class OwnerContactsRemovedForFacility extends AuditEvent {
 
-	private final Owner owner;
-	private final ContactGroup contactGroup;
-	private final String message;
+	private Owner owner;
+	private ContactGroup contactGroup;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public OwnerContactsRemovedForFacility() {
+	}
 
 	public OwnerContactsRemovedForFacility(Owner owner, ContactGroup contactGroup) {
 		this.owner = owner;
 		this.contactGroup = contactGroup;
-		this.message = String.format("Owner (%d) successfully removed from contact groups %s.", owner.getId(), contactGroup);
+		this.message = formatMessage("Owner (%d) successfully removed from contact groups %s.", owner.getId(), contactGroup);
 	}
 
 	@Override

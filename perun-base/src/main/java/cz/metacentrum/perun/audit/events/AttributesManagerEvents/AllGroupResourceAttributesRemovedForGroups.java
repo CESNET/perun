@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Resource;
 
 public class AllGroupResourceAttributesRemovedForGroups extends AuditEvent {
 
-	private final Resource resource;
-	private final String message;
+	private Resource resource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AllGroupResourceAttributesRemovedForGroups() {
+	}
 
 	public AllGroupResourceAttributesRemovedForGroups(Resource resource) {
 		this.resource = resource;
-		this.message = String.format("All non-virtual group-resource attributes removed for all groups and %s.", resource);
+		this.message = formatMessage("All non-virtual group-resource attributes removed for all groups and %s.", resource);
 	}
 
 	public Resource getResource() {

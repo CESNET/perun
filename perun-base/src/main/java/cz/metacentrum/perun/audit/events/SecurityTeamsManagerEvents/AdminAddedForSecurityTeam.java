@@ -6,14 +6,18 @@ import cz.metacentrum.perun.core.api.User;
 
 public class AdminAddedForSecurityTeam extends AuditEvent {
 
-	private final User user;
-	private final SecurityTeam securityTeam;
-	private final String message;
+	private User user;
+	private SecurityTeam securityTeam;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AdminAddedForSecurityTeam() {
+	}
 
 	public AdminAddedForSecurityTeam(User user, SecurityTeam securityTeam) {
 		this.user = user;
 		this.securityTeam = securityTeam;
-		this.message = String.format("%s was added as security admin of %s.", user, securityTeam);
+		this.message = formatMessage("%s was added as security admin of %s.", user, securityTeam);
 	}
 
 	@Override

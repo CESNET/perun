@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 
 public class AttributeUpdated extends AuditEvent {
 
-	private final AttributeDefinition attributeDefinition;
-	private final String message;
+	private AttributeDefinition attributeDefinition;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AttributeUpdated() {
+	}
 
 	public AttributeUpdated(AttributeDefinition attributeDefinition) {
 		this.attributeDefinition = attributeDefinition;
-		this.message = String.format("%s updated.", attributeDefinition);
+		this.message = formatMessage("%s updated.", attributeDefinition);
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

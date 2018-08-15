@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Destination;
 
 public class DestinationCreated extends AuditEvent {
 
-	private final Destination destination;
-	private final String message;
+	private Destination destination;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public DestinationCreated() {
+	}
 
 	public DestinationCreated(Destination destination) {
 		this.destination = destination;
-		this.message = String.format("%s created.", destination);
+		this.message = formatMessage("%s created.", destination);
 	}
 
 	@Override

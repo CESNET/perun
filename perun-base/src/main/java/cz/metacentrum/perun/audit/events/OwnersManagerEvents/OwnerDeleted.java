@@ -5,12 +5,16 @@ import cz.metacentrum.perun.core.api.Owner;
 
 public class OwnerDeleted extends AuditEvent {
 
-	private final Owner owner;
-	private final String message;
+	private Owner owner;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public OwnerDeleted() {
+	}
 
 	public OwnerDeleted(Owner owner) {
 		this.owner = owner;
-		this.message = String.format("%s deleted.", owner);
+		this.message = formatMessage("%s deleted.", owner);
 	}
 
 	@Override

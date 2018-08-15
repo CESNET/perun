@@ -5,12 +5,16 @@ import cz.metacentrum.perun.cabinet.model.Authorship;
 
 public class AuthorshipCreated extends AuditEvent {
 
-	private final Authorship authorship;
-	private final String message;
+	private Authorship authorship;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public AuthorshipCreated() {
+	}
 
 	public AuthorshipCreated(Authorship authorship) {
 		this.authorship = authorship;
-		this.message = String.format("Authorship %s created.", authorship.serializeToString());
+		this.message = formatMessage("Authorship %s created.", authorship.serializeToString());
 	}
 
 	public Authorship getAuthorship() {
