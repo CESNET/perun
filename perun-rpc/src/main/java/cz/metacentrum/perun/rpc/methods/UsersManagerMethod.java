@@ -496,7 +496,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 					ac.getUserById(parms.readInt("user")),
 					ac.getUserExtSourceById(parms.readInt("userExtSource")));
 			}
-				
+
 			return null;
 		}
 	},
@@ -549,6 +549,23 @@ public enum UsersManagerMethod implements ManagerMethod {
 		public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getUsersManager().getUserExtSourceByExtLogin(ac.getSession(),
 					parms.read("extSource", ExtSource.class),
+					parms.readString("extSourceLogin"));
+		}
+	},
+
+	/*#
+	 * Gets user's external source by the user's external login and external source name
+	 *
+	 * @param extSourceName String Name of ext source (eg. entityID of IdP)
+	 * @param extSourceLogin String Login
+	 * @return UserExtSource UserExtSource found user's external source
+	 */
+	getUserExtSourceByExtLoginAndExtSourceName {
+
+		@Override
+		public UserExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getUserExtSourceByExtLogin(ac.getSession(),
+					ac.getExtSourceByName(parms.readString("extSourceName")),
 					parms.readString("extSourceLogin"));
 		}
 	},
