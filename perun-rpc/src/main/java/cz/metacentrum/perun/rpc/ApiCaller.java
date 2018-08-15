@@ -249,6 +249,10 @@ public class ApiCaller {
 		return getExtSourcesManager().getExtSourceById(rpcSession, id);
 	}
 
+	public ExtSource getExtSourceByName(String extSourceName) throws PerunException {
+		return getExtSourcesManager().getExtSourceByName(rpcSession, extSourceName);
+	}
+
 	public Service getServiceById(int id) throws PerunException {
 		return getServicesManager().getServiceById(rpcSession, id);
 	}
