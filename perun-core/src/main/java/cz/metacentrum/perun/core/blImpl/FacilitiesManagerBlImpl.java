@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -412,7 +413,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 				throw new InternalErrorException("Attribute " + attributeName + " is large attribute, which is not supported.");
 			}
 			Attribute attribute = new Attribute(attributeDef);
-			attribute.setValue(attributeValue);
+			attribute.setValue(BeansUtils.stringToAttributeValue(attributeValue, attribute.getType()));
 			getPerunBl().getAttributesManagerBl().checkNamespace(sess, attribute, AttributesManager.NS_FACILITY_ATTR);
 			if (!(getPerunBl().getAttributesManagerBl().isDefAttribute(sess, attribute) || getPerunBl().getAttributesManagerBl().isOptAttribute(sess, attribute)))
 				throw new WrongAttributeAssignmentException("This method can process only def and opt attributes");
