@@ -124,6 +124,22 @@ public interface AttributesManager {
 	List<Attribute> getAttributes(PerunSession sess, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException;
 
 	/**
+	 * Get all attributes associated with the facility which have name in list attrNames (empty too).
+	 * Virtual attribute too.
+	 *
+	 * PRIVILEGE: Get only those attributes the principal has access to.
+	 *
+	 * @param sess      perun session
+	 * @param facility    to get the attributes from
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 * @throws PrivilegeException       if privileges are not given
+	 * @throws InternalErrorException   if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws FacilityNotExistsException if the facility not exists in Perun
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws PrivilegeException, InternalErrorException, FacilityNotExistsException;
+
+	/**
 	 * Get all <b>non-empty</b> attributes associated with the vo.
 	 * PRIVILEGE: Get only those attributes the principal has access to.
 	 *

@@ -122,6 +122,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws InternalErrorException {
+		if (attrNames.isEmpty()) return new ArrayList<>();
+
+		return getAttributesManagerImpl().getAttributes(sess, facility, attrNames);
+	}
+
 	public List<Attribute> getAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, vo);
