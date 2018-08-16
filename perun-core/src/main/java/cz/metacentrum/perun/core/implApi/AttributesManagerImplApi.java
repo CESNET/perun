@@ -58,6 +58,18 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getAttributes(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
+	 * Get all attributes associated with the facility which have name in list attrNames (empty too).
+	 * Virtual attribute too.
+	 *
+	 * @param sess      perun session
+	 * @param facility    to get the attributes from
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 * @throws InternalErrorException   if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws InternalErrorException;
+
+	/**
 	 * Get all virtual attributes associated with the facility.
 	 *
 	 * @param sess perun session
