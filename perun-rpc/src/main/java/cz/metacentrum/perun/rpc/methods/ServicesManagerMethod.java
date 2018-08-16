@@ -715,7 +715,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
-	 * @param type String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @param type String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @return Destination Created destination.
 	 */
 	/*#
@@ -724,7 +724,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param services List<Service> Services
 	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
-	 * @param type String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @param type String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @return Destination Created destination.
 	 */
 	/*#
@@ -733,7 +733,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
-	 * @param type String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @param type String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
 	 * @return Destination Created destination.
 	 */
@@ -743,7 +743,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param services List<Service> Services
 	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
-	 * @param type String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @param type String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
 	 * @return Destination Created destination.
 	 */
@@ -782,7 +782,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
-	 * @param type String String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @param type String String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @return List<Destinations> Added destinations
 	 */
 	/*#
@@ -790,7 +790,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
-	 * @param type String Destination type (HOST,USER@HOST,USER@HOST:PORT,URL,MAIL,SERVICE-SPECIFIC)
+	 * @param type String Destination type (host,user@host,user@host:port,url,mail,service-specific)
 	 * @param propagationType String propagation type (PARALLEL, DUMMY - doesn't send data)
 	 * @return List<Destinations> Added destinations
 	 */
