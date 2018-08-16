@@ -57,6 +57,7 @@ import org.springframework.test.annotation.IfProfileValue;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -515,7 +516,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getAttributesManagerBl().setAttribute(sess, f1, GIDNamespaceForFacilities);
 		GIDNamespaceForFacilities.setValue(namespaceBBB);
 		perun.getAttributesManagerBl().setAttribute(sess, f2, GIDNamespaceForFacilities);
-		
+
 		//create new service and assigne it to resources
 		Service s1 = new Service(0, "testService01", null);
 		s1 = perun.getServicesManagerBl().createService(sess, s1);
@@ -929,6 +930,33 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue("returned less than 4 attributes",retAttr.size() >= 3);
 		// 2 core + 1 opt
 
+	}
+
+	@Test
+	public void getFacilityAttributesByListOfAttrNames() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilityAttributesByListOfAttrNames");
+
+		facility = setUpFacility();
+		attributes = setUpFacilityAttribute();
+		attributesManager.setAttribute(sess, facility, attributes.get(0));
+
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, facility, Collections.singletonList(attributes.get(0).getName()));
+
+		assertTrue("our atttribute not returned",retAttr.contains(attributes.get(0)));
+		assertTrue("returned more than 1 attribute",retAttr.size() == 1);
+	}
+
+	@Test
+	public void getFacilityAttributesByEmptyListOfAttrNames() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilityAttributesByEmptyListOfAttrNames");
+
+		facility = setUpFacility();
+		attributes = setUpFacilityAttribute();
+		attributesManager.setAttribute(sess, facility, attributes.get(0));
+
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, facility, Collections.EMPTY_LIST);
+
+		assertTrue("our list of attributes is not empty",retAttr.isEmpty());
 	}
 
 	@Test (expected=FacilityNotExistsException.class)

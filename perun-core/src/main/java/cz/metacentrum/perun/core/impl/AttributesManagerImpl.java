@@ -687,6 +687,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws InternalErrorException {
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("fId", facility.getId());
+		parameters.addValue("nSC", AttributesManager.NS_FACILITY_ATTR_CORE);
+		parameters.addValue("nSO", AttributesManager.NS_FACILITY_ATTR_OPT);
+		parameters.addValue("nSD", AttributesManager.NS_FACILITY_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_FACILITY_ATTR_VIRT);
+		parameters.addValue("attrNames", attrNames);
+
+		try {
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("fav") + " from attr_names " +
+							"left join facility_attr_values fav on id=fav.attr_id and facility_id=:fId " +
+							"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
+					parameters, new SingleBeanAttributeRowMapper<>(sess, this, facility));
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	private List<Attribute> getVirtualAttributes(RowMapper<Attribute> rowMapper, String namespace) throws InternalErrorException {
 		try {
 			return jdbc.query("SELECT " + attributeDefinitionMappingSelectQuery + ", NULL AS attr_value FROM attr_names WHERE namespace=?", rowMapper, namespace);
