@@ -307,6 +307,217 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue(returnedGroups.contains(group1));
 	}
 
+	@Test
+	public void getFacilitiesByCoreAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByCoreAttributeValue");
+
+		Facility facility1 = setUpFacility("testFacility01");
+		setUpFacility("testFacility02");
+		setUpFacility("testFacility03");
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_FACILITY_ATTR_CORE + ":name", facility1.getName());
+
+		List<Facility> foundFacilities = searcherBl.getFacilities(sess, searchParams);
+
+		assertEquals("Found invalid number of facilities", 1, foundFacilities.size());
+		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility1));
+	}
+
+	@Test
+	public void getFacilitiesByStringAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByStringAttributeValue");
+
+		Facility facility1 = setUpFacility("testFacility01");
+		Facility facility2 = setUpFacility("testFacility02");
+		Facility facility3 = setUpFacility("testFacility03");
+		Facility facility4 = setUpFacility("testFacility04");
+
+		String searchedValue = "searchedValue";
+		String otherValue = "otherValue";
+		String attributeName = "testAttribute";
+
+		AttributeDefinition ad = setUpFacilityAttribute(attributeName, String.class.getName());
+		Attribute searchedAttribute = new Attribute(ad, searchedValue);
+		Attribute otherAttribute = new Attribute(ad, otherValue);
+
+		perun.getAttributesManagerBl().setAttribute(sess, facility1, searchedAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, facility2, otherAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, facility3, otherAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, facility4, searchedAttribute);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_FACILITY_ATTR_DEF + ":" + attributeName, searchedValue);
+
+		List<Facility> foundFacilities = searcherBl.getFacilities(sess, searchParams);
+
+		assertEquals("Found invalid number of facilities", 2, foundFacilities.size());
+		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility1));
+		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility4));
+	}
+
+	@Test
+	public void getFacilitiesByTwoAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByTwoAttributeValue");
+
+		Facility facility1 = setUpFacility("testFacility01");
+		Facility facility2 = setUpFacility("testFacility02");
+		Facility facility3 = setUpFacility("testFacility03");
+		Facility facility4 = setUpFacility("testFacility04");
+
+		String searchedValue1 = "searchedValue1";
+		String searchedValue2 = "searchedValue2";
+		String attributeName1 = "testAttribute1";
+		String attributeName2 = "testAttribute2";
+
+		AttributeDefinition ad1 = setUpFacilityAttribute(attributeName1, String.class.getName());
+		AttributeDefinition ad2 = setUpFacilityAttribute(attributeName2, String.class.getName());
+		Attribute searchedAttribute1 = new Attribute(ad1, searchedValue1);
+		Attribute searchedAttribute2 = new Attribute(ad2, searchedValue2);
+
+		perun.getAttributesManagerBl().setAttribute(sess, facility1, searchedAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, facility2, searchedAttribute2);
+		perun.getAttributesManagerBl().setAttribute(sess, facility3, searchedAttribute2);
+		perun.getAttributesManagerBl().setAttribute(sess, facility4, searchedAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, facility4, searchedAttribute2);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_FACILITY_ATTR_DEF + ":" + attributeName1, searchedValue1);
+		searchParams.put(AttributesManager.NS_FACILITY_ATTR_DEF + ":" + attributeName2, searchedValue2);
+
+		List<Facility> foundFacilities = searcherBl.getFacilities(sess, searchParams);
+
+		assertEquals("Found invalid number of facilities", 1, foundFacilities.size());
+		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility4));
+	}
+
+	@Test
+	public void getFacilitiesByIntAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByIntAttributeValue");
+
+		Facility facility1 = setUpFacility("testFacility01");
+		Facility facility2 = setUpFacility("testFacility02");
+		Facility facility3 = setUpFacility("testFacility03");
+		Facility facility4 = setUpFacility("testFacility04");
+
+		int searchedValue = 14;
+		int otherValue = 4;
+		String attributeName = "testAttribute";
+
+		AttributeDefinition ad = setUpFacilityAttribute(attributeName, Integer.class.getName());
+		Attribute searchedAttribute = new Attribute(ad, searchedValue);
+		Attribute otherAttribute = new Attribute(ad, otherValue);
+
+		perun.getAttributesManagerBl().setAttribute(sess, facility1, searchedAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, facility2, otherAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, facility3, otherAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, facility4, searchedAttribute);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_FACILITY_ATTR_DEF + ":" + attributeName, Integer.toString(searchedValue));
+
+		List<Facility> foundFacilities = searcherBl.getFacilities(sess, searchParams);
+
+		assertEquals("Found invalid number of facilities", 2, foundFacilities.size());
+		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility1));
+		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility4));
+	}
+
+	@Test
+	public void getFacilitiesByListAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByListAttributeValue");
+
+		Facility facility1 = setUpFacility("testFacility01");
+		Facility facility2 = setUpFacility("testFacility02");
+		Facility facility3 = setUpFacility("testFacility03");
+		Facility facility4 = setUpFacility("testFacility04");
+
+		String searchedString = "searchedValue";
+		String otherString = "otherValue";
+		String attributeName = "testAttribute";
+
+		List<String> matchingList1 = new ArrayList<>();
+		List<String> matchingList2 = new ArrayList<>();
+		List<String> notMatchingList1 = new ArrayList<>();
+		List<String> notMatchingList2 = new ArrayList<>();
+
+		matchingList1.add(searchedString);
+		matchingList2.add(searchedString);
+		matchingList2.add(otherString);
+
+		notMatchingList1.add(otherString);
+
+		AttributeDefinition ad = setUpFacilityAttribute(attributeName, ArrayList.class.getName());
+
+		Attribute searchedAttribute1 = new Attribute(ad, matchingList1);
+		Attribute searchedAttribute2 = new Attribute(ad, matchingList2);
+		Attribute otherAttribute1 = new Attribute(ad, notMatchingList1);
+		Attribute otherAttribute2 = new Attribute(ad, notMatchingList2);
+
+		perun.getAttributesManagerBl().setAttribute(sess, facility1, searchedAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, facility2, otherAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, facility3, otherAttribute2);
+		perun.getAttributesManagerBl().setAttribute(sess, facility4, searchedAttribute2);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_FACILITY_ATTR_DEF + ":" + attributeName, searchedString);
+
+		List<Facility> foundFacilities = searcherBl.getFacilities(sess, searchParams);
+
+		assertEquals("Found invalid number of facilities", 2, foundFacilities.size());
+		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility1));
+		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility4));
+	}
+
+	@Test
+	public void getFacilitiesByMapAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByMapAttributeValue");
+
+		Facility facility1 = setUpFacility("testFacility01");
+		Facility facility2 = setUpFacility("testFacility02");
+		Facility facility3 = setUpFacility("testFacility03");
+		Facility facility4 = setUpFacility("testFacility04");
+
+		String searchedString = "searchedValue";
+		String searchedKeyString = "searchedKey";
+		String otherString = "otherValue";
+		String otherKeyString = "otherKey";
+		String attributeName = "testAttribute";
+
+		Map<String, String> matchingMap1 = new LinkedHashMap<>();
+		Map<String, String> matchingMap2 = new LinkedHashMap<>();
+		Map<String, String> notMatchingMap1 = new LinkedHashMap<>();
+		Map<String, String> notMatchingMap2 = new LinkedHashMap<>();
+
+		matchingMap1.put(searchedKeyString, searchedString);
+		matchingMap2.put(searchedKeyString, searchedString);
+		matchingMap2.put(otherKeyString, otherString);
+		notMatchingMap1.put(otherKeyString, otherString);
+		notMatchingMap1.put(otherKeyString, searchedString);
+		notMatchingMap2.put(searchedKeyString, otherString);
+
+		AttributeDefinition ad = setUpFacilityAttribute(attributeName, LinkedHashMap.class.getName());
+
+		Attribute searchedAttribute1 = new Attribute(ad, matchingMap1);
+		Attribute searchedAttribute2 = new Attribute(ad, matchingMap2);
+		Attribute otherAttribute1 = new Attribute(ad, notMatchingMap1);
+		Attribute otherAttribute2 = new Attribute(ad, notMatchingMap2);
+
+		perun.getAttributesManagerBl().setAttribute(sess, facility1, searchedAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, facility2, otherAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, facility3, otherAttribute2);
+		perun.getAttributesManagerBl().setAttribute(sess, facility4, searchedAttribute2);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_FACILITY_ATTR_DEF + ":" + attributeName, searchedKeyString + "=" + searchedString);
+
+		List<Facility> foundFacilities = searcherBl.getFacilities(sess, searchParams);
+
+		assertEquals("Found invalid number of facilities", 2, foundFacilities.size());
+		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility1));
+		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility4));
+	}
+
 	// PRIVATE METHODS -----------------------------------------------------------
 
 	private void setUpUser1() throws Exception {
@@ -454,5 +665,22 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		attr.setDescription("Testing attribute2");
 
 		return perun.getAttributesManager().createAttribute(sess, attr);
+	}
+
+	private AttributeDefinition setUpFacilityAttribute(String name, String type) throws Exception {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setFriendlyName(name);
+		attr.setType(type);
+		attr.setDisplayName(name);
+		attr.setDescription(name + " testing attribute");
+
+		return perun.getAttributesManagerBl().createAttribute(sess, attr);
+	}
+
+	private Facility setUpFacility(String name) throws Exception {
+		Facility facility = new Facility(0, name, name);
+
+		return perun.getFacilitiesManagerBl().createFacility(sess, facility);
 	}
 }
