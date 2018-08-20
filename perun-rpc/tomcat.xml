@@ -1,32 +1,46 @@
 <?xml version='1.0' encoding='utf-8'?>
+<Server port="8005" shutdown="SHUTDOWN" debug="FINE">
 
-<!-- This is a simple config for running Perun in embedded Tomcat of Maven Tomcat7 plugin
-     It has no affect on production use (when war is deployed to own Tomcat -->
+<Service name="Catalina" debug="FINE">
 
-<Server port="8005" shutdown="SHUTDOWN">
+	<!-- must be kept, since Cargo plugin check "cargocpc" app on 8080 port -->
+	<Connector port="8080"
+	           maxThreads="150"
+	           minSpareThreads="25"
+	           enableLookups="false"
+	           connectionTimeout="20000"
+	           disableUploadTimeout="true"
+	           scheme="http"
+	           secure="false"
+	           debug="FINE"
+	           URIEncoding="UTF-8" />
 
-	<Listener className="org.apache.catalina.core.JasperListener" />
-	<Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
-	<Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
-	<Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+	<!-- Define an AJP 1.3 Connector on port 8009 for PERUN -->
+	<Connector port="8009"
+	           protocol="AJP/1.3"
+	           address="127.0.0.1"
+	           tomcatAuthentication="false"
+	           URIEncoding="UTF-8"
+	           packetSize="36000"
+	           redirectPort="8080"/>
 
-	<GlobalNamingResources>
-		<Resource name="UserDatabase" auth="Container"
-		          type="org.apache.catalina.UserDatabase"
-		          description="User database that can be updated and saved"
-		          factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
-		          pathname="conf/tomcat-users.xml" />
-	</GlobalNamingResources>
+	<Engine name="Catalina" defaultHost="localhost" debug="FINE">
 
-	<Service name="Catalina">
+		<Realm className="org.apache.catalina.realm.MemoryRealm" />
 
-		<Connector port="8009" protocol="AJP/1.3" address="127.0.0.1" tomcatAuthentication="false" URIEncoding="UTF-8" packetSize="36000" />
+		<!-- deploy cargo apps from "webapps" folder -->
+		<Host name="localhost" appBase="webapps" deployOnStartup="true" autoDeploy="true" unpackWARs="true">
 
-		<Engine name="Catalina" defaultHost="localhost">
-			<Host name="localhost" appBase="" deployOnStartup="false" autoDeploy="false">
-				<Context path="/perun-rpc" docBase="../perun-rpc.war" sessionCookieName="PERUNSESSION" sessionCookiePath="/" />
-			</Host>
-		</Engine>
+			<!-- cargo replaces -->
+			@tomcat.webapps@
 
-	</Service>
+			<!-- Logging -->
+			<Valve className="org.apache.catalina.valves.AccessLogValve"
+			       directory="logs" prefix="localhost_access_log." suffix=".txt"
+			       pattern="common" />
+
+		</Host>
+	</Engine>
+
+</Service>
 </Server>
