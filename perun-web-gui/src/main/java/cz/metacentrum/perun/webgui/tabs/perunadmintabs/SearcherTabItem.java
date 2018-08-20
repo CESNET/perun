@@ -1,19 +1,26 @@
 package cz.metacentrum.perun.webgui.tabs.perunadmintabs;
 
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.searcher.GetFacilities;
 import cz.metacentrum.perun.webgui.json.searcher.GetUsers;
+import cz.metacentrum.perun.webgui.model.Facility;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.PerunAdminTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.facilitiestabs.FacilityDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.PerunSearchParametersWidget;
 
@@ -42,6 +49,9 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 	 */
 	private Label titleWidget = new Label("Searcher");
 
+	private TabLayoutPanel tabPanel;
+	private int lastTabId = 0;
+
 	/**
 	 * Creates a tab instance
 	 */
@@ -52,6 +62,61 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public Widget draw() {
+
+		// main widget panel
+		VerticalPanel vp = new VerticalPanel();
+		vp.setWidth("100%");
+
+		tabPanel = new TabLayoutPanel(33, Style.Unit.PX);
+		tabPanel.addStyleName("smallTabPanel");
+		final TabItem tab = this;
+		tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+			public void onSelection(SelectionEvent<Integer> event) {
+				UiElements.runResizeCommands(tab);
+			}
+		});
+
+		final SimplePanel sp0 = new SimplePanel(); // users
+		final SimplePanel sp1 = new SimplePanel(); // facilities
+
+		session.getUiElements().resizeSmallTabPanel(tabPanel, 100, this);
+
+		tabPanel.add(sp0, "Users");
+		tabPanel.add(sp1, "Facilities");
+
+		sp0.setWidget(loadUsersTab());
+
+		tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+
+			public void onSelection(SelectionEvent<Integer> event) {
+				UiElements.runResizeCommands(tab);
+				setLastTabId(event.getSelectedItem());
+				if (0 == event.getSelectedItem()) {
+					if (sp0.getWidget() == null) {
+						sp0.setWidget(loadUsersTab());
+					}
+				} else if (1 == event.getSelectedItem()) {
+					if (sp1.getWidget() == null) {
+						sp1.setWidget(loadFacilitiesTab());
+					}
+				}
+			}
+		});
+
+		tabPanel.selectTab(getLastTabId(), true);  // select and trigger onSelect event
+
+		session.getUiElements().resizePerunTable(tabPanel, 100, this);
+
+		// add tabs to the main panel
+		vp.add(tabPanel);
+		this.contentWidget.setWidget(vp);
+
+		return getWidget();
+
+	}
+
+	private Widget loadUsersTab() {
+
 
 		// request
 		final GetUsers request = new GetUsers();
@@ -67,11 +132,11 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 				request.clearParameters();
 
 				for(Map.Entry<String, String> entry : map.entrySet())
-		{
-			request.addSearchParameter(entry.getKey(), entry.getValue());
-		}
+				{
+					request.addSearchParameter(entry.getKey(), entry.getValue());
+				}
 
-		request.search();
+				request.search();
 			}
 		});
 
@@ -92,11 +157,72 @@ public class SearcherTabItem implements TabItem, TabItemWithUrl {
 		sp.addStyleName("perun-tableScrollPanel");
 		firstTabPanel.add(sp);
 		session.getUiElements().resizePerunTable(sp, 350, this);
+		return firstTabPanel;
+
+	}
+
+	private Widget loadFacilitiesTab() {
+
+		// request
+		final GetFacilities request = new GetFacilities();
+
+		// MAIN TAB PANEL
+		VerticalPanel firstTabPanel = new VerticalPanel();
+		firstTabPanel.setSize("100%", "100%");
+
+		PerunSearchParametersWidget params = new PerunSearchParametersWidget(PerunEntity.FACILITY, new PerunSearchParametersWidget.SearchEvent() {
+
+			public void search(Map<String, String> map) {
+
+				request.clearParameters();
+
+				for(Map.Entry<String, String> entry : map.entrySet())
+				{
+					request.addSearchParameter(entry.getKey(), entry.getValue());
+				}
+
+				request.search();
+			}
+		});
+
+		firstTabPanel.add(params);
+
+		// get the table
+		final CellTable<Facility> table = request.getEmptyTable(new FieldUpdater<Facility, String>() {
+			public void update(int index, Facility object, String value) {
+				// opens the tab
+				session.getTabManager().addTab(new FacilityDetailTabItem(object));
+			}
+		});
+
+		// add a class to the table and wrap it into scroll panel
+		table.addStyleName("perun-table");
+
+		ScrollPanel sp = new ScrollPanel(table);
+		sp.addStyleName("perun-tableScrollPanel");
+		firstTabPanel.add(sp);
+		session.getUiElements().resizePerunTable(sp, 350, this);
+		return firstTabPanel;
+
+	}
 
 
-		this.contentWidget.setWidget(firstTabPanel);
+	/**
+	 * Returns ID of last selected subtab in this page
+	 *
+	 * @return ID of subtab
+	 */
+	private int getLastTabId(){
+		return this.lastTabId;
+	}
 
-		return getWidget();
+	/**
+	 * Sets ID of subtab as last selected
+	 *
+	 * @param id
+	 */
+	private void setLastTabId(int id){
+		this.lastTabId = id;
 	}
 
 	public Widget getWidget() {

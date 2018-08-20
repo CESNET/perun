@@ -100,6 +100,9 @@ public class PerunSearchParametersWidget extends Composite {
 					case USER:
 						ent = "user";
 						break;
+					case FACILITY:
+						ent = "facility";
+						break;
 
 					default:
 						return;
