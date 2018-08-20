@@ -133,6 +133,23 @@ public class Utils {
 	}
 
 	/**
+	 * Creates copy of given Map with Sets as values. The returned object contains a new Map
+	 * and new Sets, the {@link T} objects remain the same.
+	 *
+	 * @param original original Map
+	 * @param <T> parameter
+	 * @return new Map with new Sets as values
+	 */
+	public static <T> Map<T, Set<T>> createDeepCopyOfMapWithSets(Map<T, Set<T>> original) {
+		Map<T, Set<T>> copy = new HashMap<>();
+		for (T key : original.keySet()) {
+			Set<T> setCopy = original.get(key) == null ? null : new HashSet<>(original.get(key));
+			copy.put(key, setCopy);
+		}
+		return copy;
+	}
+
+	/**
 	 * Checks whether the object is null or not.
 	 *
 	 * @param e
