@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.blImpl;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -107,6 +108,101 @@ public class SearcherBlImpl implements SearcherBl {
 		return getSearcherImpl().getGroupsByGroupResourceSetting(sess, groupResourceAttribute, resourceAttribute);
 	}
 
+	@Override
+	public List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
+			return perunBl.getFacilitiesManagerBl().getFacilities(sess);
+		}
+
+		Map<Attribute, String> mapOfAttrsWithValues = new HashMap<>();
+		Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<>();
+
+		for(String name: attributesWithSearchingValues.keySet()) {
+			if(name == null || name.equals("")) {
+				throw new AttributeNotExistsException("There is no attribute with specified name!");
+			}
+
+			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, name);
+
+			if(getPerunBl().getAttributesManagerBl().isCoreAttribute(sess, attrDef)) {
+				mapOfCoreAttributesWithValues.put(attrDef, attributesWithSearchingValues.get(name));
+			} else {
+				mapOfAttrsWithValues.put(new Attribute(attrDef), attributesWithSearchingValues.get(name));
+			}
+		}
+
+		List<Facility> facilitiesFromCoreAttributes = getFacilitiesForCoreAttributesByMapOfAttributes(sess, mapOfCoreAttributesWithValues);
+		List<Facility> facilitiesFromAttributes = getSearcherImpl().getFacilities(sess, mapOfAttrsWithValues);
+		facilitiesFromCoreAttributes.retainAll(facilitiesFromAttributes);
+		return facilitiesFromCoreAttributes;
+	}
+
+	private List<Facility> getFacilitiesForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
+		if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
+			return facilities;
+		}
+
+		Set<AttributeDefinition> keys = coreAttributesWithSearchingValues.keySet();
+		for(Iterator<Facility> facilityIter = facilities.iterator(); facilityIter.hasNext();) {
+			Facility facilityFromIterator = facilityIter.next();
+
+			//Compare all needed attributes and their value to the attributes of every facility. If he does not fit, remove it from the array of returned facilities.
+			for(AttributeDefinition attrDef: keys) {
+
+				String value = coreAttributesWithSearchingValues.get(attrDef);
+				Attribute attrForFacility = getPerunBl().getAttributesManagerBl().getAttribute(sess, facilityFromIterator, attrDef.getName());
+
+				//One of attributes is not equal so remove him and continue with next facility
+				if (!isAttributeValueMatching(attrForFacility, value)) {
+					facilityIter.remove();
+					break;
+				}
+			}
+		}
+		return facilities;
+	}
+
+	/**
+	 * Returns true if the given value corresponds with value of given attribute.
+	 *
+	 * Accepted types of values are Integer and String. If given attribute has any other
+	 * value type, exception is risen.
+	 *
+	 * @param entityAttribute attribute
+	 * @param value value
+	 * @return true, if the given value corresponds with value of given attribute
+	 * @throws InternalErrorException internal error
+	 */
+	private boolean isAttributeValueMatching(Attribute entityAttribute, String value) throws InternalErrorException {
+		boolean shouldBeAccepted = true;
+
+		if(entityAttribute.getValue() == null) {
+			//We are looking for entities with null value in this core attribute
+			if(value!=null && !value.isEmpty()) {
+				shouldBeAccepted = false;
+			}
+		} else {
+			//We need to compare those values, if they are equals,
+			if (entityAttribute.getValue() instanceof String) {
+				String attrValue = entityAttribute.valueAsString();
+				if (!attrValue.equals(value)) {
+					shouldBeAccepted = false;
+				}
+			} else if (entityAttribute.getValue() instanceof Integer) {
+				Integer attrValue = entityAttribute.valueAsInteger();
+				Integer valueInInteger = Integer.valueOf(value);
+				if (attrValue.intValue() != valueInInteger.intValue()) {
+					shouldBeAccepted = false;
+				}
+			} else {
+				throw new InternalErrorException("Core attribute: " + entityAttribute + " is not type of String or Integer!");
+			}
+		}
+
+		return shouldBeAccepted;
+	}
+
 	/**
 	 * This method take map of coreAttributes with search values and return all
 	 * users who have the specific match for all of these core attributes.
@@ -128,29 +224,11 @@ public class SearcherBlImpl implements SearcherBl {
 
 			//Compare all needed attributes and their value to the attributes of every user. If he does not fit, remove him from the array of returned users.
 			for(AttributeDefinition attrDef: keys) {
-				boolean userIsAccepted = true;
 				String value = coreAttributesWithSearchingValues.get(attrDef);
 				Attribute attrForUser = getPerunBl().getAttributesManagerBl().getAttribute(sess, userFromIterator, attrDef.getName());
 
-				if(attrForUser.getValue() == null) {
-					//We are looking for users with null value in this core attribute
-					if(value!=null && !value.isEmpty()) userIsAccepted = false;
-				} else {
-					//We need to compare those values, if they are equals,
-					if (attrForUser.getValue() instanceof String) {
-						String attrValue = (String) attrForUser.getValue();
-						if (!attrValue.equals(value)) userIsAccepted = false;
-					} else if (attrForUser.getValue() instanceof Integer) {
-						Integer attrValue = (Integer) attrForUser.getValue();
-						Integer valueInInteger = Integer.valueOf(value);
-						if (attrValue.intValue() != valueInInteger.intValue()) userIsAccepted = false;
-					} else {
-						throw new InternalErrorException("Core attribute: " + attrForUser + " is not type of String or Integer!");
-					}
-				}
-
 				//One of attributes is not equal so remove him and continue with next user
-				if(!userIsAccepted) {
+				if(!isAttributeValueMatching(attrForUser, value)) {
 					userIter.remove();
 					break;
 				}
