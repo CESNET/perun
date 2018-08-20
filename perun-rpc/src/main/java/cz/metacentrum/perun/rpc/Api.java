@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.rpc;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -18,6 +19,8 @@ import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
+import cz.metacentrum.perun.rpc.serializer.SvgGraphvizSerializer;
+import cz.metacentrum.perun.rpc.serializer.TextFileSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONP;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONSIMPLE;
@@ -540,11 +543,17 @@ public class Api extends HttpServlet {
 				manager = fcm[1];
 				method = fcm[2];
 
-				ser = selectSerializer(fcm[0], out, req, resp);
+				ser = selectSerializer(fcm[0], manager, method, out, req, resp);
 
-				// is the output JSONP?
+				// what is the output format?
 				if ("jsonp".equalsIgnoreCase(fcm[0])) {
 					isJsonp = true;
+				}
+
+				if (ser instanceof TextFileSerializer) {
+					resp.addHeader("Content-Disposition", "attachment; filename=\"output.txt\"");
+				} else if (ser instanceof SvgGraphvizSerializer) {
+					resp.addHeader("Content-Disposition", "attachment; filename=\"output.svg\"");
 				}
 
 				resp.setContentType(ser.getContentType());
@@ -578,7 +587,6 @@ public class Api extends HttpServlet {
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				req.getSession(true).setAttribute(APICALLER, caller);
 			}
-
 			// Does user want to logout from perun?
 			if ("utils".equals(manager) && "logout".equals(method)) {
 				if (req.getSession(false) != null) {
@@ -749,21 +757,44 @@ public class Api extends HttpServlet {
 		log.debug("Method {}.{} called by {} from {}, duration {} ms.", manager, method, caller.getSession().getPerunPrincipal().getActor(), caller.getSession().getPerunPrincipal().getExtSourceName(), (System.currentTimeMillis() - timeStart));
 	}
 
-	private Serializer selectSerializer(String format, OutputStream out, HttpServletRequest req, HttpServletResponse resp) throws IOException, RpcException {
+	private Serializer selectSerializer(String format, String manager, String method, OutputStream out,
+		                                HttpServletRequest req, HttpServletResponse resp) throws IOException, RpcException {
+		Serializer serializer;
+
 		switch (Formats.match(format)) {
 			case json:
-				return new JsonSerializer(out);
+				serializer = new JsonSerializer(out);
+				break;
 			case jsonp:
-				return new JsonSerializerJSONP(out, req, resp);
+				serializer = new JsonSerializerJSONP(out, req, resp);
+				break;
 			case urlinjsonout:
-				return new JsonSerializer(out);
+				serializer = new JsonSerializer(out);
+				break;
 			case voot:
-				return new JsonSerializer(out);
+				serializer = new JsonSerializer(out);
+				break;
 			case jsonsimple:
-				return new JsonSerializerJSONSIMPLE(out);
+				serializer = new JsonSerializerJSONSIMPLE(out);
+				break;
+			case txt:
+				serializer = new TextFileSerializer(out);
+				break;
 			default:
 				throw new RpcException(RpcException.Type.UNKNOWN_SERIALIZER_FORMAT, format);
 		}
+
+		// handle special cases of returning file attachments to certain methods
+
+		if ("attributesManager".equals(manager)) {
+			if ("getAttributeModulesDependenciesGraphText".equals(method)) {
+				serializer = new TextFileSerializer(out);
+			} else if ("getAttributeModulesDependenciesGraphImage".equals(method)) {
+				serializer = new SvgGraphvizSerializer(out);
+			}
+		}
+
+		return serializer;
 	}
 
 	private Deserializer selectDeserializer(String format, HttpServletRequest req) throws IOException, RpcException {
@@ -790,6 +821,8 @@ public class Api extends HttpServlet {
 		json,
 		jsonp,
 		voot,
+		txt,
+		svg,
 		jsonsimple;
 
 		/**

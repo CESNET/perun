@@ -37,6 +37,10 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongModuleTypeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.utils.graphs.Graph;
+import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
+import guru.nidi.graphviz.engine.Graphviz;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -4038,5 +4042,57 @@ public interface AttributesManagerBl {
 	 */
 	void convertAttributeToUnique(PerunSession session, int attrId) throws InternalErrorException, AttributeNotExistsException, AttributeAlreadyMarkedUniqueException;
 
+	/**
+	 * Generates graph describing attribute modules dependencies.
+	 * Text output format can be specified by {@link GraphTextFormat} format.
+	 *
+	 * @param session session
+	 * @param format text output format
+	 * @return body of text file containing description of modules dependencies.
+	 * @throws InternalErrorException internal error
+	 */
+	String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format) throws InternalErrorException;
+
+	/**
+	 * Generates graph describing dependencies for given AttributeDefinition.
+	 * Text output format can be specified by {@link GraphTextFormat} format.
+	 *
+	 * @param session session
+	 * @param format text output format
+	 * @param attributeDefinition attribute definition which dependencies will be used
+	 * @return body of text file containing description of modules dependencies.
+	 * @throws InternalErrorException internal error
+	 */
+	String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format, AttributeDefinition attributeDefinition) throws InternalErrorException;
+
+	/**
+	 * Generates Graphviz representation of a graph describing dependencies
+	 * of attribute modules.
+	 *
+	 * @param session session
+	 * @return Graphviz representation of modules dependencies.
+	 * @throws InternalErrorException internal error
+	 */
+	Graphviz getAttributeModulesDependenciesGraphAsImage(PerunSession session) throws InternalErrorException;
+
+	/**
+	 * Generates Graphviz representation of a graph describing dependencies
+	 * for given AttributeDefinition of attribute modules.
+	 *
+	 * @param session session
+	 * @param attributeDefinition attribute definition which dependencies will be used
+	 * @return Graphviz representation of modules dependencies.
+	 * @throws InternalErrorException internal error
+	 */
+	Graphviz getAttributeModulesDependenciesGraphAsImage(PerunSession session, AttributeDefinition attributeDefinition) throws InternalErrorException;
+
+	/**
+	 * Generates graph describing dependencies of attribute modules.
+	 *
+	 * @param session session
+	 * @return graph of dependencies
+	 * @throws InternalErrorException internal error
+	 */
+	Graph getAttributeModulesDependenciesGraph(PerunSession session) throws InternalErrorException;
 }
 

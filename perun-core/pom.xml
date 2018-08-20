@@ -234,6 +234,11 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>guru.nidi</groupId>
+			<artifactId>graphviz-java</artifactId>
+			<version>${graphviz.version}</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>
