@@ -98,7 +98,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.RPC)) {
 			throw new PrivilegeException(sess, "getExtSourceByName");
 		}
 

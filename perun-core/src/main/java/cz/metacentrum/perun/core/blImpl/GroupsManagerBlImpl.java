@@ -799,6 +799,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return this.filterMembersByMembershipTypeInGroup(getGroupsManagerImpl().getGroupMembers(sess, group));
 	}
 
+	@Override
+	public List<Member> getGroupDirectMembers(PerunSession sess, Group group) throws InternalErrorException {
+		return groupsManagerImpl.getGroupMembersByMembership(sess, group, MembershipType.DIRECT);
+	}
+
 	public List<Member> getGroupMembers(PerunSession sess, Group group, Status status) throws InternalErrorException {
 		if (status == null) {
 			return this.getGroupMembers(sess, group);
@@ -821,6 +826,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	public List<RichMember> getGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException {
 		return this.getGroupRichMembers(sess, group, null);
+	}
+
+	@Override
+	public List<RichMember> getGroupDirectRichMembers(PerunSession sess, Group group) throws InternalErrorException {
+		List<Member> directMembers = getGroupDirectMembers(sess, group);
+
+		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, directMembers);
 	}
 
 	public List<RichMember> getGroupRichMembersExceptInvalid(PerunSession sess, Group group) throws InternalErrorException {
@@ -1221,8 +1233,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			Map<Candidate, RichMember> membersToUpdate = new HashMap<>();
 			List<RichMember> membersToRemove = new ArrayList<>();
 
-			//get all actual members of group
-			List<RichMember> actualGroupMembers = getPerunBl().getGroupsManagerBl().getGroupRichMembers(sess, group);
+			//get all direct members of synchronized group (only direct, because we want to set direct membership with this group by synchronization)
+			List<RichMember> actualGroupMembers = getPerunBl().getGroupsManagerBl().getGroupDirectRichMembers(sess, group);
 
 			if(lightweightSynchronization) {
 				categorizeMembersForLightweightSynchronization(sess, group, source, membersSource, actualGroupMembers, candidatesToAdd, membersToRemove, skippedMembers);

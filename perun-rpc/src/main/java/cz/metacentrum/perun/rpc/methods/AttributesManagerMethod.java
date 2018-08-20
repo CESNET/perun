@@ -33,6 +33,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw FacilityNotExistsException When Facility with <code>id</code> doesn't exist.
 	 */
 	/*#
+	 * Returns all specified Facility attributes for selected Facility
+	 * If <code>attrNames</code> is empty, it returns empty list of attributes
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param attrNames List<String> Attribute names
+	 * @return List<Attribute> Specified Facility attributes
+	 * @throw FacilityNotExistsException When Facility with <code>id</code> doesn't exist.
+	 */
+	/*#
 	 * Returns all non-empty Vo attributes for selected Vo.
 	 *
 	 * @param vo int Vo <code>id</code>
@@ -254,8 +263,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 								ac.getUserById(parms.readInt("user")));
 					}
 				} else {
-					return ac.getAttributesManager().getAttributes(ac.getSession(),
-							ac.getFacilityById(parms.readInt("facility")));
+					if (parms.contains("attrNames")) {
+						return ac.getAttributesManager().getAttributes(ac.getSession(),
+								ac.getFacilityById(parms.readInt("facility")),
+								parms.readList("attrNames", String.class));
+					} else {
+						return ac.getAttributesManager().getAttributes(ac.getSession(),
+								ac.getFacilityById(parms.readInt("facility")));
+					}
 				}
 			} else if (parms.contains("vo")) {
 				if (parms.contains("attrNames")) {

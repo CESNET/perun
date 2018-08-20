@@ -113,4 +113,24 @@ public interface Searcher {
 	 */
 	List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date) throws PrivilegeException, InternalErrorException;
 
+	/**
+	 * This method get Map of Attributes with searching values and try to find all facilities, which have specific attributes in format.
+	 * Better information about format below. When there are more than 1 attribute in Map, it means all must be true "looking for all of them" (AND)
+	 *
+	 * @param sess perun session
+	 * @param attributesWithSearchingValues map of attributes names
+	 *        when attribute is type String, so value is string and we are looking for total match (Partial is not supported now, will be supported later by symbol *)
+	 *        when attribute is type Integer, so value is integer in String and we are looking for total match
+	 *        when attribute is type List<String>, so value is String and we are looking for at least one total or partial matching element
+	 *        when attribute is type Map<String> so value is String in format "key=value" and we are looking total match of both or if is it "key" so we are looking for total match of key
+	 *        IMPORTANT: In map there is not allowed char '=' in key. First char '=' is delimiter in MAP item key=value!!!
+	 * @return list of facilities that have attributes with specific values (behaviour above)
+	 *        if no such facility exists, returns empty list
+	 *
+	 * @throws PrivilegeException insufficient permission
+	 * @throws InternalErrorException internal error
+	 * @throws AttributeNotExistsException when specified attribute does not exist
+	 * @throws WrongAttributeAssignmentException wrong attribute assignment
+	 */
+	List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
 }
