@@ -850,6 +850,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		}
 	}
 
+	@Override
+	public List<Resource> getResources(PerunSession sess) throws InternalErrorException {
+		return getResourcesManagerImpl().getResources(sess);
+	}
+
 	/**
 	 * Gets the resourcesManagerImpl.
 	 *

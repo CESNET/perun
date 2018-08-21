@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -137,6 +138,35 @@ public class SearcherBlImpl implements SearcherBl {
 		return facilitiesFromCoreAttributes;
 	}
 
+	@Override
+	public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		if (attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
+			return perunBl.getResourcesManagerBl().getResources(sess);
+		}
+
+		Map<Attribute, String> mapOfAttrsWithValues = new HashMap<>();
+		Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<>();
+
+		for(String name: attributesWithSearchingValues.keySet()) {
+			if (name == null || name.isEmpty()) {
+				throw new AttributeNotExistsException("There is no attribute with specified name!");
+			}
+
+			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, name);
+
+			if (getPerunBl().getAttributesManagerBl().isCoreAttribute(sess, attrDef)) {
+				mapOfCoreAttributesWithValues.put(attrDef, attributesWithSearchingValues.get(name));
+			} else {
+				mapOfAttrsWithValues.put(new Attribute(attrDef), attributesWithSearchingValues.get(name));
+			}
+		}
+
+		List<Resource> resourcesFromCoreAttributes = getResourcesForCoreAttributesByMapOfAttributes(sess, mapOfCoreAttributesWithValues);
+		List<Resource> resourcesFromAttributes = getSearcherImpl().getResources(sess, mapOfAttrsWithValues);
+		resourcesFromCoreAttributes.retainAll(resourcesFromAttributes);
+		return resourcesFromCoreAttributes;
+	}
+
 	private List<Facility> getFacilitiesForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getFacilities(sess);
 		if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
@@ -161,6 +191,43 @@ public class SearcherBlImpl implements SearcherBl {
 			}
 		}
 		return facilities;
+	}
+
+	/**
+	 * Find resources by core attribute values.
+	 *
+	 * @param sess session
+	 * @param coreAttributesWithSearchingValues attributes with values
+	 * @return list of resources
+	 * @throws InternalErrorException internal error
+	 * @throws AttributeNotExistsException attribute not exist
+	 * @throws WrongAttributeAssignmentException wrong attribute assignment
+	 */
+	private List<Resource> getResourcesForCoreAttributesByMapOfAttributes(PerunSession sess, Map<AttributeDefinition, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess);
+		if (coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) {
+			return resources;
+		}
+
+		Set<AttributeDefinition> keys = coreAttributesWithSearchingValues.keySet();
+		for (Iterator<Resource> resourceIterator = resources.iterator(); resourceIterator.hasNext();) {
+			Resource resourceFromIterator = resourceIterator.next();
+
+			//Compare all needed attributes and their value to the attributes of every facility. If he does not fit, remove it from the array of returned facilities.
+			for(AttributeDefinition attrDef: keys) {
+
+				String value = coreAttributesWithSearchingValues.get(attrDef);
+				Attribute attrForResource = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceFromIterator, attrDef.getName());
+
+				//One of attributes is not equal so remove it and continue with next resource
+				if (!isAttributeValueMatching(attrForResource, value)) {
+					resourceIterator.remove();
+					break;
+				}
+			}
+		}
+
+		return resources;
 	}
 
 	/**
