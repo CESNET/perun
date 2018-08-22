@@ -2,3 +2,12 @@
     content: " *";
     color: #C00;
 }
+
+#footer {
+    height: 105px !important;
+    padding-top: 20px !important;
+}
+
+#wrap {
+    margin: 0 auto -105px !important;
+}
