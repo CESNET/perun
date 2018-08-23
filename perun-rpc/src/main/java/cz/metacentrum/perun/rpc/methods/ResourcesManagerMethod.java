@@ -6,6 +6,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -599,7 +600,23 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns list of Resources, where the user is an Administrator.
+	 * Returns list of Resources for specified VO and Facility, where the user is an Administrator
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param vo int Vo <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @return List<Resource> Found Resources
+	 */
+	/*#
+	 * Returns list of Resources for specified VO and Facility, where the group is an Administrator.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param vo int Vo <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @return List<Resource> Found Resources
+	 */
+	/*#
+	 * Returns list of all Resources, where the user is an Administrator.
 	 *
 	 * @param user int User <code>id</code>
 	 * @return List<Resource> Found Resources
@@ -607,8 +624,26 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	getResourcesWhereUserIsAdmin {
 		@Override
 		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getResourcesManager().getResourcesWhereUserIsAdmin(ac.getSession(),
-					ac.getUserById(parms.readInt("user")));
+			if (parms.contains("facility") && parms.contains("vo")) {
+				if (parms.contains("user")) {
+					return ac.getResourcesManager().getResourcesWhereUserIsAdmin(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getUserById(parms.readInt("user")));
+				} else if (parms.contains("group")) {
+					return ac.getResourcesManager().getResourcesWhereGroupIsAdmin(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getGroupById(parms.readInt("group")));
+				} else {
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "group or user");
+				}
+			} else if (parms.contains("user")) {
+				return ac.getResourcesManager().getResourcesWhereUserIsAdmin(ac.getSession(),
+						ac.getUserById(parms.readInt("user")));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo or user");
+			}
 		}
 	},
 
