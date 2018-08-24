@@ -872,6 +872,50 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return getResourcesManagerBl().getResourcesWhereUserIsAdmin(sess, user);
 	}
 
+	@Override
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Facility facility, Vo vo, User authorizedUser) throws InternalErrorException, PrivilegeException, UserNotExistsException, FacilityNotExistsException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, authorizedUser);
+
+		List<Resource> resources = getResourcesManagerBl().getResourcesWhereUserIsAdmin(sess, facility, vo, authorizedUser);
+
+		//Vo manager of the vo can see all returned resources
+		if(AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)){
+			return resources;
+		}
+
+		//Resource manager can see only resources where he has role resource manager (filter them)
+		if(AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN)) {
+			return filterNotAuthorizedResource(sess, resources);
+		} else {
+			throw new PrivilegeException(sess, "getResourcesByResourceManager");
+		}
+	}
+
+	@Override
+	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo, Group authorizedGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, FacilityNotExistsException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, authorizedGroup);
+
+		List<Resource> resources = getResourcesManagerBl().getResourcesWhereGroupIsAdmin(sess, facility, vo, authorizedGroup);
+
+		//Vo manager of the vo can see all returned resources
+		if(AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)){
+			return resources;
+		}
+
+		//Resource manager can see only resources where he has role resource manager (filter them)
+		if(AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN)) {
+			return filterNotAuthorizedResource(sess, resources);
+		} else {
+			throw new PrivilegeException(sess, "getResourcesByResourceManager");
+		}
+	}
+
 	public List<Group> getAdminGroups(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
@@ -1050,6 +1094,24 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		getResourcesManagerBl().removeBan(sess, memberId, resourceId);
+	}
+
+	/**
+	 * Filter out resources where user in session has not role resource admin for them
+	 *
+	 * @param sess
+	 * @param resources list of resources to be filtered
+	 * @return list of filtered resources
+	 * @throws InternalErrorException
+	 */
+	private List<Resource> filterNotAuthorizedResource(PerunSession sess, List<Resource> resources) throws InternalErrorException {
+		Iterator<Resource> resIterator = resources.iterator();
+		while(resIterator.hasNext()) {
+			Resource resource = resIterator.next();
+			if(!AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN, resource)) resIterator.remove();
+		}
+
+		return resources;
 	}
 
 	/**

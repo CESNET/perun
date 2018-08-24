@@ -801,6 +801,34 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Facility facility, Vo vo, User authorizedUser) throws InternalErrorException {
+		try {
+			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
+							" left outer join authz on authz.resource_id=resources.id " +
+							" where resources.facility_id=? and resources.vo_id=? and authz.user_id=? and authz.role_id=(select id from roles where name=?)"
+					,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.getRoleName());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo, Group authorizedGroup) throws InternalErrorException {
+		try {
+			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
+							" left outer join authz on authz.resource_id=resources.id " +
+							" where resources.facility_id=? and resources.vo_id=? and authz.authorized_group_id=? and authz.role_id=(select id from roles where name=?)"
+					,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedGroup.getId(), Role.RESOURCEADMIN.getRoleName());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public boolean banExists(PerunSession sess, int memberId, int resourceId) throws InternalErrorException {
 		try {
 			return 1 == jdbc.queryForInt("select 1 from resources_bans where member_id=? and resource_id=?", memberId, resourceId);
