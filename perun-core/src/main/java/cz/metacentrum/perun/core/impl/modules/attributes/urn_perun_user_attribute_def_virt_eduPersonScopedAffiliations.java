@@ -12,6 +12,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +35,6 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 	private final Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)]");
 	private final Pattern userEPSAMASetPattern = Pattern.compile("Attribute:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() +">(.*)] set for User:\\[(.*)]");
 	private final Pattern userEPSAMARemovePattern = Pattern.compile("AttributeDefinition:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() + ">(.*)] removed for User:\\[(.*)]");
-
 
 	@Override
 	public String getSourceAttributeFriendlyName() {
@@ -85,7 +86,18 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 		if (manualEPSAAttr != null) {
 			Map<String, String> value = manualEPSAAttr.valueAsMap();
 			if (value != null) {
-				valuesWithoutDuplicities.addAll(value.keySet());
+
+				LocalDate now = LocalDate.now();
+				// format has to match the format in Perun-wui setAffiliation miniapp
+				// (method createAssignedAffiliationsAttribute)
+				DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+				for (Map.Entry<String, String> entry: value.entrySet()) {
+					LocalDate expiration = LocalDate.parse(entry.getValue(), dateFormat);
+
+					if (! now.isAfter(expiration)) {
+						valuesWithoutDuplicities.add(entry.getKey());
+					}
+				}
 			}
 		}
 
