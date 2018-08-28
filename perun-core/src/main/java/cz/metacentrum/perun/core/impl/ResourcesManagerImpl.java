@@ -535,6 +535,16 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	public List<Resource> getResources(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + resourceMappingSelectQuery+ " from resources", RESOURCE_MAPPER);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Resource>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	@Override
 	public List<RichResource> getRichResources(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {

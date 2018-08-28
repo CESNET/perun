@@ -307,6 +307,15 @@ public interface ResourcesManagerImplApi {
 	List<Resource> getResources(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
+	 * Get all resources.
+	 *
+	 * @param sess session
+	 * @return list of resources
+	 * @throws InternalErrorException internal error
+	 */
+	List<Resource> getResources(PerunSession sess) throws InternalErrorException;
+
+	/**
 	 * Get all VO rich resources.
 	 *
 	 * @param perunSession

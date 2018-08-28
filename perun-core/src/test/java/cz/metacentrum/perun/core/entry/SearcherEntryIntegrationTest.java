@@ -518,6 +518,229 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue("Found facilities did not contain facility it should.", foundFacilities.contains(facility4));
 	}
 
+	@Test
+	public void getResourcesByCoreAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesByCoreAttributeValue");
+
+		Facility facility = setUpFacility("testFacility");
+
+		Resource resource1 = setUpResource("testResource01", vo, facility);
+		setUpResource("testResource02", vo, facility);
+		setUpResource("testResource03", vo, facility);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_CORE + ":name", resource1.getName());
+
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+
+		assertEquals("Found resource number of resources", 1, foundResources.size());
+		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource1));
+	}
+
+	@Test
+	public void getResourcesByStringAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesByStringAttributeValue");
+
+		Facility facility = setUpFacility("testFacility");
+
+		Resource resource1 = setUpResource("testResource01", vo, facility);
+		Resource resource2 = setUpResource("testResource02", vo, facility);
+		Resource resource3 = setUpResource("testResource03", vo, facility);
+		Resource resource4 = setUpResource("testResource04", vo, facility);
+
+		String searchedValue = "searchedValue";
+		String otherValue = "otherValue";
+		String attributeName = "testAttribute";
+
+		AttributeDefinition ad = setUpResourceAttribute(attributeName, String.class.getName());
+		Attribute searchedAttribute = new Attribute(ad, searchedValue);
+		Attribute otherAttribute = new Attribute(ad, otherValue);
+
+		perun.getAttributesManagerBl().setAttribute(sess, resource1, searchedAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, resource2, otherAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, resource3, otherAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, resource4, searchedAttribute);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName, searchedValue);
+
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+
+		assertEquals("Found invalid number of resources", 2, foundResources.size());
+		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource1));
+		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource4));
+	}
+
+	@Test
+	public void getResourcesByTwoAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesByTwoAttributeValue");
+
+		Facility facility = setUpFacility("testFacility");
+
+		Resource resource1 = setUpResource("testResource01", vo, facility);
+		Resource resource2 = setUpResource("testResource02", vo, facility);
+		Resource resource3 = setUpResource("testResource03", vo, facility);
+		Resource resource4 = setUpResource("testResource04", vo, facility);
+
+		String searchedValue1 = "searchedValue1";
+		String searchedValue2 = "searchedValue2";
+		String attributeName1 = "testAttribute1";
+		String attributeName2 = "testAttribute2";
+
+		AttributeDefinition ad1 = setUpResourceAttribute(attributeName1, String.class.getName());
+		AttributeDefinition ad2 = setUpResourceAttribute(attributeName2, String.class.getName());
+		Attribute searchedAttribute1 = new Attribute(ad1, searchedValue1);
+		Attribute searchedAttribute2 = new Attribute(ad2, searchedValue2);
+
+		perun.getAttributesManagerBl().setAttribute(sess, resource1, searchedAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, resource2, searchedAttribute2);
+		perun.getAttributesManagerBl().setAttribute(sess, resource3, searchedAttribute2);
+		perun.getAttributesManagerBl().setAttribute(sess, resource4, searchedAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, resource4, searchedAttribute2);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName1, searchedValue1);
+		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName2, searchedValue2);
+
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+
+		assertEquals("Found invalid number of resources", 1, foundResources.size());
+		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource4));
+	}
+
+	@Test
+	public void getResourcesByIntegerAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesByIntegerAttributeValue");
+
+		Facility facility = setUpFacility("testFacility");
+
+		Resource resource1 = setUpResource("testResource01", vo, facility);
+		Resource resource2 = setUpResource("testResource02", vo, facility);
+		Resource resource3 = setUpResource("testResource03", vo, facility);
+		Resource resource4 = setUpResource("testResource04", vo, facility);
+
+		int searchedValue = 14;
+		int otherValue = 4;
+		String attributeName = "testAttribute";
+
+		AttributeDefinition ad = setUpResourceAttribute(attributeName, Integer.class.getName());
+		Attribute searchedAttribute = new Attribute(ad, searchedValue);
+		Attribute otherAttribute = new Attribute(ad, otherValue);
+
+		perun.getAttributesManagerBl().setAttribute(sess, resource1, searchedAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, resource2, otherAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, resource3, otherAttribute);
+		perun.getAttributesManagerBl().setAttribute(sess, resource4, searchedAttribute);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName, String.valueOf(searchedValue));
+
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+
+		assertEquals("Found invalid number of resources", 2, foundResources.size());
+		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource1));
+		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource4));
+	}
+
+	@Test
+	public void getResourcesByListAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesByListAttributeValue");
+
+		Facility facility = setUpFacility("testFacility");
+
+		Resource resource1 = setUpResource("testResource01", vo, facility);
+		Resource resource2 = setUpResource("testResource02", vo, facility);
+		Resource resource3 = setUpResource("testResource03", vo, facility);
+		Resource resource4 = setUpResource("testResource04", vo, facility);
+
+		String searchedString = "searchedValue";
+		String otherString = "otherValue";
+		String attributeName = "testAttribute";
+
+		List<String> matchingList1 = new ArrayList<>();
+		List<String> matchingList2 = new ArrayList<>();
+		List<String> notMatchingList1 = new ArrayList<>();
+		List<String> notMatchingList2 = new ArrayList<>();
+
+		matchingList1.add(searchedString);
+		matchingList2.add(searchedString);
+		matchingList2.add(otherString);
+
+		notMatchingList1.add(otherString);
+
+		AttributeDefinition ad = setUpResourceAttribute(attributeName, ArrayList.class.getName());
+
+		Attribute searchedAttribute1 = new Attribute(ad, matchingList1);
+		Attribute searchedAttribute2 = new Attribute(ad, matchingList2);
+		Attribute otherAttribute1 = new Attribute(ad, notMatchingList1);
+		Attribute otherAttribute2 = new Attribute(ad, notMatchingList2);
+
+		perun.getAttributesManagerBl().setAttribute(sess, resource1, searchedAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, resource2, otherAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, resource3, otherAttribute2);
+		perun.getAttributesManagerBl().setAttribute(sess, resource4, searchedAttribute2);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName, searchedString);
+
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+
+		assertEquals("Found invalid number of resources", 2, foundResources.size());
+		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource1));
+		assertTrue("Found resources did not contain resource it should.", foundResources.contains(resource4));
+	}
+
+	@Test
+	public void getResourcesByMapAttributeValue() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesByMapAttributeValue");
+
+		Facility facility = setUpFacility("testFacility");
+
+		Resource resource1 = setUpResource("testResource01", vo, facility);
+		Resource resource2 = setUpResource("testResource02", vo, facility);
+		Resource resource3 = setUpResource("testResource03", vo, facility);
+		Resource resource4 = setUpResource("testResource04", vo, facility);
+
+		String searchedString = "searchedValue";
+		String searchedKeyString = "searchedKey";
+		String otherString = "otherValue";
+		String otherKeyString = "otherKey";
+		String attributeName = "testAttribute";
+
+		Map<String, String> matchingMap1 = new LinkedHashMap<>();
+		Map<String, String> matchingMap2 = new LinkedHashMap<>();
+		Map<String, String> notMatchingMap1 = new LinkedHashMap<>();
+		Map<String, String> notMatchingMap2 = new LinkedHashMap<>();
+
+		matchingMap1.put(searchedKeyString, searchedString);
+		matchingMap2.put(searchedKeyString, searchedString);
+		matchingMap2.put(otherKeyString, otherString);
+		notMatchingMap1.put(otherKeyString, otherString);
+		notMatchingMap1.put(otherKeyString, searchedString);
+		notMatchingMap2.put(searchedKeyString, otherString);
+
+		AttributeDefinition ad = setUpResourceAttribute(attributeName, LinkedHashMap.class.getName());
+
+		Attribute searchedAttribute1 = new Attribute(ad, matchingMap1);
+		Attribute searchedAttribute2 = new Attribute(ad, matchingMap2);
+		Attribute otherAttribute1 = new Attribute(ad, notMatchingMap1);
+		Attribute otherAttribute2 = new Attribute(ad, notMatchingMap2);
+
+		perun.getAttributesManagerBl().setAttribute(sess, resource1, searchedAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, resource2, otherAttribute1);
+		perun.getAttributesManagerBl().setAttribute(sess, resource3, otherAttribute2);
+		perun.getAttributesManagerBl().setAttribute(sess, resource4, searchedAttribute2);
+
+		Map<String, String> searchParams = new HashMap<>();
+		searchParams.put(AttributesManager.NS_RESOURCE_ATTR_DEF + ":" + attributeName, searchedKeyString + "=" + searchedString);
+
+		List<Resource> foundResources = searcherBl.getResources(sess, searchParams);
+
+		assertEquals("Found invalid number of resources", 2, foundResources.size());
+		assertTrue("Found resources did not contain resources it should.", foundResources.contains(resource1));
+		assertTrue("Found resources did not contain resources it should.", foundResources.contains(resource4));
+	}
+
 	// PRIVATE METHODS -----------------------------------------------------------
 
 	private void setUpUser1() throws Exception {
@@ -668,8 +891,16 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	private AttributeDefinition setUpFacilityAttribute(String name, String type) throws Exception {
+		return setUpAttribute(name, type, AttributesManager.NS_FACILITY_ATTR_DEF);
+	}
+
+	private AttributeDefinition setUpResourceAttribute(String name, String type) throws Exception {
+		return setUpAttribute(name, type, AttributesManager.NS_RESOURCE_ATTR_DEF);
+	}
+
+	private AttributeDefinition setUpAttribute(String name, String type, String nameSpace) throws Exception {
 		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		attr.setNamespace(nameSpace);
 		attr.setFriendlyName(name);
 		attr.setType(type);
 		attr.setDisplayName(name);
@@ -682,5 +913,11 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		Facility facility = new Facility(0, name, name);
 
 		return perun.getFacilitiesManagerBl().createFacility(sess, facility);
+	}
+
+	private Resource setUpResource(String name, Vo vo, Facility facility) throws Exception {
+		Resource resource = new Resource(0, name, name, facility.getId());
+
+		return perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
 	}
 }
