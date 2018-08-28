@@ -213,7 +213,7 @@ public class SearcherBlImpl implements SearcherBl {
 		for (Iterator<Resource> resourceIterator = resources.iterator(); resourceIterator.hasNext();) {
 			Resource resourceFromIterator = resourceIterator.next();
 
-			//Compare all needed attributes and their value to the attributes of every facility. If he does not fit, remove it from the array of returned facilities.
+			//Compare all needed attributes and their value to the attributes of every resource. If he does not fit, remove it from the array of returned resources.
 			for(AttributeDefinition attrDef: keys) {
 
 				String value = coreAttributesWithSearchingValues.get(attrDef);

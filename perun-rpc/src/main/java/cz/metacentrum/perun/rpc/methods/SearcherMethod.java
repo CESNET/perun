@@ -73,7 +73,6 @@ public enum SearcherMethod implements ManagerMethod {
 	 * This method get Map of Attributes with searching values and try to find all facilities, which have specific attributes in format.
 	 * Better information about format below. When there are more than 1 attribute in Map, it means all must be true "looking for all of them" (AND)
 	 *
-	 * @param sess perun session
 	 * @param attributesWithSearchingValues map of attributes names
 	 *        when attribute is type String, so value is string and we are looking for total match (Partial is not supported now, will be supported later by symbol *)
 	 *        when attribute is type Integer, so value is integer in String and we are looking for total match
@@ -97,7 +96,6 @@ public enum SearcherMethod implements ManagerMethod {
 	 * This method get Map of Attributes with searching values and try to find all resources, which have specific attributes in format.
 	 * Better information about format below. When there are more than 1 attribute in Map, it means all must be true "looking for all of them" (AND)
 	 *
-	 * @param sess perun session
 	 * @param attributesWithSearchingValues map of attributes names
 	 *        when attribute is type String, so value is string and we are looking for total match (Partial is not supported now, will be supported later by symbol *)
 	 *        when attribute is type Integer, so value is integer in String and we are looking for total match
