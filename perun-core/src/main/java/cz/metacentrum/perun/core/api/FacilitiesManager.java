@@ -159,6 +159,23 @@ public interface FacilitiesManager {
 	List<Group> getAllowedGroups(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, ServiceNotExistsException, VoNotExistsException;
 
 	/**
+	 * Get all RichGroups which can use this facility (Groups must be assigned to Resource which belongs to this facility)
+	 * specificVo and specificService can choose concrete groups
+	 * if specificVo, specificService or both are null, they do not specific (all possible results are returned)
+	 * We also retrieve attributes specified by attrNames for each returned RichGroup.
+	 *
+	 * @param facility        searching for this facility
+	 * @param specificVo      specific only those results which are in specific VO (with null, all results)
+	 * @param specificService specific only those results, which have resource with assigned specific service (if null, all results)
+	 * @param attrNames       with each returned RichGroup we get also attributes specified by this list
+	 * @return list of allowed groups
+	 * @throws FacilityNotExistsException if facility not exist, return this exception
+	 * @throws ServiceNotExistsException  if service is not null and not exist
+	 * @throws VoNotExistsException       if vo is not null and not exist
+	 */
+	List<RichGroup> getAllowedRichGroupsWithAttributes(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService, List<String> attrNames) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, ServiceNotExistsException, VoNotExistsException;
+
+	/**
 	 * Return all users who can use this facility
 	 *
 	 * @return list of users
