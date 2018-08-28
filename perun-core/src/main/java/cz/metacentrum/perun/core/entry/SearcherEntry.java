@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Searcher;
 import cz.metacentrum.perun.core.api.User;
@@ -154,6 +155,17 @@ public class SearcherEntry implements Searcher {
 		}
 
 		return searcherBl.getFacilities(sess, attributesWithSearchingValues);
+	}
+
+	@Override
+	public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getResources");
+		}
+
+		return searcherBl.getResources(sess, attributesWithSearchingValues);
 	}
 
 	public SearcherBl getSearcherBl() {

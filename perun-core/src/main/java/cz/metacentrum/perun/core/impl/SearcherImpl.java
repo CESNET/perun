@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
@@ -117,6 +118,24 @@ public class SearcherImpl implements SearcherImplApi {
 
 		try {
 			return jdbc.query(query.toString(), parameters, FacilitiesManagerImpl.FACILITY_MAPPER);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
+		StringBuilder query = new StringBuilder();
+		query.append("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources ");
+
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+
+		insertWhereClausesAndQueryParametersFromAttributes(query, parameters, "resource_attr_values", "resource", "resources", attributesWithSearchingValues);
+
+		try {
+			return jdbc.query(query.toString(), parameters, ResourcesManagerImpl.RESOURCE_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
