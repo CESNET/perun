@@ -997,4 +997,13 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	void removeAllExpiredBansOnResources(PerunSession sess) throws InternalErrorException;
+
+	/**
+	 * Finds all resources.
+	 *
+	 * @param sess session
+	 * @return list of all resources
+	 * @throws InternalErrorException internal error
+	 */
+	List<Resource> getResources(PerunSession sess) throws InternalErrorException;
 }

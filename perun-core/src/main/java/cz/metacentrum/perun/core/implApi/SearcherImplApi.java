@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -94,4 +95,25 @@ public interface SearcherImplApi {
 	 * @throws InternalErrorException internal error
 	 */
 	List<Facility> getFacilities(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException;
+
+	/**
+	 * This method get Map of Attributes with searching values and try to find all resources, which have specific attributes in format.
+	 * Better information about format below. When there are more than 1 attribute in Map, it means all must be true "looking for all of them" (AND)
+	 *
+	 * IMPORTANT: can't get CORE ATTRIBUTES
+	 *
+	 * @param sess perun session
+	 * @param attributesWithSearchingValues map of attributes
+	 *        when attribute is type String, so value is string and we are looking for total match (Partial is not supported now, will be supported later by symbol *)
+	 *        when attribute is type Integer, so value is integer in String and we are looking for total match
+	 *        when attribute is type List<String>, so value is String and we are looking for at least one total or partial matching element
+	 *        when attribute is type Map<String> so value is String in format "key=value" and we are looking total match of both or if is it "key" so we are looking for total match of key
+	 *        IMPORTANT: In map there is not allowed char '=' in key. First char '=' is delimiter in MAP item key=value!!!
+	 * @return list of resources that have attributes with specific values (behavior above)
+	 *        if no such resource exists, return empty list
+	 *        if attributeWithSearchingValues is empty, return all resources
+	 *
+	 * @throws InternalErrorException internal error
+	 */
+	List<Resource> getResources(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException;
 }
