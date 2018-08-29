@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
-import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -26,6 +25,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichFacility;
+import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
@@ -182,6 +182,13 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			allowedGroups.addAll(getPerunBl().getResourcesManagerBl().getAssignedGroups(perunSession, r));
 		}
 		return new ArrayList<Group>(allowedGroups);
+	}
+
+	public List<RichGroup> getAllowedRichGroupsWithAttributes(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService, List<String> attrNames) throws InternalErrorException {
+
+		List<Group> allowedGroups = getAllowedGroups(perunSession, facility, specificVo, specificService);
+		return perunBl.getGroupsManagerBl().convertGroupsToRichGroupsWithAttributes(perunSession, allowedGroups, attrNames);
+
 	}
 
 	@Override

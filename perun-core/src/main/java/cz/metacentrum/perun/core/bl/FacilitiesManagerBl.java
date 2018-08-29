@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.bl;
 
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
@@ -14,6 +13,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichFacility;
+import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.SecurityTeam;
@@ -223,6 +223,21 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getAllowedGroups(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
+
+	/**
+	 * Get all RichGroups which can use this facility (Groups must be assigned to Resource which belongs to this facility)
+	 * specificVo and specificService can choose concrete groups
+	 * if specificVo, specificService or both are null, they do not specific (all possible results are returned)
+	 * We also retrieve attributes specified by attrNames for each returned RichGroup.
+	 *
+	 * @param facility        searching for this facility
+	 * @param specificVo      specific only those results which are in specific VO (with null, all results)
+	 * @param specificService specific only those results, which have resource with assigned specific service (if null, all results)
+	 * @param attrNames       with each returned RichGroup we get also attributes specified by this list
+	 * @return list of allowed groups
+	 * @throws InternalErrorException when implementation fails
+	 */
+	List<RichGroup> getAllowedRichGroupsWithAttributes(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService, List<String> attrNames) throws InternalErrorException;
 
 	/**
 	 * Return all users who can use this facility
