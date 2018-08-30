@@ -72,12 +72,29 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * @throw VoExistsException When VO you try to create already exists.
 	 * @return Vo Created VO with correct <code>id</code> set
 	 */
+	/*#
+	 * Creates new VO. Caller is automatically set as VO manager.
+	 *
+	 * @param name String name
+	 * @param shortName String shortName
+	 * @throw VoExistsException When VO you try to create already exists.
+	 * @return Vo Created VO with correct <code>id</code> set
+	 */
 	createVo {
 		@Override
 		public Vo call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			return ac.getVosManager().createVo(ac.getSession(), parms.read("vo", Vo.class));
+			if (parms.contains("vo")) {
+				return ac.getVosManager().createVo(ac.getSession(), parms.read("vo", Vo.class));
+			} else if (parms.contains("name") && parms.contains("shortName")) {
+				String name = parms.readString("name");
+				String shortName = parms.readString("shortName");
+				Vo vo = new Vo(0, name, shortName);
+				return ac.getVosManager().createVo(ac.getSession(), vo);
+			} else {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER);
+			}
 		}
 	},
 

@@ -14,12 +14,28 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 	 * @param extSource ExtSource JSON object
 	 * @return ExtSource Created ExtSource
 	 */
+	/*#
+	 * Creates an external source.
+	 * @param name String name of ExtSource
+	 * @param type String type of ExtSource
+	 * @return ExtSource Created ExtSource
+	 */
 	createExtSource {
 
 		@Override
 		public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-			return ac.getExtSourcesManager().createExtSource(ac.getSession(), parms.read("extSource", ExtSource.class), null);
+
+			if (parms.contains("extSource")) {
+				return ac.getExtSourcesManager().createExtSource(ac.getSession(), parms.read("extSource", ExtSource.class), null);
+			} else if (parms.contains("name") && parms.contains("type")) {
+				String name = parms.readString("name");
+				String type = parms.readString("type");
+				ExtSource extSource = new ExtSource(name, type);
+				return ac.getExtSourcesManager().createExtSource(ac.getSession(), extSource, null);
+			} else {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER);
+			}
 		}
 	},
 	/*#
