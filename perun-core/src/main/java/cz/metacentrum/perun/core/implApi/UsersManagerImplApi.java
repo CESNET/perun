@@ -412,6 +412,7 @@ public interface UsersManagerImplApi {
 
 	/**
 	 * Returns list of VOs, where the user is an Administrator.
+	 * Including VOs, where the user is a member of authorized group.
 	 *
 	 * @param perunSession
 	 * @param user

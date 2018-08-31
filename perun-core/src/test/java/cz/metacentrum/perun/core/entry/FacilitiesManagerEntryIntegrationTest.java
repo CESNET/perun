@@ -998,6 +998,21 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getFacilitiesWhereUserIsNotAdminButHisGroupIs() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesWhereUserIsNotAdminButHisGroupIs");
+
+		final Member member = setUpMember(vo);
+		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+		Group group = setUpGroup(vo, member);
+
+		facilitiesManagerEntry.addAdmin(sess, facility, group);
+
+		List<Facility> facilities = facilitiesManagerEntry.getFacilitiesWhereUserIsAdmin(sess, u);
+		assertNotNull(facilities);
+		assertTrue(facilities.contains(facility));
+	}
+
+	@Test
 	public void copyManagers() throws Exception {
 		System.out.println(CLASS_NAME + "copyManagers");
 

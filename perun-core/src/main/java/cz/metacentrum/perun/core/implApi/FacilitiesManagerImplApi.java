@@ -426,6 +426,7 @@ public interface FacilitiesManagerImplApi {
 
 	/**
 	 * Get all facilities where the user is admin.
+	 * Including facilities, where the user is a member of authorized group.
 	 *
 	 * @param sess
 	 * @param user

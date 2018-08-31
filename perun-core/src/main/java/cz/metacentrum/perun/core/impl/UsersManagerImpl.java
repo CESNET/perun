@@ -619,7 +619,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<Vo> getVosWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + VosManagerImpl.voMappingSelectQuery + " from authz join vos on authz.vo_id=vos.id " +
-					" where authz.user_id=? and authz.role_id=(select id from roles where name='voadmin')", VosManagerImpl.VO_MAPPER, user.getId());
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+					" left outer join members on members.id=groups_members.member_id " +
+					" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?)",
+					VosManagerImpl.VO_MAPPER, user.getId(), user.getId(), Role.VOADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Vo>();
 		} catch (RuntimeException e) {

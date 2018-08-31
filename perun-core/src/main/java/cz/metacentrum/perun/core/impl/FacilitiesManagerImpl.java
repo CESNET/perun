@@ -677,9 +677,12 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	public List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities, authz where authz.user_id=? and " +
-							"authz.role_id=(select id from roles where name=?) and authz.facility_id=facilities.id",
-					FACILITY_MAPPER, user.getId(), Role.FACILITYADMIN.getRoleName());
+			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities " +
+							" left outer join authz on authz.facility_id=facilities.id " +
+							" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+							" left outer join members on members.id=groups_members.member_id " +
+							" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) ",
+					FACILITY_MAPPER, user.getId(), user.getId(), Role.FACILITYADMIN.getRoleName());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
