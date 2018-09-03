@@ -9,6 +9,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -22,7 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Created with IntelliJ IDEA.
+ * Test module for urn:perun:user:attribute-def:def:eduPersonScopedAffiliationsManuallyAssigned
  *
  * @author Martin Kuba makub@ics.muni.cz
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
@@ -40,10 +42,15 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 	private final String VALUE3 = "library-walk-in@company.com";
 	private final String KEY1 = "member@somewhere.org";
 	private final String KEY2 = "affiliate@somewhere.edu";
-	private final String timestamp = "2018-06-27 15:09:51.389000"; //not important, just to have som value in map
+	private LocalDate valid;
+	private LocalDate invalid;
 
 	@Before
 	public void setVariables() {
+		valid = LocalDate.now();
+		invalid = valid.minusDays(1);
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
 		user = new User();
 		user.setId(1);
 
@@ -57,8 +64,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 
 		userAtt = new Attribute();
 		Map<String, String> MAP_VALUE = new LinkedHashMap<>();
-		MAP_VALUE.put(KEY1, timestamp);
-		MAP_VALUE.put(KEY2, timestamp);
+		MAP_VALUE.put(KEY1, valid.format(dateFormat));
+		MAP_VALUE.put(KEY2, invalid.format(dateFormat));
 		userAtt.setValue(MAP_VALUE);
 	}
 
@@ -90,9 +97,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		@SuppressWarnings("unchecked")
 		List<String> actual = (List<String>) receivedAttr.getValue();
 		Collections.sort(actual);
-		List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3, KEY1, KEY2);
+		List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3, KEY1);
 		Collections.sort(expected);
-		assertEquals("collected values are incorrect",expected,actual);
+		assertEquals("collected values are incorrect", expected, actual);
 	}
 
 	@Test
@@ -119,11 +126,12 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		@SuppressWarnings("unchecked")
 		List<String> actual = (List<String>) receivedAttr.getValue();
 		Collections.sort(actual);
-		List<String> expected = Arrays.asList(VALUE1,VALUE2,VALUE3);
+		List<String> expected = Arrays.asList(VALUE1, VALUE2, VALUE3);
 		Collections.sort(expected);
-		assertEquals("collected values are incorrect",expected,actual);
+		assertEquals("collected values are incorrect", expected, actual);
 	}
 
+	@SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 	@Test
 	public void getAttributeValueOnlyFromEduPersonScopedAffiliationsManuallyAssigned() throws Exception {
 		urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations classInstance = new urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations();
@@ -141,9 +149,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		@SuppressWarnings("unchecked")
 		List<String> actual = (List<String>) receivedAttr.getValue();
 		Collections.sort(actual);
-		List<String> expected = Arrays.asList(KEY1, KEY2);
+		List<String> expected = Arrays.asList(KEY1);
 		Collections.sort(expected);
-		assertEquals("collected values are incorrect",expected,actual);
+		assertEquals("collected values are incorrect", expected, actual);
 	}
 
 }
