@@ -14,13 +14,13 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupVirtualAttributesModuleImplApi;
 
 /**
+ * Module to resolve correct group name in G-suite (google groups) based on its domain.
  *
  * @author Michal Stava &lt;stavamichal@gmail.com&gt;
  */
@@ -134,7 +134,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 	@Override
 	public List<String> getDependencies() {
 		List<String> dependencies = new ArrayList<>();
-		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupNameNamespace");
+		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupsDomain");
 		//Disallowed because it does not affect value of dependent attribute
 		//dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:*");
 		return dependencies;
