@@ -29,6 +29,7 @@ import javax.transaction.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -1104,6 +1105,42 @@ public class CacheManager implements CacheManagerApi {
 
 	@Override
 	public boolean checkAttributeExists(AttributeDefinition attribute) {
+
+		/*
+		 * We do not query cache, since it would have to find definition by multiple conditions within whole content.
+		 * We re-use getAttributeDefinition() by ID or Name, which we expect to be present in attribute definition object.
+		 * Then we can check other params on equals, just like select to DB does.
+		 */
+		AttributeDefinition found;
+			try {
+				System.out.println("SEARCH BY: " + attribute);
+				found = getAttributeDefinition(attribute.getId());
+				System.out.println("FOUND: " + found);
+				if (!Objects.equals(found.getId(),attribute.getId())) return false;
+				if (!Objects.equals(found.getName(),attribute.getName())) return false;
+				if (!Objects.equals(found.getFriendlyName(),attribute.getFriendlyName())) return false;
+				if (!Objects.equals(found.getNamespace(),attribute.getNamespace())) return false;
+				if (!Objects.equals(found.getType(),attribute.getType())) return false;
+				return true;
+			} catch (AttributeNotExistsException e) {
+
+			}
+		try {
+			System.out.println("SEARCH BY: " + attribute);
+			found = getAttributeDefinition(attribute.getName());
+			System.out.println("FOUND: " + found);
+			if (!Objects.equals(found.getId(),attribute.getId())) return false;
+			if (!Objects.equals(found.getName(),attribute.getName())) return false;
+			if (!Objects.equals(found.getFriendlyName(),attribute.getFriendlyName())) return false;
+			if (!Objects.equals(found.getNamespace(),attribute.getNamespace())) return false;
+			if (!Objects.equals(found.getType(),attribute.getType())) return false;
+			return true;
+		} catch (AttributeNotExistsException e) {
+
+		}
+		return false;
+
+		/*
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
 		org.infinispan.query.dsl.Query query =
@@ -1121,6 +1158,8 @@ public class CacheManager implements CacheManagerApi {
 						.toBuilder().build();
 
 		return 1 == query.getResultSize();
+		*/
+
 	}
 
 	@Override
