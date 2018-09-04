@@ -76,30 +76,30 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	//Resources patterns
 	private Pattern deletedResourcePattern = Pattern.compile(" deleted.#Facility");
 	//Groups patterns
-	private Pattern newGroupPattern = Pattern.compile(" created in Vo:\\[(.*)\\]");
-	private Pattern subGroupPattern = Pattern.compile(" created in Vo:\\[(.*)\\] as subgroup of Group:\\[(.*)\\]");
-	private Pattern assignGroupToResourcePattern = Pattern.compile("Group:\\[(.*)\\] assigned to Resource:\\[(.*)\\]");
-	private Pattern removeGroupFromResourcePattern = Pattern.compile("Group:\\[(.*)\\] removed from Resource:\\[(.*)\\]");
-	private Pattern moveGroupPattern = Pattern.compile("Group:\\[(.*)\\] was moved");
+	private Pattern newGroupPattern = Pattern.compile(" created in Vo:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private Pattern subGroupPattern = Pattern.compile(" created in Vo:\\[(.|\\s)*\\] as subgroup of Group:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private Pattern assignGroupToResourcePattern = Pattern.compile("Group:\\[(.|\\s)*\\] assigned to Resource:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private Pattern removeGroupFromResourcePattern = Pattern.compile("Group:\\[(.|\\s)*\\] removed from Resource:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private Pattern moveGroupPattern = Pattern.compile("Group:\\[(.|\\s)*\\] was moved", Pattern.MULTILINE);
 	//Members patterns
-	private Pattern addedToPattern = Pattern.compile(" added to Group:\\[(.*)\\]");
-	private Pattern totallyRemovedFromPatter = Pattern.compile(" was removed from Group:\\[(.*)\\] totally");
+	private Pattern addedToPattern = Pattern.compile(" added to Group:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private Pattern totallyRemovedFromPatter = Pattern.compile(" was removed from Group:\\[(.|\\s)*\\] totally", Pattern.MULTILINE);
 	private Pattern validatedPattern = Pattern.compile(" validated.$");
 	private Pattern otherStateOfMemberPattern = Pattern.compile("expired.$|disabled.$|invalidated.$|suspended #");
 	//Attributes patterns
-	private Pattern facilitySetPattern = Pattern.compile(" set for Facility:\\[(.*)\\]");
-	private Pattern facilityRemovePattern = Pattern.compile(" removed for Facility:\\[(.*)\\]");
-	private Pattern facilityAllAttrsRemovedPattern = Pattern.compile("All attributes removed for Facility:\\[(.*)\\]");
+	private Pattern facilitySetPattern = Pattern.compile(" set for Facility:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private Pattern facilityRemovePattern = Pattern.compile(" removed for Facility:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private Pattern facilityAllAttrsRemovedPattern = Pattern.compile("All attributes removed for Facility:\\[(.|\\s)*\\]", Pattern.MULTILINE);
 
-	private Pattern userSetPattern = Pattern.compile(" set for User:\\[(.*)\\]");
-	private Pattern userRemovePattern = Pattern.compile(" removed for User:\\[(.*)\\]");
-	private Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)\\]");
+	private Pattern userSetPattern = Pattern.compile(" set for User:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private Pattern userRemovePattern = Pattern.compile(" removed for User:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.|\\s)*\\]", Pattern.MULTILINE);
 
 	private Pattern userUidNamespacePattern = Pattern.compile(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:");
 	private Pattern userLoginNamespacePattern = Pattern.compile(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:");
 	//UserExtSources patterns
-	private Pattern addUserExtSourcePattern = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]");
-	private Pattern removeUserExtSourcePattern = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]");
+	private Pattern addUserExtSourcePattern = Pattern.compile("UserExtSource:\\[(.|\\s)*\\] added to User:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private Pattern removeUserExtSourcePattern = Pattern.compile("UserExtSource:\\[(.|\\s)*\\] removed from User:\\[(.|\\s)*\\]", Pattern.MULTILINE);
 
 	//CONSTANTS
 	private static final String LDAP_NAME = "ldap";
