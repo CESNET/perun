@@ -254,7 +254,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 *
 	 * It's possible to fill these attributes for Google Groups ExtSource: -
 	 * urn:perun:user:attribute-def:virt:logins-namespace:google={userID}, -
-	 * urn:perun:facility:attribute-def:def:googleGroupNameNamespace={domainName},
+	 * urn:perun:facility:attribute-def:def:googleGroupsDomain={domainName},
 	 * -
 	 * urn:perun:group:attribute-def:def:googleGroupName-namespace:einfra.cesnet.cz={groupName}
 	 *
