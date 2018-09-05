@@ -327,16 +327,31 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Creates a facility.
+	 * Creates a facility. Caller is automatically set as facility manager.
 	 * @param facility Facility JSON object
+	 * @return Facility Created Facility object
+	 */
+	/*#
+	 * Creates a facility. Caller is automatically set as facility manager.
+	 * @param name String name of a facility
+	 * @param description String description of a facility
 	 * @return Facility Created Facility object
 	 */
 	createFacility {
 
 		@Override
 		public Facility call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getFacilitiesManager().createFacility(ac.getSession(),
-					parms.read("facility", Facility.class));
+			if (parms.contains("facility")) {
+				return ac.getFacilitiesManager().createFacility(ac.getSession(),
+						parms.read("facility", Facility.class));
+			} else if (parms.contains("name") && parms.contains("description")) {
+				String name = parms.readString("name");
+				String description = parms.readString("description");
+				Facility facility = new Facility(0, name, description);
+				return ac.getFacilitiesManager().createFacility(ac.getSession(), facility);
+			} else {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER);
+			}
 		}
 	},
 

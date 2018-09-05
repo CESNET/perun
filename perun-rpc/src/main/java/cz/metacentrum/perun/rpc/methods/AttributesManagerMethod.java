@@ -1275,16 +1275,44 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param attribute AttributeDefinition object
 	 * @return AttributeDefinition Created AttributeDefinition
 	 */
+	/*#
+	 * Creates AttributeDefinition
+	 *
+	 * @param friendlyName String friendlyName
+	 * @param namespace String namespace in URN format
+	 * @param description String description
+	 * @param type String type which is one of the: "java.lang.String", "java.lang.Integer", "java.lang.Boolean", "java.util.ArrayList",
+	 *                                              "java.util.LinkedHashMap", "java.lang.LargeString" or "java.util.LargeArrayList"
+	 * @param displayName String displayName
+	 * @param unique Boolean unique
+	 * @return AttributeDefinition Created AttributeDefinition
+	 * @exampleParam friendlyName "kerberosLogins"
+	 * @exampleParam namespace "urn:perun:user:attribute-def:def"
+	 * @exampleParam type "java.util.ArrayList"
+	 */
 	createAttribute {
 
 		@Override
 		public AttributeDefinition call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			AttributeDefinition attribute = parms.read("attribute", AttributeDefinition.class);
+			if (parms.contains("attribute")) {
+				return ac.getAttributesManager().createAttribute(ac.getSession(),
+						parms.read("attribute", AttributeDefinition.class));
+			} else if (parms.contains("friendlyName") && parms.contains("namespace") && parms.contains("description") && parms.contains("type")
+					&& parms.contains("displayName") && parms.contains("unique")) {
 
-			return ac.getAttributesManager().createAttribute(ac.getSession(), attribute);
-
+				AttributeDefinition attribute = new AttributeDefinition();
+				attribute.setFriendlyName(parms.readString("friendlyName"));
+				attribute.setNamespace(parms.readString("namespace"));
+				attribute.setDescription(parms.readString("description"));
+				attribute.setType(parms.readString("type"));
+				attribute.setDisplayName(parms.readString("displayName"));
+				attribute.setUnique(parms.readBoolean("unique"));
+				return ac.getAttributesManager().createAttribute(ac.getSession(), attribute);
+			} else {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER);
+			}
 		}
 	},
 
