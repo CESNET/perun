@@ -49,7 +49,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends F
 		List<Resource> resourcesWithSameGid = sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceGidAttribute);
 		if (resourcesWithSameGid.isEmpty() && allowedResources.isEmpty() && resourceGidAttribute.getValue() == null) return;
 		if (resourcesWithSameGid.isEmpty() && resourceGidAttribute.getValue() != null) throw new WrongAttributeValueException(attribute, user, facility, "Resource with requiered unix GID doesn't exist.");
-		if (allowedResources.isEmpty()) throw new WrongAttributeValueException(attribute, user, "User has not access to requiered resource");
+		if (allowedResources.isEmpty()) throw new WrongAttributeValueException(attribute, user, "User has not access to required resource");
 
 		resourcesWithSameGid.retainAll(allowedResources);
 
