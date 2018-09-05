@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -29,11 +28,27 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @return Group Newly created group
 	 */
 	/*#
+	 * Creates a subgroup of a group.
+	 *
+	 * @param parentGroup int Parent Group <code>id</code>
+	 * @param name String name of a group
+	 * @param description String description of a group
+	 * @return Group Newly created group
+	 */
+	/*#
 	 * Creates a new group in the specific VO defined by object vo in parameter.
 	 * Important: voId in object group is ignored.
 	 *
 	 * @param vo int Parent VO <code>id</code>
 	 * @param group Group JSON Group class
+	 * @return Group Newly created group
+	 */
+	/*#
+	 * Creates a new group in the specific VO.
+	 *
+	 * @param vo int Parent VO <code>id</code>
+	 * @param name String name of a group
+	 * @param description String description of a group
 	 * @return Group Newly created group
 	 */
 	createGroup {
@@ -42,21 +57,43 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			if (parms.contains("parentGroup")) {
-				return ac.getGroupsManager().createGroup(ac.getSession(),
-						ac.getGroupById(parms.readInt("parentGroup")),
-						parms.read("group", Group.class));
-			} else if (parms.contains("vo")) {
-				Group group = parms.read("group", Group.class);
-				if (group.getParentGroupId() == null) {
+			if (parms.contains("group")) {
+				if (parms.contains("parentGroup")) {
 					return ac.getGroupsManager().createGroup(ac.getSession(),
-							ac.getVoById(parms.readInt("vo")),
-							group);
+							ac.getGroupById(parms.readInt("parentGroup")),
+							parms.read("group", Group.class));
+				} else if (parms.contains("vo")) {
+					Group group = parms.read("group", Group.class);
+					if (group.getParentGroupId() == null) {
+						return ac.getGroupsManager().createGroup(ac.getSession(),
+								ac.getVoById(parms.readInt("vo")),
+								group);
+					} else {
+						throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Top-level groups can't have parentGroupId set!");
+					}
 				} else {
-					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Top-level groups can't have parentGroupId set!");
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or parentGroup");
+				}
+			} else if (parms.contains("name") && parms.contains("description")) {
+				if (parms.contains("parentGroup")) {
+					String name = parms.readString("name");
+					String description = parms.readString("description");
+					Group group = new Group(name, description);
+					return ac.getGroupsManager().createGroup(ac.getSession(),
+							ac.getGroupById(parms.readInt("parentGroup")),
+							group);
+				} else if (parms.contains("vo")) {
+					String name = parms.readString("name");
+					String description = parms.readString("description");
+					Group group = new Group(name, description);
+					return ac.getGroupsManager().createGroup(ac.getSession(),
+								ac.getVoById(parms.readInt("vo")),
+								group);
+				} else {
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or parentGroup");
 				}
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or parentGroup");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "group or (name and description)");
 			}
 		}
 	},
