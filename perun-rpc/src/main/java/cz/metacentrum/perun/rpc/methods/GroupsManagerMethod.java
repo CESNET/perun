@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -45,8 +44,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @return Group Newly created group
 	 */
 	/*#
-	 * Creates a new group in the specific VO defined by object vo in parameter.
-	 * Important: voId in object group is ignored.
+	 * Creates a new group in the specific VO.
 	 *
 	 * @param vo int Parent VO <code>id</code>
 	 * @param name String name of a group
@@ -85,22 +83,17 @@ public enum GroupsManagerMethod implements ManagerMethod {
 							ac.getGroupById(parms.readInt("parentGroup")),
 							group);
 				} else if (parms.contains("vo")) {
-					Integer parentGroupId = parms.readInt("parentGroupId");
 					String name = parms.readString("name");
 					String description = parms.readString("description");
-					Group group = new Group(parentGroupId, name, description);
-					if (group.getParentGroupId() == null) {
-						return ac.getGroupsManager().createGroup(ac.getSession(),
+					Group group = new Group(name, description);
+					return ac.getGroupsManager().createGroup(ac.getSession(),
 								ac.getVoById(parms.readInt("vo")),
 								group);
-					} else {
-						throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Top-level groups can't have parentGroupId set!");
-					}
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or parentGroup");
 				}
 			} else {
-				throw new RpcException(RpcException.Type.WRONG_PARAMETER);
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "group or (name and description)");
 			}
 		}
 	},

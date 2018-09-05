@@ -1279,15 +1279,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Creates AttributeDefinition
 	 *
 	 * @param friendlyName String friendlyName
-	 * @param namespace String namespace
+	 * @param namespace String namespace in URN format
 	 * @param description String description
 	 * @param type String type which is one of the: "java.lang.String", "java.lang.Integer", "java.lang.Boolean", "java.util.ArrayList",
 	 *                                              "java.util.LinkedHashMap", "java.lang.LargeString" or "java.util.LargeArrayList"
 	 * @param displayName String displayName
 	 * @param unique Boolean unique
 	 * @return AttributeDefinition Created AttributeDefinition
-	 * @exampleParam friendlyName [ "kerberosLogins" ]
-	 * @exampleParam namespace [ "urn:perun:user:attribute-def:def" ]
+	 * @exampleParam friendlyName "kerberosLogins"
+	 * @exampleParam namespace "urn:perun:user:attribute-def:def"
+	 * @exampleParam type "java.util.ArrayList"
 	 */
 	createAttribute {
 
