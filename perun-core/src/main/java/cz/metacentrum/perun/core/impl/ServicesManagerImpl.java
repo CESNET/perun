@@ -74,7 +74,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	public final static String richDestinationMappingSelectQuery = " " + destinationMappingSelectQuery + ", " +
 		"facilities.id as facilities_id, facilities.name as facilities_name, " +
 		"facilities.created_at as facilities_created_at, facilities.created_by as facilities_created_by, facilities.modified_at as facilities_modified_at, facilities.modified_by as facilities_modified_by, " +
-		"facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " + 
+		"facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " +
 		serviceMappingSelectQuery + ", " +
 		"facility_service_destinations.propagation_type as f_s_des_propagation_type ";
 
@@ -211,7 +211,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			}
 			jdbc.update("insert into services(id,name,description,delay,recurrence,enabled,script,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
 					"values (?,?,?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, service.getName(),
-					service.getDescription(), service.getDelay(), service.getRecurrence(), service.isEnabled() ? '1' : '0', service.getScript(),
+					service.getDescription(), service.getDelay(), service.getRecurrence(), (service.isEnabled()) ? "1" : "0", service.getScript(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			log.info("Service created: {}", service);
 
@@ -244,7 +244,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			jdbc.update("update services set name=?, description=?, delay=?, recurrence=?, enabled=?, script=?, " +
 							"modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?",
 					service.getName(), service.getDescription(), service.getDelay(), service.getRecurrence(),
-					service.isEnabled() ? '1' : '0', service.getScript(),
+					(service.isEnabled()) ? "1" : "0", service.getScript(),
 					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), service.getId());
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);

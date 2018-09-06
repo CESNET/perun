@@ -255,7 +255,7 @@ public class MailManagerImpl implements MailManager {
 		for (ApplicationMail mail : mails) {
 			// update sending (enabled / disabled)
 			if (Compatibility.isPostgreSql()) {
-				jdbc.update("update application_mails set send=? where id=?", (enabled) ? '1' : '0', mail.getId());
+				jdbc.update("update application_mails set send=? where id=?", (enabled) ? "1" : "0", mail.getId());
 			} else {
 				jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
 			}
