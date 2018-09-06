@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -44,12 +45,29 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	 * @throw SecurityTeamExistsException When name of SecurityTeam is not unique.
 	 * @return SecurityTeam Newly create SecurityTeam with <code>id</code> set.
 	 */
+	/*#
+	 * Create SecurityTeam.
+	 *
+	 * @param name String name
+	 * @param description String description
+	 * @throw SecurityTeamExistsException When name of SecurityTeam is not unique.
+	 * @return SecurityTeam Newly create SecurityTeam with <code>id</code> set.
+	 */
 	createSecurityTeam {
 		@Override
 		public SecurityTeam call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			return ac.getSecurityTeamsManager().createSecurityTeam(ac.getSession(), parms.read("securityTeam", SecurityTeam.class));
+			if (parms.contains("securityTeam")) {
+				return ac.getSecurityTeamsManager().createSecurityTeam(ac.getSession(), parms.read("securityTeam", SecurityTeam.class));
+			} else if (parms.contains("name") && parms.contains("description")) {
+				String name = parms.readString("name");
+				String description = parms.readString("description");
+				SecurityTeam securityTeam = new SecurityTeam(name, description);
+				return ac.getSecurityTeamsManager().createSecurityTeam(ac.getSession(), securityTeam);
+			} else {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER);
+			}
 		}
 	},
 

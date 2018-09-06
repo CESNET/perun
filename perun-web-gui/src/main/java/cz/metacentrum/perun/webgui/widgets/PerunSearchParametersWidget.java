@@ -27,7 +27,6 @@ import java.util.Map;
  */
 public class PerunSearchParametersWidget extends Composite {
 
-
 	private FlexTable ft = new FlexTable();
 	private CustomButton addParameterButton = new CustomButton("Add parameter", SmallIcons.INSTANCE.addIcon());
 	private CustomButton searchButton = new CustomButton("Search", SmallIcons.INSTANCE.magnifierIcon());
@@ -49,8 +48,6 @@ public class PerunSearchParametersWidget extends Composite {
 		 */
 		void search(Map<String, String> map);
 	}
-
-
 
 	/**
 	 * Creates a new button
@@ -102,6 +99,12 @@ public class PerunSearchParametersWidget extends Composite {
 						break;
 					case FACILITY:
 						ent = "facility";
+						break;
+					case RESOURCE:
+						ent = "resource";
+						break;
+					case MEMBER:
+						ent = "user"; // we search members in searcher by user attributes !!
 						break;
 
 					default:

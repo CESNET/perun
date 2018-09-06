@@ -535,6 +535,16 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	public List<Resource> getResources(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + resourceMappingSelectQuery+ " from resources", RESOURCE_MAPPER);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Resource>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	@Override
 	public List<RichResource> getRichResources(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
@@ -786,6 +796,34 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			return jdbc.query("select " + resourceMappingSelectQuery + " from resources, authz where authz.user_id=? and " +
 							"authz.role_id=(select id from roles where name=?) and authz.resource_id=resources.id",
 					RESOURCE_MAPPER, user.getId(), Role.RESOURCEADMIN.getRoleName());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, Facility facility, Vo vo, User authorizedUser) throws InternalErrorException {
+		try {
+			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
+							" left outer join authz on authz.resource_id=resources.id " +
+							" where resources.facility_id=? and resources.vo_id=? and authz.user_id=? and authz.role_id=(select id from roles where name=?)"
+					,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.getRoleName());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession sess, Facility facility, Vo vo, Group authorizedGroup) throws InternalErrorException {
+		try {
+			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
+							" left outer join authz on authz.resource_id=resources.id " +
+							" where resources.facility_id=? and resources.vo_id=? and authz.authorized_group_id=? and authz.role_id=(select id from roles where name=?)"
+					,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedGroup.getId(), Role.RESOURCEADMIN.getRoleName());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

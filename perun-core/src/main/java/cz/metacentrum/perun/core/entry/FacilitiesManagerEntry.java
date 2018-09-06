@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.ActionType;
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +66,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import java.util.Iterator;
@@ -311,7 +309,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		//Authrorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
-			throw new PrivilegeException(perunSession, "getAlloewdGroups");
+			throw new PrivilegeException(perunSession, "getAllowedGroups");
 		}
 
 		getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
@@ -319,6 +317,25 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		if(specificService != null) getPerunBl().getServicesManagerBl().checkServiceExists(perunSession, specificService);
 
 		return getFacilitiesManagerBl().getAllowedGroups(perunSession, facility, specificVo, specificService);
+	}
+
+	@Override
+	public List<RichGroup> getAllowedRichGroupsWithAttributes(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService, List<String> attrNames) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, ServiceNotExistsException, VoNotExistsException {
+
+		Utils.checkPerunSession(perunSession);
+
+		//Authrorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(perunSession, "getAllowedRichGroupsWithAttributes");
+		}
+
+		getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+		if(specificVo != null) getPerunBl().getVosManagerBl().checkVoExists(perunSession, specificVo);
+		if(specificService != null) getPerunBl().getServicesManagerBl().checkServiceExists(perunSession, specificService);
+
+		List<RichGroup> richGroups = getFacilitiesManagerBl().getAllowedRichGroupsWithAttributes(perunSession, facility, specificVo, specificService, attrNames);
+		return getPerunBl().getGroupsManagerBl().filterOnlyAllowedAttributes(perunSession, richGroups, true);
+
 	}
 
 	public List<User> getAllowedUsers(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException{

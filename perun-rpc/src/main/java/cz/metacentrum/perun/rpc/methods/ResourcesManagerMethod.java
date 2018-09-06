@@ -6,6 +6,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -66,16 +67,36 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * @param facility int Facility <code>id</code>
 	 * @return Resource Created resource
 	 */
+	/*#
+	 * Creates a new resource.
+	 *
+	 * @param name String name of a new resource
+	 * @param description String description of a new resource
+	 * @param vo int virtual organization <code>id</code>
+	 * @param facility int Facility <code>id</code>
+	 * @return Resource Created resource
+	 */
 	createResource {
 
 		@Override
 		public Resource call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			return ac.getResourcesManager().createResource(ac.getSession(),
-					parms.read("resource", Resource.class),
-					ac.getVoById(parms.readInt("vo")),
-					ac.getFacilityById(parms.readInt("facility")));
+			if (parms.contains("resource")) {
+				return ac.getResourcesManager().createResource(ac.getSession(),
+						parms.read("resource", Resource.class),
+						ac.getVoById(parms.readInt("vo")),
+						ac.getFacilityById(parms.readInt("facility")));
+			} else if (parms.contains("name") && parms.contains("description")) {
+				String name = parms.readString("name");
+				String description = parms.readString("description");
+				Vo vo = ac.getVoById(parms.readInt("vo"));
+				Facility facility = ac.getFacilityById(parms.readInt("facility"));
+				Resource resource = new Resource(0, name, description, facility.getId(), vo.getId());
+				return ac.getResourcesManager().createResource(ac.getSession(), resource, vo, facility);
+			} else {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER);
+			}
 		}
 	},
 
@@ -599,7 +620,23 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns list of Resources, where the user is an Administrator.
+	 * Returns list of Resources for specified VO and Facility, where the user is an Administrator
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param vo int Vo <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @return List<Resource> Found Resources
+	 */
+	/*#
+	 * Returns list of Resources for specified VO and Facility, where the group is an Administrator.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param vo int Vo <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @return List<Resource> Found Resources
+	 */
+	/*#
+	 * Returns list of all Resources, where the user is an Administrator.
 	 *
 	 * @param user int User <code>id</code>
 	 * @return List<Resource> Found Resources
@@ -607,8 +644,26 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	getResourcesWhereUserIsAdmin {
 		@Override
 		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getResourcesManager().getResourcesWhereUserIsAdmin(ac.getSession(),
-					ac.getUserById(parms.readInt("user")));
+			if (parms.contains("facility") && parms.contains("vo")) {
+				if (parms.contains("user")) {
+					return ac.getResourcesManager().getResourcesWhereUserIsAdmin(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getUserById(parms.readInt("user")));
+				} else if (parms.contains("group")) {
+					return ac.getResourcesManager().getResourcesWhereGroupIsAdmin(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getGroupById(parms.readInt("group")));
+				} else {
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "group or user");
+				}
+			} else if (parms.contains("user")) {
+				return ac.getResourcesManager().getResourcesWhereUserIsAdmin(ac.getSession(),
+						ac.getUserById(parms.readInt("user")));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo or user");
+			}
 		}
 	},
 
@@ -777,12 +832,29 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 *
 	 * @return ResourceTag created ResourceTag with <code>id</code> and VO_ID set
 	 */
+	/*#
+	 * Create new resource tag defined by tag name in VO
+	 *
+	 * @param tagName String tagName
+	 * @param vo int <code>id</code> of VO to create tag for
+	 *
+	 * @return ResourceTag created ResourceTag with <code>id</code> and VO_ID set
+	 */
 	createResourceTag {
 		@Override
 		public ResourceTag call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getResourcesManager().createResourceTag(ac.getSession(),
-					parms.read("resourceTag", ResourceTag.class),
-					ac.getVoById(parms.readInt("vo")));
+			if (parms.contains("resourceTag")) {
+				return ac.getResourcesManager().createResourceTag(ac.getSession(),
+						parms.read("resourceTag", ResourceTag.class),
+						ac.getVoById(parms.readInt("vo")));
+			} else if (parms.contains("tagName")) {
+				String tagName = parms.readString("tagName");
+				Vo vo = ac.getVoById(parms.readInt("vo"));
+				ResourceTag resourceTag = new ResourceTag(0, tagName, vo.getId());
+				return ac.getResourcesManager().createResourceTag(ac.getSession(), resourceTag, vo);
+			} else {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER);
+			}
 		}
 	},
 
