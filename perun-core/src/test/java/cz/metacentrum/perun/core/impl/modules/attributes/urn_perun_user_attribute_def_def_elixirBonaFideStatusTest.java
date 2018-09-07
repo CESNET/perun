@@ -23,10 +23,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
+ * IMPORTANT: will be removed in next release!!!
  * Test methods for urn_perun_user_attribute_def_def_elixirBonaFideStatus
  *
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
+@Deprecated
 public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 
 	private static final String VALUE = "http://www.ga4gh.org/beacon/bonafide/ver1.0";

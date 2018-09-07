@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
+ * IMPORTANT: will be removed in next release!!!
  * This module determines if user is a researcher. If so,
  * it provides URL: 'http://www.ga4gh.org/beacon/bonafide/ver1.0'.
  *
@@ -30,6 +31,7 @@ import java.util.Map;
  * @author Vojtech Sassmann &lt;vojtech.sassmann@gmail.com&gt;
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
+@Deprecated
 public class urn_perun_user_attribute_def_def_elixirBonaFideStatus extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_elixirBonaFideStatus.class);
