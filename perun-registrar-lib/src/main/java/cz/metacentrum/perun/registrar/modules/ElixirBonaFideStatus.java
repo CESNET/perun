@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -127,9 +126,9 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 		Attribute affiliations = am.getAttribute(session, user, A_U_D_userEduPersonScopedAffiliations);
 
 		if (affiliations.getValue() != null) {
-			LinkedHashMap<String, String> val = affiliations.valueAsMap();
-			for (String key: val.keySet()) {
-				if (key.startsWith("faculty@")) {
+			List<String> val = affiliations.valueAsList();
+			for (String affiliation: val) {
+				if (affiliation.startsWith("faculty@")) {
 					return;
 				}
 			}
