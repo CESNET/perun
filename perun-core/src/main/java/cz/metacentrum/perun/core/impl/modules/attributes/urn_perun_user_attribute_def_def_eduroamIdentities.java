@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  */
 public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if(attribute == null) return; //null is OK
 		List<String> value = (List<String>) attribute.getValue();
@@ -30,6 +31,7 @@ public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttr
 		}
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		List<String> value = new ArrayList<String>();
 		try {
@@ -46,6 +48,7 @@ public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttr
 		return attribute;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

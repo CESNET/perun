@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute userCertDNs = null;
 		try {
@@ -48,6 +49,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 		}
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute userCertDNs = null;
 		try {
@@ -77,6 +79,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 		return dependencies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

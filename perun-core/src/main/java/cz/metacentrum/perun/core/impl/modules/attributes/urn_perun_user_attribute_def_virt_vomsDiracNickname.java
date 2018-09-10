@@ -47,6 +47,7 @@ public class urn_perun_user_attribute_def_virt_vomsDiracNickname extends UserVir
 		return Collections.singletonList(A_U_D_loginNamespace_egiUi);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);

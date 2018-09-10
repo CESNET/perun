@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
  */
 public class urn_perun_user_attribute_def_def_rootMailAliasesMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+    @Override
     public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
         String attributeValue = (String) attribute.getValue();
 
@@ -29,6 +30,7 @@ public class urn_perun_user_attribute_def_def_rootMailAliasesMail extends UserAt
         }
     }
 
+    @Override
     public AttributeDefinition getAttributeDefinition() {
         AttributeDefinition attr = new AttributeDefinition();
         attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

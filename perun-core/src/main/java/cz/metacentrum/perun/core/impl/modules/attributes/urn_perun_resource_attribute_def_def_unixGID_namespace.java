@@ -39,6 +39,7 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 	private static final String A_G_unixGroupName_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace";
 	private static final String A_E_usedGids = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids";
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 		String gidNamespace = attribute.getFriendlyNameParameter();
@@ -98,6 +99,7 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		try{
 			String gidNamespace = attribute.getFriendlyNameParameter();

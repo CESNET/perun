@@ -61,6 +61,7 @@ public class urn_perun_entityless_attribute_def_def_orgAups extends EntitylessAt
 
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);

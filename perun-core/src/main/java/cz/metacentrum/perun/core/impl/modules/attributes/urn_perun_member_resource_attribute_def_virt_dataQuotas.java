@@ -122,6 +122,7 @@ public class urn_perun_member_resource_attribute_def_virt_dataQuotas extends Res
 		return strongDependencies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);

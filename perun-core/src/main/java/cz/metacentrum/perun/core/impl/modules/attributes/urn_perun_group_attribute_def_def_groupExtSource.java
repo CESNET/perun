@@ -48,7 +48,7 @@ public class urn_perun_group_attribute_def_def_groupExtSource extends GroupAttri
 
 	}
 
-
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);

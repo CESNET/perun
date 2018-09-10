@@ -25,6 +25,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  */
 public class urn_perun_user_attribute_def_def_userCertificates extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		try {
 			HashMap<String,String> certs = (HashMap<String,String>) attribute.getValue();
@@ -47,10 +48,12 @@ public class urn_perun_user_attribute_def_def_userCertificates extends UserAttri
 
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		return new Attribute(attribute);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

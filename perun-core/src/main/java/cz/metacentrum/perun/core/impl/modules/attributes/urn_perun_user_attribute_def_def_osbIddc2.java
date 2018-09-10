@@ -19,11 +19,13 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  */
 public class urn_perun_user_attribute_def_def_osbIddc2 extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "ID from DC2 can't be null.");
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

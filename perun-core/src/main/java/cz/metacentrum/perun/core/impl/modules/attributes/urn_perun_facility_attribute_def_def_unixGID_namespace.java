@@ -27,6 +27,7 @@ public class urn_perun_facility_attribute_def_def_unixGID_namespace extends Faci
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_facility_attribute_def_def_unixGID_namespace.class);
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Attribute value can't be null");
 
@@ -38,6 +39,7 @@ public class urn_perun_facility_attribute_def_def_unixGID_namespace extends Faci
 		}
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);

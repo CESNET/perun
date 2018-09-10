@@ -37,7 +37,8 @@ public class urn_perun_entityless_attribute_def_def_usedGids extends EntitylessA
 	
 	private static Pattern keyPattern = Pattern.compile("^[RGD][1-9][0-9]*$");
 	private static Pattern valuePattern = Pattern.compile("^[1-9][0-9]*$");
-	
+
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//If this attribute value is null, it means there is no GIDS depleted or used.
 		if(attribute.getValue() == null) return;
@@ -70,6 +71,7 @@ public class urn_perun_entityless_attribute_def_def_usedGids extends EntitylessA
 		}
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);

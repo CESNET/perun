@@ -83,6 +83,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 		}
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
@@ -93,5 +94,4 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 				"Use \"user:virt:login-namespace:elixir-persistent\" attribute instead.");
 		return attr;
 	}
-
 }

@@ -18,6 +18,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public class urn_perun_resource_attribute_def_def_openNebulaGroupName extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		String groupName = (String)attribute.getValue();
 
@@ -26,6 +28,7 @@ public class urn_perun_resource_attribute_def_def_openNebulaGroupName extends Re
 		}
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

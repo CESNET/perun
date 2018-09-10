@@ -25,6 +25,7 @@ public class urn_perun_entityless_attribute_def_def_namespace_maxUID extends Ent
 
 	private static final String A_E_namespaceMinUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID";
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer maxUID = (Integer) attribute.getValue();
 		if(maxUID != null) {

@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttri
  */
 public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceVirtualAttributesModuleAbstract implements ResourceVirtualAttributesModuleImplApi {
 
+	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
@@ -30,21 +31,24 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
 
 	}
 
+	@Override
 	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		throw new InternalErrorException("Can't set value of this virtual attribute this way. " + attribute);
 	}
 
+	@Override
 	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
 		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attribute);
 	}
 
-
+	@Override
 	public List<String> getStrongDependencies() {
 		List<String> strongDependencies = new ArrayList<String>();
 		strongDependencies.add(AttributesManager.NS_VO_ATTR_CORE + ":shortName");
 		return strongDependencies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_VIRT);

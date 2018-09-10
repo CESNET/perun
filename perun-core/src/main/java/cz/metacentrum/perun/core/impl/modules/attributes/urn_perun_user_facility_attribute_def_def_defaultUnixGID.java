@@ -26,12 +26,12 @@ import java.util.ArrayList;
  */
 public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
 
-	@Override
 	/**
 	 * Checks the new default GID of the user at the specified facility. The new GID must be equals to any of resource unixGID attribute where resource is from speciafie facility (and user must have acces to this resource) or from groupResource:unixGID attribute (groups if from the resources and user have acess to them)
 	 *
 	 * TODO Known issues: Can't detect if unixGid is not set on all resources and groups where user is allowed. This will be reported as WrongAttributeValueException, but it should be WrongReferenceAttributeValueException
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		Integer gid = (Integer) attribute.getValue();
 		if(gid == null) return;

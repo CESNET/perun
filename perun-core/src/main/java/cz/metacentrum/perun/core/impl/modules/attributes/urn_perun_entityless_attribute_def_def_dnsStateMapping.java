@@ -25,7 +25,7 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public class urn_perun_entityless_attribute_def_def_dnsStateMapping extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
-
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if(key==null) {
 			throw new WrongAttributeValueException(attribute, "null", "key for this entityless attribute must not be null");
@@ -37,6 +37,7 @@ public class urn_perun_entityless_attribute_def_def_dnsStateMapping extends Enti
 		}
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);

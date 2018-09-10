@@ -26,10 +26,10 @@ import java.util.List;
  */
 public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUserVirtualAttributesModuleAbstract implements FacilityUserVirtualAttributesModuleImplApi {
 
-	@Override
 	/**
 	 * Calls checkAttribute on u:login-namespace:[login-namespace]
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		try  {
 			Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
@@ -48,10 +48,10 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 		}
 	}
 
-	@Override
 	/**
 	 * Calls fillAttribute on u:login-namespace:[login-namespace]
 	 */
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute virtLoginAttribute = new Attribute(attributeDefinition);
 
@@ -74,10 +74,10 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 		return virtLoginAttribute;
 	}
 
-	@Override
 	/**
 	 * Gets the value of the attribute f:login-namespace and then finds the value of the attribute u:login-namespace:[login-namespace]
 	 */
+	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attr = new Attribute(attributeDefinition);
 
@@ -149,6 +149,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 		return StrongDependencies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);

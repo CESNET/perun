@@ -7,13 +7,16 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
 
 /**
  *
  * @author Jakub Peschel <410368@mail.muni.cz>
  */
-public class urn_perun_resource_attribute_def_def_mailingListManagerEmail {
+public class urn_perun_resource_attribute_def_def_mailingListManagerEmail extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException{
 		if (attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute, resource, "Attribute value is null.");
@@ -24,6 +27,7 @@ public class urn_perun_resource_attribute_def_def_mailingListManagerEmail {
 
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

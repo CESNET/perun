@@ -149,6 +149,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends Resourc
 		return dependecies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);

@@ -150,6 +150,7 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 		else return Lists.newArrayList(uco + "@muni.cz");
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(NAMESPACE);

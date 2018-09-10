@@ -44,6 +44,7 @@ public class urn_perun_member_attribute_def_def_organization extends MemberAttri
 		}
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);

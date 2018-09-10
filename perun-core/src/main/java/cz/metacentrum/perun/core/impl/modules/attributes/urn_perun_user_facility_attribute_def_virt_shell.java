@@ -27,6 +27,7 @@ import java.util.Set;
  */
 public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUserVirtualAttributesModuleAbstract implements FacilityUserVirtualAttributesModuleImplApi {
 
+	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attr = new Attribute(attributeDefinition);
 		try {
@@ -75,6 +76,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
 
 	}
 
+	@Override
 	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		try {
 			Attribute attributeToSet = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
@@ -88,6 +90,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
 		}
 	}
 
+	@Override
 	public List<String> getStrongDependencies() {
 		List<String> strongDependencies = new ArrayList<String>();
 		strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
@@ -97,6 +100,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends FacilityUs
 		return strongDependencies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);

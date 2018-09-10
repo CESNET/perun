@@ -21,6 +21,7 @@ public class urn_perun_vo_attribute_def_def_RTVoQueue extends VoAttributesModule
 
 	//Pattern extensionDatePattern = Pattern.compile("^$");
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		//There is no special queue in RT for this VO (in specific method use default queue)
 		if(attribute.getValue() == null) return;
@@ -32,10 +33,12 @@ public class urn_perun_vo_attribute_def_def_RTVoQueue extends VoAttributesModule
 		//TODO: Create some regexp Pattern for RTVoQueue and test it there
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		return new Attribute(attribute);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);

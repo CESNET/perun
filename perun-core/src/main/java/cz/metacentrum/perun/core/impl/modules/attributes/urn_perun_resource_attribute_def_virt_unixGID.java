@@ -141,6 +141,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 		return dependencies;
 	}
 
+	@Override
 	public List<String> getStrongDependencies() {
 		List<String> strongDependencies = new ArrayList<String>();
 		strongDependencies.add(A_R_unixGID_namespace + "*");
@@ -148,6 +149,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 		return strongDependencies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_VIRT);

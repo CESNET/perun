@@ -25,10 +25,10 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_uid_namespace extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
-	@Override
 	/**
 	 * Checks if the corresponding attribute u:uid-namespace:[namespace] exists.
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, facility, "Missing uid namespace for facility.");
 
@@ -47,6 +47,7 @@ public class urn_perun_facility_attribute_def_def_uid_namespace extends Facility
 		return new Attribute(attribute);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);

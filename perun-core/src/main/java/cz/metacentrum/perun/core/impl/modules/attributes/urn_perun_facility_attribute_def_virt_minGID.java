@@ -28,6 +28,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 	private static final String A_E_namespaceMinGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID";
 	private static final String A_FAC_unixGIDNamespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace";
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		try {
 			Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
@@ -40,10 +41,12 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		return new Attribute(attributeDefinition);
 	}
 
+	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 		try {
@@ -57,6 +60,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 		}
 	}
 
+	@Override
 	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
 		if(gidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, gidNamespaceAttribute);
@@ -68,6 +72,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 		return false;
 	}
 
+	@Override
 	public void removeAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		//Not suported yet.
 		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attributeDefinition);
@@ -105,6 +110,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 		return strongDependencies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_VIRT);
