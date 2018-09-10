@@ -18,6 +18,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  * @date 04.03.16.
  */
 public class urn_perun_resource_attribute_def_def_redmineRole extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
+
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		String role = (String)attribute.getValue();
 
@@ -31,6 +33,7 @@ public class urn_perun_resource_attribute_def_def_redmineRole extends ResourceAt
 
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

@@ -26,6 +26,7 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 
 	Pattern certPattern = Pattern.compile("^/");
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "This attribute value can't be null");
 		Map<String, String> value = (Map) attribute.getValue();
@@ -41,6 +42,7 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 		}
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		return new Attribute(attribute);
 	}
@@ -101,6 +103,7 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 		}
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

@@ -29,6 +29,7 @@ public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile exten
 	 * Method for checking path of the file.
 	 * Try to check if the path is equal to pattern ^(/[-_a-zA-Z0-9]+)+$
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 		String path = (String) attribute.getValue();
@@ -44,11 +45,13 @@ public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile exten
 	 * Method for filling path of the file.
 	 * Return attribute with value equal null.
 	 */
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 
 		return new Attribute(attribute);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);

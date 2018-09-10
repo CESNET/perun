@@ -61,6 +61,7 @@ public class urn_perun_user_attribute_def_virt_mails_namespace_google extends Us
 		return attribute;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);

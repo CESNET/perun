@@ -29,6 +29,7 @@ public class urn_perun_facility_attribute_def_def_quotaEnabled extends FacilityA
 		 
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		//Default is 0, it means quota is not enabled (null means the same)
 		Attribute retAttr = new Attribute(attribute);
@@ -36,6 +37,7 @@ public class urn_perun_facility_attribute_def_def_quotaEnabled extends FacilityA
 		return retAttr;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);

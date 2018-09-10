@@ -16,6 +16,7 @@ import java.util.List;
  */
 public class urn_perun_member_group_attribute_def_virt_isGroupAdmin extends MemberGroupVirtualAttributesModuleAbstract implements MemberGroupVirtualAttributesModuleImplApi {
 
+    @Override
     public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException {
 
         List<User> userAdminList;
@@ -35,14 +36,17 @@ public class urn_perun_member_group_attribute_def_virt_isGroupAdmin extends Memb
 
     }
 
+    @Override
     public boolean setAttributeValue(PerunSessionImpl sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException{
         return false;
     }
 
+    @Override
     public boolean removeAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException{
         return false;
     }
 
+    @Override
     public AttributeDefinition getAttributeDefinition() {
         AttributeDefinition attr = new AttributeDefinition();
         attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);

@@ -54,6 +54,7 @@ public class urn_perun_user_attribute_def_def_titleBeforeKos extends UserAttribu
 
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(NS_USER_ATTR_DEF);

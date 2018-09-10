@@ -48,6 +48,7 @@ public class urn_perun_vo_attribute_def_def_aup extends VoAttributesModuleAbstra
 
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_DEF);

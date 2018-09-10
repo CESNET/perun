@@ -26,11 +26,11 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
 
 	private static final String A_R_shells = AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells";
 
-	@Override
 	/**
 	 * Fills the default shell at specified resource. If the facility contains
 	 * no shells, the exception is thrown otherwise some shell is picked.
 	 */
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute atr = new Attribute(attribute);
 		Attribute resourceAttr;
@@ -54,11 +54,11 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
 		}
 	}
 
-	@Override
 	/**
 	 * Checks the attribute with a default shell at the specified resource. The
 	 * new default shell must be included at specified resource.
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if (attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute, "Attribute value is null.");
@@ -91,6 +91,7 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
 		return dependecies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		String pbsServer = null;
 		if(attribute.getValue() != null) {
@@ -42,10 +43,12 @@ public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttr
 		if(!success) throw new WrongAttributeValueException(attribute, "There is no such facility with the same name like this pbsServer");
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		return new Attribute(attribute);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);

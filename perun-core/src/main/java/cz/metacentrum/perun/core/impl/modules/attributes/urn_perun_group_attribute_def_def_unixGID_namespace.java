@@ -40,6 +40,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 	private static final String A_G_unixGroupName_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace";
 	private static final String A_E_usedGids = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids";
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 		String gidNamespace = attribute.getFriendlyNameParameter();
@@ -121,6 +122,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		try{
 			String gidNamespace = attribute.getFriendlyNameParameter();

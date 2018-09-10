@@ -32,6 +32,7 @@ public class urn_perun_resource_attribute_def_def_replicaDestinationPath extends
 		}
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

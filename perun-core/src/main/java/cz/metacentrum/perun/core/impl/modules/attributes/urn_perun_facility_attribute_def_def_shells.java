@@ -25,12 +25,12 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_shells extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi  {
 
-	@Override
 	/**
 	 * Checks if the facility has properly set shells. There must be at least one
 	 * shell per facility which must match regular expression
 	 * e.g. corretct unix path.
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<String> shells = (List<String>) attribute.getValue();
 
@@ -47,15 +47,16 @@ public class urn_perun_facility_attribute_def_def_shells extends FacilityAttribu
 		}
 	}
 
-	@Override
 	/**
 	 * Method for filling shells at specified facility is not implemented yet.
 	 * Probably it will not be neccessary.
 	 */
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		return new Attribute(attribute);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);

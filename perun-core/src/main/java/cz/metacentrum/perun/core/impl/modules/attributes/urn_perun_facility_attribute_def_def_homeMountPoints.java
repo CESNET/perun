@@ -21,7 +21,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_homeMountPoints extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
-	@Override
 	/**
 	 * Checks attribute facility_homeMountPoints, this attribute must not be null and must be valid *nix path
 	 * @param perunSession current session
@@ -29,6 +28,7 @@ public class urn_perun_facility_attribute_def_def_homeMountPoints extends Facili
 	 * @param attribute checked attribute
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 
 		if(attribute.getValue() == null) {
@@ -53,6 +53,7 @@ public class urn_perun_facility_attribute_def_def_homeMountPoints extends Facili
 		return new Attribute(attribute);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);

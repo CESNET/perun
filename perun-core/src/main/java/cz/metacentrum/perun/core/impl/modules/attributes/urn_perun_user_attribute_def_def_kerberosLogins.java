@@ -20,6 +20,7 @@ import java.util.ArrayList;
  */
 public class urn_perun_user_attribute_def_def_kerberosLogins extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Attribute's value can't be null.");
 		List<String> value = (List<String>) attribute.getValue();
@@ -29,10 +30,12 @@ public class urn_perun_user_attribute_def_def_kerberosLogins extends UserAttribu
 		}
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		return new Attribute(attribute);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

@@ -27,7 +27,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_accountExpirationTime extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
-
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer accountExpTime = (Integer) attribute.getValue();
 		if(accountExpTime == null) {
@@ -35,10 +35,12 @@ public class urn_perun_facility_attribute_def_def_accountExpirationTime extends 
 		}
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		return new Attribute(attribute);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);

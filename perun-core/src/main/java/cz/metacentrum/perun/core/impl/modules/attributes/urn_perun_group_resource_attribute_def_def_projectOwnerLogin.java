@@ -35,6 +35,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 
 	private static final String A_UF_V_login = AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login";
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String ownerLogin = (String) attribute.getValue();
 		if (ownerLogin == null) return;
@@ -71,6 +72,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 		return Collections.singletonList(A_UF_V_login);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);

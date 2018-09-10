@@ -42,6 +42,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeAssignmentException
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 		if (attribute.getValue() == null) {
@@ -69,6 +70,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute resourceAttribute = null;
 		try {
@@ -92,6 +94,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 		return dependecies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

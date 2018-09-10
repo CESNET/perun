@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_resource_attribute_def_def_projectsBasePath extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String path = (String) attribute.getValue();
 		if (path == null) {
@@ -36,6 +37,7 @@ public class urn_perun_resource_attribute_def_def_projectsBasePath extends Resou
 		}
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

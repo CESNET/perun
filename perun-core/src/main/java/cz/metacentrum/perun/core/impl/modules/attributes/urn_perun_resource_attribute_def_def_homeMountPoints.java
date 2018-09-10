@@ -37,6 +37,7 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		Facility facility = null;
 		facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
@@ -61,6 +62,7 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeAssignmentException
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if (attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute);
@@ -98,6 +100,7 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 		return dependecies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

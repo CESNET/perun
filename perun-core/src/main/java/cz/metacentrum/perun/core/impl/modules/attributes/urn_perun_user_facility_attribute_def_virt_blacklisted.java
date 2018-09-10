@@ -30,6 +30,7 @@ public class urn_perun_user_facility_attribute_def_virt_blacklisted extends Faci
 		return attribute;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);

@@ -34,12 +34,12 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 	private static final String A_E_namespace_namespace_uid_policy = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-uid-policy";
 	private static final String UID_POLICY_INCREMENT = "increment";
 
-	@Override
 	/**
 	 * Checks the new UID of the user. The new UID must
 	 * not be lower than the min UID or greater than the max UID. Also no collision between
 	 * existing user and the new user is allowed.
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		Integer uid = (Integer) attribute.getValue();
 		String uidNamespace = attribute.getFriendlyNameParameter();
@@ -79,11 +79,11 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 		}
 	}
 
-	@Override
 	/**
 	 * Fills the new UID for the user at the specified facility. First empty slot
 	 * in range (minUID, maxUID) is returned.
 	 */
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		String uidNamespace = attribute.getFriendlyNameParameter();
 		Attribute atr = new Attribute(attribute);

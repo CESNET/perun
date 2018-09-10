@@ -25,10 +25,10 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_login_namespace extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
-	@Override
 	/**
 	 * Checks if the corresponding attribute uf:login-namespace:[namespace] exists.
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		String userFacilityLoginNamespaceAttributeName =
 			AttributesManager.NS_USER_ATTR_DEF + ":" + attribute.getFriendlyName() + ":" + (String) attribute.getValue();
@@ -45,6 +45,7 @@ public class urn_perun_facility_attribute_def_def_login_namespace extends Facili
 		return new Attribute(attribute);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);

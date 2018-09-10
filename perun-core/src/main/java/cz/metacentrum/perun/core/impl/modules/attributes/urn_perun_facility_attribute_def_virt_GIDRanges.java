@@ -28,6 +28,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 	private static final String A_FAC_unixGIDNamespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace";
 	private static final String A_E_namespaceGIDRanges = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges";
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		try {
 			Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
@@ -39,6 +40,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 		}
 	}
 
+	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 		Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
@@ -48,6 +50,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 		return attribute;
 	}
 
+	@Override
 	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
 		if(gidNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, gidNamespaceAttribute, "There is missing GID namespace on the facility.");
@@ -95,6 +98,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 		return strongDependencies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_FACILITY_ATTR_VIRT);

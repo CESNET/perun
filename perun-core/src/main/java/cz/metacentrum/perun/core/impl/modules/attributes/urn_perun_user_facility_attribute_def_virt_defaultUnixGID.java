@@ -118,6 +118,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends F
 		}
 	}
 
+	@Override
 	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		try {
 			Attribute attributeToSet = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
@@ -133,6 +134,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends F
 		}
 	}
 
+	@Override
 	public List<String> getStrongDependencies() {
 		List<String> strongDependencies = new ArrayList<String>();
 		strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
@@ -146,6 +148,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends F
 		return strongDependencies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);

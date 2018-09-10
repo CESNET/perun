@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  */
 public class urn_perun_resource_attribute_def_def_rootMailAliases extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
+    @Override
     public AttributeDefinition getAttributeDefinition() {
         AttributeDefinition attr = new AttributeDefinition();
         attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

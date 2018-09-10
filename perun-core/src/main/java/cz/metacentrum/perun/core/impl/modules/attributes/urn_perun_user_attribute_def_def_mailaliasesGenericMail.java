@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
  */
 public class urn_perun_user_attribute_def_def_mailaliasesGenericMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		String attributeValue = null;
 
@@ -31,7 +32,7 @@ public class urn_perun_user_attribute_def_def_mailaliasesGenericMail extends Use
 		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "Email is not in correct form.");
 	}
 
-
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);

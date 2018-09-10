@@ -151,6 +151,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
 		return StrongDependencies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);

@@ -30,10 +30,10 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 
 	private static final String A_F_shells = AttributesManager.NS_FACILITY_ATTR_DEF + ":shells";
 
-	@Override
 	/**
 	 * Fills the list of shells at the specified resource from facility
 	 */
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute atr = new Attribute(attribute);
 		Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
@@ -50,10 +50,10 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 		return atr;
 	}
 
-	@Override
 	/**
 	 * Checks the attribute with all available shells from resource's facility
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		List<String> shells = (List<String>) attribute.getValue();
 
@@ -85,12 +85,14 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 		}
 	}
 
+	@Override
 	public List<String> getDependencies() {
 		List<String> dependecies = new ArrayList<String>();
 		dependecies.add(A_F_shells);
 		return dependecies;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);

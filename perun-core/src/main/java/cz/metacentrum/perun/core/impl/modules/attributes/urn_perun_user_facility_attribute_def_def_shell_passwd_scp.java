@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttribut
  */
 public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		String shell = (String) attribute.getValue();
 
@@ -28,6 +29,7 @@ public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends 
 		if(!shell.matches("^(/[-_.a-zA-Z0-9]+)+$")) throw new WrongAttributeValueException(attribute, "Wrong format. ^(/[-_.A-z0-9]+)+$ expected");
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 		try {
@@ -39,6 +41,7 @@ public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends 
 		}
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
