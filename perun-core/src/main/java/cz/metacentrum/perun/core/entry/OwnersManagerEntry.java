@@ -49,6 +49,7 @@ public class OwnersManagerEntry implements OwnersManager {
 		throw new InternalErrorRuntimeException("Unsupported method!");
 	}
 
+	@Override
 	public Owner createOwner(PerunSession sess, Owner owner) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -62,6 +63,7 @@ public class OwnersManagerEntry implements OwnersManager {
 		return getOwnersManagerBl().createOwner(sess, owner);
 	}
 
+	@Override
 	public void deleteOwner(PerunSession sess, Owner owner) throws OwnerNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -75,6 +77,7 @@ public class OwnersManagerEntry implements OwnersManager {
 		getOwnersManagerBl().deleteOwner(sess, owner);
 	}
 
+	@Override
 	public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws OwnerNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, OwnerAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -88,6 +91,7 @@ public class OwnersManagerEntry implements OwnersManager {
 		getOwnersManagerBl().deleteOwner(sess, owner, forceDelete);
 	}
 
+	@Override
 	public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -104,6 +108,7 @@ public class OwnersManagerEntry implements OwnersManager {
 		return getOwnersManagerBl().getOwnerById(sess, id);
 	}
 
+	@Override
 	public List<Owner> getOwners(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

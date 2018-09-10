@@ -46,6 +46,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 	}
 
 	protected static final RowMapper<Owner> OWNER_MAPPER = new RowMapper<Owner>() {
+		@Override
 		public Owner mapRow(ResultSet rs, int i) throws SQLException {
 			Owner owner = new Owner();
 			owner.setId(rs.getInt("owners_id"));
@@ -65,6 +66,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 	};
 
 
+	@Override
 	public boolean ownerExists(PerunSession sess, Owner owner) throws InternalErrorException {
 		try {
 			return 1 == jdbc.queryForInt("select 1 from owners where id=?", owner.getId());
@@ -75,10 +77,12 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 		}
 	}
 
+	@Override
 	public void checkOwnerExists(PerunSession sess, Owner owner) throws InternalErrorException, OwnerNotExistsException {
 		if(!ownerExists(sess, owner)) throw new OwnerNotExistsException("Owner: " + owner);
 	}
 
+	@Override
 	public Owner createOwner(PerunSession sess, Owner owner) throws InternalErrorException {
 		Utils.notNull(owner.getName(), "owner.getName()");
 		Utils.notNull(owner.getContact(), "owner.getContact()");
@@ -98,6 +102,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 		return owner;
 	}
 
+	@Override
 	public void deleteOwner(PerunSession sess, Owner owner) throws InternalErrorException, OwnerAlreadyRemovedException {
 		try {
 			int numAffected = jdbc.update("delete from owners where id=?", owner.getId());
@@ -107,6 +112,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 		}
 	}
 
+	@Override
 	public Owner getOwnerById(PerunSession sess, int id) throws OwnerNotExistsException, InternalErrorException {
 		try {
 			return jdbc.queryForObject("select " + ownerMappingSelectQuery + " from owners where id=?", OWNER_MAPPER, id);
@@ -117,6 +123,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Owner> getOwners(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + ownerMappingSelectQuery + " from owners", OWNER_MAPPER);

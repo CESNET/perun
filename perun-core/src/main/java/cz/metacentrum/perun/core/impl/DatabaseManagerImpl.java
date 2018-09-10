@@ -36,6 +36,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		jdbc = new JdbcPerunTemplate(perunPool);
 	}
 	
+	@Override
 	public String getCurrentDatabaseVersion() throws InternalErrorException {
 		try {
 			return jdbc.queryForObject("select value from configurations where property=?", String.class, VERSION_PROPETY);
@@ -46,6 +47,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		}
 	}
 	
+	@Override
 	public String getDatabaseDriverInformation() throws InternalErrorException {
 		try {
 			Connection con;
@@ -60,6 +62,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		}
 	}
 	
+	@Override
 	public String getDatabaseInformation() throws InternalErrorException {
 		try {
 			Connection con;
@@ -74,11 +77,13 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		}
 	}
 
+	@Override
 	public String getCodeDatabaseVersion(List<DBVersion> dbVersions, String currentDBVersion) {
 		if(dbVersions.isEmpty()) return currentDBVersion;
 		return dbVersions.get(0).getVersion();
 	}
 
+	@Override
 	public void updateDatabaseVersion(List<DBVersion> dbVersions) throws InternalErrorException {
 		Collections.reverse(dbVersions);
 
@@ -105,6 +110,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) throws InternalErrorException {
 
 		Pattern versionPattern = Pattern.compile("^[1-9][0-9]*[.][0-9]+[.][0-9]+");
@@ -176,6 +182,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		return versions;
 	}
 
+	@Override
 	public JdbcPerunTemplate getJdbcPerunTemplate() {
 		return jdbc;
 	}

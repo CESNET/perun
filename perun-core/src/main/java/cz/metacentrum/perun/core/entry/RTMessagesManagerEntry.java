@@ -30,6 +30,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 
 	public RTMessagesManagerEntry() {}
 
+	@Override
 	@Deprecated
 	public RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
@@ -40,6 +41,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 		return rtMessagesManagerBl.sendMessageToRT(sess, member, queue, subject, text);
 	}
 
+	@Override
 	public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -48,6 +50,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 		return rtMessagesManagerBl.sendMessageToRT(sess, voId, queue, subject, text);
 	}
 
+	@Override
 	public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -56,6 +59,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 		return rtMessagesManagerBl.sendMessageToRT(sess, queue, subject, text);
 	}
 
+	@Override
 	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

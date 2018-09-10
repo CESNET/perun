@@ -46,6 +46,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	 * Converts s ResultSet's row to a Vo instance.
 	 */
 	protected static final RowMapper<Vo> VO_MAPPER = new RowMapper<Vo>() {
+		@Override
 		public Vo mapRow(ResultSet rs, int i) throws SQLException {
 			return new Vo(rs.getInt("vos_id"), rs.getString("vos_name"), rs.getString("vos_short_name"), rs.getString("vos_created_at"),
 					rs.getString("vos_created_by"), rs.getString("vos_modified_at"), rs.getString("vos_modified_by"),
@@ -63,6 +64,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
+	@Override
 	public List<Vo> getVos(PerunSession sess) throws InternalErrorException {
 		try {
 			List<Vo> list = jdbc.query("select " + voMappingSelectQuery + " from vos", VO_MAPPER);
@@ -74,6 +76,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public Vo getVoByShortName(PerunSession sess, String shortName) throws VoNotExistsException, InternalErrorException {
 		try {
 			return jdbc.queryForObject("select " + voMappingSelectQuery + " from vos where short_name=?", VO_MAPPER, shortName);
@@ -84,6 +87,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public Vo getVoById(PerunSession sess, int id) throws VoNotExistsException, InternalErrorException {
 		try {
 			return jdbc.queryForObject("select " + voMappingSelectQuery + " from vos where id=?", VO_MAPPER, id);
@@ -94,6 +98,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public Vo createVo(PerunSession sess, Vo vo) throws VoExistsException, InternalErrorException {
 		Utils.notNull(vo.getName(), "vo.getName()");
 		Utils.notNull(vo.getShortName(), "vo.getShortName()");
@@ -119,6 +124,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		return vo;
 	}
 
+	@Override
 	public void deleteVo(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
 			// Delete authz entries for this VO
@@ -134,6 +140,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		log.debug("Vo {} deleted", vo);
 	}
 
+	@Override
 	public Vo updateVo(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
 			Map<String, Object> map = jdbc.queryForMap("select name, short_name from vos where id=?", vo.getId());
@@ -150,6 +157,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<User> getAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException {
 		try {
 			Set<User> setOfAdmins = new HashSet<User>();
@@ -173,6 +181,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<User> getDirectAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
@@ -184,6 +193,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Group> getAdminGroups(PerunSession sess, Vo vo, Role role) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on "
@@ -248,6 +258,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean voExists(PerunSession sess, Vo vo) throws InternalErrorException {
 		Utils.notNull(vo, "vo");
 		try {
@@ -270,10 +281,12 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public void checkVoExists(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException {
 		if(!voExists(sess, vo)) throw new VoNotExistsException("Vo: " + vo);
 	}
 
+	@Override
 	public List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) throws InternalErrorException {
 		// get app ids for all applications
 		try {
@@ -289,6 +302,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException {
 		try {
 			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
@@ -302,6 +316,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public void deleteVoReservedLogins(PerunSession sess, Vo vo) throws InternalErrorException {
 		// remove all reserved logins first
 		try {
@@ -322,6 +337,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public void createApplicationForm(PerunSession sess, Vo vo) throws InternalErrorException {
 		int id = Utils.getNewId(jdbc, "APPLICATION_FORM_ID_SEQ");
 		try {
@@ -331,6 +347,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 		}
 	}
 
+	@Override
 	public int getVosCount(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.queryForInt("select count(*) from vos");

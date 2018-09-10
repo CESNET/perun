@@ -59,6 +59,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		this.maxConcurentGroupsToSynchronize = BeansUtils.getCoreConfig().getGroupMaxConcurentGroupsToSynchronize();
 	}
 
+	@Override
 	public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException, InternalErrorException {
 		if (group.getParentGroupId() != null) throw new InternalErrorException("Top-level groups can't have parentGroupId set!");
 		group = getGroupsManagerImpl().createGroup(sess, vo, group);
@@ -81,6 +82,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return group;
 	}
 
+	@Override
 	public Group createGroup(PerunSession sess, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException, GroupRelationNotAllowed, GroupRelationAlreadyExists {
 		Vo vo = this.getVo(sess, parentGroup);
 
@@ -100,6 +102,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return group;
 	}
 
+	@Override
 	public void deleteGroup(PerunSession sess, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
 			throw new java.lang.IllegalArgumentException("Built-in " + group.getName() + " group cannot be deleted separately.");
@@ -113,6 +116,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		//Use sorting by group names reverse order (first name A:B:c then A:B etc.)
 		Collections.sort(groups, Collections.reverseOrder(
@@ -128,6 +132,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public void deleteMembersGroup(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, NotGroupMemberException {
 		Group group;
 		try {
@@ -381,6 +386,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public void deleteAllGroups(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		for(Group group: getGroupsManagerImpl().getGroups(sess, vo)) {
 
@@ -412,6 +418,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
 
 		// return group with correct updated name and shortName
@@ -445,6 +452,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return group;
 	}
 
+	@Override
 	public Group updateParentGroupId(PerunSession sess, Group group) throws InternalErrorException {
 		if(group == null) throw new InternalErrorException("Group can't be null.");
 
@@ -454,6 +462,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return group;
 	}
 
+	@Override
 	public void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		// check if moving group is null
@@ -557,19 +566,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		getPerunBl().getAuditer().log(sess, "Group {} was moved.", movingGroup);
 	}
 
+	@Override
 	public Group getGroupById(PerunSession sess, int id) throws InternalErrorException, GroupNotExistsException {
 		return getGroupsManagerImpl().getGroupById(sess, id);
 	}
 
+	@Override
 	public List<Group> getGroupsToSynchronize(PerunSession sess) throws InternalErrorException{
 		return getGroupsManagerImpl().getGroupsToSynchronize(sess);
 	}
 
+	@Override
 	public Group getGroupByName(PerunSession sess, Vo vo, String name) throws InternalErrorException, GroupNotExistsException {
 		return getGroupsManagerImpl().getGroupByName(sess, vo, name);
 	}
 
-	public void addMemberToMembersGroup(PerunSession sess, Group group,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException {
+	@Override
+	public void addMemberToMembersGroup(PerunSession sess, Group group, Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException {
 		// Check if the group IS memebers or administrators group
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
 			this.addDirectMember(sess, group, member);
@@ -578,6 +591,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public void addMember(PerunSession sess, Group group, Member member) throws InternalErrorException, WrongReferenceAttributeValueException, AlreadyMemberException, WrongAttributeValueException, GroupNotExistsException {
 		// Check if the group is NOT members or administrators group
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
@@ -723,6 +737,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return membersToRemove;
 	}
 
+	@Override
 	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException {
 		// Check if the group is NOT members or administrators group
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
@@ -736,6 +751,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public void removeMemberFromMembersOrAdministratorsGroup(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		// Check if the group IS memebers or administrators group
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
@@ -795,6 +811,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
 		return this.filterMembersByMembershipTypeInGroup(getGroupsManagerImpl().getGroupMembers(sess, group));
 	}
@@ -804,6 +821,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return groupsManagerImpl.getGroupMembersByMembership(sess, group, MembershipType.DIRECT);
 	}
 
+	@Override
 	public List<Member> getGroupMembers(PerunSession sess, Group group, Status status) throws InternalErrorException {
 		if (status == null) {
 			return this.getGroupMembers(sess, group);
@@ -816,14 +834,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return new ArrayList<User>(new HashSet<User>(getGroupsManagerImpl().getGroupUsers(perunSession, group)));
 	}
 
+	@Override
 	public List<Member> getGroupMembersExceptInvalid(PerunSession sess, Group group) throws InternalErrorException {
 		return getGroupsManagerImpl().getGroupMembers(sess, group, Arrays.asList(Status.INVALID), true);
 	}
 
+	@Override
 	public List<Member> getGroupMembersExceptInvalidAndDisabled(PerunSession sess, Group group) throws InternalErrorException {
 		return getGroupsManagerImpl().getGroupMembers(sess, group, Arrays.asList(Status.INVALID, Status.DISABLED), true);
 	}
 
+	@Override
 	public List<RichMember> getGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException {
 		return this.getGroupRichMembers(sess, group, null);
 	}
@@ -835,39 +856,46 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, directMembers);
 	}
 
+	@Override
 	public List<RichMember> getGroupRichMembersExceptInvalid(PerunSession sess, Group group) throws InternalErrorException {
 		List<Member> members = this.getGroupMembersExceptInvalid(sess, group);
 
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, members);
 	}
 
+	@Override
 	public List<RichMember> getGroupRichMembers(PerunSession sess, Group group, Status status) throws InternalErrorException {
 		List<Member> members = this.getGroupMembers(sess, group, status);
 
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, members);
 	}
 
+	@Override
 	public List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException {
 		return this.getGroupRichMembersWithAttributes(sess, group, null);
 	}
 
+	@Override
 	public List<RichMember> getGroupRichMembersWithAttributesExceptInvalid(PerunSession sess, Group group) throws InternalErrorException {
 		List<RichMember> richMembers = this.getGroupRichMembersExceptInvalid(sess, group);
 
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, richMembers);
 	}
 
+	@Override
 	public List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group, Status status) throws InternalErrorException {
 		List<RichMember> richMembers = this.getGroupRichMembers(sess, group, status);
 
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, richMembers);
 	}
 
+	@Override
 	public int getGroupMembersCount(PerunSession sess, Group group) throws InternalErrorException {
 		List<Member> members = this.getGroupMembers(sess, group);
 		return members.size();
 	}
 
+	@Override
 	public void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {
 		AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
 		getPerunBl().getAuditer().log(sess, "{} was added as admin of {}.", user, group);
@@ -882,6 +910,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", authorizedGroup, group);
 	}
 
+	@Override
 	public void removeAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, UserNotAdminException {
 		AuthzResolverBlImpl.unsetRole(sess, user, group, Role.GROUPADMIN);
 		getPerunBl().getAuditer().log(sess, "{} was removed from admins of {}.", user, group);
@@ -896,6 +925,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", authorizedGroup, group);
 	}
 
+	@Override
 	public List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) throws InternalErrorException {
 		if(onlyDirectAdmins) {
 			return getGroupsManagerImpl().getDirectAdmins(perunSession, group);
@@ -904,6 +934,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, group, onlyDirectAdmins);
 		List<RichUser> richUsers;
@@ -921,6 +952,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richUsers;
 	}
 
+	@Override
 	@Deprecated
 	public List<User> getAdmins(PerunSession sess, Group group) throws InternalErrorException {
 		return getGroupsManagerImpl().getAdmins(sess, group);
@@ -937,6 +969,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return getGroupsManagerImpl().getGroupAdmins(sess, group);
 	}
 
+	@Override
 	@Deprecated
 	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, group);
@@ -944,6 +977,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richUsers;
 	}
 
+	@Override
 	@Deprecated
 	public List<RichUser> getDirectRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getDirectAdmins(perunSession, group);
@@ -951,6 +985,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richUsers;
 	}
 
+	@Override
 	@Deprecated
 	public List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, group);
@@ -958,6 +993,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richUsers;
 	}
 
+	@Override
 	@Deprecated
 	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
 		try {
@@ -967,6 +1003,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	@Deprecated
 	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
 		try {
@@ -976,14 +1013,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public List<Group> getAssignedGroupsToResource(PerunSession sess, Resource resource) throws InternalErrorException {
 		return getAssignedGroupsToResource(sess, resource, false);
 	}
 
+	@Override
 	public List<Group> getAssignedGroupsToResource(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
 		return getGroupsManagerImpl().getAssignedGroupsToResource(sess, resource, member);
 	}
 
+	@Override
 	public List<Group> getAssignedGroupsToResource(PerunSession sess, Resource resource, boolean withSubGroups) throws InternalErrorException {
 		List<Group> assignedGroups = getGroupsManagerImpl().getAssignedGroupsToResource(sess, resource);
 		if(!withSubGroups) return assignedGroups;
@@ -1006,10 +1046,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return assignedGroups;
 	}
 
+	@Override
 	public List<Group> getAssignedGroupsToFacility(PerunSession sess, Facility facility) throws InternalErrorException {
 		return getGroupsManagerImpl().getAssignedGroupsToFacility(sess, facility);
 	}
 
+	@Override
 	public List<Group> getAllGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		List<Group> groups = getGroupsManagerImpl().getAllGroups(sess, vo);
 
@@ -1019,6 +1061,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return groups;
 	}
 
+	@Override
 	public Map<Group, Object> getAllGroupsWithHierarchy(PerunSession sess, Vo vo) throws InternalErrorException {
 		Map<Group,Object> groupHierarchy = new TreeMap<Group, Object>();
 
@@ -1054,6 +1097,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return groups;
 	}
 
+	@Override
 	public List<Group> getSubGroups(PerunSession sess, Group parentGroup) throws InternalErrorException {
 		List<Group> subGroups = getGroupsManagerImpl().getSubGroups(sess, parentGroup);
 
@@ -1063,6 +1107,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return subGroups;
 	}
 
+	@Override
 	public List<Group> getAllSubGroups(PerunSession sess, Group parentGroup) throws InternalErrorException {
 		Queue<Group> groupsInQueue = new ConcurrentLinkedQueue<Group>();
 		groupsInQueue.addAll(getGroupsManagerImpl().getSubGroups(sess, parentGroup));
@@ -1074,6 +1119,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return allSubGroups;
 	}
 
+	@Override
 	public Group getParentGroup(PerunSession sess, Group group) throws InternalErrorException, ParentGroupNotExistsException {
 		if(group.getParentGroupId() == null) {
 			Vo vo = this.getVo(sess, group);
@@ -1087,6 +1133,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public List<Group> getGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		List<Group> groups = getGroupsManagerImpl().getGroups(sess, vo);
 
@@ -1095,22 +1142,27 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return groups;
 	}
 
+	@Override
 	public List<Group> getGroupsByIds(PerunSession sess, List<Integer> groupsIds) throws InternalErrorException {
 		return getGroupsManagerImpl().getGroupsByIds(sess, groupsIds);
 	}
 
+	@Override
 	public int getGroupsCount(PerunSession sess, Vo vo) throws InternalErrorException {
 		return getGroupsManagerImpl().getGroupsCount(sess, vo);
 	}
 
+	@Override
 	public int getGroupsCount(PerunSession sess) throws InternalErrorException {
 		return getGroupsManagerImpl().getGroupsCount(sess);
 	}
 
+	@Override
 	public int getSubGroupsCount(PerunSession sess, Group parentGroup) throws InternalErrorException {
 		return getGroupsManagerImpl().getSubGroupsCount(sess, parentGroup);
 	}
 
+	@Override
 	public Vo getVo(PerunSession sess, Group group) throws InternalErrorException {
 		int voId = getGroupsManagerImpl().getVoId(sess, group);
 		try {
@@ -1120,6 +1172,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public List<Group> getMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
 		List<Group> groups = this.getAllMemberGroups(sess, member);
 		//Remove members group
@@ -1135,6 +1188,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return groups;
 	}
 
+	@Override
 	public List<Group> getMemberDirectGroups(PerunSession sess, Member member) throws InternalErrorException {
 		List<Group> memberGroups = this.getMemberGroups(sess, member);
 
@@ -1148,16 +1202,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return memberGroups;
 	}
 
+	@Override
 	public List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException,InternalErrorException {
 		List<Group> memberGroups = this.getAllMemberGroups(sess, member);
 		memberGroups.retainAll(this.getGroupsByAttribute(sess, attribute));
 		return memberGroups;
 	}
 
+	@Override
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
 		return getGroupsManagerImpl().getAllMemberGroups(sess, member);
 	}
 
+	@Override
 	public List<Member> getParentGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			Group parentGroup = getParentGroup(sess, group);
@@ -1169,18 +1226,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public List<RichMember> getParentGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException {
 		List<Member> members = this.getParentGroupMembers(sess, group);
 
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, members);
 	}
 
+	@Override
 	public List<RichMember> getParentGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException {
 		List<RichMember> richMembers = this.getParentGroupRichMembers(sess, group);
 
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, richMembers);
 	}
 
+	@Override
 	public boolean isUserMemberOfGroup(PerunSession sess, User user, Group group) throws InternalErrorException {
 		return groupsManagerImpl.isUserMemberOfGroup(sess, user, group);
 	}
@@ -1204,6 +1264,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * This method run in separate transaction.
 	 */
+	@Override
 	public List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException {
 		//needed variables for whole method
 		List<String> skippedMembers = new ArrayList<>();
@@ -1271,6 +1332,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws GroupSynchronizationAlreadyRunningException when group synchronization is already running at this moment
 	 */
+	@Override
 	public void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException, InternalErrorException {
 		//Check if the group is not currently in synchronization process
 		if(poolOfGroupsToBeSynchronized.putJobIfAbsent(group, true)) {
@@ -1289,6 +1351,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
+	@Override
 	public synchronized void synchronizeGroups(PerunSession sess) throws InternalErrorException {
 		// Get the default synchronization interval and synchronization timeout from the configuration file
 		int timeout = BeansUtils.getCoreConfig().getGroupSynchronizationTimeout();
@@ -1391,6 +1454,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			this.startTime = 0;
 		}
 
+		@Override
 		public void run() {
 			while (true) {
 				//Set thread to default state (waiting for another group to synchronize)
@@ -1529,26 +1593,31 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return this.perunBl;
 	}
 
+	@Override
 	public List<Group> getGroupsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getPerunBl().getAttributesManagerBl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 		if(!(getPerunBl().getAttributesManagerBl().isDefAttribute(sess, attribute) || getPerunBl().getAttributesManagerBl().isOptAttribute(sess, attribute))) throw new WrongAttributeAssignmentException("This method can process only def and opt attributes");
 		return getGroupsManagerImpl().getGroupsByAttribute(sess, attribute);
 	}
 
+	@Override
 	public List<Pair<Group, Resource>> getGroupResourcePairsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getPerunBl().getAttributesManagerBl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 		if(!(getPerunBl().getAttributesManagerBl().isDefAttribute(sess, attribute) || getPerunBl().getAttributesManagerBl().isOptAttribute(sess, attribute))) throw new WrongAttributeAssignmentException("This method can process only def and opt attributes");
 		return getGroupsManagerImpl().getGroupResourcePairsByAttribute(sess, attribute);
 	}
 
+	@Override
 	public boolean isGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException {
 		return getGroupsManagerImpl().isGroupMember(sess, group, member);
 	}
 
+	@Override
 	public void checkGroupExists(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException {
 		getGroupsManagerImpl().checkGroupExists(sess, group);
 	}
 
+	@Override
 	public List<Group> getGroupsByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException {
 		List<Group> groups = new ArrayList<Group>();
 
@@ -1608,6 +1677,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return groups;
 	}
 
+	@Override
 	public List<Member> filterMembersByMembershipTypeInGroup(List<Member> members) throws InternalErrorException {
 		List<Member> filteredMembers = new ArrayList<Member>();
 		Iterator<Member> membersIterator = members.iterator();
@@ -1629,6 +1699,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return filteredMembers;
 	}
 
+	@Override
 	public RichGroup filterOnlyAllowedAttributes(PerunSession sess, RichGroup richGroup) throws InternalErrorException {
 		if(richGroup == null) throw new InternalErrorException("RichGroup can't be null.");
 
@@ -1648,6 +1719,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroup;
 	}
 
+	@Override
 	public List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups) throws InternalErrorException {
 		List<RichGroup> filteredRichGroups = new ArrayList<RichGroup>();
 		if(richGroups == null || richGroups.isEmpty()) return filteredRichGroups;
@@ -1659,6 +1731,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return filteredRichGroups;
 	}
 
+	@Override
 	public List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, boolean useContext) throws InternalErrorException {
 
 		//If no context should be used - every attribute is unique in context of group (for every group test access rights for all attributes again)
@@ -1717,15 +1790,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		this.perunBl = perunBl;
 	}
 
+	@Override
 	public RichGroup convertGroupToRichGroupWithAttributes(PerunSession sess, Group group) throws InternalErrorException{
 		return new RichGroup(group, this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group));
 	}
 
+	@Override
 	public RichGroup convertGroupToRichGroupWithAttributesByName(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException{
 		if (attrNames == null) return convertGroupToRichGroupWithAttributes(sess, group);
 		return new RichGroup(group,this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group, attrNames));
 	}
 
+	@Override
 	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups) throws InternalErrorException {
 		List<RichGroup> richGroups = new ArrayList<>();
 		for(Group group: groups) {
@@ -1734,6 +1810,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
+	@Override
 	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, GroupResourceMismatchException {
 		List<RichGroup> richGroups = new ArrayList<>();
 		for(Group group: groups) {
@@ -1742,6 +1819,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
+	@Override
 	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups, List<String> attrNames) throws InternalErrorException {
 		if (attrNames == null) return convertGroupsToRichGroupsWithAttributes(sess, groups);
 		List<RichGroup> richGroups = new ArrayList<>();
@@ -1751,6 +1829,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
+	@Override
 	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException {
 		if (attrNames == null) return convertGroupsToRichGroupsWithAttributes(sess, resource, groups);
 		List<RichGroup> richGroups = new ArrayList<>();
@@ -1760,6 +1839,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
+	@Override
 	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException {
 		List<Group> assignedGroups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		try {
@@ -1769,22 +1849,27 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
 	public List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames)throws InternalErrorException{
 		return convertGroupsToRichGroupsWithAttributes(sess, this.getAllGroups(sess, vo), attrNames);
 	}
 
+	@Override
 	public List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames)throws InternalErrorException{
 		return convertGroupsToRichGroupsWithAttributes(sess, this.getSubGroups(sess, parentGroup), attrNames);
 	}
 
+	@Override
 	public List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames)throws InternalErrorException{
 		return convertGroupsToRichGroupsWithAttributes(sess, this.getAllSubGroups(sess, parentGroup), attrNames);
 	}
 
+	@Override
 	public RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames)throws InternalErrorException, GroupNotExistsException{
 		return convertGroupToRichGroupWithAttributesByName(sess, this.getGroupById(sess, groupId), attrNames);
 	}
 
+	@Override
 	public void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		//get current timestamp of this synchronization
 		Date currentTimestamp = new Date();

@@ -76,10 +76,12 @@ public class ExtSourceSqlComplex extends ExtSource implements ExtSourceApi {
 		return findSubjectsLogins(searchString, maxResults);
 	}
 
+	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException {
 		return findSubjectsLogins(searchString, 0);
 	}
 
+	@Override
 	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException {
 		String query = getAttributes().get("query");
 		if (query == null) {
@@ -89,6 +91,7 @@ public class ExtSourceSqlComplex extends ExtSource implements ExtSourceApi {
 		return this.querySource(query, searchString, maxResults);
 	}
 
+	@Override
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
 		String query = getAttributes().get("loginQuery");
 		if (query == null) {
@@ -107,6 +110,7 @@ public class ExtSourceSqlComplex extends ExtSource implements ExtSourceApi {
 		return subjects.get(0);
 	}
 
+	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 		// Get the sql query for the group subjects
 		String sqlQueryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -318,6 +322,7 @@ public class ExtSourceSqlComplex extends ExtSource implements ExtSourceApi {
 		}
 	}
 
+	@Override
 	public void close() throws InternalErrorException {
 		if (this.con != null) {
 			try {
