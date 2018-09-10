@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.api;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Member of a Virtual Organization.
  * @author Michal Prochazka michalp@ics.muni.cz
@@ -13,6 +17,7 @@ public class Member extends Auditable {
 	private MembershipType membershipType;
 	private Integer sourceGroupId;
 	private boolean sponsored = false;
+	private Map<Integer, MemberGroupStatus> groupsStatuses = new HashMap<>();
 
 	public Member() {
 		super();
@@ -112,6 +117,65 @@ public class Member extends Auditable {
 
 	public void setSponsored(boolean sponsored) {
 		this.sponsored = sponsored;
+	}
+
+	/**
+	 * Adds member's status for given group. If member already had a VALID status
+	 * for given group, nothing is changed.
+	 *
+	 * @param groupId group ID
+	 * @param status member's status for given group
+	 */
+	public void putGroupStatus(int groupId, MemberGroupStatus status) {
+		MemberGroupStatus currentValue = this.groupsStatuses.get(groupId);
+		if (currentValue == MemberGroupStatus.VALID) {
+			return;
+		}
+
+		groupsStatuses.put(groupId, status);
+	}
+
+	public Map<Integer, MemberGroupStatus> getGroupStatuses() {
+		return Collections.unmodifiableMap(groupsStatuses);
+	}
+
+	/**
+	 * Returns group status of member for given context.
+	 *
+	 * This value is used to calculate member's group status for groups
+	 * that are relevant to given context. E.g.: If this member is returned from call
+	 * ResourceManager.getAllowedMembers(), this status returns member's total group status
+	 * calculated from groups that can access this resource and contains this member.
+	 * @return memberGroup status for context relevant groups.
+	 */
+	public MemberGroupStatus getGroupStatus() {
+		if (groupsStatuses.containsValue(MemberGroupStatus.EXPIRED) && !groupsStatuses.containsValue(MemberGroupStatus.VALID)) {
+			return MemberGroupStatus.EXPIRED;
+		}
+
+		return MemberGroupStatus.VALID;
+	}
+
+	protected void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses) {
+		if (groupsStatuses == null) {
+			throw new IllegalArgumentException("Group statuses cannot be null.");
+		}
+		this.groupsStatuses = new HashMap<>(groupsStatuses);
+	}
+
+	/**
+	 * Adds member's statuses for given group. If member already had a VALID status
+	 * for any of given groups, then nothing is changed for the group.
+	 *
+	 * @param groupStatuses map containing group's IDs and member statuses
+	 */
+	public void putGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses) {
+		if (groupStatuses == null) {
+			throw new IllegalArgumentException("GroupStatuses cannot be null.");
+		}
+		for (Integer integer : groupStatuses.keySet()) {
+			putGroupStatus(integer, groupStatuses.get(integer));
+		}
 	}
 
 	@Override

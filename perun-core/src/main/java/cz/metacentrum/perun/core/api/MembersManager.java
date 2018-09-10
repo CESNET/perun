@@ -15,13 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.*;
  */
 public interface MembersManager {
 
-	// Names of the keys in membershipExpirationRules attribute
-	static final String membershipGracePeriodKeyName = "gracePeriod";
-	static final String membershipPeriodKeyName = "period";
-	static final String membershipDoNotExtendLoaKeyName = "doNotExtendLoa";
-	static final String membershipPeriodLoaKeyName = "periodLoa";
-	static final String membershipDoNotAllowLoaKeyName = "doNotAllowLoa";
-
 	/**
 	 * Attribute which contains rules for membership expiration
 	 */

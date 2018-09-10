@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunBean;
@@ -23,6 +24,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -1278,14 +1280,90 @@ public interface GroupsManagerBl {
 	/**
 	 * Move one group structure under another group in same vo or as top level group
 	 *
-	 * @param sess perun session
+	 * @param sess             perun session
 	 * @param destinationGroup group to which is moving group moved, if it's null group will be moved as top level group
-	 * @param movingGroup group which is moved to destination group
-	 *
+	 * @param movingGroup      group which is moved to destination group
 	 * @throws InternalErrorException
 	 * @throws GroupMoveNotAllowedException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Set member's status in given group to EXPIRED
+	 *
+	 * @param sess perun session
+	 * @param member member whose status will be changed
+	 * @param group group in which given member will be expired
+	 * @throws InternalErrorException internal error
+	 */
+	void expireMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Set member's status in given group to VALID
+	 *
+	 * @param sess perun session
+	 * @param member member whose status will be changed
+	 * @param group group in which given member will be validated
+	 * @throws InternalErrorException internal error
+	 */
+	void validateMemberInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns members direct status in given group. This method doesn't
+	 * calculate status from subgroups!
+	 * If there is no relation, null is returned.
+	 *
+	 * @param session session
+	 * @param member member
+	 * @param group group
+	 * @return status of member in given group
+	 * @throws InternalErrorException internal error
+	 */
+	MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns total member's status in given group.
+	 * If there is no relation, null is returned.
+	 *
+	 * @param session session
+	 * @param member member
+	 * @param group group
+	 * @return total status of member in given group
+	 * @throws InternalErrorException internal error
+	 */
+	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Calculates the state of given member in given group and calls
+	 * this method recursively for all parent groups.
+	 *
+	 * @param member member
+	 * @param group group
+	 * @throws InternalErrorException internal error
+	 */
+	void recalculateMemberGroupStatusRecursively(PerunSession sess, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Extend member membership in given group using membershipExpirationRules attribute defined in Group.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @throws InternalErrorException internal error
+	 * @throws ExtendMembershipException extend membership exception
+	 */
+	void extendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException;
+
+	/**
+	 * Returns true if member in given group can extend membership or if no rules were set for the membershipExpiration
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @return true if given member can extend membership in given group  or if no rules were set for the
+	 * membership expiration, false otherwise
+	 */
+	boolean canExtendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
 }

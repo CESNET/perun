@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1476,8 +1477,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     }
 
     // Which LOA we won't extend? This is applicable only for members who have already set expiration from the previous period
-    if (membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName) != null) {
-      String[] doNotExtendLoas = membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName).split(",");
+    if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName) != null) {
+      String[] doNotExtendLoas = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName).split(",");
 
       for (String doNotExtendLoa : doNotExtendLoas) {
         if (doNotExtendLoa.equals(loa)) {
@@ -1492,14 +1493,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
     String period = null;
     // Default extension
-    if (membershipExpirationRules.get(MembersManager.membershipPeriodKeyName) != null) {
-      period = membershipExpirationRules.get(MembersManager.membershipPeriodKeyName);
+    if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName) != null) {
+      period = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName);
     }
 
     // Do we extend particular LoA? Attribute syntax LoA|[period][.]
-    if (membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName) != null) {
+    if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName) != null) {
       // Which period
-      String[] membershipPeriodLoa = membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName).split("\\|");
+      String[] membershipPeriodLoa = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName).split("\\|");
       String membershipLoa = membershipPeriodLoa[0];
       String periodLoa = membershipPeriodLoa[1];
       // Does the user have this LoA?
@@ -1511,98 +1512,38 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     // Do we extend for x months or for static date?
     if (period != null) {
       if (period.startsWith("+")) {
-        // By default do not add nothing
-        int amount = 0;
-        int field;
-
-        // We will add days/months/years
-        Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
-        Matcher m = p.matcher(period);
-        if (m.matches()) {
-          String countString = m.group(1);
-          amount = Integer.valueOf(countString);
-
-          String dmyString = m.group(2);
-          if (dmyString.equals("d")) {
-            field = Calendar.DAY_OF_YEAR;
-          } else if (dmyString.equals("m")) {
-            field = Calendar.MONTH;
-          } else if (dmyString.equals("y")) {
-            field = Calendar.YEAR;
-          } else {
-            throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
-          }
-        } else {
-          throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
-        }
-
-        // Add days/months/years
-        calendar.add(field, amount);
+		  try {
+			  Utils.extendCalendarByPeriod(calendar, period);
+		  } catch (InternalErrorException e) {
+		  	throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute.", e);
+		  }
       } else {
         // We will extend to particular date
 
         // Parse date
         Pattern p = Pattern.compile("([0-9]+).([0-9]+).");
         Matcher m = p.matcher(period);
-        if (m.matches()) {
-          int day = Integer.valueOf(m.group(1));
-          int month = Integer.valueOf(m.group(2));
-
-          // Get current year
-          int year = calendar.get(Calendar.YEAR);
-
-          // We must detect if the extension date is in current year or in a next year
-          boolean extensionInNextYear;
-          Calendar extensionCalendar = Calendar.getInstance();
-          extensionCalendar.set(year, month-1, day);
-          Calendar today = Calendar.getInstance();
-          if (extensionCalendar.before(today)) {
-            // Extension date is in a next year
-            extensionInNextYear = true;
-          } else {
-            // Extension is in the current year
-            extensionInNextYear = false;
-          }
-
-          // Set the date to which the membershi should be extended, can be changed if there was grace period, see next part of the code
-          calendar.set(year, month-1, day); // month is 0-based
-          if (extensionInNextYear) {
-            calendar.add(Calendar.YEAR, 1);
-          }
+		  if (!m.matches()) {
+			  throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
+		  }
+		  boolean extensionInNextYear = Utils.extendCalendarByStaticDate(calendar, m);
 
           // ***** GRACE PERIOD *****
           // Is there a grace period?
-          if (membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName) != null) {
-            String gracePeriod = membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName);
+          if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName) != null) {
+            String gracePeriod = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName);
             // If the extension is requested in period-gracePeriod then extend to next period
 
             // Get the value of the grace period
             p = Pattern.compile("([0-9]+)([dmy]?)");
             m = p.matcher(gracePeriod);
             if (m.matches()) {
-              String countString = m.group(1);
-              int amount = Integer.valueOf(countString);
-
-              // Set the gracePeriodCalendar to the extension date
-              Calendar gracePeriodCalendar = Calendar.getInstance();
-              gracePeriodCalendar.set(year, month-1, day);
-              if (extensionInNextYear) {
-                gracePeriodCalendar.add(Calendar.YEAR, 1);
-              }
-
-              int field;
-              String dmyString = m.group(2);
-              if (dmyString.equals("d")) {
-                field = Calendar.DAY_OF_YEAR;
-              } else if (dmyString.equals("m")) {
-                field = Calendar.MONTH;
-              } else if (dmyString.equals("y")) {
-                field = Calendar.YEAR;
-              } else {
-                throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
-              }
-              // subtracts period definition, e.g. 3m
-              gracePeriodCalendar.add(field, -amount);
+				Calendar gracePeriodCalendar = Calendar.getInstance();
+				try {
+					Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar, extensionInNextYear);
+				} catch (InternalErrorException e) {
+					throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
+				}
 
               // Check if we are in grace period
               if (gracePeriodCalendar.before(Calendar.getInstance())) {
@@ -1611,9 +1552,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
               }
             }
           }
-        } else {
-          throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
-        }
       }
 
       // Reset hours, minutes and seconds to 0
@@ -1813,7 +1751,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		// Which LOA we won't allow?
-		if (membershipExpirationRules.get(MembersManager.membershipDoNotAllowLoaKeyName) != null) {
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotAllowLoaKeyName) != null) {
 			if (loa == null) {
 				// User doesn't have LOA defined and LOA is required for getting in, so do not allow membership.
 				log.warn("User {} doesn't have LOA defined, but 'doNotAllowLoa' option is set for VO {}.", user, vo);
@@ -1825,7 +1763,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				}
 			}
 
-			String[] doNotAllowLoas = membershipExpirationRules.get(MembersManager.membershipDoNotAllowLoaKeyName).split(",");
+			String[] doNotAllowLoas = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotAllowLoaKeyName).split(",");
 
 			for (String doNotAllowLoa : doNotAllowLoas) {
 				if (doNotAllowLoa.equals(loa)) {
@@ -1912,7 +1850,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// Which LOA we won't extend?
 		// This is applicable only for members who have already set expiration from the previous period
 		// and are not service users
-		if (membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName) != null &&
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName) != null &&
 				membershipExpirationAttribute.getValue() != null &&
 				!isServiceUser) {
 			if (memberLoa == null) {
@@ -1926,7 +1864,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				}
 			}
 
-			String[] doNotExtendLoas = membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName).split(",");
+			String[] doNotExtendLoas = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName).split(",");
 
 			for (String doNotExtendLoa : doNotExtendLoas) {
 				if (doNotExtendLoa.equals(memberLoa)) {
@@ -1961,14 +1899,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		String period = null;
 		// Default extension
-		if (membershipExpirationRules.get(MembersManager.membershipPeriodKeyName) != null) {
-			period = membershipExpirationRules.get(MembersManager.membershipPeriodKeyName);
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName) != null) {
+			period = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName);
 		}
 
 		// Do we extend particular LoA? Attribute syntax LoA|[period][.]
-		if (membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName) != null) {
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName) != null) {
 			// Which period
-			String[] membershipPeriodLoa = membershipExpirationRules.get(MembersManager.membershipPeriodLoaKeyName).split("\\|");
+			String[] membershipPeriodLoa = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName).split("\\|");
 			String loa = membershipPeriodLoa[0];
 			String periodLoa = membershipPeriodLoa[1];
 			// Does the user have this LoA?
@@ -2002,132 +1940,71 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						return new Pair<Boolean, Date>(false, null);
 					}
 				}
-				// By default do not add nothing
-				int amount = 0;
-				int field;
 
-				// We will add days/months/years
-				Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
-				Matcher m = p.matcher(period);
-				if (m.matches()) {
-					String countString = m.group(1);
-					amount = Integer.valueOf(countString);
-
-					String dmyString = m.group(2);
-					if (dmyString.equals("d")) {
-						field = Calendar.DAY_OF_YEAR;
-					} else if (dmyString.equals("m")) {
-						field = Calendar.MONTH;
-					} else if (dmyString.equals("y")) {
-						field = Calendar.YEAR;
-					} else {
-						throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
-					}
-				} else {
-					throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
+				// extend calendar by given period
+				try {
+					Utils.extendCalendarByPeriod(calendar, period);
+				} catch (InternalErrorException e) {
+					throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute.", e);
 				}
-
-				// Add days/months/years
-				calendar.add(field, amount);
 			} else {
 				// We will extend to particular date
 
 				// Parse date
 				Pattern p = Pattern.compile("([0-9]+).([0-9]+).");
 				Matcher m = p.matcher(period);
-				if (m.matches()) {
-					int day = Integer.valueOf(m.group(1));
-					int month = Integer.valueOf(m.group(2));
+				if (!m.matches()) {
+					throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
+				}
+				boolean extensionInNextYear = Utils.extendCalendarByStaticDate(calendar, m);
 
-					// Get current year
-					int year = calendar.get(Calendar.YEAR);
+				// ***** GRACE PERIOD *****
+				// Is there a grace period?
+				if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName) != null) {
+					String gracePeriod = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName);
+					// If the extension is requested in period-gracePeriod then extend to next period
 
-					// We must detect if the extension date is in current year or in a next year
-					boolean extensionInNextYear;
-					Calendar extensionCalendar = Calendar.getInstance();
-					extensionCalendar.set(year, month-1, day);
-					Calendar today = Calendar.getInstance();
-					if (extensionCalendar.before(today)) {
-						// Extension date is in a next year
-						extensionInNextYear = true;
-					} else {
-						// Extension is in the current year
-						extensionInNextYear = false;
-					}
+					// Get the value of the grace period
+					p = Pattern.compile("([0-9]+)([dmy]?)");
+					m = p.matcher(gracePeriod);
+					if (m.matches()) {
+						Calendar gracePeriodCalendar = Calendar.getInstance();
+						Pair<Integer, Integer> fieldAmount;
+						try {
+							fieldAmount = Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar, extensionInNextYear);
+						} catch (InternalErrorException e) {
+							throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
+						}
+						// Check if we are in grace period
+						if (gracePeriodCalendar.before(Calendar.getInstance())) {
+							// We are in grace period, so extend to the next period
+							calendar.add(Calendar.YEAR, 1);
+						}
 
-					// Set the date to which the membershi should be extended, can be changed if there was grace period, see next part of the code
-					calendar.set(year, month-1, day); // month is 0-based
-					if (extensionInNextYear) {
-						calendar.add(Calendar.YEAR, 1);
-					}
+						// If we do not need to set the attribute value, only check if the current member's expiration time is not in grace period
+						if (!setAttributeValue && membershipExpirationAttribute.getValue() != null) {
+							try {
+								Date currentMemberExpiration = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpirationAttribute.getValue());
+								// subtracts grace period from the currentMemberExpiration
+								Calendar currentMemberExpirationCalendar = Calendar.getInstance();
+								currentMemberExpirationCalendar.setTime(currentMemberExpiration);
 
-					// ***** GRACE PERIOD *****
-					// Is there a grace period?
-					if (membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName) != null) {
-						String gracePeriod = membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName);
-						// If the extension is requested in period-gracePeriod then extend to next period
+								currentMemberExpirationCalendar.add(fieldAmount.getLeft(), -fieldAmount.getRight());
 
-						// Get the value of the grace period
-						p = Pattern.compile("([0-9]+)([dmy]?)");
-						m = p.matcher(gracePeriod);
-						if (m.matches()) {
-							String countString = m.group(1);
-							int amount = Integer.valueOf(countString);
-
-							// Set the gracePeriodCalendar to the extension date
-							Calendar gracePeriodCalendar = Calendar.getInstance();
-							gracePeriodCalendar.set(year, month-1, day);
-							if (extensionInNextYear) {
-								gracePeriodCalendar.add(Calendar.YEAR, 1);
-							}
-
-							int field;
-							String dmyString = m.group(2);
-							if (dmyString.equals("d")) {
-								field = Calendar.DAY_OF_YEAR;
-							} else if (dmyString.equals("m")) {
-								field = Calendar.MONTH;
-							} else if (dmyString.equals("y")) {
-								field = Calendar.YEAR;
-							} else {
-								throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
-							}
-							// subtracts period definition, e.g. 3m
-							gracePeriodCalendar.add(field, -amount);
-
-							// Check if we are in grace period
-							if (gracePeriodCalendar.before(Calendar.getInstance())) {
-								// We are in grace period, so extend to the next period
-								calendar.add(Calendar.YEAR, 1);
-							}
-
-							// If we do not need to set the attribute value, only check if the current member's expiration time is not in grace period
-							if (!setAttributeValue && membershipExpirationAttribute.getValue() != null) {
-								try {
-									Date currentMemberExpiration = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpirationAttribute.getValue());
-									// subtracts grace period from the currentMemberExpiration
-									Calendar currentMemberExpirationCalendar = Calendar.getInstance();
-									currentMemberExpirationCalendar.setTime(currentMemberExpiration);
-
-									currentMemberExpirationCalendar.add(field, -amount);
-
-									// if today is before that time, user can extend his period
-									if (currentMemberExpirationCalendar.after(Calendar.getInstance())) {
-										if (throwExceptions) {
-											throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
-													"Member " + member + " cannot extend because we are outside grace period for VO id " + member.getVoId() + ".");
-										} else {
-											return new Pair<Boolean, Date>(false, null);
-										}
+								// if today is before that time, user can extend his period
+								if (currentMemberExpirationCalendar.after(Calendar.getInstance())) {
+									if (throwExceptions) {
+										throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
+												"Member " + member + " cannot extend because we are outside grace period for VO id " + member.getVoId() + ".");
+									} else {
+										return new Pair<Boolean, Date>(false, null);
 									}
-								} catch (ParseException e) {
-									throw new InternalErrorException("Wrong format of the membersExpiration: " + membershipExpirationAttribute.getValue(), e);
 								}
+							} catch (ParseException e) {
+								throw new InternalErrorException("Wrong format of the membersExpiration: " + membershipExpirationAttribute.getValue(), e);
 							}
 						}
 					}
-				} else {
-					throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
 				}
 			}
 
@@ -2165,7 +2042,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 */
 	private boolean isMemberInGracePeriod(Map<String, String> membershipExpirationRules, String membershipExpiration) throws InternalErrorException {
 		// Is a grace period set?
-		if (membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName) == null) {
+		if (membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName) == null) {
 			// If not grace period is infinite
 			return true;
 		}
@@ -2175,7 +2052,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			return true;
 		}
 
-		String gracePeriod = membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName);
+		String gracePeriod = membershipExpirationRules.get(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName);
 
 		// If the extension is requested in period-gracePeriod then extend to next period
 		Pattern p = Pattern.compile("([0-9]+)([dmy]?)");

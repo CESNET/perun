@@ -154,4 +154,23 @@ public interface Searcher {
 	 * @throws WrongAttributeAssignmentException wrong attribute assignment
 	 */
 	List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+
+	/**
+	 * Return members with group expiration date set, which will expire on specified date
+	 * in given group.
+	 * You can specify operator for comparison (by default "=") returning exact match.
+	 * So you can get all expired members (including today) using "<=" and today date.
+	 * or using "<" and tomorrow date.
+	 *
+	 * Method returns members with its expiration status for given group.
+	 * Method ignores current member state, just compares expiration date!
+	 *
+	 * @param sess Perun session
+	 * @param operator One of "=", "<", ">", "<=", ">=". If null, "=" is anticipated.
+	 * @param date Date to compare expiration with (if null, current date is used).
+	 * @return Members with expiration relative to method params.
+	 * @throws InternalErrorException internal error
+	 * @throws PrivilegeException insufficient permission
+	 */
+	List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, Calendar date) throws PrivilegeException, InternalErrorException;
 }

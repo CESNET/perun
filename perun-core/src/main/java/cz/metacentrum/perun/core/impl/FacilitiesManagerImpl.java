@@ -433,10 +433,10 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	public List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException {
 		try  {
-			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
 							" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
 							" join resources on groups_resources.resource_id=resources.id " +
-							" where resources.facility_id=? and members.status!=? and members.status!=?", MembersManagerImpl.MEMBER_MAPPER, facility.getId(),
+							" where resources.facility_id=? and members.status!=? and members.status!=?", MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, facility.getId(),
 					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Member>();

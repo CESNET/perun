@@ -30,7 +30,6 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
-import java.sql.Date;
 
 /**
  *
@@ -296,8 +295,9 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try  {
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id join users on " +
-					" users.id=members.user_id where groups_resources.resource_id=? and members.status!=? and members.status!=?", UsersManagerImpl.USER_MAPPER, resource.getId(),
-					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+					" users.id=members.user_id where groups_resources.resource_id=? and members.status!=? and members.status!=? and groups_members.status=?",
+					UsersManagerImpl.USER_MAPPER, resource.getId(),	String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()),
+					String.valueOf(MemberGroupStatus.VALID.getCode()));
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<User>();
 		} catch (RuntimeException e) {
@@ -311,7 +311,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" left outer join groups_resources on groups_resources.resource_id=resources.id" +
 					" left outer join groups_members on groups_members.group_id=groups_resources.group_id" +
 					" left outer join members on members.id=groups_members.member_id" +
-					" where facilities.id=? and members.user_id=? and members.status!=?",RESOURCE_MAPPER, facility.getId(), user.getId(), String.valueOf(Status.INVALID.getCode()));
+					" where facilities.id=? and members.user_id=? and members.status!=? and groups_members.status=?",
+					RESOURCE_MAPPER, facility.getId(), user.getId(), String.valueOf(Status.INVALID.getCode()), String.valueOf(MemberGroupStatus.VALID.getCode()));
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Resource>();
 		}	catch (RuntimeException e) {
@@ -323,8 +324,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try  {
 			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
-					" where groups_resources.resource_id=? and members.status!=? and members.status!=?", MembersManagerImpl.MEMBER_MAPPER, resource.getId(),
-					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+					" where groups_resources.resource_id=? and members.status!=? and members.status!=? and groups_members.status=?", MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(),
+					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()), String.valueOf(MemberGroupStatus.VALID.getCode()));
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Member>();
 		} catch (RuntimeException e) {
@@ -334,9 +335,9 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
 	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws InternalErrorException {
 		try  {
-			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
 					" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
-					" where groups_resources.resource_id=?", MembersManagerImpl.MEMBER_MAPPER, resource.getId());
+					" where groups_resources.resource_id=?", MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Member>();
 		} catch (RuntimeException e) {

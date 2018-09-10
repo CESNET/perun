@@ -2,11 +2,14 @@ package cz.metacentrum.perun.registrar;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -31,6 +34,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 	private final static String CLASS_NAME = "ExpirationNotifSchedulerTest.";
 
 	private final static String EXPIRATION_URN = "urn:perun:member:attribute-def:def:membershipExpiration";
+	private final static String GROUP_EXPIRATION_URN = "urn:perun:member_group:attribute-def:def:membershipExpiration";
 	private ExtSource extSource = new ExtSource(0, "testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
 	private Vo vo = new Vo(0, "SynchronizerTestVo", "SyncTestVo");
 
@@ -51,10 +55,19 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		setUpExtSource();
 		setUpVo();
 
+		//set up member expiration attribute
 		try {
 			perun.getAttributesManager().getAttributeDefinition(session, EXPIRATION_URN);
 		} catch (AttributeNotExistsException ex) {
 			setUpMembershipExpirationAttribute();
+		}
+
+		//set up member group expiration attribute
+
+		try {
+			perun.getAttributesManager().getAttributeDefinition(session, GROUP_EXPIRATION_URN);
+		} catch (AttributeNotExistsException ex) {
+			setUpGroupMembershipExpirationAttribute();
 		}
 
 	}
@@ -189,7 +202,150 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 
 	}
 
+	@Test
+	public void checkMembersGroupStateShouldBeValidatedToday() throws Exception {
+		System.out.println(CLASS_NAME + "checkMembersGroupStateShouldBeValidatedToday");
+
+		// setup expiration date
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+		String tomorrow = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+
+		// set up member in group
+		Member member1 = setUpMember();
+		Group group = setUpGroup();
+		perun.getGroupsManagerBl().addMember(session, group, member1);
+
+		// set group expiration for tomorrow
+		Attribute expiration = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GROUP_EXPIRATION_URN));
+		expiration.setValue(tomorrow);
+		perun.getAttributesManager().setAttribute(session, member1, group, expiration);
+
+		perun.getGroupsManagerBl().expireMemberInGroup(session, member1, group);
+
+		// Check init state
+		MemberGroupStatus initMemberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member1, group);
+		assertEquals("Member should be set to expired state before testing!", MemberGroupStatus.EXPIRED, initMemberGroupStatus);
+
+		scheduler.checkMembersState();
+
+		// Check if state was switched
+		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member1, group);
+		assertEquals("Member should be valid now (from expired)!", MemberGroupStatus.VALID, memberGroupStatus);
+	}
+
+	@Test
+	public void checkMembersGroupStateShouldBeValidatedTodayDoesNotAffectOthers() throws Exception {
+		System.out.println(CLASS_NAME + "checkMembersGroupStateShouldBeValidatedToday");
+
+		// setup expiration date
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+		String tomorrow = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+
+		// set up member in group
+		Member member1 = setUpMember();
+		Member member2 = setUpMember();
+		Group group = setUpGroup();
+		perun.getGroupsManagerBl().addMember(session, group, member1);
+		perun.getGroupsManagerBl().addMember(session, group, member2);
+
+		// set group expiration for tomorrow
+		Attribute m1Expiration = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GROUP_EXPIRATION_URN));
+		m1Expiration.setValue(tomorrow);
+		perun.getAttributesManager().setAttribute(session, member1, group, m1Expiration);
+
+		// set group expiration for yesterday
+		calendar.add(Calendar.DAY_OF_MONTH, -2);
+		String yesterday = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+
+		Attribute m2Expiration = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GROUP_EXPIRATION_URN));
+		m2Expiration.setValue(yesterday);
+		perun.getAttributesManager().setAttribute(session, member2, group, m2Expiration);
+
+		perun.getGroupsManagerBl().expireMemberInGroup(session, member1, group);
+		perun.getGroupsManagerBl().expireMemberInGroup(session, member2, group);
+
+		scheduler.checkMembersState();
+
+		// Check if state was not switched
+		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member2, group);
+		assertEquals("Member should not be validated!", MemberGroupStatus.EXPIRED, memberGroupStatus);
+	}
+
+	@Test
+	public void checkMembersGroupStateShouldExpireToday() throws Exception {
+		System.out.println(CLASS_NAME + "checkMembersGroupStateShouldExpireToday");
+
+		// setup expiration date to tomorrow
+		Calendar calendar = Calendar.getInstance();
+		String today = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+
+		// set up member in group
+		Member member1 = setUpMember();
+		Group group = setUpGroup();
+		perun.getGroupsManagerBl().addMember(session, group, member1);
+
+		// set group expiration for today
+		Attribute expiration = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GROUP_EXPIRATION_URN));
+		expiration.setValue(today);
+		perun.getAttributesManager().setAttribute(session, member1, group, expiration);
+
+		scheduler.checkMembersState();
+
+		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member1, group);
+
+		assertEquals("Member should be expired now (from valid)!", MemberGroupStatus.EXPIRED, memberGroupStatus);
+	}
+
+	@Test
+	public void checkMembersGroupStateShouldExpireTodayDoesNotAffectOthers() throws Exception {
+		System.out.println(CLASS_NAME + "checkMembersGroupStateShouldExpireToday");
+
+		// setup expiration date to tomorrow
+		Calendar calendar = Calendar.getInstance();
+		String today = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+
+		// set up member in group
+		// set up member in group
+		Member member1 = setUpMember();
+		Member member2 = setUpMember();
+		Group group = setUpGroup();
+		perun.getGroupsManagerBl().addMember(session, group, member1);
+		perun.getGroupsManagerBl().addMember(session, group, member2);
+
+		// set group expiration for today
+		Attribute m1Expiration = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GROUP_EXPIRATION_URN));
+		m1Expiration.setValue(today);
+		perun.getAttributesManager().setAttribute(session, member1, group, m1Expiration);
+
+		// set group expiration for tomorrow
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+		String tomorrow = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		Attribute m2Expiration = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GROUP_EXPIRATION_URN));
+		m1Expiration.setValue(tomorrow);
+		perun.getAttributesManager().setAttribute(session, member2, group, m2Expiration);
+
+		scheduler.checkMembersState();
+
+		MemberGroupStatus memberGroupStatus = perun.getGroupsManagerBl().getDirectMemberGroupStatus(session, member2, group);
+
+		assertEquals("Member should not be expired!", MemberGroupStatus.VALID, memberGroupStatus);
+	}
+
 	// ----------------- PRIVATE METHODS -------------------------------------------
+
+	private Group setUpGroup() throws Exception {
+
+		Vo vo = new Vo();
+		vo.setName("test Vo");
+		vo.setShortName("testVo");
+		perun.getVosManagerBl().createVo(session, vo);
+
+		Group group = new Group();
+		group.setName("Test group");
+		return perun.getGroupsManagerBl().createGroup(session, vo, group);
+	}
 
 	private Member setUpMember() throws Exception {
 
@@ -230,4 +386,15 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 
 	}
 
+	private AttributeDefinition setUpGroupMembershipExpirationAttribute() throws Exception {
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+		attr.setFriendlyName("membershipExpiration");
+		attr.setType(String.class.getName());
+		attr.setDisplayName("Group membership expiration");
+		attr.setDescription("When the member expires in group, format YYYY-MM-DD.");
+
+		return perun.getAttributesManager().createAttribute(session, attr);
+	}
 }
