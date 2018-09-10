@@ -71,18 +71,22 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 
+	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		return findSubjectsLogins(searchString, 0);
 	}
 
+	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("For Perun ExtSource is not supported to use this method. Use findSubjects instead.");
 	}
 
+	@Override
 	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		return findSubjects(searchString, 0);
 	}
 
+	@Override
 	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		setEnviroment();
 		List<RichUser> richUsers = findRichUsers(searchString);
@@ -96,12 +100,14 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return subjects;
 	}
 
+	@Override
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
 		setEnviroment();
 		Map<String,String> subject = covertRichUserToSubject(findRichUser(login));
 		return subject;
 	}
 
+	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		setEnviroment();
 		// Get the query for the group subjects
@@ -352,6 +358,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		throw new RpcException(RpcException.Type.UNKNOWN_EXCEPTION, "Failed to contact Perun server on URL: " + perunUrl, e);
 	}
 
+	@Override
 	public void close() throws InternalErrorException {
 		//not needed there
 	}

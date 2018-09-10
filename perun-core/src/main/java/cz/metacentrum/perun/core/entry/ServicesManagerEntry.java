@@ -60,6 +60,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	public ServicesManagerEntry() {
 	}
 
+	@Override
 	public Service createService(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(service, "service");
@@ -77,6 +78,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().createService(sess, service);
 	}
 
+	@Override
 	public void deleteService(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -90,6 +92,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().deleteService(sess, service);
 	}
 
+	@Override
 	public void updateService(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -103,6 +106,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().updateService(sess, service);
 	}
 
+	@Override
 	public Service getServiceById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -117,6 +121,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getServiceById(sess, id);
 	}
 
+	@Override
 	public Service getServiceByName(PerunSession sess, String name) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -132,6 +137,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getServiceByName(sess, name);
 	}
 
+	@Override
 	public List<Service> getServices(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -172,6 +178,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getAssignedResources(sess, service);
 	}
 
+	@Override
 	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -187,6 +194,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getHierarchicalData(sess, service, facility);
 	}
 
+	@Override
 	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -202,6 +210,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getFlatData(sess, service, facility);
 	}
 
+	@Override
 	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -217,6 +226,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getDataWithGroups(sess, service, facility);
 	}
 
+	@Override
 	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, VoNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -232,6 +242,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getDataWithVos(sess, service, facility);
 	}
 
+	@Override
 	public List<ServicesPackage> getServicesPackages(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -243,6 +254,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getServicesPackages(sess);
 	}
 
+	@Override
 	public ServicesPackage getServicesPackageById(PerunSession sess, int servicesPackageId) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -256,6 +268,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getServicesPackageById(sess, servicesPackageId);
 	}
 
+	@Override
 	public ServicesPackage getServicesPackageByName(PerunSession sess, String servicesPackageName) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(servicesPackageName, "servicesPackageName");
@@ -268,6 +281,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getServicesPackageByName(sess, servicesPackageName);
 	}
 
+	@Override
 	public ServicesPackage createServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ServicesPackageExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -281,6 +295,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().createServicesPackage(sess, servicesPackage);
 	}
 
+	@Override
 	public void updateServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -294,6 +309,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().updateServicesPackage(sess, servicesPackage);
 	}
 
+	@Override
 	public void deleteServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException, RelationExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -307,6 +323,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().deleteServicesPackage(sess, servicesPackage);
 	}
 
+	@Override
 	public void addServiceToServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException, ServiceAlreadyAssignedException {
 		Utils.checkPerunSession(sess);
 
@@ -321,6 +338,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().addServiceToServicesPackage(sess, servicesPackage, service);
 	}
 
+	@Override
 	public void removeServiceFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException, ServiceAlreadyRemovedFromServicePackageException {
 		Utils.checkPerunSession(sess);
 
@@ -335,6 +353,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().removeServiceFromServicesPackage(sess, servicesPackage, service);
 	}
 
+	@Override
 	public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -348,6 +367,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage);
 	}
 
+	@Override
 	public void addRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
 		Utils.checkPerunSession(sess);
 
@@ -362,6 +382,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().addRequiredAttribute(sess, service, attribute);
 	}
 
+	@Override
 	public void addRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeAlreadyAssignedException {
 		Utils.checkPerunSession(sess);
 
@@ -376,6 +397,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().addRequiredAttributes(sess, service, attributes);
 	}
 
+	@Override
 	public void removeRequiredAttribute(PerunSession sess, Service service, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException {
 		Utils.checkPerunSession(sess);
 
@@ -390,6 +412,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().removeRequiredAttribute(sess, service, attribute);
 	}
 
+	@Override
 	public void removeRequiredAttributes(PerunSession sess, Service service, List<? extends AttributeDefinition> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ServiceNotExistsException, AttributeNotAssignedException {
 		Utils.checkPerunSession(sess);
 
@@ -404,6 +427,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().removeRequiredAttributes(sess, service, attributes);
 	}
 
+	@Override
 	public void removeAllRequiredAttributes(PerunSession sess, Service service) throws PrivilegeException, InternalErrorException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -416,6 +440,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().removeAllRequiredAttributes(sess, service);
 	}
 
+	@Override
 	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(services, "services");
@@ -469,6 +494,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().addDestination(perunSession, services, facility, destination);
 	}
 
+	@Override
 	public Destination addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException {
 		Utils.checkPerunSession(sess);
 		Utils.checkDestinationType(destination);
@@ -520,6 +546,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().addDestination(sess, service, facility, destination);
 	}
 
+	@Override
 	public void removeDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -537,6 +564,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().removeDestination(sess, service, facility, destination);
 	}
 
+	@Override
 	public Destination getDestinationById(PerunSession sess, int id) throws PrivilegeException, InternalErrorException, DestinationNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -549,6 +577,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getDestinationById(sess, id);
 	}
 
+	@Override
 	public List<Destination> getDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -578,6 +607,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getServicesManagerBl().getDestinations(perunSession);
 	}
 
+	@Override
 	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws PrivilegeException, InternalErrorException, FacilityNotExistsException{
 		Utils.checkPerunSession(perunSession);
 
@@ -593,6 +623,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getPerunBl().getServicesManagerBl().getAllRichDestinations(perunSession, facility);
 	}
 
+	@Override
 	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Service service) throws PrivilegeException, InternalErrorException, ServiceNotExistsException{
 		Utils.checkPerunSession(perunSession);
 
@@ -603,6 +634,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getPerunBl().getServicesManagerBl().getAllRichDestinations(perunSession, service);
 	}
 
+	@Override
 	public List<RichDestination> getRichDestinations(PerunSession perunSession, Facility facility, Service service) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, ServiceNotExistsException{
 		Utils.checkPerunSession(perunSession);
 
@@ -620,6 +652,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 
+	@Override
 	public void removeAllDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException, PrivilegeException, ServiceNotExistsException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -634,6 +667,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().removeAllDestinations(sess, service, facility);
 	}
 
+	@Override
 	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -641,10 +675,12 @@ public class ServicesManagerEntry implements ServicesManager {
 		return getPerunBl().getServicesManagerBl().getFacilitiesDestinations(sess, vo);
 	}
 
+	@Override
 	public int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException {
 		return servicesManagerBl.getDestinationIdByName(sess, name);
 	}
 
+	@Override
 	public List<Service> getAssignedServices(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

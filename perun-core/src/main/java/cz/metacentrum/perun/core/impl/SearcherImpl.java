@@ -43,6 +43,7 @@ public class SearcherImpl implements SearcherImplApi {
 		jdbcTemplate = new JdbcPerunTemplate(perunPool);
 	}
 
+	@Override
 	public List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
 		StringBuilder query = new StringBuilder();
 		query.append("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from users ");

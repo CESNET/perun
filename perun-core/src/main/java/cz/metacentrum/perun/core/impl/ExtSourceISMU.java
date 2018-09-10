@@ -45,18 +45,22 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		return perun;
 	}
 
+	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
+	@Override
 	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
+	@Override
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
+	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 		// Get the url query for the group subjects
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -159,6 +163,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		}
 	}
 
+	@Override
 	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("Using this method is not supported for ISMU");
 	}

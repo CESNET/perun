@@ -62,6 +62,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
 
 	protected static final RowMapper<Resource> RESOURCE_MAPPER = new RowMapper<Resource>() {
+		@Override
 		public Resource mapRow(ResultSet rs, int i) throws SQLException {
 			Resource resource = new Resource();
 			resource.setId(rs.getInt("resources_id"));
@@ -82,6 +83,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	};
 
 	protected static final RowMapper<ResourceTag> RESOURCE_TAG_MAPPER = new RowMapper<ResourceTag>() {
+		@Override
 		public ResourceTag mapRow(ResultSet rs, int i) throws SQLException {
 			ResourceTag resourceTag = new ResourceTag();
 			resourceTag.setId(rs.getInt("res_tags_id"));
@@ -100,6 +102,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	};
 
 	protected static final RowMapper<RichResource> RICH_RESOURCE_MAPPER = new RowMapper<RichResource>() {
+		@Override
 		public RichResource mapRow(ResultSet rs, int i) throws SQLException {
 			RichResource richResource = new RichResource(RESOURCE_MAPPER.mapRow(rs, i));
 			richResource.setVo(VosManagerImpl.VO_MAPPER.mapRow(rs, i));
@@ -109,6 +112,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	};
 
 	protected static final RowMapper<BanOnResource> BAN_ON_RESOURCE_MAPPER = new RowMapper<BanOnResource>() {
+		@Override
 		public BanOnResource mapRow(ResultSet rs, int i) throws SQLException {
 			BanOnResource banOnResource = new BanOnResource();
 			banOnResource.setId(rs.getInt("res_bans_id"));
@@ -132,6 +136,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
 	private static class RichResourceExtractor implements ResultSetExtractor<List<RichResource>> {
 
+		@Override
 		public List<RichResource> extractData(ResultSet rs) throws SQLException, DataAccessException {
 			Map<Integer, RichResource> map = new HashMap<Integer, RichResource>();
 			RichResource myObject;
@@ -163,6 +168,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		this.initialize();
 	}
 
+	@Override
 	public Resource getResourceById(PerunSession sess, int id) throws InternalErrorException, ResourceNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + resourceMappingSelectQuery + " from resources where resources.id=?", RESOURCE_MAPPER, id);
@@ -187,6 +193,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
 	}
 
+	@Override
 	public Resource getResourceByName(PerunSession sess, Vo vo, Facility facility, String name) throws InternalErrorException, ResourceNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + resourceMappingSelectQuery + " from resources where resources.name=? and facility_id=? and vo_id=?",
@@ -198,6 +205,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public Resource createResource(PerunSession sess, Vo vo, Resource resource, Facility facility) throws InternalErrorException {
 		Utils.notNull(resource.getName(), "resource.getName()");
 
@@ -219,6 +227,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void deleteResource(PerunSession sess, Vo vo, Resource resource) throws InternalErrorException, ResourceAlreadyRemovedException {
 		try {
 			// Delete authz entries for this resource
@@ -231,6 +240,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	@Deprecated
 	public int getFacilityId(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
@@ -242,6 +252,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void setFacility(PerunSession sess, Resource resource, Facility facility) throws InternalErrorException {
 		try {
 			jdbc.update("update resources set facility_id=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", facility.getId(),
@@ -252,6 +263,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean resourceExists(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
 			return 1 == jdbc.queryForInt("select 1 from resources where id=?", resource.getId());
@@ -262,6 +274,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void checkResourceExists(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException {
 		if(!this.resourceExists(sess, resource)) throw new ResourceNotExistsException("resource: " + resource);
 	}
@@ -276,10 +289,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void checkResourceTagExists(PerunSession sess, ResourceTag resourceTag) throws InternalErrorException, ResourceTagNotExistsException {
 		if(!this.resourceTagExists(sess, resourceTag)) throw new ResourceTagNotExistsException("resource: " + resourceTag);
 	}
 
+	@Override
 	public List<User> getUsers(PerunSession sess, Resource resource) throws InternalErrorException {
 		try  {
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
@@ -292,6 +307,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<User> getAllowedUsers(PerunSession sess, Resource resource) throws InternalErrorException {
 		try  {
 			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
@@ -305,6 +321,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources left outer join facilities on resources.facility_id=facilities.id" +
@@ -319,6 +336,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Member> getAllowedMembers(PerunSession sess, Resource resource) throws InternalErrorException {
 		try  {
 			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
@@ -332,6 +350,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws InternalErrorException {
 		try  {
 			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
@@ -344,6 +363,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean isUserAssigned(PerunSession sess, User user, Resource resource) throws InternalErrorException {
 		try {
 			return (0 < jdbc.queryForInt("select count(*) from groups_resources join groups on groups_resources.group_id=groups.id" +
@@ -355,6 +375,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 
+	@Override
 	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, GroupAlreadyAssignedException {
 		try {
 			if(1==jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=?", group.getId(), resource.getId())) {
@@ -369,6 +390,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void removeGroupFromResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, GroupAlreadyRemovedFromResourceException {
 		try {
 			int numAffected = jdbc.update("delete from groups_resources where group_id=? and resource_id=?", group.getId(), resource.getId());
@@ -379,6 +401,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 
+	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Vo vo, Group group) throws InternalErrorException {
 
 		try {
@@ -486,6 +509,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean isGroupAssigned(PerunSession sess, Group group, Resource resource) throws InternalErrorException {
 		try {
 			return 1 == jdbc.queryForInt("select count(1) from groups_resources where group_id=? and resource_id=? ", group.getId(), resource.getId());
@@ -494,6 +518,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Integer> getAssignedServices(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
 			return jdbc.query("select service_id as id from resource_services where resource_id=?", Utils.ID_MAPPER, resource.getId());
@@ -502,6 +527,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void assignService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceAlreadyAssignedException {
 		try {
 			if (0 < jdbc.queryForInt("select count(*) from resource_services where service_id=? and resource_id=?", service.getId(), resource.getId())) {
@@ -515,6 +541,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void removeService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceNotAssignedException {
 		try {
 			if(0 == jdbc.update("delete from resource_services where service_id=? and resource_id=?", service.getId(), resource.getId())) {
@@ -525,6 +552,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Resource> getResources(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + resourceMappingSelectQuery+ " from resources where resources.vo_id=?", RESOURCE_MAPPER, vo.getId());
@@ -535,6 +563,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Resource> getResources(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + resourceMappingSelectQuery+ " from resources", RESOURCE_MAPPER);
@@ -558,6 +587,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Resource> getResourcesByIds(PerunSession sess, List<Integer> resourcesIds) throws InternalErrorException {
 		if (resourcesIds.size() == 0) {
 			return new ArrayList<Resource>();
@@ -572,6 +602,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public Resource updateResource(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
 			Map<String, Object> map = jdbc.queryForMap("select name, dsc from resources where id=?", resource.getId());
@@ -595,6 +626,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public int getResourcesCount(PerunSession perunSession, Vo vo) throws InternalErrorException {
 		try {
 			return jdbc.queryForInt("select count(*) from resources where resources.vo_id=?",
@@ -604,6 +636,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		try {
 			return jdbc.query("select " + resourceMappingSelectQuery + " from resources join " +
@@ -617,6 +650,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public ResourceTag createResourceTag(PerunSession perunSession, ResourceTag resourceTag, Vo vo) throws InternalErrorException {
 		try {
 			int newId = Utils.getNewId(jdbc, "res_tags_seq");
@@ -636,6 +670,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public ResourceTag updateResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException {
 		try {
 			Map<String, Object> map = jdbc.queryForMap("select tag_name from res_tags where id=?", resourceTag.getId());
@@ -653,6 +688,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException {
 		try {
 			jdbc.update("delete from res_tags where id=?", resourceTag.getId());
@@ -661,6 +697,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void deleteAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws InternalErrorException {
 		try {
 			jdbc.update("delete from res_tags where vo_id=?", vo.getId());
@@ -669,6 +706,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void assignResourceTagToResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException {
 		try {
 			jdbc.update("insert into tags_resources(tag_id, resource_id) values(?,?)", resourceTag.getId(),resource.getId());
@@ -677,6 +715,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void removeResourceTagFromResource(PerunSession perunSession, ResourceTag resourceTag, Resource resource) throws InternalErrorException {
 		try {
 			jdbc.update("delete from tags_resources where tag_id=? and resource_id=?", resourceTag.getId(), resource.getId());
@@ -685,6 +724,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
 		try {
 			jdbc.update("delete from tags_resources where resource_id=?", resource.getId());
@@ -693,6 +733,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Resource> getAllResourcesByResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + resourceMappingSelectQuery + " from resources join " +
@@ -706,6 +747,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<ResourceTag> getAllResourcesTagsForVo(PerunSession perunSession, Vo vo) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + resourceTagMappingSelectQuery + " from vos join " +
@@ -719,6 +761,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + resourceTagMappingSelectQuery + " from tags_resources join " +
@@ -732,6 +775,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public int getResourcesCount(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.queryForInt("select count(*) from resources");
@@ -740,6 +784,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<User> getAdmins(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
 			Set<User> setOfAdmins = new HashSet<>();
@@ -764,6 +809,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<User> getDirectAdmins(PerunSession perunSession, Resource resource) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
@@ -777,6 +823,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Group> getAdminGroups(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.authorized_group_id=groups.id" +
@@ -789,6 +836,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + resourceMappingSelectQuery + " from resources, authz where authz.user_id=? and " +
@@ -827,6 +875,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean banExists(PerunSession sess, int memberId, int resourceId) throws InternalErrorException {
 		try {
 			return 1 == jdbc.queryForInt("select 1 from resources_bans where member_id=? and resource_id=?", memberId, resourceId);
@@ -837,6 +886,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean banExists(PerunSession sess, int banId) throws InternalErrorException {
 		try {
 			return 1 == jdbc.queryForInt("select 1 from resources_bans where id=?", banId);
@@ -847,6 +897,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException {
 		Utils.notNull(banOnResource.getValidityTo(), "banOnResource.getValidityTo");
 
@@ -866,6 +917,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + banOnResourceMappingSelectQuery + " from resources_bans where id=? ", BAN_ON_RESOURCE_MAPPER, banId);
@@ -876,6 +928,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + banOnResourceMappingSelectQuery + " from resources_bans where member_id=? and resource_id=?", BAN_ON_RESOURCE_MAPPER, memberId, resourceId);
@@ -886,6 +939,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where member_id=?", BAN_ON_RESOURCE_MAPPER, memberId);
@@ -896,6 +950,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where resource_id=?", BAN_ON_RESOURCE_MAPPER, resourceId);
@@ -906,6 +961,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<BanOnResource> getAllExpiredBansOnResources(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where banned_to < " + Compatibility.getSysdate(), BAN_ON_RESOURCE_MAPPER);
@@ -916,6 +972,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException {
 		try {
 			jdbc.update("update resources_bans set description=?, banned_to=?, modified_by=?, modified_by_uid=?, modified_at=" +
@@ -929,6 +986,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		return banOnResource;
 	}
 
+	@Override
 	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
 		try {
 			int numAffected = jdbc.update("delete from resources_bans where id=?", banId);
@@ -938,6 +996,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
 		try {
 			int numAffected = jdbc.update("delete from resources_bans where member_id=? and resource_id=?", memberId, resourceId);

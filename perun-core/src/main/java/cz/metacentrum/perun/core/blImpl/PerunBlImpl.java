@@ -116,6 +116,7 @@ public class PerunBlImpl implements PerunBl {
 		this.auditer = auditer;
 	}
 
+	@Override
 	public PerunSession getPerunSession(PerunPrincipal principal, PerunClient client) throws InternalErrorException {
 		PerunSessionImpl perunSession = new PerunSessionImpl(this, principal, client);
 		log.debug("creating PerunSession for user {}", principal.getActor());
@@ -203,34 +204,42 @@ public class PerunBlImpl implements PerunBl {
 		this.coreConfig = coreConfig;
 	}
 
+	@Override
 	public GroupsManager getGroupsManager() {
 		return groupsManager;
 	}
 
+	@Override
 	public FacilitiesManager getFacilitiesManager() {
 		return facilitiesManager;
 	}
 
+	@Override
 	public DatabaseManager getDatabaseManager() {
 		return databaseManager;
 	}
 
+	@Override
 	public UsersManager getUsersManager() {
 		return usersManager;
 	}
 
+	@Override
 	public MembersManager getMembersManager() {
 		return membersManager;
 	}
 
+	@Override
 	public VosManager getVosManager() {
 		return vosManager;
 	}
 
+	@Override
 	public ResourcesManager getResourcesManager() {
 		return resourcesManager;
 	}
 
+	@Override
 	public RTMessagesManager getRTMessagesManager() {
 		return rtMessagesManager;
 	}
@@ -239,6 +248,7 @@ public class PerunBlImpl implements PerunBl {
 		this.rtMessagesManager = rtMessagesManager;
 	}
 
+	@Override
 	public SecurityTeamsManager getSecurityTeamsManager() {
 		return securityTeamsManager;
 	}
@@ -283,6 +293,7 @@ public class PerunBlImpl implements PerunBl {
 		this.resourcesManager = resourcesManager;
 	}
 
+	@Override
 	public ExtSourcesManager getExtSourcesManager() {
 		return extSourcesManager;
 	}
@@ -299,6 +310,7 @@ public class PerunBlImpl implements PerunBl {
 		this.searcher = searcher;
 	}
 
+	@Override
 	public AttributesManager getAttributesManager() {
 		return attributesManager;
 	}
@@ -307,6 +319,7 @@ public class PerunBlImpl implements PerunBl {
 		this.servicesManager = servicesManager;
 	}
 
+	@Override
 	public ServicesManager getServicesManager() {
 		return servicesManager;
 	}
@@ -315,14 +328,17 @@ public class PerunBlImpl implements PerunBl {
 		this.ownersManager = ownersManager;
 	}
 
+	@Override
 	public OwnersManager getOwnersManager() {
 		return ownersManager;
 	}
 
+	@Override
 	public Searcher getSearcher() {
 		return searcher;
 	}
 
+	@Override
 	public ModulesUtilsBl getModulesUtilsBl() {
 		return modulesUtilsBl;
 	}
@@ -331,6 +347,7 @@ public class PerunBlImpl implements PerunBl {
 		this.modulesUtilsBl = modulesUtilsBl;
 	}
 
+	@Override
 	public RTMessagesManagerBl getRTMessagesManagerBl() {
 		return rtMessagesManagerBl;
 	}
@@ -339,10 +356,12 @@ public class PerunBlImpl implements PerunBl {
 		this.rtMessagesManagerBl = rtMessagesManagerBl;
 	}
 
+	@Override
 	public AuditMessagesManager getAuditMessagesManager() {
 		return auditMessagesManager;
 	}
 
+	@Override
 	public VosManagerBl getVosManagerBl() {
 		return vosManagerBl;
 	}
@@ -351,10 +370,12 @@ public class PerunBlImpl implements PerunBl {
 		this.vosManagerBl = vosManagerBl;
 	}
 
+	@Override
 	public UsersManagerBl getUsersManagerBl() {
 		return usersManagerBl;
 	}
 
+	@Override
 	public AuditMessagesManagerBl getAuditMessagesManagerBl() {
 		return auditMessagesManagerBl;
 	}
@@ -363,6 +384,7 @@ public class PerunBlImpl implements PerunBl {
 		this.usersManagerBl = usersManagerBl;
 	}
 
+	@Override
 	public MembersManagerBl getMembersManagerBl() {
 		return membersManagerBl;
 	}
@@ -371,6 +393,7 @@ public class PerunBlImpl implements PerunBl {
 		this.membersManagerBl = membersManagerBl;
 	}
 
+	@Override
 	public GroupsManagerBl getGroupsManagerBl() {
 		return groupsManagerBl;
 	}
@@ -379,6 +402,7 @@ public class PerunBlImpl implements PerunBl {
 		this.groupsManagerBl = groupsManagerBl;
 	}
 
+	@Override
 	public FacilitiesManagerBl getFacilitiesManagerBl() {
 		return facilitiesManagerBl;
 	}
@@ -387,6 +411,7 @@ public class PerunBlImpl implements PerunBl {
 		this.facilitiesManagerBl = facilitiesManagerBl;
 	}
 
+	@Override
 	public DatabaseManagerBl getDatabaseManagerBl() {
 		return databaseManagerBl;
 	}
@@ -395,6 +420,7 @@ public class PerunBlImpl implements PerunBl {
 		this.databaseManagerBl = databaseManagerBl;
 	}
 
+	@Override
 	public ResourcesManagerBl getResourcesManagerBl() {
 		return resourcesManagerBl;
 	}
@@ -403,6 +429,7 @@ public class PerunBlImpl implements PerunBl {
 		this.resourcesManagerBl = resourcesManagerBl;
 	}
 
+	@Override
 	public ExtSourcesManagerBl getExtSourcesManagerBl() {
 		return extSourcesManagerBl;
 	}
@@ -411,6 +438,7 @@ public class PerunBlImpl implements PerunBl {
 		this.extSourcesManagerBl = extSourcesManagerBl;
 	}
 
+	@Override
 	public AttributesManagerBl getAttributesManagerBl() {
 		return attributesManagerBl;
 	}
@@ -419,6 +447,7 @@ public class PerunBlImpl implements PerunBl {
 		this.attributesManagerBl = attributesManagerBl;
 	}
 
+	@Override
 	public ServicesManagerBl getServicesManagerBl() {
 		return servicesManagerBl;
 	}
@@ -427,6 +456,7 @@ public class PerunBlImpl implements PerunBl {
 		this.servicesManagerBl = servicesManagerBl;
 	}
 
+	@Override
 	public OwnersManagerBl getOwnersManagerBl() {
 		return ownersManagerBl;
 	}
@@ -435,6 +465,7 @@ public class PerunBlImpl implements PerunBl {
 		this.ownersManagerBl = ownersManagerBl;
 	}
 
+	@Override
 	public SecurityTeamsManagerBl getSecurityTeamsManagerBl() {
 		return securityTeamsManagerBl;
 	}
@@ -443,6 +474,7 @@ public class PerunBlImpl implements PerunBl {
 		this.securityTeamsManagerBl = securityTeamsManagerBl;
 	}
 
+	@Override
 	public Auditer getAuditer() {
 		return this.auditer;
 	}
@@ -451,6 +483,7 @@ public class PerunBlImpl implements PerunBl {
 		this.auditer = auditer;
 	}
 
+	@Override
 	public SearcherBl getSearcherBl() {
 		return searcherBl;
 	}
@@ -472,6 +505,7 @@ public class PerunBlImpl implements PerunBl {
 		this.auditer.initialize();
 	}
 
+	@Override
 	public String toString() {
 		return getClass().getSimpleName() + ":[" +
 				"vosManager='" + vosManager + "', " +

@@ -78,6 +78,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		this.self = self;
 	}
 
+	@Override
 	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException {
 		Utils.notNull(extSource.getName(), "extSource.getName()");
 		Utils.notNull(extSource.getType(), "extSource.getType()");
@@ -132,6 +133,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException {
 		try {
 			// Delete associated attributes
@@ -193,6 +195,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	private static class ExtSourcesExtractor implements ResultSetExtractor<List<ExtSource>> {
 
+		@Override
 		public List<ExtSource> extractData(ResultSet rs) throws SQLException, DataAccessException {
 			Map<Integer, ExtSource> map = new HashMap<>();
 			ExtSource myObject;
@@ -210,6 +213,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public ExtSource getExtSourceById(PerunSession sess, int id) throws InternalErrorException, ExtSourceNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + extSourceMappingSelectQueryWithAttributes + " from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id where id=?", EXT_SOURCES_EXTRACTOR, id);
@@ -220,6 +224,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public ExtSource getExtSourceByName(PerunSession sess, String name) throws InternalErrorException, ExtSourceNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + extSourceMappingSelectQueryWithAttributes +
@@ -233,6 +238,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	}
 
+	@Override
 	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
 			return jdbc.query("SELECT " + extSourceMappingSelectQueryWithAttributes +
@@ -258,6 +264,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.query("SELECT " + extSourceMappingSelectQueryWithAttributes +
@@ -268,6 +275,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
 		try {
 			if (0 < jdbc.queryForInt("select count('x') from vo_ext_sources where ext_sources_id=? and vo_id=?", source.getId(), vo.getId())) {
@@ -299,6 +307,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
 		try {
 			if (jdbc.queryForInt("select count('x') from vo_ext_sources where ext_sources_id=? and vo_id=?", source.getId(), vo.getId()) == 0) {
@@ -329,6 +338,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Integer> getAssociatedUsersIdsWithExtSource(PerunSession sess, ExtSource source) throws InternalErrorException {
 		try {
 			return jdbc.query("SELECT user_id FROM user_ext_sources WHERE ext_sources_id=?", Utils.ID_MAPPER, source.getId());
@@ -340,6 +350,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	/**
 	 * Routine which initialize the extSourcesManager.
 	 */
+	@Override
 	public void initialize(PerunSession sess) {
 		if (sess.getPerun().isPerunReadOnly()) log.debug("Loading extSource manager init in readOnly version.");
 
@@ -378,6 +389,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	 * Loads the extSources definitions from the XML configuration file.
 	 * All data from the extSouces XML file are synchronized with the DB.
 	 */
+	@Override
 	public void loadExtSourcesDefinitions(PerunSession sess) {
 		try {
 			// Load the XML file
@@ -463,6 +475,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean extSourceExists(PerunSession perunSession, ExtSource extSource) throws InternalErrorException {
 		Utils.notNull(extSource, "extSource");
 		try {
@@ -474,6 +487,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public void checkExtSourceExists(PerunSession perunSession, ExtSource es) throws InternalErrorException, ExtSourceNotExistsException {
 		if (!extSourceExists(perunSession, es)) throw new ExtSourceNotExistsException("ExtSource: " + es);
 	}
@@ -482,6 +496,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	 * Result Set Extractor for Attributes map
 	 */
 	private class AttributesExtractor implements ResultSetExtractor<Map<String, String>> {
+		@Override
 		public Map<String, String> extractData(ResultSet rs) throws SQLException {
 			Map<String, String> attributes = new HashMap<>();
 			while (rs.next()) {
@@ -491,6 +506,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
 	public Map<String, String> getAttributes(ExtSource extSource) throws InternalErrorException {
 		try {
 			return jdbc.query("select attr_name, attr_value from ext_sources_attributes where ext_sources_id = " + extSource.getId(), new AttributesExtractor());

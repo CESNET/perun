@@ -70,6 +70,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	// Group mapper
 	protected static final RowMapper<Group> GROUP_MAPPER = new RowMapper<Group>() {
+		@Override
 		public Group mapRow(ResultSet rs, int i) throws SQLException {
 			Group g = new Group();
 			g.setId(rs.getInt("groups_id"));
@@ -93,6 +94,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	};
 
 	private static final RowMapper<Pair<Group, Resource>> GROUP_RESOURCE_MAPPER = new RowMapper<Pair<Group, Resource>>() {
+		@Override
 		public Pair<Group, Resource> mapRow(ResultSet rs, int i) throws SQLException {
 			Pair<Group, Resource> pair = new Pair<Group, Resource>();
 			pair.put(GROUP_MAPPER.mapRow(rs, i), ResourcesManagerImpl.RESOURCE_MAPPER.mapRow(rs, i));
@@ -109,6 +111,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
 	}
 
+	@Override
 	public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException, InternalErrorException {
 		Utils.notNull(group, "group");
 		Utils.notNull(group.getName(), "group.getName()");
@@ -156,6 +159,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			name = jdbc.query("group.name as (with temp (name, id, parent_group_id) as ((select name, id, parent_group_id from GROUPS where parent_group_id is null) union all (select cast((temp.name + ':' + groups.name) as varchar(128)), " +
 					"groups.id, groups.parent_group_id from groups inner join temp on temp.id = groups.parent_group_id )) select name from temp where group.id = ?"
 					,new RowMapper() {
+						@Override
 						public Object mapRow(ResultSet resultSet, int i) throws SQLException {
 							return resultSet.getString(1);
 						}
@@ -172,6 +176,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	 *
 	 * @see cz.metacentrum.perun.core.implApi.GroupsManagerImplApi#createGroup(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, cz.metacentrum.perun.core.api.Group, cz.metacentrum.perun.core.api.Group)
 	 */
+	@Override
 	public Group createGroup(PerunSession sess, Vo vo, Group parentGroup, Group group) throws GroupExistsException, InternalErrorException {
 		// Create new subGroup
 
@@ -184,6 +189,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		return group;
 	}
 
+	@Override
 	public void deleteGroup(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupAlreadyRemovedException {
 		Utils.notNull(group.getName(), "group.getName()");
 
@@ -201,6 +207,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
 		Utils.notNull(group.getName(), "group.getName()");
 
@@ -236,6 +243,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		return dbGroup;
 	}
 
+	@Override
 	public Group updateGroupName(PerunSession sess, Group group) throws InternalErrorException {
 		Utils.notNull(group.getName(), "group.getName()");
 
@@ -259,6 +267,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		return dbGroup;
 	}
 
+	@Override
 	public Group updateParentGroupId(PerunSession sess, Group group) throws InternalErrorException {
 		Utils.notNull(group, "group");
 
@@ -285,6 +294,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		return dbGroup;
 	}
 
+	@Override
 	public Group getGroupById(PerunSession sess, int id) throws GroupNotExistsException, InternalErrorException {
 		try {
 			return jdbc.queryForObject("select " + groupMappingSelectQuery + " from groups where groups.id=? ", GROUP_MAPPER, id);
@@ -295,6 +305,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<User> getGroupUsers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from groups_members join members on members.id=member_id join " +
@@ -305,6 +316,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean isUserMemberOfGroup(PerunSession sess, User user, Group group) throws InternalErrorException {
 		try {
 			return 1 <= jdbc.queryForInt("select count(1) from groups_members join members on members.id = member_id where members.user_id=? and groups_members.group_id=?", user.getId(), group.getId());
@@ -313,6 +325,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_members join members on members.id=groups_members.member_id " +
@@ -336,6 +349,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatus) throws InternalErrorException {
 		try {
 			MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -364,6 +378,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Group> getGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
 			return jdbc.query("select  " + groupMappingSelectQuery + " from groups where vo_id=? order by " +
@@ -375,6 +390,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
@@ -388,6 +404,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, Member member) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
@@ -401,6 +418,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) throws InternalErrorException {
 		try {
 			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups join " +
@@ -415,6 +433,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Group> getSubGroups(PerunSession sess, Group parentGroup) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups where groups.parent_group_id=? " +
@@ -427,6 +446,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public int getSubGroupsCount(PerunSession sess, Group parentGroup) throws InternalErrorException {
 		try {
 			return jdbc.queryForInt("select count(1) from groups where parent_group_id=?", parentGroup.getId());
@@ -435,6 +455,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Group> getAllGroups(PerunSession sess, Vo vo)     throws InternalErrorException {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups where vo_id=?", GROUP_MAPPER, vo.getId());
@@ -444,6 +465,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	}
 
+	@Override
 	public Group getParentGroup(PerunSession sess, Group group) throws InternalErrorException, ParentGroupNotExistsException {
 		try  {
 			return jdbc.queryForObject("select " + groupMappingSelectQuery + " from groups where groups.id=?",
@@ -455,6 +477,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException, InternalErrorException {
 		try {
 			return jdbc.queryForObject("select " + groupMappingSelectQuery + " from groups where groups.name=? and groups.vo_id=?",
@@ -466,6 +489,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public Member addMember(PerunSession sess, Group group, Member member, MembershipType type, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		member.setMembershipType(type);
 		member.setSourceGroupId(sourceGroupId);
@@ -482,6 +506,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	}
 
+	@Override
 	public List<Group> getGroupsByIds(PerunSession sess, List<Integer> groupsIds) throws InternalErrorException {
 		// If groupsIds are empty, we can immediately return empty result
 		if (groupsIds.size() == 0) {
@@ -498,6 +523,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
 		try {
 			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups_members join groups on groups_members.group_id = groups.id " +
@@ -510,6 +536,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Group> getGroupsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups " +
@@ -523,6 +550,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public List<Pair<Group,Resource>> getGroupResourcePairsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + ", " + ResourcesManagerImpl.resourceMappingSelectQuery +
@@ -538,6 +566,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean isGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException {
 		try {
 			return 1 <= jdbc.queryForInt("select count(1) from groups_members where group_id=? and member_id=?", group.getId(), member.getId());
@@ -546,6 +575,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean isDirectGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException {
 		try {
 			int count = jdbc.queryForInt("select count(1) from groups_members where group_id=? and member_id=? and membership_type = ?", group.getId(), member.getId(), MembershipType.DIRECT.getCode());
@@ -556,6 +586,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException {
 		if (member.getSourceGroupId() == null) {
 			throw new InternalErrorException("sourceGroupId not set for member object");
@@ -625,6 +656,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public int getGroupsCount(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
 			return jdbc.queryForInt("select count(1) from groups where vo_id=?", vo.getId());
@@ -633,6 +665,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public int getVoId(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			return jdbc.queryForInt("select vo_id from groups where id=?", group.getId());
@@ -641,10 +674,12 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public void checkGroupExists(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException {
 		if (!groupExists(sess, group)) throw new GroupNotExistsException("Group " + group);
 	}
 
+	@Override
 	public boolean groupExists(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			return 1 == jdbc.queryForInt("select 1 from groups where id=?", group.getId());
@@ -662,6 +697,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	 * @return list of groups to synchronize
 	 * @throws InternalErrorException
 	 */
+	@Override
 	public List<Group> getGroupsToSynchronize(PerunSession sess) throws InternalErrorException {
 		try {
 			// Get all groups which have defined
@@ -717,6 +753,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public int getGroupsCount(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.queryForInt("select count(*) from groups");
@@ -769,6 +806,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
 	public boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException {
 		try {
 			return 1 > jdbc.queryForInt("SELECT parent_flag"+Compatibility.castToInteger()+" FROM groups_groups WHERE result_gid=? AND operand_gid=?",

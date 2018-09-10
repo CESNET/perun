@@ -36,6 +36,7 @@ public class UsersManagerEntry implements UsersManager {
 		throw new InternalErrorRuntimeException("Unsupported method!");
 	}
 
+	@Override
 	public User getUserByUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -50,6 +51,7 @@ public class UsersManagerEntry implements UsersManager {
 		return user;
 	}
 
+	@Override
 	public User getUserByUserExtSources(PerunSession sess, List<UserExtSource> userExtSources) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -62,6 +64,7 @@ public class UsersManagerEntry implements UsersManager {
 		return user;
 	}
 
+	@Override
 	public User getUserById(PerunSession sess, int id) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -80,6 +83,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
 	public List<User> getSpecificUsersByUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
@@ -101,6 +105,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getSpecificUsersByUser(sess, user);
 	}
 
+	@Override
 	public List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, SpecificUserExpectedException {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, specificUser);
@@ -123,6 +128,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUsersBySpecificUser(sess, specificUser);
 	}
 
+	@Override
 	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, SpecificUserExpectedException, NotSpecificUserExpectedException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
@@ -137,6 +143,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().removeSpecificUserOwner(sess, user, specificUser);
 	}
 
+	@Override
 	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, SpecificUserExpectedException, NotSpecificUserExpectedException, RelationExistsException {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
@@ -151,6 +158,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().addSpecificUserOwner(sess, user, specificUser);
 	}
 
+	@Override
 	public List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
@@ -159,6 +167,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getSpecificUsers(sess);
 	}
 
+	@Override
 	public User getUserByMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -173,6 +182,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUserByMember(sess, member);
 	}
 
+	@Override
 	public User getUserByExtSourceNameAndExtLogin(PerunSession sess, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, UserNotExistsException, InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -186,6 +196,7 @@ public class UsersManagerEntry implements UsersManager {
 		return user;
 	}
 
+	@Override
 	public List<User> getUsers(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -197,6 +208,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUsers(sess);
 	}
 
+	@Override
 	public RichUser getRichUser(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -213,6 +225,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUser(sess, user));
 	}
 
+	@Override
 	public RichUser getRichUserWithAttributes(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -229,6 +242,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUserWithAttributes(sess, user));
 	}
 
+	@Override
 	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -240,6 +254,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsers(sess, includedSpecificUsers));
 	}
 
+	@Override
 	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -251,6 +266,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsersWithAttributes(sess, includedSpecificUsers));
 	}
 
+	@Override
 	public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -268,6 +284,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersFromListOfUsers(sess, users));
 	}
 
+	@Override
 	public List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -286,6 +303,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(sess, users));
 	}
 
+	@Override
 	@Deprecated
 	public User createUser(PerunSession sess, User user) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
@@ -300,6 +318,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().createUser(sess, user);
 	}
 
+	@Override
 	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -313,6 +332,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().deleteUser(sess, user);
 	}
 
+	@Override
 	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -326,6 +346,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().deleteUser(sess, user, forceDelete);
 	}
 
+	@Override
 	public User updateUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -340,6 +361,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().updateUser(sess, user);
 	}
 
+	@Override
 	public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -354,6 +376,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().updateNameTitles(sess, user);
 	}
 
+	@Override
 	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, UserExtSourceExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -374,6 +397,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
 	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -392,6 +416,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUserExtSources(sess, user);
 	}
 
+	@Override
 	public UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -406,6 +431,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUserExtSourceById(sess, id);
 	}
 
+	@Override
 	public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException, PrivilegeException, UserExtSourceExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(userExtSource, "userExtSource");
@@ -433,6 +459,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
 	}
 
+	@Override
 	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -454,6 +481,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().removeUserExtSource(sess, user, userExtSource);
 	}
 
+	@Override
 	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource, boolean forceDelete) throws InternalErrorException, UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -475,6 +503,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 	}
 
+	@Override
 	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -497,6 +526,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().moveUserExtSource(sess, sourceUser, targetUser, userExtSource);
 	}
 
+	@Override
 	public UserExtSource getUserExtSourceByExtLogin(PerunSession sess, ExtSource source, String extLogin) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException, UserExtSourceNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -513,6 +543,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUserExtSourceByExtLogin(sess, source, extLogin);
 	}
 
+	@Override
 	public List<Vo> getVosWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -526,6 +557,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getVosWhereUserIsAdmin(sess, user);
 	}
 
+	@Override
 	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -539,6 +571,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getGroupsWhereUserIsAdmin(sess, user);
 	}
 
+	@Override
 	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
@@ -553,6 +586,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getGroupsWhereUserIsAdmin(sess, vo, user);
 	}
 
+	@Override
 	public List<Vo> getVosWhereUserIsMember(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -566,6 +600,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getVosWhereUserIsMember(sess, user);
 	}
 
+	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -580,6 +615,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getAllowedResources(sess, facility, user);
 	}
 
+	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -592,6 +628,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getAllowedResources(sess, user);
 	}
 
+	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -603,6 +640,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getAssignedRichResources(sess, user);
 	}
 
+	@Override
 	public List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -613,6 +651,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().findUsers(sess, searchString);
 	}
 
+	@Override
 	public List<RichUser> findRichUsers(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -623,6 +662,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsers(sess, searchString));
 	}
 
+	@Override
 	public List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException, VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -634,6 +674,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUsersWithoutSpecificVo(sess, vo, searchString);
 	}
 
+	@Override
 	public List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -644,6 +685,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().findUsersByName(sess, searchString);
 	}
 
+	@Override
 	public List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -654,6 +696,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().findUsersByName(sess, titleBefore, firstName, middleName, lastName, titleAfter);
 	}
 
+	@Override
 	public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -664,6 +707,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().findUsersByExactName(sess, searchString);
 	}
 
+	@Override
 	public List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -675,6 +719,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUsersByAttribute(sess, attribute);
 	}
 
+	@Override
 	public List<User> getUsersByAttribute(PerunSession sess, String attributeName, String attributeValue)
 			throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
@@ -689,6 +734,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUsersByAttribute(sess, attributeName, attributeValue);
 	}
 
+	@Override
 	public List<User> getUsersByAttributeValue(PerunSession sess, String attributeName, String attributeValue)
 			throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
@@ -703,6 +749,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUsersByAttributeValue(sess, attributeName, attributeValue);
 	}
 
+	@Override
 	public boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -711,6 +758,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().isLoginAvailable(sess, loginNamespace, login);
 	}
 
+	@Override
 	public List<User> getUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -722,6 +770,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getUsersWithoutVoAssigned(sess);
 	}
 
+	@Override
 	public List<RichUser> getRichUsersWithoutVoAssigned(PerunSession sess) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -733,6 +782,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithoutVoAssigned(sess));
 	}
 
+	@Override
 	public boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -746,6 +796,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().isUserPerunAdmin(sess, user);
 	}
 
+	@Override
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
 			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
@@ -773,6 +824,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
 	}
 
+	@Override
 	public void changePassword(PerunSession sess, String login , String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
 			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
@@ -799,6 +851,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
 	}
 
+	@Override
 	@Deprecated
 	public void createPassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
 			PrivilegeException, PasswordCreationFailedException {
@@ -818,6 +871,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 	}
 
+	@Override
 	@Deprecated
 	public void createPassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
 			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
@@ -833,6 +887,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().createPassword(sess, user, loginNamespace, password);
 	}
 
+	@Override
 	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
@@ -845,6 +900,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().reserveRandomPassword(sess, user, loginNamespace);
 	}
 
+	@Override
 	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
 			PrivilegeException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
@@ -863,6 +919,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 	}
 
+	@Override
 	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
 			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
@@ -877,6 +934,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().reservePassword(sess, user, loginNamespace, password);
 	}
 
+	@Override
 	public void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
 			PrivilegeException, PasswordCreationFailedException {
 		Utils.checkPerunSession(sess);
@@ -895,6 +953,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 	}
 
+	@Override
 	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws PrivilegeException, InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 
@@ -912,6 +971,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 	}
 
+	@Override
 	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException,
 			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
 		Utils.checkPerunSession(sess);
@@ -927,6 +987,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 
+	@Override
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
 			PrivilegeException, PasswordDeletionFailedException, LoginNotExistsException, PasswordOperationTimeoutException {
 		Utils.checkPerunSession(sess);
@@ -953,6 +1014,7 @@ public class UsersManagerEntry implements UsersManager {
 		}
 	}
 
+	@Override
 	public void createAlternativePassword(PerunSession sess, User user, String description, String loginNamespace, String password) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(description, "description");
@@ -969,6 +1031,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().createAlternativePassword(sess, user, description, loginNamespace, password);
 	}
 
+	@Override
 	public void deleteAlternativePassword(PerunSession sess, User user, String loginNamespace, String passwordId) throws InternalErrorException, UserNotExistsException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(loginNamespace, "loginNamespace");
@@ -1017,6 +1080,7 @@ public class UsersManagerEntry implements UsersManager {
 		return this.perunBl;
 	}
 
+	@Override
 	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers, List<String> attrsNames) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -1029,6 +1093,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
 	public List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -1055,6 +1120,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
 	public List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -1067,6 +1133,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
 	public List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException{
 		Utils.checkPerunSession(sess);
 
@@ -1078,6 +1145,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithoutSpecificVoWithAttributes(sess, vo, searchString, attrsName));
 	}
 
+	@Override
 	public List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws InternalErrorException, VoNotExistsException, UserNotExistsException, PrivilegeException{
 		Utils.checkPerunSession(sess);
 
@@ -1089,6 +1157,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithoutVoWithAttributes(sess, attrsName));
 	}
 
+	@Override
 	public void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginExistsException {
 
 		// checks
@@ -1110,6 +1179,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
 	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 
 		Utils.checkPerunSession(sess);
@@ -1124,6 +1194,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
 	public String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 
 		Utils.checkPerunSession(sess);
@@ -1144,6 +1215,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
 	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException {
 
 		Utils.checkPerunSession(sess);
@@ -1204,6 +1276,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
 	public List<RichUser> getSponsors(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(member, "member");

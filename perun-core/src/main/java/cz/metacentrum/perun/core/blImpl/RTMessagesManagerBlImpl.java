@@ -63,19 +63,23 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 		return this.perunBl;
 	}
 
+	@Override
 	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException {
 		return sendMessageToRT(sess, voId, null, subject, text);
 	}
 
+	@Override
 	@Deprecated
 	public RTMessage sendMessageToRT(PerunSession sess, Member meber, String queue, String subject, String text) throws InternalErrorException {
 		throw new InternalErrorException("This method is not supported now!");
 	}
 
+	@Override
 	public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) throws InternalErrorException {
 		return sendMessageToRT(sess, 0, queue, subject, text);
 	}
 
+	@Override
 	public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) throws InternalErrorException {
 		log.debug("Parameters of rtMessage are queue='" + queue +"', subject='{}' and text='{}'", subject, text);
 

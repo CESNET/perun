@@ -28,15 +28,18 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	public AuditMessagesManagerEntry() {
 	}
 
+	@Override
 	public List<AuditMessage> getMessages(PerunSession perunSession) throws InternalErrorException {
 		return this.getMessages(perunSession, AuditMessagesManager.COUNTOFMESSAGES);
 	}
 
+	@Override
 	public List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException {
 		if(count<1) throw new WrongRangeOfCountException("Count of messages is less than 1. Can't be returned less than 1 message.");
 		return getAuditMessagesManagerBl().getMessages(perunSession, count);
 	}
 
+	@Override
 	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException {
 		if(count<1) throw new WrongRangeOfCountException("Count of messages is less than 1. Can't be returned less than 1 message.");
 		return getAuditMessagesManagerBl().getMessagesByCount(perunSession, count);
@@ -92,6 +95,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 		getAuditMessagesManagerBl().createAuditerConsumer(consumerName);
 	}
 
+	@Override
 	public void log(PerunSession perunSession, String message) throws InternalErrorException, PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.REGISTRAR)) {
@@ -101,16 +105,19 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 		getAuditMessagesManagerBl().log(perunSession, message);
 	}
 
+	@Override
 	public Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
 		// anybody can call this method
 		return getAuditMessagesManagerBl().getAllAuditerConsumers(perunSession);
 	}
 
+	@Override
 	public int getLastMessageId(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
 		// anybody can call this method
 		return getAuditMessagesManagerBl().getLastMessageId();
 	}
 
+	@Override
 	public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
@@ -120,6 +127,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 		getAuditMessagesManagerBl().setLastProcessedId(consumerName, lastProcessedId);
 	}
 
+	@Override
 	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(perunSession);
 		return getAuditMessagesManagerBl().getAuditerMessagesCount(perunSession);

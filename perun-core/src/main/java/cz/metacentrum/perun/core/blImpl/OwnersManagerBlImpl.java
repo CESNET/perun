@@ -35,15 +35,18 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 		this.ownersManagerImpl = ownersManagerImpl;
 	}
 
+	@Override
 	public Owner createOwner(PerunSession sess, Owner owner) throws InternalErrorException {
 		getPerunBl().getAuditer().log(sess, "{} created.", owner);
 		return getOwnersManagerImpl().createOwner(sess, owner);
 	}
 
+	@Override
 	public void deleteOwner(PerunSession sess, Owner owner) throws InternalErrorException, RelationExistsException, OwnerAlreadyRemovedException {
 		this.deleteOwner(sess, owner, false);
 	}
 
+	@Override
 	public void deleteOwner(PerunSession sess, Owner owner, boolean forceDelete) throws InternalErrorException, RelationExistsException, OwnerAlreadyRemovedException {
 		// Check if the owner is assigned to some facility
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getOwnerFacilities(sess, owner);
@@ -76,14 +79,17 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 		getPerunBl().getAuditer().log(sess, "{} deleted.", owner);
 	}
 
+	@Override
 	public Owner getOwnerById(PerunSession sess, int id) throws InternalErrorException, OwnerNotExistsException {
 		return getOwnersManagerImpl().getOwnerById(sess, id);
 	}
 
+	@Override
 	public List<Owner> getOwners(PerunSession sess) throws InternalErrorException {
 		return getOwnersManagerImpl().getOwners(sess);
 	}
 
+	@Override
 	public void checkOwnerExists(PerunSession sess, Owner owner) throws InternalErrorException, OwnerNotExistsException {
 		getOwnersManagerImpl().checkOwnerExists(sess, owner);
 	}

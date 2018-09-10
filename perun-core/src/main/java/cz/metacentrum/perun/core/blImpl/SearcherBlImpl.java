@@ -42,6 +42,7 @@ public class SearcherBlImpl implements SearcherBl {
 		this.searcherImpl = searcherImpl;
 	}
 
+	@Override
 	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		//If there is no attribute, so every user match
 		if(attributesWithSearchingValues == null || attributesWithSearchingValues.isEmpty()) {
@@ -66,6 +67,7 @@ public class SearcherBlImpl implements SearcherBl {
 		return usersFromAttributes;
 	}
 
+	@Override
 	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<User> users = getPerunBl().getUsersManagerBl().getUsers(sess);
 		if(coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) return users;

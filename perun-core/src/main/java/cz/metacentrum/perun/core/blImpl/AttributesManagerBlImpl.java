@@ -125,6 +125,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.attributesManagerImpl = attributesManagerImpl;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, facility);
@@ -137,12 +138,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws InternalErrorException {
 		if (attrNames.isEmpty()) return new ArrayList<>();
 
 		return getAttributesManagerImpl().getAttributes(sess, facility, attrNames);
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, vo);
@@ -155,6 +158,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Group group) throws InternalErrorException {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, group);
@@ -167,6 +171,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
 		//get virtual attributes
 		List<Attribute> attributes = getVirtualAttributes(sess, resource);
@@ -183,10 +188,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getVirtualAttributes(sess, resource);
 	}
 
+	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
 		return getAttributesManagerImpl().getVirtualAttributes(sess, resource, member);
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		return getAttributes(sess, resource, member, false);
 	}
@@ -228,6 +235,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException {
 		if (attrNames.isEmpty()) return this.getAttributes(sess, member, group, workWithUserAttributes);
 
@@ -253,6 +261,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		// get virtual attributes
@@ -276,6 +285,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if (attrNames.isEmpty()) return this.getAttributes(sess, resource, member, workWithUserAttributes);
@@ -310,6 +320,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Group group, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException, GroupResourceMismatchException {
 		checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		List<Attribute> attributes = getAttributes(sess, resource, member, attrNames, workWithUserAttributes);
@@ -332,6 +343,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, boolean workWithUserAttributes) throws InternalErrorException {
 		List<Attribute> attributes = new ArrayList<>();
 		attributes.addAll(this.getAttributes(sess, member));
@@ -343,6 +355,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member) throws InternalErrorException {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, member);
@@ -355,29 +368,34 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Group group, String startPartOfName) throws InternalErrorException {
 		List<Attribute> attrs = getAttributesManagerImpl().getAllAttributesStartWithNameWithoutNullValue(sess, group, startPartOfName);
 		attrs.removeIf(attr -> attr.getValue() == null);
 		return attrs;
 	}
 
+	@Override
 	public List<Attribute> getAllAttributesStartWithNameWithoutNullValue(PerunSession sess, Resource resource, String startPartOfName) throws InternalErrorException {
 		List<Attribute> attrs = getAttributesManagerImpl().getAllAttributesStartWithNameWithoutNullValue(sess, resource, startPartOfName);
 		attrs.removeIf(attr -> attr.getValue() == null);
 		return attrs;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException {
 		if (attrNames.isEmpty()) return new ArrayList<>();
 
 		return getAttributesManagerImpl().getAttributes(sess, member, attrNames);
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException {
 		if (attrNames.isEmpty()) return new ArrayList<>();
 		return getAttributesManagerImpl().getAttributes(sess, group, attrNames);
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException {
 		List<Attribute> attributes = this.getAttributes(sess, member, attrNames);
 
@@ -390,18 +408,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException {
 		if (attrNames.isEmpty()) return new ArrayList<>();
 
 		return getAttributesManagerImpl().getAttributes(sess, vo, attrNames);
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException {
 		if (attrNames.isEmpty()) return new ArrayList<>();
 
 		return getAttributesManagerImpl().getAttributes(sess, ues, attrNames);
 	}
 
+	@Override
 	public List<Attribute> getUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException {
 		List<Attribute> attributes = getAttributesManagerImpl().getUserFacilityAttributesForAnyUser(sess, facility);
 		List<User> facilityUsers = perunBl.getFacilitiesManagerBl().getAllowedUsers(sess, facility);
@@ -417,6 +438,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
 		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, facility, user);
 		List<Attribute> virtualAttributes = getVirtualAttributes(sess, facility, user);
@@ -428,18 +450,22 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, String key) throws InternalErrorException {
 		return getAttributesManagerImpl().getAttributes(sess, key);
 	}
 
+	@Override
 	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws InternalErrorException {
 		return getAttributesManagerImpl().getEntitylessAttributes(sess, attrName);
 	}
 
+	@Override
 	public List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		return getAttributesManagerImpl().getEntitylessKeys(sess, attributeDefinition);
 	}
 
+	@Override
 	public Attribute getEntitylessAttributeForUpdate(PerunSession sess, String key, String attrName) throws InternalErrorException, AttributeNotExistsException {
 		AttributeDefinition attrDef = this.getAttributeDefinition(sess, attrName);
 		Attribute attr = new Attribute(attrDef);
@@ -453,6 +479,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attr;
 	}
 
+	@Override
 	public List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		if (isCoreAttribute(sess, attributeDefinition) || isVirtAttribute(sess, attributeDefinition) || isCoreManagedAttribute(sess, attributeDefinition))
 			throw new WrongAttributeAssignmentException(attributeDefinition);
@@ -460,14 +487,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttributesByAttributeDefinition(sess, attributeDefinition);
 	}
 
+	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
 		return getAttributesManagerImpl().getVirtualAttributes(sess, facility, user);
 	}
 
+	@Override
 	public List<Attribute> getVirtualAttributes(PerunSession sess, User user) throws InternalErrorException {
 		return getAttributesManagerImpl().getVirtualAttributes(sess, user);
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, User user) throws InternalErrorException {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, user);
@@ -479,12 +509,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException {
 		if (attrNames.isEmpty()) return new ArrayList<>();
 
 		return getAttributesManagerImpl().getAttributes(sess, user, attrNames);
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Host host) throws InternalErrorException {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, host);
@@ -497,10 +529,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupResourceMismatchException {
 		return getAttributesManagerImpl().getAttributes(sess, resource, group);
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		List<Attribute> attributes = new ArrayList<>();
@@ -511,6 +545,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames, boolean workWithGroupAttributes) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if (attrNames.isEmpty()) return this.getAttributes(sess, resource, group, workWithGroupAttributes);
@@ -538,6 +573,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<>();
@@ -548,6 +584,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
 		//get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, ues);
@@ -559,6 +596,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -590,6 +628,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		log.debug("IMPORTANT: EXITING CHECK ATTRIBUTES DEPENDENCIES");
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -619,6 +658,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, vo, null, attributesToSet);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -644,6 +684,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, group, null, attributesToSet);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -669,6 +710,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, null, attributesToSet);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		setAttributes(sess, resource, member, attributes, false);
 	}
@@ -717,6 +759,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, member, group, attributesToSet, workWithUserAttributes);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -771,6 +814,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 
+	@Override
 	public void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -841,6 +885,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, attributesToSet, workWithUserAttributes);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -877,6 +922,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributesToSet);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -915,6 +961,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, group, member, user, facility, attributesToSet);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -945,6 +992,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, member, null, attributesToSet);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -971,6 +1019,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, facility, user, attributesToSet);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -1001,6 +1050,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, user, null, attributesToSet);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -1029,6 +1079,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, host, null, attributesToSet);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -1051,6 +1102,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, group, attributesToSet);
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -1085,6 +1137,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void setAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
@@ -1156,10 +1209,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getPerunBl().getMembersManagerBl().updateMember(sess, member);
 	}
 
+	@Override
 	public List<String> getAllSimilarAttributeNames(PerunSession sess, String startingPartOfAttributeName) throws InternalErrorException {
 		return getAttributesManagerImpl().getAllSimilarAttributeNames(sess, startingPartOfAttributeName);
 	}
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_FACILITY_ATTR))
@@ -1168,6 +1223,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, facility, attributeName);
 	}
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_VO_ATTR))
@@ -1176,6 +1232,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, vo, attributeName);
 	}
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		//check namespace
 		String namespace = getNamespaceFromAttributeName(attributeName);
@@ -1185,6 +1242,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, group, attributeName);
 	}
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_RESOURCE_ATTR))
@@ -1193,6 +1251,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, resource, attributeName);
 	}
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, MemberResourceMismatchException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		//check namespace
@@ -1211,6 +1270,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, member, group, attributeName);
 	}
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR))
@@ -1219,6 +1279,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, member, attributeName);
 	}
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_USER_FACILITY_ATTR))
@@ -1228,6 +1289,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, User user, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_USER_ATTR))
@@ -1237,6 +1299,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		if (!attributeName.startsWith(AttributesManager.NS_HOST_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name= " + attributeName);
@@ -1244,6 +1307,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if (!attributeName.startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR))
@@ -1251,6 +1315,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, resource, group, attributeName);
 	}
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		if (!attributeName.startsWith(AttributesManager.NS_ENTITYLESS_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name= " + attributeName);
@@ -1265,6 +1330,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 
+	@Override
 	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_UES_ATTR))
@@ -1273,10 +1339,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttribute(sess, ues, attributeName);
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		return getAttributesManagerImpl().getAttributeDefinition(sess, attributeName);
 	}
 
+	@Override
 	public List<AttributeDefinition> getAttributesDefinitionWithRights(PerunSession sess, List<PerunBean> entities) throws InternalErrorException, AttributeNotExistsException {
 		List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
 
@@ -1396,10 +1464,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributeDefinitions;
 	}
 
+	@Override
 	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess) throws InternalErrorException {
 		return getAttributesManagerImpl().getAttributesDefinition(sess);
 	}
 
+	@Override
 	public List<AttributeDefinition> getAttributesDefinition(PerunSession sess, List<String> listOfAttributesNames) throws AttributeNotExistsException, InternalErrorException {
 		List<AttributeDefinition> listOfAttributeDefinitions = new ArrayList<>();
 		for (String name : listOfAttributesNames) {
@@ -1408,32 +1478,38 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return listOfAttributeDefinitions;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinitionById(PerunSession sess, int id) throws InternalErrorException, AttributeNotExistsException {
 		return getAttributesManagerImpl().getAttributeDefinitionById(sess, id);
 	}
 
+	@Override
 	public List<AttributeDefinition> getAttributesDefinitionByNamespace(PerunSession sess, String namespace) throws InternalErrorException {
 		return getAttributesManagerImpl().getAttributesDefinitionByNamespace(sess, namespace);
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, facility, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
 		return attribute;
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, vo, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_VO_ATTR);
 		return attribute;
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, resource, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_RESOURCE_ATTR);
 		return attribute;
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		AttributeDefinition attributeDefinition = getAttributeDefinitionById(sess, id);
@@ -1478,30 +1554,35 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, Member member, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, member, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_ATTR);
 		return attribute;
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, facility, user, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_FACILITY_ATTR);
 		return attribute;
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, User user, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, user, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_ATTR);
 		return attribute;
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, host, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_HOST_ATTR);
 		return attribute;
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, resource, group, id);
@@ -1509,18 +1590,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attribute;
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, group, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 		return attribute;
 	}
 
+	@Override
 	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, ues, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_UES_ATTR);
 		return attribute;
 	}
 
+	@Override
 	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
 		//fill attributes and get back only those which were really filled with new value
 		List<Attribute> filledAttributes = this.fillAttributes(sess, facility, resource, user, member, attributes, true);
@@ -1582,6 +1666,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributes);
 	}
 
+	@Override
 	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException, MemberResourceMismatchException {
 		//get all attributes (for member, resource, facility and user) with values
 		List<Attribute> attributes = this.getResourceRequiredAttributes(sess, resource, facility, resource, user, member);
@@ -1589,6 +1674,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.setRequiredAttributes(sess, facility, resource, user, member, attributes);
 	}
 
+	@Override
 	public void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException, MemberResourceMismatchException {
 		//get all attributes (for member, resource, facility, user and service) with values
 		List<Attribute> attributes = this.getRequiredAttributes(sess, service, facility, resource, user, member);
@@ -1596,6 +1682,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.setRequiredAttributes(sess, facility, resource, user, member, attributes);
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -1608,6 +1695,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -1626,6 +1714,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -1638,6 +1727,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_VO_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -1656,6 +1746,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -1668,6 +1759,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -1680,6 +1772,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_RESOURCE_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -1704,6 +1797,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -1727,6 +1821,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -1774,6 +1869,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_USER_FACILITY_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -1800,6 +1896,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -1889,6 +1986,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -1901,10 +1999,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void setAttributeInNestedTransaction(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		setAttribute(sess, member, attribute);
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR);
 
@@ -1935,6 +2035,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -1947,6 +2048,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -1959,10 +2061,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void setAttributeInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		setAttribute(sess, user, attribute);
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_USER_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -1983,6 +2087,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -1995,6 +2100,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_HOST_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -2014,6 +2120,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -2026,6 +2133,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
@@ -2085,6 +2193,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public boolean setAttributeWithoutCheck(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_ENTITYLESS_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -2104,6 +2213,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -2116,6 +2226,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void setAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -2129,6 +2240,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 
+	@Override
 	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeDefinitionExistsException {
 		return createAttribute(sess, attribute, true);
 	}
@@ -2258,6 +2370,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return false;
 	}
 
+	@Override
 	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		//Remove services' required attributes
 		//TODO
@@ -2351,31 +2464,38 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		allDependencies.values().forEach(attributes -> attributes.remove(attribute));
 	}
 
+	@Override
 	public void deleteAllAttributeAuthz(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		getPerunBl().getAuditer().log(sess, "All authorization information were deleted for {}.", attribute);
 		getAttributesManagerImpl().deleteAllAttributeAuthz(sess, attribute);
 	}
 
+	@Override
 	public void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition, boolean force) throws InternalErrorException {
 		throw new InternalErrorException("Not implemented yet!");
 	}
 
+	@Override
 	public List<AttributeDefinition> getResourceRequiredAttributesDefinition(PerunSession sess, Resource resource) throws InternalErrorException {
 		return getAttributesManagerImpl().getResourceRequiredAttributesDefinition(sess, resource);
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, facility);
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, resource);
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		return getResourceRequiredAttributes(sess, resourceToGetServicesFrom, resource, member, false);
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<>();
@@ -2425,10 +2545,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, User user) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, facility, user);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource) throws InternalErrorException {
 		List<Integer> serviceIds = new ArrayList<>();
 		for (Service service : services) {
@@ -2437,18 +2559,22 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return this.attributesManagerImpl.getRequiredAttributes(sess, resource, serviceIds);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
 		return this.getResourceRequiredAttributes(sess, resource, resource);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		return this.getResourceRequiredAttributes(sess, resource, resource, member);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		return this.getResourceRequiredAttributes(sess, resource, resource, member, workWithUserAttributes);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
 		List<Resource> resources = getPerunBl().getUsersManagerBl().getAssignedResources(sess, facility, user);
 		Set<Attribute> attributes = new HashSet<>();
@@ -2458,6 +2584,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return new ArrayList<>(attributes);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, User user) throws InternalErrorException {
 		List<Resource> resources = getPerunBl().getUsersManagerBl().getAssignedResources(sess, user);
 		Set<Attribute> attributes = new HashSet<>();
@@ -2468,6 +2595,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, boolean workWithUserAttributes) throws InternalErrorException {
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
 		Set<Attribute> attributes = new HashSet<>();
@@ -2482,6 +2610,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return new ArrayList<>(attributes);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
 
 		List<Resource> memberResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member);
@@ -2500,6 +2629,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return new ArrayList<>(attributes);
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<>();
@@ -2510,18 +2640,22 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, member);
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, resource, group);
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, group);
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		List<Attribute> attributes = new ArrayList<>();
@@ -2534,38 +2668,47 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Host host) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, host);
 	}
 
+	@Override
 	public List<AttributeDefinition> getRequiredAttributesDefinition(PerunSession sess, Service service) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributesDefinition(sess, service);
 	}
 
+	@Override
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, User user) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, user);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, facility);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, facility);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, vo);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		return getRequiredAttributes(sess, service, resource, member, false);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if (!workWithUserAttributes)
@@ -2582,6 +2725,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
@@ -2601,6 +2745,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, List<Member> members, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		// check if members are from the same VO as resource
 		if (members.isEmpty()) {
@@ -2738,6 +2883,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<>();
@@ -2748,6 +2894,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, boolean withGroupAttributes) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if (!withGroupAttributes)
@@ -2760,37 +2907,45 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, member);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group) throws InternalErrorException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, group);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, host);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Group group) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, group);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, User user) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, user);
 	}
 
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, User user) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, user);
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_RESOURCE_ATTR);
 
 		return getAttributesManagerImpl().fillAttribute(sess, resource, attribute);
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_RESOURCE_ATTR);
 
@@ -2806,6 +2961,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
@@ -2813,10 +2969,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().fillAttribute(sess, resource, member, attribute);
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		return fillAttributes(sess, resource, member, attributes, false);
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if (!workWithUserAttributes) {
@@ -2909,6 +3067,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> filledAttributes = new ArrayList<>();
@@ -2935,6 +3094,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean returnOnlyAttributesWithChangedValue) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		if (!returnOnlyAttributesWithChangedValue) {
 			return this.fillAttributes(sess, facility, resource, user, member, attributes);
@@ -2961,20 +3121,24 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		throw new InternalErrorException("Not implemented yet!");
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
 		throw new InternalErrorException("Not implemented yet!");
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_FACILITY_ATTR);
 
 		return getAttributesManagerImpl().fillAttribute(sess, facility, user, attribute);
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_FACILITY_ATTR);
 
@@ -2990,11 +3154,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_ATTR);
 		return getAttributesManagerImpl().fillAttribute(sess, user, attribute);
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_ATTR);
 
@@ -3010,11 +3176,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_HOST_ATTR);
 		return getAttributesManagerImpl().fillAttribute(sess, host, attribute);
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_HOST_ATTR);
 		List<Attribute> filledAttributes = new ArrayList<>();
@@ -3031,11 +3199,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 
+	@Override
 	public Attribute fillAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 		return getAttributesManagerImpl().fillAttribute(sess, group, attribute);
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Group group, List<Attribute> groupReqAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, groupReqAttributes, AttributesManager.NS_GROUP_ATTR);
 		List<Attribute> filledAttributes = new ArrayList<>();
@@ -3051,12 +3221,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 		return getAttributesManagerImpl().fillAttribute(sess, resource, group, attribute);
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_GROUP_RESOURCE_ATTR);
@@ -3074,6 +3246,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if (!workWithGroupAttributes) {
@@ -3095,11 +3268,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
+	@Override
 	public Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_UES_ATTR);
 		return getAttributesManagerImpl().fillAttribute(sess, ues, attribute);
 	}
 
+	@Override
 	public List<Attribute> fillAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_UES_ATTR);
 		List<Attribute> filledAttributes = new ArrayList<>();
@@ -3115,6 +3290,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
 
@@ -3122,6 +3298,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, facility, attribute);
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_FACILITY_ATTR);
 		for (Attribute attribute : attributes) {
@@ -3130,6 +3307,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_VO_ATTR);
 
@@ -3137,6 +3315,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, vo, attribute);
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_VO_ATTR);
 
@@ -3146,6 +3325,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_GROUP_ATTR);
 
@@ -3153,6 +3333,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, group, attribute);
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_GROUP_ATTR);
 
@@ -3163,6 +3344,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_RESOURCE_ATTR);
 
@@ -3170,6 +3352,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, resource, attribute);
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_RESOURCE_ATTR);
 
@@ -3179,6 +3362,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
@@ -3187,6 +3371,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, resource, member, attribute);
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		checkAttributesValue(sess, resource, member, attributes, false);
 	}
@@ -3252,6 +3437,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if (!workWithUserAttributes) {
@@ -3292,6 +3478,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		for (Attribute attribute : attributes) {
@@ -3315,6 +3502,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
@@ -3342,6 +3530,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_ATTR);
 
@@ -3349,6 +3538,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, member, attribute);
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_ATTR);
 
@@ -3358,6 +3548,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_FACILITY_ATTR);
 
@@ -3365,6 +3556,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, facility, user, attribute);
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_FACILITY_ATTR);
 
@@ -3374,6 +3566,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
@@ -3382,6 +3575,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, resource, group, attribute);
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 
@@ -3390,6 +3584,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		if (!workWithGroupAttribute) {
@@ -3407,6 +3602,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_ATTR);
 
@@ -3414,6 +3610,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, user, attribute);
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_ATTR);
 
@@ -3423,6 +3620,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_HOST_ATTR);
 
@@ -3431,12 +3629,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_HOST_ATTR);
 
 		getAttributesManagerImpl().checkAttributeValue(sess, host, attribute);
 	}
 
+	@Override
 	public void checkAttributesValue(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_UES_ATTR);
 
@@ -3445,30 +3645,35 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_UES_ATTR);
 
 		getAttributesManagerImpl().checkAttributeValue(sess, ues, attribute);
 	}
 
+	@Override
 	public void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_ENTITYLESS_ATTR);
 
 		getAttributesManagerImpl().checkAttributeValue(sess, key, attribute);
 	}
 
+	@Override
 	public void forceCheckAttributeValue(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 
 		getAttributesManagerImpl().checkAttributeValue(sess, group, attribute);
 	}
 
+	@Override
 	public void forceCheckAttributeValue(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_RESOURCE_ATTR);
 
 		getAttributesManagerImpl().checkAttributeValue(sess, resource, attribute);
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_ENTITYLESS_ATTR);
 		boolean changed = getAttributesManagerImpl().removeAttribute(sess, key, attribute);
@@ -3483,11 +3688,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		this.attributesManagerImpl.removeAllMemberResourceAttributes(sess, resource);
 		this.getPerunBl().getAuditer().log(sess, "All non-virtual member-resource attributes removed for all members and {}", resource);
 	}
 
+	@Override
 	public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		List<Group> groups = this.getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		for (Group group : groups) {
@@ -3497,6 +3704,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.getPerunBl().getAuditer().log(sess, "All non-virtual group-resource attributes removed for all groups and {}", resource);
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, key, attribute)) {
 			this.checkAttributeValue(sess, key, new Attribute(attribute));
@@ -3504,6 +3712,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -3520,6 +3729,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, facility, attribute)) {
 			this.checkAttributeValue(sess, facility, new Attribute(attribute));
@@ -3527,6 +3737,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Member member, boolean workWithUserAttributes, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (!workWithUserAttributes) {
 			getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_ATTR);
@@ -3560,6 +3771,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Facility facility, List<? extends AttributeDefinition> attributesDefinition) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributesDefinition, NS_FACILITY_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -3573,6 +3785,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, facility, null, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -3598,6 +3811,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
@@ -3626,6 +3840,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, group, member, user, facility, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, facility);
 		getAttributesManagerImpl().removeAllAttributes(sess, facility);
@@ -3647,6 +3862,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		removeAllAttributes(sess, resource, group);
 		if (workWithGroupAttributes) {
@@ -3654,6 +3870,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Facility facility, boolean removeAlsoUserFacilityAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		removeAllAttributes(sess, facility);
 		if (removeAlsoUserFacilityAttributes) {
@@ -3681,6 +3898,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, host, attribute)) {
 			checkAttributeValue(sess, host, new Attribute(attribute));
@@ -3692,6 +3910,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_HOST_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -3709,6 +3928,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributesDefinition) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributesDefinition, AttributesManager.NS_HOST_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -3726,6 +3946,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException, WrongAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, host);
 		getAttributesManagerImpl().removeAllAttributes(sess, host);
@@ -3750,6 +3971,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, vo, attribute)) {
 			checkAttributeValue(sess, vo, new Attribute(attribute));
@@ -3757,6 +3979,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_VO_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -3774,6 +3997,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Vo vo, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_VO_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -3787,6 +4011,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, vo, null, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, vo);
 		getAttributesManagerImpl().removeAllAttributes(sess, vo);
@@ -3809,6 +4034,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, group, attribute)) {
 			checkAttributeValue(sess, group, new Attribute(attribute));
@@ -3816,6 +4042,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_GROUP_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -3833,6 +4060,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_GROUP_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -3846,6 +4074,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, group, null, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Group group) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, group);
 		getAttributesManagerImpl().removeAllAttributes(sess, group);
@@ -3867,6 +4096,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		boolean changed = removeAttributeWithoutCheck(sess, resource, attribute);
 		if (changed) {
@@ -3876,6 +4106,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_RESOURCE_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -3898,6 +4129,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Resource resource, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_RESOURCE_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -3911,6 +4143,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, null, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, resource);
 		getAttributesManagerImpl().removeAllAttributes(sess, resource);
@@ -3939,6 +4172,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, resource, member, attribute)) {
 			checkAttributeValue(sess, resource, member, new Attribute(attribute));
@@ -3946,6 +4180,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
@@ -3965,6 +4200,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_RESOURCE_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -4006,6 +4242,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = getAttributes(sess, resource, member);
@@ -4038,6 +4275,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	// s workWithUserAttr.
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_GROUP_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -4117,6 +4355,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, member, attribute)) {
 			checkAttributeValue(sess, member, new Attribute(attribute));
@@ -4124,6 +4363,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_ATTR);
 
@@ -4145,6 +4385,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -4157,6 +4398,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, member, null, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, member);
 		getAttributesManagerImpl().removeAllAttributes(sess, member);
@@ -4179,6 +4421,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, facility, user, attribute)) {
 			checkAttributeValue(sess, facility, user, new Attribute(attribute));
@@ -4186,6 +4429,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_FACILITY_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
@@ -4210,6 +4454,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Facility facility, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_FACILITY_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -4227,6 +4472,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, facility, user, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, facility, user);
 		//remove all non-virtual attributes
@@ -4258,6 +4504,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAllUserFacilityAttributes(PerunSession sess, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		List<RichAttribute<User, Facility>> userFacilitiesAttributes = getAttributesManagerImpl().getAllUserFacilityRichAttributes(sess, user);
@@ -4283,6 +4530,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, user, attribute)) {
 			checkAttributeValue(sess, user, new Attribute(attribute));
@@ -4290,6 +4538,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_ATTR);
 
@@ -4308,6 +4557,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -4320,6 +4570,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, user, null, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, user);
 		getAttributesManagerImpl().removeAllAttributes(sess, user);
@@ -4342,6 +4593,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		if (removeAttributeWithoutCheck(sess, resource, group, attribute)) {
 			checkAttributeValue(sess, resource, group, new Attribute(attribute));
@@ -4349,6 +4601,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, GroupResourceMismatchException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
@@ -4370,6 +4623,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		//getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -4380,6 +4634,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, resource, group, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		if (!workWithGroupAttributes) {
 			removeAttributes(sess, resource, group, attributes);
@@ -4406,6 +4661,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException, WrongAttributeValueException, GroupResourceMismatchException, WrongReferenceAttributeValueException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		List<Attribute> attributes = getAttributes(sess, resource, group);
@@ -4434,6 +4690,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (removeAttributeWithoutCheck(sess, ues, attribute)) {
 			checkAttributeValue(sess, ues, new Attribute(attribute));
@@ -4459,6 +4716,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	@Override
 	public void removeAttributes(PerunSession sess, UserExtSource ues, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_UES_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
@@ -4471,6 +4729,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkAttributesDependencies(sess, ues, null, attributesFromDefinitions(attributesToCheck));
 	}
 
+	@Override
 	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, ues);
 		getAttributesManagerImpl().removeAllAttributes(sess, ues);
@@ -4493,64 +4752,79 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkActionTypeExists(PerunSession sess, ActionType actionType) throws InternalErrorException, ActionTypeNotExistsException {
 		getAttributesManagerImpl().checkActionTypeExists(sess, actionType);
 	}
 
+	@Override
 	public void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeNotExistsException {
 		getAttributesManagerImpl().checkAttributeExists(sess, attribute);
 	}
 
+	@Override
 	public void checkAttributesExists(PerunSession sess, List<? extends AttributeDefinition> attributes) throws InternalErrorException, AttributeNotExistsException {
 		getAttributesManagerImpl().checkAttributesExists(sess, attributes);
 	}
 
+	@Override
 	public boolean isDefAttribute(PerunSession sess, AttributeDefinition attribute) {
 		return getAttributesManagerImpl().isDefAttribute(sess, attribute);
 	}
 
+	@Override
 	public boolean isOptAttribute(PerunSession sess, AttributeDefinition attribute) {
 		return getAttributesManagerImpl().isOptAttribute(sess, attribute);
 	}
 
+	@Override
 	public boolean isCoreAttribute(PerunSession sess, AttributeDefinition attribute) {
 		return getAttributesManagerImpl().isCoreAttribute(sess, attribute);
 	}
 
+	@Override
 	public boolean isCoreManagedAttribute(PerunSession sess, AttributeDefinition attribute) {
 		return getAttributesManagerImpl().isCoreManagedAttribute(sess, attribute);
 	}
 
+	@Override
 	public boolean isVirtAttribute(PerunSession sess, AttributeDefinition attribute) {
 		return getAttributesManagerImpl().isVirtAttribute(sess, attribute);
 	}
 
+	@Override
 	public boolean isFromNamespace(PerunSession sess, AttributeDefinition attribute, String namespace) {
 		return getAttributesManagerImpl().isFromNamespace(attribute, namespace);
 	}
 
+	@Override
 	public void checkNamespace(PerunSession sess, AttributeDefinition attribute, String namespace) throws WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, namespace);
 	}
 
+	@Override
 	public void checkNamespace(PerunSession sess, List<? extends AttributeDefinition> attributes, String namespace) throws WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, namespace);
 	}
 
+	@Override
 	public String getNamespaceFromAttributeName(String attributeName) {
 		return attributeName.replaceFirst("(urn:perun:[^:]+:attribute-def:[^:]+):.*", "$1");
 	}
 
+	@Override
 	public String getFriendlyNameFromAttributeName(String attributeName) {
 		return attributeName.replaceFirst("urn:perun:[^:]+:attribute-def:[^:]+:", "");
 	}
 
+	@Override
 	public List<Attribute> getLogins(PerunSession sess, User user) throws InternalErrorException {
 		List<Attribute> usersAttributes = this.getAttributes(sess, user);  //Get all non-empty user's attributes
 		usersAttributes.removeIf(attribute -> !attribute.getFriendlyName().startsWith("login-namespace:"));
 		return usersAttributes;
 	}
 
+	@Override
 	public List<Object> getAllValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		if (isCoreAttribute(sess, attributeDefinition) || isCoreManagedAttribute(sess, attributeDefinition) || isVirtAttribute(sess, attributeDefinition))
 			throw new WrongAttributeAssignmentException(attributeDefinition);
@@ -4566,6 +4840,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkNamespace(sess, attributeDefinition, NS_FACILITY_ATTR);
 		return getAttributesManagerImpl().isAttributeRequiredByFacility(sess, facility, attributeDefinition);
@@ -4581,11 +4856,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().isAttributeRequiredByGroup(sess, group, attributeDefinition);
 	}
 
+	@Override
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkNamespace(sess, attributeDefinition, NS_RESOURCE_ATTR);
 		return getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition);
 	}
 
+	@Override
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkNamespace(sess, attributeDefinition, NS_MEMBER_ATTR);
 		List<Resource> allowedResources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
@@ -4596,6 +4873,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return false;
 	}
 
+	@Override
 	public boolean isTrulyRequiredAttribute(PerunSession sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkNamespace(sess, attributeDefinition, NS_USER_ATTR);
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
@@ -4609,6 +4887,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return false;
 	}
 
+	@Override
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkNamespace(sess, attributeDefinition, NS_USER_FACILITY_ATTR);
 		List<Facility> allowedFacilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
@@ -4628,6 +4907,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	}
 
+	@Override
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		this.checkNamespace(sess, attributeDefinition, NS_MEMBER_RESOURCE_ATTR);
@@ -4635,6 +4915,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return allowedMembers.contains(member) && getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition);
 	}
 
+	@Override
 	public boolean isTrulyRequiredAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkNamespace(sess, attributeDefinition, NS_MEMBER_GROUP_ATTR);
 		List<Resource> assignedResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
@@ -4652,6 +4933,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return assignedGroups.contains(group) && getAttributesManagerImpl().isAttributeRequiredByResource(sess, resource, attributeDefinition);
 	}
 
+	@Override
 	public Object stringToAttributeValue(String value, String type) throws InternalErrorException {
 		if (type.equals(ArrayList.class.getName()) || type.equals(LinkedHashMap.class.getName()) ||
 				type.equals(BeansUtils.largeArrayListClassName)) {
@@ -4671,10 +4953,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return AttributesManagerImpl.escapeMapAttributeValue(value);
 	}
 
+	@Override
 	public void doTheMagic(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		doTheMagic(sess, member, false);
 	}
 
+	@Override
 	public void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
@@ -4724,6 +5008,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void mergeAttributesValues(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException,
 			WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		for (Attribute attribute : attributes) {
@@ -4731,6 +5016,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void mergeAttributesValues(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException,
 			WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		for (Attribute attribute : attributes) {
@@ -4821,20 +5107,24 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attribute;
 	}
 
+	@Override
 	public Attribute mergeAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
 			WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		return this.mergeAttributeValue(sess, attribute, user);
 	}
 
+	@Override
 	public Attribute mergeAttributeValue(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
 			WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		return this.mergeAttributeValue(sess, attribute, member);
 	}
 
+	@Override
 	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		return mergeAttributeValue(sess, user, attribute);
 	}
 
+	@Override
 	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		return mergeAttributeValue(sess, member, attribute);
 	}
@@ -4850,6 +5140,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return false;
 	}
 
+	@Override
 	public AttributeDefinition updateAttributeDefinition(PerunSession perunSession, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		getPerunBl().getAuditer().log(perunSession, "{} updated.", attributeDefinition);
 		return getAttributesManagerImpl().updateAttributeDefinition(perunSession, attributeDefinition);
@@ -5012,6 +5303,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public void checkAttributeDependencies(PerunSession sess, RichAttribute richAttr) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if (getAllDependencies() == null || getAllDependencies().isEmpty())
 			log.error("Map of all dependencies is empty. If this is not test, its an error probably.");
@@ -5196,6 +5488,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, UserNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
 		//Filling objects from aidingAttr
 		if (aidingAttr == null) throw new InternalErrorException("Aiding attribute cant be null.");
@@ -6661,6 +6954,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return false;
 	}
 
+	@Override
 	public List<Attribute> setWritableTrue(PerunSession sess, List<Attribute> attributes) throws InternalErrorException {
 		List<Attribute> emptyList = new ArrayList<>();
 		if (attributes == null) return emptyList;
@@ -6703,6 +6997,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
 	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		return getAttributesManagerImpl().getUserVirtualAttributeModule(sess, attribute);
 	}
@@ -6722,6 +7017,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	/**
 	 * Check if group is assigned on resource. If not, throw WrongAttributeAssignment Exception
 	 */
+	@Override
 	public void checkGroupIsFromTheSameVoLikeResource(PerunSession sess, Group group, Resource resource) throws GroupResourceMismatchException, InternalErrorException {
 		Utils.notNull(sess, "sess");
 		Utils.notNull(group, "group");
@@ -6809,6 +7105,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return new NoDuplicatedEdgesGraphGenerator().generate(nodeGenerator, graphDefinition);
 	}
 
+	@Override
 	public Map<AttributeDefinition, Set<AttributeDefinition>> getAllDependencies() {
 		return allDependencies;
 	}

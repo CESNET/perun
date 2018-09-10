@@ -59,10 +59,12 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		return perun;
 	}
 
+	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException {
 		return findSubjectsLogins(searchString, 0);
 	}
 
+	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException {
 		// Prepare searchQuery
 		// attributes.get("query") contains query template, e.g. (uid=?), ? will be replaced by the searchString
@@ -79,6 +81,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		return this.querySource(query, base, maxResults);
 	}
 
+	@Override
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
 		// Prepare searchQuery
 		// attributes.get("loginQuery") contains query template, e.g. (uid=?), ? will be replaced by the login
@@ -106,6 +109,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		return subjects.get(0);
 	}
 
+	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 
 		NamingEnumeration<SearchResult> results = null;
@@ -397,6 +401,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		}
 	}
 
+	@Override
 	public void close() throws InternalErrorException {
 		if (this.dirContext != null) {
 			try {

@@ -47,6 +47,7 @@ public class SearcherEntry implements Searcher {
 	public SearcherEntry() {
 	}
 
+	@Override
 	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
@@ -56,7 +57,8 @@ public class SearcherEntry implements Searcher {
 		return searcherBl.getUsers(sess, attributesWithSearchingValues);
 	}
 
-	public List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo,  Map<String, String> userAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException {		// Authorization
+	@Override
+	public List<Member> getMembersByUserAttributes(PerunSession sess, Vo vo, Map<String, String> userAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException, VoNotExistsException {		// Authorization
 		perunBl.getVosManagerBl().checkVoExists(sess, vo);
 
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
@@ -113,6 +115,7 @@ public class SearcherEntry implements Searcher {
 		return members;
 	}
 
+	@Override
 	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {

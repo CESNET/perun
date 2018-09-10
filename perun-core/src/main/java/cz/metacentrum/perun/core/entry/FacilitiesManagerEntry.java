@@ -92,6 +92,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		throw new InternalErrorRuntimeException("Unsupported method!");
 	}
 
+	@Override
 	public Facility getFacilityById(PerunSession sess, int id) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -107,6 +108,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return facility;
 	}
 
+	@Override
 	public Facility getFacilityByName(PerunSession sess, String name) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(name, "name");
@@ -123,6 +125,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return facility;
 	}
 
+	@Override
 	public List<RichFacility> getRichFacilities(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -142,6 +145,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 	}
 
+	@Override
 	public List<Facility> getFacilitiesByDestination(PerunSession sess, String destination) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(destination, "destination");
@@ -165,6 +169,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return facilities;
 	}
 
+	@Override
 	public List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue)
 			throws InternalErrorException, PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
@@ -191,12 +196,14 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return facilities;
 	}
 
+	@Override
 	public int getFacilitiesCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		return getFacilitiesManagerBl().getFacilitiesCount(sess);
 	}
 
+	@Override
 	public List<Facility> getFacilities(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -215,6 +222,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 	}
 
+	@Override
 	public List<Owner> getOwners(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -229,6 +237,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getOwners(sess, facility);
 	}
 
+	@Override
 	public void setOwners(PerunSession sess, Facility facility, List<Owner> owners) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, OwnerNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -246,6 +255,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().setOwners(sess, facility, owners);
 	}
 
+	@Override
 	public void addOwner(PerunSession sess, Facility facility, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyAssignedException {
 		Utils.checkPerunSession(sess);
 
@@ -260,6 +270,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().addOwner(sess, facility, owner);
 	}
 
+	@Override
 	public void removeOwner(PerunSession sess, Facility facility, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, FacilityNotExistsException, OwnerAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -273,6 +284,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().removeOwner(sess, facility, owner);
 	}
 
+	@Override
 	public void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -290,6 +302,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().copyOwners(sess, sourceFacility, destinationFacility);
 	}
 
+	@Override
 	public List<Vo> getAllowedVos(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -304,6 +317,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 	}
 
+	@Override
 	public List<Group> getAllowedGroups(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, ServiceNotExistsException, VoNotExistsException {
 		Utils.checkPerunSession(perunSession);
 
@@ -338,6 +352,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 	}
 
+	@Override
 	public List<User> getAllowedUsers(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException{
 		Utils.checkPerunSession(sess);
 
@@ -351,6 +366,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 	}
 
+	@Override
 	public List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, ServiceNotExistsException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -366,6 +382,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAllowedUsers(sess, facility, specificVo, specificService);
 	}
 
+	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -380,6 +397,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAssignedResources(sess, facility);
 	}
 
+	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -394,6 +412,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 	}
 
+	@Override
 	public Facility createFacility(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -405,6 +424,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().createFacility(sess, facility);
 	}
 
+	@Override
 	public void deleteFacility(PerunSession sess, Facility facility) throws InternalErrorException, RelationExistsException, FacilityNotExistsException, PrivilegeException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 		Utils.checkPerunSession(sess);
 
@@ -418,6 +438,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().deleteFacility(sess, facility);
 	}
 
+	@Override
 	public Facility updateFacility(PerunSession sess, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -432,6 +453,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().updateFacility(sess, facility);
 	}
 
+	@Override
 	public List<Facility> getOwnerFacilities(PerunSession sess, Owner owner) throws InternalErrorException, OwnerNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -445,6 +467,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getOwnerFacilities(sess, owner);
 	}
 
+	@Override
 	public List<Facility> getAssignedFacilities(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -462,6 +485,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAssignedFacilities(sess, group);
 	}
 
+	@Override
 	public List<Facility> getAssignedFacilities(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -475,6 +499,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAssignedFacilities(sess, member);
 	}
 
+	@Override
 	public List<Facility> getAssignedFacilities(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -488,6 +513,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAssignedFacilities(sess, user);
 	}
 
+	@Override
 	public List<Facility> getAssignedFacilities(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
@@ -500,6 +526,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAssignedFacilities(sess, service);
 	}
 
+	@Override
 	public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
@@ -530,6 +557,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		this.perunBl = perunBl;
 	}
 
+	@Override
 	public List<Host> getHosts(PerunSession sess, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -539,6 +567,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getHosts(sess, facility);
 	}
 
+	@Override
 	public int getHostsCount(PerunSession sess, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -551,6 +580,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getHostsCount(sess, facility);
 	}
 
+	@Override
 	public List<Host> addHosts(PerunSession sess, List<Host> hosts, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException, HostExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -597,6 +627,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().addHosts(sess, hosts, facility);
 	}
 
+	@Override
 	public List<Host> addHosts(PerunSession sess, Facility facility, List<String> hosts) throws FacilityNotExistsException, InternalErrorException, PrivilegeException, HostExistsException, WrongPatternException {
 		Utils.checkPerunSession(sess);
 
@@ -648,6 +679,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().addHosts(sess, facility, hosts);
 	}
 
+	@Override
 	public void removeHosts(PerunSession sess, List<Host> hosts, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException, HostAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -662,6 +694,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().removeHosts(sess, hosts, facility);
 	}
 
+	@Override
 	public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, PrivilegeException, AlreadyAdminException {
 		Utils.checkPerunSession(sess);
 
@@ -691,6 +724,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().addAdmin(sess, facility, group);
 	}
 
+	@Override
 	public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, PrivilegeException, UserNotAdminException {
 		Utils.checkPerunSession(sess);
 
@@ -720,6 +754,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 	}
 
+	@Override
 	public List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(perunSession);
 		getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
@@ -733,6 +768,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 
+	@Override
 	public List<RichUser> getRichAdmins(PerunSession perunSession, Facility facility, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(perunSession);
 		getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
@@ -746,6 +782,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getFacilitiesManagerBl().getRichAdmins(perunSession, facility, specificAttributes, allUserAttributes, onlyDirectAdmins));
 	}
 
+	@Override
 	@Deprecated
 	public List<User> getAdmins(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
@@ -786,6 +823,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAdminGroups(sess, facility);
 	}
 
+	@Override
 	@Deprecated
 	public List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
@@ -799,6 +837,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getFacilitiesManagerBl().getRichAdmins(sess, facility));
 	}
 
+	@Override
 	@Deprecated
 	public List<RichUser> getRichAdminsWithAttributes(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
@@ -812,6 +851,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getFacilitiesManagerBl().getRichAdminsWithAttributes(sess, facility));
 	}
 
+	@Override
 	@Deprecated
 	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(perunSession);
@@ -825,6 +865,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getFacilitiesManagerBl().getRichAdminsWithSpecificAttributes(perunSession, facility, specificAttributes));
 	}
 
+	@Override
 	@Deprecated
 	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(perunSession);
@@ -838,6 +879,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getFacilitiesManagerBl().getDirectRichAdminsWithSpecificAttributes(perunSession, facility, specificAttributes));
 	}
 
+	@Override
 	public List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -851,6 +893,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getFacilitiesWhereUserIsAdmin(sess, user);
 	}
 
+	@Override
 	public void copyManagers(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -868,6 +911,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().copyManagers(sess, sourceFacility, destinationFacility);
 	}
 
+	@Override
 	public void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 
@@ -900,6 +944,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return this.perunBl;
 	}
 
+	@Override
 	public Host addHost(PerunSession sess, Host host, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -941,6 +986,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		throw new PrivilegeException(sess, "You can't add host " + host + ", because you don't have privileges to use this hostName");
 	}
 
+	@Override
 	public void removeHost(PerunSession sess, Host host) throws InternalErrorException, HostNotExistsException, PrivilegeException, HostAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
@@ -955,6 +1001,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().removeHost(sess, host);
 	}
 
+	@Override
 	public Host getHostById(PerunSession sess, int hostId) throws HostNotExistsException, InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -967,6 +1014,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getHostById(sess, hostId);
 	}
 
+	@Override
 	public List<Host> getHostsByHostname(PerunSession sess, String hostname) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(hostname, "hostname");
@@ -1012,6 +1060,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getFacilityForHost(sess, host);
 	}
 
+	@Override
 	public List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -1027,6 +1076,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return facilities;
 	}
 
+	@Override
 	public List<User> getAssignedUsers(PerunSession sess, Facility facility) throws PrivilegeException, InternalErrorException
 	{
 		Utils.checkPerunSession(sess);
@@ -1039,6 +1089,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return this.getPerunBl().getFacilitiesManagerBl().getAssignedUsers(sess,facility);
 	}
 
+	@Override
 	public List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service) throws PrivilegeException, InternalErrorException{
 		Utils.checkPerunSession(sess);
 
@@ -1263,6 +1314,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return ban;
 	}
 
+	@Override
 	public BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException, PrivilegeException, UserNotExistsException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
@@ -1276,6 +1328,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getBan(sess, userId, faclityId);
 	}
 
+	@Override
 	public List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
@@ -1293,6 +1346,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return usersBans;
 	}
 
+	@Override
 	public List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 		Facility facility = this.getFacilitiesManagerBl().getFacilityById(sess, facilityId);
@@ -1305,6 +1359,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getBansForFacility(sess, facilityId);
 	}
 
+	@Override
 	public BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, UserNotExistsException, BanNotExistsException {
 		Utils.checkPerunSession(sess);
 		this.getFacilitiesManagerBl().checkBanExists(sess, banOnFacility.getId());
@@ -1320,6 +1375,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return banOnFacility;
 	}
 
+	@Override
 	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, PrivilegeException, BanNotExistsException {
 		Utils.checkPerunSession(sess);
 		BanOnFacility ban = this.getFacilitiesManagerBl().getBanById(sess, banId);
@@ -1335,6 +1391,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().removeBan(sess, banId);
 	}
 
+	@Override
 	public void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		BanOnFacility ban = this.getFacilitiesManagerBl().getBan(sess, userId, facilityId);

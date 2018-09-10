@@ -32,26 +32,32 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 		this.databaseManagerImpl = databaseManagerImpl;
 	}
 	
+	@Override
 	public String getCurrentDatabaseVersion() throws InternalErrorException {
 		return getDatabaseManagerImpl().getCurrentDatabaseVersion();
 	}
 	
+	@Override
 	public String getDatabaseDriverInformation() throws InternalErrorException {
 		return getDatabaseManagerImpl().getDatabaseDriverInformation();
 	}
 	
+	@Override
 	public String getDatabaseInformation() throws InternalErrorException {
 		return getDatabaseManagerImpl().getDatabaseInformation();
 	}
 
+	@Override
 	public void updateDatabaseVersion(List<DBVersion> dbVersions) throws InternalErrorException {
 		this.databaseManagerImpl.updateDatabaseVersion(dbVersions);
 	}
 
+	@Override
 	public List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) throws InternalErrorException {
 		return this.databaseManagerImpl.getChangelogVersions(currentDBVersion, fileName);
 	}
 
+	@Override
 	public JdbcPerunTemplate getJdbcPerunTemplate() {
 		return this.databaseManagerImpl.getJdbcPerunTemplate();
 	}

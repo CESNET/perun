@@ -65,18 +65,22 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	//Pattern for looking replacement in regex string
 	private Pattern pattern = Pattern.compile("([^\\\\]|^)(\\\\\\\\)*\\/([^\\\\]|$)");
 
+	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		return findSubjectsLogins(searchString, 0);
 	}
 
+	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("For XML is using this method not optimized, use findSubjects instead.");
 	}
 
+	@Override
 	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		return findSubjects(searchString, 0);
 	}
 
+	@Override
 	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		//prepare string for xpath (use concat for chars ' and  ")
 		searchString = convertToXpathSearchString(searchString);
@@ -99,6 +103,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		return xpathParsing(query, maxResults);
 	}
 
+	@Override
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
 		//prepare string for xpath (use concat for chars ' and  ")
 		login = convertToXpathSearchString(login);
@@ -131,6 +136,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		return subjects.get(0);
 	}
 
+	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		// Get the query for the group subjects
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -480,6 +486,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		return result;
 	}
 
+	@Override
 	public void close() throws InternalErrorException {
 		if(con != null) con.disconnect();
 	}

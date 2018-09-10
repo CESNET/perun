@@ -57,6 +57,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	 */
 	protected static final RowMapper<SecurityTeam> SECURITY_TEAM_MAPPER = new RowMapper<SecurityTeam>() {
 
+		@Override
 		public SecurityTeam mapRow(ResultSet rs, int i) throws SQLException {
 			return new SecurityTeam(rs.getInt("security_teams_id"), rs.getString("security_teams_name"), rs.getString("security_teams_description"),
 					rs.getString("security_teams_created_at"),
