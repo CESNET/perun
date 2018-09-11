@@ -407,18 +407,17 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 
 	private boolean isUserSecurityAdmin(User user, SecurityTeam securityTeam) throws InternalErrorException {
 		try {
-			int number = jdbc.queryForInt("select 1 from authz where user_id=? and security_team_id=?", user.getId(), securityTeam.getId());
-			if (number == 1) {
+			int number = jdbc.queryForInt("select count(1) from authz " +
+					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+					" left outer join members on members.id=groups_members.member_id " +
+					" where (user_id=? or members.user_id=?) and security_team_id=? ", user.getId(), user.getId(), securityTeam.getId());
+			if (number > 0) {
 				return true;
-			} else if (number > 1) {
-				throw new ConsistencyErrorException("User " + user + " is security admin more times of one security team " + securityTeam);
 			}
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}

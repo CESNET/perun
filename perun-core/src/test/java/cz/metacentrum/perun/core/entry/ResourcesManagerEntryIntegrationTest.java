@@ -1609,6 +1609,23 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
+	public void getResourcesWhereUserIsNotAdminButHisGroupIs() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesWhereUserIsNotAdminButHisGroupIs");
+		vo = setUpVo();
+		member = setUpMember(vo);
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup(vo, member);
+		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		resourcesManager.addAdmin(sess, resource, group);
+		List<Resource> resources = resourcesManager.getResourcesWhereUserIsAdmin(sess, u);
+
+		assertNotNull(resources);
+		assertTrue(resources.contains(resource));
+	}
+
+	@Test
 	public void getResourcesSpecifiedByVoAndFacilityWhereUserIsAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "getResourcesSpecifiedByVoAndFacilityWhereUserIsAdmin");
 		vo = setUpVo();
@@ -1618,6 +1635,23 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
 
 		resourcesManager.addAdmin(sess, resource, u);
+		List<Resource> resources = resourcesManager.getResourcesWhereUserIsAdmin(sess, facility, vo, u);
+
+		assertNotNull(resources);
+		assertTrue(resources.contains(resource));
+	}
+
+	@Test
+	public void getResourcesSpecifiedByVoAndFacilityWhereUserIsNotAdminButHisGroupIs() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesSpecifiedByVoAndFacilityWhereUserIsNotAdminButHisGroupIs");
+		vo = setUpVo();
+		member = setUpMember(vo);
+		facility = setUpFacility();
+		resource = setUpResource();
+		group = setUpGroup(vo, member);
+		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		resourcesManager.addAdmin(sess, resource, group);
 		List<Resource> resources = resourcesManager.getResourcesWhereUserIsAdmin(sess, facility, vo, u);
 
 		assertNotNull(resources);

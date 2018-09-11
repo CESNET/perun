@@ -586,6 +586,7 @@ public interface ResourcesManagerImplApi {
 
 	/**
 	 * Returns list of resources, where the user is an admin.
+	 * Including resources, where the user is a member of authorized group.
 	 *
 	 * @param sess
 	 * @param user
@@ -596,6 +597,7 @@ public interface ResourcesManagerImplApi {
 
 	/**
 	 * Return all resources for the facility and the vo where user is authorized as resource manager.
+	 * Including resources, where the user is a member of authorized group.
 	 *
 	 * @param sess
 	 * @param facility the facility to which resources should be assigned to

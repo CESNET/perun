@@ -839,9 +839,12 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + resourceMappingSelectQuery + " from resources, authz where authz.user_id=? and " +
-							"authz.role_id=(select id from roles where name=?) and authz.resource_id=resources.id",
-					RESOURCE_MAPPER, user.getId(), Role.RESOURCEADMIN.getRoleName());
+			return jdbc.query("select " + resourceMappingSelectQuery + " from resources " +
+							" left outer join authz on authz.resource_id=resources.id " +
+							" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+							" left outer join members on members.id=groups_members.member_id " +
+							" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?) ",
+					RESOURCE_MAPPER, user.getId(), user.getId(), Role.RESOURCEADMIN.getRoleName());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -852,8 +855,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources " +
 							" left outer join authz on authz.resource_id=resources.id " +
-							" where resources.facility_id=? and resources.vo_id=? and authz.user_id=? and authz.role_id=(select id from roles where name=?)"
-					,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.getRoleName());
+							" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
+							" left outer join members on members.id=groups_members.member_id " +
+							" where resources.facility_id=? and resources.vo_id=? and (authz.user_id=? or members.user_id=?) " +
+							" and authz.role_id=(select id from roles where name=?) "
+					,RESOURCE_MAPPER, facility.getId(), vo.getId(), authorizedUser.getId(), authorizedUser.getId(), Role.RESOURCEADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {

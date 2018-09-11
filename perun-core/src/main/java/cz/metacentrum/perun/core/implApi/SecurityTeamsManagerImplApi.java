@@ -198,7 +198,7 @@ public interface SecurityTeamsManagerImplApi {
 	void checkSecurityTeamUniqueName(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamExistsException;
 
 	/**
-	 * check if user is not security admin of given security team
+	 * check if user is not security admin or a member of authorized group of given security team
 	 * throw exception if it is
 	 *
 	 * @param sess
@@ -210,7 +210,7 @@ public interface SecurityTeamsManagerImplApi {
 	void checkUserIsNotSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException, AlreadyAdminException;
 
 	/**
-	 * check if user is security admin of given security team
+	 * check if user is security admin or a member of authorized group of given security team
 	 * throw exception if is not
 	 *
 	 * @param sess
