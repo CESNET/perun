@@ -217,11 +217,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if (isAuthorized(sess, Role.SELF, member)) return true;
 				}
 				if (roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
-					Vo memberVo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
-					if (getPerunBl().getResourcesManagerBl().getResources(sess, memberVo).contains(resource)
-							&& sess.getPerunPrincipal().getUser() != null
-							&& getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, sess.getPerunPrincipal().getUser()).contains(memberVo)) {
-						return true;
+					Vo attributeMemberVo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+					if (sess.getPerunPrincipal().getUser() != null) {
+						List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+						for (Member userMember : principalUserMembers) {
+							if (userMember.getVoId() == attributeMemberVo.getId() && userMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
 					}
 				}
 			}
@@ -261,16 +264,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if (isAuthorized(sess, Role.SELF, user)) return true;
 				}
 				if ((roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) && sess.getPerunPrincipal().getUser() != null) {
-					List<Vo> userVos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
-					List<Vo> currentUserVos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, sess.getPerunPrincipal().getUser());
-					List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-					for (Vo userVo : userVos) {
-						if (currentUserVos.contains(userVo)) {
-							List<Resource> resourcesFromVo = getPerunBl().getResourcesManagerBl().getResources(sess, userVo);
-							for (Resource resourceFromVo : resourcesFromVo) {
-								if (resourcesFromFacility.contains(resourceFromVo)) {
-									return true;
-								}
+					List<Member> attributeUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+
+					for (Member attributeUserMember : attributeUserMembers) {
+						for (Member principalUserMember : principalUserMembers) {
+							if (attributeUserMember.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
 							}
 						}
 					}
@@ -325,10 +325,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if (isAuthorized(sess, Role.SELF, member)) return true;
 				}
 				if (roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
-					if (getPerunBl().getMembersManagerBl().getMemberVo(sess, member).equals(getPerunBl().getGroupsManagerBl().getVo(sess, group))
-							&& sess.getPerunPrincipal().getUser() != null
-							&& getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, sess.getPerunPrincipal().getUser()).contains(getPerunBl().getMembersManagerBl().getMemberVo(sess, member))) {
-						return true;
+					if (sess.getPerunPrincipal().getUser() != null) {
+						List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+						for (Member principalUserMember : principalUserMembers) {
+							if (member.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
 					}
 				}
 			}
@@ -342,12 +345,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if (isAuthorized(sess, Role.SELF, user)) return true;
 				}
 				if ((roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO))
-						&& sess.getPerunPrincipal().getUser() != null) {
-					List<Vo> vosFromUser = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
-					List<Vo> vosFromCurrentUser = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, sess.getPerunPrincipal().getUser());
-					for (Vo voFromUser : vosFromUser) {
-						if (vosFromCurrentUser.contains(voFromUser))
-							return true;
+				        && sess.getPerunPrincipal().getUser() != null) {
+					List<Member> attributeUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+
+					for (Member attributeUserMember : attributeUserMembers) {
+						for (Member principalUserMember : principalUserMembers) {
+							if (attributeUserMember.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
 					}
 				}
 			}
@@ -387,8 +394,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if (isAuthorized(sess, Role.SELF, member)) return true;
 				}
 				if ((roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) && sess.getPerunPrincipal().getUser() != null) {
-					Vo voFromUser = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
-					if (getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, sess.getPerunPrincipal().getUser()).contains(voFromUser)) return true;
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+
+					for (Member principalUserMember : principalUserMembers) {
+						if (member.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+							return true;
+						}
+					}
 				}
 			}
 			if (roles.containsKey(Role.GROUPADMIN)) {
@@ -416,22 +428,26 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				}
 			}
 			if (roles.containsKey(Role.SELF)) {
-				if (actionType.equals(ActionType.READ) || actionType.equals(ActionType.READ_PUBLIC)) {
+				if (actionType == ActionType.READ ||
+				    actionType == ActionType.READ_PUBLIC ||
+				    actionType == ActionType.READ_VO) {
+
 					// any user can read
 					return true;
 				}
-				if (actionType.equals(ActionType.READ_VO) && sess.getPerunPrincipal().getUser() != null
-						&& getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, sess.getPerunPrincipal().getUser()).contains(vo)) {
+				if (roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) {
 					return true;
 				}
-				if (actionType.equals(ActionType.WRITE) || actionType.equals(ActionType.WRITE_VO) || actionType.equals(ActionType.WRITE_PUBLIC)) {
-					if (roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
-					// only vo member can write
-					try {
-						perunBl.getMembersManagerBl().getMemberByUser(sess, vo, sess.getPerunPrincipal().getUser());
-						return true;
-					} catch (MemberNotExistsException ex) {
-						// not vo member -> not allowed
+				if (roles.get(Role.SELF).contains(ActionType.WRITE) ||
+				    roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
+
+					if (sess.getPerunPrincipal().getUser() != null) {
+						List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+						for (Member principalUserMember : principalUserMembers) {
+							if (vo.getId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
 					}
 				}
 			}
@@ -444,7 +460,24 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 			if (roles.containsKey(Role.GROUPADMIN)) if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
 //			if (roles.containsKey(Role.FACILITYADMIN)) ; //Not allowed
-//			if (roles.containsKey(Role.SELF)) ; //Not allowed
+			if (roles.containsKey(Role.SELF)) {
+				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+				if (roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
+					if (sess.getPerunPrincipal().getUser() != null) {
+						List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+						for (Member principalUserMember : principalUserMembers) {
+							if (group.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
+					}
+				}
+				if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+					if (sess.getPerunPrincipal().getUser() != null) {
+						return getPerunBl().getGroupsManagerBl().isUserMemberOfGroup(sess, sess.getPerunPrincipal().getUser(), group);
+					}
+				}
+			}
 		} else if (resource != null) {
 			if (roles.containsKey(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, resource)) return true;
@@ -494,10 +527,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					}
 				}
 				if ((roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) && sess.getPerunPrincipal().getUser() != null) {
-					List<Vo> facilityVos = getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility);
-					List<Vo> currentUserVos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, sess.getPerunPrincipal().getUser());
-					for (Vo facilityVo : facilityVos) {
-						if (currentUserVos.contains(facilityVo)) return true;
+					List<Vo> attributeFacilityVos = getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility);
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+
+					for (Vo attributeFacilityVo : attributeFacilityVos) {
+						for (Member principalUserMember : principalUserMembers) {
+							if (attributeFacilityVo.getId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
 					}
 				}
 			}
@@ -547,12 +585,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Return list of roles which are authorized for doing "action" on "attribute".
+	 * Return map of roles, with allowed actions, which are authorized for doing "action" on "attribute".
 	 *
 	 * @param sess       perun session
 	 * @param actionType type of action on attribute (ex.: write, read, etc...)
 	 * @param attrDef    attribute what principal want to work with
-	 * @return list of roles
+	 * @return map of roles with allowed action types
 	 */
 	public static Map<Role, Set<ActionType>> getRolesWhichCanWorkWithAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
 		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);

@@ -1,11 +1,16 @@
 package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,6 +32,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private static final String CLASS_NAME = "AuthzResolver.";
 	final ExtSource extSource = new ExtSource(0, "AuthzResolverExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
+	private int userLoginSequence = 0;
 
 	@Test
 	public void isAuthorizedInvalidPrincipal() throws Exception {
@@ -278,13 +284,128 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue(roleNames.contains(Role.PERUNADMIN.getRoleName()));
 	}
 
+	@Test
+	public void isAuthorizedForAttributePublicReadVoFromUserAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "isAuthorizedForAttributePublicReadVoFromUserAttribute");
+
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo2","testvo2"));
+		final Member sessionMember = createSomeMember(createdVo);
+		final User sessionUser = perun.getUsersManagerBl().getUserByMember(sess, sessionMember);
+		final Member attributeMember = createSomeMember(otherVo);
+		final User attributeUser = perun.getUsersManagerBl().getUserByMember(sess, attributeMember);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setType(Integer.class.getName());
+		attrDef.setFriendlyName("testUserAttr");
+		attrDef.setDisplayName("test user attr");
+
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+
+		List<AttributeRights> rights = new ArrayList<>();
+		rights.add(new AttributeRights(attrDef.getId(), Role.SELF, Arrays.asList(ActionType.READ, ActionType.READ_PUBLIC)));
+		perun.getAttributesManagerBl().setAttributeRights(sess, rights);
+
+		Attribute userAttribute = new Attribute(attrDef, 2);
+		perun.getAttributesManagerBl().setAttribute(sess, attributeUser, userAttribute);
+
+		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.SELF, sessionUser));
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getUser()).thenReturn(sessionUser);
+		when(mockedPerunPrincipal.getUserId()).thenReturn(sessionUser.getId());
+
+		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
+
+
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, ActionType.READ, attrDef, attributeUser, null));
+	}
+
+	@Test
+	public void isAuthorizedForAttributeValidSelfReadVoFromUserAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "isAuthorizedForAttributeValidSelfReadVoFromUserAttribute");
+
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Member sessionMember = createSomeMember(createdVo);
+		final User sessionUser = perun.getUsersManagerBl().getUserByMember(sess, sessionMember);
+		final Member attributeMember = createSomeMember(createdVo);
+		final User attributeUser = perun.getUsersManagerBl().getUserByMember(sess, attributeMember);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setType(Integer.class.getName());
+		attrDef.setFriendlyName("testUserAttr");
+		attrDef.setDisplayName("test user attr");
+
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+
+		List<AttributeRights> rights = new ArrayList<>();
+		rights.add(new AttributeRights(attrDef.getId(), Role.SELF, Arrays.asList(ActionType.READ, ActionType.READ_VO)));
+		perun.getAttributesManagerBl().setAttributeRights(sess, rights);
+
+		Attribute userAttribute = new Attribute(attrDef, 2);
+		perun.getAttributesManagerBl().setAttribute(sess, attributeUser, userAttribute);
+
+		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.SELF, sessionUser));
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getUser()).thenReturn(sessionUser);
+		when(mockedPerunPrincipal.getUserId()).thenReturn(sessionUser.getId());
+
+		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
+
+
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, ActionType.READ, attrDef, attributeUser, null));
+	}
+
+	@Test
+	public void isAuthorizedForAttributeInvalidSelfReadVoFromUserAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "isAuthorizedForAttributeInvalidSelfReadVoFromUserAttribute");
+
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo2","testvo2"));
+		final Member sessionMember = createSomeMember(createdVo);
+		final User sessionUser = perun.getUsersManagerBl().getUserByMember(sess, sessionMember);
+		final Member attributeMember = createSomeMember(otherVo);
+		final User attributeUser = perun.getUsersManagerBl().getUserByMember(sess, attributeMember);
+
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrDef.setType(Integer.class.getName());
+		attrDef.setFriendlyName("testUserAttr");
+		attrDef.setDisplayName("test user attr");
+
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+
+		List<AttributeRights> rights = new ArrayList<>();
+		rights.add(new AttributeRights(attrDef.getId(), Role.SELF, Arrays.asList(ActionType.READ, ActionType.READ_VO)));
+		perun.getAttributesManagerBl().setAttributeRights(sess, rights);
+
+		Attribute userAttribute = new Attribute(attrDef, 2);
+		perun.getAttributesManagerBl().setAttribute(sess, attributeUser, userAttribute);
+
+		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.SELF, sessionUser));
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getUser()).thenReturn(sessionUser);
+		when(mockedPerunPrincipal.getUserId()).thenReturn(sessionUser.getId());
+
+		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
+
+
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(testSession, ActionType.READ, attrDef, attributeUser, null));
+	}
+
 	// private methods ==============================================================
 
-	private Candidate setUpCandidate() {
+	private Candidate setUpCandidate(String login) {
 
 		String userFirstName = "FirstTest";
 		String userLastName = "LastTest";
-		String extLogin = "ExtLoginTest";
 
 		Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
 		candidate.setFirstName(userFirstName);
@@ -293,7 +414,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		candidate.setLastName(userLastName);
 		candidate.setTitleBefore("");
 		candidate.setTitleAfter("");
-		final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
+		final UserExtSource userExtSource = new UserExtSource(extSource, login);
 		candidate.setUserExtSource(userExtSource);
 		candidate.setAttributes(new HashMap<String,String>());
 		return candidate;
@@ -301,7 +422,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	private Member createSomeMember(final Vo createdVo) throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException {
-		final Candidate candidate = setUpCandidate();
+		final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
 		final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
 		return createdMember;
 	}

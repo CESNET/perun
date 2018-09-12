@@ -8,6 +8,15 @@
 
 -- this update is not supported on hsql since its used only as in-memory db
 
+3.1.51
+alter table action_types drop constraint actiontyp_at_chk;
+alter table action_types add constraint actiontyp_at_chk check (action_type in ('read', 'read_vo', 'read_public', 'write', 'write_vo', 'write_public'));
+insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read_vo', 'Vo related can read value.');
+insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read_public', 'Anyone can read value.');
+insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write_vo', 'Vo related can write, rewrite and remove value.');
+insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write_public', 'Anyone can write, rewrite and remove value.');
+update configurations set value='3.1.51' where property='DATABASE VERSION';
+
 3.1.50
 create table auditer_log_json (id integer not null, msg text not null, actor varchar(256) not null, created_at timestamp default statement_timestamp() not null, created_by_uid integer, modified_by_uid integer, constraint audlogjson_pk primary key (id) );
 create sequence "auditer_log_json_id_seq" maxvalue 9223372036854775807;

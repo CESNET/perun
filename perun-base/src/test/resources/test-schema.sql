@@ -1,6 +1,6 @@
 set database sql syntax PGS true;
 
--- database version 3.1.50 (don't forget to update insert statement at the end of file)
+-- database version 3.1.51 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -329,7 +329,7 @@ create table action_types (
 	description varchar(1024),         --description
 	constraint actiontyp_pk primary key (id),
 	constraint actiontyp_u unique (action_type),
-	constraint actiontyp_at_chk check (action_type in ('read','write'))
+	constraint actiontyp_at_chk check (action_type in ('read', 'read_vo', 'read_public','write', 'write_vo', 'write_public'))
 );
 
 -- MEMBERSHIP_TYPES - possible types of membership in group
@@ -1798,11 +1798,15 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.50');
+insert into configurations values ('DATABASE VERSION','3.1.51');
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');
+insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read_vo', 'Vo related can read value.');
+insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read_public', 'Anyone can read value.');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write', 'Can write, rewrite and remove value.');
+insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write_vo', 'Vo related can write, rewrite and remove value.');
+insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write_public', 'Anyone can write, rewrite and remove value.');
 
 
 
