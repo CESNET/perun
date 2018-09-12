@@ -42,14 +42,14 @@ public class urn_perun_user_attribute_def_virt_elixirBonaFideStatus extends User
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_elixirBonaFideStatus.class);
 
-	private final Pattern userRemsSetPattern = Pattern.compile("Attribute:\\[(.*)friendlyName=<elixirBonaFideStatusREMS>(.*)] set for User:\\[(.*)]");
-	private final Pattern userRemsRemovePattern = Pattern.compile("AttributeDefinition:\\[(.*)friendlyName=<elixirBonaFideStatusREMS>(.*)] removed for User:\\[(.*)]");
-	private final Pattern userPublicationsSetPattern = Pattern.compile("Attribute:\\[(.*)friendlyName=<publications>(.*)] set for User:\\[(.*)]");
-	private final Pattern userPublicationsRemovePattern = Pattern.compile("AttributeDefinition:\\[(.*)friendlyName=<publications>(.*)] removed for User:\\[(.*)]");
-	private final Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)]");
-	private final Pattern uesAllAttrsRemovedPattern = Pattern.compile("All attributes removed for UserExtSource:\\[(.*)]");
-	private final Pattern uesSetAffiliationAttributePattern = Pattern.compile("Attribute:\\[(.*)friendlyName=<affiliation>(.*)] set for UserExtSource:\\[(.*)]");
-	private final Pattern uesRemoveAffiliationAttributePattern = Pattern.compile("AttributeDefinition:\\[(.*)friendlyName=<affiliation>(.*)] removed for UserExtSource:\\[(.*)]");
+	private final Pattern userRemsSetPattern = Pattern.compile("Attribute:\\[(.|\\s)*friendlyName=<elixirBonaFideStatusREMS>(.|\\s)*] set for User:\\[(.|\\s)*]", Pattern.MULTILINE);
+	private final Pattern userRemsRemovePattern = Pattern.compile("AttributeDefinition:\\[(.|\\s)*friendlyName=<elixirBonaFideStatusREMS>(.|\\s)*] removed for User:\\[(.|\\s)*]", Pattern.MULTILINE);
+	private final Pattern userPublicationsSetPattern = Pattern.compile("Attribute:\\[(.|\\s)*friendlyName=<publications>(.|\\s)*] set for User:\\[(.|\\s)*]", Pattern.MULTILINE);
+	private final Pattern userPublicationsRemovePattern = Pattern.compile("AttributeDefinition:\\[(.|\\s)*friendlyName=<publications>(.|\\s)*] removed for User:\\[(.|\\s)*]", Pattern.MULTILINE);
+	private final Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.|\\s)*]", Pattern.MULTILINE);
+	private final Pattern uesAllAttrsRemovedPattern = Pattern.compile("All attributes removed for UserExtSource:\\[(.|\\s)*]", Pattern.MULTILINE);
+	private final Pattern uesSetAffiliationAttributePattern = Pattern.compile("Attribute:\\[(.|\\s)*friendlyName=<affiliation>(.|\\s)*] set for UserExtSource:\\[(.|\\s)*]", Pattern.MULTILINE);
+	private final Pattern uesRemoveAffiliationAttributePattern = Pattern.compile("AttributeDefinition:\\[(.|\\s)*friendlyName=<affiliation>(.|\\s)*] removed for UserExtSource:\\[(.|\\s)*]", Pattern.MULTILINE);
 
 	private static final String FRIENDLY_NAME = "elixirBonaFideStatus";
 	private static final String URL = "http://www.ga4gh.org/beacon/bonafide/ver1.0";
