@@ -38,7 +38,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_member_resource_attribute_def_virt_isBanned.class);
 
-	private final Pattern banModification = Pattern.compile("Ban ([a-zA-Z]+):\\[.*\\] was ([a-z]+) for .*Id ([0-9]+) on .*Id ([0-9]+)");
+	private final Pattern banModification = Pattern.compile("Ban ([a-zA-Z]+):\\[(.|\\s)*\\] was ([a-z]+) for (.|\\s)*Id ([0-9]+) on (.|\\s)*Id ([0-9]+)", Pattern.MULTILINE);
 	private final String OPERATION_SET = "set";
 	private final String OPERATION_REMOVED = "removed";
 	private final String OPERATION_UPDATED = "updated";
