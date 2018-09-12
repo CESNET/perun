@@ -36,9 +36,9 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final Pattern allAttributesRemovedForUserExtSource = Pattern.compile("All attributes removed for UserExtSource:\\[(.*)]");
-	private final Pattern removeUserExtSourceAttribute = Pattern.compile("AttributeDefinition:\\[(.*)" + getSourceAttributeFriendlyName() + "(.*)] removed for UserExtSource:\\[(.*)]");
-	private final Pattern setUserExtSourceAttribute = Pattern.compile("Attribute:\\[(.*)" + getSourceAttributeFriendlyName() + "(.*)] set for UserExtSource:\\[(.*)]");
+	private final Pattern allAttributesRemovedForUserExtSource = Pattern.compile("All attributes removed for UserExtSource:\\[(.|\\s)*]", Pattern.MULTILINE);
+	private final Pattern removeUserExtSourceAttribute = Pattern.compile("AttributeDefinition:\\[(.|\\s)*" + getSourceAttributeFriendlyName() + "(.|\\s)*] removed for UserExtSource:\\[(.|\\s)*]", Pattern.MULTILINE);
+	private final Pattern setUserExtSourceAttribute = Pattern.compile("Attribute:\\[(.|\\s)*" + getSourceAttributeFriendlyName() + "(.|\\s)*] set for UserExtSource:\\[(.|\\s)*]", Pattern.MULTILINE);
 
 	/**
 	 * Specifies friendly (short) name of attribute from namespace urn:perun:ues:attribute-def:def

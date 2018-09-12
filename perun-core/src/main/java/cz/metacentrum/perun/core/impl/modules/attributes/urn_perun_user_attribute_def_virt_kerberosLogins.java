@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	private final Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]");
-	private final Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]");
+	private final Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.|\\s)*\\] added to User:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private final Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.|\\s)*\\] removed from User:\\[(.|\\s)*\\]", Pattern.MULTILINE);
 	private final Pattern extSourceKerberos = Pattern.compile("cz.metacentrum.perun.core.impl.ExtSourceKerberos");
 
 	@Override
