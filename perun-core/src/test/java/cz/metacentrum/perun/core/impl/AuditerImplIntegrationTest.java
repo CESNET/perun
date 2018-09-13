@@ -41,7 +41,7 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		List<AuditMessage> messages = perun.getAuditer().getMessagesByCount(1);
 
 		assertEquals("Invalid number of messages.", 1, messages.size());
-		assertTrue("Invalid message received.", messages.get(0).getMsg().contains("Facility created: Facility:"));
+		assertTrue("Invalid message received.", messages.get(0).getMsg().contains("Facility created"));
 
 	}
 
@@ -70,7 +70,7 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		List<AuditMessage> messages = perun.getAuditer().getJSONMessages(1);
 
 		assertEquals("Invalid number of messages.", 1, messages.size());
-		assertTrue("Invalid message received.", messages.get(0).getMsg().contains("\"message\":\"Facility created: Facility:"));
+		assertTrue("Invalid message received.", messages.get(0).getMsg().contains("\"message\":\"Facility created Facility:"));
 	}
 
 	// ------------- private methods ----------------------------------

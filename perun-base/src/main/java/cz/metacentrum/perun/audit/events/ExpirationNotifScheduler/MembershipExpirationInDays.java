@@ -19,7 +19,7 @@ public class MembershipExpirationInDays extends AuditEvent {
 		this.member = member;
 		this.daysToExpiration = daysToExpiration;
 		this.vo = vo;
-		this.message = formatMessage("%s will expire in %s days in %d.", member, daysToExpiration, vo);
+		this.message = formatMessage("%s will expire in %d days in %s.", member, daysToExpiration, vo);
 	}
 
 	public Member getMember() {
