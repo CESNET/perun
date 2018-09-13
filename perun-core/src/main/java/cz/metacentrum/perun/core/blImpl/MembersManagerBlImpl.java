@@ -1425,12 +1425,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
 				} catch(Exception ex) {
 					log.info("validateMemberAsync failed. Cause: {}", ex);
-					try {
-						getPerunBl().getAuditer().log(sess, new MemberValidatedFailed(member, oldStatus));
-						log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
-					} catch(RuntimeException internalError) {
-						log.error("Store message to auditer failed. message: Validation of {} failed. He stays in {} state. cause: {}", new Object[] {member, oldStatus, internalError});
-					}
+					getPerunBl().getAuditer().log(sess, new MemberValidatedFailed(member, oldStatus));
+					log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
 				}
 			}
 		}, "validateMemberAsync").start();

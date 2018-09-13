@@ -17,7 +17,7 @@ public class MemberRemovedFromGroupTotally extends AuditEvent {
 	public MemberRemovedFromGroupTotally(Member member, Group group) {
 		this.member = member;
 		this.group = group;
-		this.message = formatMessage("%s was removed from %s totally", member, group);
+		this.message = formatMessage("%s was removed from %s totally.", member, group);
 	}
 
 	@Override

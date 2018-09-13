@@ -829,7 +829,7 @@ public class Auditer {
 		List<String> addedResolvedMessages = new ArrayList<>();
 		for(String message: messages) {
 			for(VirtualAttributesModuleImplApi virtAttrModuleImplApi : registeredAttributesModules) {
-				log.debug("Message {} is given to module {}", message, virtAttrModuleImplApi.getClass().getSimpleName());
+				log.info("Message {} is given to module {}", message, virtAttrModuleImplApi.getClass().getSimpleName());
 
 				try {
 					addedResolvedMessages.addAll(virtAttrModuleImplApi.resolveVirtualAttributeValueChange((PerunSessionImpl) session, message));

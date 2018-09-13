@@ -445,7 +445,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				throw new ConsistencyErrorException(e);
 			}
 		}
-		getPerunBl().getAuditer().log(sess, new AllGroupsFromVoDeleted(vo));
 	}
 
 	@Override

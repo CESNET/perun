@@ -18,7 +18,7 @@ public class GroupsRemovedFromContactGroupOfFacility extends AuditEvent {
 	public GroupsRemovedFromContactGroupOfFacility(List<Integer> groupsId, ContactGroup contactGroup) {
 		this.groupsId = groupsId;
 		this.contactGroup = contactGroup;
-		this.message = formatMessage("Groups (%s) successfully removed from contact groups %s.", groupsId, contactGroup);
+		this.message = formatMessage("Groups (%s) successfully removed from contact group %s.", groupsId, contactGroup);
 	}
 
 	public List<Integer> getGroupsId() {

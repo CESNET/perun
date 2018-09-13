@@ -15,7 +15,7 @@ public class FacilityCreated extends AuditEvent {
 
 	public FacilityCreated(Facility facility) {
 		this.facility = facility;
-		this.message = formatMessage("Facility created: %s",facility);
+		this.message = formatMessage("Facility created %s.",facility);
 	}
 
 	public Facility getFacility() {

@@ -17,7 +17,7 @@ public class HostAddedToFacility extends AuditEvent {
 	public HostAddedToFacility(Host host, Facility facility) {
 		this.facility = facility;
 		this.host = host;
-		this.message = formatMessage("%s added to facility %s", host, facility);
+		this.message = formatMessage("%s added to %s.", host, facility);
 	}
 
 	public Host getHost() {

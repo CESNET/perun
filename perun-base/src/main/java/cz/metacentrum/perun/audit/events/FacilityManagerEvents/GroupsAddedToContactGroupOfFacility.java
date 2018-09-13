@@ -18,7 +18,7 @@ public class GroupsAddedToContactGroupOfFacility extends AuditEvent {
 	public GroupsAddedToContactGroupOfFacility(List<Integer> groupsId, ContactGroup contactGroup) {
 		this.groupsId = groupsId;
 		this.contactGroup = contactGroup;
-		this.message = formatMessage("Groups (%s) successfully added from contact groups %s.", groupsId, contactGroup);
+		this.message = formatMessage("Groups (%s) successfully added to contact group %s.", groupsId, contactGroup);
 	}
 
 	public List<Integer> getGroupsId() {

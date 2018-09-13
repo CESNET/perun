@@ -17,7 +17,7 @@ public class UserRemovedFromBlackListOfSecurityTeam extends AuditEvent {
 	public UserRemovedFromBlackListOfSecurityTeam(User user, SecurityTeam securityTeam) {
 		this.user = user;
 		this.securityTeam = securityTeam;
-		this.message = formatMessage("%s remove from blacklist of '%s'.", user, securityTeam);
+		this.message = formatMessage("%s remove from blacklist of %s.", user, securityTeam);
 	}
 
 	@Override
