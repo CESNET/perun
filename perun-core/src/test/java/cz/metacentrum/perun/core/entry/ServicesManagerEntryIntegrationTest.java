@@ -1397,16 +1397,15 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		resource = setUpResource();
 		service = setUpService();
 		destination = setUpDestination();
-		perun.getResourcesManagerBl().setFacility(sess, resource, facility);
 		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
 		List<Destination> destinations = perun.getServicesManager().getFacilitiesDestinations(sess, vo);
 		assertTrue("There should be one destination.",destinations.size() == 1);
 	}
-	
+
 	@Test(expected = PrivilegeException.class)
 	public void addDestinationSameDestinationDifferentAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "addDestinationSameDestinationDifferentAdmin");
-		
+
 		vo = setUpVo();
 		facility = setUpFacility();
 		resource = setUpResource();
@@ -1414,17 +1413,17 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Destination testDestination = new Destination(0, "TestDestination", Destination.DESTINATIONHOSTTYPE);
 		member = setUpMember();
 		Member memberTwo = setUpMember();
-		
+
 		// Creates second facility
 		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
-		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));		
+		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 
 		// Set users as admins of different facilities
 		User userOne = perun.getUsersManagerBl().getUserByMember(sess, member);
 		perun.getFacilitiesManager().addAdmin(sess, facility, userOne);
 		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
 		perun.getFacilitiesManager().addAdmin(sess, secondFacility, userTwo);
-		
+
 		// Sets userOne as actor in this test with role facility admin for facility
 		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1432,7 +1431,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		// Adds destination to facility
 		perun.getServicesManager().addDestination(sess, service, facility, testDestination);
 		assertTrue(perun.getServicesManager().getDestinations(sess, service, facility).size() == 1);
-		
+
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
 		sess.getPerunPrincipal().setRoles(authzRoles);

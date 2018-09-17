@@ -333,59 +333,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		// shouldn't find resource
 
 	}
-
-	@Test
-	public void setFacility() throws Exception {
-		System.out.println(CLASS_NAME + "setFacility");
-
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
-		assertNotNull("unable to create resource",resource);
-
-		Facility newFacility = new Facility();
-		newFacility.setName("ResourcesManagerTestFacility2");
-		newFacility = perun.getFacilitiesManager().createFacility(sess, newFacility);
-		/*
-			 Owner owner = new Owner();
-			 owner.setName("ResourcesManagerTestOwner2");
-			 owner.setContact("testingOwner2");
-			 perun.getOwnersManager().createOwner(sess, owner);
-			 perun.getFacilitiesManager().addOwner(sess, newFacility, owner);
-			 */
-		resourcesManager.setFacility(sess, resource, newFacility);
-
-		Facility returnedFacility = resourcesManager.getFacility(sess, resource);
-		assertNotNull("unable to get Facility from resource",returnedFacility);
-		assertEquals("unable to set different Facility",newFacility,returnedFacility);
-
-	}
-
-	@Test (expected=ResourceNotExistsException.class)
-	public void setFacilityWhenResourceNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "setFacilityWhenResourceNotExists");
-
-		facility = setUpFacility();
-
-		resourcesManager.setFacility(sess, new Resource(), facility);
-		// shouldn't find resource
-
-	}
-
-	@Test (expected=FacilityNotExistsException.class)
-	public void setFacilityWhenFacilityNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "setFacilityWhenFacilityNotExists");
-
-		vo = setUpVo();
-		facility = setUpFacility();
-		resource = setUpResource();
-		assertNotNull("unable to create resource",resource);
-
-		resourcesManager.setFacility(sess, resource, new Facility());
-		// shouldn't find facility
-
-	}
-
+	
 	@Test
 	public void getVo() throws Exception {
 		System.out.println(CLASS_NAME + "getVo");

@@ -113,17 +113,6 @@ public interface ResourcesManagerBl {
 	Facility getFacility(PerunSession perunSession, Resource resource) throws InternalErrorException;
 
 	/**
-	 * Set Facility to resource.
-	 *
-	 * @param perunSession
-	 * @param resource
-	 * @param facility
-	 *
-	 * @throws InternalErrorException
-	 */
-	void setFacility(PerunSession perunSession, Resource resource, Facility facility) throws InternalErrorException;
-
-	/**
 	 * Get Vo which is tied to specified resource.
 	 *
 	 * @param perunSession

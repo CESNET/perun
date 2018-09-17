@@ -179,21 +179,6 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void setFacility(PerunSession sess, Resource resource, Facility facility) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, FacilityNotExistsException {
-		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "setFacility");
-		}
-
-		getResourcesManagerBl().checkResourceExists(sess, resource);
-		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
-
-		getResourcesManagerBl().setFacility(sess, resource, facility);
-	}
-
-	@Override
 	public Vo getVo(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
