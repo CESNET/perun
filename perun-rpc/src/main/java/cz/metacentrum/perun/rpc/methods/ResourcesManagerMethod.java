@@ -175,25 +175,6 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Sets Facility to resource.
-	 *
-	 * @param resource int Resource <code>id</code>
-	 * @param facility int Facility <code>id</code>
-	 */
-	setFacility {
-
-		@Override
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
-
-			ac.getResourcesManager().setFacility(ac.getSession(),
-					ac.getResourceById(parms.readInt("resource")),
-					ac.getFacilityById(parms.readInt("facility")));
-			return null;
-		}
-	},
-
-	/*#
 	 * Returns Vo which is tied to a specific resource.
 	 *
 	 * @param resource int Resource <code>id</code>

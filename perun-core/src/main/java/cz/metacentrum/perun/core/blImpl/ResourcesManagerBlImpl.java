@@ -216,12 +216,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void setFacility(PerunSession sess, Resource resource, Facility facility) throws InternalErrorException {
-		getResourcesManagerImpl().setFacility(sess, resource, facility);
-		getPerunBl().getAuditer().log(sess, "{} set for {}", facility, resource);
-	}
-
-	@Override
 	public Vo getVo(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
 			return getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());

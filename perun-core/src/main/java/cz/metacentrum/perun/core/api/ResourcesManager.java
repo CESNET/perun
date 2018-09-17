@@ -127,20 +127,6 @@ public interface ResourcesManager {
 	Facility getFacility(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
 
 	/**
-	 * Set Facility to resource.
-	 *
-	 * @param perunSession
-	 * @param resource
-	 * @param facility
-	 *
-	 * @throws InternalErrorException
-	 * @throws ResourceNotExistsException
-	 * @throws PrivilegeException
-	 * @throws FacilityNotExistsException
-	 */
-	void setFacility(PerunSession perunSession, Resource resource, Facility facility) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, FacilityNotExistsException;
-
-	/**
 	 * Get Vo which is tied to specified resource.
 	 *
 	 * @param perunSession

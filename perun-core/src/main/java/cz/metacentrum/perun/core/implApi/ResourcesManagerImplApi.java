@@ -102,17 +102,6 @@ public interface ResourcesManagerImplApi {
 	int getFacilityId(PerunSession perunSession, Resource resource) throws InternalErrorException;
 
 	/**
-	 * Set Facility to resource.
-	 *
-	 * @param perunSession
-	 * @param resource
-	 * @param facility
-	 *
-	 * @throws InternalErrorException
-	 */
-	void setFacility(PerunSession perunSession, Resource resource, Facility facility) throws InternalErrorException;
-
-	/**
 	 * Returns all user assigned to the resource.
 	 *
 	 * @param perunSession

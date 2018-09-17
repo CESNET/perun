@@ -253,17 +253,6 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
-	public void setFacility(PerunSession sess, Resource resource, Facility facility) throws InternalErrorException {
-		try {
-			jdbc.update("update resources set facility_id=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", facility.getId(),
-					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), resource.getId());
-			resource.setFacilityId(facility.getId());
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
 	public boolean resourceExists(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
 			return 1 == jdbc.queryForInt("select 1 from resources where id=?", resource.getId());
