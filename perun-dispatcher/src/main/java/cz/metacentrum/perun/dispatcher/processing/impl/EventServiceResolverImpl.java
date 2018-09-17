@@ -61,8 +61,8 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 	/**
 	 * Expected string format as on: event|x|[timestamp][Event header][Event data]
 	 */
-	private final static String eventParsingPattern = "^\\[([a-zA-Z0-9+: ]+)\\]\\[([^\\]]+)\\]\\[((.|\\s)*)\\]$";
-	private final static Pattern pattern = Pattern.compile(eventParsingPattern, Pattern.MULTILINE);
+	private final static String eventParsingPattern = "^\\[([a-zA-Z0-9+: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
+	private final static Pattern pattern = Pattern.compile(eventParsingPattern);
 
 	private Properties dispatcherProperties;
 	private Perun perun;

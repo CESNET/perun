@@ -51,8 +51,8 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_institutionsCountries.class);
 	private final static AttributeDefinition DNS_STATE_MAPPING_ATTR = new urn_perun_entityless_attribute_def_def_dnsStateMapping().getAttributeDefinition();
-	private final static Pattern AUDIT_MESSAGE_SET_DNS_DOMAIN_COUNTRY = Pattern.compile("Attribute:\\[(.|\\s)*" + DNS_STATE_MAPPING_ATTR.getFriendlyName() + "(.|\\s)*] set for ((.|\\s)*)\\.", Pattern.MULTILINE);
-	private final static Pattern AUDIT_MESSAGE_REMOVED_DNS_DOMAIN_COUNTRY = Pattern.compile("AttributeDefinition:\\[(.|\\s)*" + DNS_STATE_MAPPING_ATTR.getFriendlyName() + "(.|\\s)*] removed for ((.|\\s)*)\\.", Pattern.MULTILINE);
+	private final static Pattern AUDIT_MESSAGE_SET_DNS_DOMAIN_COUNTRY = Pattern.compile("Attribute:\\[(.*)" + DNS_STATE_MAPPING_ATTR.getFriendlyName() + "(.*)] set for (.*)\\.");
+	private final static Pattern AUDIT_MESSAGE_REMOVED_DNS_DOMAIN_COUNTRY = Pattern.compile("AttributeDefinition:\\[(.*)" + DNS_STATE_MAPPING_ATTR.getFriendlyName() + "(.*)] removed for (.*)\\.");
 
 	@Override
 	public String getSourceAttributeFriendlyName() {

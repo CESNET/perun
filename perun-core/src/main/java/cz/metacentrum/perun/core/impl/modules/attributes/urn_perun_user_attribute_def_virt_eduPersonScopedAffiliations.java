@@ -32,10 +32,9 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-
-	private final Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.|\\s)*]", Pattern.MULTILINE);
-	private final Pattern userEPSAMASetPattern = Pattern.compile("Attribute:\\[(.|\\s)*friendlyName=<" + getSecondarySourceAttributeFriendlyName() +">(.|\\s)*] set for User:\\[(.|\\s)*]", Pattern.MULTILINE);
-	private final Pattern userEPSAMARemovePattern = Pattern.compile("AttributeDefinition:\\[(.|\\s)*friendlyName=<" + getSecondarySourceAttributeFriendlyName() + ">(.|\\s)*] removed for User:\\[(.|\\s)*]", Pattern.MULTILINE);
+	private final Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)]");
+	private final Pattern userEPSAMASetPattern = Pattern.compile("Attribute:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() +">(.*)] set for User:\\[(.*)]");
+	private final Pattern userEPSAMARemovePattern = Pattern.compile("AttributeDefinition:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() + ">(.*)] removed for User:\\[(.*)]");
 
 	@Override
 	public String getSourceAttributeFriendlyName() {
