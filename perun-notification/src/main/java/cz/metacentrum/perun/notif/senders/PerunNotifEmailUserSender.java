@@ -69,7 +69,7 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 
 			String sender = messageDto.getSender();
 			emailDto.setSender(sender);
-			logger.debug("Calculated sender for receiver: {}, sender: {}", Arrays.asList(receiver.getId(), sender));
+			logger.debug("Calculated sender for receiver: {}, sender: {}", receiver.getId(), sender);
 
 			String myReceiverId = dto.getKeyAttributes().get(receiver.getTarget());
 			if (myReceiverId == null || myReceiverId.isEmpty()) {
@@ -81,7 +81,7 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 				try {
 					id = Integer.valueOf(myReceiverId);
 				} catch (NumberFormatException ex) {
-					logger.error("Cannot resolve id: {}, error: {}", Arrays.asList(id, ex.getMessage()));
+					logger.error("Cannot resolve id: {}, error: {}", id, ex.getMessage());
 					logger.debug("ST:", ex);
 				}
 				if (id != null) {
@@ -92,10 +92,10 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 							emailDto.setReceiver((String) emailAttribute.getValue());
 						}
 					} catch (UserNotExistsException ex) {
-						logger.error("Cannot found user with id: {}, ex: {}", Arrays.asList(id, ex.getMessage()));
+						logger.error("Cannot found user with id: {}, ex: {}", id, ex.getMessage());
 						logger.debug("ST:", ex);
 					} catch (AttributeNotExistsException ex) {
-						logger.warn("Cannot found email for user with id: {}, ex: {}", Arrays.asList(id, ex.getMessage()));
+						logger.warn("Cannot found email for user with id: {}, ex: {}", id, ex.getMessage());
 						logger.debug("ST:", ex);
 					} catch (Exception ex) {
 						logger.error("Error during user email recognition, ex: {}", ex.getMessage());

@@ -101,7 +101,7 @@ public class MessagePreparator implements MimeMessagePreparator {
 		}
 
 		// adding from and subject
-		mimeMessage.setFrom(new InternetAddress(getFrom(), getFromText()));
+		mimeMessage.setFrom(new InternetAddress(getFrom()));
 		mimeMessage.setSubject(getSubject());
 
 		if (getEmailType().equals(EmailType.HTML)) {
