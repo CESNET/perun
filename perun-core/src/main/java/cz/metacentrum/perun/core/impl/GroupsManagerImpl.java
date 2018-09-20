@@ -340,6 +340,21 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Member> getGroupMembersById(PerunSession sess, Group group, int id) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery +
+					" from groups_members" +
+					" join members on members.id=groups_members.member_id" +
+					" and groups_members.group_id=? " +
+					" and members.id=?", MembersManagerImpl.MEMBER_MAPPER, group.getId(), id);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Member>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Member> getGroupMembersByMembership(PerunSession sess, Group group, MembershipType membershipType) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_members join members on members.id=groups_members.member_id " +

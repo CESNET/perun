@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.view.client.ListDataProvider;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonCallbackTable;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -22,6 +23,7 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.MembersTabs;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.memberstabs.ChangeGroupStatusTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.ChangeStatusTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MemberDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
@@ -289,6 +291,76 @@ public class MemberColumnProvider {
 		// status column sortable
 		statusColumn.setSortable(true);
 		table.getColumnSortHandler().setComparator(statusColumn, new GeneralComparator<RichMember>(GeneralComparator.Column.STATUS));
+
+	}
+
+	public void addGroupStatusColumn(IsClickableCell authz, int groupId) {
+		addGroupStatusColumn(authz, groupId, 0);
+	}
+
+	public void addGroupStatusColumn(IsClickableCell authz, int groupId, int width) {
+
+		// Status column
+		final Column<RichMember, String> statusColumn = new Column<RichMember, String>(
+				new PerunStatusCell()) {
+			@Override
+			public String getValue(RichMember object) {
+				return object.getGroupStatus();
+			}
+		};
+		// own onClick tab for changing member's status
+		statusColumn.setFieldUpdater(new FieldUpdater<RichMember,String>(){
+			@Override
+			public void update(final int index, final RichMember object, final String value) {
+
+				if ("INDIRECT".equalsIgnoreCase(object.getMembershipType())) {
+
+					UiElements.generateInfo("Can't change group membership status!", "INDIRECT members can't have their group membership status changed directly." +
+							"<p>Please change members group status in all sourcing groups." +
+							"<p>In order to expire member in a group, member must be set to EXPIRED in all sourcing groups (sub-groups and groups in relation)." +
+							"<p>In order to validate member, at least one sourcing group must have member with VALID group membership status.");
+
+				} else {
+
+					PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeGroupStatusTabItem(object, groupId, new JsonCallbackEvents(){
+						@Override
+						public void onFinished(JavaScriptObject jso) {
+							Member m = jso.cast();
+							// set status to object in cell to change rendered value
+							object.setGroupStatus(m.getGroupStatus());
+							// forcefully set status to objects in lists,
+							// because they are not updated during .update() on cell
+							for (RichMember rm : dataProvider.getList()) {
+								if (rm.getId() == m.getId()) {
+									rm.setGroupStatus(m.getGroupStatus());
+								}
+							}
+							if (backupList != null) {
+								for (RichMember rm : backupList) {
+									if (rm.getId() == m.getId()) {
+										rm.setGroupStatus(m.getGroupStatus());
+									}
+								}
+							}
+							dataProvider.refresh();
+							dataProvider.flush();
+						}
+					}));
+
+				}
+
+			}
+		});
+
+		// add column
+		table.addColumn(statusColumn, "Group Status");
+		if (width != 0) {
+			table.setColumnWidth(statusColumn, width, Style.Unit.PX);
+		}
+
+		// status column sortable
+		statusColumn.setSortable(true);
+		table.getColumnSortHandler().setComparator(statusColumn, new RichMemberComparator(RichMemberComparator.Column.GROUP_STATUS));
 
 	}
 

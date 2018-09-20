@@ -353,6 +353,18 @@ public interface GroupsManagerBl {
 	List<Member> getGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
+	 * Get group member by member ID.
+	 *
+	 * @param sess
+	 * @param group
+	 * @param memberId
+	 * @return Member
+	 * @throws InternalErrorException
+	 * @throws NotGroupMemberException
+	 */
+	Member getGroupMemberById(PerunSession sess, Group group, int memberId) throws InternalErrorException, NotGroupMemberException;
+
+	/**
 	 * Return all direct group members.
 	 *
 	 * @param perunSession perun session
@@ -1366,4 +1378,16 @@ public interface GroupsManagerBl {
 	 * membership expiration, false otherwise
 	 */
 	boolean canExtendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns true if member in given group can extend membership or throws exception with reason why use can't extends membership
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @throws ExtendMembershipException reason why user can't extend membership
+	 * @return true if given member can extend membership in given group or throws exception with reason why not
+	 */
+	boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException;
+
 }

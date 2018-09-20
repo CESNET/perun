@@ -28,7 +28,7 @@ sub TO_JSON
 	my $self = shift;
 
 	return { user => $self->{_user}, userAttributes => $self->{_userAttributes},
-	         userExtSources => $self->{_userExtSources}, 
+	         userExtSources => $self->{_userExtSources},
 	         memberAttributes => $self->{_memberAttributes} };
 }
 
@@ -112,13 +112,24 @@ sub getDisplayName {
 	return $str;
 }
 
+sub getSourceGroupId
+{
+	my $self = shift;
+	return ($self->{_sourceGroupId}) ? $self->{_sourceGroupId} : -1;
+}
+
+sub getGroupStatus {
+	my $self = shift;
+	return $self->{_groupStatus};
+}
+
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_user}->{id}, $self->getDisplayName, $self->{_status}, $self->{_membershipType}, $self->isSponsoredToPrint);
+	return($self->{_id}, $self->{_user}->{id}, $self->getDisplayName, $self->{_status}, $self->{_groupStatus}, $self->{_membershipType}, $self->isSponsoredToPrint);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('Member Id', 'User Id', 'Name', 'Status', 'Membership type', 'Sponsored');
+	return('Member Id', 'User Id', 'Name', 'VO Status', 'Group Status', 'Membership type', 'Sponsored');
 }
 
 1;

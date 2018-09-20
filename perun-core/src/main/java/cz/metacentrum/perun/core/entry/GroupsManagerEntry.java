@@ -1173,4 +1173,101 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		return groupsManagerBl.getGroupUnions(sess, group, reverseDirection);
 	}
+
+	@Override
+	public Member setMemberGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException, GroupNotExistsException, MemberNotExistsException, PrivilegeException, NotGroupMemberException {
+
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		// Authorization
+		if ( !AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "setMemberGroupStatus");
+		}
+
+		// will fail if not group member
+		Member groupMember = perunBl.getGroupsManagerBl().getGroupMemberById(sess, group, member.getId());
+		if (MembershipType.INDIRECT.equals(groupMember.getMembershipType())) {
+			throw new InternalErrorException("Setting group membership status for indirect members is not allowed.");
+		}
+
+		if (MemberGroupStatus.VALID.equals(status)) {
+			getGroupsManagerBl().validateMemberInGroup(sess, groupMember, group);
+		} else {
+			getGroupsManagerBl().expireMemberInGroup(sess, groupMember, group);
+		}
+		// refresh after change
+		groupMember = perunBl.getGroupsManagerBl().getGroupMemberById(sess, group, member.getId());
+		return groupMember;
+
+	}
+
+	@Override
+	public Member getGroupMemberById(PerunSession sess, Group group, int memberId) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, PrivilegeException {
+
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if ( !AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "getGroupMemberById");
+		}
+
+		return perunBl.getGroupsManagerBl().getGroupMemberById(sess, group, memberId);
+
+	}
+
+	@Override
+	public void extendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException, PrivilegeException, MemberNotExistsException, GroupNotExistsException {
+
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			throw new PrivilegeException(sess, "extendMembershipInGroup");
+		}
+
+		getGroupsManagerBl().extendMembershipInGroup(sess, member, group);
+
+	}
+
+	@Override
+	public boolean canExtendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException, MemberNotExistsException, GroupNotExistsException, PrivilegeException {
+
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			throw new PrivilegeException(sess, "canExtendMembershipInGroup");
+		}
+
+		return getGroupsManagerBl().canExtendMembershipInGroup(sess, member, group);
+	}
+
+	@Override
+	public boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group) throws InternalErrorException, MemberNotExistsException, GroupNotExistsException, PrivilegeException, ExtendMembershipException {
+
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			throw new PrivilegeException(sess, "canExtendMembershipInGroupWithReason");
+		}
+
+		return getGroupsManagerBl().canExtendMembershipInGroupWithReason(sess, member, group);
+	}
+
 }

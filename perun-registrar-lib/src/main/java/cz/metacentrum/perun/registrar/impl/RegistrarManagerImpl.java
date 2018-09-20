@@ -82,7 +82,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String DISPLAY_NAME_GROUP_FROM_EMAIL = "\"From\" email address";
 	private static final String FRIENDLY_NAME_GROUP_TO_EMAIL = "toEmail";
 	private static final String NAMESPACE_GROUP_TO_EMAIL = AttributesManager.NS_GROUP_ATTR_DEF;
-	private static final String URN_GROUP_TO_EMAIL = NAMESPACE_GROUP_TO_EMAIL + ":" +  FRIENDLY_NAME_GROUP_TO_EMAIL;
+ 	private static final String URN_GROUP_TO_EMAIL = NAMESPACE_GROUP_TO_EMAIL + ":" +  FRIENDLY_NAME_GROUP_TO_EMAIL;
 
 	private static final String DISPLAY_NAME_GROUP_TO_EMAIL = "\"To\" email addresses";
 	private static final String FRIENDLY_NAME_GROUP_FROM_EMAIL = "fromEmail";
@@ -141,6 +141,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private NamedParameterJdbcTemplate namedJdbc;
 	private AttributesManager attrManager;
 	private MembersManager membersManager;
+	private GroupsManager groupsManager;
 	private UsersManager usersManager;
 	private VosManager vosManager;
 
@@ -197,6 +198,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// set managers
 		this.attrManager = perun.getAttributesManager();
 		this.membersManager = perun.getMembersManager();
+		this.groupsManager = perun.getGroupsManager();
 		this.usersManager = perun.getUsersManager();
 		this.vosManager = perun.getVosManager();
 
@@ -531,6 +533,36 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				} catch (CantBeSubmittedException ex) {
 					// can't display form / become member by some custom rules
 					result.put("groupFormInitialException", ex);
+				}
+
+			}
+
+			// ONLY EXISTING USERS CAN EXTEND GROUP MEMBERSHIP
+			if (sess.getPerunPrincipal().getUser() != null && groupName != null && !groupName.isEmpty()) {
+
+				try {
+					result.put("groupFormExtension", getFormItemsWithPrefilledValues(sess, AppType.EXTENSION, (ApplicationForm) result.get("groupForm")));
+				} catch (DuplicateRegistrationAttemptException ex) {
+					// has submitted application
+					result.put("groupFormExtensionException", ex);
+				} catch (RegistrarException ex) {
+					// more severe exception like bad input/inconsistency
+					result.put("groupFormExtensionException", ex);
+				} catch (ExtendMembershipException ex) {
+					// can't extend membership in Group
+					result.put("groupFormExtensionException", ex);
+				} catch (MemberNotExistsException ex) {
+					// is not member -> can't extend
+					result.put("groupFormExtensionException", ex);
+				} catch (NotGroupMemberException ex) {
+					// is not member of Group -> can't extend
+					result.put("groupFormExtensionException", ex);
+				} catch (MissingRequiredDataException ex) {
+					// can't display form
+					result.put("groupFormExtensionException", ex);
+				} catch (CantBeSubmittedException ex) {
+					// can't display form / extend membership by some custom rules
+					result.put("groupFormExtensionException", ex);
 				}
 
 			}
@@ -1022,7 +1054,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		Application app = null;
 		try {
 
-			// throws exception if user already submitted application or is already a member or can't submit it by VO expiration rules.
+			// throws exception if user already submitted application or is already a member or can't submit it by VO/Group expiration rules.
 			checkDuplicateRegistrationAttempt(session, application.getType(), (application.getGroup() != null) ? getFormForGroup(application.getGroup()) : getFormForVo(application.getVo()));
 
 			// using this to init inner transaction
@@ -1403,9 +1435,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			app = registrarManager.approveApplicationInternal(sess, appId);
 		} catch (AlreadyMemberException ex) {
 			// case when user joined identity after sending initial application and former user was already member of VO
-			throw new RegistrarException("User is already member of your VO with ID:"+ex.getMember().getId()+" (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
+			throw new RegistrarException("User is already member of your VO/group with ID:"+ex.getMember().getId()+" (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
 		} catch (MemberNotExistsException ex) {
 			throw new RegistrarException("To approve application user must already be member of VO.", ex);
+		} catch (NotGroupMemberException ex) {
+			throw new RegistrarException("To approve application user must already be member of Group.", ex);
 		} catch (UserNotExistsException ex) {
 			throw new RegistrarException("To approve application user must already be member of VO.", ex);
 		} catch (UserExtSourceNotExistsException ex) {
@@ -1416,12 +1450,38 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		Member member = perun.getMembersManager().getMemberByUser(registrarSession, app.getVo(), app.getUser());
 
-		// get user's group apps with auto-approve and approve them
-		autoApproveUsersGroupApplications(sess, app.getVo(), app.getUser());
-
 		try {
+
 			// validate member async when all changes are committed
-			perun.getMembersManagerBl().validateMemberAsync(registrarSession, member);
+			// we can't use existing core method, since we want to approve auto-approval waiting group applications
+			// once member is validated
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					try {
+						perun.getMembersManagerBl().validateMember(registrarSession, member);
+					} catch (InternalErrorException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+						log.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
+					}
+
+					try {
+						// get user's group apps with auto-approve and approve them
+						autoApproveUsersGroupApplications(sess, app.getVo(), app.getUser());
+					} catch (PerunException ex) {
+						log.error("[REGISTRAR] Exception when auto-approving waiting group applications for {} after approving application {}.", member, app);
+					}
+
+				}
+			}).start();
+
 		} catch (Exception ex) {
 			// we skip any exception thrown from here
 			log.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
@@ -1699,10 +1759,29 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			member = membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
 
+			if (app.getGroup() != null) {
+
+				// MEMBER must be in a VALID or INVALID state since approval starts validation !!
+				// and we don't want to validate expired, suspended or disabled users without VO admin owns action !!
+				// meaning, user should submit membership extension application first !!
+				if (!Arrays.asList(Status.VALID, Status.INVALID).contains(member.getStatus())) {
+					throw new CantBeApprovedException("Application of member with membership status: "+member.getStatus()+" can't be approved. Please wait until member extends/re-validate own membership in a VO.");
+				}
+
+				// overwrite member with group context
+				member = groupsManager.getGroupMemberById(registrarSession, app.getGroup(), member.getId());
+
+			}
+
 			storeApplicationAttributes(app);
 
-			// extend user's membership
-			membersManager.extendMembership(registrarSession, member);
+			if (app.getGroup() != null) {
+				// extends users Group membership
+				groupsManager.extendMembershipInGroup(sess, member, app.getGroup());
+			} else {
+				// extend users VO membership
+				membersManager.extendMembership(registrarSession, member);
+			}
 
 			// unreserve new logins, if user already have login in same namespace
 			// also get back logins, which are purely new
@@ -1721,12 +1800,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			updateUserNameTitles(app);
 
 			// log
-			perun.getAuditer().log(sess, "Membership extended for {} in {} for approved {}.", member, app.getVo(), app);
+			perun.getAuditer().log(sess, "Membership extended for {} in {} for approved {}.", member, (app.getGroup() == null) ? app.getVo() : app.getGroup(), app);
 
 		}
 
 		// CONTINUE FOR BOTH APP TYPES
-
 
 		if (module != null) {
 			module.approveApplication(sess, app);
@@ -1771,7 +1849,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// submitter, must be MEMBER of VO and in VALID or INVALID state since approval starts validation !!
 		// and we don't want to validate expired, suspended or disabled users without VO admin owns action !!
 		// meaning, user should submit membership extension application first !!
-		if (application.getGroup() != null && application.getType().equals(AppType.INITIAL)) {
+		if (application.getGroup() != null) {
 			try {
 				User u = application.getUser();
 				if (u == null) {
@@ -1782,7 +1860,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					throw new CantBeApprovedException("Application of member with membership status: " + member.getStatus() + " can't be approved. Please wait until member extends/re-validate own membership in a VO.");
 				}
 			} catch (MemberNotExistsException | UserNotExistsException | ExtSourceNotExistsException | UserExtSourceNotExistsException ex) {
-				throw new RegistrarException("To approve application user must already be member of VO.", ex);
+				throw new RegistrarException("To approve application user must be a member of VO.", ex);
 			}
 
 		}
@@ -2279,13 +2357,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	/**
 	 * Check if user can submit application for specified form and type.
-	 * Performs check on VO/Group membership, VO expiration rules, form modules and duplicate (already submitted) applications.
+	 * Performs check on VO/Group membership, VO/Group expiration rules, form modules and duplicate (already submitted) applications.
 	 *
 	 * @param sess PerunSession for authz
 	 * @param appType Type of application form
 	 * @param form Application form
 	 */
-	private void checkDuplicateRegistrationAttempt(PerunSession sess, AppType appType, ApplicationForm form) throws DuplicateRegistrationAttemptException, AlreadyRegisteredException, UserNotExistsException, PrivilegeException, VoNotExistsException, InternalErrorException, ExtendMembershipException, RegistrarException, MemberNotExistsException, CantBeSubmittedException {
+	private void checkDuplicateRegistrationAttempt(PerunSession sess, AppType appType, ApplicationForm form) throws DuplicateRegistrationAttemptException, AlreadyRegisteredException, UserNotExistsException, PrivilegeException, VoNotExistsException, InternalErrorException, ExtendMembershipException, RegistrarException, MemberNotExistsException, CantBeSubmittedException, GroupNotExistsException, NotGroupMemberException {
 
 		Vo vo = form.getVo();
 		Group group = form.getGroup();
@@ -2395,33 +2473,56 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (AppType.EXTENSION.equals(appType)) {
 
 			if (user == null) {
-				throw new RegistrarException("Trying to get extension application for non-existing user. Try to log-in with different identity known to Perun.");
+				throw new RegistrarException("Trying to get extension application for non-existing user. Try to log-in with different identity.");
 			}
 
-			if (form.getGroup() != null) {
-				throw new RegistrarException("You are already member of group " + form.getGroup().getShortName() + ".");
-			}
-
-			// check for submitted registrations (only for VO)
+			// check for submitted registrations
 			List<Integer> regs = new ArrayList<Integer>();
-			regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
-					new SingleColumnRowMapper<Integer>(Integer.class),
-					AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.NEW.toString()));
-			regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
-					new SingleColumnRowMapper<Integer>(Integer.class),
-					AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.VERIFIED.toString()));
-			if (!regs.isEmpty()) {
-				// user have unprocessed application for group
-				throw new DuplicateRegistrationAttemptException("Extension application for VO: " + vo.getName() + " already exists.", actor, extSourceName, regs.get(0));
+			Member member = membersManager.getMemberByUser(sess, vo, user);
+
+			if (group != null) {
+
+				member = groupsManager.getGroupMemberById(sess, group, member.getId());
+
+				regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+						new SingleColumnRowMapper<Integer>(Integer.class),
+						AppType.EXTENSION.toString(), vo.getId(), group.getId(), user.getId(), AppState.NEW.toString()));
+				regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+						new SingleColumnRowMapper<Integer>(Integer.class),
+						AppType.EXTENSION.toString(), vo.getId(), group.getId(), user.getId(), AppState.VERIFIED.toString()));
+				if (!regs.isEmpty()) {
+					// user have unprocessed application for group
+					throw new DuplicateRegistrationAttemptException("Extension application for Group: " + group.getName() + " already exists.", actor, extSourceName, regs.get(0));
+				}
+
+				// if false, throws exception with reason for GUI
+				groupsManager.canExtendMembershipInGroupWithReason(sess, member, group);
+
+				// vo sponsored members can extend in a group
+
+			} else {
+
+				regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+						new SingleColumnRowMapper<Integer>(Integer.class),
+						AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.NEW.toString()));
+				regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+						new SingleColumnRowMapper<Integer>(Integer.class),
+						AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.VERIFIED.toString()));
+				if (!regs.isEmpty()) {
+					// user have unprocessed application for vo
+					throw new DuplicateRegistrationAttemptException("Extension application for VO: " + vo.getName() + " already exists.", actor, extSourceName, regs.get(0));
+				}
+
+				// if false, throws exception with reason for GUI
+				membersManager.canExtendMembershipWithReason(sess, member);
+
+				// sponsored vo members cannot be extended in this way
+				if (member.isSponsored()) {
+					throw new CantBeSubmittedException("Sponsored member cannot apply for membership extension, it must be extended by the sponsor.");
+				}
+
 			}
 
-			Member member = membersManager.getMemberByUser(sess, vo, user);
-			// if false, throws exception with reason for GUI
-			membersManager.canExtendMembershipWithReason(sess, member);
-			//sponsored members cannot be extended in this way
-			if (member.isSponsored()) {
-				throw new CantBeSubmittedException("Sponsored member cannot apply for membership extension, it must be extended by the sponsor.");
-			}
 		}
 
 	}
@@ -3056,7 +3157,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (a.getState().equals(AppState.NEW)) continue;
 
 			// approve applications only for auto-approve forms
-			if (!getFormForGroup(a.getGroup()).isAutomaticApproval()) continue;
+			if (!getFormForGroup(a.getGroup()).isAutomaticApproval() && AppType.INITIAL.equals(a.getType())) continue;
+			if (!getFormForGroup(a.getGroup()).isAutomaticApprovalExtension() && AppType.EXTENSION.equals(a.getType())) continue;
 
 			try {
 				registrarManager.approveApplicationInternal(sess, a.getId());

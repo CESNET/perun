@@ -950,4 +950,67 @@ public interface GroupsManager {
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Set Members Group status for specified DIRECT member and group.
+	 * Member with newly calculated group membership status is returned.
+	 *
+	 * Please note, that if member is also sourced from sub-groups or groups in relation
+	 * and has VALID status in any of them, then resulting status is still VALID.
+	 * In order to really expire such member is to set EXPIRED status also to all
+	 * sourcing sub-groups or groups in relation.
+	 *
+	 * @param sess perun session
+	 * @param member member to set status for
+	 * @param group group to set status in
+	 * @param status status to set (VALID/EXPIRED)
+	 * @return Member with newly calculated status.
+	 */
+	Member setMemberGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException, GroupNotExistsException, MemberNotExistsException, PrivilegeException, NotGroupMemberException;
+
+	/**
+	 * Get group member by member ID.
+	 *
+	 * @param sess
+	 * @param group
+	 * @param memberId
+	 * @return Member
+	 * @throws InternalErrorException
+	 * @throws NotGroupMemberException
+	 */
+	Member getGroupMemberById(PerunSession sess, Group group, int memberId) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Extend member membership in given group using membershipExpirationRules attribute defined in Group.
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @throws InternalErrorException internal error
+	 * @throws ExtendMembershipException extend membership exception
+	 */
+	void extendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException, PrivilegeException, MemberNotExistsException, GroupNotExistsException;
+
+	/**
+	 * Returns true if member in given group can extend membership or if no rules were set for the membershipExpiration
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @return true if given member can extend membership in given group  or if no rules were set for the
+	 * membership expiration, false otherwise
+	 */
+	boolean canExtendMembershipInGroup(PerunSession sess, Member member, Group group) throws InternalErrorException, MemberNotExistsException, GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns true if member in given group can extend membership or throws exception with reason why use can't extends membership
+	 *
+	 * @param sess session
+	 * @param member member
+	 * @param group group
+	 * @throws ExtendMembershipException reason why user can't extend membership
+	 * @return true if given member can extend membership in given group or throws exception with reason why not
+	 */
+	boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group) throws InternalErrorException, MemberNotExistsException, GroupNotExistsException, PrivilegeException, ExtendMembershipException;
+
 }

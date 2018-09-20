@@ -68,6 +68,12 @@ sub setUserId
 	return;
 }
 
+sub getSourceGroupId
+{
+	my $self = shift;
+	return ($self->{_sourceGroupId}) ? $self->{_sourceGroupId} : -1;
+}
+
 sub isSponsoredToPrint
 {
 	my $self = shift;
@@ -90,7 +96,7 @@ sub setSponsored
   {
     $self->{_sponsored} = $value;
   } elsif ($value eq 'true' || $value eq 1)
-  {                                                                                           
+  {
     $self->{_sponsored} = JSON::XS::true;
   } else
   {
@@ -105,6 +111,12 @@ sub getStatus {
 	return $self->{_status};
 }
 
+
+sub getGroupStatus {
+	my $self = shift;
+	return $self->{_groupStatus};
+}
+
 sub getMembershipType {
 	my $self = shift;
 	return $self->{_membershipType};
@@ -112,11 +124,11 @@ sub getMembershipType {
 
 sub getCommonArrayRepresentation {
 	my $member = shift;
-	return ($member->getId, $member->getUserId, $member->getStatus, $member->getMembershipType, $member->isSponsoredToPrint);
+	return ($member->getId, $member->getUserId, $member->getStatus, $member->getGroupStatus, $member->getMembershipType, $member->isSponsoredToPrint);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('Id', 'UserId', 'Status', 'Membership type', 'Sponsored');
+	return('Id', 'UserId', 'Status', 'Group Status', 'Membership type', 'Sponsored');
 }
 
 1;

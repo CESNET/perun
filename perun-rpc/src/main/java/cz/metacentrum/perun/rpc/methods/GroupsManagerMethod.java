@@ -7,6 +7,7 @@ import java.util.Map;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
@@ -87,8 +88,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 					String description = parms.readString("description");
 					Group group = new Group(name, description);
 					return ac.getGroupsManager().createGroup(ac.getSession(),
-								ac.getVoById(parms.readInt("vo")),
-								group);
+							ac.getVoById(parms.readInt("vo")),
+							group);
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or parentGroup");
 				}
@@ -114,8 +115,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			return ac.getGroupsManager().createGroupUnion(ac.getSession(),
-						ac.getGroupById(parms.readInt("resultGroup")),
-						ac.getGroupById(parms.readInt("operandGroup")));
+					ac.getGroupById(parms.readInt("resultGroup")),
+					ac.getGroupById(parms.readInt("operandGroup")));
 		}
 	},
 
@@ -586,11 +587,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getGroupsManager().getAdmins(ac.getSession(),
-					ac.getGroupById(parms.readInt("group")),
-					parms.readBoolean("onlyDirectAdmins"));
+						ac.getGroupById(parms.readInt("group")),
+						parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getGroupsManager().getAdmins(ac.getSession(),
-					ac.getGroupById(parms.readInt("group")));
+						ac.getGroupById(parms.readInt("group")));
 			}
 		}
 	},
@@ -642,36 +643,36 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @return List<RichUser> list of RichUser administrators for the group and supported role with attributes
 	 */
 	/*#
-	* Get all Group admins as RichUsers
-	*
-	* @deprecated
-	* @param group int Group <code>id</code>
-	* @return List<RichUser> admins
-	*/
+	 * Get all Group admins as RichUsers
+	 *
+	 * @deprecated
+	 * @param group int Group <code>id</code>
+	 * @return List<RichUser> admins
+	 */
 	getRichAdmins {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getGroupsManager().getRichAdmins(ac.getSession(),
-								ac.getGroupById(parms.readInt("group")),
-								parms.readList("specificAttributes", String.class),
-								parms.readBoolean("allUserAttributes"),
-								parms.readBoolean("onlyDirectAdmins"));
+						ac.getGroupById(parms.readInt("group")),
+						parms.readList("specificAttributes", String.class),
+						parms.readBoolean("allUserAttributes"),
+						parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getGroupsManager().getRichAdmins(ac.getSession(),
-					ac.getGroupById(parms.readInt("group")));
+						ac.getGroupById(parms.readInt("group")));
 			}
 		}
 	},
 
 	/*#
-	* Get all Group admins as RichUsers with all their non-null user attributes
-	*
-	* @deprecated
-	* @param group int Group <code>id</code>
-	* @return List<RichUser> admins with attributes
-	*/
+	 * Get all Group admins as RichUsers with all their non-null user attributes
+	 *
+	 * @deprecated
+	 * @param group int Group <code>id</code>
+	 * @return List<RichUser> admins with attributes
+	 */
 	getRichAdminsWithAttributes {
 
 		@Override
@@ -705,13 +706,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	* Get all Group admins as RichUsers with specific attributes (from user namespace)
-	*
-	* @deprecated
-	* @param group int Group <code>id</code>
-	* @param specificAttributes List<String> list of attributes URNs
-	* @return List<RichUser> admins with attributes
-	*/
+	 * Get all Group admins as RichUsers with specific attributes (from user namespace)
+	 *
+	 * @deprecated
+	 * @param group int Group <code>id</code>
+	 * @param specificAttributes List<String> list of attributes URNs
+	 * @return List<RichUser> admins with attributes
+	 */
 	getRichAdminsWithSpecificAttributes {
 
 		@Override
@@ -724,14 +725,14 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	* Get all Group admins, which are assigned directly,
-	*  as RichUsers with specific attributes (from user namespace)
-	*
-	* @deprecated
-	* @param group int Group <code>id</code>
-	* @param specificAttributes List<String> list of attributes URNs
-	* @return List<RichUser> direct admins with attributes
-	*/
+	 * Get all Group admins, which are assigned directly,
+	 *  as RichUsers with specific attributes (from user namespace)
+	 *
+	 * @deprecated
+	 * @param group int Group <code>id</code>
+	 * @param specificAttributes List<String> list of attributes URNs
+	 * @return List<RichUser> direct admins with attributes
+	 */
 	getDirectRichAdminsWithSpecificAttributes {
 
 		@Override
@@ -1013,6 +1014,30 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 			return ac.getGroupsManager().getAllMemberGroups(ac.getSession(),
 					ac.getMemberById(parms.readInt("member")));
+		}
+	},
+
+	/*#
+	 * Set membership status of a member in a group. Please note, that resulting Status after change is
+	 * calculated from all members sub-groups and groups in relation sourcing this member. If in any of them
+	 * is VALID, resulting status is still VALID.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param status String VALID | EXPIRED
+	 * @exampleParam status "EXPIRED"
+	 * @return Member Member with status after change
+	 */
+	setGroupsMemberStatus {
+		@Override
+		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			MemberGroupStatus status = MemberGroupStatus.valueOf(parms.readString("status"));
+			return ac.getGroupsManager().setMemberGroupStatus(ac.getSession(),
+					ac.getMemberById(parms.readInt("member")),
+					ac.getGroupById(parms.readInt("group")),
+					status);
 		}
 	};
 }

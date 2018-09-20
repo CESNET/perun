@@ -909,6 +909,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public Member getGroupMemberById(PerunSession sess, Group group, int memberId) throws InternalErrorException, NotGroupMemberException {
+		List<Member> members = getGroupsManagerImpl().getGroupMembersById(sess, group, memberId);
+		if (members.isEmpty()) throw new NotGroupMemberException("Member with ID="+memberId+" is not member of "+group+" or doesn't exists at all.");
+		List<Member> filteredMembers = this.filterMembersByMembershipTypeInGroup(members);
+		if (filteredMembers.size() == 0) throw new InternalErrorException("Filtering DIRECT/INDIRECT members resulted in empty members list.");
+		if (filteredMembers.size() > 1) throw new ConsistencyErrorException("Filtering DIRECT/INDIRECT members resulted with >1 members with same ID.");
+		return filteredMembers.get(0);
+	}
+
+	@Override
 	public List<Member> getGroupDirectMembers(PerunSession sess, Group group) throws InternalErrorException {
 		return groupsManagerImpl.getGroupMembersByMembership(sess, group, MembershipType.DIRECT);
 	}
@@ -3229,6 +3239,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		} catch (ExtendMembershipException e) {
 			return false;
 		}
+		return true;
+	}
+
+	@Override
+	public boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException {
+		Attribute membershipExpirationRulesAttribute = getMembershipExpirationRulesAttribute(sess, group);
+		if (membershipExpirationRulesAttribute == null) {
+			return true;
+		}
+		extendMembershipInGroup(sess, member, group, false);
 		return true;
 	}
 

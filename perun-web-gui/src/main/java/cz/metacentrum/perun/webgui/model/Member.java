@@ -2,6 +2,8 @@ package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
+import java.util.Map;
+
 /**
  * Overlay type for Member object from Perun
  *
@@ -78,6 +80,27 @@ public class Member extends JavaScriptObject {
 	}-*/;
 
 	/**
+	 * Returns the status of Member in a Group context, by default VALID.
+	 * Possible values are VALID and EXPIRED
+	 *
+	 * @return string which defines group member status
+	 */
+	public final native String getGroupStatus() /*-{
+		return this.groupStatus;
+	}-*/;
+
+	/**
+	 * Returns map of all Member statuses, which are used to calculate getGroupStatus() value.
+	 * Its map of GroupId=>Status
+	 * Possible values are VALID and EXPIRED
+	 *
+	 * @return map of member sourcing statuses
+	 */
+	public final native GroupStatuses getGroupStatuses() /*-{
+		return this.groupStatuses;
+	}-*/;
+
+	/**
 	 * Set the status of this item in Perun system as String
 	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
 	 *
@@ -85,6 +108,15 @@ public class Member extends JavaScriptObject {
 	 */
 	public final native void setStatus(String status) /*-{
 		this.status = status;
+	}-*/;
+
+	/**
+	 * Set group membership status (VALID, EXPIRED)
+	 *
+	 * @param groupStatus string which defines item status
+	 */
+	public final native void setGroupStatus(String groupStatus) /*-{
+		this.groupStatus = groupStatus;
 	}-*/;
 
 	/**
