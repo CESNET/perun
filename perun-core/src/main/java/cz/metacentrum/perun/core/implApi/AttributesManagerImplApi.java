@@ -333,6 +333,18 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException;
 
 	/**
+	 * Get all attributes associated with the resource which have name in list attrNames (empty too).
+	 *
+	 * @param sess perun session
+	 * @param resource to get the attributes from
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raises in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException;
+
+	/**
 	 * Get all attributes associated with the UserExtSource which have name in list attrNames (empty and virtual too).
 	 *
 	 * @param sess perun session
