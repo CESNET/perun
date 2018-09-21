@@ -46,6 +46,12 @@ sub getOwners
 	return Perun::Common::callManagerMethod('getOwners', '[]Owner', @_);
 }
 
+#(srcFacility => $srcFacilityId, destFacility => $destFacilityId)
+sub copyOwners
+{
+	return Perun::Common::callManagerMethod('copyOwners', '', @_);
+}
+
 #(facility => $facilityId, owner => $ownerId)
 sub addOwner
 {
@@ -139,6 +145,12 @@ sub addAdmin
 	return Perun::Common::callManagerMethod('addAdmin', 'null', @_);
 }
 
+#(srcFacility => $srcFacilityId, destFacility => $destFacilityId)
+sub copyManagers
+{
+	return Perun::Common::callManagerMethod('copyManagers', '', @_);
+}
+
 sub removeAdmin
 {
 	return Perun::Common::callManagerMethod('removeAdmin', 'null', @_);
@@ -227,6 +239,12 @@ sub getFacilitiesByHostName
 sub getFacilityForHost
 {
 	return Perun::Common::callManagerMethod('getFacilityForHost', 'Facility', @_);
+}
+
+#(srcFacility => $srcFacilityId, destFacility => $destFacilityId)
+sub copyAttributes
+{
+	return Perun::Common::callManagerMethod('copyAttributes', '', @_);
 }
 
 1;

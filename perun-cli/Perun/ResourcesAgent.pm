@@ -158,4 +158,9 @@ sub getAdminGroups
         return Perun::Common::callManagerMethod('getAdminGroups', '[]Group', @_);
 }
 
+# copyResource (templateResource => $srcResource, destinationResource => $destResource, withGroups => boolean)
+sub copyResource {
+	return Perun::Common::callManagerMethod('copyResource', '', @_);
+}
+
 1;

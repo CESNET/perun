@@ -17,6 +17,7 @@ sub help {
 	--nodeName       | -n name of node
 	--fromNumber     | -o numbering of nodes starts from
 	--toNumber       | -d numbering of nodes ends to
+	--specialNodes   | -p list of special node names
 	--skipFacCretion | -s skip creation of facility
 	--batch          | -b batch
 	--help           | -h prints this help
@@ -24,16 +25,19 @@ sub help {
 	};
 }
 
-my ($facilityName, $facilityDescription, $batch, $likeFacility, $nodeName, $fromNumber, $toNumber, $skipFac);
+my ($facilityName, $facilityDescription, $batch, $likeFacility, $nodeName, $fromNumber, $toNumber, $skipFac, @specnodes);
 my %usedServices;
 
 GetOptions ("help|h"   => sub {
 		print help();
 		exit 0;
 	}, "batch|b"       => \$batch,
-	"likeFacility|l=s" => \$likeFacility, "facilityDsc|D=s" => \$facilityDescription,
+	"likeFacility|l=s" => \$likeFacility, 
+	"facilityDsc|D=s" => \$facilityDescription,
 	"nodeName|n=s"     => \$nodeName,
-	"fromNumber|o=i"   => \$fromNumber, "toNumber|d=i" => \$toNumber,
+	"fromNumber|o=i"   => \$fromNumber, 
+	"toNumber|d=i" => \$toNumber,
+	'specialNodes|p=s@{0,}' => \@specnodes,
 	"skipFacCreation|s" => \$skipFac,
 	"facilityName|F=s" => \$facilityName) || die help();
 
@@ -43,7 +47,7 @@ unless (defined($likeFacility)) { die "ERROR: likeFacility is required \n";}
 
 unless (defined($nodeName)) {$nodeName = $facilityName;}
 
-my ($facility,$facilityId);
+my ($facility,$facilityId,@hosts);
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 my $attributesAgent = $agent->getAttributesAgent;
@@ -79,7 +83,7 @@ unless ($skipFac) {
 	# vytvoreni nodes
 	my ($hlava, $ocasek) = split (/\./, $facilityName, 2);
 
-	my ($ii, @hosts);
+	my $ii;
 	my $jj = 0;
 	for ($ii = $fromNumber; $ii <= $toNumber; $ii++) {
 		$hosts[$jj] = $hlava.$ii.".".$ocasek;
@@ -90,64 +94,28 @@ unless ($skipFac) {
 	
 	printMessage("Hosts '@hosts' successfully added on the facility Id:$facilityId", $batch);
 
-	# nastaveni facility atributu
-	my @attributesO = $attributesAgent->getAttributes( facility => $facilityIdO );
-	my $kk;
-	for ($kk = 0; $kk < 3; $kk++) {
-		foreach my $attribute (@attributesO) {
-			my @pom = split(/\:/, $attribute->getName);
-			if ($pom[4] ne "core" and $pom[4] ne "virt") {
-				eval {
-					$attributesAgent->setAttribute( facility => $facilityId, attribute => $attribute );
-				};
-			}
-		}
-	}
-	# prirazeni destinations
-	my $servicesAgent = $agent->getServicesAgent;
-	while ( my ($serviceId, $val) = each(%usedServices)) {
-		my @destinationsO = $servicesAgent->getDestinations( facility => $facilityIdO, service => $serviceId );
-		# patri ke sluzbe destinations ?
-		if (@destinationsO) {
-			my $typ = "host";
-			foreach my $host (@hosts) {
-				$servicesAgent->addDestination( facility => $facilityId, service => $serviceId, destination => $host, type
-													 	=> $typ );
-				printMessage(
-					"Destination '$host' successfully added for the service Id:$serviceId on the facility Id:$facilityId",
-					$batch);
-			}
-		}
+	# pridani special nodes
+	if (@specnodes>0) {
+		$facilitiesAgent->addHosts( facility => $facilityId, hostnames => \@specnodes );
+		printMessage("Hosts '@specnodes' successfully added on the facility Id:$facilityId", $batch);
+		push (@hosts,@specnodes);
 	}
 
-	# zjisteni owners
-	my @owners = $facilitiesAgent->getOwners( facility => $facilityIdO );
-	if (@owners) {
-		# prirazeni owners
-		foreach my $owner (@owners) {
-			$facilitiesAgent->addOwner( facility => $facilityId, owner => $owner->getId );
-			printMessage("Owner Id:".$owner->getName." successfully added to the facility Id:$facilityId", $batch);
-		}
-	} else {
-		printMessage "No owner found", $batch;
-	}
-	# zjisteni managers
-	my @managers = $facilitiesAgent->getRichAdmins( facility => $facilityIdO, pageSize => 0, pageNum => 0 );
-	if (@managers) {
-		# prirazeni managers
-		foreach my $manager (@managers) {
-			$facilitiesAgent->addAdmin( facility => $facilityId, user => $manager->getId );
-			printMessage("User Id:".$manager->getDisplayName." successfully added as a Facility Id:$facilityId manager",
-				$batch);
-		}
-	} else {
-		printMessage "No manager found", $batch;
-	}
+	# nastaveni facility atributu
+	$facilitiesAgent->copyAttributes(srcFacility => $facilityIdO, destFacility => $facilityId);
+
+	# nastaveni owners
+	$facilitiesAgent->copyOwners(srcFacility => $facilityIdO, destFacility => $facilityId);
+
+	# nastaveni managers
+	$facilitiesAgent->copyManagers(srcFacility => $facilityIdO, destFacility => $facilityId);
+
 } else {
 	# zjisteni id nove Facility
 	$facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
 	$facilityId = $facility->getId;
 }
+
 # zjisteni resources
 my $resourcesAgent = $agent->getResourcesAgent;
 my $vosAgent = $agent->getVosAgent;
@@ -163,60 +131,64 @@ foreach my $resourceO (@resourcesO) {
 	my $resourceNameO = $resourceO->getName;
 	my $voId = $resourceO->getVoId( resource => $resourceIdO );
 	my $vo = $vosAgent->getVoById( id => $voId );
-	if ($vo->getName ne 'Facilities Administrators') {
-		# vytvoreni resources
-		my $resource = Perun::beans::Resource->new;
-		my $resourceName = $resourceNameO;
-		$resourceName =~ s/$likeFacility/$facilityName/;
-		$resource->setName( $resourceName );
-		$resource->setDescription( $resourceName );
-		$resource = $resourcesAgent->createResource( resource => $resource, vo => $voId, facility => $facilityId );
-		printMessage("Resource Id:".$resource->getId." successfully created", $batch);
-		# nastaveni resource atributu
-		my @attributesrO = $attributesAgent->getAttributes( resource => $resourceIdO );
-		for (my $kk = 0; $kk < 3; $kk++) {
-			foreach my $attributer (@attributesrO) {
-				my @pom = split(/\:/, $attributer->getName);
-				if ($pom[4] ne "core" and $pom[4] ne "virt") {
-					eval {
-						$attributesAgent->setAttribute( resource => $resource->getId, attribute => $attributer );
-					};
-					#if ($@) { warn "Error in set Attribute:".$@."\n"; }
-				}
+	# vytvoreni resources
+	my $resource = Perun::beans::Resource->new;
+	my $resourceName = $resourceNameO;
+	$resourceName =~ s/$likeFacility/$facilityName/;
+	$resource->setName( $resourceName );
+	my $resourceDescription=$resourceO->getDescription;
+	$resourceDescription =~ s/$likeFacility/$facilityName/; 
+	$resource->setDescription( $resourceDescription);
+#	$resource->setVoId($voId);
+#	$resource->setFacilityId($facilityId);
+	$resource = $resourcesAgent->createResource( resource => $resource, vo => $voId, facility => $facilityId );
+	printMessage("Resource Id:".$resource->getId." successfully created", $batch);
+	# nastaveni resource atributu
+	my @attributesrO = $attributesAgent->getAttributes( resource => $resourceIdO );
+	for (my $kk = 0; $kk < 3; $kk++) {
+		foreach my $attributer (@attributesrO) {
+			my @pom = split(/\:/, $attributer->getName);
+			if ($pom[4] ne "core" and $pom[4] ne "virt") {
+				eval {
+					$attributesAgent->setAttribute( resource => $resource->getId, attribute => $attributer );
+				};
 			}
-		}
-
-		# zjisteni services
-		my @servicesO = $resourcesAgent->getAssignedServices( resource => $resourceIdO );
-		if (@servicesO) {
-			foreach my $serviceO (@servicesO) {
-				# prirazeni services
-				$resourcesAgent->assignService( resource => $resource->getId, service => $serviceO->getId );
-				printMessage(
-					"Service Id:".$serviceO->getId." successfully assigned to the resource Id:".$resource->getId,
-					$batch);
-				$usedServices{$serviceO->getId} = 1;
-			}
-		} else {
-			printMessage "No Service found", $batch;
-		}
-
-		# zjisteni groups
-		my @groupsO = $resourcesAgent->getAssignedGroups( resource => $resourceIdO );
-		if (@groupsO) {
-			foreach my $groupO (@groupsO) {
-				# prirazeni groups
-				$resourcesAgent->assignGroupToResource( resource => $resource->getId, group => $groupO->getId );
-				printMessage("Group Id:".$groupO->getId." successfully assigned to the resource Id:".$resource->getId,
-					$batch);
-			}
-		} else {
-			printMessage "No Group found", $batch;
 		}
 	}
+
+	# zjisteni services
+	my @servicesO = $resourcesAgent->getAssignedServices( resource => $resourceIdO );
+	if (@servicesO) {
+		foreach my $serviceO (@servicesO) {
+			# prirazeni services
+			$resourcesAgent->assignService( resource => $resource->getId, service => $serviceO->getId );
+			printMessage("Service Id:".$serviceO->getId." successfully assigned to the resource Id:".$resource->getId, $batch);
+			$usedServices{$serviceO->getId} = 1;
+		}
+	} else {
+		printMessage "No Service found", $batch;
+	}
+
+	# zjisteni groups
+	my @groupsO = $resourcesAgent->getAssignedGroups( resource => $resourceIdO );
+	if (@groupsO) {
+		foreach my $groupO (@groupsO) {
+			# prirazeni groups
+			$resourcesAgent->assignGroupToResource( resource => $resource->getId, group => $groupO->getId );
+			if ($@) { warn "Error in assign group:".$@."\n"; }
+			printMessage("Group Id:".$groupO->getId." successfully assigned to the resource Id:".$resource->getId, $batch);
+		}
+	} else {
+		printMessage "No Group found", $batch;
+	}
 	};
+	#my $withGroups=1;
+	#$resourcesAgent->copyResource(templateResource => $resourceO, destinationResource => $resource, withGroups => $withGroups );
 }
 
+# prirazeni destinations
+# lepe nastavit pres GUI, neb se neda obecne urcit, ktere destinations maji mit ktere sluzby
+
 printMessage
-	"PLEASE CHECK VALUES OF ATTRIBUTES NAMELY ATTRIBUTES FOR SERVICE pbsmon_json. UPDATE DESCRIPTIONS ON RESOURCES!!!",
+	"PLEASE CHECK VALUES OF ATTRIBUTES NAMELY ATTRIBUTES FOR SERVICE pbsmon_json. UPDATE DESCRIPTIONS ON RESOURCES!!! SET DESTINATIONS BY GUI !!!",
 	$batch;
