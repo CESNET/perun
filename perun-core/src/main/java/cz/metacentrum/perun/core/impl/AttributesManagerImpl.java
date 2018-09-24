@@ -1075,6 +1075,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException {
+
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("rId", resource.getId());
+		parameters.addValue("nSC", AttributesManager.NS_RESOURCE_ATTR_CORE);
+		parameters.addValue("nSO", AttributesManager.NS_RESOURCE_ATTR_OPT);
+		parameters.addValue("nSD", AttributesManager.NS_RESOURCE_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_RESOURCE_ATTR_VIRT);
+		parameters.addValue("attrNames", attrNames);
+
+		try {
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("resattr") + " from attr_names " +
+							"left join resource_attr_values resattr on id=resattr.attr_id and resource_id=:rId " +
+							"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
+					parameters, new SingleBeanAttributeRowMapper<>(sess, this, resource));
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
