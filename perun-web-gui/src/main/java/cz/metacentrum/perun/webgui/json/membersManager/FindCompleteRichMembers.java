@@ -261,6 +261,9 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 		columnProvider.addIdColumn(authz, 110);
 		columnProvider.addUserIdColumn(authz, 110);
 		columnProvider.addStatusColumn(authz, 20);
+		if (entity.equals(PerunEntity.GROUP)) {
+			columnProvider.addGroupStatusColumn(authz, entityId,120);
+		}
 		columnProvider.addNameColumn(authz);
 		columnProvider.addOrganizationColumn(authz);
 		columnProvider.addEmailColumn(authz);

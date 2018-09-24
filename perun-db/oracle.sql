@@ -835,6 +835,7 @@ create table groups_members (
 	modified_at date default sysdate not null,
 	modified_by nvarchar2(1300) default user not null,
 	status char(1) default '0' not null,
+	source_group_status integer not null default 0,
 	created_by_uid integer,
 	modified_by_uid integer,
 	membership_type integer not null,  --identifier of membership type (membersip_types.id)

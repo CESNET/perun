@@ -12,6 +12,11 @@ ALTER TABLE application_form_item_texts ALTER COLUMN options TYPE text;
 update configurations set value='3.1.48' where property='DATABASE VERSION';
 
 -- this update is not supported on hsql since its used only as in-memory db
+
+3.1.48
+alter table groups_members ADD source_group_status integer not null default 0;
+update configurations set value='3.1.48' where property='DATABASE VERSION';
+
 3.1.47
 delete from service_dependencies where dependency_id in (select id from exec_services where exec_services.type='GENERATE');
 delete from service_denials where exec_service_id in (select id from exec_services where exec_services.type='GENERATE');

@@ -14,7 +14,7 @@ import java.util.Comparator;
 public class RichMemberComparator implements Comparator<RichMember>{
 
 	static public enum Column {
-		USER_ID, MEMBER_ID, EMAIL, USER_FULL_NAME, ORGANIZATION;
+		USER_ID, MEMBER_ID, EMAIL, USER_FULL_NAME, ORGANIZATION, GROUP_STATUS;
 	}
 
 	private Column attr;
@@ -47,6 +47,8 @@ public class RichMemberComparator implements Comparator<RichMember>{
 				return this.compareByUserFullName(o1, o2);
 			case ORGANIZATION:
 				return this.compareByOrganization(o1, o2);
+			case GROUP_STATUS:
+				return this.compareByGroupStatus(o1, o2);
 		}
 
 		return 0;
@@ -146,6 +148,19 @@ public class RichMemberComparator implements Comparator<RichMember>{
 	 */
 	private int compareByUserFullName(RichMember o1, RichMember o2) {
 		return Collator.getInstance().compareIgnoreCase(o1.getUser().getFullName(), o2.getUser().getFullName());
+	}
+
+	/**
+	 * Compares RichMembers by the group status
+	 * @param o1
+	 * @param o2
+	 * @return
+	 */
+	private int compareByGroupStatus(RichMember o1, RichMember o2)
+	{
+		String stat = (o1.getGroupStatus() != null) ? o1.getGroupStatus() : "";
+		String stat2 = (o2.getGroupStatus() != null) ? o2.getGroupStatus() : "";
+		return Collator.getInstance().compareIgnoreCase(stat, stat2);
 	}
 
 }

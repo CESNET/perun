@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -169,6 +170,16 @@ public class SearcherEntry implements Searcher {
 		}
 
 		return searcherBl.getResources(sess, attributesWithSearchingValues);
+	}
+
+	@Override
+	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, Calendar date) throws PrivilegeException, InternalErrorException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getMembersByGroupExpiration");
+		}
+
+		return getPerunBl().getSearcherBl().getMembersByGroupExpiration(sess, group, operator, date);
 	}
 
 	public SearcherBl getSearcherBl() {

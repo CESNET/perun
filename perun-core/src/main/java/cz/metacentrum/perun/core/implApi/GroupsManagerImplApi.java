@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
@@ -289,6 +290,18 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * Get group members by member ID -> meaning we will get all (DIRECT/INDIRECT)
+	 * group memberships for specified member (or user, since it will be the same).
+	 *
+	 * @param sess
+	 * @param group
+	 * @param memberId
+	 * @return list of members
+	 * @throws InternalErrorException
+	 */
+	List<Member> getGroupMembersById(PerunSession sess, Group group, int memberId) throws InternalErrorException;
 
 	/**
 	 * Get only group members which has given membership type ignoring their status.
@@ -647,4 +660,48 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Integer> getResultGroupsIds(PerunSession sess, int groupId) throws InternalErrorException;
+
+	/**
+	 * Set status of the member to specified status for indirect relations
+	 * where the given group is the source group.
+	 *
+	 * @param member member whose status will be changed
+	 * @param group group where member's status will be changed
+	 * @param status status that will be set
+	 * @throws InternalErrorException internal error
+	 */
+	void setIndirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException;
+
+	/**
+	 * Set direct status of the member to specified status in given group.
+	 *
+	 * @param member member whose status will be changed
+	 * @param group group where member's status will be changed
+	 * @param status status that will be set
+	 * @throws InternalErrorException internal error
+	 */
+	void setDirectGroupStatus(PerunSession sess, Member member, Group group, MemberGroupStatus status) throws InternalErrorException;
+
+	/**
+	 * Returns direct members status in given group.
+	 * If there is no relation, null is returned.
+	 * @param session session
+	 * @param member member
+	 * @param group group
+	 * @return status of member in given group, if there is no relation, null is returned
+	 * @throws InternalErrorException internal error
+	 */
+	MemberGroupStatus getDirectMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns total member's status in given group.
+	 * If there is no relation, null is returned.
+	 *
+	 * @param session session
+	 * @param member member
+	 * @param group group
+	 * @return total status of member in given group, if there is no relation, null is returned
+	 * @throws InternalErrorException internal error
+	 */
+	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
 }

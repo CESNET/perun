@@ -61,6 +61,26 @@ public interface SearcherImplApi {
 	List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date, int days) throws InternalErrorException;
 
 	/**
+	 * Return members who should expire in given group and with expiration date set,
+	 * which will expire on date +/- X days.
+	 * You can specify operator for comparison (by default "=") returning exact match.
+	 * So you can get all expired members (including today) using "<=" and zero days shift.
+	 * or using "<" and +1 day shift.
+	 *
+	 * Method returns members with its expiration status for given group.
+	 * Method ignores current member state, just compares expiration date !
+	 *
+	 * @param sess PerunSession
+	 * @param group Group where members are searched in
+	 * @param operator One of "=", "<", ">", "<=", ">=". If null, "=" is anticipated.
+	 * @param date Date to compare expiration with (if null, current date is used).
+	 * @param days X days before/after today.
+	 * @return Members with expiration relative to method params.
+	 * @throws InternalErrorException internal error
+	 */
+	List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, Calendar date, int days) throws InternalErrorException;
+
+	/**
 	 * Return all groups assigned to any resource with following conditions:
 	 * 1] resource has set "resourceAttribute" attribute with same value
 	 * 2] group and resource has set "groupResourceAttribute" attribute with same value

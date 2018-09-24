@@ -1,20 +1,29 @@
 package cz.metacentrum.perun.core.entry;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -22,6 +31,8 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
@@ -30,11 +41,15 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
+import cz.metacentrum.perun.core.bl.MembersManagerBl;
+import cz.metacentrum.perun.core.bl.UsersManagerBl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -82,6 +97,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	private GroupsManager groupsManager;
 	private GroupsManagerBl groupsManagerBl;
 	private AttributesManager attributesManager;
+	private UsersManagerBl usersManagerBl;
 
 	@Before
 	public void setUpBeforeEveryMethod() throws Exception {
@@ -89,11 +105,1228 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager = perun.getGroupsManager();
 		groupsManagerBl = perun.getGroupsManagerBl();
 		attributesManager = perun.getAttributesManager();
+		usersManagerBl = perun.getUsersManagerBl();
 		// vo = setUpVo();
 		// setUpGroup(vo);
 		// moved to every method to save testing time
 
 	}
+
+
+	@Test
+	public void initMembersStatusInGroup() throws Exception {
+		System.out.println(CLASS_NAME + "initMembersStatusInGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//load member with group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate init status
+		assertSame("Member does not have VALID init group status", foundMember.getGroupStatus(), MemberGroupStatus.VALID);
+		assertTrue("Member's init group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's init status for specific group was not VALID",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.VALID);
+	}
+
+	@Test
+	public void expireMemberInGroup() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		//load member with group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate expired status
+		assertSame("Member does not have EXPIRED status.", foundMember.getGroupStatus(), MemberGroupStatus.EXPIRED);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not EXPIRED",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.EXPIRED);
+	}
+
+	@Test
+	public void expireMemberInGroupWithActiveInSubGroup() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInGroupWithActiveInSubGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up subgroup and add member to it
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.moveGroup(sess, group, group2);
+
+		//expire member in upper group
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		//load member with upper group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate status after expiration with being VALID in subgroup
+		assertSame("Member does not have VALID group status", foundMember.getGroupStatus(), MemberGroupStatus.VALID);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not VALID",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.VALID);
+	}
+
+	@Test
+	public void expireMemberInSubGroupAndStillActiveInUpperGroup() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInSubGroupAndStillActiveInUpperGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up subgroup and add member to it
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.moveGroup(sess, group, group2);
+
+		//expire member in upper group
+		groupsManagerBl.expireMemberInGroup(sess, member, group2);
+
+		//load member with upper group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate status after expiration with being expired in subgroup
+		assertSame("Member does not have VALID group status", foundMember.getGroupStatus(), MemberGroupStatus.VALID);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not VALID",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.VALID);
+	}
+
+	@Test
+	public void expireMemberInSubGroupAndInUpperGroup() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberInSubGroupAndInUpperGroup");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up subgroup and add member to it
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.moveGroup(sess, group, group2);
+
+		//expire member in upper group
+		groupsManagerBl.expireMemberInGroup(sess, member, group2);
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+
+		//load member with upper group context
+		List<Member> groupMembers = groupsManagerBl.getGroupMembers(sess, group);
+		Optional<Member> optionalFoundMember = groupMembers.stream().filter(m -> m.getId() == member.getId()).findFirst();
+		assertTrue(optionalFoundMember.isPresent());
+		Member foundMember = optionalFoundMember.get();
+
+		//validate status after expiration with being expired in subgroup
+		assertSame("Member does not have EXPIRED group status", foundMember.getGroupStatus(), MemberGroupStatus.EXPIRED);
+		assertTrue("Member's group statuses did not contain status for specific group",
+				foundMember.getGroupStatuses().containsKey(group.getId()));
+		assertEquals("Member's status for specific group was not EXPIRED",
+				foundMember.getGroupStatuses().get(group.getId()), MemberGroupStatus.EXPIRED);
+	}
+
+	@Test
+	public void validateMemberRecursively() throws Exception {
+		System.out.println(CLASS_NAME + "validateMemberRecursively");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+		groupsManagerBl.createGroup(sess, vo, group5);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.addMember(sess, group3, member);
+		groupsManagerBl.addMember(sess, group4, member);
+		groupsManagerBl.addMember(sess, group5, member);
+
+		// create realtions between groups
+		groupsManagerBl.moveGroup(sess, group, group2);
+		groupsManagerBl.moveGroup(sess, group2, group3);
+		groupsManagerBl.createGroupUnion(sess, group3, group4, false);
+		groupsManagerBl.createGroupUnion(sess, group4, group5, true);
+
+		// expire member everywhere
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+		groupsManagerBl.expireMemberInGroup(sess, member, group2);
+		groupsManagerBl.expireMemberInGroup(sess, member, group3);
+		groupsManagerBl.expireMemberInGroup(sess, member, group4);
+		groupsManagerBl.expireMemberInGroup(sess, member, group5);
+
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group5));
+
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's inti group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
+
+		// validate member in the very bottom group
+		groupsManagerBl.validateMemberInGroup(sess, member, group5);
+
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's direct init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group5));
+
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's inti group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
+	}
+
+	@Test
+	public void expireMemberRecursively() throws Exception {
+		System.out.println(CLASS_NAME + "expireMemberRecursively");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member = setUpMemberInGroup(vo);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+		groupsManagerBl.createGroup(sess, vo, group5);
+		groupsManagerBl.addMember(sess, group2, member);
+		groupsManagerBl.addMember(sess, group3, member);
+		groupsManagerBl.addMember(sess, group4, member);
+		groupsManagerBl.addMember(sess, group5, member);
+
+		// create relations between groups
+		groupsManagerBl.moveGroup(sess, group, group2);
+		groupsManagerBl.moveGroup(sess, group2, group3);
+		groupsManagerBl.createGroupUnion(sess, group3, group4, false);
+		groupsManagerBl.createGroupUnion(sess, group4, group5, true);
+
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's inti group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
+
+		// expire member in all groups except the very bottom group
+		groupsManagerBl.expireMemberInGroup(sess, member, group);
+		groupsManagerBl.expireMemberInGroup(sess, member, group2);
+		groupsManagerBl.expireMemberInGroup(sess, member, group3);
+		groupsManagerBl.expireMemberInGroup(sess, member, group4);
+
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's direct init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's direct init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group5));
+
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's inti group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
+
+		// expire member in the very bottom group
+		groupsManagerBl.expireMemberInGroup(sess, member, group5);
+
+		assertEquals("Member's direct group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's direct group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's direct group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's direct group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's direct group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getDirectMemberGroupStatus(sess, member, group));
+
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group5));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group4));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group3));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group2));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member, group));
+	}
+
+	@Test
+	public void moveGroupCorrectMemberGroupStatuses() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupCorrectMemberGroupStatuses");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+		Member member2 = setUpMemberWithDifferentParam(vo, 222);
+		Member member3 = setUpMemberWithDifferentParam(vo, 333);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+		groupsManagerBl.createGroup(sess, vo, group5);
+
+		groupsManagerBl.moveGroup(sess, group2, group);
+		groupsManagerBl.moveGroup(sess, group3, group2);
+		groupsManagerBl.moveGroup(sess, group5, group4);
+
+		// set up members with statuses
+		groupsManagerBl.addMember(sess, group, member1);
+		groupsManagerBl.addMember(sess, group4, member1);
+		groupsManagerBl.addMember(sess, group, member2);
+		groupsManagerBl.addMember(sess, group2, member2);
+		groupsManagerBl.addMember(sess, group, member3);
+		groupsManagerBl.expireMemberInGroup(sess, member1, group4);
+		groupsManagerBl.expireMemberInGroup(sess, member2, group2);
+		groupsManagerBl.expireMemberInGroup(sess, member3, group);
+
+		// verify init statuses
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group5));
+
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
+
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
+
+		groupsManagerBl.moveGroup(sess, group4, group);
+
+		// verify after statuses
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group5));
+
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
+
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
+		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
+		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
+	}
+
+	@Test
+	public void moveGroupCorrectMemberGroupStatuses2() throws Exception {
+		System.out.println(CLASS_NAME + "moveGroupCorrectMemberGroupStatuses2");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+
+		groupsManagerBl.moveGroup(sess, group, group2);
+		groupsManagerBl.moveGroup(sess, group2, group3);
+
+		// set up members with statuses
+		groupsManagerBl.addMember(sess, group, member1);
+		groupsManagerBl.addMember(sess, group3, member1);
+		groupsManagerBl.expireMemberInGroup(sess, member1, group);
+
+		// verify init statuses
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+
+		groupsManagerBl.moveGroup(sess, null, group3);
+
+		// verify after statuses
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+	}
+
+	@Test
+	public void addMemberCorrectMemberGroupStatusesAreSet() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberCorrectMemberGroupStatusesAreSet");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+
+		groupsManagerBl.moveGroup(sess, group2, group);
+		groupsManagerBl.moveGroup(sess, group3, group2);
+
+		// set up members with statuses
+		groupsManagerBl.addMember(sess, group2, member1);
+		groupsManagerBl.expireMemberInGroup(sess, member1, group2);
+
+		// verify init statuses
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+
+		// add member
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// verify statuses after adding member
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+	}
+
+	@Test
+	public void addMemberToGroupWithGroupMembershipExpirationSet() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberToGroupWithGroupMembershipExpirationSet");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+
+		// set up expiration rules attribute
+		createGroupExpirationRulesAttribute(group);
+
+		// add member to group where is expiration set
+		groupsManagerBl.addMember(sess, group, member1);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
+		Calendar extendedCalendar = Calendar.getInstance();
+		extendedCalendar.setTime(extendedDate);
+
+		// Set to 1.1. next year
+		Calendar requiredCalendar = Calendar.getInstance();
+		requiredCalendar.set(Calendar.MONTH, 0);
+		requiredCalendar.set(Calendar.DAY_OF_MONTH, 1);
+		requiredCalendar.add(Calendar.YEAR, 1);
+
+		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
+		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
+		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+	}
+
+	@Test
+	public void extendGroupMembership() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembership");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// set up expiration rules attribute
+		createGroupExpirationRulesAttribute(group);
+
+		// try to extend membership
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
+		Calendar extendedCalendar = Calendar.getInstance();
+		extendedCalendar.setTime(extendedDate);
+
+		// Set to 1.1. next year
+		Calendar requiredCalendar = Calendar.getInstance();
+		requiredCalendar.set(Calendar.MONTH, 0);
+		requiredCalendar.set(Calendar.DAY_OF_MONTH, 1);
+		requiredCalendar.add(Calendar.YEAR, 1);
+
+		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
+		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
+		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+	}
+
+	@Test
+	public void extendGroupMembershipBy10Days() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembershipBy10Days");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+10d");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Try to extend membership
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
+		Calendar extendedCalendar = Calendar.getInstance();
+		extendedCalendar.setTime(extendedDate);
+
+		Calendar requiredCalendar = Calendar.getInstance();
+		requiredCalendar.add(Calendar.DAY_OF_MONTH, 10); // Add 10 days to today
+
+		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
+		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
+		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+	}
+
+	@Test
+	public void extendGroupMembershipInGracePeriod() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembershipInGracePeriod");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Period will be set to the next day
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int month = calendar.get(Calendar.MONTH)+1;
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		// Set perid to day after today
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, day + "." + month + ".");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Try to extend membership
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
+		Calendar extendedCalendar = Calendar.getInstance();
+		extendedCalendar.setTime(extendedDate);
+
+		Calendar requiredCalendar = Calendar.getInstance();
+		requiredCalendar.add(Calendar.DAY_OF_MONTH, 1);
+		requiredCalendar.add(Calendar.YEAR, 1);
+
+		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
+		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
+		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+	}
+
+	@Test
+	public void extendGroupMembershipOutsideGracePeriod() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembershipOutsideGracePeriod");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set period to three months later
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.MONTH, 3);
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int month = calendar.get(Calendar.MONTH)+1;
+
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		// Set perid to day after today
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, day + "." + month + ".");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Try to extend membership
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
+		Calendar extendedCalendar = Calendar.getInstance();
+		extendedCalendar.setTime(extendedDate);
+
+		Calendar requiredCalendar = Calendar.getInstance();
+		requiredCalendar.add(Calendar.MONTH, 3);
+
+		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
+		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
+		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+	}
+
+	@Test
+	public void extendGroupMembershipForMemberWithSufficientLoa() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembershipForMemberWithSufficientLoa");
+
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0,1");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Set LOA 2 for member
+		UserExtSource ues = new UserExtSource(es, "abc");
+		ues.setLoa(2);
+
+		User user = usersManagerBl.getUserByMember(sess, member1);
+		usersManagerBl.addUserExtSource(sess, user, ues);
+
+		// Try to extend membership
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
+		Calendar extendedCalendar = Calendar.getInstance();
+		extendedCalendar.setTime(extendedDate);
+
+		// Set to 1.1. next year
+		Calendar requiredCalendar = Calendar.getInstance();
+		requiredCalendar.set(Calendar.MONTH, 0);
+		requiredCalendar.set(Calendar.DAY_OF_MONTH, 1);
+		requiredCalendar.add(Calendar.YEAR, 1);
+
+		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
+		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
+		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+	}
+
+	@Test
+	public void extendGroupMembershipForMemberWithInsufficientLoa() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembershipForMemberWithInsufficientLoa");
+
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0,1");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		Attribute membershipExpirationAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
+		Calendar nowCalendar = Calendar.getInstance();
+		membershipExpirationAttribute.setValue(BeansUtils.getDateFormatterWithoutTime().format(nowCalendar.getTime()));
+		attributesManager.setAttribute(sess, member1, group, membershipExpirationAttribute);
+
+		// Set LOA 1 for member
+		UserExtSource ues = new UserExtSource(es, "abc");
+		ues.setLoa(1);
+
+		User user = usersManagerBl.getUserByMember(sess, member1);
+		usersManagerBl.addUserExtSource(sess, user, ues);
+
+		// Try to extend membership
+		try {
+			groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+		} catch (ExtendMembershipException e) {
+			assertEquals(e.getReason(), ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION);
+		}
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertEquals("membership attribute value must contains same value as before extension.",
+				BeansUtils.getDateFormatterWithoutTime().format(nowCalendar.getTime()), membershipAttribute.getValue()); // Attribute cannot contain any value
+	}
+
+	@Test
+	public void extendGroupMembershipForDefinedLoaAllowed() throws Exception {
+		System.out.println(CLASS_NAME + "extendGroupMembershipForDefinedLoaAllowed");
+
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Set LOA 1 for member
+		UserExtSource ues = new UserExtSource(es, "abc");
+		ues.setLoa(1);
+
+		User user = usersManagerBl.getUserByMember(sess, member1);
+		usersManagerBl.addUserExtSource(sess, user, ues);
+
+		// Try to extend membership
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		// Try to extend membership once again
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
+		Calendar extendedCalendar = Calendar.getInstance();
+		extendedCalendar.setTime(extendedDate);
+
+		Calendar requiredCalendar = Calendar.getInstance();
+		requiredCalendar.add(Calendar.MONTH, 1);
+
+		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
+		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
+		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+	}
+
+	@Test
+	public void canExtendGroupMembershipForDefinedLoaNotAllowed() throws Exception {
+		System.out.println(CLASS_NAME + "extendMembershipForDefinedLoaNotAllowed");
+
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m.");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Set LOA 1 for member
+		UserExtSource ues = new UserExtSource(es, "abc");
+		ues.setLoa(0);
+
+		User user = usersManagerBl.getUserByMember(sess, member1);
+		usersManagerBl.addUserExtSource(sess, user, ues);
+
+		// Try to extend membership
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		Attribute membershipAttribute = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttribute);
+		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
+
+		// Try to extend membership
+		assertFalse(groupsManagerBl.canExtendMembershipInGroup(sess, member1, group));
+	}
+
+	@Test
+	// It extend membership and try to extend it again, it must decline another expiration
+	public void canExtendMembershipInGracePeriod() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipInGracePeriod");
+
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m.");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Set LOA 1 for member
+		UserExtSource ues = new UserExtSource(es, "abc");
+		ues.setLoa(0);
+
+		User user = usersManagerBl.getUserByMember(sess, member1);
+		usersManagerBl.addUserExtSource(sess, user, ues);
+
+		// Try to extend membership
+		groupsManagerBl.extendMembershipInGroup(sess, member1, group);
+
+		Attribute membershipAttributeFirst = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttributeFirst);
+		assertNotNull("membership attribute value must be set", membershipAttributeFirst.getValue());
+
+		// Try to extend membership
+		assertFalse(groupsManagerBl.canExtendMembershipInGroup(sess, member1, group));
+	}
+
+
+	@Test
+	public void canExtendMembershipInGracePeriodRelativeDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipInGracePeriodRelativeDate");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+6m");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Set expiration date to tomorrow (one day after grace period begun)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 1);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+		Attribute expirationAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
+		expirationAttr.setValue(format.format(today.getTime()));
+		attributesManager.setAttribute(sess, member1, group, expirationAttr);
+
+		// Check if enviroment is set properly
+		expirationAttr = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+		assertNotNull("membership attribute must be set", expirationAttr);
+		assertNotNull("membership attribute value must be set", expirationAttr.getValue());
+
+		// Try to extend membership
+		assertTrue(groupsManagerBl.canExtendMembershipInGroup(sess, member1, group));
+	}
+
+	@Test
+	public void canExtendMembershipOutOfGracePeriodRelativeDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipOutOfGracePeriodRelativeDate");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+6m");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Set expiration date to three days after. (one day untill grace period begins)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 3);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+		Attribute expirationAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
+		expirationAttr.setValue(format.format(today.getTime()));
+		attributesManager.setAttribute(sess, member1, group, expirationAttr);
+
+		// Check if enviroment is set properly
+		expirationAttr = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+		assertNotNull("membership attribute must be set", expirationAttr);
+		assertNotNull("membership attribute value must be set", expirationAttr.getValue());
+
+		// Check if membership can be extended
+		assertFalse(groupsManagerBl.canExtendMembershipInGroup(sess, member1, group));
+	}
+
+	@Test
+	public void canExtendMembershipInGracePeriodAbsoluteDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipInGracePeriodAbsoluteDate");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Set expiration date to tomorrow (one day after grace period begun)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 1);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+		Attribute expirationAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
+		expirationAttr.setValue(format.format(today.getTime()));
+		attributesManager.setAttribute(sess, member1, group, expirationAttr);
+
+		// Check if enviroment is set properly
+		expirationAttr = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+		assertNotNull("membership attribute must be set", expirationAttr);
+		assertNotNull("membership attribute value must be set", expirationAttr.getValue());
+
+		// Try to extend membership
+		assertTrue(groupsManagerBl.canExtendMembershipInGroup(sess, member1, group));
+	}
+
+	@Test
+	public void canExtendMembershipOutOfGracePeriodAbsoluteDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipOutOfGracePeriodAbsoluteDate");
+
+		// set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		// set up group
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
+
+		// Set expiration date to three days after. (one day untill grace period begins)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 3);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+		Attribute expirationAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
+		expirationAttr.setValue(format.format(today.getTime()));
+		attributesManager.setAttribute(sess, member1, group, expirationAttr);
+
+		// Check if enviroment is set properly
+		expirationAttr = attributesManager.getAttribute(sess, member1, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration");
+		assertNotNull("membership attribute must be set", expirationAttr);
+		assertNotNull("membership attribute value must be set", expirationAttr.getValue());
+
+		// Check if membership can be extended
+		assertFalse(groupsManagerBl.canExtendMembershipInGroup(sess, member1, group));
+	}
+
+	@Test
+	public void removeMemberCorrectMemberGroupStatusesAreSet() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberCorrectMemberGroupStatusesAreSet");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+
+		groupsManagerBl.moveGroup(sess, group2, group);
+		groupsManagerBl.moveGroup(sess, group3, group2);
+		groupsManagerBl.moveGroup(sess, group4, group3);
+
+		// set up members with statuses
+		groupsManagerBl.addMember(sess, group2, member1);
+		groupsManagerBl.expireMemberInGroup(sess, member1, group2);
+
+		// add member
+		groupsManagerBl.addMember(sess, group, member1);
+
+		// verify init statuses
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+
+		groupsManagerBl.removeMember(sess, group, member1);
+
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+	}
+
+	@Test
+	public void createGroupUnionCorrectMemberGroupStatusesAreSet() throws Exception {
+		System.out.println(CLASS_NAME + "createGroupUnionCorrectMemberGroupStatusesAreSet");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+		Member member2 = setUpMemberWithDifferentParam(vo, 222);
+		Member member3 = setUpMemberWithDifferentParam(vo, 333);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+		groupsManagerBl.createGroup(sess, vo, group5);
+
+		groupsManagerBl.moveGroup(sess, group2, group);
+		groupsManagerBl.moveGroup(sess, group3, group2);
+		groupsManagerBl.moveGroup(sess, group5, group4);
+
+		// set up members with statuses
+		groupsManagerBl.addMember(sess, group, member1);
+		groupsManagerBl.addMember(sess, group4, member1);
+		groupsManagerBl.addMember(sess, group, member2);
+		groupsManagerBl.addMember(sess, group2, member2);
+		groupsManagerBl.addMember(sess, group, member3);
+		groupsManagerBl.expireMemberInGroup(sess, member1, group4);
+		groupsManagerBl.expireMemberInGroup(sess, member2, group2);
+		groupsManagerBl.expireMemberInGroup(sess, member3, group);
+
+		// verify init statuses
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group5));
+
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
+
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
+
+		groupsManagerBl.createGroupUnion(sess, group4, group, false);
+
+		// verify after statuses
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group5));
+
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
+
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
+	}
+
+	@Test
+	public void removeGroupUnionCorrectMemberGroupStatusesAreSet() throws Exception {
+		System.out.println(CLASS_NAME + "removeGroupUnionCorrectMemberGroupStatusesAreSet");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+		Member member2 = setUpMemberWithDifferentParam(vo, 222);
+		Member member3 = setUpMemberWithDifferentParam(vo, 333);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+		groupsManagerBl.createGroup(sess, vo, group5);
+
+		groupsManagerBl.moveGroup(sess, group2, group);
+		groupsManagerBl.moveGroup(sess, group3, group2);
+		groupsManagerBl.moveGroup(sess, group5, group4);
+
+		// set up members with statuses
+		groupsManagerBl.addMember(sess, group, member1);
+		groupsManagerBl.addMember(sess, group4, member1);
+		groupsManagerBl.addMember(sess, group, member2);
+		groupsManagerBl.addMember(sess, group2, member2);
+		groupsManagerBl.addMember(sess, group, member3);
+		groupsManagerBl.expireMemberInGroup(sess, member1, group4);
+		groupsManagerBl.expireMemberInGroup(sess, member2, group2);
+		groupsManagerBl.expireMemberInGroup(sess, member3, group);
+		groupsManagerBl.createGroupUnion(sess, group4, group, false);
+
+		// verify init statuses
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group5));
+
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
+
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
+
+		groupsManagerBl.removeGroupUnion(sess, group4, group, false);
+
+		// verify after statuses
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group5));
+
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
+		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
+		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
+
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
+		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
+		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
+	}
+
 
 	@Test
 	public void getGroupsWithAssignedExtSourceInVo() throws Exception {
@@ -2747,5 +3980,37 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		facility.setName("AttributesManagerTestFacility");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, facility));
 		return facility;
+	}
+
+	private Member setUpMemberInGroup(Vo vo) throws Exception {
+		Candidate candidate = new Candidate();
+		candidate.setFirstName("TestName");
+		candidate.setId(0);
+		candidate.setMiddleName("");
+		candidate.setLastName("TestLastName");
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		UserExtSource ues = new UserExtSource(extSource, extLogin);
+		candidate.setUserExtSource(ues);
+		candidate.setAttributes(new HashMap<>());
+
+		Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.addMember(sess, group, member);
+
+		return member;
+	}
+
+	private void createGroupExpirationRulesAttribute(Group group) throws Exception {
+		Attribute expirationRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess,
+				AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules"));
+		Map<String, String> values = new LinkedHashMap<>();
+		values.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
+
+		expirationRulesAttribute.setValue(values);
+
+		attributesManager.setAttribute(sess, group, expirationRulesAttribute);
 	}
 }

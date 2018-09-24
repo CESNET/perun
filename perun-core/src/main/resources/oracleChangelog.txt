@@ -6,6 +6,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.49
+alter table groups_members ADD source_group_status integer not null default 0;
+update configurations set value='3.1.49' where property='DATABASE VERSION';
+
 3.1.48
 ALTER TABLE application_form_item_texts ADD (long_label clob);
 ALTER TABLE application_form_item_texts ADD (long_options clob);

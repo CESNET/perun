@@ -4,6 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Overlay type for RichMember object
@@ -222,6 +223,37 @@ public class RichMember extends JavaScriptObject {
 	 */
 	public final native String getStatus() /*-{
 		return this.status;
+	}-*/;
+
+
+	/**
+	 * Returns the status of Member in a Group context, by default VALID.
+	 * Possible values are VALID and EXPIRED
+	 *
+	 * @return string which defines group member status
+	 */
+	public final native String getGroupStatus() /*-{
+		return this.groupStatus;
+	}-*/;
+
+	/**
+	 * Set group membership status (VALID, EXPIRED)
+	 *
+	 * @param groupStatus string which defines item status
+	 */
+	public final native void setGroupStatus(String groupStatus) /*-{
+		this.groupStatus = groupStatus;
+	}-*/;
+
+	/**
+	 * Returns map of all Member statuses, which are used to calculate getGroupStatus() value.
+	 * Its map of GroupId=>Status
+	 * Possible values are VALID and EXPIRED
+	 *
+	 * @return map of member sourcing statuses
+	 */
+	public final native GroupStatuses getGroupStatuses() /*-{
+		return this.groupStatuses;
 	}-*/;
 
 	/**

@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -16,8 +17,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MembersManagerImpl implements MembersManagerImplApi {
@@ -28,7 +31,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			"members.created_by_uid as members_created_by_uid, members.modified_by_uid as members_modified_by_uid";
 
 	final static String groupsMembersMappingSelectQuery = memberMappingSelectQuery + ", groups_members.membership_type as membership_type, " +
-			"groups_members.source_group_id as source_group_id";
+			"groups_members.source_group_id as source_group_id, groups_members.source_group_status as source_group_status, groups_members.group_id as group_id";
 
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -40,12 +43,31 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 				rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
 		member.setSponsored(rs.getBoolean("members_sponsored"));
 		try {
+			member.putGroupStatus(rs.getInt("group_id"), MemberGroupStatus.getMemberGroupStatus(rs.getInt("source_group_status")));
 			member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
 			member.setSourceGroupId(rs.getInt("source_group_id"));
 		} catch (SQLException ex) {
 			// this is ok, member does not need to always have membership_type and source_group_id set
 		}
 		return member;
+	};
+
+
+	public static final ResultSetExtractor<List<Member>> MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR = resultSet -> {
+		Map<Integer, Member> members = new HashMap<>();
+
+		while(resultSet.next()) {
+			Member member = MembersManagerImpl.MEMBER_MAPPER.mapRow(resultSet, resultSet.getRow());
+			if (members.containsKey(member.getId())) {
+				members.get(member.getId()).putGroupStatuses(member.getGroupStatuses());
+			} else {
+				member.setSourceGroupId(null);
+				member.setMembershipType((String)null);
+				members.put(member.getId(), member);
+			}
+		}
+
+		return new ArrayList<>(members.values());
 	};
 
 	/**

@@ -7,13 +7,20 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
+import cz.metacentrum.perun.webgui.json.groupsManager.SetGroupsMemberStatus;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
@@ -21,12 +28,12 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
 
 /**
- * Inner tab for changing members membership status
+ * Inner tab for changing members group membership status
  * !! USE AS INNER TAB ONLY !!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class ChangeStatusTabItem implements TabItem {
+public class ChangeGroupStatusTabItem implements TabItem {
 
 	private RichMember member;
 	private int memberId;
@@ -35,17 +42,20 @@ public class ChangeStatusTabItem implements TabItem {
 	private Label titleWidget = new Label("Loading member");
 	TabPanelForTabItems tabPanel;
 	private JsonCallbackEvents events = new JsonCallbackEvents();
+	private int groupId;
 
 	/**
 	 * Constructor
 	 *
 	 * @param member RichMember object, typically from table
+	 * @param groupId ID of group to change status in
 	 * @param events Events triggered when status is changed
 	 */
-	public ChangeStatusTabItem(RichMember member, JsonCallbackEvents events){
+	public ChangeGroupStatusTabItem(RichMember member, int groupId, JsonCallbackEvents events){
 		this.member = member;
 		this.memberId = member.getId();
 		this.events = events;
+		this.groupId = groupId;
 		this.tabPanel = new TabPanelForTabItems(this);
 	}
 
@@ -55,7 +65,7 @@ public class ChangeStatusTabItem implements TabItem {
 
 	public Widget draw() {
 
-		this.titleWidget.setText("Change member status");
+		this.titleWidget.setText("Change group member status");
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("300px", "100%");
@@ -68,25 +78,16 @@ public class ChangeStatusTabItem implements TabItem {
 		final HTML text = new HTML("");
 		final ListBox lb = new ListBox(false);
 		lb.addItem("VALID", "VALID");
-		lb.addItem("INVALID", "INVALID");
-		lb.addItem("SUSPENDED", "SUSPENDED");
 		lb.addItem("EXPIRED", "EXPIRED");
-		lb.addItem("DISABLED", "DISABLED");
 
 		layout.setHTML(0, 0, "Current status:");
 		layout.getFlexCellFormatter().setStyleName(0, 0, "itemName");
-		layout.setHTML(0, 1, SafeHtmlUtils.fromString(member.getStatus()).asString());
+		layout.setHTML(0, 1, SafeHtmlUtils.fromString(member.getGroupStatus()).asString());
 
-		if (member.getStatus().equalsIgnoreCase("VALID")) {
+		if (member.getGroupStatus().equalsIgnoreCase("VALID")) {
 			layout.setHTML(1, 0, "Member is properly configured and have access on provided resources.");
-		} else if (member.getStatus().equalsIgnoreCase("INVALID")) {
-			layout.setHTML(1, 0, "Member have configuration error and DON'T have access on provided resources. You can check what is wrong by changing member's status to VALID. If possible, procedure will configure all necessary settings by itself.");
-		} else if (member.getStatus().equalsIgnoreCase("SUSPENDED")) {
-			layout.setHTML(1, 0, "Member violated some rules and DON'T have access on provided resources.");
-		} else if (member.getStatus().equalsIgnoreCase("EXPIRED")) {
+		} else if (member.getGroupStatus().equalsIgnoreCase("EXPIRED")) {
 			layout.setHTML(1, 0, "Member didn't extend membership and DON'T have access on provided resources.");
-		} else if (member.getStatus().equalsIgnoreCase("DISABLED")) {
-			layout.setHTML(1, 0, "Member didn't extend membership long time ago or was manually disabled and DON'T have access on provided resources.");
 		}
 		layout.getFlexCellFormatter().setColSpan(1, 0, 2);
 		layout.getFlexCellFormatter().setStyleName(1, 0, "inputFormInlineComment");
@@ -102,7 +103,7 @@ public class ChangeStatusTabItem implements TabItem {
 
 		// pick which one is already set
 		for (int i=0; i<lb.getItemCount(); i++) {
-			if (lb.getItemText(i).equalsIgnoreCase(member.getStatus())) {
+			if (lb.getItemText(i).equalsIgnoreCase(member.getGroupStatus())) {
 				lb.setSelectedIndex(i);
 			}
 		}
@@ -110,13 +111,11 @@ public class ChangeStatusTabItem implements TabItem {
 		TabMenu menu = new TabMenu();
 		final TabItem tab = this;
 
-		final CustomButton changeButton = new CustomButton("Change status", ButtonTranslation.INSTANCE.changeStatus(member.getUser().getFullName()), SmallIcons.INSTANCE.diskIcon());
-		// by default false
-		changeButton.setEnabled(false);
+		final CustomButton changeButton = new CustomButton("Change group status", ButtonTranslation.INSTANCE.changeStatus(member.getUser().getFullName()), SmallIcons.INSTANCE.diskIcon());
 		changeButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				SetStatus request = new SetStatus(memberId, JsonCallbackEvents.disableButtonEvents(changeButton, JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents(){
+				SetGroupsMemberStatus request = new SetGroupsMemberStatus(groupId, memberId, JsonCallbackEvents.disableButtonEvents(changeButton, JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						// close without refresh
@@ -140,32 +139,20 @@ public class ChangeStatusTabItem implements TabItem {
 			@Override
 			public void onChange(ChangeEvent changeEvent) {
 
-				if (lb.getValue(lb.getSelectedIndex()).equalsIgnoreCase(member.getStatus())) {
-					changeButton.setEnabled(false);
-				} else {
-					changeButton.setEnabled(true);
-				}
-
 				// clear
 				text.setHTML("");
 
 				if (lb.getSelectedIndex() == 0) {
 					// VALIDATING NOTICE
-					if (!member.getStatus().equalsIgnoreCase("VALID")) text.setHTML("Changing status to VALID <strong>will trigger automatic configuration</strong> for provided resources. <br/><strong>If successful</strong>, member will have access on provided resources. <br /><strong>If not</strong>, see displayed error message and do manual configuration on 'settings' tab on members detail.");
+					if (!member.getGroupStatus().equalsIgnoreCase("VALID")) text.setHTML("Changing status to VALID will give member access on provided resources.<br /><br />");
 				} else {
 					// INVALIDATING NOTICE
-					if (member.getStatus().equalsIgnoreCase("VALID")) text.setHTML("Changing status to "+lb.getValue(lb.getSelectedIndex())+" will <strong>prevent member from access to provided resources (based on provided service's rules)</strong>.<br /><br />");
+					if (member.getGroupStatus().equalsIgnoreCase("VALID")) text.setHTML("Changing status to "+lb.getValue(lb.getSelectedIndex())+" will <strong>prevent member from access to provided resources (based on provided service's rules)</strong>.<br /><br />");
 				}
 
 				// SET INFO
 				if (lb.getSelectedIndex() == 1) {
-					text.setHTML(text.getHTML()+"INVALID status means there is configuration error, which prevents him from access on provided resources.");
-				} else if (lb.getSelectedIndex() == 2) {
-					text.setHTML(text.getHTML()+"SUSPENDED status means, that member did something bad (against VO rules).");
-				} else if (lb.getSelectedIndex() == 3) {
-					text.setHTML(text.getHTML()+"EXPIRED status means, that member didn't extend his membership in VO, but it's still possible for him to do so.");
-				} else if (lb.getSelectedIndex() == 4) {
-					text.setHTML(text.getHTML()+"DISABLED status means, that member didn't extend his membership long ago or was manually disabled by administrator. Member can't enable/extend membership by himself.");
+					text.setHTML(text.getHTML()+"EXPIRED status means, that member didn't extend his membership in Group, but it's still possible for him to do so.");
 				}
 
 			}
@@ -195,7 +182,7 @@ public class ChangeStatusTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 863;
+		final int prime = 13487;
 		int result = 1;
 		result = prime * result + memberId;
 		return result;
@@ -209,7 +196,7 @@ public class ChangeStatusTabItem implements TabItem {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ChangeStatusTabItem other = (ChangeStatusTabItem) obj;
+		ChangeGroupStatusTabItem other = (ChangeGroupStatusTabItem) obj;
 		if (memberId != other.memberId)
 			return false;
 		return true;
@@ -223,7 +210,7 @@ public class ChangeStatusTabItem implements TabItem {
 
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(member.getVoId())) {
+		if (session.isVoAdmin(member.getVoId()) || session.isGroupAdmin(groupId)) {
 			return true;
 		} else {
 			return false;
