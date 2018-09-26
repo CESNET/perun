@@ -16,7 +16,10 @@ import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncFinishedWit
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupUpdated;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberAddedToGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberRemovedFromGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberExpiredInGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberRemovedFromGroupTotally;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberValidatedInGroup;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberExpired;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 
 import java.text.DateFormat;
@@ -3233,9 +3236,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			groupsManagerImpl.setIndirectGroupStatus(sess, member, group, newStatus);
 
 			if (newStatus.equals(MemberGroupStatus.EXPIRED)) {
-				getPerunBl().getAuditer().log(sess, "{} in {} expired.", member, group);
+				getPerunBl().getAuditer().log(sess, new MemberExpiredInGroup(member, group));
 			} else if (newStatus.equals(MemberGroupStatus.VALID)) {
-				getPerunBl().getAuditer().log(sess, "{} in {} validated.", member, group);
+				getPerunBl().getAuditer().log(sess, new MemberValidatedInGroup(member, group));
 			}
 		}
 

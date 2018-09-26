@@ -2,6 +2,8 @@ package cz.metacentrum.perun.registrar.impl;
 
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInDays;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInMonthNotification;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpired;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberExpired;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -151,7 +153,7 @@ public class ExpirationNotifScheduler {
 					// we don't care about other reasons (LoA), user can update it later
 					if (didntSubmitExtensionApplication(m)) {
 						// still didn't apply for extension
-						getPerun().getAuditer().log(sess, "{} will expire in a month in {}.", m, vosMap.get(m.getVoId()));
+						ExpirationPeriod.MONTH.getExpirationAuditAction().callOn(getPerun().getAuditer(), sess, m, vosMap.get(m.getVoId()));
 					} else {
 						log.debug("{} not notified about expiration, has submitted - pending application.", m);
 					}
@@ -293,7 +295,7 @@ public class ExpirationNotifScheduler {
 			if (allowedStatuses.contains(m.getStatus())) {
 				if (didntSubmitExtensionApplication(m)) {
 					// still didn't apply for extension
-					getPerun().getAuditer().log(sess, "{} has expired {} days ago in {}.", m, 7, vosMap.get(m.getVoId()));
+					getPerun().getAuditer().log(sess, new MembershipExpired(m, 7, vosMap.get(m.getVoId())));
 				} else {
 					log.debug("{} not notified about expiration, has submitted - pending application.", m);
 				}

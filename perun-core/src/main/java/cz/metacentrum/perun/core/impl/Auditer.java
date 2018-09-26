@@ -195,11 +195,10 @@ public class Auditer {
 	}
 
 	/**
-	 * Log mesage. Substitute first {} with arg1.toString().
+	 * Log message without checking current transactions.
 	 *
 	 * IMPORTANT: This method stores the message aside from DB transaction.
 	 *
-	 * @throws InternalErrorException
 	 */
 	public void logWithoutTransaction(PerunSession sess, AuditEvent event) {
 		storeMessageToDb(sess, event);
