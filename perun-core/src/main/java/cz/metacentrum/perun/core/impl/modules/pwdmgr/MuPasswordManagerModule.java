@@ -219,8 +219,8 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		if (parameters != null && !parameters.isEmpty()) {
 
 			if (parameters.get(FIRST_NAME_KEY) != null && !parameters.get(FIRST_NAME_KEY).isEmpty()) {
-				params += "<jmeno>" + parameters.get(FIRST_NAME_KEY) + "</jmeno>\n";
-				loggedParams += "<jmeno>" + parameters.get(FIRST_NAME_KEY) + "</jmeno>\n";
+				params += "<jmeno>" + escapeXMLChars(parameters.get(FIRST_NAME_KEY)) + "</jmeno>\n";
+				loggedParams += "<jmeno>" + escapeXMLChars(parameters.get(FIRST_NAME_KEY)) + "</jmeno>\n";
 			} else {
 				// IS requires first and last name
 				// in case of a single word name value, it's stored in a lastName, so send "guest" as a firstName if it's empty.
@@ -229,31 +229,33 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 			}
 
 			if (parameters.get(LAST_NAME_KEY) != null && !parameters.get(LAST_NAME_KEY).isEmpty()) {
-				params += "<prijmeni>" + parameters.get(LAST_NAME_KEY) + "</prijmeni>\n";
-				loggedParams += "<prijmeni>" + parameters.get(LAST_NAME_KEY) + "</prijmeni>\n";
+				params += "<prijmeni>" + escapeXMLChars(parameters.get(LAST_NAME_KEY)) + "</prijmeni>\n";
+				loggedParams += "<prijmeni>" + escapeXMLChars(parameters.get(LAST_NAME_KEY)) + "</prijmeni>\n";
 			}
 			if (parameters.get(TITLE_BEFORE_KEY) != null && !parameters.get(TITLE_BEFORE_KEY).isEmpty()) {
-				params += "<titul_pred>" + parameters.get(TITLE_BEFORE_KEY) + "</titul_pred>\n";
-				loggedParams += "<titul_pred>" + parameters.get(TITLE_BEFORE_KEY) + "</titul_pred>\n";
+				params += "<titul_pred>" + escapeXMLChars(parameters.get(TITLE_BEFORE_KEY)) + "</titul_pred>\n";
+				loggedParams += "<titul_pred>" + escapeXMLChars(parameters.get(TITLE_BEFORE_KEY)) + "</titul_pred>\n";
 			}
 			if (parameters.get(TITLE_AFTER_KEY) != null && !parameters.get(TITLE_AFTER_KEY).isEmpty()) {
-				params += "<titul_za>" + parameters.get(TITLE_AFTER_KEY) + "</titul_za>\n";
-				loggedParams += "<titul_za>" + parameters.get(TITLE_AFTER_KEY) + "</titul_za>\n";
+				params += "<titul_za>" + escapeXMLChars(parameters.get(TITLE_AFTER_KEY)) + "</titul_za>\n";
+				loggedParams += "<titul_za>" + escapeXMLChars(parameters.get(TITLE_AFTER_KEY)) + "</titul_za>\n";
 			}
 			if (parameters.get(BIRTH_DAY_KEY) != null && !parameters.get(BIRTH_DAY_KEY).isEmpty()) {
-				params += "<datum_narozeni>" + parameters.get(BIRTH_DAY_KEY) + "</datum_narozeni>\n";
-				loggedParams += "<datum_narozeni>" + parameters.get(BIRTH_DAY_KEY) + "</datum_narozeni>\n";
+				params += "<datum_narozeni>" + escapeXMLChars(parameters.get(BIRTH_DAY_KEY)) + "</datum_narozeni>\n";
+				loggedParams += "<datum_narozeni>" + escapeXMLChars(parameters.get(BIRTH_DAY_KEY)) + "</datum_narozeni>\n";
 			}
 			if (parameters.get(BIRTH_NUMBER_KEY) != null && !parameters.get(BIRTH_NUMBER_KEY).isEmpty()) {
-				params += "<rodne_cislo>" + parameters.get(BIRTH_NUMBER_KEY) + "</rodne_cislo>\n";
-				loggedParams += "<rodne_cislo>" + parameters.get(BIRTH_NUMBER_KEY) + "</rodne_cislo>\n";
+				params += "<rodne_cislo>" + escapeXMLChars(parameters.get(BIRTH_NUMBER_KEY)) + "</rodne_cislo>\n";
+				loggedParams += "<rodne_cislo>" + escapeXMLChars(parameters.get(BIRTH_NUMBER_KEY)) + "</rodne_cislo>\n";
 			}
 			if (parameters.get(MAIL_KEY) != null && !parameters.get(MAIL_KEY).isEmpty()) {
-				params += "<email>" + parameters.get(MAIL_KEY) + "</email>\n";
-				loggedParams += "<email>" + parameters.get(MAIL_KEY) + "</email>\n";
+				params += "<email>" + escapeXMLChars(parameters.get(MAIL_KEY)) + "</email>\n";
+				loggedParams += "<email>" + escapeXMLChars(parameters.get(MAIL_KEY)) + "</email>\n";
 			}
-			if (parameters.get(PASSWORD_KEY) != null && !parameters.get(PASSWORD_KEY).isEmpty())
-				params += "<heslo>" + parameters.get(PASSWORD_KEY) + "</heslo>\n"; // password is not logged
+			if (parameters.get(PASSWORD_KEY) != null && !parameters.get(PASSWORD_KEY).isEmpty()) {
+				params += "<heslo>" + escapeXMLChars(parameters.get(PASSWORD_KEY)) + "</heslo>\n"; // password is not logged
+				loggedParams += "<heslo>realPasswordIsNotLogged</heslo>\n";
+			}
 		}
 
 		String ucoChanged = getUcoFromSessionUser(session);
@@ -296,8 +298,10 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		String params = "";
 		String loggedParams = "";
-		if (newPassword != null && !newPassword.isEmpty()) params += "<heslo>" + newPassword + "</heslo>\n";
-		if (newPassword != null && !newPassword.isEmpty()) loggedParams += "<heslo>realPasswordIsNotLogged</heslo>\n";
+		if (newPassword != null && !newPassword.isEmpty()) {
+			params += "<heslo>" + escapeXMLChars(newPassword) + "</heslo>\n";
+			loggedParams += "<heslo>realPasswordIsNotLogged</heslo>\n";
+		}
 		String ucoChanged = getUcoFromSessionUser(session);
 		params += ucoChanged;
 		loggedParams += ucoChanged;
@@ -496,6 +500,21 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		}
 
 		return "";
+
+	}
+
+	/**
+	 * Escape restricted XML chars for element content (& < >).
+	 *
+	 * @param input Input to safely escape
+	 * @return Output with escaped chars
+	 */
+	private String escapeXMLChars(String input) {
+
+		String output = input.replaceAll("&","&amp;");
+		output = output.replaceAll("<", "&lt;");
+		output = output.replaceAll(">", "&gt;");
+		return output;
 
 	}
 
