@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -510,12 +511,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	 * @return Output with escaped chars
 	 */
 	private String escapeXMLChars(String input) {
-
-		String output = input.replaceAll("&","&amp;");
-		output = output.replaceAll("<", "&lt;");
-		output = output.replaceAll(">", "&gt;");
-		return output;
-
+		return StringEscapeUtils.escapeXml10(input);
 	}
 
 }
