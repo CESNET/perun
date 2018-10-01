@@ -799,7 +799,7 @@ public class UiElements {
 			});
 		}
 		//adds log at top
-		this.logInside.insert(new HTML(text), logInside.getWidgetCount());
+		this.logInside.insert(new HTML(SafeHtmlUtils.htmlEscape(text)), logInside.getWidgetCount());
 		// scroll to bottom
 		this.log.getElement().setScrollTop(this.logInside.getElement().getScrollHeight());
 
@@ -823,7 +823,7 @@ public class UiElements {
 		text = "<span style=\"color: green;\">" + this.getFormattedLogText(text) + "</span>";
 		this.log.setStyleName("log-success", true);
 		//adds log at top
-		this.logInside.insert(new HTML(text), logInside.getWidgetCount());
+		this.logInside.insert(new HTML(SafeHtmlUtils.htmlEscape(text)), logInside.getWidgetCount());
 		// scroll to bottom
 		this.log.getElement().setScrollTop(this.logInside.getElement().getScrollHeight());
 
@@ -848,7 +848,7 @@ public class UiElements {
 		text = "<span style=\"color: red;\">" + this.getFormattedLogText(text) + "</span>";
 		this.log.setStyleName("log-error", true);
 		//adds log at top
-		this.logInside.insert(new HTML(text), logInside.getWidgetCount());
+		this.logInside.insert(new HTML(SafeHtmlUtils.htmlEscape(text)), logInside.getWidgetCount());
 		// scroll to bottom
 		this.log.getElement().setScrollTop(this.logInside.getElement().getScrollHeight());
 
