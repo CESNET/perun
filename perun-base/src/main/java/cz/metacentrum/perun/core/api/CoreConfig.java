@@ -431,6 +431,11 @@ public class CoreConfig {
 					attr.setDisplayName("schacHomeOrganization");
 					attr.setDescription("domain name of person's organization (SChema for Academia)");
 					break;
+				case "alternativeLoginName":
+					attr.setDisplayName("alternativeLoginName");
+					attr.setDescription("person's alternative login name in organization (not related to IdP identity).");
+				// forwardedScopedAffiliation - is not standardized and published by the proxy itself, we do not
+				// set it back to the Perun (UES attribute), but we can read it (for registrar purpose).
 				case "dn":
 					attr.setDisplayName("certificate DN");
 					attr.setDescription("Distinguished Name from X509 digital certificate");
