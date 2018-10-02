@@ -3839,7 +3839,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesValue(sess, resource, member, attributes);
-			checkAttributesValue(sess, resource, member, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
