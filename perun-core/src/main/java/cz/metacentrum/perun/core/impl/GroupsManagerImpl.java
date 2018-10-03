@@ -699,7 +699,13 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	@Override
 	public boolean groupExists(PerunSession sess, Group group) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from groups where id=?", group.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from groups where id=?", group.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Group " + group + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch (RuntimeException ex) {

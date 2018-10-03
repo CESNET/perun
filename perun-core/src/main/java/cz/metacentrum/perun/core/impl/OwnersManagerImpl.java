@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -69,7 +70,13 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 	@Override
 	public boolean ownerExists(PerunSession sess, Owner owner) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from owners where id=?", owner.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from owners where id=?", owner.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Owner " + owner + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {

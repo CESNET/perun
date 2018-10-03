@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -473,7 +474,13 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	@Override
 	public boolean serviceExists(PerunSession sess, Service service) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from services where id=?", service.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from services where id=?", service.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Service " + service + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -495,7 +502,13 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	@Override
 	public boolean servicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from service_packages where id=?", servicesPackage.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from service_packages where id=?", servicesPackage.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("ServicesPackage " + servicesPackage + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -642,7 +655,13 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	@Override
 	public boolean destinationExists(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facility_service_destinations fsd join destinations d on fsd.destination_id = d.id where fsd.service_id=? and fsd.facility_id=? and d.destination=? and d.type=?", service.getId(), facility.getId(), destination.getDestination(), destination.getType());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from facility_service_destinations fsd join destinations d on fsd.destination_id = d.id where fsd.service_id=? and fsd.facility_id=? and d.destination=? and d.type=?", service.getId(), facility.getId(), destination.getDestination(), destination.getType());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Destination " + destination + " of service " + service + " and facility " + facility + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -653,7 +672,13 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	@Override
 	public boolean destinationExists(PerunSession sess, Destination destination) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from destinations where id=? and destination=? and type=?", destination.getId(), destination.getDestination(), destination.getType());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from destinations where id=? and destination=? and type=?", destination.getId(), destination.getDestination(), destination.getType());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Destination " + destination + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {

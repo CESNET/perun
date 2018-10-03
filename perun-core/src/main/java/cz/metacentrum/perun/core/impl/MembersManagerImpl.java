@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -175,7 +176,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	public boolean memberExists(PerunSession sess, Member member) throws InternalErrorException {
 		Utils.notNull(member, "member");
 		try {
-			return 1 == jdbc.queryForInt("select 1 from members where id=?", member.getId());
+			int number = jdbc.queryForInt("select count(1) from members where id=?", member.getId());
+			if (number == 1) {
+				return true;
+			} else if (number > 1) {
+				throw new ConsistencyErrorException("Member " + member + " exists more than once.");
+			}
+			return false;
 		} catch (EmptyResultDataAccessException ex) {
 			return false;
 		} catch (RuntimeException ex) {

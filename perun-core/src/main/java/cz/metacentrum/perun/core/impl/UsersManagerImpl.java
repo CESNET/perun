@@ -320,8 +320,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public boolean specificUserOwnershipExists(PerunSession sess, User user, User specificUser) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from specific_user_users where user_id=? and specific_user_id=? and type=?",
+			int numberOfExistences = jdbc.queryForInt("select count(1) from specific_user_users where user_id=? and specific_user_id=? and type=?",
 					user.getId(), specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Ownership between user " + user + " and specificUser " + specificUser +  " exists more than once.");
+			}
+			return false;
 		} catch (EmptyResultDataAccessException e) {
 			return false;
 		} catch (RuntimeException e) {
@@ -943,7 +949,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNADMIN.getRoleName());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNADMIN.getRoleName());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("User " + user + " is PERUNADMIN more than once.");
+			}
+			return false;
 		} catch (EmptyResultDataAccessException e) {
 			return false;
 		} catch (RuntimeException e) {
@@ -955,7 +967,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public boolean userExists(PerunSession sess, User user) throws InternalErrorException {
 		Utils.notNull(user, "user");
 		try {
-			return 1 == jdbc.queryForInt("select 1 from users where id=? and service_acc=? and sponsored_acc=?", user.getId(), user.isServiceUser() ? "1" : "0", user.isSponsoredUser() ? "1" : "0");
+			int numberOfExistences = jdbc.queryForInt("select count(1) from users where id=? and service_acc=? and sponsored_acc=?", user.getId(), user.isServiceUser() ? "1" : "0", user.isSponsoredUser() ? "1" : "0");
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("User " + user + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -972,8 +990,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public void checkUserExtSourceExistsById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
 
 		try {
-			boolean exists = 1 == jdbc.queryForInt("select 1 from user_ext_sources where id=?", id);
-			if (!exists) throw new UserExtSourceNotExistsException("UserExtSource with ID=" + id + " doesn't exists.");
+			int numberOfExistences = jdbc.queryForInt("select count(1) from user_ext_sources where id=?", id);
+			if (numberOfExistences == 0) throw new UserExtSourceNotExistsException("UserExtSource with ID=" + id + " doesn't exists.");
+			if (numberOfExistences > 1) throw new ConsistencyErrorException("UserExtSource wit ID=" + id + " exists more than once.");
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -991,8 +1010,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		Utils.notNull(login, "userLogin");
 
 		try {
-			return 1 == jdbc.queryForInt("select 1 from application_reserved_logins where namespace=? and login=?",
+			int numberOfExistences = jdbc.queryForInt("select count(1) from application_reserved_logins where namespace=? and login=?",
 					namespace, login);
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Login " + login + " in namespace " + namespace + " is reserved more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -1010,11 +1035,23 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 			// check by ext identity (login/ext source ID)
 			if (userExtSource.getUserId() >= 0) {
-				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=? and user_id=?",
+				int numberOfExistences = jdbc.queryForInt("select count(1) from user_ext_sources where login_ext=? and ext_sources_id=? and user_id=?",
 						userExtSource.getLogin(), userExtSource.getExtSource().getId(), userExtSource.getUserId());
+				if (numberOfExistences == 1) {
+					return true;
+				} else if (numberOfExistences > 1) {
+					throw new ConsistencyErrorException("UserExtSource " + userExtSource + " exists more than once.");
+				}
+				return false;
 			} else {
-				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=?",
+				int numberOfExistences = jdbc.queryForInt("select count(1) from user_ext_sources where login_ext=? and ext_sources_id=?",
 						userExtSource.getLogin(), userExtSource.getExtSource().getId());
+				if (numberOfExistences == 1) {
+					return true;
+				} else if (numberOfExistences > 1) {
+					throw new ConsistencyErrorException("UserExtSource " + userExtSource + " exists more than once.");
+				}
+				return false;
 			}
 
 		} catch(EmptyResultDataAccessException ex) {

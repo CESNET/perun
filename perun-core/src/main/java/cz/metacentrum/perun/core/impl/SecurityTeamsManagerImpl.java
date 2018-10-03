@@ -312,7 +312,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	@Override
 	public void checkSecurityTeamUniqueName(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamExistsException {
 		try {
-			int number = jdbc.queryForInt("select 1 from security_teams where name=?", securityTeam.getName());
+			int number = jdbc.queryForInt("select count(1) from security_teams where name=?", securityTeam.getName());
 			if (number == 1) {
 				throw new SecurityTeamExistsException("Name of security team " +securityTeam+ " is not unique. It already exists.");
 			} else if (number > 1) {
@@ -358,7 +358,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	@Override
 	public boolean isUserBlacklisted(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException {
 		try {
-			int number = jdbc.queryForInt("select 1 from blacklists where security_team_id=? and user_id=?", securityTeam.getId(), user.getId());
+			int number = jdbc.queryForInt("select count(1) from blacklists where security_team_id=? and user_id=?", securityTeam.getId(), user.getId());
 			if (number == 1) {
 				return true;
 			} else if (number > 1) {
@@ -377,7 +377,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	@Override
 	public boolean isUserBlacklisted(PerunSession sess, User user) throws InternalErrorException {
 		try {
-			int number = jdbc.queryForInt("select 1 from blacklists where user_id=?", user.getId());
+			int number = jdbc.queryForInt("select count(1) from blacklists where user_id=?", user.getId());
 			if (number >= 1) return true;
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
@@ -389,7 +389,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 
 	private boolean securityTeamExists(SecurityTeam securityTeam) throws InternalErrorException {
 		try {
-			int number = jdbc.queryForInt("select 1 from security_teams where id=?", securityTeam.getId());
+			int number = jdbc.queryForInt("select count(1) from security_teams where id=?", securityTeam.getId());
 			if (number == 1) {
 				return true;
 			} else if (number > 1) {
@@ -424,7 +424,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 
 	private boolean isGroupSecurityAdmin(Group group, SecurityTeam securityTeam) throws InternalErrorException {
 		try {
-			int number = jdbc.queryForInt("select 1 from authz where authorized_group_id=? and security_team_id=?", group.getId(), securityTeam.getId());
+			int number = jdbc.queryForInt("select count(1) from authz where authorized_group_id=? and security_team_id=?", group.getId(), securityTeam.getId());
 			if (number == 1) {
 				return true;
 			} else if (number > 1) {

@@ -262,7 +262,13 @@ public class VosManagerImpl implements VosManagerImplApi {
 	public boolean voExists(PerunSession sess, Vo vo) throws InternalErrorException {
 		Utils.notNull(vo, "vo");
 		try {
-			return 1 == jdbc.queryForInt("select 1 from vos where id=?", vo.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from vos where id=?", vo.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Vo " + vo + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -273,7 +279,13 @@ public class VosManagerImpl implements VosManagerImplApi {
 	public boolean shortNameForVoExists(PerunSession sess, Vo vo) throws InternalErrorException {
 		Utils.notNull(vo, "vo");
 		try{
-			return 1 == jdbc.queryForInt("select 1 from vos where short_name=?", vo.getShortName());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from vos where short_name=?", vo.getShortName());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Short name " + vo.getShortName() + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {

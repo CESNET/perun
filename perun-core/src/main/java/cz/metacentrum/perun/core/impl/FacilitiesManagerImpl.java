@@ -412,11 +412,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public void addOwner(PerunSession sess, Facility facility, Owner owner) throws InternalErrorException, OwnerAlreadyAssignedException {
 		try {
-			try {
-				// Check if the owner is already assigned
-				jdbc.queryForInt("select 1 from facility_owners where facility_id=? and owner_id=?", facility.getId(), owner.getId());
+			// Check if the owner is already assigned
+			int numberOfExistences = jdbc.queryForInt("select count(1) from facility_owners where facility_id=? and owner_id=?", facility.getId(), owner.getId());
+			if (numberOfExistences >= 1) {
 				throw new OwnerAlreadyAssignedException("Owner: " + owner + " facility: " + facility);
-			} catch (EmptyResultDataAccessException e) {
+			} else {
 				jdbc.update("insert into facility_owners(facility_id, owner_id,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
 						"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", facility.getId(), owner.getId(),
 						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
@@ -546,7 +546,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public boolean facilityExists(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facilities where id=?", facility.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from facilities where id=?", facility.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Facility " + facility + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -727,7 +733,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public boolean hostExists(PerunSession sess, Host host) throws InternalErrorException {
 		try {
-			return 1==jdbc.queryForInt("select 1 from hosts where id=?", host.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from hosts where id=?", host.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Host " + host + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch (RuntimeException e) {
@@ -958,7 +970,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and name=? and owner_id=?", facility.getId(), name, owner.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from facility_contacts where facility_id=? and name=? and owner_id=?", facility.getId(), name, owner.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Facility contact of " + facility + " and " + name + " and " + owner + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -968,7 +986,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and name=? and user_id=?", facility.getId(), name, user.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from facility_contacts where facility_id=? and name=? and user_id=?", facility.getId(), name, user.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Facility contact of " + facility + " and " + name + " and " + user + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -978,7 +1002,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and name=? and group_id=?", facility.getId(), name, group.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from facility_contacts where facility_id=? and name=? and group_id=?", facility.getId(), name, group.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Facility contact of " + facility + " and " + name + " and " + group + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -1110,7 +1140,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public boolean banExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facilities_bans where user_id=? and facility_id=?", userId, facilityId);
+			int numberOfExistences = jdbc.queryForInt("select count(1) from facilities_bans where user_id=? and facility_id=?", userId, facilityId);
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Ban of user with ID=" + userId + " on facility with ID=" + facilityId + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -1121,7 +1157,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public boolean banExists(PerunSession sess, int banId) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facilities_bans where id=?", banId);
+			int numberOfExistences = jdbc.queryForInt("select count(1) from facilities_bans where id=?", banId);
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Ban with ID=" + banId + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -1240,7 +1282,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	private boolean isSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
 		try {
-			int number = jdbc.queryForInt("select 1 from security_teams_facilities where security_team_id=? and facility_id=?", securityTeam.getId(), facility.getId());
+			int number = jdbc.queryForInt("select count(1) from security_teams_facilities where security_team_id=? and facility_id=?", securityTeam.getId(), facility.getId());
 			if (number == 1) {
 				return true;
 			} else if (number > 1) {

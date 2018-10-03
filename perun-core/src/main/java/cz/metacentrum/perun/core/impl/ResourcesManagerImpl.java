@@ -254,7 +254,13 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public boolean resourceExists(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from resources where id=?", resource.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from resources where id=?", resource.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Resource " + resource + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -269,7 +275,13 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 
 	public boolean resourceTagExists(PerunSession sess, ResourceTag resourceTag) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from res_tags where id=?", resourceTag.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from res_tags where id=?", resourceTag.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Resource tag " + resourceTag + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -874,7 +886,13 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public boolean banExists(PerunSession sess, int memberId, int resourceId) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from resources_bans where member_id=? and resource_id=?", memberId, resourceId);
+			int numberOfExistences = jdbc.queryForInt("select count(1) from resources_bans where member_id=? and resource_id=?", memberId, resourceId);
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Ban on member with ID=" + memberId + " and resource with ID=" + resourceId + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -885,7 +903,13 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public boolean banExists(PerunSession sess, int banId) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from resources_bans where id=?", banId);
+			int numberOfExistences = jdbc.queryForInt("select count(1) from resources_bans where id=?", banId);
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("Ban with ID=" + banId + " exists more than once.");
+			}
+			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
