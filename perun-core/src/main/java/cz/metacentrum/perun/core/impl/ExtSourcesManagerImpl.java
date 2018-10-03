@@ -479,7 +479,13 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	public boolean extSourceExists(PerunSession perunSession, ExtSource extSource) throws InternalErrorException {
 		Utils.notNull(extSource, "extSource");
 		try {
-			return 1 == jdbc.queryForInt("select 1 from ext_sources where id=?", extSource.getId());
+			int numberOfExistences = jdbc.queryForInt("select count(1) from ext_sources where id=?", extSource.getId());
+			if (numberOfExistences == 1) {
+				return true;
+			} else if (numberOfExistences > 1) {
+				throw new ConsistencyErrorException("ExtSource " + extSource + " exists more than once.");
+			}
+			return false;
 		} catch (EmptyResultDataAccessException ex) {
 			return false;
 		} catch (RuntimeException ex) {
