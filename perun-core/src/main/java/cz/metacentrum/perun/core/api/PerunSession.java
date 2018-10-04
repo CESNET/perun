@@ -59,4 +59,8 @@ public abstract class PerunSession {
 	public String toString() {
 		return getClass().getSimpleName() + ":[" +"principal='" + principal + "', client='"+client+"']";
 	}
+
+	public String getLogId() {
+		return principal.getActor();
+	}
 }
