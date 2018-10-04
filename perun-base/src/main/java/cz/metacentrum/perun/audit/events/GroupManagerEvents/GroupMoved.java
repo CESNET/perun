@@ -14,7 +14,7 @@ public class GroupMoved extends AuditEvent {
 
 	public GroupMoved(Group group) {
 		this.group = group;
-		this.message = formatMessage("Group %s was moved.", group);
+		this.message = formatMessage("%s was moved.", group);
 	}
 
 	@Override
