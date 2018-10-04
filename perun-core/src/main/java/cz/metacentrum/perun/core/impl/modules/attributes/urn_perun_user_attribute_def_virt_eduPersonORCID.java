@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,7 +29,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonORCID extends UserVirtua
 	}
 
 	@Override
-	public String modifyValue(ModifyValueContext ctx, String value) {
+	public String modifyValue(PerunSession session, ModifyValueContext ctx, UserExtSource ues, String value) {
 		if(value.endsWith("@orcid")) {
 			return "http://orcid.org/"+StringUtils.substringBefore(value,"@");
 		} else {
