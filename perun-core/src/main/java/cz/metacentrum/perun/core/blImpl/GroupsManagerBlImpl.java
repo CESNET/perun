@@ -638,7 +638,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
-		getPerunBl().getAuditer().log(sess, "Group {} was moved.", movingGroup);
+		getPerunBl().getAuditer().log(sess, "{} was moved.", movingGroup);
 	}
 
 	@Override
