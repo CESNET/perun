@@ -143,7 +143,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		</tx:attributes>
 	</tx:advice>
 
-	<!--FIXME   hack ktery donuti spring zavolat statickou metodu -->
+	<!--FIXME   a hack which forces Spring to call a static method -->
 	<bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setAuthzResolverImpl" scope="singleton">
 		<constructor-arg ref="authzResolverImpl" />
 	</bean>
