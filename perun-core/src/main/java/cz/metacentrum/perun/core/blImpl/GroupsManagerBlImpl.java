@@ -554,7 +554,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// And finally update parentGroupId for moving group in database
 		this.updateParentGroupId(sess, movingGroup);
 
-		getPerunBl().getAuditer().log(sess, "Group {} was moved.", movingGroup);
+		getPerunBl().getAuditer().log(sess, "{} was moved.", movingGroup);
 	}
 
 	public Group getGroupById(PerunSession sess, int id) throws InternalErrorException, GroupNotExistsException {
