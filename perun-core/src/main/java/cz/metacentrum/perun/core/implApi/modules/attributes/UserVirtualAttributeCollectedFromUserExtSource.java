@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -76,18 +77,20 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 	}
 
 	public String getDestinationAttributeDescription() {
-		return "Collected values of userExtSource atribute " + getDestinationAttributeFriendlyName();
+		return "Collected values of userExtSource attribute " + getDestinationAttributeFriendlyName();
 	}
 
 	/**
 	 * Override this method if you need to modify the original values. The default implementation makes no modification.
 	 * Return null if the value should be skipped.
 	 *
+	 * @param session PerunSession
 	 * @param ctx context initialized in initModifyValueContext method
+	 * @param ues UserExtSource
 	 * @param value of userExtSource attribute
 	 * @return modified value or null to skip the value
 	 */
-	public String modifyValue(T ctx, String value) {
+	public String modifyValue(PerunSession session, T ctx, UserExtSource ues, String value) {
 		return value;
 	}
 
@@ -141,7 +144,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 					//Apache mod_shib joins multiple values with ';', split them again
 					String[] rawValues = ((String) value).split(";");
 					//add non-null values returned by modifyValue()
-					Arrays.stream(rawValues).map(v -> modifyValue(ctx, v)).filter(Objects::nonNull).forEachOrdered(valuesWithoutDuplicities::add);
+					Arrays.stream(rawValues).map(v -> modifyValue(sess, ctx, userExtSource, v)).filter(Objects::nonNull).forEachOrdered(valuesWithoutDuplicities::add);
 				}
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 				log.error("cannot read " + sourceAttributeFriendlyName + " from userExtSource " + userExtSource.getId() + " of user " + user.getId(), e);

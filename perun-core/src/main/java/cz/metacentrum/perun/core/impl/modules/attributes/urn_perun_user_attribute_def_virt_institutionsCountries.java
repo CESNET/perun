@@ -2,7 +2,9 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -87,7 +89,7 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 	 * Replaces DNS domain with country name, or null.
 	 */
 	@Override
-	public String modifyValue(DnsMapCtx ctx, String value) {
+	public String modifyValue(PerunSession session, DnsMapCtx ctx, UserExtSource ues, String value) {
 		Map<String, String> dnsMap = ctx.getDnsMap();
 		//find the longest matching key
 		int matchLength = 0;
@@ -136,8 +138,8 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 			//find users that are affected by the change - have schacHomeOrganization value ending in key, but not ending with longerDomains
 			List<User> affectedUsers = sess.getPerunBl().getUsersManagerBl().findUsersWithExtSourceAttributeValueEnding(sess,getSourceAttributeName(),key,longerDomains);
 			for (User user : affectedUsers) {
-				Attribute thisAtribute = am.getAttribute(sess, user, getDestinationAttributeName());
-				messages.add(thisAtribute.serializeToString() + " set for " + user.serializeToString() + ".");
+				Attribute thisAttribute = am.getAttribute(sess, user, getDestinationAttributeName());
+				messages.add(thisAttribute.serializeToString() + " set for " + user.serializeToString() + ".");
 			}
 		}
 		return messages;
