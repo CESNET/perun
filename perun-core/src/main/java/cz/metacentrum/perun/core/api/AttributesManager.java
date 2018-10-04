@@ -441,6 +441,22 @@ public interface AttributesManager {
 	List<Attribute> getAttributes(PerunSession sess, Group group, List<String> attrNames) throws PrivilegeException, InternalErrorException, GroupNotExistsException;
 
 	/**
+	 * Get all attributes associated with the resource which have name in list attrNames (empty too).
+	 * Virtual attribute too.
+	 * <p>
+	 * PRIVILEGE: Get only those attributes the principal has access to.
+	 *
+	 * @param sess      perun session
+	 * @param resource     to get the attributes from
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 * @throws PrivilegeException      if privileges are not given
+	 * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws ResourceNotExistsException if the resource not exists in Perun
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames) throws PrivilegeException, InternalErrorException, ResourceNotExistsException;
+
+	/**
 	 * Get all attributes associated with the member which have name in list attrNames (empty too)
 	 * Virtual attributes too.
 	 * <p>

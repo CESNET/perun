@@ -363,6 +363,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttributes(sess, group, attrNames);
 	}
 
+	@Override
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException {
+		if (attrNames.isEmpty()) return new ArrayList<>();
+		return getAttributesManagerImpl().getAttributes(sess, resource, attrNames);
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException {
 		List<Attribute> attributes = this.getAttributes(sess, member, attrNames);
 
@@ -3831,7 +3838,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
-			checkAttributesValue(sess, resource, member, attributes);
 			checkAttributesValue(sess, resource, member, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);

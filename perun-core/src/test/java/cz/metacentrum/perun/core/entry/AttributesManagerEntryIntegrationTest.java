@@ -3302,6 +3302,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue("returned opt attributes are not correct", attributes.equals(retAttributes));
 	}
 
+	@Test
+	public void getResourceAttributesFromList() throws Exception {
+		System.out.println(CLASS_NAME + "getRessourceAttributes");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		attributes = setUpResourceAttributes();
+		attributesManager.setAttributes(sess, resource, attributes);
+
+		List<String> attNames = new ArrayList<>();
+		for (Attribute a : attributes) {
+			attNames.add(a.getName());
+		}
+
+		List<Attribute> retAttributes = attributesManager.getAttributes(sess, resource, attNames);
+		assertNotNull("unable to get resource attributes", retAttributes);
+		assertTrue("returned opt attributes are not correct", attributes.equals(retAttributes));
+	}
+
 	@Test (expected=GroupNotExistsException.class)
 	public void getGroupAttributeWhenGroupNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupAttributeWhenGroupNotExists");

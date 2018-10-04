@@ -136,9 +136,9 @@ public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extend
 
 			VirtualOrganization object = go.cast();
 			if (attrName.equalsIgnoreCase("name")) {
-				return object.getName();
+				return SafeHtmlUtils.htmlEscape(object.getName());
 			} else if (attrName.equalsIgnoreCase("shortName")) {
-				return object.getShortName();
+				return SafeHtmlUtils.htmlEscape(object.getShortName());
 			} else if (attrName.equalsIgnoreCase("id")) {
 				return ""+object.getId();
 			}
@@ -147,9 +147,9 @@ public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extend
 
 			Group object = go.cast();
 			if (attrName.equalsIgnoreCase("name")) {
-				return object.getName();
+				return SafeHtmlUtils.htmlEscape(object.getName());
 			} else if (attrName.equalsIgnoreCase("description")) {
-				return object.getDescription();
+				return SafeHtmlUtils.htmlEscape(object.getDescription());
 			} else if (attrName.equalsIgnoreCase("id")) {
 				return ""+object.getId();
 			}
@@ -172,7 +172,7 @@ public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extend
 				if (text.length() >= 2) {
 					text = text.substring(0, text.length()-2);
 				}
-				return text;
+				return SafeHtmlUtils.htmlEscape(text);
 			}
 
 		} else if (go.getObjectType().equals("RichMember")) {
@@ -185,16 +185,16 @@ public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extend
 			} else if (attrName.equalsIgnoreCase("status")) {
 				return object.getStatus();
 			} else if (attrName.equalsIgnoreCase("name")) {
-				return object.getUser().getFullNameWithTitles();
+				return SafeHtmlUtils.htmlEscape(object.getUser().getFullNameWithTitles());
 			}  else if (attrName.equalsIgnoreCase("organization")) {
 
 				Attribute at = object.getAttribute("urn:perun:member:attribute-def:def:organization");
 				if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
-					return at.getValue();
+					return SafeHtmlUtils.htmlEscape(at.getValue());
 				} else {
 					at = object.getAttribute("urn:perun:user:attribute-def:def:organization");
 					if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
-						return at.getValue();
+						return SafeHtmlUtils.htmlEscape(at.getValue());
 					}
 				}
 				return "";
@@ -203,17 +203,17 @@ public class CustomClickableTextCellWithAuthz<T extends JavaScriptObject> extend
 
 				Attribute at = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
 				if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
-					return at.getValue().replace(",", " ");
+					return SafeHtmlUtils.htmlEscape(at.getValue().replace(",", " "));
 				} else {
 					at = object.getAttribute("urn:perun:member:attribute-def:def:mail");
 					if (at != null && at.getValue() != null && !"null".equalsIgnoreCase(at.getValue())) {
-						return at.getValue().replace(",", " ");
+						return SafeHtmlUtils.htmlEscape(at.getValue().replace(",", " "));
 					}
 				}
 				return "";
 
 			}  else if (attrName.equalsIgnoreCase("logins")) {
-				return object.getUserLogins();
+				return SafeHtmlUtils.htmlEscape(object.getUserLogins());
 			}
 
 		}

@@ -2,6 +2,8 @@ package cz.metacentrum.perun.webgui.tabs.registrartabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONArray;
@@ -76,7 +78,7 @@ public class EditFormItemTabItem implements TabItem {
 	private ListBox perunDestinationAttributeListBox = new ListBox();
 	private TextBox regexTextBox = new TextBox();
 	private ArrayList<CheckBox> applicationTypesCheckBoxes = new ArrayList<CheckBox>();
-
+	private TextBox federationAttributeCustomValue = new TextBox();
 
 	/**
 	 * KEY = locale, VALUE = textbox
@@ -421,6 +423,7 @@ public class EditFormItemTabItem implements TabItem {
 
 		// federation attributes to select from
 		federationAttributes.addItem("No item selected (empty value)", "");
+		federationAttributes.addItem("--- Custom value ---", "custom");
 		federationAttributes.addItem("Display name", "displayName");
 		federationAttributes.addItem("Common name", "cn");
 		federationAttributes.addItem("Mail", "mail");
@@ -435,6 +438,7 @@ public class EditFormItemTabItem implements TabItem {
 		federationAttributes.addItem("Forwarded Affiliation from Proxy", "forwardedScopedAffiliation");
 		federationAttributes.addItem("schacHomeOrganization", "schacHomeOrganization");
 		federationAttributes.addItem("Login", "uid");
+		federationAttributes.addItem("Alternative login name", "alternativeLoginName");
 
 		// application types
 		GetAttributesDefinition attrDef = new GetAttributesDefinition(new JsonCallbackEvents() {
@@ -495,12 +499,36 @@ public class EditFormItemTabItem implements TabItem {
 
 		// fill values
 		shortNameTextBox.setText(item.getShortname());
+		boolean found = false;
 		for (int i = 0; i < federationAttributes.getItemCount(); i++) {
 			if (federationAttributes.getValue(i).equals(item.getFederationAttribute())) {
 				federationAttributes.setSelectedIndex(i);
+				found = true;
 				break;
 			}
 		}
+		if (!found && item.getFederationAttribute() != null && !item.getFederationAttribute().isEmpty()) {
+			federationAttributes.setSelectedIndex(1); // custom value
+			federationAttributeCustomValue.setEnabled(true);
+		} else {
+			federationAttributeCustomValue.setEnabled(false);
+		}
+		federationAttributeCustomValue.setText(item.getFederationAttribute());
+
+		federationAttributes.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event) {
+				if (federationAttributes.getSelectedValue().equals("custom")) {
+					federationAttributeCustomValue.setEnabled(true);
+					federationAttributeCustomValue.setText(item.getFederationAttribute());
+				} else {
+					federationAttributeCustomValue.setEnabled(false);
+					federationAttributeCustomValue.setText(federationAttributes.getSelectedValue());
+				}
+
+			}
+		});
+
 		requiredCheckBox.setValue(item.isRequired());
 		regexTextBox.setText(item.getRegex());
 
@@ -605,6 +633,11 @@ public class EditFormItemTabItem implements TabItem {
 			Label fedAttrLabel = new Label("Federation attribute:");
 			ft.setWidget(row, 0, fedAttrLabel);
 			ft.setWidget(row, 1, federationAttributes);
+			ftf.setColSpan(row, 1, 2);
+
+			row++;
+			ft.setHTML(row, 0, "&nbsp;");
+			ft.setWidget(row, 1, federationAttributeCustomValue);
 			ftf.setColSpan(row, 1, 2);
 
 			row++;
@@ -724,7 +757,7 @@ public class EditFormItemTabItem implements TabItem {
 			return;
 		}
 
-		item.setFederationAttribute(federationAttributes.getValue(federationAttributes.getSelectedIndex()));
+		item.setFederationAttribute(federationAttributeCustomValue.getValue());
 
 		if (perunDestinationAttributeListBox.getSelectedIndex() > 0) {
 			// some value set

@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -119,6 +120,9 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 		HttpsURLConnection.setDefaultSSLSocketFactory(factory);
 
+		// we want to log what we send
+		StringBuilder logBuilder = new StringBuilder();
+
 		String uri = BeansUtils.getPropertyFromCustomConfiguration("pwchange.mu.is", "uri");
 		String login = BeansUtils.getPropertyFromCustomConfiguration("pwchange.mu.is", "login");
 		String password = BeansUtils.getPropertyFromCustomConfiguration("pwchange.mu.is", "password");
@@ -141,6 +145,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		//set request header if is required (set in extSource xml)
 		con.setDoOutput(true);
 		con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+		log.trace("[IS Request {}] Content-Type: multipart/form-data; boundary={}", requestId, boundary);
 
 		try (
 				OutputStream output = con.getOutputStream();
@@ -148,25 +153,49 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		) {
 			// Send param about return
 			writer.append("--" + boundary).append(CRLF);
+			logBuilder.append("--" + boundary).append(CRLF);
 			writer.append("Content-Disposition: form-data; name=\"out\"").append(CRLF);
+			logBuilder.append("Content-Disposition: form-data; name=\"out\"").append(CRLF);
 			writer.append(CRLF).append("xml").append(CRLF).flush();
+			logBuilder.append(CRLF).append("xml").append(CRLF);
 
 			// Send xml file.
 			writer.append("--" + boundary).append(CRLF);
+			logBuilder.append("--" + boundary).append(CRLF);
 			writer.append("Content-Disposition: form-data; name=\"xml\"; filename=\"perun-pwd-manager.xml\"").append(CRLF);
+			logBuilder.append("Content-Disposition: form-data; name=\"xml\"; filename=\"perun-pwd-manager.xml\"").append(CRLF);
 			writer.append("Content-Type: text/xml; charset=" + StandardCharsets.UTF_8).append(CRLF); // Text file itself must be saved in this charset!
+			logBuilder.append("Content-Type: text/xml; charset=" + StandardCharsets.UTF_8).append(CRLF);
 			writer.append(CRLF).flush();
+			logBuilder.append(CRLF);
 			writer.append(dataToPass);
+			logBuilder.append("\n--File content is logged separately--\n");
 			output.flush(); // Important before continuing with writer!
 			writer.append(CRLF).flush(); // CRLF is important! It indicates end of boundary.
+			logBuilder.append(CRLF);
 
 			// End of multipart/form-data.
 			writer.append("--" + boundary + "--").append(CRLF).flush();
+			logBuilder.append("--" + boundary + "--").append(CRLF);
+
+			log.trace("[IS Request {}] {}", requestId, logBuilder.toString());
+
 		}
 
 		int responseCode = con.getResponseCode();
 		if (responseCode == 200) {
 			return con.getInputStream();
+		} else {
+
+			String response = null;
+			try {
+				response = convertStreamToString(con.getErrorStream(), "UTF-8");
+			} catch (IOException ex) {
+				log.error("Unable to convert InputStream to String: {}", ex);
+			}
+
+			log.trace("[IS Request {}] Response: {}", requestId, response);
+
 		}
 
 		throw new InternalErrorException("Wrong response code while opening connection on uri '" + uri + "'. Response code: " + responseCode + ". Request ID: " + requestId);
@@ -183,43 +212,66 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	 */
 	private String getGenerateAccountRequest(PerunSession session, Map<String, String> parameters, int requestID) {
 
-		log.debug("Making 'Generate account' request with ID: " + requestID + " to IS MU.");
+		log.debug("[IS Request {}] Making 'Generate account' request to IS MU.", requestID);
 
 		String params = "";
+		String loggedParams = "";
+
 		if (parameters != null && !parameters.isEmpty()) {
 
 			if (parameters.get(FIRST_NAME_KEY) != null && !parameters.get(FIRST_NAME_KEY).isEmpty()) {
-				params += "<jmeno>" + parameters.get(FIRST_NAME_KEY) + "</jmeno>\n";
+				params += "<jmeno>" + escapeXMLChars(parameters.get(FIRST_NAME_KEY)) + "</jmeno>\n";
+				loggedParams += "<jmeno>" + escapeXMLChars(parameters.get(FIRST_NAME_KEY)) + "</jmeno>\n";
 			} else {
 				// IS requires first and last name
 				// in case of a single word name value, it's stored in a lastName, so send "guest" as a firstName if it's empty.
 				params += "<jmeno>guest</jmeno>\n";
+				loggedParams += "<jmeno>guest</jmeno>\n";
 			}
 
-			if (parameters.get(LAST_NAME_KEY) != null && !parameters.get(LAST_NAME_KEY).isEmpty())
-				params += "<prijmeni>" + parameters.get(LAST_NAME_KEY) + "</prijmeni>\n";
-
-			if (parameters.get(TITLE_BEFORE_KEY) != null && !parameters.get(TITLE_BEFORE_KEY).isEmpty())
-				params += "<titul_pred>" + parameters.get(TITLE_BEFORE_KEY) + "</titul_pred>\n";
-
-			if (parameters.get(TITLE_AFTER_KEY) != null && !parameters.get(TITLE_AFTER_KEY).isEmpty())
-				params += "<titul_za>" + parameters.get(TITLE_AFTER_KEY) + "</titul_za>\n";
-
-			if (parameters.get(BIRTH_DAY_KEY) != null && !parameters.get(BIRTH_DAY_KEY).isEmpty())
-				params += "<datum_narozeni>" + parameters.get(BIRTH_DAY_KEY) + "</datum_narozeni>\n";
-
-			if (parameters.get(BIRTH_NUMBER_KEY) != null && !parameters.get(BIRTH_NUMBER_KEY).isEmpty())
-				params += "<rodne_cislo>" + parameters.get(BIRTH_NUMBER_KEY) + "</rodne_cislo>\n";
-
-			if (parameters.get(MAIL_KEY) != null && !parameters.get(MAIL_KEY).isEmpty())
-				params += "<email>" + parameters.get(MAIL_KEY) + "</email>\n";
-
-			if (parameters.get(PASSWORD_KEY) != null && !parameters.get(PASSWORD_KEY).isEmpty())
-				params += "<heslo>" + parameters.get(PASSWORD_KEY) + "</heslo>\n";
-
+			if (parameters.get(LAST_NAME_KEY) != null && !parameters.get(LAST_NAME_KEY).isEmpty()) {
+				params += "<prijmeni>" + escapeXMLChars(parameters.get(LAST_NAME_KEY)) + "</prijmeni>\n";
+				loggedParams += "<prijmeni>" + escapeXMLChars(parameters.get(LAST_NAME_KEY)) + "</prijmeni>\n";
+			}
+			if (parameters.get(TITLE_BEFORE_KEY) != null && !parameters.get(TITLE_BEFORE_KEY).isEmpty()) {
+				params += "<titul_pred>" + escapeXMLChars(parameters.get(TITLE_BEFORE_KEY)) + "</titul_pred>\n";
+				loggedParams += "<titul_pred>" + escapeXMLChars(parameters.get(TITLE_BEFORE_KEY)) + "</titul_pred>\n";
+			}
+			if (parameters.get(TITLE_AFTER_KEY) != null && !parameters.get(TITLE_AFTER_KEY).isEmpty()) {
+				params += "<titul_za>" + escapeXMLChars(parameters.get(TITLE_AFTER_KEY)) + "</titul_za>\n";
+				loggedParams += "<titul_za>" + escapeXMLChars(parameters.get(TITLE_AFTER_KEY)) + "</titul_za>\n";
+			}
+			if (parameters.get(BIRTH_DAY_KEY) != null && !parameters.get(BIRTH_DAY_KEY).isEmpty()) {
+				params += "<datum_narozeni>" + escapeXMLChars(parameters.get(BIRTH_DAY_KEY)) + "</datum_narozeni>\n";
+				loggedParams += "<datum_narozeni>" + escapeXMLChars(parameters.get(BIRTH_DAY_KEY)) + "</datum_narozeni>\n";
+			}
+			if (parameters.get(BIRTH_NUMBER_KEY) != null && !parameters.get(BIRTH_NUMBER_KEY).isEmpty()) {
+				params += "<rodne_cislo>" + escapeXMLChars(parameters.get(BIRTH_NUMBER_KEY)) + "</rodne_cislo>\n";
+				loggedParams += "<rodne_cislo>" + escapeXMLChars(parameters.get(BIRTH_NUMBER_KEY)) + "</rodne_cislo>\n";
+			}
+			if (parameters.get(MAIL_KEY) != null && !parameters.get(MAIL_KEY).isEmpty()) {
+				params += "<email>" + escapeXMLChars(parameters.get(MAIL_KEY)) + "</email>\n";
+				loggedParams += "<email>" + escapeXMLChars(parameters.get(MAIL_KEY)) + "</email>\n";
+			}
+			if (parameters.get(PASSWORD_KEY) != null && !parameters.get(PASSWORD_KEY).isEmpty()) {
+				params += "<heslo>" + escapeXMLChars(parameters.get(PASSWORD_KEY)) + "</heslo>\n"; // password is not logged
+				loggedParams += "<heslo>realPasswordIsNotLogged</heslo>\n";
+			}
 		}
 
-		params += getUcoFromSessionUser(session);
+		String ucoChanged = getUcoFromSessionUser(session);
+		params += ucoChanged;
+		loggedParams += ucoChanged;
+
+		log.trace("[IS Request {}] File content:\n"+
+				"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+				"<request>\n" +
+				"<osoba reqid=\"" + requestID + "\">\n" +
+				"<uco></uco>\n" +
+				loggedParams +
+				"<operace>INS</operace>\n" +
+				"</osoba>\n" +
+				"</request>", requestID);
 
 		return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
 				"<request>\n" +
@@ -243,11 +295,27 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	 */
 	private String getPwdChangeRequest(PerunSession session, String login, String newPassword, int requestID) {
 
-		log.debug("Making 'Change password' request with ID: " + requestID + " to IS MU.");
+		log.debug("[IS Request {}] Making 'Change password' request to IS MU.", requestID);
 
 		String params = "";
-		if (newPassword != null && !newPassword.isEmpty()) params += "<heslo>" + newPassword + "</heslo>\n";
-		params += getUcoFromSessionUser(session);
+		String loggedParams = "";
+		if (newPassword != null && !newPassword.isEmpty()) {
+			params += "<heslo>" + escapeXMLChars(newPassword) + "</heslo>\n";
+			loggedParams += "<heslo>realPasswordIsNotLogged</heslo>\n";
+		}
+		String ucoChanged = getUcoFromSessionUser(session);
+		params += ucoChanged;
+		loggedParams += ucoChanged;
+
+		log.trace("[IS Request {}] File content:\n" +
+				"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+				"<request>\n" +
+				"<osoba reqid=\"" + requestID + "\">\n" +
+				"<uco>" + login + "</uco>\n" +
+				loggedParams +
+				"<operace>UPD</operace>\n" +
+				"</osoba>\n" +
+				"</request>", requestID);
 
 		return	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
 				"<request>\n" +
@@ -321,8 +389,8 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 			log.error("Unable to convert InputStream to String: {}", ex);
 		}
 
-		log.trace("Request ID: " + requestID + " Response: " + response);
-		log.debug("Processing response to request with ID: " + requestID + " from IS MU.");
+		log.trace("[IS Request {}] Response: {}", requestID, response);
+		log.debug("[IS Request {}] Processing response from IS MU.", requestID);
 
 		Document doc;
 		try {
@@ -357,8 +425,8 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 			throw new InternalErrorException("Error when evaluate xpath query on document to resolve response status. Request ID: " + requestID, ex);
 		}
 
-		log.trace("Request ID: " + requestID + " Response status: " + responseStatus);
-		log.debug("Response to request with ID: " + requestID + " from IS MU has status: " + responseStatus);
+		log.trace("[IS Request {}] Response of request from IS MU has status: {}", requestID, responseStatus);
+		log.debug("[IS Request {}] Response of request from IS MU has status: {}", requestID, responseStatus);
 
 		if ("OK".equals(responseStatus)) {
 
@@ -434,6 +502,16 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		return "";
 
+	}
+
+	/**
+	 * Escape restricted XML chars for element content (& < >).
+	 *
+	 * @param input Input to safely escape
+	 * @return Output with escaped chars
+	 */
+	private String escapeXMLChars(String input) {
+		return StringEscapeUtils.escapeXml10(input);
 	}
 
 }
