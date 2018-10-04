@@ -434,6 +434,7 @@ public class CoreConfig {
 				case "alternativeLoginName":
 					attr.setDisplayName("alternativeLoginName");
 					attr.setDescription("person's alternative login name in organization (not related to IdP identity).");
+					break;
 				// forwardedScopedAffiliation - is not standardized and published by the proxy itself, we do not
 				// set it back to the Perun (UES attribute), but we can read it (for registrar purpose).
 				case "dn":
