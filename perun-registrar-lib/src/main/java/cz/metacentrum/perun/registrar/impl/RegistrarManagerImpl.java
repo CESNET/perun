@@ -444,14 +444,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			// GET VO
 			vo = vosManager.getVoByShortName(registrarSession, voShortName);
-			List<Attribute> list = attrManager.getAttributes(registrarSession, vo);
-			Iterator<Attribute> iter = list.iterator();
-			while(iter.hasNext()) {
-				Attribute a = iter.next();
-				if (!"contactEmail".equals(a.getFriendlyName()) && !"voLogoURL".equals(a.getFriendlyName())) {
-					iter.remove();
-				}
-			}
+			List<Attribute> list = attrManager.getAttributes(registrarSession, vo,
+					Arrays.asList(AttributesManager.NS_VO_ATTR_DEF+":contactEmail",
+							AttributesManager.NS_VO_ATTR_DEF+":voLogoURL"));
 
 			result.put("vo", vo);
 			result.put("voAttributes", list);
