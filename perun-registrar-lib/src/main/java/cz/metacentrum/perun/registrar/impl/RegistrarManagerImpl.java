@@ -2477,7 +2477,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			if (group != null) {
 
-				member = groupsManager.getGroupMemberById(sess, group, member.getId());
+				member = groupsManager.getGroupMemberById(registrarSession, group, member.getId());
 
 				regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
 						new SingleColumnRowMapper<Integer>(Integer.class),
