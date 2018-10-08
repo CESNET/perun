@@ -38,7 +38,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_member_resource_attribute_def_virt_isBanned.class);
 
-	private final Pattern banModification = Pattern.compile("Ban ([a-zA-Z]+):\\[(.|\\s)*\\] was (set|removed|updated) for (member|user)Id ([0-9]+) on (resource|facility)Id ([0-9]+)", Pattern.MULTILINE);
+	private final Pattern banModification = Pattern.compile("Ban ([a-zA-Z]+):\\[.*\\] was ([a-z]+) for .*Id ([0-9]+) on .*Id ([0-9]+)", Pattern.DOTALL);
 	private final String OPERATION_SET = "set";
 	private final String OPERATION_REMOVED = "removed";
 	private final String OPERATION_UPDATED = "updated";
@@ -67,7 +67,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 		if(sess.getPerunBl().getResourcesManagerBl().banExists(sess, member.getId(), resource.getId())) attribute.setValue(true);
 		//Ban on facility exists?
         if(sess.getPerunBl().getFacilitiesManagerBl().banExists(sess, user.getId(), facility.getId())) attribute.setValue(true);
-        
+
         return attribute;
 
     }
@@ -76,7 +76,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<String> resolvingMessages = new ArrayList<>();
 		if(message == null) return resolvingMessages;
-		
+
 		Matcher banModificationMatcher = banModification.matcher(message);
 		List<Pair<Resource, Member>> listOfAffectedObjects = new ArrayList<>();
 
@@ -85,9 +85,9 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 		if(banModificationMatcher.find()) {
 			try {
 				String banType = banModificationMatcher.group(1);
-				operationType = banModificationMatcher.group(3);
-				int firstHolderId = Integer.valueOf(banModificationMatcher.group(5));
-				int secondHolderId = Integer.valueOf(banModificationMatcher.group(7));
+				operationType = banModificationMatcher.group(2);
+				int firstHolderId = Integer.valueOf(banModificationMatcher.group(3));
+				int secondHolderId = Integer.valueOf(banModificationMatcher.group(4));
 
 				if(operationType.equals(OPERATION_UPDATED)) {
 					operationType = OPERATION_SET;

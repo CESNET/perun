@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -22,8 +21,8 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	private final Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.|\\s)*\\] added to User:\\[(.|\\s)*\\]", Pattern.MULTILINE);
-	private final Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.|\\s)*\\] removed from User:\\[(.|\\s)*\\]", Pattern.MULTILINE);
+	private final Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]", Pattern.DOTALL);
+	private final Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]", Pattern.DOTALL);
 	private final Pattern extSourceKerberos = Pattern.compile("cz.metacentrum.perun.core.impl.ExtSourceKerberos");
 
 	@Override

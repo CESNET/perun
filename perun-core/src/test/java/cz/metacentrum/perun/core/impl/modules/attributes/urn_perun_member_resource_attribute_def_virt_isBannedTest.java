@@ -55,7 +55,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
 		classInstance = new urn_perun_member_resource_attribute_def_virt_isBanned();
 		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 		facility = new Facility(1, "testFacility");
-		resource = new Resource(1, "testResource", "desc", 1, 1);
+		resource = new Resource(1, "testResource", "des\nc", 1, 1);
 		vo = new Vo(1, "testVo", "desc");
 		user = new User(1, "name", "surname", "middlename", "title", "title");
 		member = new Member(1, 1, 1, Status.VALID);
@@ -75,7 +75,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
 	@Test
 	public void resolveVirtualAttributeValueChangeTest() throws Exception{
 		System.out.println("urn_perun_user_facility_attribute_def_virt_defaultUnixGID.resolveVirtualAttributeValueChangeTest()");
-				
+
 		List<String> resolvedMessages;
 
 		//for message 1, 2 and 3
