@@ -172,7 +172,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		try {
 			return jdbc.queryForObject("select " + resourceMappingSelectQuery + " from resources where resources.id=?", RESOURCE_MAPPER, id);
 		} catch (EmptyResultDataAccessException e) {
-			throw new ResourceNotExistsException(e);
+			throw new ResourceNotExistsException("Resource with ID="+id+" not exists");
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
