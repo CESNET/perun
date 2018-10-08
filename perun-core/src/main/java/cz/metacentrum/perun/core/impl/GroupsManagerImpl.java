@@ -615,7 +615,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 		if(ret == 0) {
-			throw new NotGroupMemberException(member);
+			throw new NotGroupMemberException(group, member);
 		} else if(ret >= 1) {
 			return;
 		} else {
