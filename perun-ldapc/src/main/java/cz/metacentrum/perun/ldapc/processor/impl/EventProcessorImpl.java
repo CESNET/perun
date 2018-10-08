@@ -78,8 +78,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	//Groups patterns
 	private Pattern newGroupPattern = Pattern.compile(" created in Vo:\\[(.*)\\]", Pattern.DOTALL);
 	private Pattern subGroupPattern = Pattern.compile(" created in Vo:\\[(.*)\\] as subgroup of Group:\\[(.*)\\]", Pattern.DOTALL);
-	private Pattern assignGroupToResourcePattern = Pattern.compile("^Group:\\[(.*)\\] assigned to Resource:\\[(.*)\\]$", Pattern.DOTALL);
-	private Pattern removeGroupFromResourcePattern = Pattern.compile("^Group:\\[(.*)\\] removed from Resource:\\[(.*)\\]$", Pattern.DOTALL);
+	private Pattern assignGroupToResourcePattern = Pattern.compile("^Group:\\[(.*)\\] assigned to Resource:\\[(.*)\\]", Pattern.DOTALL);
+	private Pattern removeGroupFromResourcePattern = Pattern.compile("^Group:\\[(.*)\\] removed from Resource:\\[(.*)\\]", Pattern.DOTALL);
 	private Pattern moveGroupPattern = Pattern.compile("^Group:\\[(.*)\\] was moved\\.$", Pattern.DOTALL);
 	//Members patterns
 	private Pattern addedToPattern = Pattern.compile(" added to Group:\\[(.*)\\]", Pattern.DOTALL);
@@ -93,13 +93,13 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 
 	private Pattern userSetPattern = Pattern.compile(" set for User:\\[(.*)\\]", Pattern.DOTALL);
 	private Pattern userRemovePattern = Pattern.compile(" removed for User:\\[(.*)\\]", Pattern.DOTALL);
-	private Pattern userAllAttrsRemovedPattern = Pattern.compile("^All attributes removed for User:\\[(.*)\\]$", Pattern.DOTALL);
+	private Pattern userAllAttrsRemovedPattern = Pattern.compile("^All attributes removed for User:\\[(.*)\\]", Pattern.DOTALL);
 
 	private Pattern userUidNamespacePattern = Pattern.compile(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:");
 	private Pattern userLoginNamespacePattern = Pattern.compile(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:");
 	//UserExtSources patterns
-	private Pattern addUserExtSourcePattern = Pattern.compile("^UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]$", Pattern.DOTALL);
-	private Pattern removeUserExtSourcePattern = Pattern.compile("^UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]$", Pattern.DOTALL);
+	private Pattern addUserExtSourcePattern = Pattern.compile("^UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]", Pattern.DOTALL);
+	private Pattern removeUserExtSourcePattern = Pattern.compile("^UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]", Pattern.DOTALL);
 
 	//CONSTANTS
 	private static final String LDAP_NAME = "ldap";
