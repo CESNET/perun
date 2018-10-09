@@ -47,12 +47,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static freemarker.template.Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS;
+
 @Service("perunNotifTemplateManager")
 public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager {
 
 	@Autowired
 	private PerunNotifTemplateDao perunNotifTemplateDao;
-	
+
 	@Autowired
 	private PerunNotifRegexDao perunNotifRegexDao;
 
@@ -124,7 +126,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 	private Configuration createFreemarkerConfiguration(StringTemplateLoader stringTemplateLoader) {
 
-		Configuration newConfiguration = new Configuration();
+		Configuration newConfiguration = new Configuration(DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		newConfiguration.setTagSyntax(Configuration.ANGLE_BRACKET_TAG_SYNTAX);
 		newConfiguration.setDefaultEncoding("utf-8");
 		newConfiguration.setLocalizedLookup(true);
@@ -612,7 +614,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				}
 			}
 		}
-		
+
 		// create receivers if not exist
 		if (template.getReceivers() != null) {
 			for (PerunNotifReceiver receiver : template.getReceivers()) {
@@ -623,7 +625,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				}
 			}
 		}
-		
+
 		// create template messages if not exist
 		if (template.getPerunNotifTemplateMessages() != null) {
 			for (PerunNotifTemplateMessage message : template.getPerunNotifTemplateMessages()) {
@@ -639,10 +641,10 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				}
 			}
 		}
-		
+
 		// update cache allTemplatesById
 		allTemplatesById.put(template.getId(), template);
-		
+
 		// update cache allTemplatesByRegexId
 		if (template.getMatchingRegexs() != null) {
 			for (PerunNotifRegex regex : template.getMatchingRegexs()) {
@@ -654,7 +656,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				} else {
 					list.add(template);
 				}
-				
+
 			}
 		}
 
@@ -666,7 +668,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 		PerunNotifTemplate oldTemplate = getPerunNotifTemplateById(template.getId());
 		perunNotifTemplateDao.updatePerunNotifTemplateData(template);
-		
+
 		// create rexeges if not exist
 		if (template.getMatchingRegexs() != null) {
 			for (PerunNotifRegex regex: template.getMatchingRegexs()) {
@@ -678,7 +680,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				}
 			}
 		}
-		
+
 		// create receivers if not exist
 		if (template.getReceivers() != null) {
 			for (PerunNotifReceiver receiver : template.getReceivers()) {
@@ -688,7 +690,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				}
 			}
 		}
-		
+
 		// create template messages if not exist
 		if (template.getPerunNotifTemplateMessages() != null) {
 			for (PerunNotifTemplateMessage message : template.getPerunNotifTemplateMessages()) {
@@ -782,17 +784,17 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				}
 			}
 		}
-		
+
 		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
 		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
 		validateTemplateMessage(message);
 
 		PerunNotifTemplateMessage perunNotifTemplateMessage = perunNotifTemplateDao.createPerunNotifTemplateMessage(message);
-		
+
 		if (template != null) {
 			template.addPerunNotifTemplateMessage(perunNotifTemplateMessage);
 		}
-		
+
 		return perunNotifTemplateMessage;
 	}
 

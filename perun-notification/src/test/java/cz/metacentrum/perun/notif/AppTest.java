@@ -9,7 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.notif.entities.*;
 import cz.metacentrum.perun.notif.enums.PerunNotifNotifyTrigger;
 import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,7 @@ import static org.junit.Assert.*;
 public class AppTest extends AbstractTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(AppTest.class);
-	
+
 	private int userId;
 	private int memberId;
 	private int voId;
@@ -34,7 +33,7 @@ public class AppTest extends AbstractTest {
 	@Test
 	public void testNotificationListener() throws Exception {
 		prepareData();
-		
+
 		schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId + ">, status=<VALID>, sourceGroupId=<\\0>] created.");
 		schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId + ">, status=<VALID>, sourceGroupId=<\\0>] validated.");
 
@@ -148,7 +147,7 @@ public class AppTest extends AbstractTest {
 		assertEquals(templateMessage.getMessage(), templateMessageFromDb.getMessage());
 		assertEquals(templateMessage.getTemplateId(), templateMessageFromDb.getTemplateId());
 		assertEquals(templateMessage.getLocale(), templateMessageFromDb.getLocale());
-		Assert.assertEquals(templateMessage.getSubject(), templateMessageFromDb.getSubject());
+		assertEquals(templateMessage.getSubject(), templateMessageFromDb.getSubject());
 
 		templateFromDb = manager.getPerunNotifTemplateById(sess, templateFromDb.getId());
 		templateFromDb.addPerunNotifRegex(regex);
@@ -191,7 +190,7 @@ public class AppTest extends AbstractTest {
 		manager.removePerunNotifTemplateById(sess, template.getId());
 		assertNull(manager.getPerunNotifTemplateById(sess, template.getId()));
 	}
-	
+
 	private void prepareData() throws PerunException {
 		// user
 		User user = new User();
@@ -202,23 +201,23 @@ public class AppTest extends AbstractTest {
 		user.setTitleAfter("");
 		User newUser = perun.getUsersManagerBl().createUser(sess, user);
 		userId = newUser.getId();
-		
+
 		// vo
 		Vo vo = new Vo(0, "NotifTestVo", "NTestVo");
 		Vo newVo = perun.getVosManager().createVo(sess, vo);
 		voId = newVo.getId();
-		
+
 		// member
 		Member member = perun.getMembersManagerBl().createMember(sess, newVo, newUser);
 		memberId = member.getId();
-		
+
 		// attribute preferred laguage
 		AttributeDefinition attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:user:attribute-def:def:preferredLanguage");
 		Attribute attr = new Attribute(attrDef);
 		attr.setValue("cs");
 		System.out.println("attribute: " + perun.getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:preferredLanguage"));
 		perun.getAttributesManagerBl().setAttribute(sess, user, attr);
-		
+
 		// template
 		PerunNotifTemplate template = new PerunNotifTemplate();
 		Map<String, List<String>> properties = new HashMap<>();
@@ -231,21 +230,21 @@ public class AppTest extends AbstractTest {
 		template.setYoungestMessageTime(10L);
 		template.setOldestMessageTime(20L);
 		template.setSender("noreply@meta.cz");
-		
+
 		// regex for creation
 		PerunNotifRegex regexC = new PerunNotifRegex();
 		regexC.setNote("Member created");
 		regexC.setRegex("Member:.* created\\.");
 		PerunNotifRegex newRegexC = manager.createPerunNotifRegex(sess, regexC);
 		template.addPerunNotifRegex(newRegexC);
-				
+
 		// regex for validation
 		PerunNotifRegex regexV = new PerunNotifRegex();
 		regexV.setNote("Member validated");
-		regexV.setRegex("Member:.* validated\\.");		
+		regexV.setRegex("Member:.* validated\\.");
 		PerunNotifRegex newRegexV = manager.createPerunNotifRegex(sess, regexV);
 		template.addPerunNotifRegex(newRegexV);
-		
+
 		// template message english
 		PerunNotifTemplateMessage messageEn = new PerunNotifTemplateMessage();
 		messageEn.setMessage("Good day,"
@@ -257,7 +256,7 @@ public class AppTest extends AbstractTest {
 		messageEn.setLocale(Locale.forLanguageTag("en"));
 		messageEn.setSubject("Subject");
 		template.addPerunNotifTemplateMessage(messageEn);
-		
+
 		// template message czech
 		PerunNotifTemplateMessage messageCs = new PerunNotifTemplateMessage();
 		messageCs.setMessage("Dobrý den,\n" +
@@ -271,15 +270,15 @@ public class AppTest extends AbstractTest {
 		messageCs.setLocale(Locale.forLanguageTag("cs"));
 		messageCs.setSubject("Subject");
 		template.addPerunNotifTemplateMessage(messageCs);
-		
+
 		// receiver
 		PerunNotifReceiver receiver = new PerunNotifReceiver();
 		receiver.setLocale("cs");
 		receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
 		receiver.setTarget("cz.metacentrum.perun.core.api.Member.getUserId");
 		template.setReceivers(new ArrayList<>(Arrays.asList(receiver)));
-		
+
 		manager.createPerunNotifTemplate(sess, template);
-		
+
 	}
 }

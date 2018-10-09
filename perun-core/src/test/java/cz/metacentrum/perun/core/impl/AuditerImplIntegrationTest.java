@@ -1,11 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -16,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.implApi.AuditerListener;
 
 @Ignore
 public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
@@ -139,92 +136,10 @@ assertTrue("Auditer and Consumer should contain same messages!",messagesFromCons
 	 }
 	 */
 
-	@Ignore //Deprecated
-		@Test
-		public void registerListener() throws Exception {
-			System.out.println("AuditerTest.registerListener");
-
-			final AuditerListenerDummy listener = new AuditerListenerDummy();
-			assertTrue("unable to register Listener",perun.getAuditer().registerListener(listener, consumerName));
-			assertFalse("shouldn't register Listener twice",perun.getAuditer().registerListener(listener, consumerName));
-
-		}
-
-	@Test
-	@Ignore //Deprecated
-	public void unregisterListener() throws Exception {
-		System.out.println("AuditerTest.unregisterListener");
-
-		final AuditerListenerDummy listener = new AuditerListenerDummy();
-		assertFalse("shouldn't unregister listener when it's not registred",perun.getAuditer().unregisterListener(listener));
-		assertTrue("unable to register listener",perun.getAuditer().registerListener(listener, consumerName));
-		assertTrue("unable to unregister registered listener",perun.getAuditer().unregisterListener(listener));
-
-	}
-
-
-	@Test
-	@Ignore //Deprecated
-	public void checkListener() throws Exception {
-		/* XXX deprecated
-			 System.out.println("AuditerTest.checkListener");
-
-			 AuditerListenerDummy listener = new AuditerListenerDummy();
-			 assertTrue("unable to register Listener",perun.getAuditer().registerListener(listener, consumerName));
-		// register dummy listener
-
-		setUpFacility();
-		assertTrue("auditer should contain one message",perun.getAuditer().getMessages().size()==1);
-		// system event creates message in auditer (check it)
-
-		List<String> messagesFromAuditer = perun.getAuditer().getMessages();
-		perun.getAuditer().flush();
-		// save auditer messages and flush => process them with listener
-
-		List<String> messagesFromListener = listener.getMessages();
-		// get messages from listener
-
-		int counter = 0;
-		while (messagesFromListener.isEmpty() && counter < 25) {
-		counter++;
-		System.out.println("Waiting for Listeners thread to finis "+counter);
-		Thread.sleep(200);
-		messagesFromListener = listener.getMessages();
-		}
-		// waiting for listener to process messages before further testing and get them again
-
-		for (int i=0; i<messagesFromAuditer.size(); i++) {
-		assertTrue("Auditer and Listener should contain same messages!",messagesFromListener.contains(messagesFromAuditer.get(i)));
-		}
-		// check listener's content against original auditer's content
-
-*/
-
-	}
-
-
 	public void setAuditerConsumer(AuditerConsumer auditerConsumer) {
 		this.auditerConsumer = auditerConsumer;
 	}
 
-	private class AuditerListenerDummy implements AuditerListener {
-
-		private List<String> messages = new ArrayList<String>();
-
-		@Override
-		public void notifyWith(String message) {
-
-			messages.add(message);
-
-		}
-
-		public List<String> getMessages() {
-
-			return messages;
-
-		}
-
-	}
 
 	// ------------- private methods ----------------------------------
 

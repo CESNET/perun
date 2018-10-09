@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class StringTemplateLoader implements TemplateLoader {
 
-	private final Map templates = new HashMap();
+	private final Map<String, StringTemplateSource> templates = new HashMap<>();
 
 	/**
 	 * Puts a template into the loader. A call to this method is identical
