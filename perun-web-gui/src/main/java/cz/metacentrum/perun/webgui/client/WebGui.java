@@ -458,7 +458,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 		if(session.isVoAdmin()) {
 			if (session.getEditableVos().size() > 1) {
 				session.getTabManager().addTab(new VosSelectTabItem(), true);
-			} else {
+			} else if (session.getEditableVos().size() == 1) {
 				session.getTabManager().addTab(new VoDetailTabItem(session.getEditableVos().get(0)), true);
 			}
 			return;
@@ -467,7 +467,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 		if(session.isVoObserver()) {
 			if (session.getViewableVos().size() > 1) {
 				session.getTabManager().addTab(new VosSelectTabItem(), true);
-			} else {
+			} else if (session.getViewableVos().size() == 1) {
 				session.getTabManager().addTab(new VoDetailTabItem(session.getViewableVos().get(0)), true);
 			}
 			return;
