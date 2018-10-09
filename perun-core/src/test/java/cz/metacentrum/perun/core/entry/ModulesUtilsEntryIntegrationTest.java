@@ -689,7 +689,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Resource resource = new Resource(10, "test", "test", 10, 10);
 		Attribute fileQuotasAttribute = getFileQuotasAttribute();
 		Attribute maxFileQuotasAttribute = getMaxFileQuotasAttribute();
-		((LinkedHashMap) maxFileQuotasAttribute.getValue()).put("/var/log/test/", "1000:2000");
+		((LinkedHashMap<String,String>) maxFileQuotasAttribute.getValue()).put("/var/log/test/", "1000:2000");
 		modulesUtilsBl.checkIfQuotasIsInLimit(
 				modulesUtilsBl.checkAndTransferQuotas(fileQuotasAttribute, resource, null, false),
 				modulesUtilsBl.checkAndTransferQuotas(maxFileQuotasAttribute, resource, null, false));
@@ -700,7 +700,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		System.out.println(CLASS_NAME + "QuotaNotInAllowedLimitException");
 		Resource resource = new Resource(10, "test", "test", 10, 10);
 		Attribute dataQuotasAttribute = getDataQuotasAttribute();
-		((LinkedHashMap) dataQuotasAttribute.getValue()).put("/var/log/test/", "1G:0");
+		((LinkedHashMap<String,String>) dataQuotasAttribute.getValue()).put("/var/log/test/", "1G:0");
 		Attribute maxDataQuotasAttribute = getMaxDataQuotasAttribute();
 		modulesUtilsBl.checkIfQuotasIsInLimit(
 				modulesUtilsBl.checkAndTransferQuotas(dataQuotasAttribute, resource, null, true),
@@ -775,7 +775,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 						modulesUtilsBl.checkAndTransferQuotas(memberResourceFileQuotasAttribute, resource, null, false),
 						modulesUtilsBl.checkAndTransferQuotas(fileQuotasOverrideAttribute, resource, null, false)),
 				false );
-		Map<String, String> expectedResult = new HashMap<>((HashMap) memberResourceFileQuotasAttribute.getValue());
+		Map<String, String> expectedResult = new HashMap<>((HashMap<String,String>) memberResourceFileQuotasAttribute.getValue());
 		expectedResult.put("/var/log/test/","1:0");
 		assertEquals(expectedResult, mergedMapOfQuotas);
 	}

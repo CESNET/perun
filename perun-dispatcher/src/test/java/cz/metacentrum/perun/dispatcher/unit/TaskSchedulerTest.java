@@ -32,7 +32,6 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.Resource;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Michal Voců
@@ -45,8 +44,8 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 	Destination destination1 = new Destination(1, "par_dest1", "host", "PARALLEL");
 	SimpleTaskSchedulerSpy simpleSpy = new SimpleTaskSchedulerSpy(2);
 	SimpleTaskSchedulerSpy recurrenceSpy = new SimpleTaskSchedulerSpy(0);
-	FutureTask simpleFutureTask = new FutureTask(simpleSpy, null);
-	FutureTask recurrenceFutureTask = new FutureTask(recurrenceSpy, null);
+	FutureTask simpleFutureTask = new FutureTask<SimpleTaskSchedulerSpy>(simpleSpy, null);
+	FutureTask recurrenceFutureTask = new FutureTask<SimpleTaskSchedulerSpy>(recurrenceSpy, null);
 	@Autowired
 	SchedulingPool schedulingPool;
 	@Resource(name="dispatcherPropertiesBean")
@@ -54,10 +53,10 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 	@Autowired
 	DelayQueue<TaskSchedule> waitingTasksQueue;
 	@Autowired
-	DelayQueue<TaskSchedule>waitingForcedTasksQueue; 
+	DelayQueue<TaskSchedule>waitingForcedTasksQueue;
 	@Autowired
 	TaskManager taskManager;
-	
+
 	@IfProfileValue(name = "perun.test.groups", values = ("xxx"))
 	@Test
 	public void sendToEngineTest() {
@@ -90,7 +89,7 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 		recurrenceSpy.setWaitingForcedTasksQueue(waitingForcedTasksQueue);
 		recurrenceSpy.setTaskManager(taskManager);
 	}
-	
+
 	@Test
 	public void simpleRunTest() throws InterruptedException, ExecutionException, TimeoutException {
 		//SchedulingPool schedulingPool = new SchedulingPoolImpl();
@@ -157,7 +156,7 @@ public class TaskSchedulerTest extends AbstractDispatcherTest {
 		testTask2.setService(service2);
 		testTask2.setFacility(facility1);
 		testTask2.setStatus(TaskStatus.WAITING);
-		
+
 		return new Task[]{testTask1, testTask2};
 	}
 

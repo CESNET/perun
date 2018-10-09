@@ -452,7 +452,7 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_CREATED_USER failed because of exception: {}", ex);
 				}
@@ -508,7 +508,7 @@ public class MailManagerImpl implements MailManager {
 					message.setTo(email);
 					try {
 						mailSender.send(message);
-						log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
+						log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
 					} catch (MailException ex) {
 						log.error("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN failed because of exception: {}", ex);
 					}
@@ -630,7 +630,7 @@ public class MailManagerImpl implements MailManager {
 
 							try {
 								mailSender.send(message);
-								log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
+								log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
 							} catch (MailException ex) {
 								log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception: {}", ex);
 							}
@@ -661,7 +661,7 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_APPROVED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_APPROVED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_APPROVED_USER failed because of exception: {}", ex);
 				}
@@ -686,7 +686,7 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception: {}", ex);
 				}
@@ -742,7 +742,7 @@ public class MailManagerImpl implements MailManager {
 					message.setTo(email);
 					try {
 						mailSender.send(message);
-						log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
+						log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
 					} catch (MailException ex) {
 						log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception: {}", ex);
 					}
@@ -950,7 +950,7 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 			mailSender.send(message);
-			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / " + app.getVo() + " / " + app.getGroup(), message.getTo());
+			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
 		} catch (MailException ex) {
 			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
@@ -1378,7 +1378,7 @@ public class MailManagerImpl implements MailManager {
 				}
 			}
 			if (attrToEmail != null && attrToEmail.getValue() != null) {
-				ArrayList<String> value = ((ArrayList<String>)attrToEmail.getValue());
+				ArrayList<String> value = (ArrayList<String>)attrToEmail.getValue();
 				for (String adr : value) {
 					if (adr != null && !adr.isEmpty()) {
 						result.add(adr);

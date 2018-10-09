@@ -116,7 +116,7 @@ public class VOOT {
 	 * e.g. 'groups/@me/vo1:group1'
 	 *
 	 * Allowed parameters request:
-	 * @see http://opensocial-resources.googlecode.com/svn/spec/2.0.1/Core-API-Server.xml#rfc.section.6
+	 * see http://opensocial-resources.googlecode.com/svn/spec/2.0.1/Core-API-Server.xml#rfc.section.6
 	 *
 	 * In section 6.2 Collection request parameters are all available and it is possible to use parameter SortBy.
 	 * Value of SortBy is singular attribute of object, e.g. for group 'title' or for member 'displayName'.
@@ -273,7 +273,7 @@ public class VOOT {
 
 			Email[] emails = getEmails(userOfMember);
 
-			String vootMembership = new String();
+			String vootMembership;
 
 			try{
 				if(perun.getGroupsManagerBl().getAdmins(session, group).contains(userOfMember)){
@@ -304,10 +304,8 @@ public class VOOT {
 		//preferred mail
 		Email[] emails = new Email[1];
 
-		Attribute preferredEmailAttribute = new Attribute();
-
 		try{
-			preferredEmailAttribute = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+			Attribute preferredEmailAttribute = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
 			if(preferredEmailAttribute.getValue() != null){
 				Email email = new Email();
 				email.setType("mail");
@@ -839,7 +837,7 @@ public class VOOT {
 			}
 		}
 
-		return filterGroups.toArray(new VOOTGroup[filterGroups.size()]);
+		return filterGroups.toArray(new VOOTGroup[0]);
 	}
 
 	/**
@@ -853,10 +851,10 @@ public class VOOT {
 		String parms [] = parameters.split(",");
 		Map<String, String> parmsMap = new HashMap<String, String>();
 
-		for(int i=0;i<parms.length;i++){
-			String[] param = parms[i].split("=", 2);
+		for (String parm : parms) {
+			String[] param = parm.split("=", 2);
 
-			if(param.length < 2){
+			if (param.length < 2) {
 				return parmsMap;
 			}
 
@@ -908,13 +906,13 @@ public class VOOT {
 		if(keys.contains(START_INDEX.toLowerCase())){
 			startIndexValue = Integer.valueOf(parameters.get(START_INDEX.toLowerCase()));
 		}else{
-			startIndexValue  = new Integer(0);
+			startIndexValue  = 0;
 		}
 
 		if(keys.contains(COUNT.toLowerCase())){
 			countValue = Integer.valueOf(parameters.get(COUNT.toLowerCase()));
-		}else{
-			countValue = new Integer(0);
+		} else {
+			countValue = 0;
 		}
 
 		if(keys.contains(FILTER_BY.toLowerCase())){
