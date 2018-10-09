@@ -534,43 +534,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				} catch (IllegalAccessException ex) {
 					throw new InternalErrorRuntimeException(ex);
 				} catch (InvocationTargetException ex) {
-					throw new InternalErrorRuntimeException("An exception raise while geting core-managed attribute value.", ex);
+					throw new InternalErrorRuntimeException("An exception raise while getting core-managed attribute value.", ex);
 				}
 			}
 
-			//FIXME use ValueRowMapper
-			String stringValue;
-			if (Utils.isLargeAttribute(sess, attribute)) {
-				if (Compatibility.isOracle()) {
-					//large attributes
-					Clob clob = rs.getClob("attr_value_text");
-					char[] cbuf;
-					if (clob == null) {
-						stringValue = null;
-					} else {
-						try {
-							cbuf = new char[(int) clob.length()];
-							//noinspection ResultOfMethodCallIgnored
-							clob.getCharacterStream().read(cbuf);
-						} catch (IOException ex) {
-							throw new InternalErrorRuntimeException(ex);
-						}
-						stringValue = new String(cbuf);
-					}
-				} else {
-					// POSTGRES READ CLOB AS STRING
-					stringValue = rs.getString("attr_value_text");
-				}
-			} else {
-				//ordinary attributes read as String
-				stringValue = rs.getString("attr_value");
-			}
-
-			try {
-				attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
-			} catch (InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
-			}
+			Object attributeValue = new ValueRowMapper(sess, attribute).mapRow(rs, i);
+			attribute.setValue(attributeValue);
 
 			return attribute;
 		}
