@@ -592,15 +592,6 @@ public interface UsersManagerImplApi {
 	public void deleteUsersReservedLogins(User user) throws InternalErrorException;
 
 	/**
-	 * Get All RichUsers without UserExtSources and without virtual attributes.
-	 *
-	 * @param sess
-	 * @return list of richUsers
-	 * @throws InternalErrorException
-	 */
-	List<Pair<User, Attribute>> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException;
-
-	/**
 	 * Store request of change of user's preferred email address.
 	 * Change in attribute value is not done, until email
 	 * address is verified by link in email notice.
