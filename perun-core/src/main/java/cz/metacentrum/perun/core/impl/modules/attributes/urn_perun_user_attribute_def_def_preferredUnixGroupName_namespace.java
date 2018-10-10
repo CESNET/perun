@@ -12,6 +12,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -19,13 +21,17 @@ import java.util.List;
  */
 public class urn_perun_user_attribute_def_def_preferredUnixGroupName_namespace extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	private static final Pattern pattern = Pattern.compile("^[-_.a-zA-Z0-9]+$");
+
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if(attribute.getValue()!= null) {
-			for(String groupName: (List<String>)attribute.getValue())
-				if(!groupName.matches("^[-_.a-zA-Z0-9]+$")) throw new WrongAttributeValueException(attribute, user,"GroupName: " + groupName + " content invalid characters. Allowed are only letters, numbers and characters _ and - and .");
+			for(String groupName: (List<String>)attribute.getValue()) {
+				Matcher matcher = pattern.matcher(groupName);
+				if (!matcher.matches()) throw new WrongAttributeValueException(attribute, user, "GroupName: " + groupName + " content invalid characters. Allowed are only letters, numbers and characters _ and - and .");
 			}
 		}
+	}
 
 	@Override
 	public AttributeDefinition getAttributeDefinition() {

@@ -2,6 +2,8 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -21,12 +23,15 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_shell_passwd_scp extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
+	private static final Pattern pattern = Pattern.compile("^(/[-_.a-zA-Z0-9]+)+$");
+
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		String shell = (String) attribute.getValue();
 
 		if(shell == null) throw new WrongAttributeValueException(attribute, "Value can't be null");
-		if(!shell.matches("^(/[-_.a-zA-Z0-9]+)+$")) throw new WrongAttributeValueException(attribute, "Wrong format. ^(/[-_.A-z0-9]+)+$ expected");
+		Matcher matcher = pattern.matcher(shell);
+		if(!matcher.matches())  throw new WrongAttributeValueException(attribute, "Wrong format. ^(/[-_.A-z0-9]+)+$ expected");
 	}
 
 	@Override

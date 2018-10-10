@@ -30,8 +30,8 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Resou
 	private static final String A_R_defaultDataLimit = AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultDataLimit";
 	private static final String A_R_defaultDataQuota = AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultDataQuota";
 	private static final String A_MR_dataLimit = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":dataLimit";
-	Pattern numberPattern = Pattern.compile("[0-9]+(\\.|,)?[0-9]*");
-	Pattern letterPattern = Pattern.compile("[A-Z]");
+	private static final Pattern numberPattern = Pattern.compile("[0-9]+(\\.|,)?[0-9]*");
+	private static final Pattern letterPattern = Pattern.compile("[A-Z]");
 	long K = 1024;
 	long M = K * 1024;
 	long G = M * 1024;

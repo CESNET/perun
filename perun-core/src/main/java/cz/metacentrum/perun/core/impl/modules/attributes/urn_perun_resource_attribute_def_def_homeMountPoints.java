@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 public class urn_perun_resource_attribute_def_def_homeMountPoints extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	private static final String A_F_homeMountPoints = AttributesManager.NS_FACILITY_ATTR_DEF + ":homeMountPoints";
+	private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
 
 	/**
 	 * Fill with attribute from underlying facility
@@ -83,7 +84,6 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 		}
 		List<String> homeMountPoints = (List<String>) attribute.getValue();
 		if (!homeMountPoints.isEmpty()) {
-			Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
 			for (String st : homeMountPoints) {
 				Matcher match = pattern.matcher(st);
 				if (!match.matches()) {

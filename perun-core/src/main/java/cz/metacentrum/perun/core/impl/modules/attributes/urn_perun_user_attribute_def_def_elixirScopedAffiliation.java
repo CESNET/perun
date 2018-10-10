@@ -10,6 +10,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Attribute represents list of scoped affiliations.
@@ -19,7 +21,7 @@ import java.util.List;
  */
 public class urn_perun_user_attribute_def_def_elixirScopedAffiliation extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-	private static final String REGEX = "^[member|affiliate|faculty]+@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	private static final Pattern pattern = Pattern.compile("^[member|affiliate|faculty]+@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
@@ -28,7 +30,8 @@ public class urn_perun_user_attribute_def_def_elixirScopedAffiliation extends Us
 		if (values != null && !values.isEmpty()) {
 			for (String value : values) {
 				// check each value
-				if(!value.matches(REGEX)) throw new WrongAttributeValueException(attribute, "Wrong format. List of \"[member|affiliate|faculty]@scope\" expected.");
+				Matcher matcher = pattern.matcher(value);
+				if(!matcher.matches()) throw new WrongAttributeValueException(attribute, "Wrong format. List of \"[member|affiliate|faculty]@scope\" expected.");
 			}
 		}
 

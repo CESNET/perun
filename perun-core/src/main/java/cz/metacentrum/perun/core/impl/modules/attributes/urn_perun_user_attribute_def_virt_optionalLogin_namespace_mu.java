@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 public class urn_perun_user_attribute_def_virt_optionalLogin_namespace_mu extends UserVirtualAttributesModuleAbstract {
 
 	private final String EXTSOURCE_MUNI_IDP2 = "https://idp2.ics.muni.cz/idp/shibboleth";
-	private final Pattern loginMUPattern = Pattern.compile("^([0-9]+)[@]muni[.]cz$");
+	private static final Pattern loginMUPattern = Pattern.compile("^([0-9]+)[@]muni[.]cz$");
 
 	private static final String A_U_D_loginNamespace_mu = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu";
 

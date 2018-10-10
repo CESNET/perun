@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-	Pattern certPattern = Pattern.compile("^/");
+	private static final Pattern certPattern = Pattern.compile("^/");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {

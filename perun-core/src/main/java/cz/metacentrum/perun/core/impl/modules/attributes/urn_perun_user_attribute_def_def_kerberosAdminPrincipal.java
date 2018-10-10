@@ -14,6 +14,9 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Checks specified kerberos admin principal (check existence of only one kerberos principal)
  *
@@ -21,11 +24,14 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  */
 public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	private static final Pattern pattern = Pattern.compile("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$");
+
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Attribute's value can't be null");
 		String value = (String) attribute.getValue();
-		if(!value.matches("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$")) throw new WrongAttributeValueException(attribute, user, "Attribute's value is not in correct format. format: login@realm");
+		Matcher matcher = pattern.matcher(value);
+		if(!matcher.matches()) throw new WrongAttributeValueException(attribute, user, "Attribute's value is not in correct format. format: login@realm");
 	}
 
 	@Override

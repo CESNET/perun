@@ -37,7 +37,7 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final Pattern allAttributesRemovedForUserExtSource = Pattern.compile("All attributes removed for UserExtSource:\\[(.*)]", Pattern.DOTALL);
+	private static final Pattern allAttributesRemovedForUserExtSource = Pattern.compile("All attributes removed for UserExtSource:\\[(.*)]", Pattern.DOTALL);
 	private final Pattern removeUserExtSourceAttribute = Pattern.compile("AttributeDefinition:\\[(.*)" + getSourceAttributeFriendlyName() + "(.*)] removed for UserExtSource:\\[(.*)]", Pattern.DOTALL);
 	private final Pattern setUserExtSourceAttribute = Pattern.compile("Attribute:\\[(.*)" + getSourceAttributeFriendlyName() + "(.*)] set for UserExtSource:\\[(.*)]", Pattern.DOTALL);
 	/**

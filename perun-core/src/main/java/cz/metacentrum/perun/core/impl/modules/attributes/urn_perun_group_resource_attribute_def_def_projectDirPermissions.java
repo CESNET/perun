@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_group_resource_attribute_def_def_projectDirPermissions extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
 
+	private static final Pattern pattern = Pattern.compile("^[01234567]{3}$");
+
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Integer permissions = (Integer) attribute.getValue();
@@ -33,7 +35,6 @@ public class urn_perun_group_resource_attribute_def_def_projectDirPermissions ex
 		String perm = permissions.toString();
 
 		//Only 3 consecutive numbers with value >=0 and <=7 are allowed
-		Pattern pattern = Pattern.compile("^[01234567]{3}$");
 		Matcher match = pattern.matcher(perm);
 
 		if (!match.matches()) {

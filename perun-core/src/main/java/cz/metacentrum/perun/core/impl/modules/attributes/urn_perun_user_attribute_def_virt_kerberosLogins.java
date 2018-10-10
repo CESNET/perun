@@ -21,9 +21,9 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	private final Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]", Pattern.DOTALL);
-	private final Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]", Pattern.DOTALL);
-	private final Pattern extSourceKerberos = Pattern.compile("cz.metacentrum.perun.core.impl.ExtSourceKerberos");
+	private static final Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]", Pattern.DOTALL);
+	private static final Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]", Pattern.DOTALL);
+	private static final Pattern extSourceKerberos = Pattern.compile("cz.metacentrum.perun.core.impl.ExtSourceKerberos");
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {

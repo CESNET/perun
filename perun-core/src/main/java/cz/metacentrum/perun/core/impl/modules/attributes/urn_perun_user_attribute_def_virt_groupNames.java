@@ -33,8 +33,8 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_groupNames.class);
 	private static final String FRIENDLY_NAME = "groupNames";
 
-	private Pattern memberAddedToPattern = Pattern.compile("Member:\\[(.*)\\] added to Group:\\[(.*)\\]", Pattern.DOTALL);
-	private Pattern memberTotallyRemovedFromPattern = Pattern.compile("Member:\\[(.*)\\] was removed from Group:\\[(.*)\\] totally", Pattern.DOTALL);
+	private static final Pattern memberAddedToPattern = Pattern.compile("Member:\\[(.*)\\] added to Group:\\[(.*)\\]", Pattern.DOTALL);
+	private static final Pattern memberTotallyRemovedFromPattern = Pattern.compile("Member:\\[(.*)\\] was removed from Group:\\[(.*)\\] totally", Pattern.DOTALL);
 
 
 	@Override

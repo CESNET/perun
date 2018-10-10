@@ -21,6 +21,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_homeMountPoints extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
+	private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
+
 	/**
 	 * Checks attribute facility_homeMountPoints, this attribute must not be null and must be valid *nix path
 	 * @param perunSession current session
@@ -36,12 +38,9 @@ public class urn_perun_facility_attribute_def_def_homeMountPoints extends Facili
 		}
 		List<String> homeMountPoints = (List<String>) attribute.getValue();
 		if (!homeMountPoints.isEmpty()) {
-			Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
 			for (String st : homeMountPoints) {
 				Matcher match = pattern.matcher(st);
-				if (!match.matches()) {
-					throw new WrongAttributeValueException(attribute, "Bad homeMountPoints attribute format " + st);
-				}
+				if (!match.matches()) throw new WrongAttributeValueException(attribute, "Bad homeMountPoints attribute format " + st);
 			}
 		} else {
 			throw new WrongAttributeValueException(attribute,"Attribute can't be empty");

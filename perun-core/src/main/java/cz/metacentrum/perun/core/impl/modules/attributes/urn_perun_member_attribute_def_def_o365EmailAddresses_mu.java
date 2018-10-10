@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static cz.metacentrum.perun.core.impl.Utils.emailPattern;
 import static cz.metacentrum.perun.core.impl.Utils.hasDuplicate;
@@ -53,7 +52,6 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 
 	private static final String NAMESPACE = AttributesManager.NS_MEMBER_ATTR_DEF;
 	static final String UCO_ATTRIBUTE = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu";
-	static final Pattern MU_EMAIL_SYNTAX = Pattern.compile("\\d+@muni.cz");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {

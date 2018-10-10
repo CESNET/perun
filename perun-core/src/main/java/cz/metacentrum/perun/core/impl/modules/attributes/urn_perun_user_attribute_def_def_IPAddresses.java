@@ -14,6 +14,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Attribute represents IP Addresses in ArrayList.
@@ -24,15 +26,18 @@ import java.util.List;
  */
 public class urn_perun_user_attribute_def_def_IPAddresses extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-	private static final String IPv4_PATTERN = "^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$";
-	private static final String IPv6_PATTERN = "^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$";
-	private static final String IPv6_PATTERN_SHORT = "^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$";
+	private static final Pattern IPv4_PATTERN = Pattern.compile("^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
+	private static final Pattern IPv6_PATTERN = Pattern.compile("^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
+	private static final Pattern IPv6_PATTERN_SHORT = Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		List<String> value = attribute.valueAsList();
 		for (String address : value) {
-			if (!address.matches(IPv4_PATTERN) && !address.matches(IPv6_PATTERN) && !address.matches(IPv6_PATTERN_SHORT))
+			Matcher matcherIPv4 = IPv4_PATTERN.matcher(address);
+			Matcher matcherIPv6 = IPv6_PATTERN.matcher(address);
+			Matcher matcherIPv6Short = IPv6_PATTERN_SHORT.matcher(address);
+			if (!matcherIPv4.matches() && !matcherIPv6.matches() && !matcherIPv6Short.matches())
 				throw new WrongAttributeValueException(attribute, "IP address is not in the correct format.");
 		}
 	}

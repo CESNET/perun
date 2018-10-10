@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_resource_attribute_def_def_sshkeysTargetUser extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
-	Pattern pattern = Pattern.compile("^(?!-)[-_.a-zA-Z0-9]+$");
+	private static final Pattern pattern = Pattern.compile("^(?!-)[-_.a-zA-Z0-9]+$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {

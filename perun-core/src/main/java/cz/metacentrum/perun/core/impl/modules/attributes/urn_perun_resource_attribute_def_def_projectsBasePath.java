@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_resource_attribute_def_def_projectsBasePath extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
+	private static final Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
+
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String path = (String) attribute.getValue();
@@ -29,7 +31,6 @@ public class urn_perun_resource_attribute_def_def_projectsBasePath extends Resou
 			throw new WrongAttributeValueException(attribute, resource, "Attribute can't be empty.");
 		}
 
-		Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
 		Matcher match = pattern.matcher(path);
 
 		if (!match.matches()) {

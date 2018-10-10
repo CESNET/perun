@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Checks specified users mails in google namespace.
@@ -28,7 +30,7 @@ public class urn_perun_user_attribute_def_virt_mails_namespace_google extends Us
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_mails_namespace_google.class);
 	private static final String EXTSOURCE = "https://login.cesnet.cz/google-idp/";
-	private static final String LOGIN_REGEX = "^.+[@]google[.]extidp[.]cesnet[.]cz$";
+	private static final Pattern pattern = Pattern.compile("^.+[@]google[.]extidp[.]cesnet[.]cz$");
 	private static final String A_UES_MAIL = AttributesManager.NS_UES_ATTR_DEF + ":mail";
 
 	@Override
@@ -39,18 +41,21 @@ public class urn_perun_user_attribute_def_virt_mails_namespace_google extends Us
 		for(UserExtSource uES: userExtSources) {
 			if(uES.getExtSource() != null && EXTSOURCE.equals(uES.getExtSource().getName())) {
 				String login = uES.getLogin();
-				if(login != null && !login.isEmpty() && login.matches(LOGIN_REGEX)) {
-					try {
-						Attribute attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uES, A_UES_MAIL);
-						if(attribute.getValue() != null) {
-							googleMails.add((String) attribute.getValue());
+				if (login != null && !login.isEmpty()) {
+					Matcher matcher = pattern.matcher(login);
+					if (matcher.matches()) {
+						try {
+							Attribute attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uES, A_UES_MAIL);
+							if (attribute.getValue() != null) {
+								googleMails.add((String) attribute.getValue());
+							}
+						} catch (AttributeNotExistsException ex) {
+							//This should not happen, but if yes, skip this value
+							log.error("Attribute {} not exists in Perun so value {} google mails can't be get correctly.", A_UES_MAIL, user);
+							continue;
+						} catch (WrongAttributeAssignmentException ex) {
+							throw new InternalErrorException(ex);
 						}
-					} catch (AttributeNotExistsException ex) {
-						//This should not happen, but if yes, skip this value
-						log.error("Attribute {} not exists in Perun so value {} google mails can't be get correctly.", A_UES_MAIL, user);
-						continue;
-					} catch (WrongAttributeAssignmentException ex) {
-						throw new InternalErrorException(ex);
 					}
 				}
 			}

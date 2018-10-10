@@ -31,9 +31,9 @@ import java.math.BigDecimal;
 public class urn_perun_group_resource_attribute_def_def_projectDataQuota extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
 
 	private static final String A_GR_projectDataLimit = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectDataLimit";
-	Pattern numberPattern = Pattern.compile("[0-9]+[.]?[0-9]*");
-	Pattern letterPattern = Pattern.compile("[A-Z]");
-	Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
+	private static final Pattern numberPattern = Pattern.compile("[0-9]+[.]?[0-9]*");
+	private static final Pattern letterPattern = Pattern.compile("[A-Z]");
+	private static final Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
 
 	//Definition of K = KB, M = MB etc.
 	long K = 1024;
