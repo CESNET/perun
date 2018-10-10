@@ -31,6 +31,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttribut
  */
 public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
 
+	private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$*");
+
 	@Override
 	public void checkAttributeValue(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
@@ -56,7 +58,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Fa
 		if (!homeMntPointsOnAllResources.contains((String) attribute.getValue())) {
 			throw new WrongAttributeValueException(attribute, user, facility, "User's home mount point is invalid. Valid mount points: " + homeMntPointsOnAllResources);
 		}
-		Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$*");
+
 		Matcher match = pattern.matcher((String) attribute.getValue());
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, "Attribute has wrong format");

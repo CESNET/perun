@@ -34,13 +34,13 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Reso
 
 	private static final String A_R_projectsBasePath = AttributesManager.NS_RESOURCE_ATTR_DEF + ":projectsBasePath";
 	private static final String A_GR_projectName = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectName";
+	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]+$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String name = (String) attribute.getValue();
 		if (name == null) return;
 
-		Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]+$");
 		Matcher match = pattern.matcher(name);
 
 		if (!match.matches()) {

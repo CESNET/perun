@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -25,7 +26,7 @@ public class urn_perun_user_attribute_def_virt_logins_namespace_google extends U
 
 	private static final String NAMESPACE = "google";
 	private static final String EXTSOURCE = "https://login.cesnet.cz/google-idp/";
-	private static final String LOGIN_REGEX = "^.+[@]google[.]extidp[.]cesnet[.]cz$";
+	private static final Pattern pattern = Pattern.compile("^.+[@]google[.]extidp[.]cesnet[.]cz$");
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
@@ -35,8 +36,11 @@ public class urn_perun_user_attribute_def_virt_logins_namespace_google extends U
 		for(UserExtSource uES: userExtSources) {
 			if(uES.getExtSource() != null && EXTSOURCE.equals(uES.getExtSource().getName())) {
 				String login = uES.getLogin();
-				if(login != null && !login.isEmpty() && login.matches(LOGIN_REGEX)) {
-					googleLogins.add(login.replaceAll("[@].*$", ""));
+				if (login != null && !login.isEmpty()) {
+					Matcher matcher = pattern.matcher(login);
+					if (matcher.matches()) {
+						googleLogins.add(login.replaceAll("[@].*$", ""));
+					}
 				}
 			}
 		}

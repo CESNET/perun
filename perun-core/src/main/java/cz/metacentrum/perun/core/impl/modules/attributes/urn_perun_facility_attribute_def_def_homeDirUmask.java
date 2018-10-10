@@ -12,12 +12,17 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Checks if the value is valid unix permission mask.
  *
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
 public class urn_perun_facility_attribute_def_def_homeDirUmask extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
+
+	private static final Pattern pattern = Pattern.compile("[0-7]{3,4}");
 
 	/**
 	 * Method for checking permission mask of home directory.
@@ -28,9 +33,8 @@ public class urn_perun_facility_attribute_def_def_homeDirUmask extends FacilityA
 		String mask = (String) attribute.getValue();
 
 		if (mask != null) {
-			if(!mask.matches("[0-7]{3,4}")) {
-				throw new WrongAttributeValueException(attribute, "Bad unix permission mask in attribute format " + mask);
-			}
+			Matcher matcher = pattern.matcher(mask);
+			if (!matcher.matches()) throw new WrongAttributeValueException(attribute, "Bad unix permission mask in attribute format " + mask);
 		}
 	}
 

@@ -14,6 +14,8 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -23,6 +25,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 
 	private static final String A_GR_systemUnixGID = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGID";
 	private static final String A_GR_systemIsUnixGroup = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isSystemUnixGroup";
+	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]*$");
 
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
@@ -48,9 +51,10 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 			if(isSystemGroup.getValue() != null && (Integer) isSystemGroup.getValue()==1) {
 				throw new WrongReferenceAttributeValueException(attribute, "Attribute cant be null if " + group + " on " + resource + " is system unix group.");
 			}
-		} else if(groupName.matches("^[-_a-zA-Z0-9]*$")!=true) {
-			throw new WrongAttributeValueException(attribute,"String with other chars than numbers, letters or symbols _ and - is not allowed value.");
 		}
+
+		Matcher matcher = pattern.matcher(groupName);
+		if(!matcher.matches()) throw new WrongAttributeValueException(attribute,"String with other chars than numbers, letters or symbols _ and - is not allowed value.");
 
 		//Get facility for the resource
 		Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);

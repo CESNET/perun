@@ -12,6 +12,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User edu Person principal Names (eppn)
@@ -19,6 +21,8 @@ import java.util.List;
  * @author Michal Šťava <stavamichal@gmail.com>
  */
 public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+
+	private static final Pattern pattern = Pattern.compile("[^@]+@[^@]+");
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
@@ -33,7 +37,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends U
 
 				if(type != null && login != null) {
 					// insert only EPPN formatted data
-					if(type.equals(ExtSourcesManager.EXTSOURCE_IDP) && login.matches("[^@]+@[^@]+")) {
+					Matcher matcher = pattern.matcher(login);
+					if(type.equals(ExtSourcesManager.EXTSOURCE_IDP) && matcher.matches()) {
 						idpLogins.add(login);
 					}
 				}

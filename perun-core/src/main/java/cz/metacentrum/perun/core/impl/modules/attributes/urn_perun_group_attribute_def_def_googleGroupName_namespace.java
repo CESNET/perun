@@ -13,6 +13,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModul
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Group googleGroup-namespace attribute.
@@ -20,6 +22,8 @@ import java.util.List;
  * @author Michal Holič  holic.michal@gmail.com
  */
 public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
+
+	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9']+$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
@@ -30,9 +34,9 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 		if(groupName == null) {
 			// if this is group attribute, its ok
 			return;
-		}else if(!groupName.matches("^[-_a-zA-Z0-9']+$")){
-			throw new WrongAttributeValueException(attribute, group, "GroupName attribute content invalid characters. Allowed are only letters, numbers and characters _ and -.");
 		}
+		Matcher matcher = pattern.matcher(groupName);
+		if(!matcher.matches()) throw new WrongAttributeValueException(attribute, group, "GroupName attribute content invalid characters. Allowed are only letters, numbers and characters _ and -.");
 
 		//TODO Check reserved google group names
 		//sess.getPerunBl().getModulesUtilsBl().checkReservedGoogleGroupNames(attribute);

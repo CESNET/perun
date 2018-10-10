@@ -34,13 +34,13 @@ import java.util.regex.Pattern;
 public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
 
 	private static final String A_UF_V_login = AttributesManager.NS_USER_FACILITY_ATTR_VIRT + ":login";
+	private static final Pattern pattern = Pattern.compile("^[a-zA-Z0-9][-A-z0-9_.@/]*$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String ownerLogin = (String) attribute.getValue();
 		if (ownerLogin == null) return;
 
-		Pattern pattern = Pattern.compile("^[a-zA-Z0-9][-A-z0-9_.@/]*$");
 		Matcher match = pattern.matcher(ownerLogin);
 
 		if (!match.matches()) {

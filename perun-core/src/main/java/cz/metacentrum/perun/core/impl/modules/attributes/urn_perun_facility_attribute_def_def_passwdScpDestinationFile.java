@@ -25,6 +25,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
  */
 public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
+	private static final Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
+
 	/**
 	 * Method for checking path of the file.
 	 * Try to check if the path is equal to pattern ^(/[-_a-zA-Z0-9]+)+$
@@ -36,9 +38,8 @@ public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile exten
 		if (path == null) {
 			throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
 		}
-		if (!path.matches("^(/[-_a-zA-Z0-9]+)+$")) {
-			throw new WrongAttributeValueException(attribute, "Bad path to destination of file in attribute format " + path);
-		}
+		Matcher matcher = pattern.matcher(path);
+		if (!matcher.matches()) throw new WrongAttributeValueException(attribute, "Bad path to destination of file in attribute format " + path);
 	}
 
 	/**

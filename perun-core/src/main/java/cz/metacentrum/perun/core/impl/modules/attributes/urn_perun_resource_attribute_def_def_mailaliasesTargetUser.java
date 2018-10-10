@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_resource_attribute_def_def_mailaliasesTargetUser extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
-	Pattern userPattern = Pattern.compile("^[-a-zA-Z0-9_]+$");
+	private static final Pattern userPattern = Pattern.compile("^[-a-zA-Z0-9_]+$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {

@@ -30,6 +30,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	private static final String A_R_homeMountPoints = AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints";
+	private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
 
 	/**
 	 * Checks if the homemountpoint is contained in list of homemountpoint at underlying facility
@@ -62,7 +63,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 		if (!homeMntPoints.contains(attribute.getValue())) {
 			throw new WrongAttributeValueException(attribute, "Attribute value ins't defined in underlying resource. Attribute name=" + A_R_homeMountPoints);
 		}
-		Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
+
 		Matcher match = pattern.matcher((String) attribute.getValue());
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, "Wrong def. mount point format");

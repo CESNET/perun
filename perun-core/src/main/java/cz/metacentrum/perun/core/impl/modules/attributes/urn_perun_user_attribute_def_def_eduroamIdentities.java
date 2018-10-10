@@ -2,6 +2,8 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -22,12 +24,15 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
  */
 public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
+	private static final Pattern pattern = Pattern.compile("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$");
+
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if(attribute == null) return; //null is OK
 		List<String> value = (List<String>) attribute.getValue();
 		for(String login : value) {
-			if(!login.matches("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$")) throw new WrongAttributeValueException(attribute, "Value is not in correct format. format: login@organization");
+			Matcher matcher = pattern.matcher(login);
+			if(!matcher.matches()) throw new WrongAttributeValueException(attribute, "Value is not in correct format. format: login@organization");
 		}
 	}
 

@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_resource_attribute_def_def_vomsRoles extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
-	private final Pattern pattern = Pattern.compile("^[^<>&]*$");
+	private static final Pattern pattern = Pattern.compile("^[^<>&]*$");
 
 	@Override
 	@SuppressWarnings("unchecked")

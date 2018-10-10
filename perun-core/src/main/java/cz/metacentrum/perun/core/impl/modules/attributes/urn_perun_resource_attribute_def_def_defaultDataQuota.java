@@ -28,9 +28,9 @@ import java.math.BigDecimal;
 public class urn_perun_resource_attribute_def_def_defaultDataQuota extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	private static final String A_R_defaultDataLimit = AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultDataLimit";
-	Pattern numberPattern = Pattern.compile("[0-9]+[.]?[0-9]*");
-	Pattern letterPattern = Pattern.compile("[A-Z]");
-	Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
+	private static final Pattern numberPattern = Pattern.compile("[0-9]+[.]?[0-9]*");
+	private static final Pattern letterPattern = Pattern.compile("[A-Z]");
+	private static final Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
 
 	//Definition of K = KB, M = MB etc.
 	long K = 1024;

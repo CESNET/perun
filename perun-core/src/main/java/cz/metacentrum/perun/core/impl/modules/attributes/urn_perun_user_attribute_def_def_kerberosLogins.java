@@ -14,11 +14,15 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
 public class urn_perun_user_attribute_def_def_kerberosLogins extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+
+	private static final Pattern pattern = Pattern.compile("^[-\\/_.a-zA-Z0-9@]+@[-_.A-z0-9]+$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
@@ -26,7 +30,8 @@ public class urn_perun_user_attribute_def_def_kerberosLogins extends UserAttribu
 		List<String> value = (List<String>) attribute.getValue();
 		if(value.isEmpty()) throw new WrongAttributeValueException(attribute, user, "Attribute's value can't be empty list");
 		for(String login : value) {
-			if(!login.matches("^[-\\/_.a-zA-Z0-9@]+@[-_.A-z0-9]+$")) throw new WrongAttributeValueException(attribute, user, "Attribute's value is not in correct format. format: login@realm");
+			Matcher matcher = pattern.matcher(login);
+			if(!matcher.matches()) throw new WrongAttributeValueException(attribute, user, "Attribute's value is not in correct format. format: login@realm");
 		}
 	}
 

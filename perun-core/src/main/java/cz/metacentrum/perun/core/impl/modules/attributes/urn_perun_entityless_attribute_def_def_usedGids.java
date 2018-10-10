@@ -35,8 +35,8 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_entityless_attribute_def_def_usedGids extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 	
-	private static Pattern keyPattern = Pattern.compile("^[RGD][1-9][0-9]*$");
-	private static Pattern valuePattern = Pattern.compile("^[1-9][0-9]*$");
+	private static final Pattern keyPattern = Pattern.compile("^[RGD][1-9][0-9]*$");
+	private static final Pattern valuePattern = Pattern.compile("^[1-9][0-9]*$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
