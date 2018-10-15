@@ -3561,6 +3561,11 @@ public class AttributesManagerEntry implements AttributesManager {
 
 	@Override
 	public void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		removeAttributes(sess, member, group, attributes, false);
+	}
+
+	@Override
+	public void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -3569,7 +3574,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		for(AttributeDefinition attrDef: attributes) {
 			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, member, group)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
 		}
-		getAttributesManagerBl().removeAttributes(sess, member, group, attributes);
+		getAttributesManagerBl().removeAttributes(sess, member, group, attributes, workWithUserAttributes);
 	}
 
 	@Override

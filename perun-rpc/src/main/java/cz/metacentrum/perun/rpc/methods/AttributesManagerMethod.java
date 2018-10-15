@@ -2847,7 +2847,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							attributes);
 				}
 			} else if (parms.contains("member")) {
-				if (parms.contains("workWithUserAttributes")) {
+				if (parms.contains("workWithUserAttributes") && parms.contains("group")) {
+					ac.getAttributesManager().removeAttributes(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")),
+							attributes,
+							parms.readBoolean("workWithUserAttributes"));
+				} else if (parms.contains("workWithUserAttributes")) {
 					ac.getAttributesManager().removeAttributes(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")),
 							parms.readBoolean("workWithUserAttributes"), attributes);
