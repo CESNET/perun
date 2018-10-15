@@ -141,6 +141,30 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Return list of only newest TaskResults by a Task for GUI.
+	 *
+	 * @param task int Task
+	 * @return List<TaskResult> Results
+	 */
+	getTaskResultsForGUIByTaskOnlyNewest {
+		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getPropagationStatsReader().getTaskResultsForGUIByTaskOnlyNewest(ac.getSession(), parms.readInt("task"));
+		}
+	},
+
+	/*#
+	 * Return list of TaskResults by a Task and destination for GUI.
+	 *
+	 * @param task int Task
+	 * @return List<TaskResult> Results
+	 */
+	getTaskResultsForGUIByTaskAndDestination {
+		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getPropagationStatsReader().getTaskResultsForGUIByTaskAndDestination(ac.getSession(), parms.readInt("task"), parms.readInt("destination"));
+		}
+	},
+
+	/*#
 	 * Return list of TaskResults by a Task for GUI.
 	 *
 	 * @param task int Task

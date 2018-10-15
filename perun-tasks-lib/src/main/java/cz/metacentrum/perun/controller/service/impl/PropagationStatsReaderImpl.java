@@ -90,6 +90,16 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	}
 
 	@Override
+	public List<TaskResult> getTaskResultsForGUIByTaskOnlyNewest(PerunSession session, int taskId) throws DestinationNotExistsException, PrivilegeException, InternalErrorException {
+		return taskResultDao.getTaskResultsByTaskOnlyNewest(taskId);
+	}
+
+	@Override
+	public List<TaskResult> getTaskResultsForGUIByTaskAndDestination(PerunSession session, int taskId, int destinationId) throws InternalErrorException {
+		return taskResultDao.getTaskResultsByTaskAndDestination(taskId, destinationId);
+	}
+
+	@Override
 	public List<TaskResult> getTaskResultsForGUIByTask(PerunSession session, int taskId) throws DestinationNotExistsException, PrivilegeException, InternalErrorException {
 		return taskResultDao.getTaskResultsByTask(taskId);
 	}

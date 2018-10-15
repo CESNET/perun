@@ -102,6 +102,7 @@ public class UrlMapper {
 			}
 		} catch (RuntimeException e) {
 			UiElements.generateAlert("URL parsing error", "This tab couldn't be opened: " + tabPackage + " / " + tabName + ". ");
+			GWT.log(e.toString());
 		}
 
 		session.getUiElements().setLogText("No entry exists for: " + tabPackage + " | " + tabName);
