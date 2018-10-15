@@ -3259,6 +3259,20 @@ public interface AttributesManager {
 	 */
 	void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
+
+	/**
+	 * PRIVILEGE: Remove attributes only when principal has access to write on them.
+	 * <p>
+	 * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
+	 * If workWithUserAttributes is true, unset also user attributes.
+	 *
+	 * @param workWithUserAttributes if true, remove also user attributes, if false, remove only member-group attributes
+	 *
+	 * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlying data source
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, Member, Group, AttributeDefinition)
+	 */
+	void removeAttributes(PerunSession sess, Member member, Group group, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
 	/**
 	 * Unset all attributes for the member in the group.
 	 * <p>
