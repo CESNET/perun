@@ -102,7 +102,11 @@ public class CopyFormTabItem implements TabItem {
 				vosBox.addAllItems(vos);
 
 				// get them
-				GetAllGroups getGroups = new GetAllGroups(voId, new JsonCallbackEvents(){
+				int backupVoId = voId;
+				if (vos.size() > 0) {
+					backupVoId = vos.get(0).getId();
+				}
+				GetAllGroups getGroups = new GetAllGroups(backupVoId, new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						groupsBox.clear();
