@@ -1266,6 +1266,28 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 	}
 
 	@Test
+	public void getFacilityAttributesByListOfNames() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilityAttributesByListOfNames");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+
+		List<Attribute> facilityAttrs = setUpFacilityAttribute();
+		perun.getAttributesManagerBl().setAttributes(sess, facility, facilityAttrs);
+
+		List<String> attrNames = new ArrayList<>();
+		for(Attribute attribute: facilityAttrs) {
+			attrNames.add(attribute.getName());
+		}
+
+		List<Attribute> returnedAttributes = perun.getAttributesManagerBl().getAttributes(sess, facility, attrNames);
+
+		for(Attribute attribute: facilityAttrs) {
+			assertTrue(returnedAttributes.contains(attribute));
+		}
+	}
+
+	@Test
 	public void getGroupResourceAttributesByListOfNames() throws Exception {
 		vo = setUpVo();
 		facility = setUpFacility();

@@ -848,6 +848,18 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility, List<String> attrNames) throws InternalErrorException {
+		if(!CacheManager.isCacheDisabled()) {
+			List<String> controlledAttrNames = new ArrayList<>();
+
+			for(String attributeName: attrNames) {
+				//check namespace
+				if(attributeName.startsWith(AttributesManager.NS_FACILITY_ATTR)) controlledAttrNames.add(attributeName);
+			}
+
+			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(facility.getId(), Holder.HolderType.FACILITY), null);
+			return this.setValuesOfAttributes(sess, attrs, facility, null);
+		}
+
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("fId", facility.getId());
 		parameters.addValue("nSC", AttributesManager.NS_FACILITY_ATTR_CORE);
