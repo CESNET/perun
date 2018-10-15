@@ -219,7 +219,7 @@ public class GroupRelationsTabItem implements TabItem, TabItemWithUrl {
 		CellTable<Group> table = unions.getTable(new FieldUpdater<Group, String>() {
 			@Override
 			public void update(int arg0, Group group, String arg2) {
-				if (session.isGroupAdmin(group.getId()) || session.isVoAdmin(group.getId())) {
+				if (session.isGroupAdmin(group.getId()) || session.isVoAdmin(group.getVoId())) {
 					session.getTabManager().addTab(new GroupDetailTabItem(group.getId()));
 				} else {
 					UiElements.generateInfo("Not privileged", "You are not manager of selected group or its VO.");
