@@ -14,12 +14,12 @@ sub help {
 	Available options:
 	--voId         | -v  VO idetifier
 	--voShortName  | -V  VO short name (default meta)
-        --expiredYears | -y  numer of years (how long is expired)
-        --expired      | -e  expired members only (default)
-        --expAndDis    | -d  expired and disabled members
+	--expiredYears | -y  numer of years (how long is expired)
+	--expired      | -e  expired members only (default)
+	--expAndDis    | -d  expired and disabled members
 	--orderById    | -i  order by Member's identifier
-        --orderByName  | -n  order by Member's last name
-        --lognamesOnly | -l  only lognames are printed
+	--orderByName  | -n  order by Member's last name
+	--lognamesOnly | -l  only lognames are printed
 	--batch        | -b  batch
 	--help         | -h  prints this help
 	};
@@ -72,8 +72,7 @@ unless (defined($exp) || defined($expdis)) {
 }
 
 my $membersAgent = $agent->getMembersAgent;
-my @richMembers = $membersAgent->getCompleteRichMembers( vo => $voId, allowedStatuses => \@status, attrsNames =>
-	\@attrs );
+my @richMembers = $membersAgent->getCompleteRichMembers( vo => $voId, allowedStatuses => \@status, attrsNames => \@attrs );
 unless (@richMembers) {
 	printMessage "No such member found", $batch;
 	exit 0;
@@ -81,7 +80,7 @@ unless (@richMembers) {
 
 # output
 my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-$table->setCols( 'Logname', 'Name', 'Expiration' );
+$table->setCols( 'MemberId','Logname', 'Name', 'Expiration' );
 my @lognames;
 
 foreach my $member (sort $sortingFunction @richMembers) {
@@ -92,7 +91,7 @@ foreach my $member (sort $sortingFunction @richMembers) {
 	unless (defined $login) {$login = ' ';}
 	my $eyear = substr($val, 0, 4);
 	if ($actualyear - $eyear >= $years) {
-		$table->addRow( $login, $member->getCommonName, $val );
+		$table->addRow( $member->getMemberId, $login, $member->getCommonName, $val );
 		push (@lognames, $login);
 	}
 }
