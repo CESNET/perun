@@ -2145,20 +2145,25 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		perun.getExtSourcesManagerBl().addExtSource(sess, vo, es);
 		perun.getGroupsManager().createGroup(sess, vo, group2);
 
-		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:synchronizationEnabled"));
-		synchroAttr1.setValue("true");
+		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
+		synchroAttr1.setValue("5");
 		perun.getAttributesManager().setAttribute(sess, group, synchroAttr1);
 		perun.getAttributesManager().setAttribute(sess, group2, synchroAttr1);
 
-		Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:synchronizationInterval"));
-		synchroAttr2.setValue("5");
+		Attribute synchroAttr2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
+		synchroAttr2.setValue(es.getName());
 		perun.getAttributesManager().setAttribute(sess, group, synchroAttr2);
 		perun.getAttributesManager().setAttribute(sess, group2, synchroAttr2);
 
-		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:groupExtSource"));
-		synchroAttr3.setValue(es.getName());
+		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+		synchroAttr3.setValue("testVal");
 		perun.getAttributesManager().setAttribute(sess, group, synchroAttr3);
 		perun.getAttributesManager().setAttribute(sess, group2, synchroAttr3);
+
+		Attribute synchroAttr4 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
+		synchroAttr4.setValue("true");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr4);
+		perun.getAttributesManager().setAttribute(sess, group2, synchroAttr4);
 
 		List<Group> groups = groupsManagerBl.getGroupsToSynchronize(sess);
 		assertTrue("List of groups to synchronize contain group.", groups.contains(group));
@@ -3223,6 +3228,22 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		vo = setUpVo();
 		setUpGroup(vo);
 
+		Attribute query = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+		query.setValue("fakeValue");
+		perun.getAttributesManager().setAttribute(sess, group, query);
+
+		Attribute interval = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
+		interval.setValue("1");
+		perun.getAttributesManager().setAttribute(sess, group, interval);
+
+		perun.getExtSourcesManager().createExtSource(sess, extSource, new HashMap<>());
+		perun.getExtSourcesManager().addExtSource(sess, vo, extSource);
+		perun.getExtSourcesManager().addExtSource(sess, group, extSource);
+
+		Attribute extSource = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
+		extSource.setValue("testExtSource");
+		perun.getAttributesManager().setAttribute(sess, group, extSource);
+
 		Attribute synchroAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
 		synchroAttr.setValue("true");
 		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
@@ -3258,6 +3279,22 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		vo = setUpVo();
 		setUpGroup(vo);
+
+		Attribute query = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+		query.setValue("fakeValue");
+		perun.getAttributesManager().setAttribute(sess, group, query);
+
+		Attribute interval = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
+		interval.setValue("1");
+		perun.getAttributesManager().setAttribute(sess, group, interval);
+
+		perun.getExtSourcesManager().createExtSource(sess, extSource, new HashMap<>());
+		perun.getExtSourcesManager().addExtSource(sess, vo, extSource);
+		perun.getExtSourcesManager().addExtSource(sess, group, extSource);
+
+		Attribute extSource = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
+		extSource.setValue("testExtSource");
+		perun.getAttributesManager().setAttribute(sess, group, extSource);
 
 		Attribute synchroAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
 		synchroAttr.setValue("false");
