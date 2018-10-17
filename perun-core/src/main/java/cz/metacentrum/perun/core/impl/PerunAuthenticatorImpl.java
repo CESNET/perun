@@ -56,7 +56,7 @@ public class PerunAuthenticatorImpl extends Authenticator {
 	 * @return true if there is no passwordAuthentication already registered for the URL, false otherwise
 	 */
 	public boolean registerAuthenticationForURL(URL url, PasswordAuthentication passwordAuthentication) {
-		log.info("Authenticator registered for url {}", url);
+		log.debug("Authenticator registered for url {}", url);
 		return passwordAuthenticationsForURL.put(url.toExternalForm(), passwordAuthentication) == null;
 	}
 
@@ -67,7 +67,7 @@ public class PerunAuthenticatorImpl extends Authenticator {
 	 * @return true if there was passwordAuthentication registered for the URL
 	 */
 	public boolean unRegisterAuthenticationForURL(URL url) {
-		log.info("Authenticator unregistered for url {}", url);
+		log.debug("Authenticator unregistered for url {}", url);
 		return passwordAuthenticationsForURL.remove(url.toExternalForm()) == null;
 	}
 

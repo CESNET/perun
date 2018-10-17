@@ -1097,7 +1097,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			try {
 				this.removeBan(sess, expiredBan.getId());
 			} catch (BanNotExistsException ex) {
-				log.error("Ban {} can't be removed because it not exists yet.",expiredBan);
+				log.warn("Ban {} can't be removed because it not exists yet.",expiredBan);
 				//Skipt this, probably already removed
 			}
 		}

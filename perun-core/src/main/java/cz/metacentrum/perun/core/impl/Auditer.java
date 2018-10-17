@@ -554,7 +554,7 @@ public class Auditer {
 								final AuditerMessage auditerMessage = auditerMessages.get(i);
 								final String message = auditerMessage.getMessage();
 								final PerunSession session = auditerMessage.getOriginaterPerunSession();
-								log.info("AUDIT: {}", message);
+								log.trace("AUDIT: {}", message);
 								try {
 									ps.setInt(1, Utils.getNewId(jdbc, "auditer_log_id_seq"));
 								} catch (InternalErrorException e) {

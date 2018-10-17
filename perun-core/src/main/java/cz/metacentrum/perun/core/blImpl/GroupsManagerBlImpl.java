@@ -104,7 +104,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			//We catch those exceptions, but they should never be thrown, so we just log them.
 		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-			log.info("Exception thrown in createGroup method, while it shouldn't be thrown. Cause:{}",e);
+			log.error("Exception thrown in createGroup method, while it shouldn't be thrown. Cause:{}",e);
 		} catch (GroupNotExistsException e) {
 			throw new ConsistencyErrorException("Database consistency error while creating group: {}",e);
 		}
@@ -241,7 +241,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, subGroup, source);
 					} catch (ExtSourceNotAssignedException | ExtSourceAlreadyRemovedException ex) {
 						//Just log this, because if method can't remove it, it is probably not assigned now
-						log.error("Try to remove not existing extSource {} from group {} when deleting group.", source, subGroup);
+						log.warn("Try to remove not existing extSource {} from group {} when deleting group.", source, subGroup);
 					}
 				}
 
@@ -332,7 +332,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
 			} catch (ExtSourceNotAssignedException | ExtSourceAlreadyRemovedException ex) {
 				//Just log this, because if method can't remove it, it is probably not assigned now
-				log.error("Try to remove not existing extSource {} from group {} when deleting group.", source, group);
+				log.warn("Try to remove not existing extSource {} from group {} when deleting group.", source, group);
 			}
 		}
 
@@ -1374,7 +1374,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		ExtSource membersSource = null;
 
 		try {
-			log.info("Group synchronization {}: started.", group);
+			log.debug("Group synchronization {}: started.", group);
 
 			//Initialization of group extSource
 			source = getGroupExtSourceForSynchronization(sess, group);
@@ -1389,7 +1389,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//Get info about type of synchronization (with or without update)
 			boolean lightweightSynchronization = isThisLightweightSynchronization(sess, group);
 
-			log.info("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", new Object[] {group, membersSource, membersSource.getName()});
+			log.debug("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", new Object[] {group, membersSource, membersSource.getName()});
 
 			//Prepare containers for work with group members
 			List<Candidate> candidatesToAdd = new ArrayList<>();
@@ -1438,7 +1438,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException, InternalErrorException {
 		//Check if the group is not currently in synchronization process
 		if(poolOfGroupsToBeSynchronized.putJobIfAbsent(group, true)) {
-			log.info("Scheduling synchronization for the group {} by force!", group);
+			log.debug("Scheduling synchronization for the group {} by force!", group);
 		} else {
 			throw new GroupSynchronizationAlreadyRunningException(group);
 		}
@@ -1524,9 +1524,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			if ((minutesFromEpoch % intervalMultiplier) == 0) {
 				if (poolOfGroupsToBeSynchronized.putJobIfAbsent(group, false)) {
 					numberOfNewlyAddedGroups++;
-					log.info("Group {} was added to the pool of groups waiting for synchronization.", group);
+					log.debug("Group {} was added to the pool of groups waiting for synchronization.", group);
 				} else {
-					log.info("Group {} synchronzation is already running.", group);
+					log.debug("Group {} synchronzation is already running.", group);
 				}
 			}
 		}
@@ -2592,7 +2592,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					}
 				} else {
 					//we are not supporting other attributes then member or user so skip it without error, but log it
-					log.error("Attribute {} can't be set, because it is not member or user attribute.", attributeName);
+					log.warn("Attribute {} can't be set, because it is not member or user attribute.", attributeName);
 				}
 			}
 
@@ -2835,7 +2835,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 								//First try to disable member, if is invalid, delete him from Vo
 								try {
 									getPerunBl().getMembersManagerBl().disableMember(sess, member);
-									log.info("Group synchronization {}: Member id {} disabled because synchronizer wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
+									log.debug("Group synchronization {}: Member id {} disabled because synchronizer wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
 									getPerunBl().getGroupsManagerBl().removeMember(sess, group, member);
 									log.info("Group synchronization {}: Member id {} removed.", group, member.getId());
 								} catch(MemberNotValidYetException ex) {

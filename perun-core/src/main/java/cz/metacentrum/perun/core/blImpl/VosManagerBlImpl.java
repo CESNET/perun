@@ -166,7 +166,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 			log.error("Can't set VO manager during creating of the VO. User from perunSession is null. {} {}", vo, sess);
 		}
 
-		log.debug("Vo {} created", vo);
+		log.info("Vo {} created", vo);
 
 		return vo;
 	}
@@ -494,7 +494,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		List<User> adminsOfVo = this.getAdmins(sess, vo);
 		if (adminsOfVo.contains(user)) throw new AlreadyAdminException(user, vo);
 		AuthzResolverBlImpl.setRole(sess, user, vo, Role.VOADMIN);
-		log.debug("User [{}] added like administrator to VO [{}]", user, vo);
+		log.debug("User {} added like administrator to VO {}", user, vo);
 	}
 
 	@Override
@@ -502,7 +502,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		List<Group> adminsOfVo = this.getAdminGroups(sess, vo);
 		if (adminsOfVo.contains(group)) throw new AlreadyAdminException(group, vo);
 		AuthzResolverBlImpl.setRole(sess, group, vo, Role.VOADMIN);
-		log.debug("Group [{}] added like administrator to VO [{}]", group, vo);
+		log.debug("Group {} added like administrator to VO {}", group, vo);
 	}
 
 	@Override
@@ -510,7 +510,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		List<User> adminsOfVo = this.getAdmins(sess, vo);
 		if (!adminsOfVo.contains(user)) throw new UserNotAdminException(user);
 		AuthzResolverBlImpl.unsetRole(sess, user, vo, Role.VOADMIN);
-		log.debug("User [{}] deleted like administrator from VO [{}]", user, vo);
+		log.debug("User {} deleted like administrator from VO {}", user, vo);
 	}
 
 	@Override
@@ -518,7 +518,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		List<Group> adminsOfVo = this.getAdminGroups(sess, vo);
 		if (!adminsOfVo.contains(group)) throw new GroupNotAdminException(group);
 		AuthzResolverBlImpl.unsetRole(sess, group, vo, Role.VOADMIN);
-		log.debug("Group [{}] deleted like administrator from VO [{}]", group, vo);
+		log.debug("Group {} deleted like administrator from VO {}", group, vo);
 	}
 
 	@Override
