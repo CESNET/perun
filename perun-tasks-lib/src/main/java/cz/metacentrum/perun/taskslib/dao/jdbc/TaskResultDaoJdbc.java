@@ -160,7 +160,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
 				" left join tasks on tasks.id = tasks_results.task_id" +
 				" left join services on services.id = tasks.service_id" +
-				"where tasks_results.id = ? and tasks_results.engine_id = ?",
+				" where tasks_results.id = ? and tasks_results.engine_id = ?",
 				TASKRESULT_ROWMAPPER, taskResultId, engineID);
 	}
 
