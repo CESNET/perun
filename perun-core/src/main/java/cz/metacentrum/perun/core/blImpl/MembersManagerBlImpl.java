@@ -2194,7 +2194,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException {
+	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url,
+										   String mailAddress, String language) throws InternalErrorException {
 
 		User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
 
@@ -2203,22 +2204,39 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		for (Attribute a : logins) {
 			if (a.getFriendlyNameParameter().equals(namespace)) found = true;
 		}
-		if (!found) throw new InternalErrorException(user.toString()+" doesn't have login in namespace: "+namespace);
+		if (!found)
+			throw new InternalErrorException(user.toString() + " doesn't have login in namespace: " + namespace);
 
-		String email = "";
+		String subject;
 		try {
-			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
-			if (a != null && a.getValue() != null) {
-				email = (String)a.getValue();
+			Attribute subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language,
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailSubject:" + namespace);
+			subject = (String) subjectTemplateAttribute.getValue();
+			if (subject == null) {
+				subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
+						AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailSubject:" + namespace);
+				subject = (String) subjectTemplateAttribute.getValue();
 			}
-		} catch (WrongAttributeAssignmentException ex) {
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
+		}
+
+		String message;
+		try {
+			Attribute messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, language,
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailTemplate:" + namespace);
+			message = (String) messageTemplateAttribute.getValue();
+			if (message == null) {
+				messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
+						AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetMailTemplate:" + namespace);
+				message = (String) messageTemplateAttribute.getValue();
+			}
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 
 		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace);
-		Utils.sendPasswordResetEmail(user, email, namespace, url, id);
+		Utils.sendPasswordResetEmail(user, mailAddress, namespace, url, id, message, subject);
 
 	}
 

@@ -1079,7 +1079,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
-	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws InternalErrorException, PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException {
 
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);
@@ -1089,7 +1089,26 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "sendPasswordResetLinkEmail");
 		}
 
-		getMembersManagerBl().sendPasswordResetLinkEmail(sess, member, namespace, url);
+		//check if attribute exists, throws AttributeNotExistsException
+		Attribute mailAttribute = null;
+		AttributeDefinition ad = getPerunBl().getAttributesManager().getAttributeDefinition(sess, mailAttributeUrn);
+
+
+		try {
+			if (ad.getEntity().equals("user")) {
+				User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+				mailAttribute = getPerunBl().getAttributesManager().getAttribute(sess, user, mailAttributeUrn);
+			}
+			if (ad.getEntity().equals("member")) {
+				mailAttribute = getPerunBl().getAttributesManager().getAttribute(sess, member, mailAttributeUrn);
+			}
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		String mailAddress = (String) mailAttribute.getValue();
+
+		getMembersManagerBl().sendPasswordResetLinkEmail(sess, member, namespace, url, mailAddress, language);
 
 	}
 

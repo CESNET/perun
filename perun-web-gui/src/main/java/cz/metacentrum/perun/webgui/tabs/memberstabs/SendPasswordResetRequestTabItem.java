@@ -74,7 +74,7 @@ public class SendPasswordResetRequestTabItem implements TabItem {
 		this.titleWidget.setText("Send password reset request");
 
 		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("300px", "100%");
+		vp.setSize("400px", "100%");
 
 		final FlexTable layout = new FlexTable();
 		layout.setSize("100%","100%");
@@ -83,11 +83,33 @@ public class SendPasswordResetRequestTabItem implements TabItem {
 		layout.setHTML(0, 0, "Select namespace:");
 		layout.getFlexCellFormatter().setStyleName(0, 0, "itemName");
 
-		layout.setHTML(1, 0, "Login:");
+		layout.setHTML(1, 0, "Select language of email:");
 		layout.getFlexCellFormatter().setStyleName(1, 0, "itemName");
+
+		layout.setHTML(2, 0, "Select email attribute:");
+		layout.getFlexCellFormatter().setStyleName(2, 0, "itemName");
+
+		layout.setHTML(3, 0, "Login:");
+		layout.getFlexCellFormatter().setStyleName(3, 0, "itemName");
 
 		final ListBox namespaces = new ListBox();
 		layout.setWidget(0, 1, namespaces);
+
+		final ListBox languages = new ListBox();
+		layout.setWidget(1, 1, languages);
+
+		final ListBox emails = new ListBox();
+		layout.setWidget(2, 1, emails);
+
+		Map<String, String> urns = Utils.getResetPasswordEmails();
+		for (Map.Entry<String, String> s : urns.entrySet()) {
+			emails.addItem(s.getKey(), s.getValue());
+		}
+
+		Map<String, String> languagesMap = Utils.getResetPasswordSupportedLanguages();
+		for (Map.Entry<String, String> s : languagesMap.entrySet()) {
+			languages.addItem(s.getKey(), s.getValue());
+		}
 
 		final CustomButton changeButton = new CustomButton("Send", "Send email with reset password link", SmallIcons.INSTANCE.emailIcon());
 
@@ -101,7 +123,7 @@ public class SendPasswordResetRequestTabItem implements TabItem {
 					for (Attribute a : logins) {
 						if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
 							namespaces.addItem(a.getFriendlyNameParameter().toUpperCase(), a.getValue());
-							layout.setHTML(1, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString());
+							layout.setHTML(3, 1, SafeHtmlUtils.fromString((a.getValue() != null) ? a.getValue() : "").asString());
 						}
 					}
 				}
@@ -121,7 +143,7 @@ public class SendPasswordResetRequestTabItem implements TabItem {
 		namespaces.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
-				layout.setHTML(1, 1, namespaces.getValue(namespaces.getSelectedIndex()));
+				layout.setHTML(3, 1, namespaces.getValue(namespaces.getSelectedIndex()));
 			}
 		});
 
@@ -134,7 +156,8 @@ public class SendPasswordResetRequestTabItem implements TabItem {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				SendPasswordResetLinkEmail request = new SendPasswordResetLinkEmail(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab));
-				request.sendEmail(member, namespaces.getItemText(namespaces.getSelectedIndex()).toLowerCase());
+				request.sendEmail(member, namespaces.getItemText(namespaces.getSelectedIndex()).toLowerCase(),
+						emails.getSelectedValue(), languages.getSelectedValue());
 			}
 		});
 		menu.addWidget(changeButton);

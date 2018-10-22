@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.utils.graphs.Graph;
 import org.apache.commons.codec.binary.Base64;
@@ -27,9 +28,12 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -871,9 +875,11 @@ public class Utils {
 	 * @param namespace namespace to reset password in
 	 * @param url base URL of Perun instance
 	 * @param id ID of pwd reset request
+	 * @param messageTemplate message of the email
+	 * @param subject subject of the email
 	 * @throws InternalErrorException
 	 */
-	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, int id) throws InternalErrorException {
+	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject) throws InternalErrorException {
 
 		// create mail sender
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -886,7 +892,13 @@ public class Utils {
 
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
-		message.setSubject("["+instanceName+"] Password reset in namespace: "+namespace);
+		if (subject == null) {
+			message.setSubject("[" + instanceName + "] Password reset in namespace: " + namespace);
+		} else {
+			subject = subject.replace("{namespace}", namespace);
+			subject = subject.replace("{instanceName}", instanceName);
+			message.setSubject(subject);
+		}
 
 		// get validation link params
 		String i = cipherInput(String.valueOf(user.getId()), false);
@@ -908,14 +920,31 @@ public class Utils {
 			link.append("&m=");
 			link.append(URLEncoder.encode(m, "UTF-8"));
 
-			// Build message
-			String text = "Dear "+user.getDisplayName()+",\n\nWe've received request to reset your password in namespace \""+namespace+"\"."+
-					"\n\nPlease visit the link below, where you can set new password:\n\n"+link+"\n\n" +
+			//validity formatting
+			String validity = Integer.toString(BeansUtils.getCoreConfig().getPwdresetValidationWindow());
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Calendar calendar = Calendar.getInstance();
+			calendar.add(Calendar.HOUR, Integer.parseInt(validity));
+			String validityFormatted = sdf.format(calendar.getTime());
+
+			// Build message en
+			String textEn = "Dear " + user.getDisplayName() + ",\n\nWe've received request to reset your password in namespace \"" + namespace + "\"." +
+					"\n\nPlease visit the link below, where you can set new password:\n\n" + link + "\n\n" +
+					"Link is valid till " + validityFormatted + "\n\n" +
 					"Message is automatically generated." +
 					"\n----------------------------------------------------------------" +
 					"\nPerun - Identity & Access Management System";
 
-			message.setText(text);
+
+			if (messageTemplate == null) {
+				message.setText(textEn);
+			} else {
+				messageTemplate = messageTemplate.replace("{link}", link);
+				messageTemplate = messageTemplate.replace("{displayName}", user.getDisplayName());
+				messageTemplate = messageTemplate.replace("{namespace}", namespace);
+				messageTemplate = messageTemplate.replace("{validity}", validityFormatted);
+				message.setText(messageTemplate);
+			}
 
 			mailSender.send(message);
 
