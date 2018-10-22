@@ -167,7 +167,7 @@ public class TaskScheduler extends AbstractRunner {
 			Task task = schedule.getTask();
 			if (task.isSourceUpdated() && schedule.getDelayCount() > 0 && !task.isPropagationForced()) {
 				// source data changed before sending, wait for more changes to come -> reschedule
-				log.info("[{}] Task was not allowed to be sent to Engine now: {}.", task.getId(), task);
+				log.warn("[{}] Task was not allowed to be sent to Engine now: {}.", task.getId(), task);
 				schedulingPool.scheduleTask(task, schedule.getDelayCount() - 1);
 			} else {
 				// send it to engine
@@ -304,9 +304,9 @@ public class TaskScheduler extends AbstractRunner {
 
 		try {
 			if (!serviceDenialDao.isServiceBlockedOnFacility(service.getId(), facility.getId())) {
-				log.debug("[{}] Service {} is allowed on Facility {}.", new Object[]{task.getId(), service.getId(), facility.getId()});
+				log.debug("[{}] Service {} is allowed on Facility {}.", task.getId(), service.getId(), facility.getId());
 			} else {
-				log.debug("[{}] Service {} is blocked on Facility {}.", new Object[]{task.getId(), service.getId(), facility.getId()});
+				log.debug("[{}] Service {} is blocked on Facility {}.", task.getId(), service.getId(), facility.getId());
 				return DENIED;
 			}
 		} catch (Exception e) {
@@ -345,7 +345,7 @@ public class TaskScheduler extends AbstractRunner {
 			}
 		}
 
-		log.debug("[{}] Fetched destinations: " + ((destinations == null) ? "[]" : destinations.toString()), task.getId());
+		log.debug("[{}] Fetched destinations: {}",  task.getId(), (destinations == null) ? "[]" : destinations.toString());
 		task.setDestinations(destinations);
 
 		// construct JMS message for Engine

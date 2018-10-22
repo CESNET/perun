@@ -126,7 +126,7 @@ public class PropagationMaintainer extends AbstractRunner {
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException ex) {
-				log.error("Error in PropagationMaintainer: {}" + ex);
+				log.error("Error in PropagationMaintainer: {}", ex);
 				throw new RuntimeException("Somebody has interrupted us...", ex);
 			}
 
@@ -213,7 +213,7 @@ public class PropagationMaintainer extends AbstractRunner {
 				task.setRecurrence(recurrence);
 
 				// schedule if possible and reset source updated flag
-				log.info("[{}] Task in {} state will be rescheduled, attempt #"+recurrence+".", task.getId(), task.getStatus());
+				log.info("[{}] Task in {} state will be rescheduled, attempt #{}.", task.getId(), task.getStatus(), recurrence);
 				schedulingPool.scheduleTask(task, -1);
 
 			} else if (task.getEndTime().before(twoDaysAgo)) {

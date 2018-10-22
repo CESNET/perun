@@ -504,7 +504,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		log.debug("Switching processing tasks on engine {} to ERROR, the engine went down...", clientID);
 		for (Task task : tasks) {
 			if (engineStates.contains(task.getStatus())) {
-				log.debug("[{}] Switching Task to ERROR, the engine it was running on went down.", task.getId());
+				log.info("[{}] Switching Task to ERROR, the engine it was running on went down.", task.getId());
 				task.setStatus(TaskStatus.ERROR);
 			}
 			try {
@@ -565,7 +565,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 		taskManager.updateTask(task);
 
-		log.debug("[{}] Task status changed from {} to {} as reported by Engine: {}.", new Object[]{task.getId(), oldStatus, task.getStatus(), task});
+		log.debug("[{}] Task status changed from {} to {} as reported by Engine: {}.", task.getId(), oldStatus, task.getStatus(), task);
 
 	}
 
@@ -573,7 +573,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	public void onTaskDestinationComplete(int clientID, String string) {
 
 		if (string == null || string.isEmpty()) {
-			log.error("Could not parse TaskResult message from Engine " + clientID + ".");
+			log.error("Could not parse TaskResult message from Engine {}.", clientID);
 			return;
 		}
 
@@ -587,7 +587,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				log.error("No TaskResult found in message from Engine {}: {}.", clientID, string);
 			}
 		} catch (Exception e) {
-			log.error("Could not save TaskResult from Engine " + clientID + " {}, {}", string, e.getMessage());
+			log.error("Could not save TaskResult from Engine {}, {}, {}", clientID, string, e.getMessage());
 		}
 
 	}
