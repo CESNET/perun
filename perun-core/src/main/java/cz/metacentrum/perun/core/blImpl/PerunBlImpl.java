@@ -530,8 +530,10 @@ public class PerunBlImpl implements PerunBl {
 	public void initialize() throws InternalErrorException {
 		this.extSourcesManagerBl.initialize(this.getPerunSession());
 		this.auditer.initialize();
-		this.cacheManager.initialize(getPerunSession(), attributesManagerImpl);
-		CacheManager.setCacheDisabled(false);
+		if (coreConfig.isCacheEnabled()) {
+			this.cacheManager.initialize(getPerunSession(), attributesManagerImpl);
+			CacheManager.setCacheDisabled(false);
+		}
 	}
 
 	@Override
