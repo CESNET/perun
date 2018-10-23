@@ -85,6 +85,11 @@ public class FacilitiesTabs {
 			return true;
 		}
 
+		if (tab.equals(TaskResultsForDestinationTabItem.URL)) {
+			session.getTabManager().addTab(TaskResultsForDestinationTabItem.load(parameters), open);
+			return true;
+		}
+
 		if (tab.equals(FacilityOwnersTabItem.URL)) {
 			session.getTabManager().addTab(FacilityOwnersTabItem.load(parameters), open);
 			return true;

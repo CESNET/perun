@@ -1,8 +1,11 @@
 package cz.metacentrum.perun.webgui.tabs.facilitiestabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -98,7 +101,12 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 		}, "Filter results by destination");
 
 
-		CellTable<TaskResult> table = callback.getTable();
+		// on row click
+		CellTable<TaskResult> table = callback.getTable((index, taskResult, value) -> {
+			if (taskResult != null) {
+				session.getTabManager().addTab(new TaskResultsForDestinationTabItem(task.getId(), taskResult.getDestination().getId()));
+			}
+		});
 
 		table.addStyleName("perun-table");
 		ScrollPanel sp = new ScrollPanel(table);
@@ -108,9 +116,17 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 		vp.setCellHeight(menu, "30px");
 		vp.add(sp);
 
+		Scheduler.get().scheduleDeferred(() -> {
+			ColumnSortList.ColumnSortInfo csi = new ColumnSortList.ColumnSortInfo(table.getColumn(1), true);
+			table.getColumnSortList().push(csi);
+			ColumnSortEvent.fire(table, table.getColumnSortList());
+		});
+
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
+
 		this.contentWidget.setWidget(vp);
+
 
 		return getWidget();
 

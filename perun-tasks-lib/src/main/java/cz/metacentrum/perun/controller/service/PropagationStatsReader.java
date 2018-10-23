@@ -55,7 +55,11 @@ public interface PropagationStatsReader {
 
 	List<TaskResult> getTaskResultsByTask(int taskId);
 
+	List<TaskResult> getTaskResultsForGUIByTaskOnlyNewest(PerunSession session, int taskId) throws DestinationNotExistsException, PrivilegeException, InternalErrorException;
+
 	List<TaskResult> getTaskResultsForGUIByTask(PerunSession session, int taskId) throws DestinationNotExistsException, PrivilegeException, InternalErrorException;
+
+	List<TaskResult> getTaskResultsForGUIByTaskAndDestination(PerunSession session, int taskId, int destinationId) throws InternalErrorException;
 
 	TaskResult getTaskResultById(int taskResultId);
 

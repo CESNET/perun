@@ -23,12 +23,28 @@ public interface TaskResultDao {
 	List<TaskResult> getTaskResults();
 
 	/**
+	 * List newest TaskResults tied to a certain task
+	 *
+	 * @param taskId
+	 * @return
+	 */
+	List<TaskResult> getTaskResultsByTaskOnlyNewest(int taskId);
+
+	/**
 	 * List TaskResults tied to a certain task
 	 *
 	 * @param taskId
 	 * @return
 	 */
 	List<TaskResult> getTaskResultsByTask(int taskId);
+
+	/**
+	 * List newest TaskResults tied to a certain task and destination
+	 *
+	 * @param taskId
+	 * @return
+	 */
+	List<TaskResult> getTaskResultsByTaskAndDestination(int taskId, int destinationId);
 
 	/**
 	 * Get TaskResult by its ID
