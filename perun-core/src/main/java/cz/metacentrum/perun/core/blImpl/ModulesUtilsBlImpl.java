@@ -1043,14 +1043,14 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			try {
 				user = getPerunBl().getUsersManagerBl().getUserById(sess, userExtSource.getUserId());
 			} catch (UserNotExistsException ex) {
-				log.debug("User from UserExtSource {} can't be found by id in Perun. Probably not exists any more or UserExtSource was audited without proper UserId!", userExtSource);
+				log.warn("User from UserExtSource {} doesn't exist in Perun. This occurred while parsing message: {}.", userExtSource, message);
 				return null;
 			}
 		} else if (user == null && member != null) {
 			try {
 				user = getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
 			} catch (UserNotExistsException ex) {
-				log.debug("User from Member {} can't be found by id in Perun. Probably not exists any more or Member was audited without proper UserId!", userExtSource);
+				log.warn("User from Member {} doesn't exist in Perun. This occurred while parsing message: {}.", member, message);
 				return null;
 			}
 		}
