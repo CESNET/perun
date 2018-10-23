@@ -91,7 +91,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 		if(user != null) email = findUserPreferredEmail(sess, user);
 		else {
 			email = null;
-			log.error("Can't get user from session.");
+			log.info("Can't get user from session.");
 		}
 
 		//try to get email from additionalInformations in session (attribute mail)

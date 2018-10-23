@@ -1390,7 +1390,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					try {
 						extSource = getPerunBl().getExtSourcesManagerBl().createExtSource(sess, extSource, null);
 					} catch (ExtSourceExistsException e1) {
-						log.error("impossible or race condition",e1);
+						log.warn("impossible or race condition",e1);
 					}
 				}
 				UserExtSource ues = new UserExtSource(extSource, userLogin + "@dummy");

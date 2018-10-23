@@ -1085,7 +1085,7 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.notNull(namespace, "namespace");
 		Utils.notNull(guestName, "guestName");
 		Utils.notNull(password, "password");
-		log.debug("createSponsoredMember(vo={},namespace='{}',guestName='{}',sponsor={}", vo.getShortName(), namespace, guestName, sponsor == null ? "null" : sponsor.getId());
+		log.info("createSponsoredMember(vo={},namespace='{}',guestName='{}',sponsor={}", vo.getShortName(), namespace, guestName, sponsor == null ? "null" : sponsor.getId());
 
 		if (sponsor == null) {
 			//sponsor is the caller
@@ -1155,7 +1155,7 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(sponsoredMember, "sponsoredMember");
 		Utils.notNull(sponsorToRemove, "sponsorToRemove");
-		log.debug("removeSponsor(sponsoredMember={},sponsorToRemove={}", sponsoredMember.getId(), sponsorToRemove.getId());
+		log.info("removeSponsor(sponsoredMember={},sponsorToRemove={}", sponsoredMember.getId(), sponsorToRemove.getId());
 
 		//Get the VO to which sponsoredMember belongs
 		Vo vo = membersManagerBl.getMemberVo(sess, sponsoredMember);

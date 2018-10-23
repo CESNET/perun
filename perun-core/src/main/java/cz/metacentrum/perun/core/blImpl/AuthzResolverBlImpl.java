@@ -1209,7 +1209,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				sess.getPerunPrincipal().getRoles().remove(Role.PERUNADMIN);
 			}
 			if(!oauthScopes.contains(PerunClient.PERUN_API_SCOPE)) {
-				log.warn("removing all roles from session {}",sess);
+				log.debug("removing all roles from session {}",sess);
 				sess.getPerunPrincipal().getRoles().clear();
 			}
 		}
@@ -1227,7 +1227,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	public static synchronized void refreshSession(PerunSession sess) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
-		log.debug("Refreshing session data for session {}.", sess);
+		log.trace("Refreshing session data for session {}.", sess);
 
 		try {
 			User user = perunBl.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor());

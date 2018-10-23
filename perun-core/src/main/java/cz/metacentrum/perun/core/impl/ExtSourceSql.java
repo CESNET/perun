@@ -116,7 +116,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		}
 
 		//log.debug("Searching for '{}' using query {} in external source 'url:{}'", new Object[] {searchString, query, (String) getAttributes().get("url")});
-		log.debug("Searching for '{}' in external source 'url:{}'", new Object[] {searchString, (String) getAttributes().get("url")});
+		log.debug("Searching for '{}' in external source 'url:{}'", searchString, (String) getAttributes().get("url"));
 
 		// Register driver if the attribute has been defined
 		if (getAttributes().get("driver") != null) {
@@ -205,9 +205,9 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 						String[] attributeRaw = columnName.split(":", 3);
 						String attributeName = null;
 						if (!attributeNameMapping.containsKey(attributeRaw[0])) {
-							log.error("Unknown attribute type '{}' for user {} {}, attributeRaw {}", new Object[] {attributeRaw[0], map.get("firstName"), map.get("lastName"), attributeRaw});
+							log.warn("Unknown attribute type '{}' for user {} {}, attributeRaw {}", attributeRaw[0], map.get("firstName"), map.get("lastName"), attributeRaw);
 						} else if (!attributeNameMapping.containsKey(attributeRaw[1])) {
-							log.error("Unknown attribute type '{}' for user {} {}, attributeRaw {}", new Object[] {attributeRaw[1], map.get("firstName"), map.get("lastName"), attributeRaw});
+							log.warn("Unknown attribute type '{}' for user {} {}, attributeRaw {}", attributeRaw[1], map.get("firstName"), map.get("lastName"), attributeRaw);
 						} else {
 							attributeName = attributeNameMapping.get(attributeRaw[0]) + attributeNameMapping.get(attributeRaw[1]) + attributeRaw[2];
 							if (!Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {

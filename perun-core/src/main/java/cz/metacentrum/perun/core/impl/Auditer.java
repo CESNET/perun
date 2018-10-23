@@ -522,7 +522,7 @@ public class Auditer {
 								final AuditerMessage auditerMessage = auditerMessages.get(i);
 								final String message = auditerMessage.getEvent().getMessage();
 								final PerunSession session = auditerMessage.getOriginaterPerunSession();
-								log.info("AUDIT: {}", message);
+								log.trace("AUDIT: {}", message);
 								try {
 									final int msgId = Utils.getNewId(jdbc, "auditer_log_id_seq");
 									ps.setInt(1, msgId);

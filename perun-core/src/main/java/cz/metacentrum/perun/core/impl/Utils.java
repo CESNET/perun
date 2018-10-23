@@ -63,7 +63,7 @@ public class Utils {
 	 * @return normalized string
 	 */
 	public static String normalizeString(String str) {
-		log.trace("Entering normalizeString: str='" +  str + "'");
+		log.trace("Entering normalizeString: str='{}'", str);
 		return str.replace(':', '-').replace(' ', '_');
 	}
 
@@ -106,7 +106,7 @@ public class Utils {
 	 * @return string with string representations of objects joined by separators
 	 */
 	public static String join(Object[] objs, String separator) {
-		log.trace("Entering join: objs='" +  objs + "', separator='" +  separator + "'");
+		log.trace("Entering join: objs='{}', separator='{}'", objs, separator);
 		return join(Arrays.asList(objs),separator);
 	}
 
@@ -1044,10 +1044,10 @@ public class Utils {
 		try {
 			telNumber = (String) sess.getPerun().getAttributesManager().getAttribute(sess, user, userPhoneAttribute).getValue();
 		} catch (AttributeNotExistsException ex ) {
-			log.info("Sendig SMS with text \"" + message + "\" to user " + user + "failed: cannot get tel. number." );
+			log.error("Sendig SMS with text \"{}\" to user {} failed: cannot get tel. number.", message, user );
 			throw new InternalErrorException("The attribute " + userPhoneAttribute + " has not been found.", ex);
 		} catch (WrongAttributeAssignmentException ex) {
-			log.info("Sendig SMS with text \"" + message + "\" to user " + user + "failed: cannot get tel. number." );
+			log.error("Sendig SMS with text \"{}\" to user {} failed: cannot get tel. number.", message, user );
 			throw new InternalErrorException("The attribute " + userPhoneAttribute + " has not been found in user attributes.", ex);
 		}
 		sendSMS(telNumber, message);
@@ -1069,10 +1069,10 @@ public class Utils {
 		try {
 			telNumber = (String) sess.getPerun().getAttributesManager().getAttribute(sess, member, memberPhoneAttribute).getValue();
 		} catch (AttributeNotExistsException ex) {
-			log.info("Sendig SMS with text \"" + message + "\" to member " + member + " failed: cannot get tel. number." );
+			log.error("Sendig SMS with text \"{}\" to member {} failed: cannot get tel. number.", message, member );
 			throw new InternalErrorException("The attribute " + memberPhoneAttribute + " has not been found.", ex);
 		} catch (WrongAttributeAssignmentException ex) {
-			log.info("Sendig SMS with text \"" + message + "\" to member " + member + " failed: cannot get tel. number." );
+			log.error("Sendig SMS with text \"{}\" to member {} failed: cannot get tel. number.", message, member );
 			throw new InternalErrorException("The attribute " + memberPhoneAttribute + " has not been found in user attributes.", ex);
 		}
 		sendSMS(telNumber, message);
@@ -1089,7 +1089,7 @@ public class Utils {
 	 * @throws IllegalArgumentException when the phone or message has a wrong format
 	 */
 	public static void sendSMS(String telNumber, String message) throws InternalErrorException {
-		log.info("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + ".");
+		log.debug("Sending SMS with text \"{}\" to tel. number {}.", message, telNumber);
 
 		try {
 			// create properties list
@@ -1110,28 +1110,28 @@ public class Utils {
 				exitValue = process.waitFor();
 			} catch (InterruptedException ex) {
 				String errMsg = "The external process for sending sms was interrupted.";
-				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+				log.error("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
 				throw new InternalErrorException(errMsg, ex);
 			}
 
 			// handle response
 			if (exitValue == 0) {
 				// successful
-				log.info("SMS with text \"" + message + "\" to tel. number " + telNumber + " successfully sent.");
+				log.debug("SMS with text \"{}\" to tel. number {} successfully sent.", message, telNumber);
 			} else if ((exitValue == 1) || (exitValue == 2)) {
 				// users fault
 				String errMsg = getStringFromInputStream(process.getErrorStream());
-				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+				log.error("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
 				throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException(errMsg);
 			} else if (exitValue > 2) {
 				// internal fault
 				String errMsg = getStringFromInputStream(process.getErrorStream());
-				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+				log.error("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
 				throw new InternalErrorException(errMsg);
 			}
 
 		} catch (IOException ex) {
-			log.info("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+			log.warn("Sending SMS with text \"{}\" to tel. number {} failed.", message, telNumber);
 			throw new InternalErrorException("Cannot access the sms external application.", ex);
 		}
 
