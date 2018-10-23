@@ -4107,5 +4107,30 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException internal error
 	 */
 	Graph getAttributeModulesDependenciesGraph(PerunSession session) throws InternalErrorException;
+	 
+	/**
+	 * Check if attribute is from the same namespace as it's handler
+	 *
+	 * @param sess
+	 * @param attributeDefinition
+	 * @param handler attribute's handler
+	 * @throws WrongAttributeAssignmentException
+	 * @throws InternalErrorException
+	 */
+	void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler) throws WrongAttributeAssignmentException, InternalErrorException;
+
+	/**
+	 * Check if attribute is from the same namespace as combination of perunBean handlers.
+	 * Order of handlers does not matter.
+	 *
+	 * @param sess perun session
+	 * @param attributeDefinition the attribute definition
+	 * @param handler1 one of attribute's handlers
+	 * @param handler2 one of attribute's handlers
+	 *
+	 * @throws WrongAttributeAssignmentException if assignment of attribute is not correct
+	 * @throws InternalErrorException if both handlers are empty or namespace for handlers can't be found
+	 */
+	void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler1, PerunBean handler2) throws WrongAttributeAssignmentException, InternalErrorException;
 }
 

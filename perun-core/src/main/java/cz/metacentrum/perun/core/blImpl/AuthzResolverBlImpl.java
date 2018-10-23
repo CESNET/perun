@@ -112,7 +112,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		}
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='" + sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
 
 		Utils.notNull(sess, "sess");
@@ -194,6 +194,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				throw new InternalErrorException("There is unrecognized perunBean in secondaryHolder.");
 			}
 		} // If not, its ok, secondary holder can be null
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, (PerunBean) primaryHolder, (PerunBean) secondaryHolder);
+
 
 		//Important: There is no options for other roles like service, serviceUser and other!
 		if (resource != null && member != null) {

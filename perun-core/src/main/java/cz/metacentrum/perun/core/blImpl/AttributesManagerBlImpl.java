@@ -5215,6 +5215,55 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return mergeAttributeValue(sess, member, attribute);
 	}
 
+	public void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler) throws WrongAttributeAssignmentException, InternalErrorException {
+		this.checkAttributeAssignment(sess, attributeDefinition, handler, null);
+	}
+
+	public void checkAttributeAssignment(PerunSession sess, AttributeDefinition attributeDefinition, PerunBean handler1, PerunBean handler2) throws WrongAttributeAssignmentException, InternalErrorException {
+		String richObjectRegex = "^rich";
+		String firstIdentifier;
+		String secondIdentifier;
+		String identifier;
+		String reverseIdentifier;
+
+		//Prepare identifier and reverse identifier of namespace for handlers
+		if(handler1 != null && handler2 != null) {
+			firstIdentifier = handler1.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");
+			secondIdentifier = handler2.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");;
+			identifier = firstIdentifier + "_" + secondIdentifier;
+			reverseIdentifier = secondIdentifier + "_" + firstIdentifier;
+		} else if(handler1 != null) {
+			firstIdentifier = handler1.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");;
+			identifier = firstIdentifier;
+			reverseIdentifier = identifier;
+		} else if(handler2 != null) {
+			firstIdentifier = handler2.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");;
+			identifier = firstIdentifier;
+			reverseIdentifier = identifier;
+		} else {
+			throw new InternalErrorException("Both handlers can't be null!");
+		}
+
+		//There is exception for entityless attributes and for user_ext_source attributes
+		if(identifier.equals(String.class.getSimpleName().toLowerCase())) {
+			identifier = "entityless";
+			reverseIdentifier = identifier;
+		} else if(identifier.equals("userextsource")) {
+			identifier = "user_ext_source";
+			reverseIdentifier = identifier;
+		}
+
+		//Looking for namespace by identifier in map of all exist namespaces
+		String namespaceByHandlers = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(identifier);
+		//If namespace for identifier not exists, try to look for reverse identifier if it is different from identifier
+		if(namespaceByHandlers == null && !identifier.equals(reverseIdentifier)) namespaceByHandlers = AttributesManagerImpl.BEANS_TO_NAMESPACES_MAP.get(reverseIdentifier);
+		//If namespace not exists, throw exception
+		if(namespaceByHandlers == null) throw new InternalErrorException("Unable to get namespace for objects: " + handler1 + " and " + handler2);
+
+		//Check namespace of attribute definition
+		checkNamespace(sess, attributeDefinition, namespaceByHandlers);
+	}
+
 	@SuppressWarnings("SameParameterValue")
 	private boolean findAndSetValueInList(List<Attribute> attributes, AttributeDefinition attributeDefinition, Object value) {
 		for (Attribute attribute : attributes) {
