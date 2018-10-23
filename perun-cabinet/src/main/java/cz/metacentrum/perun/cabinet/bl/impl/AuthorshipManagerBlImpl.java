@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import cz.metacentrum.perun.audit.events.AuthorshipManagementEvents.AuthorshipCreated;
+import cz.metacentrum.perun.audit.events.AuthorshipManagementEvents.AuthorshipDeleted;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -121,8 +123,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		}
 
 		// log
-		perun.getAuditer().log(sess, "Authorship {} created.", authorship);
-
+		perun.getAuditer().log(sess,new AuthorshipCreated(authorship));
 		return authorship;
 
 	}
@@ -165,7 +166,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 			getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
 		}
 
-		perun.getAuditer().log(sess, "Authorship {} deleted.", authorship);
+		perun.getAuditer().log(sess, new AuthorshipDeleted(authorship));
 
 	}
 

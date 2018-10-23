@@ -13,6 +13,14 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdAdded;
+import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdRemoved;
+import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForGroupIdUpdated;
+import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForVoIdAdded;
+import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForVoIdRemoved;
+import cz.metacentrum.perun.audit.events.MailManagerEvents.MailForVoIdUpdated;
+import cz.metacentrum.perun.audit.events.MailManagerEvents.MailSending;
+import cz.metacentrum.perun.audit.events.MailManagerEvents.MailSentForApplication;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.impl.Compatibility;
@@ -134,9 +142,9 @@ public class MailManagerImpl implements MailManager {
 
 		log.info("[MAIL MANAGER] Mail notification definition created: {}", mail);
 		if (form.getGroup() != null) {
-			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} added for Group ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getGroup().getId());
+			perun.getAuditer().log(sess, new MailForGroupIdAdded(mail,form.getGroup()));
 		} else {
-			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} added for VO ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getVo().getId());
+			perun.getAuditer().log(sess, new MailForVoIdAdded(mail, form.getVo()));
 		}
 
 
@@ -165,9 +173,9 @@ public class MailManagerImpl implements MailManager {
 		if (result > 1) throw new ConsistencyErrorException("There is more than one mail notification with id="+id);
 
 		if (form.getGroup() != null) {
-			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} removed for Group ID: {}.", id, mail.getMailType()+"/"+mail.getAppType(), form.getGroup().getId());
+			perun.getAuditer().log(sess, new MailForGroupIdRemoved(mail, form.getGroup()));
 		} else {
-			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} removed for VO ID: {}.", id, mail.getMailType()+"/"+mail.getAppType(), form.getVo().getId());
+			perun.getAuditer().log(sess, new MailForVoIdRemoved(mail, form.getVo()));
 		}
 
 	}
@@ -239,9 +247,9 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		if (form.getGroup() != null) {
-			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} updated for Group ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getGroup().getId());
+			perun.getAuditer().log(sess, new MailForGroupIdUpdated(mail,form.getGroup()));
 		} else {
-			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} updated for VO ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getVo().getId());
+			perun.getAuditer().log(sess, new MailForVoIdUpdated(mail, form.getVo()));
 		}
 
 	}
@@ -260,8 +268,7 @@ public class MailManagerImpl implements MailManager {
 				jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
 			}
 
-			perun.getAuditer().log(sess, "Sending of Mail ID: {} " + ((enabled) ? " enabled." : " disabled."));
-
+			perun.getAuditer().log(sess, new MailSending(mail, enabled));
 		}
 
 	}
@@ -853,7 +860,7 @@ public class MailManagerImpl implements MailManager {
 			sendMessage(app, mailType, reason, null);
 
 		}
-		perun.getAuditer().log(sess, "Mail of Type: {} sent for Application: {}", mailType, app.getId());
+		perun.getAuditer().log(sess, new MailSentForApplication(mailType, app.getId()));
 
 	}
 

@@ -3,6 +3,16 @@ package cz.metacentrum.perun.controller.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.BanServiceOnDestination;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.BanServiceOnFacility;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnFacilityAndService;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnService;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeAllDenialsOnDestination;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeAllDenialsOnFacility;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeDenialServiceOnDestination;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeDenialServiceOnFacility;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.PropagationPlannedOnFacilityAndService;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.PropagationPlannedOnService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +44,6 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 
 	private final static Logger log = LoggerFactory.getLogger(GeneralServiceManagerImpl.class);
 	// Beginning of the auditer message which triggers service propagation
-	public final static String PROPAGATION_PLANNED = "propagation planned: ";
-	public final static String FORCE_PROPAGATION = "force propagation: ";
-	public final static String FREE_ALL_DEN = "free all denials: ";
-	public final static String FREE_DEN_OF_SERVICE = "free denial: ";
-	public final static String BAN_SERVICE = "ban :";
 
 	@Autowired
 	private ServiceDenialDao serviceDenialDao;
@@ -53,13 +58,13 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 		} catch (DuplicateKeyException ex) {
 			throw new ServiceAlreadyBannedException(service, facility);
 		}
-		sess.getPerun().getAuditer().log(sess, "{} {} on {}", BAN_SERVICE, service, facility);
+		sess.getPerun().getAuditer().log(sess, new BanServiceOnFacility(service, facility));
 	}
 
 	@Override
 	public void blockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException {
 		serviceDenialDao.blockServiceOnDestination(service.getId(), destinationId);
-		sess.getPerun().getAuditer().log(sess, "{} {} on {}", BAN_SERVICE, service, destinationId);
+		sess.getPerun().getAuditer().log(sess, new BanServiceOnDestination(service, destinationId));
 	}
 
 	@Override
@@ -84,25 +89,25 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	@Override
 	public void unblockAllServicesOnFacility(PerunSession sess, Facility facility) throws InternalErrorException{
 		serviceDenialDao.unblockAllServicesOnFacility(facility.getId());
-		sess.getPerun().getAuditer().log(sess, "{} on {}" ,FREE_ALL_DEN, facility);
+		sess.getPerun().getAuditer().log(sess, new FreeAllDenialsOnFacility(facility));
 	}
 
 	@Override
 	public void unblockAllServicesOnDestination(PerunSession sess, int destinationId) throws InternalErrorException {
 		serviceDenialDao.unblockAllServicesOnDestination(destinationId);
-		sess.getPerun().getAuditer().log(sess, "{} on {}", FREE_ALL_DEN, destinationId);
+		sess.getPerun().getAuditer().log(sess, new FreeAllDenialsOnDestination(destinationId));
 	}
 
 	@Override
 	public void unblockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
 		serviceDenialDao.unblockServiceOnFacility(service.getId(), facility.getId());
-		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_SERVICE, service, facility);
+		sess.getPerun().getAuditer().log(sess, new FreeDenialServiceOnFacility(service, facility));
 	}
 
 	@Override
 	public void unblockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException {
 		serviceDenialDao.unblockServiceOnDestination(service.getId(), destinationId);
-		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_SERVICE, service, destinationId);
+		sess.getPerun().getAuditer().log(sess, new FreeDenialServiceOnDestination(service, destinationId));
 	}
 
 	@Override
@@ -112,7 +117,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 		//Local
 		if(serviceDenialDao.isServiceBlockedOnFacility(service.getId(), facility.getId())) return false;
 		//Call log method out of transaction
-		sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On {} and {}", facility, service);
+		sess.getPerun().getAuditer().log(sess, new ForcePropagationOnFacilityAndService(facility, service));
 		return true;
 	}
 
@@ -121,7 +126,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 		//Global
 		if(!service.isEnabled()) return false;
 		//Call log method out of transaction
-		sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On {} ", service);
+		sess.getPerun().getAuditer().log(sess, new ForcePropagationOnService(service));
 		return true;
 	}
 
@@ -132,7 +137,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 		//Local
 		if(serviceDenialDao.isServiceBlockedOnFacility(service.getId(), facility.getId())) return false;
 		//Call log method out of transaction
-		perunSession.getPerun().getAuditer().log(perunSession, PROPAGATION_PLANNED + "On {} and {}", facility, service);
+		perunSession.getPerun().getAuditer().log(perunSession, new PropagationPlannedOnFacilityAndService(facility, service));
 		return true;
 	}
 
@@ -141,7 +146,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 		//Global
 		if(!service.isEnabled()) return false;
 		//Call log method out of transaction
-		perunSession.getPerun().getAuditer().log(perunSession, PROPAGATION_PLANNED + "On {} ", service);
+		perunSession.getPerun().getAuditer().log(perunSession, new PropagationPlannedOnService(service));
 		return true;
 	}
 

@@ -1,5 +1,25 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminAddedForGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminGroupAddedForGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminGroupRemovedFromGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminRemovedForGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.AllGroupsFromVoDeleted;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberRemovedFromGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupCreatedAsSubgroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupCreatedInVo;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupDeleted;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupMoved;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncFailed;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncFinishedWithErrors;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupUpdated;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberAddedToGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberRemovedFromGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberExpiredInGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberRemovedFromGroupTotally;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberValidatedInGroup;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberExpired;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 
 import java.text.DateFormat;
@@ -75,7 +95,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException, InternalErrorException {
 		if (group.getParentGroupId() != null) throw new InternalErrorException("Top-level groups can't have parentGroupId set!");
 		group = getGroupsManagerImpl().createGroup(sess, vo, group);
-		getPerunBl().getAuditer().log(sess, "{} created in {}.", group, vo);
+		getPerunBl().getAuditer().log(sess, new GroupCreatedInVo(group, vo));
 		group.setVoId(vo.getId());
 
 
@@ -109,7 +129,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			throw new ConsistencyErrorException("Database consistency error while creating group: {}",e);
 		}
 
-		getPerunBl().getAuditer().log(sess, "{} created in {} as subgroup of {}", group, vo, parentGroup);
+		getPerunBl().getAuditer().log(sess, new GroupCreatedAsSubgroup(group, vo, parentGroup));
 
 		return group;
 	}
@@ -275,7 +295,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 				logTotallyRemovedMembers(sess, subGroup.getParentGroupId(), membersFromDeletedGroup);
 
-				getPerunBl().getAuditer().log(sess, "{} deleted.", subGroup);
+				getPerunBl().getAuditer().log(sess, new GroupDeleted(subGroup));
 
 			}
 		}
@@ -365,7 +385,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		logTotallyRemovedMembers(sess, group.getParentGroupId(), membersFromDeletedGroup);
 
-		getPerunBl().getAuditer().log(sess, "{} deleted.", group);
+		getPerunBl().getAuditer().log(sess, new GroupDeleted(group));
 	}
 
 	/**
@@ -392,7 +412,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			// so we need to log them to auditer
 			for(Member m: membersFromDeletedGroup) {
 				notifyMemberRemovalFromGroup(sess, parentGroup, m);
-				getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", m, parentGroup);
+				getPerunBl().getAuditer().log(sess, new MemberRemovedFromGroupTotally(m, parentGroup));
 			}
 			parentGroupId=parentGroup.getParentGroupId();
 		}
@@ -435,7 +455,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		// return group with correct updated name and shortName
 		group = getGroupsManagerImpl().updateGroup(sess, group);
-		getPerunBl().getAuditer().log(sess, "{} updated.", group);
+		getPerunBl().getAuditer().log(sess,new GroupUpdated(group));
 
 		List<Group> allSubgroups = this.getAllSubGroups(sess, group);
 		String[] groupNames = group.getName().split(":");
@@ -458,7 +478,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			// for subgroups we must update whole name
 			getGroupsManagerImpl().updateGroupName(sess, g);
 			// create auditer message for every updated group
-			getPerunBl().getAuditer().log(sess, "{} updated.", g);
+			getPerunBl().getAuditer().log(sess, new GroupUpdated(g));
 		}
 
 		return group;
@@ -638,7 +658,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
-		getPerunBl().getAuditer().log(sess, "{} was moved.", movingGroup);
+		getPerunBl().getAuditer().log(sess, new GroupMoved(movingGroup));
 	}
 
 	@Override
@@ -707,7 +727,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		boolean memberWasIndirectInGroup = this.isGroupMember(sess, group, member);
 
 		member = getGroupsManagerImpl().addMember(sess, group, member, MembershipType.DIRECT, group.getId());
-		getPerunBl().getAuditer().log(sess, "{} added to {}.", member, group);
+		getPerunBl().getAuditer().log(sess, new DirectMemberAddedToGroup(member, group));
 
 		//If member was indirect in group before, we don't need to change anything in other groups
 		if(memberWasIndirectInGroup) return;
@@ -759,7 +779,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		for (Member member : membersToAdd) {
 			setRequiredAttributes(sess, member, group);
-			getPerunBl().getAuditer().log(sess, "{} added to {}.", member, group);
+			getPerunBl().getAuditer().log(sess, new IndirectMemberAddedToGroup(member, group));
 		}
 
 		return membersToAdd;
@@ -819,7 +839,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				//This should not happen
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", removedIndirectMember, group);
+			getPerunBl().getAuditer().log(sess, new IndirectMemberRemovedFromGroup(removedIndirectMember, group));
 		}
 
 		return membersToRemove;
@@ -854,7 +874,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		member.setSourceGroupId(group.getId());
 		getGroupsManagerImpl().removeMember(sess, group, member);
 		if (this.getGroupsManagerImpl().isGroupMember(sess, group, member)) {
-			getPerunBl().getAuditer().log(sess, "{} was removed from {}.", member, group);
+			getPerunBl().getAuditer().log(sess, new DirectMemberRemovedFromGroup(member, group));
 			//If member was indirect in group before, we don't need to change anything in other groups
 			return;
 		} else {
@@ -866,7 +886,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				//This should not happen
 				throw new InternalErrorException(ex);
 			}
-			getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", member, group);
+			getPerunBl().getAuditer().log(sess, new MemberRemovedFromGroupTotally(member, group));
 		}
 
 		// check all relations with this group and call removeRelationMembers to reflect changes of removing member from group
@@ -1000,7 +1020,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {
 		AuthzResolverBlImpl.setRole(sess, user, group, Role.GROUPADMIN);
-		getPerunBl().getAuditer().log(sess, "{} was added as admin of {}.", user, group);
+		getPerunBl().getAuditer().log(sess, new AdminAddedForGroup(user, group));
 	}
 
 	@Override
@@ -1009,13 +1029,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		if (listOfAdmins.contains(authorizedGroup)) throw new AlreadyAdminException(authorizedGroup);
 
 		AuthzResolverBlImpl.setRole(sess, authorizedGroup, group, Role.GROUPADMIN);
-		getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", authorizedGroup, group);
+		getPerunBl().getAuditer().log(sess, new AdminGroupAddedForGroup(authorizedGroup, group));
 	}
 
 	@Override
 	public void removeAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, UserNotAdminException {
 		AuthzResolverBlImpl.unsetRole(sess, user, group, Role.GROUPADMIN);
-		getPerunBl().getAuditer().log(sess, "{} was removed from admins of {}.", user, group);
+		getPerunBl().getAuditer().log(sess, new AdminRemovedForGroup(user, group));
 	}
 
 	@Override
@@ -1024,7 +1044,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		if (!listOfAdmins.contains(authorizedGroup)) throw new GroupNotAdminException(authorizedGroup);
 
 		AuthzResolverBlImpl.unsetRole(sess, authorizedGroup, group, Role.GROUPADMIN);
-		getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", authorizedGroup, group);
+		getPerunBl().getAuditer().log(sess, new AdminGroupRemovedFromGroup(authorizedGroup, group));
 	}
 
 	@Override
@@ -2034,9 +2054,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		} else {
 			//Log to auditer_log that synchronization failed or finished with some errors
 			if(failedDueToException) {
-				getPerunBl().getAuditer().log(sess, "{} synchronization failed because of {}.", group, originalExceptionMessage);
+				getPerunBl().getAuditer().log(sess,new GroupSyncFailed(group, originalExceptionMessage));
 			} else {
-				getPerunBl().getAuditer().log(sess, "{} synchronization finished with errors: {}.", group, originalExceptionMessage);
+				getPerunBl().getAuditer().log(sess, new GroupSyncFinishedWithErrors(group, originalExceptionMessage));
 			}
 		}
 
@@ -3054,7 +3074,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			getGroupsManagerImpl().updateGroupName(sess, subGroup);
 
 			// create auditer message for every updated group
-			getPerunBl().getAuditer().log(sess, "{} updated.", subGroup);
+			getPerunBl().getAuditer().log(sess, new GroupUpdated(subGroup));
 
 			setSubGroupsNames(sess, getSubGroups(sess, subGroup), subGroup);
 		}
@@ -3216,9 +3236,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			groupsManagerImpl.setIndirectGroupStatus(sess, member, group, newStatus);
 
 			if (newStatus.equals(MemberGroupStatus.EXPIRED)) {
-				getPerunBl().getAuditer().log(sess, "{} in {} expired.", member, group);
+				getPerunBl().getAuditer().log(sess, new MemberExpiredInGroup(member, group));
 			} else if (newStatus.equals(MemberGroupStatus.VALID)) {
-				getPerunBl().getAuditer().log(sess, "{} in {} validated.", member, group);
+				getPerunBl().getAuditer().log(sess, new MemberValidatedInGroup(member, group));
 			}
 		}
 
