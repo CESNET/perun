@@ -1,9 +1,11 @@
 package cz.metacentrum.perun.registrar.impl;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
@@ -521,9 +523,11 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 				Set<ExtSource> es = new HashSet<>();
 				for (UserExtSource ues : u.getUserExtSources()) {
+
 					if (ues.getExtSource().getType().equals(ExtSourcesManagerEntry.EXTSOURCE_X509)) {
 						es.add(ues.getExtSource());
 					} else if (ues.getExtSource().getType().equals(ExtSourcesManagerEntry.EXTSOURCE_IDP)) {
+
 						if (ues.getExtSource().getName().equals("https://extidp.cesnet.cz/idp/shibboleth")) {
 							// FIXME - hack Social IdP to let us know proper identity source
 							String type = ues.getLogin().split("@")[1].split("\\.")[0];
@@ -538,6 +542,18 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 						}
 						*/
 
+						// FOR FOREIGN PROXIES WHICH CREATES NEW IDENTITY ON ANY ATTRIBUTE CHANGE WE MUST USE
+						// SOURCING IDENTITY, SO USER CAN RELATE
+						try {
+							Attribute uesAttr = perun.getAttributesManagerBl().getAttribute(registrarSession, ues, AttributesManager.NS_UES_ATTR_DEF + ":authenticating-authority");
+							if (uesAttr.getValue() != null && !((String) uesAttr.getValue()).isEmpty()) {
+								// clear ID so equals() used by Set<ExtSource> will merge same values by name
+								ues.getExtSource().setId(0);
+								ues.getExtSource().setName((String) uesAttr.getValue());
+							}
+						} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+							// don't care
+						}
 						es.add(ues.getExtSource());
 					} else if (ues.getExtSource().getType().equals(ExtSourcesManagerEntry.EXTSOURCE_KERBEROS)) {
 						es.add(ues.getExtSource());
