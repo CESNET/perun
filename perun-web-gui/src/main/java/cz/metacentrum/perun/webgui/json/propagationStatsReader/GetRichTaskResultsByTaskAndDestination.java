@@ -1,13 +1,11 @@
 package cz.metacentrum.perun.webgui.json.propagationStatsReader;
 
-import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.cell.client.Cell.Context;
+import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
@@ -15,9 +13,15 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.json.*;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonCallbackOracle;
+import cz.metacentrum.perun.webgui.json.JsonCallbackTable;
+import cz.metacentrum.perun.webgui.json.JsonClient;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.ServiceState;
 import cz.metacentrum.perun.webgui.model.TaskResult;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
@@ -28,31 +32,25 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
- * Ajax query to ger RichTaskResults by Task
- *
- * @author Pavel Zlamal <256627@mail.muni.cz>
+ * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable<TaskResult>, JsonCallbackOracle<TaskResult> {
-
-	private static final int ERROR_MESSAGE_LIMIT = 150;
-	private static final int STANDARD_MESSAGE_LIMIT = 40;
-
+public class GetRichTaskResultsByTaskAndDestination implements JsonCallback, JsonCallbackTable<TaskResult>, JsonCallbackOracle<TaskResult> {
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
-	static private final String JSON_URL = "propagationStatsReader/getTaskResultsForGUIByTaskOnlyNewest";
+	static private final String JSON_URL = "propagationStatsReader/getTaskResultsForGUIByTaskAndDestination";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// data providers
 	private ListDataProvider<TaskResult> dataProvider = new ListDataProvider<TaskResult>();
 	private ArrayList<TaskResult> list = new ArrayList<TaskResult>();
 	private PerunTable<TaskResult> table;
-	private FieldUpdater<TaskResult, String> fieldUpdater;
 	// Selection model
 	final MultiSelectionModel<TaskResult> selectionModel = new MultiSelectionModel<TaskResult>(new GeneralKeyProvider<TaskResult>());
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
-	private int taskId = 0;
+	private int taskId;
+	private int destinationId;
 
 	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 	private ArrayList<TaskResult> fullBackup = new ArrayList<TaskResult>();
@@ -60,8 +58,9 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	/**
 	 * New instance of get tasks results
 	 */
-	public GetRichTaskResultsByTask(int taskId) {
+	public GetRichTaskResultsByTaskAndDestination(int taskId, int destinationId) {
 		this.taskId = taskId;
+		this.destinationId = destinationId;
 	}
 
 	/**
@@ -69,8 +68,9 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	 *
 	 * @param events external events
 	 */
-	public GetRichTaskResultsByTask(int taskId, JsonCallbackEvents events) {
+	public GetRichTaskResultsByTaskAndDestination(int taskId, int destinationId, JsonCallbackEvents events) {
 		this.taskId = taskId;
+		this.destinationId = destinationId;
 		this.events = events;
 	}
 
@@ -84,17 +84,6 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		retrieveData();
 		return getEmptyTable();
 
-	}
-
-	/**
-	 * Return table with task results and start callback
-	 *
-	 * @return table
-	 */
-	public CellTable<TaskResult> getTable(FieldUpdater<TaskResult, String> fieldUpdater) {
-		this.fieldUpdater = fieldUpdater;
-		retrieveData();
-		return getEmptyTable();
 	}
 
 	/**
@@ -115,7 +104,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
-		ListHandler<TaskResult> columnSortHandler = new ListHandler<TaskResult>(dataProvider.getList());
+		ColumnSortEvent.ListHandler<TaskResult> columnSortHandler = new ColumnSortEvent.ListHandler<TaskResult>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
 
 		// table selection
@@ -125,20 +114,34 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		table.setEmptyTableWidget(loaderImage);
 		loaderImage.setEmptyResultMessage("No propagation results found.");
 
-		table.addIdColumn("Result Id", fieldUpdater, 85);
+		table.addIdColumn("Result Id", null, 85);
 
 		// destination column
-		Column<TaskResult, String> destinationColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getDestination().getDestination()), fieldUpdater);
+		TextColumn<TaskResult> destinationColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getDestination().getDestination());
+			}
+		};
 
 		destinationColumn.setSortable(true);
-
-		columnSortHandler.setComparator(destinationColumn, (o1, o2) ->
-				smartCompare(o1.getDestination().getDestination(), o2.getDestination().getDestination()));
+		columnSortHandler.setComparator(destinationColumn, new Comparator<TaskResult>(){
+			public int compare(TaskResult o1, TaskResult o2) {
+				int comp = o1.getDestination().getDestination().compareToIgnoreCase((o2.getDestination().getDestination()));
+				if (comp == 0) {
+					return new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
+				}
+				return comp;
+			}
+		});
 
 		// Type column
-		Column<TaskResult, String> typeColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getDestination().getType().toUpperCase()), fieldUpdater);
+		TextColumn<TaskResult> typeColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getDestination().getType().toUpperCase());
+			}
+		};
 
 		typeColumn.setSortable(true);
 		columnSortHandler.setComparator(typeColumn, new Comparator<TaskResult>(){
@@ -151,9 +154,12 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 			}
 		});
 
-		Column<TaskResult, String> servColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getService().getName()), fieldUpdater);
-
+		TextColumn<TaskResult> servColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult taskResult) {
+				return taskResult.getService().getName();
+			}
+		};
 		servColumn.setSortable(true);
 		columnSortHandler.setComparator(servColumn, new Comparator<TaskResult>() {
 			public int compare(TaskResult o1, TaskResult o2) {
@@ -166,8 +172,12 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		});
 
 		// status column
-		Column<TaskResult, String> statusColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getStatus()), fieldUpdater);
+		TextColumn<TaskResult> statusColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getStatus());
+			}
+		};
 
 		statusColumn.setSortable(true);
 		columnSortHandler.setComparator(statusColumn, new Comparator<TaskResult>(){
@@ -181,8 +191,12 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		});
 
 		// time column
-		Column<TaskResult, String> timeColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getTimestamp()), fieldUpdater);
+		TextColumn<TaskResult> timeColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult object) {
+				return object.getTimestamp();
+			}
+		};
 
 		timeColumn.setSortable(true);
 		columnSortHandler.setComparator(timeColumn, new Comparator<TaskResult>(){
@@ -192,36 +206,40 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		});
 
 		// returnCode column
-		Column<TaskResult, String> returnCodeColumn = JsonUtils.addColumn(object ->
-				String.valueOf(object.getReturnCode()), fieldUpdater);
+		TextColumn<TaskResult> returnCodeColumn = new TextColumn<TaskResult>() {
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getReturnCode());
+			}
+		};
 
 		// standardMessageCode column
-		Column<TaskResult, TaskResult> standardMessageColumn = JsonUtils.addCustomCellColumn(new AbstractCell<TaskResult>() {
+		TextColumn<TaskResult> standardMessageColumn = new TextColumn<TaskResult>() {
 			@Override
-			public void render(Context context, TaskResult taskResult, SafeHtmlBuilder safeHtmlBuilder) {
-				if (taskResult != null) {
-					if (taskResult.getStandardMessage().length() > STANDARD_MESSAGE_LIMIT) {
-						safeHtmlBuilder.appendEscapedLines(taskResult.getStandardMessage().substring(0, STANDARD_MESSAGE_LIMIT) + "…");
-					} else {
-						safeHtmlBuilder.appendEscapedLines(taskResult.getStandardMessage());
-					}
+			public void render(Cell.Context context, TaskResult object, SafeHtmlBuilder sb) {
+				if (object != null) {
+					sb.appendEscapedLines(object.getStandardMessage());
 				}
 			}
-		}, null);
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getStandardMessage());
+			}
+		};
 
 		// errorMessageCode column
-		Column<TaskResult, TaskResult> errorMessageColumn = JsonUtils.addCustomCellColumn(new AbstractCell<TaskResult>() {
+		TextColumn<TaskResult> errorMessageColumn = new TextColumn<TaskResult>() {
 			@Override
-			public void render(Context context, TaskResult object, SafeHtmlBuilder sb) {
+			public void render(Cell.Context context, TaskResult object, SafeHtmlBuilder sb) {
 				if (object != null) {
-					if (object.getErrorMessage().length() > ERROR_MESSAGE_LIMIT) {
-						sb.appendEscapedLines(object.getErrorMessage().substring(0, ERROR_MESSAGE_LIMIT) + "…");
-					} else {
-						sb.appendEscapedLines(object.getErrorMessage());
-					}
+					sb.appendEscapedLines(object.getErrorMessage());
 				}
 			}
-		}, null);
+			@Override
+			public String getValue(TaskResult object) {
+				return String.valueOf(object.getErrorMessage());
+			}
+		};
 
 		// Add the other columns.
 		table.addColumn(destinationColumn, "Destination");
@@ -249,7 +267,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 				else if (row.getStatus().equalsIgnoreCase("ERROR")){
 					return "roworange";
 				}
-		return "";
+				return "";
 
 			}
 		});
@@ -258,68 +276,12 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 
 	}
 
-	private int smartCompare(String s1, String s2) {
-		String s1NotDigitPrefix = parseNotDigitPrefix(s1);
-		String s2NotDigitPrefix = parseNotDigitPrefix(s2);
-
-		int compare = s1NotDigitPrefix.compareToIgnoreCase(s2NotDigitPrefix);
-
-		if (compare == 0 && s1NotDigitPrefix.length() != s1.length() && s2NotDigitPrefix.length() != s2.length()) {
-			return smartDigitCompare(s1.substring(s1NotDigitPrefix.length()), s2.substring(s2NotDigitPrefix.length()));
-		}
-
-		return compare;
-	}
-
-	private int smartDigitCompare(String s1, String s2) {
-		String s1DigitPrefix = parseDigitPrefix(s1);
-		String s2DigitPrefix = parseDigitPrefix(s2);
-
-		int compare;
-
-		if (s1DigitPrefix.length() > 0 && s2DigitPrefix.length() > 0) {
-			compare = Integer.compare(Integer.valueOf(s1DigitPrefix), Integer.valueOf(s2DigitPrefix));
-		} else {
-			compare = s1DigitPrefix.compareToIgnoreCase(s2DigitPrefix);
-		}
-
-		if (compare == 0 && s1DigitPrefix.length() != s1.length() && s2DigitPrefix.length() != s2.length()) {
-			return smartCompare(s1.substring(s1DigitPrefix.length()), s2.substring(s2DigitPrefix.length()));
-		}
-
-		return compare;
-	}
-
-	private String parsePrefix(String s, char lowLimit, char topLimit, boolean inverse) {
-		StringBuilder t1Prefix = new StringBuilder();
-
-		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
-			if (!inverse && (c >= lowLimit && c <= topLimit)) {
-				break;
-			} else if (inverse && !(c >= lowLimit && c <= topLimit)) {
-				break;
-			}
-			t1Prefix.append(c);
-		}
-
-		return t1Prefix.toString();
-	}
-
-	private String parseDigitPrefix(String s) {
-		return parsePrefix(s, '0', '9', true);
-	}
-
-	private String parseNotDigitPrefix(String s) {
-		return parsePrefix(s, '0', '9', false);
-	}
-
 	/**
 	 * Retrieve data from RPC
 	 */
 	public void retrieveData() {
 		JsonClient js = new JsonClient();
-		js.retrieveData(JSON_URL, "task="+taskId, this);
+		js.retrieveData(JSON_URL, "task="+taskId + "&destination="+destinationId, this);
 	}
 
 	/**
@@ -420,11 +382,9 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	}
 
 	public void setEditable(boolean editable) {
-		// TODO Auto-generated method stub
 	}
 
 	public void setCheckable(boolean checkable) {
-		// TODO Auto-generated method stub
 	}
 
 	public void setList(ArrayList<TaskResult> list) {
@@ -478,5 +438,4 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
 	}
-
 }

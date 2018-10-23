@@ -233,6 +233,34 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		}
 	}
 
+
+
+	@Override
+	public List<TaskResult> getTaskResultsByTaskOnlyNewest(int taskId) {
+		return this.getJdbcTemplate().query(
+				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
+				ServicesManagerImpl.serviceMappingSelectQuery +
+				" from tasks_results" +
+				" left join destinations on tasks_results.destination_id = destinations.id" +
+				" left join tasks on tasks.id = tasks_results.task_id" +
+				" left join services on services.id = tasks.service_id" +
+				" inner join (" +
+				" SELECT destination_id, MAX(modified_at) AS modified_at_max" +
+				" FROM tasks_results where task_id=?" +
+				" GROUP BY destination_id) AS tr2" +
+				" on tasks_results.destination_id = tr2.destination_id" +
+				" and tasks_results.modified_at = tr2.modified_at_max" +
+				" inner join (" +
+				" SELECT destination_id, modified_at, MAX(id) AS id_max" +
+				" FROM tasks_results where task_id=?" +
+				" GROUP BY destination_id, modified_at) AS tr3" +
+				" on tasks_results.destination_id = tr3.destination_id" +
+				" and tasks_results.modified_at = tr3.modified_at" +
+				" and tasks_results.id   = tr3.id_max" +
+				" where tasks_results.task_id=?;",
+				TASKRESULT_ROWMAPPER, taskId, taskId, taskId);
+	}
+
 	@Override
 	public List<TaskResult> getTaskResultsByTask(int taskId) {
 		List<TaskResult> taskResults = this.getJdbcTemplate().query(
@@ -243,6 +271,24 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				" left join services on services.id = tasks.service_id" +
 				" where tasks_results.task_id = ?",
 				TASKRESULT_ROWMAPPER, taskId);
+		if (taskResults != null) {
+			return taskResults;
+		} else {
+			return new ArrayList<TaskResult>();
+		}
+	}
+
+	@Override
+	public List<TaskResult> getTaskResultsByTaskAndDestination(int taskId, int destinationId) {
+		List<TaskResult> taskResults = this.getJdbcTemplate().query(
+				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
+						ServicesManagerImpl.serviceMappingSelectQuery +
+						" from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
+						" left join tasks on tasks.id = tasks_results.task_id " +
+						" left join services on services.id = tasks.service_id" +
+						" where tasks_results.task_id = ? AND" +
+						" tasks_results.destination_id=?",
+				TASKRESULT_ROWMAPPER, taskId, destinationId);
 		if (taskResults != null) {
 			return taskResults;
 		} else {
@@ -270,7 +316,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 	/**
 	 * Clear all Zero bytes (0x00) from UTF-8 String
 	 *
-	 * @param input String to remove zero bytes
+	 * @param data to remove zero bytes
 	 * @return Original string without zero bytes
 	 */
 	private static byte[] clearZeroBytesFromString(byte[] data, int maxLength) {

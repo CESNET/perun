@@ -50,6 +50,8 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 	static private final String URL_SECURITY_TEAM = "securityTeamsManager/getSecurityTeamById";
 	static private final String URL_USER_EXT_SRC = "usersManager/getUserExtSourceById";
 
+	static private final String URL_DESTINATION = "servicesManager/getDestinationById";
+
 	/**
 	 * New callback instance
 	 *
@@ -136,6 +138,8 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 		} else if (PerunEntity.USER_EXT_SOURCE.equals(entity)) {
 			param = "userExtSource="+entityId;
 			js.retrieveData(URL_USER_EXT_SRC, param, this);
+		} else if (PerunEntity.DESTINATION.equals(entity)) {
+			js.retrieveData(URL_DESTINATION, param, this);
 		} else {
 			// UNSUPPORTED COMBINATION
 		}
