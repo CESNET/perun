@@ -104,6 +104,22 @@ public interface UsersManagerBl {
 	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException;
 
 	/**
+	 * Remove specificUser owner (the user).
+	 * If forceDelete false, only disable ownership of user and specificUser.
+	 * If forceDelete true, delete this ownership from DB.
+	 *
+	 * @param sess
+	 * @param user        the user
+	 * @param specificUser the specificUser
+	 * @param forceDelete if true, remove from database, if false, only disable this ownership
+	 * @throws InternalErrorException
+	 * @throws RelationNotExistsException if there is no such user (the user) to remove
+	 * @throws SpecificUserMustHaveOwnerException if there is the last user to remove
+	 * @throws SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
+	 */
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser, boolean forceDelete) throws InternalErrorException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException;
+
+	/**
 	 * Add specificUser owner (the user)
 	 * If not exists, create new ownership.
 	 * If exists, only enable ownership for user and specificUser
@@ -255,6 +271,34 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	User createUser(PerunSession perunSession, User user) throws InternalErrorException;
+
+	/**
+	 * Set specific user type for specific user and set ownership of this user for the owner.
+	 *
+	 * @param sess perun session
+	 * @param specificUser specific user
+	 * @param specificUserType specific type of user
+	 * @param owner user, who will be owner of the specific user
+	 *
+	 * @return specific user with specific user type set
+	 *
+	 * @throws InternalErrorException
+	 * @throws RelationExistsException
+	 */
+	User setSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType, User owner) throws InternalErrorException, RelationExistsException;
+
+	/**
+	 * Remove all ownerships of this specific user and unset this specific user type from this specific user.
+	 *
+	 * @param sess perun session
+	 * @param specificUser specific user
+	 * @param specificUserType specific type of user
+	 *
+	 * @return user who is no more specific
+	 *
+	 * @throws InternalErrorException
+	 */
+	User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType) throws InternalErrorException;
 
 	/**
 	 * Deletes user.

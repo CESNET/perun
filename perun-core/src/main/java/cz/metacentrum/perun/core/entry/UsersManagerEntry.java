@@ -319,6 +319,37 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
+	public User setSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType, User owner) throws InternalErrorException, RelationExistsException, UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(specificUserType, "specificUserType");
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, owner);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, specificUser);
+
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "Only PerunAdmin should have rights to call this method.");
+		}
+
+		//set specific user
+		return getUsersManagerBl().setSpecificUser(sess, specificUser, specificUserType, owner);
+	}
+
+	@Override
+	public User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(specificUserType, "specificUserType");
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, specificUser);
+
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "Only PerunAdmin should have rights to call this method.");
+		}
+
+		//set specific user
+		return getUsersManagerBl().unsetSpecificUser(sess, specificUser, specificUserType);
+	}
+
+	@Override
 	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 

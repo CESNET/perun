@@ -198,6 +198,27 @@ public interface MembersManagerImplApi {
 	Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws AlreadyMemberException, InternalErrorException;
 
 	/**
+	 * Set member to be sponsored by sponsor. Set flag and sponsorship.
+	 *
+	 * @param session perun session.
+	 * @param sponsoredMember member who should be sponsored from now
+	 * @param sponsor user which will be a sponsor for member
+	 * @return sponsored member
+	 * @throws InternalErrorException
+	 */
+	Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException;
+
+	/**
+	 * Unset member to not be sponsored by anybody from now. Unset flag and remove all sponsorships.
+	 *
+	 * @param session
+	 * @param sponsoredMember member whou shouldn't be sponsored from now
+	 * @return member which is not sponsored any more
+	 * @throws InternalErrorException
+	 */
+	Member unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws InternalErrorException;
+
+	/**
 	 * Adds another sponsoring user for a sponsored member.
 	 * @param session perun session
 	 * @param sponsoredMember member which is sponsored
@@ -214,6 +235,15 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsor) throws InternalErrorException;
+
+	/**
+	 * Delete all existing sponsorships for defined member. This method will delete them, not just marked.
+	 *
+	 * @param session perun session
+	 * @param sponsoredMember member which is sponsored
+	 * @throws InternalErrorException
+	 */
+	void deleteAllSponsors(PerunSession session, Member sponsoredMember) throws InternalErrorException;
 
 	/**
 	 * Gets members sponsored by the given user.

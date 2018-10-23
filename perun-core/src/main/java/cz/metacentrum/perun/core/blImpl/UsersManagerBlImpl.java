@@ -11,6 +11,7 @@ import java.util.*;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.AllUserExtSourcesDeletedForUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipDisabledForSpecificUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipEnabledForSpecificUser;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.OwnershipRemovedForSpecificUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserAddedToOwnersOfSpecificUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserCreated;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserDeleted;
@@ -101,14 +102,18 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws InternalErrorException {
-		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
+		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We don't support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
 		return getUsersManagerImpl().getUsersBySpecificUser(sess, specificUser);
 	}
 
 	@Override
 	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException {
-		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
+		this.removeSpecificUserOwner(sess, user, specificUser, false);
+	}
+
+	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser, boolean forceDelete) throws InternalErrorException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException {
+		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We don't support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
 		if (user.getMajorSpecificType().equals(SpecificUserType.SERVICE)) throw new InternalErrorException("Service user can`t own another account (service or guest)!" + user);
 
@@ -132,13 +137,19 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new InternalErrorException("Can't remove role of sponsor for user " + user + " and sponsored user " + specificUser);
 		}
 
-		getPerunBl().getAuditer().log(sess, new OwnershipDisabledForSpecificUser(user, specificUser));
-		getUsersManagerImpl().disableOwnership(sess, user, specificUser);
+		if(forceDelete) {
+			//getPerunBl().getAuditer().log(sess, "{} ownership was removed for specificUser {}.", user, specificUser);
+			getPerunBl().getAuditer().log(sess, new OwnershipRemovedForSpecificUser(user, specificUser));
+			getUsersManagerImpl().removeSpecificUserOwner(sess, user, specificUser);
+		} else {
+			getPerunBl().getAuditer().log(sess, new OwnershipDisabledForSpecificUser(user, specificUser));
+			getUsersManagerImpl().disableOwnership(sess, user, specificUser);
+		}
 	}
 
 	@Override
 	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationExistsException {
-		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
+		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We don't support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
 		if (user.getMajorSpecificType().equals(SpecificUserType.SERVICE)) throw new InternalErrorException("Service user can`t own another account (service or guest)!" + user);
 		List<User> specificUserOwners = this.getUsersBySpecificUser(sess, specificUser);
@@ -168,7 +179,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public boolean specificUserOwnershipExists(PerunSession sess, User user, User specificUser) throws InternalErrorException {
-		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
+		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We don't support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
 		return getUsersManagerImpl().specificUserOwnershipExists(sess, user, specificUser);
 	}
@@ -176,6 +187,48 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException {
 		return getUsersManagerImpl().getSpecificUsers(sess);
+	}
+
+	@Override
+	public User setSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType, User owner) throws InternalErrorException, RelationExistsException {
+		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) {
+			throw new InternalErrorException("We don't support specific and sponsored users together yet.");
+		}
+
+		if(specificUser.getMajorSpecificType().equals(specificUserType)) {
+			throw new InternalErrorException("Can't set " + specificUserType.getSpecificUserType() + " for " + specificUser + ", because he has already set this flag.");
+		}
+
+		//Set specific type for user
+		specificUser = getUsersManagerImpl().setSpecificUserType(sess, specificUser, specificUserType);
+
+		//add owner for this new specific user
+		this.addSpecificUserOwner(sess, owner, specificUser);
+
+		return specificUser;
+	}
+
+	@Override
+	public User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType) throws InternalErrorException {
+		if(!specificUser.getMajorSpecificType().equals(specificUserType)) {
+			throw new InternalErrorException("Can't unset " + specificUserType.getSpecificUserType() + " for " + specificUser + ", because he hasn't this flag yet.");
+		}
+
+		//remove all owners for this new specific user
+		List<User> owners = getPerunBl().getUsersManagerBl().getUsersBySpecificUser(sess, specificUser);
+		for(User owner: owners) {
+			try {
+				this.removeSpecificUserOwner(sess, owner, specificUser, true);
+			} catch(SpecificUserMustHaveOwnerException | RelationNotExistsException | SpecificUserOwnerAlreadyRemovedException ex) {
+				throw new InternalErrorException("Can't remove ownership of user " + specificUser, ex);
+			}
+		}
+
+		//Unset specific type for user
+		specificUser = getUsersManagerImpl().unsetSpecificUserType(sess, specificUser, specificUserType);
+
+
+		return specificUser;
 	}
 
 	@Override

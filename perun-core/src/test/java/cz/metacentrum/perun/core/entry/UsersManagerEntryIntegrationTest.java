@@ -126,6 +126,33 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void setAndUnsetSpecificUser() throws Exception {
+		System.out.println(CLASS_NAME + "setAndUnsetSpecificUser");
+		setUpUser();
+		User owner = user;
+
+		assertTrue("User should be sponsored", sponsoredUser.isSponsoredUser());
+		usersManager.unsetSpecificUser(sess, sponsoredUser, SpecificUserType.SPONSORED);
+		User user1 = usersManager.getUserById(sess, sponsoredUser.getId());
+		assertTrue("User shouldn't be sponsored", !user1.isSponsoredUser());
+		usersManager.setSpecificUser(sess, user1, SpecificUserType.SPONSORED, owner);
+		user1 = usersManager.getUserById(sess, user1.getId());
+		assertTrue("User should be sponsored again", user1.isSponsoredUser());
+		List<User> owners = usersManager.getUsersBySpecificUser(sess, user1);
+		assertTrue("There should be just our owner", owners.size() == 1 && owners.contains(owner));
+
+		assertTrue("User should be service user", serviceUser1.isServiceUser());
+		usersManager.unsetSpecificUser(sess, serviceUser1, SpecificUserType.SERVICE);
+		User user2 = usersManager.getUserById(sess, serviceUser1.getId());
+		assertTrue("User shouldn't be service user", !user2.isServiceUser());
+		usersManager.setSpecificUser(sess, user2, SpecificUserType.SERVICE, owner);
+		user2 = usersManager.getUserById(sess, user2.getId());
+		assertTrue("User should be service user again", user2.isServiceUser());
+		owners = usersManager.getUsersBySpecificUser(sess, user2);
+		assertTrue("There should be just our owner", owners.size() == 1 && owners.contains(owner));
+	}
+
+	@Test
 	public void getUsersBySponsoredUser() throws Exception {
 		System.out.println(CLASS_NAME + "getUsersBySponsoredUser");
 

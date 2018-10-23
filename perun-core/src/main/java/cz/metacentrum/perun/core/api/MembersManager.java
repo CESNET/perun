@@ -1118,6 +1118,38 @@ public interface MembersManager {
 	RichMember createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotExistsException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, ExtendMembershipException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException, UserNotInRoleException;
 
 	/**
+	 * Transform non-sponsored member to sponsored one with defined sponsor
+	 *
+	 * @param session perun session
+	 * @param sponsoredMember member who will be set as sponsored one
+	 * @param sponsor new sponsor of this member
+	 *
+	 * @return sponsored member
+	 *
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @throws MemberNotExistsException if member with defined id not exists in system Perun
+	 * @throws AlreadySponsoredMemberException if member is already sponsored
+	 * @throws UserNotInRoleException if sponsor hasn't right role in the same vo
+	 * @throws PrivilegeException if not PerunAdmin
+	 */
+	RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException;
+
+	/**
+	 * Transform sponsored member to non-sponsored one. Delete all his sponsors.
+	 *
+	 * @param session perun session
+	 * @param sponsoredMember member who will be unset from sponsoring
+	 *
+	 * @return non-sponsored member
+	 *
+	 * @throws MemberNotExistsException if member with defined id not exists in system Perun
+	 * @throws MemberNotSponsoredException if member is not sponsored yet
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @throws PrivilegeException if not PerunAdmin
+	 */
+	RichMember unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws MemberNotExistsException, MemberNotSponsoredException, InternalErrorException, PrivilegeException;
+
+	/**
 	 * Assigns a new sponsor to an existing member.
 	 * @param session actor
 	 * @param sponsored existing member that needs sponsoring

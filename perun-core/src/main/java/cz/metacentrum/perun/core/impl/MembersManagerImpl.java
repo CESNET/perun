@@ -294,10 +294,27 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	@Override
 	public Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws AlreadyMemberException, InternalErrorException {
 		Member sponsoredMember = this.createMember(session, vo, sponsored);
+		return setSponsorshipForMember(session, sponsoredMember, sponsor);
+	}
+
+	@Override
+	public Member setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException {
 		sponsoredMember.setSponsored(true);
 		try {
 			jdbc.update("UPDATE members SET sponsored="+Compatibility.getTrue()+" WHERE id=?", sponsoredMember.getId());
 			this.addSponsor(session, sponsoredMember, sponsor);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+		return sponsoredMember;
+	}
+
+	@Override
+	public Member unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws InternalErrorException {
+		sponsoredMember.setSponsored(false);
+		try {
+			jdbc.update("UPDATE members SET sponsored="+Compatibility.getFalse()+" WHERE id=?", sponsoredMember.getId());
+			this.deleteAllSponsors(session, sponsoredMember);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -323,6 +340,15 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 			jdbc.update("UPDATE members_sponsored SET active='0',modified_by=?,modified_at="+Compatibility.getSysdate() +",modified_by_uid=? " +
 							"WHERE sponsored_id=? AND sponsor_id=?" ,
 					pp.getActor(), pp.getUserId(),sponsoredMember.getId(), sponsor.getId() );
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void deleteAllSponsors(PerunSession session, Member sponsoredMember) throws InternalErrorException {
+		try {
+			jdbc.update("DELETE FROM members_sponsored WHERE sponsored_id=?", sponsoredMember.getId() );
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

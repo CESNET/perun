@@ -250,6 +250,38 @@ public interface UsersManager {
 	User createUser(PerunSession perunSession, User user) throws InternalErrorException, PrivilegeException;
 
 	/**
+	 * Set specific user type for specific user and set ownership of this user for the owner.
+	 *
+	 * @param sess perun session
+	 * @param specificUser specific user
+	 * @param specificUserType specific type of user
+	 * @param owner user, who will be owner of the specific user
+	 *
+	 * @return specific user with specific user type set
+	 *
+	 * @throws InternalErrorException
+	 * @throws RelationExistsException
+	 * @throws UserNotExistsException
+	 * @throws PrivilegeException
+	 */
+	User setSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType, User owner) throws InternalErrorException, RelationExistsException, UserNotExistsException, PrivilegeException;
+
+	/**
+	 * Remove all ownerships of this specific user and unset this specific user type from this specific user.
+	 *
+	 * @param sess perun session
+	 * @param specificUser specific user
+	 * @param specificUserType specific type of user
+	 *
+	 * @return user who is no more specific
+	 *
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws PrivilegeException
+	 */
+	User unsetSpecificUser(PerunSession sess, User specificUser, SpecificUserType specificUserType) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+
+	/**
 	 *  Deletes user.
 	 *
 	 * @param perunSession

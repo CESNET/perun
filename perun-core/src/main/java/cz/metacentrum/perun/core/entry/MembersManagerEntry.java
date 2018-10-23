@@ -1101,6 +1101,39 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException {
+		Utils.checkPerunSession(session);
+		getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
+
+		if (sponsor == null) {
+			//sponsor is the caller
+			sponsor = session.getPerunPrincipal().getUser();
+		}
+
+		//only Perun Admin should has rights to do this operation
+		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) {
+			throw new PrivilegeException(session, "Only PerunAdmin should have rights to call this method.");
+		}
+
+		//set member to be sponsored
+		return membersManagerBl.getRichMember(session, membersManagerBl.setSponsorshipForMember(session, sponsoredMember, sponsor));
+	}
+
+	@Override
+	public RichMember unsetSponsorshipForMember(PerunSession session, Member sponsoredMember) throws MemberNotExistsException, MemberNotSponsoredException, InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(session);
+		getPerunBl().getMembersManagerBl().checkMemberExists(session, sponsoredMember);
+
+		//only Perun Admin should has rights to do this operation
+		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) {
+			throw new PrivilegeException(session, "Only PerunAdmin should have rights to call this method.");
+		}
+
+		//unset sponsorship for member
+		return membersManagerBl.getRichMember(session, membersManagerBl.unsetSponsorshipForMember(session, sponsoredMember));
+	}
+
+	@Override
 	public RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException {
 		Utils.checkPerunSession(session);
 		Utils.notNull(sponsored, "sponsored");
