@@ -175,7 +175,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 		destinationColumn.setSortable(true);
 		columnSortHandler.setComparator(destinationColumn, new Comparator<Destination>() {
 			public int compare(Destination o1, Destination o2) {
-				return o1.getDestination().compareToIgnoreCase(o2.getDestination());
+				return TableSorter.smartCompare(o1.getDestination(), o2.getDestination());
 			}
 		});
 
