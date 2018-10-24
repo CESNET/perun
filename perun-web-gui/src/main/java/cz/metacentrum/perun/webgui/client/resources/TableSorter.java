@@ -199,8 +199,7 @@ public class TableSorter<T> {
 		if(list == null) return null;
 		Collections.sort(list, new Comparator<T>(){
 			public int compare(T o1, T o2) {
-				Collator customCollator = Collator.getInstance();
-				return customCollator.compare(getHostname(o1), getHostname(o2));
+				return TableSorter.smartCompare(getHostname(o1), getHostname(o2));
 			}
 		});
 		return list;
@@ -239,26 +238,6 @@ public class TableSorter<T> {
 				FacilityState o4 = (FacilityState)o2;
 				Collator customCollator = Collator.getInstance();
 				return customCollator.compare(o3.getFacility().getName(), o4.getFacility().getName());
-			}
-		});
-		return list;
-
-	}
-
-	/**
-	 * Returns sorted list of objects - FOR RICH TASK RESULTS ONLY !!
-	 *
-	 * @param list of objects to be sorted
-	 * @return ArrayList<T> sorted list of objects by their destination name
-	 */
-	public ArrayList<T> sortByRichTaskResultDestination(ArrayList<T> list){
-		if(list == null) return null;
-		Collections.sort(list, new Comparator<T>(){
-			public int compare(T o1, T o2) {
-				TaskResult o3 = (TaskResult)o1;
-				TaskResult o4 = (TaskResult)o2;
-				Collator customCollator = Collator.getInstance();
-				return customCollator.compare(o3.getDestination().getDestination(), o4.getDestination().getDestination())+new Date((long)o4.getTimestampNative()).compareTo(new Date((long)o3.getTimestampNative()));
 			}
 		});
 		return list;
@@ -375,6 +354,89 @@ public class TableSorter<T> {
 			return getName(value);
 		}
 
+	}
+
+	public ArrayList<T> sortByDestination(ArrayList<T> list){
+		if(list == null) return null;
+		Collections.sort(list, new Comparator<T>(){
+			public int compare(T o1, T o2) {
+
+				if ("TaskResult".equals(((GeneralObject)o1).getObjectType()) && "TaskResult".equals(((GeneralObject)o2).getObjectType())) {
+					return smartCompare(((TaskResult)o1).getDestination().getDestination(), ((TaskResult)o2).getDestination().getDestination());
+				}
+
+				if ("Destination".equals(((GeneralObject)o1).getObjectType()) && "Destination".equals(((GeneralObject)o2).getObjectType())) {
+					return smartCompare(((Destination)o1).getDestination(), ((Destination)o2).getDestination());
+				}
+
+				if ("RichDestination".equals(((GeneralObject)o1).getObjectType()) && "RichDestination".equals(((GeneralObject)o2).getObjectType())) {
+					return smartCompare(((Destination)o1).getDestination(), ((Destination)o2).getDestination());
+				}
+
+				return 0;
+
+			}
+		});
+		return list;
+
+	}
+
+	public static int smartCompare(String s1, String s2) {
+		String s1NotDigitPrefix = parseNotDigitPrefix(s1);
+		String s2NotDigitPrefix = parseNotDigitPrefix(s2);
+
+		Collator customCollator = Collator.getInstance();
+		int compare = customCollator.compareIgnoreCase(s1NotDigitPrefix, s2NotDigitPrefix);
+
+		if (compare == 0 && s1NotDigitPrefix.length() != s1.length() && s2NotDigitPrefix.length() != s2.length()) {
+			return smartDigitCompare(s1.substring(s1NotDigitPrefix.length()), s2.substring(s2NotDigitPrefix.length()));
+		}
+
+		return compare;
+	}
+
+	private static int smartDigitCompare(String s1, String s2) {
+		String s1DigitPrefix = parseDigitPrefix(s1);
+		String s2DigitPrefix = parseDigitPrefix(s2);
+
+		int compare;
+
+		if (s1DigitPrefix.length() > 0 && s2DigitPrefix.length() > 0) {
+			compare = Integer.compare(Integer.valueOf(s1DigitPrefix), Integer.valueOf(s2DigitPrefix));
+		} else {
+			Collator customCollator = Collator.getInstance();
+			compare = customCollator.compareIgnoreCase(s1DigitPrefix, s2DigitPrefix);
+		}
+
+		if (compare == 0 && s1DigitPrefix.length() != s1.length() && s2DigitPrefix.length() != s2.length()) {
+			return smartCompare(s1.substring(s1DigitPrefix.length()), s2.substring(s2DigitPrefix.length()));
+		}
+
+		return compare;
+	}
+
+	private static String parsePrefix(String s, char lowLimit, char topLimit, boolean inverse) {
+		StringBuilder t1Prefix = new StringBuilder();
+
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (!inverse && (c >= lowLimit && c <= topLimit)) {
+				break;
+			} else if (inverse && !(c >= lowLimit && c <= topLimit)) {
+				break;
+			}
+			t1Prefix.append(c);
+		}
+
+		return t1Prefix.toString();
+	}
+
+	private static String parseDigitPrefix(String s) {
+		return parsePrefix(s, '0', '9', true);
+	}
+
+	private static String parseNotDigitPrefix(String s) {
+		return parsePrefix(s, '0', '9', false);
 	}
 
 	/**

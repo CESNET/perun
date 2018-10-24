@@ -15,6 +15,7 @@ import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.propagationStatsReader.GetFacilityState;
+import cz.metacentrum.perun.webgui.model.Destination;
 import cz.metacentrum.perun.webgui.model.FacilityState;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
@@ -26,6 +27,7 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
@@ -176,6 +178,7 @@ public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl {
 
 						Set<String> destinations = state.getDestinations().keySet();
 						ArrayList<String> destList = new ArrayList<String>();
+
 						int width = 0;
 						for (String dest : destinations) {
 							destList.add(dest);
@@ -184,11 +187,20 @@ public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl {
 							}
 						}
 
-						Collections.sort(destList);
+						Collections.sort(destList, new Comparator<String>() {
+							@Override
+							public int compare(String o1, String o2) {
+								return TableSorter.smartCompare(o1, o2);
+							}
+						});
 
 						for (final String dest : destList) {
 
 							String show = dest.substring(0, dest.indexOf("."));
+							if (show.length() == 0) {
+								show = dest;
+								width = dest.length()*8;
+							}
 							Anchor hyp = new Anchor();
 							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+SafeHtmlUtils.fromString((show != null) ? show : "").asString()+"</span>");
 							hyp.addClickHandler(new ClickHandler() {
@@ -243,7 +255,12 @@ public class FacilitiesPropagationsTabItem implements TabItem, TabItemWithUrl {
 							destList.add(dest);
 						}
 
-						Collections.sort(destList);
+						Collections.sort(destList, new Comparator<String>() {
+							@Override
+							public int compare(String o1, String o2) {
+								return TableSorter.smartCompare(o1, o2);
+							}
+						});
 
 						for (final String dest : destList) {
 

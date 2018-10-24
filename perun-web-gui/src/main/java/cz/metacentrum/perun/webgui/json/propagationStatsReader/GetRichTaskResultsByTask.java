@@ -134,7 +134,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		destinationColumn.setSortable(true);
 
 		columnSortHandler.setComparator(destinationColumn, (o1, o2) ->
-				smartCompare(o1.getDestination().getDestination(), o2.getDestination().getDestination()));
+				TableSorter.smartCompare(o1.getDestination().getDestination(), o2.getDestination().getDestination()));
 
 		// Type column
 		Column<TaskResult, String> typeColumn = JsonUtils.addColumn(object ->
@@ -258,62 +258,6 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 
 	}
 
-	private int smartCompare(String s1, String s2) {
-		String s1NotDigitPrefix = parseNotDigitPrefix(s1);
-		String s2NotDigitPrefix = parseNotDigitPrefix(s2);
-
-		int compare = s1NotDigitPrefix.compareToIgnoreCase(s2NotDigitPrefix);
-
-		if (compare == 0 && s1NotDigitPrefix.length() != s1.length() && s2NotDigitPrefix.length() != s2.length()) {
-			return smartDigitCompare(s1.substring(s1NotDigitPrefix.length()), s2.substring(s2NotDigitPrefix.length()));
-		}
-
-		return compare;
-	}
-
-	private int smartDigitCompare(String s1, String s2) {
-		String s1DigitPrefix = parseDigitPrefix(s1);
-		String s2DigitPrefix = parseDigitPrefix(s2);
-
-		int compare;
-
-		if (s1DigitPrefix.length() > 0 && s2DigitPrefix.length() > 0) {
-			compare = Integer.compare(Integer.valueOf(s1DigitPrefix), Integer.valueOf(s2DigitPrefix));
-		} else {
-			compare = s1DigitPrefix.compareToIgnoreCase(s2DigitPrefix);
-		}
-
-		if (compare == 0 && s1DigitPrefix.length() != s1.length() && s2DigitPrefix.length() != s2.length()) {
-			return smartCompare(s1.substring(s1DigitPrefix.length()), s2.substring(s2DigitPrefix.length()));
-		}
-
-		return compare;
-	}
-
-	private String parsePrefix(String s, char lowLimit, char topLimit, boolean inverse) {
-		StringBuilder t1Prefix = new StringBuilder();
-
-		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
-			if (!inverse && (c >= lowLimit && c <= topLimit)) {
-				break;
-			} else if (inverse && !(c >= lowLimit && c <= topLimit)) {
-				break;
-			}
-			t1Prefix.append(c);
-		}
-
-		return t1Prefix.toString();
-	}
-
-	private String parseDigitPrefix(String s) {
-		return parsePrefix(s, '0', '9', true);
-	}
-
-	private String parseNotDigitPrefix(String s) {
-		return parsePrefix(s, '0', '9', false);
-	}
-
 	/**
 	 * Retrieve data from RPC
 	 */
@@ -326,7 +270,7 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 	 * Sorts table by objects date
 	 */
 	public void sortTable() {
-		list = new TableSorter<TaskResult>().sortByRichTaskResultDestination(getList());
+		list = new TableSorter<TaskResult>().sortByDestination(getList());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
