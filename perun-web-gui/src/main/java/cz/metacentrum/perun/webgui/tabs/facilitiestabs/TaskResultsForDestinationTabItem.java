@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.webgui.tabs.facilitiestabs;
 
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;

@@ -116,12 +116,6 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 		vp.setCellHeight(menu, "30px");
 		vp.add(sp);
 
-		Scheduler.get().scheduleDeferred(() -> {
-			ColumnSortList.ColumnSortInfo csi = new ColumnSortList.ColumnSortInfo(table.getColumn(1), true);
-			table.getColumnSortList().push(csi);
-			ColumnSortEvent.fire(table, table.getColumnSortList());
-		});
-
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
 

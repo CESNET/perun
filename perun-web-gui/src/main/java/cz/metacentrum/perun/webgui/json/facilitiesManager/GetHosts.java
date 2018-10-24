@@ -129,7 +129,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 		nameColumn.setSortable(true);
 		columnSortHandler.setComparator(nameColumn, new Comparator<Host>() {
 			public int compare(Host o1, Host o2) {
-				return o1.getName().compareToIgnoreCase(o2.getName());
+				return TableSorter.smartCompare(o1.getName(), o2.getName());
 			}
 		});
 

@@ -27,6 +27,7 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
@@ -185,11 +186,20 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 							}
 						}
 
-						Collections.sort(destList);
+						Collections.sort(destList, new Comparator<String>() {
+							@Override
+							public int compare(String o1, String o2) {
+								return TableSorter.smartCompare(o1, o2);
+							}
+						});
 
 						for (final String dest : destList) {
 
 							String show = SafeHtmlUtils.fromString(dest.substring(0, dest.indexOf("."))).asString();
+							if (show.length() == 0) {
+								show = dest;
+								width = dest.length()*8;
+							}
 							Anchor hyp = new Anchor();
 							hyp.setHTML("<span style=\"display: inline-block; width: "+width+"px; text-align: center;\">"+show+"</span>");
 							hyp.addClickHandler(new ClickHandler() {
@@ -244,7 +254,12 @@ public class PropagationsTabItem implements TabItem, TabItemWithUrl {
 							destList.add(dest);
 						}
 
-						Collections.sort(destList);
+						Collections.sort(destList, new Comparator<String>() {
+							@Override
+							public int compare(String o1, String o2) {
+								return TableSorter.smartCompare(o1, o2);
+							}
+						});
 
 						for (final String dest : destList) {
 

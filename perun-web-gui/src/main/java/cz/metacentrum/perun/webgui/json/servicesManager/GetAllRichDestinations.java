@@ -161,7 +161,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 		destinationColumn.setSortable(true);
 		columnSortHandler.setComparator(destinationColumn, new Comparator<Destination>() {
 			public int compare(Destination o1, Destination o2) {
-				return o1.getDestination().compareToIgnoreCase(o2.getDestination());
+				return TableSorter.smartCompare(o1.getDestination(), o2.getDestination());
 			}
 		});
 
@@ -219,7 +219,9 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	 */
 	public void sortTable() {
 		if (service == null) {
-			list = new TableSorter<Destination>().sortByFacilityName(getList());
+			list = new TableSorter<Destination>().sortByDestination(getList());
+		} else if (!showServ) {
+			list = new TableSorter<Destination>().sortByDestination(getList());
 		} else {
 			list = new TableSorter<Destination>().sortByService(getList());
 		}
