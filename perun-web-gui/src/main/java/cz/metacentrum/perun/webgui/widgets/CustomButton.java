@@ -31,8 +31,8 @@ public class CustomButton extends Button {
 	private boolean isActionButton = true;
 
 	private Image processingImage = new Image(AjaxLoaderImage.SMALL_IMAGE_URL);
-	private Image backupImage;
-	private String backupText;
+	private Image backupImage = null;
+	private String backupText = "";
 	private boolean imageRight = false;
 
 
@@ -233,14 +233,22 @@ public class CustomButton extends Button {
 				backupImage = this.image;
 
 				image = processingImage;
-				setText(backupText);
+				if (backupText != null && !backupText.isEmpty()) {
+					setText(backupText);
+				} else {
+					setText("");
+				}
 
 				setEnabled(false);
 
 			} else {
 
 				this.image = backupImage;
-				setText(backupText);
+				if (backupText != null && !backupText.isEmpty()) {
+					setText(backupText);
+				} else {
+					setText("");
+				}
 
 				setEnabled(true);
 
