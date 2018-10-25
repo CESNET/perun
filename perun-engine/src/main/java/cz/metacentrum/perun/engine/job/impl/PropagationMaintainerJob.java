@@ -22,7 +22,7 @@ public class PropagationMaintainerJob implements PerunEngineJob {
 
 	@Override
 	public void doTheJob() {
-		log.info("Beginning cleanup of stuck Tasks.");
+		log.debug("Beginning cleanup of stuck Tasks.");
 		propagationMaintainer.endStuckTasks();
 		log.info("Stuck Tasks cleanup finished.");
 	}

@@ -195,7 +195,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					try {
 						// TODO - can such Task be in any structure like generating/sending/newTasks/generatedTasks ?
 						schedulingPool.removeTask(task.getId());
-						log.error("[{}] Task in WAITING state shouldn't be in Engine at all, silently removing from SchedulingPool.", task.getId());
+						log.warn("[{}] Task in WAITING state shouldn't be in Engine at all, silently removing from SchedulingPool.", task.getId());
 					} catch (TaskStoreException ex) {
 						log.error("[{}] Failed during removal of WAITING Task from SchedulingPool. Such Task shouldn't be in Engine at all: {}", task.getId(), ex);
 					}
