@@ -1170,7 +1170,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 		try {
 			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("ues") + " from attr_names " +
-							"left join user_ext_source_attr_values ues on id=ues.attr_id and ues_id=:uesId " +
+							"left join user_ext_source_attr_values ues on id=ues.attr_id and user_ext_source_id=:uesId " +
 							"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 					parameters, new SingleBeanAttributeRowMapper<>(sess, this, ues));
 		} catch (EmptyResultDataAccessException ex) {
