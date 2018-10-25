@@ -1,16 +1,13 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,17 +15,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Group vomsRoles attribute.
+ * Group-resource voms roles.
  *
- * @author Vojtech Sassmann &lt;vojtech.sassmann@gmail.com&gt;
+ * @author Vladimir Mecko vladimir.mecko@gmail.com
  */
-public class urn_perun_group_attribute_def_def_vomsRoles extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
+public class urn_perun_group_resource_attribute_def_def_vomsRoles extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
 
 	private final Pattern pattern = Pattern.compile("^[^<>&]*$");
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if(attribute.getValue() == null) {
 			return;
 		}
@@ -52,7 +49,7 @@ public class urn_perun_group_attribute_def_def_vomsRoles extends GroupAttributes
 		attr.setDisplayName("Voms roles");
 		attr.setDescription("Voms roles");
 		attr.setType(ArrayList.class.getName());
-		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
 		return attr;
 	}
 }
