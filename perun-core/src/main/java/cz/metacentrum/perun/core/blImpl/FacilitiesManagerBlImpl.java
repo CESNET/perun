@@ -358,6 +358,9 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			}
 		}
 
+		//Remove all service denials
+		getFacilitiesManagerImpl().removeAllServiceDenials(facility.getId());
+
 		// delete facility
 		getFacilitiesManagerImpl().deleteFacilityOwners(sess, facility);
 		getFacilitiesManagerImpl().deleteFacility(sess, facility);
