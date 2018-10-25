@@ -464,7 +464,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param vo int VO <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
-	/* Sets the attributes.
+	/*#
+	 * Sets the attributes.
 	 *
 	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
@@ -539,7 +540,6 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
-
 	/*#
 	 * Sets the attributes.
 	 *
