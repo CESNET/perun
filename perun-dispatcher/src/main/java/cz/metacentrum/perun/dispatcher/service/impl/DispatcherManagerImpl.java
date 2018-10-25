@@ -289,7 +289,7 @@ public class DispatcherManagerImpl implements DispatcherManager {
 		// skip start of HornetQ and other dispatcher jobs if dispatcher is disabled
 		if(dispatcherEnabled != null && !Boolean.parseBoolean(dispatcherEnabled)) {
 			cleanTaskResultsJobEnabled = false;
-			log.debug("Perun-Dispatcher startup disabled by configuration.");
+			log.info("Perun-Dispatcher startup disabled by configuration.");
 			return;
 		}
 

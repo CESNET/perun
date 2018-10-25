@@ -104,7 +104,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 	@Override
 	public Map<Facility, Set<Service>> parseEvent(String event) throws InvalidEventMessageException, ServiceNotExistsException, InternalErrorException, PrivilegeException {
 
-		log.info("Event - I am going to process event:" + event);
+		log.info("Event - I am going to process event: {}", event);
 
 		Matcher matcher = pattern.matcher(event);
 		boolean matchFound = matcher.find();
@@ -181,7 +181,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 					resourcesResolvedFromEvent.addAll(perun.getFacilitiesManager()
 							.getAssignedResources(perunSession, facility));
 				} catch (FacilityNotExistsException ex) {
-					log.debug("Non-existing facility found while resolving event. id={}", facility.getId());
+					log.warn("Non-existing facility found while resolving event. id={}", facility.getId());
 				}
 			} else {
 				// Try to find RESOURCE in event
@@ -194,7 +194,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 							resourcesResolvedFromEvent = perun.getResourcesManager()
 									.getAssignedResources(perunSession, group);
 						} catch (GroupNotExistsException ex) {
-							log.debug("Non-existing group found while resolving event. id={}", group.getId());
+							log.warn("Non-existing group found while resolving event. id={}", group.getId());
 						}
 					} else {
 						// try to find USER in event
@@ -203,7 +203,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 								resourcesResolvedFromEvent = perun.getUsersManager()
 										.getAllowedResources(perunSession, user);
 							} catch (UserNotExistsException ex) {
-								log.debug("Non-existing user found while resolving event. id={}", user.getId());
+								log.warn("Non-existing user found while resolving event. id={}", user.getId());
 							}
 						} else {
 							// try to find MEMBER in event
@@ -212,7 +212,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 									resourcesResolvedFromEvent = perun.getResourcesManager()
 											.getAllowedResources(perunSession, member);
 								} catch (MemberNotExistsException ex) {
-									log.debug("Non-existing member found while resolving event. id={}", member.getId());
+									log.warn("Non-existing member found while resolving event. id={}", member.getId());
 								}
 							} else {
 								// try to find HOST in event
@@ -224,11 +224,11 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 										resourcesResolvedFromEvent.addAll(perun.getFacilitiesManager()
 												.getAssignedResources(perunSession, facility));
 									} catch (FacilityNotExistsException ex) {
-										log.debug(
+										log.warn(
 												"Host on non-existing facility found while resolving event. Host id={}",
 												host.getId());
 									} catch (HostNotExistsException ex) {
-										log.debug("Non-existing host found while resolving event. id={}", host.getId());
+										log.warn("Non-existing host found while resolving event. id={}", host.getId());
 									}
 								} else {
 									log.warn("No match found for this event. Event={}", event);
@@ -257,7 +257,7 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 					if (!servicesResolvedFromEvent.isEmpty())
 						servicesResolvedFromResource.retainAll(servicesResolvedFromEvent);
 				} catch (ResourceNotExistsException ex) {
-					log.debug("Non-existing resource found while resolving event. Resource={}", r);
+					log.error("Non-existing resource found while resolving event. Resource={}", r);
 					continue; // skip to next resource
 				}
 
