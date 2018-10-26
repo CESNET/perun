@@ -124,6 +124,9 @@ public class MembersManagerEntry implements MembersManager {
 
 	@Override
 	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+
 		return this.createMember(sess, vo, candidate, new ArrayList<>());
 	}
 
@@ -146,6 +149,10 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		Utils.notNull(candidate, "candidate");
+
+		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getMembersManagerBl().createMember(sess, vo, candidate, groups);
@@ -153,6 +160,9 @@ public class MembersManagerEntry implements MembersManager {
 
 	@Override
 	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+
 		return this.createMember(sess, vo, extSourceName, extSourceType, login, candidate, null);
 	}
 
@@ -178,12 +188,18 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.notNull(extSourceType, "extSourceType");
 		Utils.notNull(login, "login");
 
+		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+
 		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, login, candidate, groups);
 	}
 
 
 	@Override
 	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
+
 		return this.createMember(sess, vo, extSourceName, extSourceType, extSourceLoa, login, candidate, null);
 	}
 
@@ -208,6 +224,9 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.notNull(extSourceName, "extSourceName");
 		Utils.notNull(extSourceType, "extSourceType");
 		Utils.notNull(login, "login");
+
+		Utils.checkMaxLength("TitleBefore", candidate.getTitleBefore(), 40);
+		Utils.checkMaxLength("TitleAfter", candidate.getTitleAfter(), 40);
 
 		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, extSourceLoa, login, candidate, groups);
 	}
