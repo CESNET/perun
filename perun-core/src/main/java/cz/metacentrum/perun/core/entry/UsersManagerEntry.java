@@ -396,6 +396,9 @@ public class UsersManagerEntry implements UsersManager {
 	public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
+		Utils.checkMaxLength("TitleBefore", user.getTitleBefore(), 40);
+		Utils.checkMaxLength("TitleAfter", user.getTitleAfter(), 40);
+
 		// Authorization
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
 				!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {

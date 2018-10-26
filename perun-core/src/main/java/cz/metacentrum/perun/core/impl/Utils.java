@@ -164,27 +164,37 @@ public class Utils {
 	}
 
 	/**
-	 * Define min length of some entity name.
+	 * Throws a MinSizeExceededException if the given value does not specified minLength.
+	 * If the value is null then MinSizeExceededException is thrown as well.
 	 *
-	 * @param name name of entity
-	 * @param minLength
-	 * @throws MinSizeExceededException
+	 * @param propertyName name of checked property
+	 * @param minLength minimal length
+	 * @throws MinSizeExceededException when length of actualValue is lower than minLength or null
 	 */
-	public static void checkMinLength(String name, int minLength) throws MinSizeExceededException{
-
-		if(name.length()<minLength) throw new MinSizeExceededException("Length of name is too short! MinLength=" + minLength + ", ActualLength=" + name.length());
+	public static void checkMinLength(String propertyName, String actualValue, int minLength) throws MinSizeExceededException {
+		if (actualValue == null) {
+			throw new MinSizeExceededException("The property '" + propertyName + "' does not have a minimal length equal to '" + minLength + "' because it is null.");
+		}
+		if (actualValue.length() < minLength) {
+			throw new MinSizeExceededException("Length of '" + propertyName + "' is too short! MinLength=" + minLength + ", ActualLength=" + actualValue.length());
+		}
 	}
 
 	/**
-	 * Define max length of some entity name.
+	 * Throws a MaxSizeExceededException if the given value is longer than maxLength.
+	 * If the value is null then nothing happens.
 	 *
-	 * @param name name of entity
-	 * @param maxLength
-	 * @throws
+	 * @param propertyName name of checked property
+	 * @param maxLength max length
+	 * @throws MaxSizeExceededException when length of actualValue is higher than maxLength
 	 */
-	public static void checkMaxLength(String name, int maxLength) throws MaxSizeExceededException{
-
-		if(name.length()<maxLength) throw new MaxSizeExceededException("Length of name is too long! MaxLength=" + maxLength + ", ActualLength=" + name.length());
+	public static void checkMaxLength(String propertyName, String actualValue, int maxLength) throws MaxSizeExceededException {
+		if (actualValue == null) {
+			return;
+		}
+		if (actualValue.length() > maxLength) {
+			throw new MaxSizeExceededException("Length of '" + propertyName + "' is too long! MaxLength=" + maxLength + ", ActualLength=" + actualValue.length());
+		}
 	}
 
 	/**
