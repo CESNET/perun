@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -1346,5 +1347,14 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			mergedContactGroups.add(contactGroup);
 		}
 		return mergedContactGroups;
+	}
+
+	@Override
+	public void removeAllServiceDenials(int facilityId) throws InternalErrorException {
+		try {
+			jdbc.update("delete from service_denials where facility_id=?", facilityId);
+		} catch (DataAccessException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 }
