@@ -834,4 +834,15 @@ public interface FacilitiesManagerImplApi {
 	 * @throws BanNotExistsException
 	 */
 	void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Remove all service denials on given facility.
+	 *
+	 * WARNING: this method should be removed in the future if
+	 * the tasks module is merged into core module.
+	 *
+	 * @param facilityId facility id
+	 * @throws InternalErrorException when db operation fails
+	 */
+	void removeAllServiceDenials(int facilityId) throws InternalErrorException;
 }
