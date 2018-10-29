@@ -1,8 +1,12 @@
 package cz.metacentrum.perun.registrar.modules;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
@@ -14,17 +18,22 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * Module for BBMRI instance.
+ * Module for BBMRICollections instance.
  * The module
  * 1. reads input with collection IDs and checks, whether the collections exist in Perun as groups
  * 2. adds users to the appropriate groups
  *
- * @author Jiri Mauritz <jirmaurtiz@gmail.com>
+ * @author Jiri Mauritz <jirmaurtiz@gmail.com> (original)
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz> (modifications)
  */
-public class BBMRI implements RegistrarModule {
+public class BBMRICollections implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(BBMRI.class);
-	public static final String BIOBANK_IDS_FIELD = "Comma or new-line separated list of collection IDs you are representing:";
+	final static Logger log = LoggerFactory.getLogger(BBMRICollections.class);
+	public static final String BIOBANK_IDS_FIELD = "Comma or new-line separated list of IDs of collections you are representing:";
+	public static final String COLLECTIONS_GROUP_NAME = "collections";
+	public static final String COLLECTION_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:collectionID";
+	public static final String REPRESENTATIVES_GROUP_NAME = "representatives";
+	public static final String ADD_NEW_COLLECTIONS_GROUP_NAME = "addNewCollections";
 
 	private RegistrarManager registrar;
 
@@ -34,7 +43,7 @@ public class BBMRI implements RegistrarModule {
 	}
 
 	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
+	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) {
 		return data;
 	}
 
@@ -58,29 +67,21 @@ public class BBMRI implements RegistrarModule {
 		Set<String> collectionIDsInApplication = getCollectionIDsFromApplication(session, app);
 
 		// get map of collection IDs to group from Perun
-		Map<String, Group> collectionIDsToGroupsMap = new HashMap<>();
-		Group collectionsGroup = perun.getGroupsManager().getGroupByName(session, vo, "collections");
-		for (Group group : perun.getGroupsManager().getSubGroups(session, collectionsGroup)) {
-			for (Group subgroup : perun.getGroupsManager().getSubGroups(session, group)) {
-				if ("representatives".equals(subgroup.getShortName())) {
-					Attribute collectionID = perun.getAttributesManager().getAttribute(session, subgroup, "urn:perun:group:attribute-def:def:collectionID");
-					collectionIDsToGroupsMap.put((String) collectionID.getValue(), subgroup);
-				}
-			}
-		}
+		Group collectionsGroup = perun.getGroupsManager().getGroupByName(session, vo, COLLECTIONS_GROUP_NAME);
+		Map<String, Group> collectionIDsToGroupsMap = getCollectionIDsToGroupsMap(session, perun, collectionsGroup);
 
 		// add user to all groups from the field on application
 		for (String collectionID : collectionIDsInApplication) {
 			Group group = collectionIDsToGroupsMap.get(collectionID);
 			if (group == null) {
-				log.debug("For collection ID " + collectionID + " is no group in Perun.");
+				log.debug("For collection ID " + collectionID + " there is no group in Perun.");
 			} else {
 				// add user to the group
 				perun.getGroupsManager().addMember(session, group, member);
 			}
 		}
 
-		if (app.getGroup() != null && app.getGroup().getName().equals("addNewCollections")) {
+		if (app.getGroup() != null && app.getGroup().getName().equals(ADD_NEW_COLLECTIONS_GROUP_NAME)) {
 			perun.getGroupsManager().removeMember(session, app.getGroup(), member);
 		}
 
@@ -88,13 +89,13 @@ public class BBMRI implements RegistrarModule {
 	}
 
 	@Override
-	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
+	public Application rejectApplication(PerunSession session, Application app, String reason) {
 		return app;
 	}
 
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) {
 		return app;
 	}
 
@@ -112,16 +113,9 @@ public class BBMRI implements RegistrarModule {
 		Vo vo = app.getVo();
 
 		// get all collection IDs from Perun
-		Set<String> collectionIDsInPerun = new HashSet<>();
-		Group collectionsGroup = perun.getGroupsManager().getGroupByName(session, vo, "collections");
-		for (Group group : perun.getGroupsManager().getSubGroups(session, collectionsGroup)) {
-			for (Group subgroup : perun.getGroupsManager().getSubGroups(session, group)) {
-				if ("representatives".equals(subgroup.getShortName())) {
-					Attribute collectionID = perun.getAttributesManager().getAttribute(session, subgroup, "urn:perun:group:attribute-def:def:collectionID");
-					collectionIDsInPerun.add((String) collectionID.getValue());
-				}
-			}
-		}
+		Group collectionsGroup = perun.getGroupsManager().getGroupByName(session, vo, COLLECTIONS_GROUP_NAME);
+		Set<String> collectionIDsInPerun = getCollectionIDs(session, perun, collectionsGroup);
+
 
 		// get the field of application with the collections
 		Set<String> collectionIDsInApplication = getCollectionIDsFromApplication(session, app);
@@ -137,7 +131,7 @@ public class BBMRI implements RegistrarModule {
 	}
 
 	@Override
-	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
+	public void canBeSubmitted(PerunSession session, Map<String, String> params) {
 
 	}
 
@@ -157,7 +151,7 @@ public class BBMRI implements RegistrarModule {
 		}
 
 		if (collectionsString == null) {
-			throw new InternalErrorException("There is no field with biobank IDs on the registration form.");
+			throw new InternalErrorException("There is no field with collection IDs on the registration form.");
 		}
 
 		// get set of collection IDs from application
@@ -167,5 +161,28 @@ public class BBMRI implements RegistrarModule {
 		}
 
 		return collectionIDsInApplication;
+	}
+
+	/**
+	 * Gets collections as map of collectionID => Group.
+	 *
+	 * @return Map of collection IDs to group.
+	 */
+	private Map<String, Group> getCollectionIDsToGroupsMap (PerunSession session, Perun perun, Group collectionsGroup) throws GroupNotExistsException, WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException, PrivilegeException {
+		Map<String, Group> collectionIDsToGroupMap = new HashMap<>();
+		for (Group group : perun.getGroupsManager().getSubGroups(session, collectionsGroup)) {
+			for (Group subgroup : perun.getGroupsManager().getSubGroups(session, group)) {
+				if (REPRESENTATIVES_GROUP_NAME.equals(subgroup.getShortName())) {
+					Attribute collectionID = perun.getAttributesManager().getAttribute(session, subgroup, COLLECTION_ID_ATTR_NAME);
+					collectionIDsToGroupMap.put(collectionID.valueAsString(), subgroup);
+				}
+			}
+		}
+
+		return collectionIDsToGroupMap;
+	}
+
+	private Set<String> getCollectionIDs(PerunSession session, Perun perun, Group collectionsGroup) throws InternalErrorException, PrivilegeException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException {
+		return getCollectionIDsToGroupsMap(session, perun, collectionsGroup).keySet();
 	}
 }
