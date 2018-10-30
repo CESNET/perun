@@ -199,7 +199,7 @@ public class MailManagerImpl implements MailManager {
 			}, id);
 			// set
 			if (mails.size() != 1) {
-				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: "+mails.size());
+				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: {}.", mails.size());
 				throw new InternalErrorException("Wrong number of mail definitions returned by unique params, expected 1 but was: "+mails.size());
 			}
 			mail = mails.get(0);
@@ -416,10 +416,12 @@ public class MailManagerImpl implements MailManager {
 			// get mail definition
 			ApplicationMail mail = getMailByParams(form.getId(), app.getType(), mailType);
 			if (mail == null) {
-				log.error("[MAIL MANAGER] Mail not sent. Definition (or mail text) for: {} do not exists for VO: "+app.getVo()+" and Group: "+app.getGroup(), mailType.toString());
+				log.error("[MAIL MANAGER] Mail not sent. Definition (or mail text) for: {} do not exists for " +
+						"VO: {} and Group: {}", mailType.toString(), app.getVo(), app.getGroup());
 				return; // mail not found
 			} else if (mail.getSend() == false) {
-				log.info("[MAIL MANAGER] Mail not sent. Disabled by VO admin for: " + mail.getMailType() + " / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup());
+				log.info("[MAIL MANAGER] Mail not sent. Disabled by VO admin for: {} / appID: {} / {} / {}"
+						, mail.getMailType(), app.getId(), app.getVo(), app.getGroup());
 				return; // sending this mail is disabled by VO admin
 			}
 			// get app data
@@ -459,7 +461,8 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {} / appID: {} / {} / {}"
+							, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_CREATED_USER failed because of exception: {}", ex);
 				}
@@ -515,7 +518,8 @@ public class MailManagerImpl implements MailManager {
 					message.setTo(email);
 					try {
 						mailSender.send(message);
-						log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
+						log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {} / appID: {} / {} / {}"
+								, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 					} catch (MailException ex) {
 						log.error("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN failed because of exception: {}", ex);
 					}
@@ -637,7 +641,8 @@ public class MailManagerImpl implements MailManager {
 
 							try {
 								mailSender.send(message);
-								log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
+								log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: {} / {} / {}"
+										, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 							} catch (MailException ex) {
 								log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception: {}", ex);
 							}
@@ -693,7 +698,8 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {} / appID: {} / {} / {}"
+							, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception: {}", ex);
 				}
@@ -749,7 +755,8 @@ public class MailManagerImpl implements MailManager {
 					message.setTo(email);
 					try {
 						mailSender.send(message);
-						log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
+						log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: {} / {} / {}"
+								, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 					} catch (MailException ex) {
 						log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception: {}", ex);
 					}
@@ -957,7 +964,8 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 			mailSender.send(message);
-			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
+			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}"
+					, (Object) message.getTo(), app.getVo(), app.getGroup());
 		} catch (MailException ex) {
 			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
@@ -995,7 +1003,7 @@ public class MailManagerImpl implements MailManager {
 			}
 
 		} catch (Exception ex) {
-			log.error("[MAIL MANAGER] Exception {} when getting member by {} from "+vo.toString(), ex, user);
+			log.error("[MAIL MANAGER] Exception throw when getting member by {} from {}: {}", user, vo.toString(), ex);
 		}
 
 		// get form
@@ -1091,7 +1099,8 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 			mailSender.send(message);
-			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / " + app.getVo() + " / " + app.getGroup(), message.getTo());
+			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}"
+					, message.getTo(), app.getVo(), app.getGroup());
 		} catch (MailException ex) {
 			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
@@ -1170,7 +1179,7 @@ public class MailManagerImpl implements MailManager {
 			}, formId, appType.toString(), mailType.toString());
 			// set
 			if (mails.size() != 1) {
-				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: "+mails.size());
+				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: {}", mails.size());
 				return mail;
 			}
 			mail = mails.get(0);
@@ -1351,9 +1360,9 @@ public class MailManagerImpl implements MailManager {
 		} catch (Exception ex) {
 			// we dont care about exceptions here - we have backup TO/FROM address
 			if (app.getGroup() == null) {
-				log.error("[MAIL MANAGER] Exception thrown when getting FROM email from attribute "+URN_VO_FROM_EMAIL+". Ex: {}", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting FROM email from attribute {}. Ex: {}", URN_VO_FROM_EMAIL, ex);
 			} else {
-				log.error("[MAIL MANAGER] Exception thrown when getting FROM email from attribute "+URN_GROUP_FROM_EMAIL+". Ex: {}", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting FROM email from attribute {}. Ex: {}", URN_GROUP_FROM_EMAIL, ex);
 			}
 		}
 	}
@@ -1395,9 +1404,9 @@ public class MailManagerImpl implements MailManager {
 		} catch (Exception ex) {
 			// we dont care about exceptions here - we have backup TO/FROM address
 			if (app.getGroup() == null) {
-				log.error("[MAIL MANAGER] Exception thrown when getting TO email from attribute "+URN_VO_TO_EMAIL+". Ex: {}", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting TO email from attribute {}. Ex: {}", URN_VO_TO_EMAIL, ex);
 			} else {
-				log.error("[MAIL MANAGER] Exception thrown when getting TO email from attribute "+URN_GROUP_TO_EMAIL+". Ex: {}", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting TO email from attribute {}. Ex: {}", URN_GROUP_TO_EMAIL, ex);
 			}
 			// set backup
 			result.clear();
@@ -1522,7 +1531,7 @@ public class MailManagerImpl implements MailManager {
 				}
 			} catch (Exception ex) {
 				// we dont care about exceptions here
-				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute. {}", ex);
 			}
 			// replace by footer or empty
 			mailText = mailText.replace("{mailFooter}", (footer != null) ? footer : "");
@@ -1792,7 +1801,7 @@ public class MailManagerImpl implements MailManager {
 							}
 						}
 					} catch (Exception ex) {
-						log.error("[MAIL MANAGER] Error thrown when replacing login in namespace \""+namespace+"\" for mail. {}", ex);
+						log.error("[MAIL MANAGER] Error thrown when replacing login in namespace \"{}\" for mail. {}", namespace, ex);
 					}
 
 				}
@@ -1928,7 +1937,7 @@ public class MailManagerImpl implements MailManager {
 				}
 			} catch (Exception ex) {
 				// we dont care about exceptions here
-				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute. {}", ex);
 			}
 			// replace by footer or empty
 			mailText = mailText.replace("{mailFooter}", (footer != null) ? footer : "");
