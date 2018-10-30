@@ -92,7 +92,7 @@ public class EventParserImpl implements EventParser {
 			}
 
 			log.debug("Event data to be parsed: task id {}, forced {}, facility {}, service {}, destination list {}",
-					new Object[]{eventTaskId, eventIsForced, eventFacility, eventService, eventDestinationList});
+					eventTaskId, eventIsForced, eventFacility, eventService, eventDestinationList);
 
 			// Prepare variables
 			Facility facility;

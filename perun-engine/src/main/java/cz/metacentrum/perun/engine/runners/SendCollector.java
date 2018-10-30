@@ -96,7 +96,7 @@ public class SendCollector extends AbstractRunner {
 			} catch (InterruptedException e) {
 
 				String errorStr = "Thread collecting sent SendTasks was interrupted.";
-				log.error(errorStr + ": {}", e);
+				log.error("{}: {}", errorStr, e);
 				throw new RuntimeException(errorStr, e);
 
 			} catch (TaskExecutionException e) {

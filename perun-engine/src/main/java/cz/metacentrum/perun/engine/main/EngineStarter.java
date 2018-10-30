@@ -41,9 +41,9 @@ public class EngineStarter {
 			engineStarter.springCtx.registerShutdownHook();
 			// Yes, we do this in the main thread because we do want to carry
 			// this initial steps out sequentially.
-			log.info("Gonna start Messaging.");
+			log.debug("Gonna start Messaging.");
 			engineStarter.engineManager.startMessaging();
-			log.info("Starting the runners.");
+			log.debug("Starting the runners.");
 			engineStarter.engineManager.startRunnerThreads();
 			log.info("Done. Perun-Engine has started.");
 			System.out.println("Done. Perun-Engine has started.");

@@ -100,7 +100,7 @@ public class MessageReceiver implements Runnable {
 											@Override
 											public void run() {
 												// TODO: Remove in future
-												log.info("I am going to call eventProcessor.receiveEvent(\"{}\") " +
+												log.trace("I am going to call eventProcessor.receiveEvent(\"{}\") " +
 														"in thread: {}", message, Thread.currentThread().getName());
 												eventProcessor.receiveEvent(message);
 											}
