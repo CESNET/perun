@@ -102,7 +102,8 @@ if($taskResultStatus eq $CORRECT_STATUS) {
 	print "OK - TaskResult ends without error.\n";
 	exit 0;
 } else {
-	die "Last taskResult $taskResultId end with nonOK status: $taskResultStatus\n";
+	my $errorMsg = $lastTaskResult->getErrorMessage;
+	die "Last taskResult $taskResultId end with nonOK status: $taskResultStatus\n\nError Message: '$errorMsg'\n";
 }
 
 die "Can't found destination for combination of service=$serviceName and destination=$destinationName\n";
