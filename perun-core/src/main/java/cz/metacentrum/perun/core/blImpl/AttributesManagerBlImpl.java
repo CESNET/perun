@@ -6544,6 +6544,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
 		attributes.put(attr, rights);
 
+		//urn:perun:member:attribute-def:def:organization
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("organization");
+		attr.setDisplayName("Organization (for VO)");
+		attr.setDescription("Organization, from which user comes from (VO wide).");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
 		//urn:perun:vo:attribute-def:def:membershipExpirationRules
 		attr = new AttributeDefinition();
 		attr.setDisplayName("Membership expiration rules");
