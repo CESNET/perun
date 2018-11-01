@@ -13,6 +13,7 @@ import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.vosManager.GetVos;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -73,7 +74,7 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.add(tabMenu);
 		firstTabPanel.setCellHeight(tabMenu, "30px");
 
-		if (session.isVoAdmin()) {
+		if (session.isVoAdmin() && !Utils.disableCreateVo()) {
 			// do not display to VO observer
 			tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createVo(), new ClickHandler() {
 				@Override
