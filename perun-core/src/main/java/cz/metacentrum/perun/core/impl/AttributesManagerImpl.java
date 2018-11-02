@@ -33,9 +33,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
-import org.springframework.jdbc.support.lob.OracleLobHandler;
-
-import org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;

@@ -1655,7 +1655,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				} finally {
 					//Save information about group synchronization, this method run in new transaction
 					try {
-						perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, failedDueToException, exceptionMessage);
+						perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, startTime, failedDueToException, exceptionMessage);
 					} catch (Exception ex) {
 						log.error("When synchronization group " + group + ", exception was thrown.", ex);
 						log.info("Info about exception from synchronization: " + skippedMembersMessage);
@@ -2669,18 +2669,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private void updateAttributes(PerunSession sess, RichMember richMember, Group group, Candidate candidate, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		for (String attributeName : candidate.getAttributes().keySet()) {
 			// Update member attribute
-			if(attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
+			if (attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
 				boolean attributeFound = false;
-				for (Attribute memberAttribute: richMember.getMemberAttributes()) {
-					if(memberAttribute.getName().equals(attributeName)) {
+				for (Attribute memberAttribute : richMember.getMemberAttributes()) {
+					if (memberAttribute.getName().equals(attributeName)) {
 						attributeFound = true;
 						Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), memberAttribute.getType());
 						if (subjectAttributeValue != null && !Objects.equals(memberAttribute.getValue(), subjectAttributeValue)) {
 							log.trace("Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new value {}.",
-									new Object[] {group, memberAttribute, richMember.getId(), memberAttribute.getValue(), subjectAttributeValue});
+									new Object[]{group, memberAttribute, richMember.getId(), memberAttribute.getValue(), subjectAttributeValue});
 							memberAttribute.setValue(subjectAttributeValue);
 							try {
-								if(mergeMemberAttributesList.contains(memberAttribute.getName())) {
+								if (mergeMemberAttributesList.contains(memberAttribute.getName())) {
 									getPerunBl().getAttributesManagerBl().mergeAttributeValueInNestedTransaction(sess, richMember, memberAttribute);
 								} else {
 									getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember, memberAttribute);
@@ -2688,7 +2688,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							} catch (AttributeValueException e) {
 								// There is a problem with attribute value, so set INVALID status for the member
 								getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
-							} catch	(WrongAttributeAssignmentException e) {
+							} catch (WrongAttributeAssignmentException e) {
 								throw new ConsistencyErrorException(e);
 							}
 						}
@@ -2697,7 +2697,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					}
 				}
 				// Member has not set this attribute so set it now if possible
-				if(!attributeFound) {
+				if (!attributeFound) {
 					// FIXME - this whole section probably can be removed. Previously null attributes were not retrieved with member
 					// FIXME - they are now always present, if not the same, then they are set in a code above.
 					Attribute newAttribute = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName));
@@ -2712,20 +2712,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
 					}
 				}
-			// Update user attribute
-			} else if(attributeName.startsWith(AttributesManager.NS_USER_ATTR)) {
+				// Update user attribute
+			} else if (attributeName.startsWith(AttributesManager.NS_USER_ATTR)) {
 				boolean attributeFound = false;
-				for (Attribute userAttribute: richMember.getUserAttributes()) {
-					if(userAttribute.getName().equals(attributeName)) {
+				for (Attribute userAttribute : richMember.getUserAttributes()) {
+					if (userAttribute.getName().equals(attributeName)) {
 						attributeFound = true;
 						Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), userAttribute.getType());
 						if (!Objects.equals(userAttribute.getValue(), subjectAttributeValue)) {
 							log.trace("Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new value {}.",
-									new Object[] {group, userAttribute, richMember.getId(), userAttribute.getValue(), subjectAttributeValue});
+									new Object[]{group, userAttribute, richMember.getId(), userAttribute.getValue(), subjectAttributeValue});
 							userAttribute.setValue(subjectAttributeValue);
 							try {
 								// Choose set or merge by extSource attribute overwriteUserAttributes (if contains this one)
-								if(overwriteUserAttributesList.contains(userAttribute.getName())) {
+								if (overwriteUserAttributesList.contains(userAttribute.getName())) {
 									getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember.getUser(), userAttribute);
 								} else {
 									getPerunBl().getAttributesManagerBl().mergeAttributeValueInNestedTransaction(sess, richMember.getUser(), userAttribute);
@@ -2742,7 +2742,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					}
 				}
 				// User has not set this attribute so set it now if
-				if(!attributeFound) {
+				if (!attributeFound) {
 					// FIXME - this whole section probably can be removed. Previously null attributes were not retrieved with member
 					// FIXME - they are now always present, if not the same, then they are set in a code above.
 					Attribute newAttribute = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName));
@@ -2757,8 +2757,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
 					}
 				}
-			// If it is attribute with hash code of data gained from external source, update the hash code attribute of member-group relationship
-			} else if(attributeName.equals(MembersManager.MEMBERGROUPHASHCODE_ATTRNAME)) {
+				// If it is attribute with hash code of data gained from external source, update the hash code attribute of member-group relationship
+			} else if (attributeName.equals(MembersManager.MEMBERGROUPHASHCODE_ATTRNAME)) {
 				AttributeDefinition attributeDefinition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, MembersManager.MEMBERGROUPHASHCODE_ATTRNAME);
 				Attribute hashCode = new Attribute(attributeDefinition);
 				hashCode.setValue(candidate.getAttributes().get(attributeName));
@@ -2766,15 +2766,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					// Set hash code to member-group relationship
 					try {
 						getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember, group, hashCode);
-						log.trace("Group synchronization: Setting the {} hashCode {} to member {} in group {}", new Object[] {hashCode, richMember, group});
+						log.trace("Group synchronization: Setting the {} hashCode {} to member {} in group {}", new Object[]{hashCode, richMember, group});
 					} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-						log.error("Group synchronization: Attribute with hash code {} can't be set to member {} in group {}", new Object[] {hashCode, richMember, group});
+						log.error("Group synchronization: Attribute with hash code {} can't be set to member {} in group {}", new Object[]{hashCode, richMember, group});
 					}
 				} else {
 					//we are not supporting other attributes then member or user so skip it without error, but log it
 					log.warn("Attribute {} can't be set, because it is not member or user attribute.", attributeName);
 				}
 			}
+		}
+	}
 
 	/**
 	 * Get map where key is login of member in ExtSource and value is RichMember
