@@ -53,8 +53,8 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 			+ "<td class=\"PerunAttributeRemoveButton\"><button title=\"" + WidgetTranslation.INSTANCE.removeValue() + "\" class=\"gwt-Button PerunAttributeControllButton\" onclick=\"var parent = $(this).parents('.perunAttributeCell'); $(this).parent().parent().remove(); var event = jQuery.Event('change'); event.currentTarget = event.target = parent[0]; parent.trigger(event); \">" + REMOVE_ICON + "</button></td>"
 			+ "</tr>";
 
-	static public final String MAP_ITEM_TABLE_ROW = "<tr %s>" + "<td><input style=\"width:200px\" type=\"text\" class=\"map-entry-key gwt-TextBox\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2); \" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"document.getElementById('.perunAttributeCell').focus();\" /></td>" +
-			"<td>=</td>" + "<td><input style=\"width:200px\" type=\"text\" class=\"map-entry-value gwt-TextBox\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"document.getElementById('.perunAttributeCell').focus();\" /></td>" +
+	static public final String MAP_ITEM_TABLE_ROW = "<tr %s>" + "<td><input style=\"width:200px\" type=\"text\" class=\"map-entry-key gwt-TextBox\" placeholder=\"%s\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2); \" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"document.getElementById('.perunAttributeCell').focus();\" /></td>" +
+			"<td>=</td>" + "<td><input style=\"width:200px\" type=\"text\" class=\"map-entry-value gwt-TextBox\" placeholder=\"%s\" value=\"%s\" onkeydown=\"var event2 = jQuery.Event('keydown'); event2.keyCode = event.keyCode; jQuery(this).parents('.perunAttributeCell').keydown(); jQuery(this).parents('.perunAttributeCell').trigger(event2);\" onchange=\"$(this).parents('.perunAttributeCell').change();\" onclick=\"$(this).parents('.perunAttributeCell').click();\" onblur=\"$(this).parents('.perunAttributeCell').blur();\" onfocus=\"document.getElementById('.perunAttributeCell').focus();\" /></td>" +
 			"<td class=\"PerunAttributeRemoveButton\"><button title=\"" + WidgetTranslation.INSTANCE.removeValue() + "\" class=\"gwt-Button PerunAttributeControllButton\" onclick=\"var parent = $(this).parents('.perunAttributeCell'); $(this).parent().parent().remove(); var event = jQuery.Event('change'); event.currentTarget = event.target = parent[0]; parent.trigger(event); \">" + REMOVE_ICON + "</button></td>" + "</tr>";
 
 	static public final String LIST_ITEM_TABLE_ROW_READONLY = "<tr %s>"
@@ -370,9 +370,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 			// necessary for CERTIFICATE VALUES
 			var val = tempval.replace(/\\n/g, '\n');
 			if (key != "") {
-				if (key != "Enter new key first!") {
-					attr.value[key] = val;
-				}
+			    attr.value[key] = val;
 			}
 			i++;
 		});
@@ -539,7 +537,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 
 		// source for others
 		if (writable) {
-			output += JsonUtils.stringFormat(MAP_ITEM_TABLE_ROW, " style=\"display:none;\" class=\"attribute-map-item-source\"", "Enter new key first!", "Then enter new value.");
+			output += JsonUtils.stringFormat(MAP_ITEM_TABLE_ROW, " style=\"display:none;\" class=\"attribute-map-item-source\"", "Enter new key first!", "", "Then enter new value.", "");
 		}
 
 		for (String key : map.keySet()) {
@@ -558,7 +556,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 			key = SafeHtmlUtils.htmlEscape(key);
 
 			if (writable) {
-				output += JsonUtils.stringFormat(MAP_ITEM_TABLE_ROW, "class=\"map-entry\"", key, str);
+				output += JsonUtils.stringFormat(MAP_ITEM_TABLE_ROW, "class=\"map-entry\"", "Enter new key first!", key, "Then enter new value.", str);
 			} else {
 				output += JsonUtils.stringFormat(MAP_ITEM_TABLE_ROW_READONLY, "class=\"map-entry\"", key, str);
 			}
