@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeException;
-
 /**
  * This exception means that serviceUser can't exist without any assigned user.
  *

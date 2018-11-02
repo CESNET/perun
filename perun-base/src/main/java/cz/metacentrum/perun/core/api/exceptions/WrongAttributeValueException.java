@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.exceptions.rt.WrongAttributeValueRuntimeException;
 
 /**
  * Attribute has wrong/illegal value.
@@ -87,7 +86,4 @@ public class WrongAttributeValueException extends AttributeValueException {
 		return attributeHolderSecondary;
 	}
 
-	public WrongAttributeValueException(WrongAttributeValueRuntimeException rt) {
-		super(rt.getMessage(), rt);
-	}
 }

@@ -1,22 +1,16 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.exceptions.rt.MemberNotExistsRuntimeException;
 
 /**
  * Checked version of MemberNotExistsException.
  *
- * @see cz.metacentrum.perun.core.api.exceptions.rt.MemberNotExistsRuntimeException
  * @author Martin Kuba
  */
 public class MemberNotExistsException extends EntityNotExistsException {
 	static final long serialVersionUID = 0;
 
 	private Member member;
-
-	public MemberNotExistsException(MemberNotExistsRuntimeException rt) {
-		super(rt.getMessage(),rt);
-	}
 
 	public MemberNotExistsException(String message) {
 		super(message);

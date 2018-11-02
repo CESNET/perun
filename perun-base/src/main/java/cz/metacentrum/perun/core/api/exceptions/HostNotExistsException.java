@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.exceptions.rt.HostNotExistsRuntimeException;
 
 /**
  * Checked version of HostNotExistsException.
@@ -15,10 +14,6 @@ public class HostNotExistsException extends EntityNotExistsException {
 	static final long serialVersionUID = 0;
 
 	private Host host;
-
-	public HostNotExistsException(HostNotExistsRuntimeException rt) {
-		super(rt.getMessage(),rt);
-	}
 
 	public HostNotExistsException(String message) {
 		super(message);

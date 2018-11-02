@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.User;
 /**
  * Checked version of UserNotAdminException.
  *
- * @see cz.metacentrum.perun.core.api.exceptions.rt.AlreadyAdminRuntimeException
  * @author Michal Stava
  */
 public class UserNotAdminException extends PerunException {
