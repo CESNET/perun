@@ -208,6 +208,9 @@ public class HandleApplication {
 								"</br><b>IdP category:</b> " + (!(error.getCategory().equals("")) ? SafeHtmlUtils.fromString(error.getCategory()).asString() : "N/A") +
 								"</br><b>Affiliation:</b> " + (!(error.getAffiliation().equals("")) ? SafeHtmlUtils.fromString(error.getAffiliation().replace(";", ", ")).asString() : "N/A") +
 								((error.isSoft()) ? "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
+					} if ("NOT_ELIGIBLE".equals(error.getReason())) {
+						layout.setHTML(0, 1, "<p>User is not eligible for CESNET services and application shouldn't be approved."+
+								((error.isSoft()) ? "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
 					} else {
 						layout.setHTML(0, 1, "<p>" + SafeHtmlUtils.fromString(error.getErrorInfo()).asString() + ((error.isSoft()) ? "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
 					}
