@@ -1217,7 +1217,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 											log.debug("[REGISTRAR] Password for login: {} in namespace: {} successfully reserved in external system.", login, loginNamespace);
 										} catch (Exception ex) {
 											// login reservation fail must cause rollback !!
-											log.error("[REGISTRAR] Unable to reserve password for login: {} in namespace: {} in external system. Exception: " + ex, login, loginNamespace);
+											log.error("[REGISTRAR] Unable to reserve password for login: {} in namespace: {} in external system. Exception: {}", login, loginNamespace, ex);
 											throw new ApplicationNotCreatedException("Application was not created. Reason: Unable to reserve password for login: "+login+" in namespace: "+loginNamespace+" in external system. Please contact support to fix this issue before new application submission.", login, loginNamespace);
 										}
 										break; // use first pass with correct namespace
@@ -1228,12 +1228,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 							throw ex; // re-throw
 						} catch (Exception ex) {
 							// unable to book login
-							log.error("[REGISTRAR] Unable to reserve login: {} in namespace: {}. Exception: " + ex, login, loginNamespace);
+							log.error("[REGISTRAR] Unable to reserve login: {} in namespace: {}. Exception: ", login, loginNamespace, ex);
 							exceptions.add(ex);
 						}
 					} else {
 						// login is not available
-						log.error("[REGISTRAR] Login: " + login + " in namespace: " + loginNamespace + " is already occupied but it shouldn't (race condition).");
+						log.error("[REGISTRAR] Login: {} in namespace: {} is already occupied but it shouldn't (race condition).", login, loginNamespace);
 						exceptions.add(new InternalErrorException("Login: " + login  + " in namespace: " + loginNamespace + " is already occupied but it shouldn't."));
 					}
 				}
@@ -1269,7 +1269,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (!exceptions.isEmpty()) {
 					RegistrarException ex = new RegistrarException("Your application (ID="+ application.getId()+
 							") has been created with errors. Administrator of " + application.getVo().getName() + " has been notified. If you want, you can use \"Send report to RT\" button to send this information to administrators directly.");
-					log.error("[REGISTRAR] New application {} created with errors {}. This is case of PerunException {}", new Object[] {application, exceptions, ex.getErrorId()});
+					log.error("[REGISTRAR] New application {} created with errors {}. This is case of PerunException {}",application, exceptions, ex.getErrorId());
 					throw ex;
 				}
 				log.info("New application {} created.", application);
@@ -1738,7 +1738,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				} else if (result > 1) {
 					throw new ConsistencyErrorException("User ID hasn't been associated with the application " + appId + ", because more than one application exists under the same ID.");
 				}
-				log.info("Member " + member.getId() + " created for: " + app.getCreatedBy() + " / " + app.getExtSourceName());
+				log.info("Member {} created for: {} / {}", member.getId(), app.getCreatedBy(), app.getExtSourceName());
 
 				// unreserve new login if user already have login in same namespace
 				// also get back purely new logins
@@ -3114,7 +3114,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (pair.getLeft().equals(a.getFriendlyNameParameter())) {
 					// old login found in same namespace => unreserve new login from KDC
 					perun.getUsersManagerBl().deletePassword(registrarSession, pair.getRight(), pair.getLeft());
-					log.debug("[REGISTRAR] Unreserving new login: "+pair.getRight()+" in namespace: "+pair.getLeft()+" since user already have login: "+a.getValue()+" in same namespace.");
+					log.debug("[REGISTRAR] Unreserving new login: {} in namespace: {} since user already have login: {} in same namespace."
+							, pair.getRight(), pair.getLeft(), a.getValue());
 					found = true;
 					break;
 				}
