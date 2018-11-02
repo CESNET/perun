@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -73,9 +74,12 @@ public class ExtSourceREMS extends ExtSourceSqlComplex implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
-		List<Map<String, String>> subjects = super.getGroupSubjects(attributes);
-		return filterNonExistingUsers(subjects);
+	public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException {
+		String response = super.getGroupSubjects(sess, group, status, subjects);
+
+		filterNonExistingUsers(subjects);
+
+		return response;
 	}
 
 	/**

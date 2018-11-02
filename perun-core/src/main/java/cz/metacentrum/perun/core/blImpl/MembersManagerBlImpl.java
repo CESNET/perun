@@ -152,16 +152,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			for(Resource resource : resources) {
 				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, member, resource);
 			}
-
-			List<Group> groups = getPerunBl().getGroupsManagerBl().getMemberGroups(sess, member);
-			for(Group g: groups) {
-				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, member, g);
-			}
 		} catch(AttributeValueException ex) {
 			throw new ConsistencyErrorException("Member is removed from all groups. There are no required attribute for this member. Member's attributes can be removed without problem.", ex);
 		} catch (MemberResourceMismatchException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 

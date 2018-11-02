@@ -6,11 +6,11 @@ import java.util.Map;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadySponsoredMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
@@ -1180,7 +1180,7 @@ public interface MembersManager {
 	 * @throws UserNotInRoleException if sponsor hasn't right role in the same vo
 	 * @throws PrivilegeException if not PerunAdmin
 	 */
-	RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotExistsException, AlreadySponsoredMemberException, UserNotInRoleException, PrivilegeException;
+	RichMember setSponsorshipForMember(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException, MemberNotExistsException, UserNotInRoleException, AlreadySponsoredMemberException, PrivilegeException;
 
 	/**
 	 * Transform sponsored member to non-sponsored one. Delete all his sponsors.
