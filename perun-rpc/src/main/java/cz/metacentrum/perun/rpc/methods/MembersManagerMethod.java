@@ -1233,7 +1233,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			ac.getMembersManager().sendPasswordResetLinkEmail(ac.getSession(), ac.getMemberById(parms.readInt("member")),
-					parms.readString("namespace"), parms.getServletRequest().getRequestURL().toString());
+					parms.readString("namespace"), parms.getServletRequest().getRequestURL().toString(),
+					parms.readString("emailAttributeURN"), parms.readString("language"));
 
 			return null;
 

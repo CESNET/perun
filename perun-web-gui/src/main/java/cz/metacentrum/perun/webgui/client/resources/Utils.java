@@ -400,6 +400,50 @@ public class Utils {
 	}
 
 	/**
+	 * Returns map of emails that can be reset password message sent to.
+	 * If config is empty, user:preferredMail and member:mail is returned.
+	 * Key is in format user:preferredMail.
+	 * value is in format urn:perun:user:attribute-def:def:preferredMail.
+	 *
+	 * @return map of attribute URNs
+	 */
+	public static Map<String, String> getResetPasswordEmails() {
+
+		Map<String, String> attributes = new HashMap<>();
+		if (PerunWebSession.getInstance().getConfiguration() != null) {
+			String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("getResetPasswordEmails");
+			if (value != null && !value.isEmpty()) {
+				String[] urns = value.split(",");
+				for (String urn : urns) {
+					String[] splinters = urn.split(":", 6);
+					attributes.put(splinters[2] + ":" + splinters[5], urn);
+				}
+			} else {
+				attributes.put("user:preferredMail", "urn:perun:user:attribute-def:def:preferredMail");
+				attributes.put("member:mail", "urn:perun:member:attribute-def:def:mail");
+			}
+		}
+		return attributes;
+
+	}
+
+	/**
+	 * Returns map of languages that can be reset password email sent.
+	 *
+	 * @return map of languages
+	 */
+	public static Map<String, String> getResetPasswordSupportedLanguages(){
+
+		Map<String, String> languages = new HashMap<>();
+		languages.put("English", "en");
+		List<String> nativeLanguage = getNativeLanguage();
+		if (nativeLanguage != null || !nativeLanguage.get(0).equals("en")) {
+			languages.put(nativeLanguage.get(2), nativeLanguage.get(0));
+		}
+		return languages;
+	}
+
+	/**
 	 * Returns public key part of Re-Captcha widget (by GOOGLE)
 	 * which is used for anonymous access to application form.
 	 *
@@ -476,6 +520,23 @@ public class Utils {
 		}
 		return list;
 
+	}
+
+	/**
+	 * Return country code representing native language. E.g. cs => Czech language
+	 *
+	 * @return string representing native language
+	 */
+	public static String getNativeLanguageShortcut() {
+		String string = null;
+		if (PerunWebSession.getInstance().getConfiguration() != null) {
+			String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("nativeLanguage");
+			if (value != null && !value.isEmpty()) {
+				String[] parts = value.split(",");
+				string = parts[0];
+			}
+		}
+		return string;
 	}
 
 	/**

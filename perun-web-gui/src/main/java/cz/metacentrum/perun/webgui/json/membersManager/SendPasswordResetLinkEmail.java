@@ -8,7 +8,6 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
-import cz.metacentrum.perun.webgui.model.Member;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 
@@ -29,6 +28,8 @@ public class SendPasswordResetLinkEmail {
 	// params
 	private RichMember member;
 	private String namespace = "";
+	private String mailAttributeURN;
+	private String language;
 
 	/**
 	 * Creates a new request
@@ -50,10 +51,12 @@ public class SendPasswordResetLinkEmail {
 	 *
 	 * @param member
 	 */
-	public void sendEmail(final RichMember member, String namespace) {
+	public void sendEmail(final RichMember member, String namespace, String attribute, String language) {
 
 		this.member = member;
 		this.namespace = namespace;
+		this.mailAttributeURN = attribute;
+		this.language = language;
 
 		// test arguments
 		if (!this.testAdding()) {
@@ -114,6 +117,8 @@ public class SendPasswordResetLinkEmail {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("member", new JSONNumber(member.getId()));
 		jsonQuery.put("namespace", new JSONString(namespace));
+		jsonQuery.put("emailAttributeURN", new JSONString(mailAttributeURN));
+		jsonQuery.put("language", new JSONString(language));
 		return jsonQuery;
 
 	}

@@ -1339,9 +1339,11 @@ public interface MembersManagerBl {
 	 * @param member Member to get user to send link mail to
 	 * @param namespace Namespace to reset password in (member must have login in)
 	 * @param url base URL of Perun instance
+	 * @param mailAddress mail address where email will be sent
+	 * @param language language of the message
 	 * @throws InternalErrorException
 	 */
-	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException;
+	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAddress, String language) throws InternalErrorException;
 
 	/**
 	 * Creates a new sponsored member.

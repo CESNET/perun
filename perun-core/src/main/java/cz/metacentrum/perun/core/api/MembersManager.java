@@ -1086,11 +1086,13 @@ public interface MembersManager {
 	 * @param member Member to get user to send link mail to
 	 * @param namespace namespace to change password in (member must have login in)
 	 * @param url base URL of Perun instance
+	 * @param mailAttributeUrn urn of the auttribute with stored mail
+	 * @param language language of the message
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException If not VO admin of member
 	 * @throws MemberNotExistsException If member not exists
 	 */
-	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
+	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url, String mailAttributeUrn, String language) throws InternalErrorException, PrivilegeException, MemberNotExistsException, UserNotExistsException, AttributeNotExistsException;
 
 	/**
 	 * Creates a new sponsored Member and its User.
