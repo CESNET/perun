@@ -64,7 +64,6 @@ import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.scim.SCIM;
 
 /**

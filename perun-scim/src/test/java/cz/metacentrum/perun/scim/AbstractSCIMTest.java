@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -26,9 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
  * @date 11.10.2016
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:perun-scim.xml"})
-@TransactionConfiguration(defaultRollback = true, transactionManager = "perunTransactionManager")
-@Transactional
+@ContextConfiguration(locations = { "classpath:perun-scim.xml" })
+@Transactional(transactionManager = "springTransactionManager")
 public abstract class AbstractSCIMTest {
 
 	@Autowired
