@@ -11,6 +11,11 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,52 +54,47 @@ public class Du implements RegistrarModule {
 	@Override
 	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
 
+		// allow only Education & Research community members
 		List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
-
-		// if hostel with LoA = 2 => OK
-		if (Objects.equals(app.getExtSourceName(), "https://idp.hostel.eduid.cz/idp/shibboleth") &&
-				app.getExtSourceLoa() == 2) return app;
-
-		// For others check IdP attributes
-		String category = "";
-		String affiliation = "";
+		String eligibleString = "";
 
 		for (ApplicationFormItemData item : data) {
-			if (item.getFormItem() != null && Objects.equals("md_entityCategory", item.getFormItem().getFederationAttribute())) {
+			if (item.getFormItem() != null && Objects.equals("isCesnetEligibleLastSeen", item.getFormItem().getFederationAttribute())) {
 				if (item.getValue() != null && !item.getValue().trim().isEmpty()) {
-					category = item.getValue();
+					eligibleString = item.getValue();
 					break;
 				}
 			}
 		}
 
-		for (ApplicationFormItemData item : data) {
-			if (item.getFormItem() != null && Objects.equals("affiliation", item.getFormItem().getFederationAttribute())) {
-				if (item.getValue() != null && !item.getValue().trim().isEmpty()) {
-					affiliation = item.getValue();
-					break;
+		if (eligibleString != null && !eligibleString.isEmpty()) {
+
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			df.setLenient(false);
+			try {
+				// get eligible date + 1 year
+				Date eligibleDate = df.parse(eligibleString);
+
+				Calendar c = Calendar.getInstance();
+				c.setTime(eligibleDate);
+				c.add(Calendar.YEAR, 1);
+				Date eligibleDatePlusYear = c.getTime();
+
+				// get now
+				Calendar cal = Calendar.getInstance();
+				Date now = cal.getTime();
+
+				// compare
+				if (now.before(eligibleDatePlusYear)) {
+					return app;
 				}
+
+			} catch (ParseException e) {
+				log.warn("Unable to parse date to determine, if user is eligible for CESNET services. {}", e);
 			}
 		}
 
-		if (category.contains("http://eduid.cz/uri/idp-group/university")) {
-			if (affiliation.contains("employee@") ||
-					affiliation.contains("faculty@") ||
-					affiliation.contains("member@") ||
-					affiliation.contains("student@") ||
-					affiliation.contains("staff@"))
-				return app;
-		} else if (category.contains("http://eduid.cz/uri/idp-group/avcr")) {
-			if (affiliation.contains("member@")) return app;
-		} else if (category.contains("http://eduid.cz/uri/idp-group/library")) {
-			if (affiliation.contains("employee@")) return app;
-		} else if (category.contains("http://eduid.cz/uri/idp-group/hospital")) {
-			if (affiliation.contains("employee@")) return app;
-		} else if (category.contains("http://eduid.cz/uri/idp-group/other")) {
-			if (affiliation.contains("employee@") || affiliation.contains("member@")) return app;
-		}
-
-		throw new CantBeApprovedException("User is not active academia member", "NOT_ACADEMIC", category, affiliation);
+		throw new CantBeApprovedException("User is not eligible for CESNET services.", "NOT_ELIGIBLE", null, null);
 
 	}
 
@@ -108,40 +108,36 @@ public class Du implements RegistrarModule {
 	@Override
 	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
 
-		// if hostel with LoA = 2 => OK
-		if (Objects.equals(session.getPerunPrincipal().getExtSourceName(), "https://idp.hostel.eduid.cz/idp/shibboleth") &&
-				session.getPerunPrincipal().getExtSourceLoa() == 2) return;
+		String eligibleString = params.get("isCesnetEligibleLastSeen");
 
-		// For others check IdP attributes
-		String category = "";
-		String affiliation = "";
+		if (eligibleString != null && !eligibleString.isEmpty()) {
 
-		if (params.get("md_entityCategory") != null) {
-			category = params.get("md_entityCategory");
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			df.setLenient(false);
+			try {
+				// get eligible date + 1 year
+				Date eligibleDate = df.parse(eligibleString);
+
+				Calendar c = Calendar.getInstance();
+				c.setTime(eligibleDate);
+				c.add(Calendar.YEAR, 1);
+				Date eligibleDatePlusYear = c.getTime();
+
+				// get now
+				Calendar cal = Calendar.getInstance();
+				Date now = cal.getTime();
+
+				// compare
+				if (now.before(eligibleDatePlusYear)) {
+					return;
+				}
+
+			} catch (ParseException e) {
+				log.warn("Unable to parse date to determine, if user is eligible for CESNET services. {}", e);
+			}
 		}
 
-		if (params.get("affiliation") != null) {
-			affiliation = params.get("affiliation");
-		}
-
-		if (category.contains("http://eduid.cz/uri/idp-group/university")) {
-			if (affiliation.contains("employee@") ||
-					affiliation.contains("faculty@") ||
-					affiliation.contains("member@") ||
-					affiliation.contains("student@") ||
-					affiliation.contains("staff@"))
-				return;
-		} else if (category.contains("http://eduid.cz/uri/idp-group/avcr")) {
-			if (affiliation.contains("member@")) return;
-		} else if (category.contains("http://eduid.cz/uri/idp-group/library")) {
-			if (affiliation.contains("employee@")) return;
-		} else if (category.contains("http://eduid.cz/uri/idp-group/hospital")) {
-			if (affiliation.contains("employee@")) return;
-		} else if (category.contains("http://eduid.cz/uri/idp-group/other")) {
-			if (affiliation.contains("employee@") || affiliation.contains("member@")) return;
-		}
-
-		throw new CantBeSubmittedException("User is not active academia member", "NOT_ACADEMIC", category, affiliation);
+		throw new CantBeSubmittedException("User is not eligible for CESNET services.", "NOT_ELIGIBLE", null, null);
 
 	}
 
