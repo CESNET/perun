@@ -38,6 +38,7 @@
 		<module>perun-auditer-exporter</module>
 		<module>perun-ldapc-initializer</module>
 		<module>perun-web-gui</module>
+		<module>perun-scim</module>
 	</modules>
 
 	<!-- common environmental and version properties-->
@@ -84,6 +85,8 @@
 		<recaptcha4j.version>0.0.7</recaptcha4j.version>
 		<smackx.version>3.1.0</smackx.version>
 		<taglibs-standard.version>1.2.5</taglibs-standard.version>
+		<javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
+		<jersey-common.version>2.23.2</jersey-common.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS

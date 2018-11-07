@@ -4,6 +4,9 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.CoreConfig;
+
+import javax.ws.rs.core.Response;
+
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
@@ -36,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.security.cert.CertificateParsingException;
@@ -78,6 +82,7 @@ public class Api extends HttpServlet {
 	private final static String PERUNSTATUS = "getPerunStatus";
 	private final static String PERUNSTATISTICS = "getPerunStatistics";
 	private final static String VOOTMANAGER = "vootManager";
+	private final static String SCIMMANAGER = "scimManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
 
 	private static final String SHIB_IDENTITY_PROVIDER = "Shib-Identity-Provider";
@@ -698,6 +703,17 @@ public class Api extends HttpServlet {
 				result = caller.getVOOTManager().process(caller.getSession(), method, des.readAll());
 				if (perunRequest != null) perunRequest.setResult(result);
 				ser.write(result);
+			} else if (SCIMMANAGER.equals(manager)) {
+				// Process SCIM protocol
+				result = caller.getSCIMManager().process(caller.getSession(), method, des.readAll());
+				if (perunRequest != null) perunRequest.setResult(result);
+				if (!(result instanceof Response)) throw new InternalErrorException("SCIM manager returned unexpected result: " + result);
+				resp.setStatus(((Response) result).getStatus());
+				String response = (String) ((Response) result).getEntity();
+				PrintWriter printWriter = new PrintWriter(resp.getOutputStream());
+				printWriter.println(response);
+				printWriter.flush();
+				printWriter.close();
 			} else {
 				//Save only exceptions from caller to result
 				try {

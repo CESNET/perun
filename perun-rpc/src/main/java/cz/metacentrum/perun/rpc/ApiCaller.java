@@ -64,6 +64,7 @@ import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+import cz.metacentrum.perun.scim.SCIM;
 
 /**
  * ApiCaller calls Perun manager methods.
@@ -94,6 +95,7 @@ public class ApiCaller {
 	private RegistrarManager registrarManager;
 	private PerunNotifNotificationManager notificationManager;
 	private VOOT vootManager = null;
+	private SCIM scimManager = null;
 
 	private final static String RPCPRINCIPAL = "perunRpc";
 
@@ -227,6 +229,10 @@ public class ApiCaller {
 
 	public VOOT getVOOTManager(){
 		return vootManager;
+	}
+
+	public SCIM getSCIMManager(){
+		return scimManager;
 	}
 
 	public Vo getVoById(int id) throws PerunException {
@@ -439,6 +445,9 @@ public class ApiCaller {
 
 		// Initialize VOOT Manager
 		this.vootManager = new VOOT();
+
+		// Initialize SCIM Manager
+		this.scimManager = new SCIM();
 
 		this.session = perun.getPerunSession(perunPrincipal, client);
 	}
