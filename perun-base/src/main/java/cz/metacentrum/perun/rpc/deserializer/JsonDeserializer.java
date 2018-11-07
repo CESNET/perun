@@ -18,6 +18,7 @@ import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import java.io.InputStream;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -69,6 +70,7 @@ public class JsonDeserializer extends Deserializer {
 	private interface UserExtSourceMixIn {}
 
 	@SuppressWarnings("unused")
+	@JsonIgnoreProperties({"groupStatuses", "groupStatus", "beanName"})
 	private interface MemberMixIn {
 		@JsonIgnore
 		void setStatus(String status);
@@ -81,6 +83,16 @@ public class JsonDeserializer extends Deserializer {
 
 		@JsonDeserialize
 		void setMembershipType(MembershipType type);
+
+		@JsonIgnore
+		void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses);
+
+		@JsonIgnore
+		void putGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses);
+
+		@JsonIgnore
+		void putGroupStatus(int groupId, MemberGroupStatus status);
+
 	}
 
 	private static final ObjectMapper mapper = new ObjectMapper();
