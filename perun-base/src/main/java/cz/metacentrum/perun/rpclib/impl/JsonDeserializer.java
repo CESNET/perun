@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.*;
 import org.codehaus.jackson.JsonNode;
@@ -52,9 +53,19 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"shortName", "beanName"})
 	private interface GroupMixIn {}
 
+	@JsonIgnoreProperties({"groupStatuses", "groupStatus", "beanName"})
 	private interface MemberMixIn {
 		@JsonIgnore
 		void setStatus(String status);
+
+		@JsonIgnore
+		void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses);
+
+		@JsonIgnore
+		void putGroupStatuses(Map<Integer, MemberGroupStatus> groupStatuses);
+
+		@JsonIgnore
+		void putGroupStatus(int groupId, MemberGroupStatus status);
 	}
 
 	private static final ObjectMapper mapper = new ObjectMapper();
