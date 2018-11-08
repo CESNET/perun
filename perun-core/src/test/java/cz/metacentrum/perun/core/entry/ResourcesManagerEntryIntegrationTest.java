@@ -5,6 +5,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -1644,7 +1645,92 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	}
 
+	@Test
+	public void addResourceSelfServiceUser() throws Exception {
+		System.out.println(CLASS_NAME + "addResourceSelfServiceGroup");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		Resource resource = setUpResource();
+		User user = setUpUser("Milos", "Zeman");
+
+		resourcesManager.addResourceSelfServiceUser(sess, resource, user);
+
+		List<String> roles = AuthzResolverBlImpl.getUserRoleNames(sess, user);
+
+		assertTrue(roles.contains("resourceselfservice"));
+	}
+
+	@Test
+	public void removeResourceSelfServiceUser() throws Exception {
+		System.out.println(CLASS_NAME + "removeResourceSelfServiceUser");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		Resource resource = setUpResource();
+		User user = setUpUser("Milos", "Zeman");
+
+		resourcesManager.addResourceSelfServiceUser(sess, resource, user);
+
+		resourcesManager.removeResourceSelfServiceUser(sess, resource, user);
+
+		List<String> roles = AuthzResolverBlImpl.getUserRoleNames(sess, user);
+
+		assertFalse(roles.contains("resourceselfservice"));
+	}
+
+	@Test
+	public void addResourceSelfServiceGroup() throws Exception {
+		System.out.println(CLASS_NAME + "addResourceSelfServiceGroup");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+
+		Resource resource = setUpResource();
+
+		resourcesManager.addResourceSelfServiceGroup(sess, resource, group);
+
+		List<String> roles = AuthzResolverBlImpl.getGroupRoleNames(sess, group);
+
+		assertTrue(roles.contains("resourceselfservice"));
+	}
+
+	@Test
+	public void removeResourceSelfServiceGroup() throws Exception {
+		System.out.println(CLASS_NAME + "removeResourceSelfServiceGroup");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+
+		Resource resource = setUpResource();
+
+		resourcesManager.addResourceSelfServiceGroup(sess, resource, group);
+
+		resourcesManager.removeResourceSelfServiceGroup(sess, resource, group);
+
+		List<String> roles = AuthzResolverBlImpl.getGroupRoleNames(sess, group);
+
+		assertFalse(roles.contains("resourceselfservice"));
+	}
+
 	// PRIVATE METHODS -----------------------------------------------------------
+
+	private User setUpUser(String firstName, String lastName) throws Exception {
+
+		User user = new User();
+		user.setFirstName(firstName);
+		user.setMiddleName("");
+		user.setLastName(lastName);
+		user.setTitleBefore("");
+		user.setTitleAfter("");
+		assertNotNull(perun.getUsersManagerBl().createUser(sess, user));
+
+		return user;
+	}
 
 	private Vo setUpVo() throws Exception {
 

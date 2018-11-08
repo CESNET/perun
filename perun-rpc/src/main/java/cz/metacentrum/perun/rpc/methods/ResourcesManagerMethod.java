@@ -1121,5 +1121,77 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			}
 			return null;
 		}
+	},
+
+	/*#
+	 * Sets ResourceSelfService role to given user for given resource.
+	 *
+	 * @param resourceId int Resource <code>id</code>
+	 * @param userId int User <code>id</code>
+	 */
+	addResourceSelfServiceUser {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getResourcesManager().addResourceSelfServiceUser(ac.getSession(),
+				ac.getResourceById(parms.readInt("resourceId")), ac.getUserById(parms.readInt("userId")));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Sets ResourceSelfService role to given group for given resource.
+	 *
+	 * @param resourceId int Resource <code>id</code>
+	 * @param groupId int Group <code>id</code>
+	 */
+	addResourceSelfServiceGroup {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getResourcesManager().addResourceSelfServiceGroup(ac.getSession(),
+				ac.getResourceById(parms.readInt("resourceId")), ac.getGroupById(parms.readInt("groupId")));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Unset ResourceSelfService role to given user for given resource.
+	 *
+	 * @param resourceId int Resource <code>id</code>
+	 * @param userId int User <code>id</code>
+	 */
+	removeResourceSelfServiceUser {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getResourcesManager().removeResourceSelfServiceUser(ac.getSession(),
+				ac.getResourceById(parms.readInt("resourceId")), ac.getUserById(parms.readInt("userId")));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Unset ResourceSelfService role to given group for given resource.
+	 *
+	 * @param resourceId int Resource <code>id</code>
+	 * @param groupId int Group <code>id</code>
+	 */
+	removeResourceSelfServiceGroup {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getResourcesManager().removeResourceSelfServiceGroup(ac.getSession(),
+				ac.getResourceById(parms.readInt("resourceId")), ac.getGroupById(parms.readInt("groupId")));
+
+			return null;
+		}
 	};
 }

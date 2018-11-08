@@ -44,6 +44,13 @@ public class AlreadyAdminException extends PerunException {
 		this.role = role;
 	}
 
+	public AlreadyAdminException(String message, Throwable cause, User user, Resource resource, Role role) {
+		super(message, cause);
+		this.user = user;
+		this.resource = resource;
+		this.role = role;
+	}
+
 
 	public AlreadyAdminException(String message, Throwable cause, User user, User sponsoredUser) {
 		super(message, cause);
@@ -83,6 +90,13 @@ public class AlreadyAdminException extends PerunException {
 		super(message, cause);
 		this.authorizedGroup = authorizedGroup;
 		this.vo = vo;
+		this.role = role;
+	}
+
+	public AlreadyAdminException(String message, Throwable cause, Group authorizedGroup, Resource resource, Role role) {
+		super(message, cause);
+		this.authorizedGroup = authorizedGroup;
+		this.resource = resource;
 		this.role = role;
 	}
 

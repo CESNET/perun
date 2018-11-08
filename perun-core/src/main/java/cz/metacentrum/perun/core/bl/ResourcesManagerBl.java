@@ -995,4 +995,48 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException internal error
 	 */
 	List<Resource> getResources(PerunSession sess) throws InternalErrorException;
+
+	/**
+	 * Sets ResourceSelfService role to given user for given resource.
+	 *
+	 * @param sess     session
+	 * @param resource resource
+	 * @param user     user
+	 * @throws AlreadyAdminException  already has role
+	 * @throws InternalErrorException internal error
+	 */
+	void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws AlreadyAdminException, InternalErrorException;
+
+	/**
+	 * Sets ResourceSelfService role to given group for given resource.
+	 *
+	 * @param sess     session
+	 * @param resource resource
+	 * @param group    group
+	 * @throws AlreadyAdminException  already has role
+	 * @throws InternalErrorException internal error
+	 */
+	void addResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws AlreadyAdminException, InternalErrorException;
+
+	/**
+	 * Unset ResourceSelfService role to given user for given resource.
+	 *
+	 * @param sess     session
+	 * @param resource resource
+	 * @param user     user
+	 * @throws UserNotAdminException  user did not have the role
+	 * @throws InternalErrorException internal error
+	 */
+	void removeResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws UserNotAdminException, InternalErrorException;
+
+	/**
+	 * Unset ResourceSelfService role to given group for given resource.
+	 *
+	 * @param sess     session
+	 * @param resource resource
+	 * @param group    group
+	 * @throws GroupNotAdminException group did not have the role
+	 * @throws InternalErrorException internal error
+	 */
+	void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws GroupNotAdminException, InternalErrorException;
 }

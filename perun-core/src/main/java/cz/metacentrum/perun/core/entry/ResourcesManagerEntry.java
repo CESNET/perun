@@ -1144,6 +1144,114 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().removeBan(sess, memberId, resourceId);
 	}
 
+	@Override
+	public void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws InternalErrorException, PrivilegeException, AlreadyAdminException {
+		Utils.checkPerunSession(sess);
+
+		Vo vo;
+		Facility facility;
+
+		try {
+			facility = sess.getPerun().getFacilitiesManager().getFacilityById(sess, resource.getFacilityId());
+		} catch (FacilityNotExistsException e) {
+			throw new InternalErrorException("Failed to find facility for given resource.");
+		}
+
+		try {
+			vo = sess.getPerun().getVosManager().getVoById(sess, resource.getVoId());
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException("Failed to find vo for given resource.");
+		}
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+		    !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "addResourceSelfServiceUser");
+		}
+
+		getResourcesManagerBl().addResourceSelfServiceUser(sess, resource, user);
+	}
+
+	@Override
+	public void addResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws InternalErrorException, PrivilegeException, AlreadyAdminException {
+		Utils.checkPerunSession(sess);
+
+		Vo vo;
+		Facility facility;
+
+		try {
+			facility = sess.getPerun().getFacilitiesManager().getFacilityById(sess, resource.getFacilityId());
+		} catch (FacilityNotExistsException e) {
+			throw new InternalErrorException("Failed to find facility for given resource.");
+		}
+
+		try {
+			vo = sess.getPerun().getVosManager().getVoById(sess, resource.getVoId());
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException("Failed to find vo for given resource.");
+		}
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+			!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "addResourceSelfServiceUser");
+		}
+
+		getResourcesManagerBl().addResourceSelfServiceGroup(sess, resource, group);
+	}
+
+	@Override
+	public void removeResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws InternalErrorException, PrivilegeException, UserNotAdminException {
+		Utils.checkPerunSession(sess);
+
+		Vo vo;
+		Facility facility;
+
+		try {
+			facility = sess.getPerun().getFacilitiesManager().getFacilityById(sess, resource.getFacilityId());
+		} catch (FacilityNotExistsException e) {
+			throw new InternalErrorException("Failed to find facility for given resource.");
+		}
+
+		try {
+			vo = sess.getPerun().getVosManager().getVoById(sess, resource.getVoId());
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException("Failed to find vo for given resource.");
+		}
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+			!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "addResourceSelfServiceUser");
+		}
+
+		getResourcesManagerBl().removeResourceSelfServiceUser(sess, resource, user);
+	}
+
+	@Override
+	public void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws InternalErrorException, PrivilegeException, GroupNotAdminException {
+		Utils.checkPerunSession(sess);
+
+		Vo vo;
+		Facility facility;
+
+		try {
+			facility = sess.getPerun().getFacilitiesManager().getFacilityById(sess, resource.getFacilityId());
+		} catch (FacilityNotExistsException e) {
+			throw new InternalErrorException("Failed to find facility for given resource.");
+		}
+
+		try {
+			vo = sess.getPerun().getVosManager().getVoById(sess, resource.getVoId());
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException("Failed to find vo for given resource.");
+		}
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+			!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "addResourceSelfServiceUser");
+		}
+
+		getResourcesManagerBl().removeResourceSelfServiceGroup(sess, resource, group);
+	}
+
 	/**
 	 * Filter out resources where user in session has not role resource admin for them
 	 *

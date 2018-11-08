@@ -984,4 +984,52 @@ public interface ResourcesManager {
 	 * @throws PrivilegeException
 	 */
 	void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException, PrivilegeException, ResourceNotExistsException;
+
+	/**
+	 * Sets ResourceSelfService role to given user for given resource.
+	 *
+	 * @param sess     session
+	 * @param resource resource
+	 * @param user     user id
+	 * @throws InternalErrorException internal error
+	 * @throws PrivilegeException     insufficient permissions
+	 * @throws AlreadyAdminException  already has the role
+	 */
+	void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws InternalErrorException, PrivilegeException, AlreadyAdminException;
+
+	/**
+	 * Sets ResourceSelfService role to given group for given resource.
+	 *
+	 * @param sess     session
+	 * @param resource resource
+	 * @param group    group
+	 * @throws InternalErrorException internal error
+	 * @throws PrivilegeException     insufficient permissions
+	 * @throws AlreadyAdminException  already has the role
+	 */
+	void addResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws InternalErrorException, PrivilegeException, AlreadyAdminException;
+
+	/**
+	 * Unset ResourceSelfService role to given user for given resource.
+	 *
+	 * @param sess       session
+	 * @param resource resource
+	 * @param user     user
+	 * @throws InternalErrorException     internal error
+	 * @throws PrivilegeException         insufficient permissions
+	 * @throws UserNotAdminException      user did not have the role
+	 */
+	void removeResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws InternalErrorException, PrivilegeException, UserNotAdminException;
+
+	/**
+	 * Unset ResourceSelfService role to given group for given resource.
+	 *
+	 * @param sess       session
+	 * @param resource resource
+	 * @param group   group
+	 * @throws InternalErrorException     internal error
+	 * @throws PrivilegeException         insufficient permissions
+	 * @throws GroupNotAdminException     group did not have the role
+	 */
+	void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws InternalErrorException, PrivilegeException, GroupNotAdminException;
 }
