@@ -247,17 +247,17 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				" inner join (" +
 				" SELECT destination_id, MAX(modified_at) AS modified_at_max" +
 				" FROM tasks_results where task_id=?" +
-				" GROUP BY destination_id) AS tr2" +
+				" GROUP BY destination_id) tr2" +
 				" on tasks_results.destination_id = tr2.destination_id" +
 				" and tasks_results.modified_at = tr2.modified_at_max" +
 				" inner join (" +
 				" SELECT destination_id, modified_at, MAX(id) AS id_max" +
 				" FROM tasks_results where task_id=?" +
-				" GROUP BY destination_id, modified_at) AS tr3" +
+				" GROUP BY destination_id, modified_at) tr3" +
 				" on tasks_results.destination_id = tr3.destination_id" +
 				" and tasks_results.modified_at = tr3.modified_at" +
 				" and tasks_results.id   = tr3.id_max" +
-				" where tasks_results.task_id=?;",
+				" where tasks_results.task_id=?",
 				TASKRESULT_ROWMAPPER, taskId, taskId, taskId);
 	}
 
