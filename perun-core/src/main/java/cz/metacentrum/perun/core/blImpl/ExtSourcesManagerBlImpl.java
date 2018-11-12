@@ -12,6 +12,7 @@ import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceCreate
 import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceDeleted;
 import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceRemovedFromGroup;
 import cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents.ExtSourceRemovedFromVo;
+import cz.metacentrum.perun.core.api.GroupsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +49,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	final static Logger log = LoggerFactory.getLogger(ExtSourcesManagerBlImpl.class);
 	// \\p{L} means any unicode char
 	private static final Pattern namePattern = Pattern.compile("^[\\p{L} ,.0-9_'-]+$");
+	private static final Pattern groupNamePattern = Pattern.compile(GroupsManager.GROUP_SHORT_NAME_REGEXP);
 
 	private final ExtSourcesManagerImplApi extSourcesManagerImpl;
 	private PerunBl perunBl;
@@ -459,21 +461,22 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	@Override
 	public CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source) throws InternalErrorException {
 		if(groupSubjectData == null || groupSubjectData.isEmpty()) throw new InternalErrorException(" Group subject data can't be null or empty, at least group name has to exists.");
+		if(source == null) throw new InternalErrorException(" ExtSource cannot be null while generating CandidateGroup");
 
 		CandidateGroup candidateGroup = new CandidateGroup();
 
 		candidateGroup.setExtSource(source);
 
-		candidateGroup.asGroup().setName(groupSubjectData.get("groupName"));
+		candidateGroup.asGroup().setName(groupSubjectData.get(GroupsManagerBlImpl.GROUP_NAME));
 		if(candidateGroup.asGroup().getName() != null) {
-			Matcher name = namePattern.matcher(candidateGroup.asGroup().getName());
+			Matcher name = groupNamePattern.matcher(candidateGroup.asGroup().getName());
 			if(!name.matches()) throw new InternalErrorException("Group subject data has to contains valid group name!");
 		} else {
 			throw new InternalErrorException("group name cannot be null in Group subject data!");
 		}
 
-		candidateGroup.setParentGroupName(groupSubjectData.get("parentGroupName"));
-		candidateGroup.asGroup().setDescription(groupSubjectData.get("description"));
+		candidateGroup.setParentGroupName(groupSubjectData.get(GroupsManagerBlImpl.PARENT_GROUP_NAME));
+		candidateGroup.asGroup().setDescription(groupSubjectData.get(GroupsManagerBlImpl.GROUP_DESCRIPTION));
 
 		return candidateGroup;
 	}

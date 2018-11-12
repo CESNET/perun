@@ -3,6 +3,8 @@ package cz.metacentrum.perun.core.api;
 import java.util.Objects;
 
 /**
+ * Candidate group of Virtual organization
+ *
  * @date 8/30/17.
  * @author Peter Balcirak peter.balcirak@gmail.com
  */
@@ -65,10 +67,13 @@ public class CandidateGroup extends Auditable {
 	public String serializeToString() {
 		StringBuilder str = new StringBuilder();
 
-		return str.append(this.getClass().getSimpleName()).append(":[" +
-				"extSource=<").append(getExtSource() == null ? "\\0" : getExtSource().serializeToString()).append(">" +
-				", parentGroupName=<").append(getParentGroupName()).append(">" +
-				", group=<").append(asGroup() == null ? "\\0" : asGroup().serializeToString()).append(">" +
-				']').toString();
+		return str.append(this.getClass().getSimpleName()).
+				append(":[extSource=<").
+				append(getExtSource() == null ? "\\0" : getExtSource().serializeToString()).
+				append(">, parentGroupName=<").
+				append(getParentGroupName()).
+				append(">, group=<").
+				append(asGroup() == null ? "\\0" : asGroup().serializeToString()).
+				append(">]").toString();
 	}
 }

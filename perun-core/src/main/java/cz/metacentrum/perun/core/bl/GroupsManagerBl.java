@@ -948,13 +948,12 @@ public interface GroupsManagerBl {
 	 */
 	void forceGroupSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupSynchronizationAlreadyRunningException;
 
-    /**
-     * Force group structure synchronization.
-     *
-     * 1. If the group is not currently in synchronization process,
-     *    put it on the first place to the queue of groups waiting for group structure synchronization.
-     *
-     * @param group the group to be forced this way
+	/**
+	 * Force group structure synchronization.
+	 *
+	 * 1. Adds the group on the first place to the queue of groups waiting for group structure synchronization.
+	 *
+	 * @param group the group to be forced this way
 	 * @throws InternalErrorException
 	 * @throws GroupStructureSynchronizationAlreadyRunningException
 	 */
@@ -1344,11 +1343,11 @@ public interface GroupsManagerBl {
 
 
 	/**
-     * This method will set timestamp, state and exceptionMessage to group attributes for the group structure.
-     * Also log information about failed group structure synchronization to auditer_log.
-     *
-     * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups structures)
-     *
+	 * This method will set timestamp, state and exceptionMessage to group attributes for the group structure.
+	 * Also log information about failed group structure synchronization to auditer_log.
+	 *
+	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups structures)
+	 *
 	 * 1. Get current timestamp
 	 * 2. Check if group or session are null
 	 * 3. Set correct format of currentTimestamp
@@ -1358,25 +1357,58 @@ public interface GroupsManagerBl {
 	 * 7. Set attributes at once
 	 *
 	 *
-     * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
-     * Set exception message to attribute "group_def_lastGroupStructureSynchronizationState"
-     *
-     * FailedDueToException is true means group structure synchronization failed at all.
-     * FailedDueToException is false means group structure synchronization is ok or finished with some errors (some groups were not synchronized)
-     *
-     * @param sess perun session
-     * @param group the group structure for synchronization
-     * @param failedDueToException if exception means fail of whole synchronization of this group structure or only problem with some data
-     * @param exceptionMessage message of an exception, ok if everything is ok
-     * @throws AttributeNotExistsException
-     * @throws InternalErrorException
-     * @throws WrongReferenceAttributeValueException
-     * @throws WrongAttributeAssignmentException
-     * @throws WrongAttributeValueException
-     */
-    void saveInformationAboutGroupStructureSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	 * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
+	 * Set exception message to attribute "group_def_lastGroupStructureSynchronizationState"
+	 *
+	 * FailedDueToException is true means group structure synchronization failed at all.
+	 * FailedDueToException is false means group structure synchronization is ok or finished with some errors (some groups were not synchronized)
+	 *
+	 * @param sess perun session
+	 * @param group the group structure for synchronization
+	 * @param failedDueToException if exception means fail of whole synchronization of this group structure or only problem with some data
+	 * @param exceptionMessage message of an exception, ok if everything is ok
+	 * @throws AttributeNotExistsException
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongAttributeValueException
+	 */
+	void saveInformationAboutGroupStructureSynchronizationInNewTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
-    /**
+	/**
+	 * This method will set timestamp, state and exceptionMessage to group attributes for the group structure.
+	 * Also log information about failed group structure synchronization to auditer_log.
+	 *
+	 * IMPORTANT: This method runs in nested transaction (because of using in synchronization of groups structures)
+	 *
+	 * 1. Get current timestamp
+	 * 2. Check if group or session are null
+	 * 3. Set correct format of currentTimestamp
+	 * 4. prepare container for attributes which will be set
+	 * 5. process exception message
+	 * 6. prepare timestamp and state attributes
+	 * 7. Set attributes at once
+	 *
+	 *
+	 * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
+	 * Set exception message to attribute "group_def_lastGroupStructureSynchronizationState"
+	 *
+	 * FailedDueToException is true means group structure synchronization failed at all.
+	 * FailedDueToException is false means group structure synchronization is ok or finished with some errors (some groups were not synchronized)
+	 *
+	 * @param sess perun session
+	 * @param group the group structure for synchronization
+	 * @param failedDueToException if exception means fail of whole synchronization of this group structure or only problem with some data
+	 * @param exceptionMessage message of an exception, ok if everything is ok
+	 * @throws AttributeNotExistsException
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongAttributeValueException
+	 */
+	void saveInformationAboutGroupStructureSynchronizationInNestedTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
 	 * Get all groups in specific vo with assigned extSource
 	 *
 	 * @param sess
@@ -1604,12 +1636,8 @@ public interface GroupsManagerBl {
 	List<String> synchronizeGroupStructure(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException ;
 
 	/**
-	 * Check if there is group structure synchronization enabled in parent path
-     *
-     * 1. If group doesn't have parent return false
-     * 2. Get groups parent object
-     * 3. If that object has group structure synchronization enabled, return true
-     * 4. Recursively call this method on the parent group object
+	 * Check if there is group structure synchronization enabled for this group or in its parent path
+	 *
 	 *
 	 * @param session
 	 * @param group
@@ -1619,11 +1647,26 @@ public interface GroupsManagerBl {
 	boolean isGroupInStructureSynchronizationTree(PerunSession session, Group group) throws InternalErrorException;
 
 	/**
+	 * Check if there is group structure synchronization enabled in parent path
+	 *
+	 * 1. If group doesn't have parent return false
+	 * 2. Get groups parent object
+	 * 3. If that object has group structure synchronization enabled, return true
+	 * 4. Recursively call this method on the parent group object
+	 *
+	 * @param session
+	 * @param group
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	boolean isGroupSynchronizedFromExternallSource(PerunSession session, Group group) throws InternalErrorException;
+
+	/**
 	 * Check if there is synchronized child group
-     *
-     * 1. For each subGroup:
-     *      1.1 if it has enabled group structure synchronization, return true
-     * 2. Return false
+	 *
+	 * 1. For each subGroup:
+	 *      1.1 if it has enabled group structure synchronization, return true
+	 * 2. Return false
 	 *
 	 * @param session
 	 * @param group

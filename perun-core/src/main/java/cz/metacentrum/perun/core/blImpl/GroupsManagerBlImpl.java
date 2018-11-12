@@ -85,6 +85,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private final PerunBeanProcessingPool<Group> poolOfGroupsStructuresToBeSynchronized;
 	private final ArrayList<GroupStructureSynchronizerThread> groupStructureSynchronizerThreads;
 
+	public static final String PARENT_GROUP_NAME = "parentGroupName";
+	public static final String GROUP_NAME = "groupName";
+	public static final String GROUP_DESCRIPTION = "description";
+
 	/**
 	 * Create new instance of this class.
 	 *
@@ -1600,7 +1604,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		if (isThisFlatSynchronization(sess, baseGroup)) {
 			for(Map<String, String> subjectGroup : subjectGroups) {
-				subjectGroup.put("parentGroupName", null);
+				subjectGroup.put(PARENT_GROUP_NAME, null);
 			}
 		}
 
@@ -1939,10 +1943,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					exceptionMessage += "due to unexpected exception: " + e.getClass().getName() + " => " + e.getMessage();
 				} finally {
 					try {
-						perunBl.getGroupsManagerBl().saveInformationAboutGroupStructureSynchronization(sess, group, failedDueToException, exceptionMessage);
+						perunBl.getGroupsManagerBl().saveInformationAboutGroupStructureSynchronizationInNewTransaction(sess, group, failedDueToException, exceptionMessage);
 					} catch (Exception ex) {
 						log.error("When synchronization group structure " + group + ", exception was thrown.", ex);
-						log.info("Info about exception from group structure synchronization: " + skippedGroupsMessage);
+						log.error("Info about exception from group structure synchronization: " + skippedGroupsMessage);
 					}
 					if (!poolOfGroupsStructuresToBeSynchronized.removeJob(group)) {
 						log.error("Can't remove running job for object " + group + " from pool of running jobs because it is not containing it.");
@@ -2337,27 +2341,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public void saveInformationAboutGroupStructureSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
-		Date currentTimestamp = new Date();
+	public void saveInformationAboutGroupStructureSynchronizationInNewTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		saveInformationAboutGroupStructureSynchronization(sess, group, failedDueToException, exceptionMessage);
+	}
 
-		if (sess == null) {
-			throw new InternalErrorException("Session is null when trying to save information about group structure synchronization. Group structure: " + group + ", timestamp: " + currentTimestamp + ",message: " + exceptionMessage);
-		}
-
-		if (group == null) {
-			throw new InternalErrorException("Object group is null when trying to save information about group structure synchronization. Timestamp: " + currentTimestamp + ", message: " + exceptionMessage);
-		}
-
-		String correctTimestampString = BeansUtils.getDateFormatter().format(currentTimestamp);
-
-		List<Attribute> attrsToSet = new ArrayList<>();
-
-		exceptionMessage = processGroupStructureSynchronizationExceptionMessage(sess, group, failedDueToException, correctTimestampString, exceptionMessage, attrsToSet);
-
-		prepareGroupStructureSynchronizationAttribute(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastGroupStructureSynchronizationState", exceptionMessage, attrsToSet);
-		prepareGroupStructureSynchronizationAttribute(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastGroupStructureSynchronizationTimestamp", correctTimestampString, attrsToSet);
-
-		((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttributes(sess, group, attrsToSet);
+	@Override
+	public void saveInformationAboutGroupStructureSynchronizationInNestedTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		saveInformationAboutGroupStructureSynchronization(sess, group, failedDueToException, exceptionMessage);
 	}
 
 	@Override
@@ -3279,6 +3269,29 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	//----------- PRIVATE METHODS FOR  GROUP STRUCTURE SYNCHRONIZATION -----------
 
+	private void saveInformationAboutGroupStructureSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		Date currentTimestamp = new Date();
+
+		if (sess == null) {
+			throw new InternalErrorException("Session is null when trying to save information about group structure synchronization. Group structure: " + group + ", timestamp: " + currentTimestamp + ",message: " + exceptionMessage);
+		}
+
+		if (group == null) {
+			throw new InternalErrorException("Object group is null when trying to save information about group structure synchronization. Timestamp: " + currentTimestamp + ", message: " + exceptionMessage);
+		}
+
+		String correctTimestampString = BeansUtils.getDateFormatter().format(currentTimestamp);
+
+		List<Attribute> attrsToSet = new ArrayList<>();
+
+		exceptionMessage = processGroupStructureSynchronizationExceptionMessage(sess, group, failedDueToException, correctTimestampString, exceptionMessage, attrsToSet);
+
+		prepareGroupStructureSynchronizationAttribute(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastGroupStructureSynchronizationState", exceptionMessage, attrsToSet);
+		prepareGroupStructureSynchronizationAttribute(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastGroupStructureSynchronizationTimestamp", correctTimestampString, attrsToSet);
+
+		((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttributes(sess, group, attrsToSet);
+	}
+
 	/**
 	 * Synchronize members for each sub group which is under base group
 	 *
@@ -3397,10 +3410,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	/**
 	 * Compose message about skipped objects
-     *
-     * Method used by group structure synchronization
+	 *
+	 * Method used by group structure synchronization
 	 *
 	 * @param skippedObjects objects which were skipped during synchronization
+	 * @param objectName name of objects which were skipped
 	 * @return composed message about skipped objects
 	 */
 	private String prepareSkippedObjectsMessage(List<String> skippedObjects, String objectName) {
@@ -3514,13 +3528,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					intervalMultiplier = Integer.parseInt((String) intervalAttribute.getValue());
 				} else {
 					intervalMultiplier = defaultIntervalMultiplier;
-					log.info("Group structure {} hasn't set synchronization interval, using default {} seconds", group, intervalMultiplier);
+					log.debug("Group structure {} hasn't set synchronization interval, using default {} seconds", group, intervalMultiplier);
 				}
 			} catch (AttributeNotExistsException e) {
-				log.warn("Required attribute {} isn't defined in Perun! Using default value from properties instead!", GroupsManager.GROUPSTRUCTURESYNCHROINTERVAL_ATTRNAME);
+				log.debug("Required attribute {} isn't defined in Perun! Using default value from properties instead!", GroupsManager.GROUPSTRUCTURESYNCHROINTERVAL_ATTRNAME);
 				intervalMultiplier = defaultIntervalMultiplier;
 			} catch (WrongAttributeAssignmentException e) {
-				log.warn("Cannot get attribute " + GroupsManager.GROUPSTRUCTURESYNCHROINTERVAL_ATTRNAME + " for group structure " + group + " due to exception. Using default value from properties instead!",e);
+				log.debug("Cannot get attribute " + GroupsManager.GROUPSTRUCTURESYNCHROINTERVAL_ATTRNAME + " for group structure " + group + " due to exception. Using default value from properties instead!",e);
 				intervalMultiplier = defaultIntervalMultiplier;
 			}
 
@@ -3529,9 +3543,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			if ((minutesFromEpoch % intervalMultiplier) == 0) {
 				if (poolOfGroupsStructuresToBeSynchronized.putJobIfAbsent(group, false)) {
 					numberOfNewlyAddedGroups++;
-					log.info("Group structure {} was added to the pool of groups structures waiting for synchronization.", group);
+					log.debug("Group structure {} was added to the pool of groups structures waiting for synchronization.", group);
 				} else {
-					log.info("Group structure {} synchronization is already running.", group);
+					log.debug("Group structure {} synchronization is already running.", group);
 				}
 			}
 		}
@@ -3642,12 +3656,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
+	 * Method checks if group structure synchronization has to respect hierarchy of groups in external source.
+	 *
 	 * True: we don't want to synchronize group structure with hierarchy,
 	 *       every group in structure will be placed under base group
 	 * False: we want to synchronize group structure with hierarchy.
 	 *        That means, we want to create groups and subgroups as they are ine extSource
-     *
-     * Method used by group structure synchronization
+	 *
+	 * Method used by group structure synchronization
 	 *
 	 * @param sess
 	 * @param group to be synchronized
@@ -4109,6 +4125,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public boolean isGroupInStructureSynchronizationTree(PerunSession session, Group group) throws InternalErrorException {
+
+		try {
+			Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(session, group, GroupsManager.GROUPSSTRUCTURESYNCHROENABLED_ATTRNAME);
+			if (attrSynchronizeEnabled.getValue() != null && attrSynchronizeEnabled.getValue().equals(true)) {
+				return true;
+			} else {
+				return isGroupSynchronizedFromExternallSource(session, group);
+			}
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public boolean isGroupSynchronizedFromExternallSource(PerunSession session, Group group) throws InternalErrorException {
 		Attribute attrSynchronizeEnabled = null;
 		Group parentGroup = null;
 

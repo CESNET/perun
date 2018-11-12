@@ -69,7 +69,7 @@ public class Synchronizer {
 	 */
 	public void synchronizeGroupsStructures() {
 		if(perunBl.isPerunReadOnly()) {
-			log.debug("This instance is just read only so skip synchronization of groups structures.");
+			log.warn("This instance is just read only so skip synchronization of groups structures.");
 			return;
 		}
 

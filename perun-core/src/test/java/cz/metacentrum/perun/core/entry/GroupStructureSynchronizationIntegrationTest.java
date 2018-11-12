@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
+import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.impl.ExtSourceLdap;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import org.junit.After;
@@ -596,11 +597,11 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		public Map<String, String> toMap() {
 			Map<String, String> subject = new HashMap<>();
-			subject.put("groupName", groupName);
+			subject.put(GroupsManagerBlImpl.GROUP_NAME, groupName);
 			if (parentGroupName != null) {
-				subject.put("parentGroupName", parentGroupName);
+				subject.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, parentGroupName);
 			}
-			subject.put("description", description);
+			subject.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, description);
 			return subject;
 		}
 	}

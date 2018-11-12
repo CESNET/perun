@@ -3,9 +3,8 @@ package cz.metacentrum.perun.core.api.exceptions;
 import cz.metacentrum.perun.core.api.Group;
 
 /**
- * Service not exists in underlaying data source.
+ * Group structure synchronization is already running for given group
  *
- * @see cz.metacentrum.perun.core.api.exceptions.rt.GroupStructureSynchronizationAlreadyRunningException
  * @author Peter Balcirak peter.balcirak@gmail.com
  */
 public class GroupStructureSynchronizationAlreadyRunningException extends PerunException {

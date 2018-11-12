@@ -267,8 +267,6 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * IMPORTANT: expected, that these subjectData was get from the ExtSource before using.
 	 *
-	 * 	 * Method used by group structure synchronization
-	 *
 	 * @param perunSession
 	 * @param groupSubjectData
 	 * @param source
@@ -284,8 +282,6 @@ public interface ExtSourcesManagerBl {
 	 * 1. For each groupSubjectsData call method get CandidateGroup and then add result to List
 	 *
 	 * IMPORTANT: expected, that these subjectData was get from the ExtSource before using.
-	 *
-	 * Method used by group structure synchronization
 	 *
 	 * @param perunSession
 	 * @param groupSubjectsData

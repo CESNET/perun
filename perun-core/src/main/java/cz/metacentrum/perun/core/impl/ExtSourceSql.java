@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -352,22 +353,22 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 				Map<String, String> map = new HashMap<String, String>();
 
 				try {
-					map.put("groupName", rs.getString("groupName"));
+					map.put(GroupsManagerBlImpl.GROUP_NAME, rs.getString(GroupsManagerBlImpl.GROUP_NAME));
 				} catch (SQLException e) {
 					// If the column doesn't exists, ignore it
-					map.put("groupName", null);
+					map.put(GroupsManagerBlImpl.GROUP_NAME, null);
 				}
 				try {
-					map.put("parentGroupName", rs.getString("parentGroupName"));
+					map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, rs.getString(GroupsManagerBlImpl.PARENT_GROUP_NAME));
 				} catch (SQLException e) {
 					// If the column doesn't exists, ignore it
-					map.put("parentGroupName", null);
+					map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, null);
 				}
 				try {
-					map.put("description", rs.getString("description"));
+					map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, rs.getString(GroupsManagerBlImpl.GROUP_DESCRIPTION));
 				} catch (SQLException e) {
 					// If the column doesn't exists, ignore it
-					map.put("groupDescription", null);
+					map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, null);
 				}
 
 				subjects.add(map);

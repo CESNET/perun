@@ -40,6 +40,11 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
 		}
 			try {
 				if (attrValue.equals("true")) {
+
+					if(sess.getPerunBl().getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
+						throw new InternalErrorException("There is already enabled group structure synchronization for this group or one of the parent groups.");
+					}
+
 					Attribute requiredAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
 					if (requiredAttribute.getValue() == null) {
 						throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
@@ -58,19 +63,6 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
 			} catch (AttributeNotExistsException e) {
 				throw new ConsistencyErrorException(e);
 			}
-
-		Attribute structureSynchronizeEnabled = null;
-		try {
-			structureSynchronizeEnabled = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSSTRUCTURESYNCHROENABLED_ATTRNAME);
-		} catch (AttributeNotExistsException e) {
-			throw new ConsistencyErrorException(e);
-		}
-		if (Objects.equals(true, structureSynchronizeEnabled.getValue())) {
-			throw new WrongReferenceAttributeValueException("There is already enabled group structure synchronization for this group.");
-		}
-		if(sess.getPerunBl().getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
-			throw new InternalErrorException("There is already enabled group structure synchronization for one of the parent groups.");
-		}
 	}
 
 	@Override

@@ -83,7 +83,7 @@ public interface GroupsManager {
 	 * @throws GroupRelationNotAllowed
 	 * @throws GroupRelationAlreadyExists
 	 */
-	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InternalErrorException, GroupRelationNotAllowed, GroupRelationAlreadyExists;
+	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InternalErrorException, GroupRelationNotAllowed, GroupRelationAlreadyExists, ExternallyManagedException;
 
 	/**
 	 * If forceDelete is false, delete only group and if this group has members or subgroups, throw an exception.
@@ -852,7 +852,7 @@ public interface GroupsManager {
 	void synchronizeGroups(PerunSession sess) throws InternalErrorException, PrivilegeException;
 
 	/**
-	 * Synchronize all groups structures with members which have enabled group structure synchronization. This method is run by the scheduler every 5 minutes.
+	 * Synchronize all groups structures (with members) which have enabled group structure synchronization. This method is run by the scheduler every 5 minutes.
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException

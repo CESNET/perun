@@ -81,8 +81,8 @@ public class CoreConfig {
 	private Map<String, String> oidcIssuersExtsourceTypes = new HashMap<>();
 
 	public int getGroupMaxConcurrentGroupsStructuresToSynchronize() {
-			return groupMaxConcurrentGroupsStructuresToSynchronize;
-		}
+		return groupMaxConcurrentGroupsStructuresToSynchronize;
+	}
 
 	public void setGroupMaxConcurrentGroupsStructuresToSynchronize(int groupMaxConcurrentGroupsStructuresToSynchronize) {
 		this.groupMaxConcurrentGroupsStructuresToSynchronize = groupMaxConcurrentGroupsStructuresToSynchronize;
