@@ -429,7 +429,7 @@ public interface AuthzResolverImplApi {
 	void removeResourceRole(PerunSession sess, Role role, Resource resource, User user) throws InternalErrorException, UserNotAdminException;
 
 	/**
-	 * Remove role ro group for resource.
+	 * Remove role to group for resource.
 	 *
 	 * @param sess session
 	 * @param role role

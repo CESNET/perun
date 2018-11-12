@@ -1032,7 +1032,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 						if (user != null) authzResolverImpl.removeResourceRole(sess, role, (Resource) complementaryObject, user);
 						else authzResolverImpl.removeResourceRole(sess, role, (Resource) complementaryObject, authorizedGroup);
 					} else {
-						throw new InternalErrorException("Not supported complementary object for VoObserver: " + complementaryObject);
+						throw new InternalErrorException("Not supported complementary object for resourceSelfService: " + complementaryObject);
 					}
 				} else {
 					throw new InternalErrorException("Not supported role: " + role);
