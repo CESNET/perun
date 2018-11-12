@@ -42,12 +42,12 @@ public class TaskSchedule implements Delayed {
 
 	@Override
 	public long getDelay(TimeUnit unit) {
-		return unit.convert(delay - (System.currentTimeMillis() - base), TimeUnit.MILLISECONDS);
+		return unit.convert(this.delay - (System.currentTimeMillis() - base), TimeUnit.MILLISECONDS);
 	}
 
 	@Override
 	public int compareTo(Delayed delayed) {
-		return Long.valueOf(this.delay).compareTo(delayed.getDelay(TimeUnit.MILLISECONDS));
+		return Long.compare(getDelay(TimeUnit.MILLISECONDS), delayed.getDelay(TimeUnit.MILLISECONDS));
 	}
 
 	@Override
