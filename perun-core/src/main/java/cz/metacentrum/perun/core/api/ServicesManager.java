@@ -172,7 +172,7 @@ public interface ServicesManager {
 	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
-	 * Generates the list of attributes per each user and per each resource. Resources are filtered by service. 
+	 * Generates the list of attributes per each user and per each resource. Resources are filtered by service.
 	 * Never return member or member-resource attribute.
 	 *
 	 * @param perunSession
@@ -292,11 +292,11 @@ public interface ServicesManager {
 
 	/**
 	 * Generates the list of attributes per each member associated with the resources and groups in vos.
-	 * 
+	 *
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
-	 * @return attributes in special structure. 
+	 * @return attributes in special structure.
 	 *        Facility is in the root, facility children are vos.
 	 *        Vo first child is abstract structure which children are resources.
 	 *        Resource first child is abstract structure which children are groups.
@@ -305,8 +305,8 @@ public interface ServicesManager {
 	 *        Group second chi is abstract structure which children are members.
 	 <pre>
 	 Facility
-	 +---Attrs                              
-	 +---ChildNodes               
+	 +---Attrs
+	 +---ChildNodes
 	        +-----Vo
 	        |      +---Attrs
 	        |      +---ChildNodes
@@ -370,7 +370,7 @@ public interface ServicesManager {
 	 * @throws InternalErrorException
 	 * @throws FacilityNotExistsException
 	 * @throws ServiceNotExistsException
-	 * @throws PrivilegeException 
+	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
 	 */
 	ServiceAttributes getDataWithVos(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, VoNotExistsException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
@@ -756,8 +756,17 @@ public interface ServicesManager {
 	 */
 	void removeAllDestinations(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException;
 
-	@Deprecated
-	int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException;
+	/**
+	 * Return ID of Destination by its value (name) and type.
+	 *
+	 * @param sess
+	 * @param name Name (value) of Destination
+	 * @param type Type of destination
+	 * @return ID of Destination
+	 * @throws InternalErrorException
+	 * @throws DestinationNotExistsException
+	 */
+	int getDestinationIdByName(PerunSession sess, String name, String type) throws InternalErrorException, DestinationNotExistsException;
 
 	/**
 	 * List all services associated with the facility (via resource).

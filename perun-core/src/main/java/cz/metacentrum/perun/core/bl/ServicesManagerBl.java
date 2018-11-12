@@ -139,7 +139,7 @@ public interface ServicesManagerBl {
 	 * @param perunSession
 	 * @param service you will get attributes required by this service
 	 * @param facility you will get attributes for this facility, resources associated with it and users assigned to the resources
-	 * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. 
+	 * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources.
 	 * 				Facility second child is abstract node with no attribute and it's children are all users.
 	 *
 	 * @throws InternalErrorException
@@ -537,7 +537,17 @@ public interface ServicesManagerBl {
 	 */
 	void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException;
 
-	int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException;
+	/**
+	 * Returns Destinations ID based on destination name and type.
+	 *
+	 * @param sess
+	 * @param name Name (value) of destination
+	 * @param type type of destination
+	 * @return
+	 * @throws InternalErrorException
+	 * @throws DestinationNotExistsException
+	 */
+	int getDestinationIdByName(PerunSession sess, String name, String type) throws InternalErrorException, DestinationNotExistsException;
 
 	/**
 	 * List all services associated with the facility (via resource).

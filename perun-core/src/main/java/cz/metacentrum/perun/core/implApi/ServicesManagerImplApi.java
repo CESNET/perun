@@ -434,9 +434,6 @@ public interface ServicesManagerImplApi {
 	 */
 	void removeAllDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
-	@Deprecated
-	int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException;
-
 	/**
 	 * Get destination by String destination and type
 	 *

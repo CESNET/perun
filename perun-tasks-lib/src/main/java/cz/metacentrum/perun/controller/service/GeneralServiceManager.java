@@ -6,6 +6,7 @@ import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -42,7 +43,31 @@ public interface GeneralServiceManager {
 	 * @param destinationId The destination on which we want to ban the Service
 	 * @throws InternalErrorException
 	 */
-	public void blockServiceOnDestination(PerunSession perunSession, Service service, int destinationId) throws InternalErrorException;
+	public void blockServiceOnDestination(PerunSession perunSession, Service service, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException;
+
+	/**
+	 * Block all services currently assigned on this facility.
+	 * From this moment on, there are no Services being allowed on this facility.
+	 * If you assign a new service to the facility, it will be allowed!
+	 *
+	 * @param perunSession
+	 * @param facility Facility we want to block all services on.
+	 *
+	 * @throws InternalErrorException
+	 */
+	public void blockAllServicesOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
+
+	/**
+	 * Block all services currently assigned on this destination.
+	 * From this moment on, there are no Services being allowed on this destination.
+	 * If you assign a new service to the destination, it will be allowed!
+	 *
+	 * @param perunSession
+	 * @param destinationId The id of a destination we want to block all services on.
+	 *
+	 * @throws InternalErrorException
+	 */
+	public void blockAllServicesOnDestination(PerunSession perunSession, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException;
 
 	/**
 	 * List all the Services that are banned on this facility.
