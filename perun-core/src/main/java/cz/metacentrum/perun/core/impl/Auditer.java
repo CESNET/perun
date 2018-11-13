@@ -13,7 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.implApi.AuditerListener;
-import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import net.jcip.annotations.GuardedBy;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -74,13 +74,13 @@ public class Auditer {
 	private static final Object LOCK_DB_TABLE_AUDITER_LOG = new Object();
 	private static final Object LOCK_DB_TABLE_AUDITER_LOG_JSON = new Object();
 
-	private static Set<VirtualAttributesModuleImplApi> registeredAttributesModules = new HashSet<>();
+	private static Set<AttributesModuleImplApi> registeredAttributesModules = new HashSet<>();
 
-	public static void registerAttributeModule(VirtualAttributesModuleImplApi virtualAttributesModuleImplApi) {
-		log.trace("Auditer: Try to register module {}", (virtualAttributesModuleImplApi == null) ? null : virtualAttributesModuleImplApi.getClass().getName());
-		if(virtualAttributesModuleImplApi != null && !registeredAttributesModules.contains(virtualAttributesModuleImplApi)) {
-			registeredAttributesModules.add(virtualAttributesModuleImplApi);
-			log.debug("Auditer: Module {} was registered for audit message listening.", virtualAttributesModuleImplApi.getClass().getName());
+	public static void registerAttributeModule(AttributesModuleImplApi attributesModuleImplApi) {
+		log.trace("Auditer: Try to register module {}", (attributesModuleImplApi == null) ? null : attributesModuleImplApi.getClass().getName());
+		if(attributesModuleImplApi != null && !registeredAttributesModules.contains(attributesModuleImplApi)) {
+			registeredAttributesModules.add(attributesModuleImplApi);
+			log.debug("Auditer: Module {} was registered for audit message listening.", attributesModuleImplApi.getClass().getName());
 		}
 
 	}
@@ -827,11 +827,11 @@ public class Auditer {
 	private List<String> checkRegisteredAttributesModules(PerunSession session, List<String> messages, List<String> alreadyResolvedMessages) {
 		List<String> addedResolvedMessages = new ArrayList<>();
 		for(String message: messages) {
-			for(VirtualAttributesModuleImplApi virtAttrModuleImplApi : registeredAttributesModules) {
-				log.info("Message {} is given to module {}", message, virtAttrModuleImplApi.getClass().getSimpleName());
+			for(AttributesModuleImplApi attributesModuleImplApi : registeredAttributesModules) {
+				log.info("Message {} is given to module {}", message, attributesModuleImplApi.getClass().getSimpleName());
 
 				try {
-					addedResolvedMessages.addAll(virtAttrModuleImplApi.resolveVirtualAttributeValueChange((PerunSessionImpl) session, message));
+					addedResolvedMessages.addAll(attributesModuleImplApi.resolveVirtualAttributeValueChange((PerunSessionImpl) session, message));
 				} catch (InternalErrorException ex) {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
 				} catch (WrongAttributeAssignmentException ex) {
@@ -842,7 +842,7 @@ public class Auditer {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
 				} catch (Exception ex) {
 					log.error("An unexpected exception happened when trying to resolve message: {} in module {}, exception: {}",
-							message, virtAttrModuleImplApi.getAttributeDefinition().getFriendlyName(), ex);
+							message, attributesModuleImplApi.getAttributeDefinition().getFriendlyName(), ex);
 				}
 			}
 		}

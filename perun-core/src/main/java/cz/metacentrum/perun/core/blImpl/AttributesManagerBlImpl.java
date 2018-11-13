@@ -6178,7 +6178,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Load all attributes modules
 		ServiceLoader<AttributesModuleImplApi> attributeModulesLoader = ServiceLoader.load(AttributesModuleImplApi.class);
 		getAttributesManagerImpl().initAttributeModules(attributeModulesLoader);
-		getAttributesManagerImpl().registerVirtAttributeModules(attributeModulesLoader);
+		getAttributesManagerImpl().registerAttributeModules(attributeModulesLoader);
 
 		//Check if all core attributes exists, create if doesn't
 		Map<AttributeDefinition, List<AttributeRights>> attributes = new HashMap<>();

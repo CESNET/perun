@@ -2394,12 +2394,12 @@ public interface AttributesManagerImplApi {
 	public void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
 
 	/**
-	 * Register virtual attribute modules in Auditer for message listening.
+	 * Register attribute modules in Auditer for message listening.
 	 *
 	 * @see AttributesManagerBlImpl#initialize()
 	 * @param modules List of attribute module class instances
 	 */
-	public void registerVirtAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
+	public void registerAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
 
 	/**
 	 * Finds ids of PerunBeans that have the attribute's value for the attribute.
