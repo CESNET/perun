@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.ParentGroupNotExistsRuntimeException;
-
 /**
  * Checked version of GroupExistsException.
  *
@@ -10,11 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ParentGroupNotExistsRuntimeEx
  */
 public class ParentGroupNotExistsException extends EntityExistsException {
 	static final long serialVersionUID = 0;
-
-
-	public ParentGroupNotExistsException(ParentGroupNotExistsRuntimeException rt) {
-		super(rt.getMessage(),rt);
-	}
 
 	public ParentGroupNotExistsException(String message) {
 		super(message);

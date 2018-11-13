@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.rt.AlreadyAdminRuntimeException;
 
 /**
  * Should be named AlreadyInRoleException.
@@ -20,9 +19,6 @@ public class AlreadyAdminException extends PerunException {
 	private SecurityTeam securityTeam;
 	private Role role;
 
-	public AlreadyAdminException(AlreadyAdminRuntimeException rt) {
-		super(rt.getMessage(),rt);
-	}
 
 	public AlreadyAdminException(String message) {
 		super(message);

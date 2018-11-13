@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.exceptions.rt.WrongReferenceAttributeValueRuntimeException;
 
 /**
  * Attribute which is reference for used attribute has illegal value. Because of it, we can't determinate if used attribute have correct value.
@@ -98,7 +97,4 @@ public class WrongReferenceAttributeValueException extends AttributeValueExcepti
 		return referenceAttribute;
 	}
 
-	public WrongReferenceAttributeValueException(WrongReferenceAttributeValueRuntimeException rt) {
-		super(rt.getMessage(), rt);
-	}
 }

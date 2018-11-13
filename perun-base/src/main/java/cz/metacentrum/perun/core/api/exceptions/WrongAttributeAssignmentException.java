@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.exceptions.rt.WrongAttributeAssignmentRuntimeException;
 
 /**
  * Thrown while assigning atribute to wrong entity. For example if you try to set value for the facility to atrribut whis is only for resources.
@@ -34,9 +33,6 @@ public class WrongAttributeAssignmentException extends PerunException {
 		return attribute;
 	}
 
-	public WrongAttributeAssignmentException(WrongAttributeAssignmentRuntimeException rt) {
-		super(rt.getMessage(),rt);
-	}
 
 
 }

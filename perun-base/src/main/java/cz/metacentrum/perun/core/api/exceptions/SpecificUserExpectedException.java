@@ -1,12 +1,10 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeException;
 
 /**
  * If expecting user who is service User
  *
- * @see cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeException
  * @author Michal Šťava
  */
 public class SpecificUserExpectedException extends PerunException {

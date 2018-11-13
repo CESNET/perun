@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.ClusterNotExistsRuntimeException;
-
 
 /**
  * Checked version of ClusterNotExistsException.
@@ -13,10 +11,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.ClusterNotExistsRuntimeExcept
  */
 public class ClusterNotExistsException extends EntityNotExistsException {
 	static final long serialVersionUID = 0;
-
-	public ClusterNotExistsException(ClusterNotExistsRuntimeException rt) {
-		super(rt.getMessage(),rt);
-	}
 
 	public ClusterNotExistsException(String message) {
 		super(message);
