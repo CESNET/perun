@@ -8,6 +8,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -937,6 +938,58 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return null;
 		}
 		catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + FacilitiesManagerImpl.facilityMappingSelectQuery + " from authz join facilities on authz.facility_id=facilities.id " +
+					"where authorized_group_id=? and authz.role_id=(select id from roles where name='facilityadmin')", FacilitiesManagerImpl.FACILITY_MAPPER, group.getId());
+		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.group_id=groups.id " +
+					"where authorized_group_id=? and authz.role_id=(select id from roles where name='groupadmin')", GroupsManagerImpl.GROUP_MAPPER, group.getId());
+		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Resource> getResourcesWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from authz join resources " +
+					"on authz.resource_id=resources.id where authorized_group_id=? and authz.role_id=(select id from roles where name='resourceadmin')",
+					ResourcesManagerImpl.RESOURCE_MAPPER, group.getId());
+		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<SecurityTeam> getSecurityTeamsWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + SecurityTeamsManagerImpl.securityTeamMappingSelectQuery + " from authz join security_teams " +
+					"on authz.security_team_id=security_teams.id where authorized_group_id=? and authz.role_id=(select id from roles where name='securityadmin')",
+					SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPER, group.getId());
+		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Vo> getVosWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + VosManagerImpl.voMappingSelectQuery + " from authz join vos on authz.vo_id=vos.id " +
+					"where authorized_group_id=? and authz.role_id=(select id from roles where name='voadmin')", VosManagerImpl.VO_MAPPER, group.getId());
+		}  catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}

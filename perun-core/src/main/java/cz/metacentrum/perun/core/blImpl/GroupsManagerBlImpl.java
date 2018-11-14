@@ -380,6 +380,52 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
+		// remove admin roles of group
+		List<Facility> facilitiesWhereGroupIsAdmin = getGroupsManagerImpl().getFacilitiesWhereGroupIsAdmin(sess, group);
+		for (Facility facility : facilitiesWhereGroupIsAdmin) {
+			try {
+				perunBl.getFacilitiesManagerBl().removeAdmin(sess, facility, group);
+			} catch (GroupNotAdminException e) {
+				log.warn("Can't unset group {} as admin of facility {} due to group not admin exception {}.", group, facility, e);
+			}
+		}
+
+		List<Group> groupsWhereGroupIsAdmin = getGroupsManagerImpl().getGroupsWhereGroupIsAdmin(sess, group);
+		for (Group group1 : groupsWhereGroupIsAdmin) {
+			try {
+				removeAdmin(sess, group1, group);
+			} catch (GroupNotAdminException e) {
+				log.warn("Can't unset group {} as admin of group {} due to group not admin exception {}.", group, group1, e);
+			}
+		}
+
+		List<Resource> resourcesWhereGroupIsAdmin = getGroupsManagerImpl().getResourcesWhereGroupIsAdmin(sess, group);
+		for (Resource resource : resourcesWhereGroupIsAdmin) {
+			try {
+				perunBl.getResourcesManagerBl().removeAdmin(sess, resource, group);
+			} catch (GroupNotAdminException e) {
+				log.warn("Can't unset group {} as admin of resource {} due to group not admin exception {}.", group, resource, e);
+			}
+		}
+
+		List<SecurityTeam> securityTeamsWhereGroupIsAdmin = getGroupsManagerImpl().getSecurityTeamsWhereGroupIsAdmin(sess, group);
+		for (SecurityTeam securityTeam : securityTeamsWhereGroupIsAdmin) {
+			try {
+				perunBl.getSecurityTeamsManagerBl().removeAdmin(sess, securityTeam, group);
+			} catch (GroupNotAdminException e) {
+				log.warn("Can't unset group {} as admin of security team {} due to group not admin exception {}.", group, securityTeam, e);
+			}
+		}
+
+		List<Vo> vosWhereGroupIsAdmin = getGroupsManagerImpl().getVosWhereGroupIsAdmin(sess, group);
+		for (Vo vo1 : vosWhereGroupIsAdmin) {
+			try {
+				perunBl.getVosManagerBl().removeAdmin(sess, vo1, group);
+			} catch (GroupNotAdminException e) {
+				log.warn("Can't unset group {} as admin of facility {} due to group not admin exception {}.", group, vo1, e);
+			}
+		}
+
 		// Deletes also all direct and indirect members of the group
 		getGroupsManagerImpl().deleteGroup(sess, vo, group);
 
