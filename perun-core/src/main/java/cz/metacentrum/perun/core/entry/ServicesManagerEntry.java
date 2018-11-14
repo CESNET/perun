@@ -676,8 +676,8 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException {
-		return servicesManagerBl.getDestinationIdByName(sess, name);
+	public int getDestinationIdByName(PerunSession sess, String name, String type) throws InternalErrorException, DestinationNotExistsException {
+		return servicesManagerBl.getDestinationIdByName(sess, name, type);
 	}
 
 	@Override

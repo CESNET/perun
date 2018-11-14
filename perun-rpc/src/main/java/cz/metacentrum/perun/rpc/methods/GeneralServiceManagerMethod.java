@@ -32,9 +32,58 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * @param service int Service <code>id</code>
 	 * @param destination int Destination <code>id</code>
 	 */
+	/*#
+	 * Bans Service on a destination.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param destinationName String Destination name (like hostnames)
+	 * @param destinationType String Destination type (like host, user@host, user@host:port, email, service-specific, ...)
+	 */
 	blockServiceOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().blockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")),parms.readInt("destination"));
+
+			if (parms.contains("destination")) {
+				ac.getGeneralServiceManager().blockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")),parms.readInt("destination"));
+			} else {
+				ac.getGeneralServiceManager().blockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Block all services currently assigned on this facility.
+	 * Newly assigned services are still allowed for propagation.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 */
+	blockAllServicesOnFacility {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getGeneralServiceManager().blockAllServicesOnFacility(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Block all services currently assigned on this destination.
+	 * Newly assigned services are still allowed for propagation.
+	 *
+	 * @param destination int Destination <code>id</code>
+	 */
+	/*#
+	 * Block all services currently assigned on this destination.
+	 * Newly assigned services are still allowed for propagation.
+	 *
+	 * @param destinationName String Destination name (like hostnames)
+	 * @param destinationType String Destination type (like host, user@host, user@host:port, email, service-specific, ...)
+	 */
+	blockAllServicesOnDestination {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("destination")) {
+				ac.getGeneralServiceManager().blockAllServicesOnDestination(ac.getSession(), parms.readInt("destination"));
+			} else {
+				ac.getGeneralServiceManager().blockAllServicesOnDestination(ac.getSession(), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
+			}
 			return null;
 		}
 	},
@@ -114,9 +163,19 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 *
 	 * @param destination int Destination <code>id</code>
 	 */
+	/*#
+	 * Erase all the possible denials on this destination.
+	 *
+	 * @param destinationName String Destination name (like hostnames)
+	 * @param destinationType String Destination type (like host, user@host, user@host:port, email, service-specific, ...)
+	 */
 	unblockAllServicesOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().unblockAllServicesOnDestination(ac.getSession(), parms.readInt("destination"));
+			if (parms.contains("destination")) {
+				ac.getGeneralServiceManager().unblockAllServicesOnDestination(ac.getSession(), parms.readInt("destination"));
+			} else {
+				ac.getGeneralServiceManager().unblockAllServicesOnDestination(ac.getSession(), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
+			}
 			return null;
 		}
 	},
@@ -145,9 +204,22 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * @param service int Service <code>id</code>
 	 * @param destination int Destination <code>id</code>
 	 */
+	/*#
+	 * Free the denial of the Service on this destination. If the Service was banned on
+	 * this destination, it will be freed. In case the Service was not banned on this
+	 * destination, nothing will happen.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param destinationName String Destination name (like hostnames)
+	 * @param destinationType String Destination type (like host, user@host, user@host:port, email, service-specific, ...)
+	 */
 	unblockServiceOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().unblockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")),parms.readInt("destination"));
+			if (parms.contains("destination")) {
+				ac.getGeneralServiceManager().unblockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")), parms.readInt("destination"));
+			} else {
+				ac.getGeneralServiceManager().unblockServiceOnDestination(ac.getSession(), ac.getServiceById(parms.readInt("service")), ac.getServicesManager().getDestinationIdByName(ac.getSession(), parms.readString("destinationName"), parms.readString("destinationType")));
+			}
 			return null;
 		}
 	},

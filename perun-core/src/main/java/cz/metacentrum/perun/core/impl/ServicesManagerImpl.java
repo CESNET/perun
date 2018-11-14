@@ -529,18 +529,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	}
 
 	@Override
-	@Deprecated
-	public int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException {
-		try {
-			return jdbc.queryForInt("select id from destinations where destination=?", name);
-		} catch (EmptyResultDataAccessException e) {
-			throw new DestinationNotExistsException(e);
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
 	public void addDestination(PerunSession sess, Service service, Facility facility, Destination destination) throws InternalErrorException {
 		try {
 			jdbc.update("insert into facility_service_destinations (service_id, facility_id, destination_id, propagation_type, created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +

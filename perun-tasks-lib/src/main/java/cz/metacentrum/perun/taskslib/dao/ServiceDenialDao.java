@@ -96,4 +96,12 @@ public interface ServiceDenialDao {
 	 */
 	boolean isServiceBlockedOnDestination(int serviceId, int destinationId);
 
+	/**
+	 * Return list of services this destination points to.
+	 *
+	 * @param destinationId ID of destination
+	 * @return Services associated with this destination.
+	 */
+	List<Service> getServicesFromDestination(int destinationId);
+
 }

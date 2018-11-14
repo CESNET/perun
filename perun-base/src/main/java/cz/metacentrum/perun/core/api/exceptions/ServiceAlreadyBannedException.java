@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
+import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Service;
 
@@ -14,6 +15,7 @@ public class ServiceAlreadyBannedException extends PerunException {
 
 	private Service service;
 	private Facility facility;
+	private Destination destination;
 
 	public ServiceAlreadyBannedException(String message) {
 		super(message);
@@ -33,12 +35,22 @@ public class ServiceAlreadyBannedException extends PerunException {
 		this.facility = facility;
 	}
 
+	public ServiceAlreadyBannedException(Service service, Destination destination) {
+		this(service.toString() + " is already banned on " + destination.toString());
+		this.service = service;
+		this.destination = destination;
+	}
+
 	public Service getService() {
 		return service;
 	}
 
 	public Facility getFacility() {
 		return facility;
+	}
+
+	public Destination getDestination() {
+		return destination;
 	}
 
 }

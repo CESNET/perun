@@ -660,8 +660,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException {
-		return servicesManagerImpl.getDestinationIdByName(sess, name);
+	public int getDestinationIdByName(PerunSession sess, String name, String type) throws InternalErrorException, DestinationNotExistsException {
+		return servicesManagerImpl.getDestination(sess, name, type).getId();
 	}
 
 	@Override

@@ -13,10 +13,13 @@ import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeDenialS
 import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeDenialServiceOnFacility;
 import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.PropagationPlannedOnFacilityAndService;
 import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.PropagationPlannedOnService;
+import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
@@ -49,12 +52,14 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	private ServiceDenialDao serviceDenialDao;
 	@Autowired
 	private ServicesManager servicesManager;
+	@Autowired
+	private GeneralServiceManager generalServiceManager;
 
 	@Override
-	@Transactional(rollbackFor = Exception.class)
+	@Transactional(rollbackFor = ServiceAlreadyBannedException.class , propagation = Propagation.NESTED)
 	public void blockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException {
 		try {
-			serviceDenialDao.blockServiceOnFacility(service.getId(), facility.getId());
+			getServiceDenialDao().blockServiceOnFacility(service.getId(), facility.getId());
 		} catch (DuplicateKeyException ex) {
 			throw new ServiceAlreadyBannedException(service, facility);
 		}
@@ -62,9 +67,41 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public void blockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException {
-		serviceDenialDao.blockServiceOnDestination(service.getId(), destinationId);
+	@Transactional(rollbackFor = ServiceAlreadyBannedException.class , propagation = Propagation.NESTED)
+	public void blockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException {
+		Destination destination = servicesManager.getDestinationById(sess, destinationId);
+		try {
+			getServiceDenialDao().blockServiceOnDestination(service.getId(), destinationId);
+		} catch (DuplicateKeyException ex) {
+			throw new ServiceAlreadyBannedException(service, destination);
+		}
 		sess.getPerun().getAuditer().log(sess, new BanServiceOnDestination(service, destinationId));
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void blockAllServicesOnFacility(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
+		List<Service> services = servicesManager.getAssignedServices(sess, facility);
+		for (Service service : services) {
+			try {
+				getGeneralServiceManager().blockServiceOnFacility(sess, service, facility);
+			} catch (ServiceAlreadyBannedException e) {
+				// we ignore, that service was already blocked
+			}
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void blockAllServicesOnDestination(PerunSession sess, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException {
+		List<Service> services = serviceDenialDao.getServicesFromDestination(destinationId);
+		for (Service service : services) {
+			try {
+				getGeneralServiceManager().blockServiceOnDestination(sess, service, destinationId);
+			} catch (ServiceAlreadyBannedException e) {
+				// we ignore, that service was already blocked
+			}
+		}
 	}
 
 	@Override
@@ -86,6 +123,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	public boolean isServiceBlockedOnDestination(Service service, int destinationId) {
 		return serviceDenialDao.isServiceBlockedOnDestination(service.getId(), destinationId);
 	}
+
 	@Override
 	public void unblockAllServicesOnFacility(PerunSession sess, Facility facility) throws InternalErrorException{
 		serviceDenialDao.unblockAllServicesOnFacility(facility.getId());
@@ -181,6 +219,14 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 
 	public ServicesManager getServicesManager() {
 		return servicesManager;
+	}
+
+	public GeneralServiceManager getGeneralServiceManager() {
+		return generalServiceManager;
+	}
+
+	public void setGeneralServiceManager(GeneralServiceManager generalServiceManager) {
+		this.generalServiceManager = generalServiceManager;
 	}
 
 }
