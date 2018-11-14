@@ -30,6 +30,7 @@ public class CoreConfig {
 
 	private boolean dbInitializatorEnabled;
 	private boolean readOnlyPerun;
+	private boolean cacheEnabled;
 	private int groupSynchronizationInterval;
 	private int groupSynchronizationTimeout;
 	private int groupMaxConcurentGroupsToSynchronize;
@@ -89,6 +90,14 @@ public class CoreConfig {
 
 	public void setReadOnlyPerun(boolean readOnlyPerun) {
 		this.readOnlyPerun = readOnlyPerun;
+	}
+
+	public boolean isCacheEnabled() {
+		return cacheEnabled;
+	}
+
+	public void setCacheEnabled(boolean cacheEnabled) {
+		this.cacheEnabled = cacheEnabled;
 	}
 
 	public int getGroupSynchronizationInterval() {
