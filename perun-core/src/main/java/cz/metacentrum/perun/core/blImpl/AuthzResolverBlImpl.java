@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.AuthzResolverBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
+import cz.metacentrum.perun.core.impl.AuthzResolverImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
@@ -150,7 +151,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return false;
 
 		//This method get all possible roles which can do action on attribute
-		List<Role> roles = cz.metacentrum.perun.core.impl.AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
 
 		//Now get information about primary and secondary holders to identify them!
 		//All possible useful perunBeans
@@ -201,19 +202,33 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		//Important: There is no options for other roles like service, serviceUser and other!
 		if (resource != null && member != null) {
-			if (roles.contains(Role.VOADMIN)) {
+			if (roles.containsKey(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, member)) return true;
 			}
-			if (roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOOBSERVER)) {
 				if (isAuthorized(sess, Role.VOOBSERVER, member)) return true;
 			}
-			if (roles.contains(Role.FACILITYADMIN)) {
+			if (roles.containsKey(Role.FACILITYADMIN)) {
 				if (isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
 			}
-			if (roles.contains(Role.SELF)) {
-				if (isAuthorized(sess, Role.SELF, member)) return true;
+			if (roles.containsKey(Role.SELF)) {
+				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+				if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+					if (isAuthorized(sess, Role.SELF, member)) return true;
+				}
+				if (roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
+					Vo attributeMemberVo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+					if (sess.getPerunPrincipal().getUser() != null) {
+						List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+						for (Member userMember : principalUserMembers) {
+							if (userMember.getVoId() == attributeMemberVo.getId() && userMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
+					}
+				}
 			}
-			if (roles.contains(Role.GROUPADMIN)) {
+			if (roles.containsKey(Role.GROUPADMIN)) {
 				//If groupManager has right on any group assigned to resource
 				List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
 				for (Group g : groups) {
@@ -221,17 +236,17 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				}
 			}
 		} else if (resource != null && group != null) {
-			if (roles.contains(Role.VOADMIN)) {
+			if (roles.containsKey(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, resource)) return true;
 			}
-			if (roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOOBSERVER)) {
 				if (isAuthorized(sess, Role.VOOBSERVER, resource)) return true;
 			}
-			if (roles.contains(Role.GROUPADMIN)) {
+			if (roles.containsKey(Role.GROUPADMIN)) {
 				//If groupManager has right on the group
 				if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
 			}
-			if (roles.contains(Role.FACILITYADMIN)) {
+			if (roles.containsKey(Role.FACILITYADMIN)) {
 				//IMPORTANT "for now possible, but need to discuss"
 				if (getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource).contains(group)) {
 					List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
@@ -240,11 +255,28 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					}
 				}
 			}
-//			if (roles.contains(Role.SELF)) ; //Not Allowed
+//			if (roles.containsKey(Role.SELF)) ; //Not Allowed
 		} else if (user != null && facility != null) {
-			if (roles.contains(Role.FACILITYADMIN)) if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
-			if (roles.contains(Role.SELF)) if (isAuthorized(sess, Role.SELF, user)) return true;
-			if (roles.contains(Role.VOADMIN)) {
+			if (roles.containsKey(Role.FACILITYADMIN)) if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
+			if (roles.containsKey(Role.SELF)) {
+				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+				if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+					if (isAuthorized(sess, Role.SELF, user)) return true;
+				}
+				if ((roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) && sess.getPerunPrincipal().getUser() != null) {
+					List<Member> attributeUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+
+					for (Member attributeUserMember : attributeUserMembers) {
+						for (Member principalUserMember : principalUserMembers) {
+							if (attributeUserMember.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+			if (roles.containsKey(Role.VOADMIN)) {
 				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 				HashSet<Resource> resourcesFromUser = new HashSet<>();
 				for (Member memberElement : membersFromUser) {
@@ -255,7 +287,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if (isAuthorized(sess, Role.VOADMIN, resourceElement)) return true;
 				}
 			}
-			if (roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOOBSERVER)) {
 				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 				HashSet<Resource> resourcesFromUser = new HashSet<>();
 				for (Member memberElement : membersFromUser) {
@@ -266,7 +298,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if (isAuthorized(sess, Role.VOOBSERVER, resourceElement)) return true;
 				}
 			}
-			if (roles.contains(Role.GROUPADMIN)) {
+			if (roles.containsKey(Role.GROUPADMIN)) {
 				//If groupManager has rights on "any group which is assigned to any resource from the facility" and "the user has also member in vo where exists this group"
 				List<Vo> userVos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
 				Set<Integer> userVosIds = new HashSet<>();
@@ -281,156 +313,241 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				}
 			}
 		} else if (member != null && group != null) {
-			if (roles.contains(Role.VOADMIN)) {
+			if (roles.containsKey(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, member)) return true;
 			}
-			if (roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOOBSERVER)) {
 				if (isAuthorized(sess, Role.VOOBSERVER, member)) return true;
 			}
-			if (roles.contains(Role.SELF)) {
-				if (isAuthorized(sess, Role.SELF, member)) return true;
+			if (roles.containsKey(Role.SELF)) {
+				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+				if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+					if (isAuthorized(sess, Role.SELF, member)) return true;
+				}
+				if (roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
+					if (sess.getPerunPrincipal().getUser() != null) {
+						List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+						for (Member principalUserMember : principalUserMembers) {
+							if (member.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
+					}
+				}
 			}
-			if (roles.contains(Role.GROUPADMIN)) {
+			if (roles.containsKey(Role.GROUPADMIN)) {
 				if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
 			}
 		} else if (user != null) {
-			if (roles.contains(Role.SELF)) if (isAuthorized(sess, Role.SELF, user)) return true;
-			if (roles.contains(Role.VOADMIN)) {
+			if (roles.containsKey(Role.SELF)) {
+				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+				if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+					if (isAuthorized(sess, Role.SELF, user)) return true;
+				}
+				if ((roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO))
+				        && sess.getPerunPrincipal().getUser() != null) {
+					List<Member> attributeUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+
+					for (Member attributeUserMember : attributeUserMembers) {
+						for (Member principalUserMember : principalUserMembers) {
+							if (attributeUserMember.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+			if (roles.containsKey(Role.VOADMIN)) {
 				//TEMPORARY, PROBABLY WILL BE FALSE
 				List<Vo> vosFromUser = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
 				for (Vo v : vosFromUser) {
 					if (isAuthorized(sess, Role.VOADMIN, v)) return true;
 				}
 			}
-			if (roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOOBSERVER)) {
 				//TEMPORARY, PROBABLY WILL BE FALSE
 				List<Vo> vosFromUser = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
 				for (Vo v : vosFromUser) {
 					if (isAuthorized(sess, Role.VOOBSERVER, v)) return true;
 				}
 			}
-			if (roles.contains(Role.GROUPADMIN)) {
+			if (roles.containsKey(Role.GROUPADMIN)) {
 				//If principal is groupManager in any vo where user has member
 				List<Vo> userVos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
 				for (Vo voElement : userVos) {
 					if (isAuthorized(sess, Role.GROUPADMIN, voElement)) return true;
 				}
 			}
-//			if (roles.contains(Role.FACILITYADMIN)) ; //Not allowed
+//			if (roles.containsKey(Role.FACILITYADMIN)) ; //Not allowed
 		} else if (member != null) {
 
-			if (roles.contains(Role.VOADMIN)) {
+			if (roles.containsKey(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, member)) return true;
 			}
-			if (roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOOBSERVER)) {
 				if (isAuthorized(sess, Role.VOOBSERVER, member)) return true;
 			}
-			if (roles.contains(Role.SELF)) {
-				if (isAuthorized(sess, Role.SELF, member)) return true;
+			if (roles.containsKey(Role.SELF)) {
+				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+				if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+					if (isAuthorized(sess, Role.SELF, member)) return true;
+				}
+				if ((roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) && sess.getPerunPrincipal().getUser() != null) {
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+
+					for (Member principalUserMember : principalUserMembers) {
+						if (member.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+							return true;
+						}
+					}
+				}
 			}
-			if (roles.contains(Role.GROUPADMIN)) {
+			if (roles.containsKey(Role.GROUPADMIN)) {
 				//if principal is groupManager in vo where the member has membership
 				Vo v = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
 				if (isAuthorized(sess, Role.GROUPADMIN, v)) return true;
 			}
-//			if (roles.contains(Role.FACILITYADMIN)) ; //Not allowed
+//			if (roles.containsKey(Role.FACILITYADMIN)) ; //Not allowed
 		} else if (vo != null) {
-			if (roles.contains(Role.VOADMIN)) {
+			if (roles.containsKey(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, vo)) return true;
 			}
-			if (roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOOBSERVER)) {
 				if (isAuthorized(sess, Role.VOOBSERVER, vo)) return true;
 			}
-			if (roles.contains(Role.GROUPADMIN)) {
+			if (roles.containsKey(Role.GROUPADMIN)) {
 				//if Principal is GroupManager in the vo
 				if (isAuthorized(sess, Role.GROUPADMIN, vo)) return true;
 			}
-			if (roles.contains(Role.FACILITYADMIN)) {
+			if (roles.containsKey(Role.FACILITYADMIN)) {
 				// is facility manager of any vo resource
 				List<Resource> resourceList = perunBl.getResourcesManagerBl().getResources(sess, vo);
 				for (Resource res : resourceList) {
 					if (isAuthorized(sess, Role.FACILITYADMIN, res)) return true;
 				}
 			}
-			if (roles.contains(Role.SELF)) {
-				if (actionType.equals(ActionType.READ)) {
+			if (roles.containsKey(Role.SELF)) {
+				if (actionType == ActionType.READ ||
+				    actionType == ActionType.READ_PUBLIC ||
+				    actionType == ActionType.READ_VO) {
+
 					// any user can read
 					return true;
-				} else if (actionType.equals(ActionType.WRITE)) {
-					// only vo member can write
-					try {
-						perunBl.getMembersManagerBl().getMemberByUser(sess, vo, sess.getPerunPrincipal().getUser());
-						return true;
-					} catch (MemberNotExistsException ex) {
-						// not vo member -> not allowed
+				}
+				if (roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) {
+					return true;
+				}
+				if (roles.get(Role.SELF).contains(ActionType.WRITE) ||
+				    roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
+
+					if (sess.getPerunPrincipal().getUser() != null) {
+						List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+						for (Member principalUserMember : principalUserMembers) {
+							if (vo.getId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
 					}
 				}
 			}
 		} else if (group != null) {
-			if (roles.contains(Role.VOADMIN)) {
+			if (roles.containsKey(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, group)) return true;
 			}
-			if (roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOOBSERVER)) {
 				if (isAuthorized(sess, Role.VOOBSERVER, group)) return true;
 			}
-			if (roles.contains(Role.GROUPADMIN)) if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
-//			if (roles.contains(Role.FACILITYADMIN)) ; //Not allowed
-//			if (roles.contains(Role.SELF)) ; //Not allowed
+			if (roles.containsKey(Role.GROUPADMIN)) if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
+//			if (roles.containsKey(Role.FACILITYADMIN)) ; //Not allowed
+			if (roles.containsKey(Role.SELF)) {
+				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+				if (roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
+					if (sess.getPerunPrincipal().getUser() != null) {
+						List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+						for (Member principalUserMember : principalUserMembers) {
+							if (group.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
+					}
+				}
+				if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+					if (sess.getPerunPrincipal().getUser() != null) {
+						return getPerunBl().getGroupsManagerBl().isUserMemberOfGroup(sess, sess.getPerunPrincipal().getUser(), group);
+					}
+				}
+			}
 		} else if (resource != null) {
-			if (roles.contains(Role.VOADMIN)) {
+			if (roles.containsKey(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, resource)) return true;
 			}
-			if (roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOOBSERVER)) {
 				if (isAuthorized(sess, Role.VOOBSERVER, resource)) return true;
 			}
-			if (roles.contains(Role.FACILITYADMIN)) {
+			if (roles.containsKey(Role.FACILITYADMIN)) {
 				if (isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
 			}
-			if (roles.contains(Role.RESOURCEADMIN)) {
+			if (roles.containsKey(Role.RESOURCEADMIN)) {
 				if (isAuthorized(sess, Role.RESOURCEADMIN, resource)) return true;
 			}
-			if (roles.contains(Role.GROUPADMIN)) {
+			if (roles.containsKey(Role.GROUPADMIN)) {
 				List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 				for (Group g : groupsFromResource) {
 					if (isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 				}
 			}
-//			if (roles.contains(Role.SELF)) ; //Not allowed
+//			if (roles.containsKey(Role.SELF)) ; //Not allowed
 		} else if (facility != null) {
-			if (roles.contains(Role.FACILITYADMIN)) if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
-			if (roles.contains(Role.VOADMIN)) {
+			if (roles.containsKey(Role.FACILITYADMIN)) if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
+			if (roles.containsKey(Role.VOADMIN)) {
 				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 				for (Resource r : resourcesFromFacility) {
 					if (isAuthorized(sess, Role.VOADMIN, r)) return true;
 				}
 			}
-			if (roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOOBSERVER)) {
 				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 				for (Resource r : resourcesFromFacility) {
 					if (isAuthorized(sess, Role.VOOBSERVER, r)) return true;
 				}
 			}
-			if (roles.contains(Role.GROUPADMIN)) {
+			if (roles.containsKey(Role.GROUPADMIN)) {
 				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
 				for (Group g : groupsFromFacility) {
 					if (isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 				}
 			}
-			if (roles.contains(Role.SELF)) {
-				List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-				if (usersFromFacility.contains(sess.getPerunPrincipal().getUser())) {
-					return true;
+			if (roles.containsKey(Role.SELF)) {
+				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+				if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+					List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
+					if (usersFromFacility.contains(sess.getPerunPrincipal().getUser())) {
+						return true;
+					}
+				}
+				if ((roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) && sess.getPerunPrincipal().getUser() != null) {
+					List<Vo> attributeFacilityVos = getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility);
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+
+					for (Vo attributeFacilityVo : attributeFacilityVos) {
+						for (Member principalUserMember : principalUserMembers) {
+							if (attributeFacilityVo.getId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+								return true;
+							}
+						}
+					}
 				}
 			}
 		} else if (host != null) {
-//			if (roles.contains(Role.VOADMIN)) ; //Not allowed
-//			if (roles.contains(Role.VOOBSERVER)) ; //Not allowed
-//			if (roles.contains(Role.GROUPADMIN)) ; //Not allowed
-			if (roles.contains(Role.FACILITYADMIN)) {
+//			if (roles.containsKey(Role.VOADMIN)) ; //Not allowed
+//			if (roles.containsKey(Role.VOOBSERVER)) ; //Not allowed
+//			if (roles.containsKey(Role.GROUPADMIN)) ; //Not allowed
+			if (roles.containsKey(Role.FACILITYADMIN)) {
 				Facility f = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 				if (isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
 			}
-//			if (roles.contains(Role.SELF)) ; //Not allowed
+//			if (roles.containsKey(Role.SELF)) ; //Not allowed
 		} else //noinspection ConstantConditions
 			if (ues != null) {
 			User sessUser = sess.getPerunPrincipal().getUser();
@@ -441,20 +558,20 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				return false;
 			}
 			if (ues.getUserId() == sessUser.getId()) return true;
-			if (roles.contains(Role.FACILITYADMIN)) {
+			if (roles.containsKey(Role.FACILITYADMIN)) {
 				List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAssignedFacilities(sess, uesUser);
 				for (Facility f : facilities) {
 					if (isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
 				}
 			}
-			if (roles.contains(Role.VOADMIN) || roles.contains(Role.VOOBSERVER)) {
+			if (roles.containsKey(Role.VOADMIN) || roles.containsKey(Role.VOOBSERVER)) {
 				List<Vo> vos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, uesUser);
 				for (Vo v : vos) {
 					if (isAuthorized(sess, Role.VOADMIN, v)) return true;
 					if (isAuthorized(sess, Role.VOOBSERVER, v)) return true;
 				}
 			}
-			if (roles.contains(Role.GROUPADMIN)) {
+			if (roles.containsKey(Role.GROUPADMIN)) {
 				List<Vo> vos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, uesUser);
 				for (Vo v : vos) {
 					if (isAuthorized(sess, Role.GROUPADMIN, v)) return true;
@@ -468,14 +585,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Return list of roles which are authorized for doing "action" on "attribute".
+	 * Return map of roles, with allowed actions, which are authorized for doing "action" on "attribute".
 	 *
 	 * @param sess       perun session
 	 * @param actionType type of action on attribute (ex.: write, read, etc...)
 	 * @param attrDef    attribute what principal want to work with
-	 * @return list of roles
+	 * @return map of roles with allowed action types
 	 */
-	public static List<Role> getRolesWhichCanWorkWithAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
+	public static Map<Role, Set<ActionType>> getRolesWhichCanWorkWithAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
 		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
 		getPerunBl().getAttributesManagerBl().checkActionTypeExists(sess, actionType);
 		return cz.metacentrum.perun.core.impl.AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
