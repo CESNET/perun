@@ -1211,4 +1211,21 @@ public interface UsersManagerBl {
 	 */
 	List<User> findUsersWithExtSourceAttributeValueEnding(PerunSessionImpl sess, String attributeName, String valueEnd, List<String> excludeValueEnds) throws AttributeNotExistsException, InternalErrorException;
 
+	/**
+	 * Generates new random password for given user and returns String representing HTML
+	 * where is the new password.
+	 * <p>
+	 * The HTML template is taken from entityless attribute randomPwdResetTemplate and the
+	 * loginNamespace is used as a key.
+	 *
+	 * @param session        session
+	 * @param user           user
+	 * @param loginNamespace login namespace
+	 * @return String representing HTML with data about new generated password
+	 * @throws PasswordOperationTimeoutException password change timed out
+	 * @throws LoginNotExistsException           there is no login for given namespace
+	 * @throws InternalErrorException            internal error
+	 * @throws PasswordChangeFailedException     password change failed
+	 */
+	String changePasswordRandom(PerunSession session, User user, String loginNamespace) throws PasswordOperationTimeoutException, LoginNotExistsException, InternalErrorException, PasswordChangeFailedException;
 }

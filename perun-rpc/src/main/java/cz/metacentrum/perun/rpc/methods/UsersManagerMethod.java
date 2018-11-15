@@ -1285,6 +1285,26 @@ public enum UsersManagerMethod implements ManagerMethod {
 					parms.read("parameters", HashMap.class));
 		}
 
-	};
+	},
 
+	/*#
+	 * Generates new random password for given user and returns PDF file with information
+	 * about the new password.
+	 * <p>
+	 * The HTML template is taken from entityless attribute randomPwdResetTemplate and the
+	 * loginNamespace is used as a key.
+	 * <p>
+	 * Warning: No matter which serializer you specify, this method always
+	 * returns .pdf file as an attachment.
+	 */
+	changePasswordRandom {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getUsersManager().changePasswordRandom(ac.getSession(),
+				ac.getUserById(parms.readInt("userId")),
+				parms.readString("loginNamespace"));
+		}
+	}
 }

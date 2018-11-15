@@ -2303,7 +2303,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * The calculateDependencies value specifies if the attribute module dependencies should be calculated.
 	 *
 	 * @param sess perun session
-	 * @param attributeDefinition attribute to create
+	 * @param attribute attribute to create
 	 * @param calculateDependencies should calculate module dependencies
 	 *
 	 * @return attribute with set id
@@ -6834,6 +6834,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
 		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
 		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn_perun_entityless_attribute_def_def_randomPwdResetTemplate
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+		attr.setType("java.lang.LargeString");
+		attr.setFriendlyName("randomPwdResetTemplate");
+		attr.setDisplayName("Random password reset templates.");
+		attr.setDescription("Random password reset templates. Each value should be String representing an HTML page." +
+			" Keywords {password} and {login} will be replaced.");
+
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.PERUNADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 		attributes.put(attr, rights);
 
 		if (perunBl.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");
