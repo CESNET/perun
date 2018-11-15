@@ -132,7 +132,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduteams_acc_nickn
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("login-namespace:eduteams-acc--nickname");
+		attr.setFriendlyName("login-namespace:eduteams-acc-nickname");
 		attr.setDisplayName("Login in namespace: eduteams-acc");
 		attr.setType(String.class.getName());
 		attr.setDescription("Logname in namespace 'eduteams-acc'.");
