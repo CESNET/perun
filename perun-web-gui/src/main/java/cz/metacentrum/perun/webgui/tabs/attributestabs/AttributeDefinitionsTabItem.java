@@ -24,11 +24,13 @@ import cz.metacentrum.perun.webgui.tabs.AttributesTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.tabs.entitylessattributestabs.EntitylessAttributesDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -153,6 +155,19 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		});
 		tabMenu.addWidget(saveButton);
 
+		//if checkbox is checked only entityless attributes will be shown
+		CheckBox showEntitylessBox = new CheckBox("Show only Entityless Attributes");
+		showEntitylessBox.setValue(false);
+		showEntitylessBox.addValueChangeHandler(valueChangeEvent -> {
+			if (showEntitylessBox.getValue()) {
+				attrDef.setEntity("entityless");
+			} else {
+				attrDef.setEntities(new HashSet<>());
+			}
+			attrDef.retrieveData();
+		});
+		tabMenu.addWidget(showEntitylessBox);
+
 		// add menu to page
 		mainPage.add(tabMenu);
 		mainPage.setCellHeight(tabMenu, "30px");
@@ -160,7 +175,11 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		CellTable<AttributeDefinition> attrDefTable = attrDef.getTable(new FieldUpdater<AttributeDefinition, String>() {
 			@Override
 			public void update(int index, AttributeDefinition object, String value) {
-				session.getTabManager().addTabToCurrentTab(new AttributeDefinitionDetailTabItem(object), true);
+				if (object.getEntity().equals("entityless")) {
+					session.getTabManager().addTabToCurrentTab(new EntitylessAttributesDetailTabItem(object), true);
+				} else {
+					session.getTabManager().addTabToCurrentTab(new AttributeDefinitionDetailTabItem(object), true);
+				}
 			}
 		});
 		attrDefTable.setStyleName("perun-table");
@@ -226,8 +245,7 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 
 	public final static String URL = "attr-def";
 
-	public String getUrl()
-	{
+	public String getUrl() {
 		return URL;
 	}
 
