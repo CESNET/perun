@@ -459,7 +459,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (isAuthorized(sess, Role.VOOBSERVER, group)) return true;
 			}
 			if (roles.containsKey(Role.GROUPADMIN)) if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
-//			if (roles.containsKey(Role.FACILITYADMIN)) ; //Not allowed
+			if (roles.containsKey(Role.FACILITYADMIN)) {
+				if (roles.get(Role.FACILITYADMIN).contains(actionType)) {
+					List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+					for (Resource groupResource : resources) {
+						if (isAuthorized(sess, Role.FACILITYADMIN, groupResource)) {
+							return true;
+						}
+					}
+				}
+			}
 			if (roles.containsKey(Role.SELF)) {
 				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
 				if (roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
