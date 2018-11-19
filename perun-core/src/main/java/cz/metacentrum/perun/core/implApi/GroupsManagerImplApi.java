@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -704,4 +705,54 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException internal error
 	 */
 	MemberGroupStatus getTotalMemberGroupStatus(PerunSession session, Member member, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns all facilities where given group si FACILITYADMIN.
+	 *
+	 * @param session session
+	 * @param group group
+	 * @return list of all facilities where given group si FACILITYADMIN
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getFacilitiesWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns all groups where given group si GROUPADMIN.
+	 *
+	 * @param session session
+	 * @param group group
+	 * @return list of all groups where given group is GROUPADMIN
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns all resources where given group si RESOURCEADMIN.
+	 *
+	 * @param session session
+	 * @param group group
+	 * @return list of all resources where given group is RESOURCEADMIN
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getResourcesWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns all security teams where given group si SECURITYADMIN.
+	 *
+	 * @param session session
+	 * @param group group
+	 * @return list of all security teams where given group is SECURITYADMIN
+	 * @throws InternalErrorException
+	 */
+	List<SecurityTeam> getSecurityTeamsWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns all vos where given group si VOADMIN.
+	 *
+	 * @param session session
+	 * @param group group
+	 * @return list of all vos where given group is VOADMIN
+	 * @throws InternalErrorException
+	 */
+	List<Vo> getVosWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
 }
