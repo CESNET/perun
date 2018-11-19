@@ -374,8 +374,19 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (isAuthorized(sess, Role.VOOBSERVER, group)) return true;
 			}
 			if (roles.contains(Role.GROUPADMIN)) if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
-//			if (roles.contains(Role.FACILITYADMIN)) ; //Not allowed
-//			if (roles.contains(Role.SELF)) ; //Not allowed
+			if (roles.contains(Role.FACILITYADMIN)) {
+				List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+				for (Resource groupResource : resources) {
+					if (isAuthorized(sess, Role.FACILITYADMIN, groupResource)) {
+						return true;
+					}
+				}
+			}
+			if (roles.contains(Role.SELF)) {
+				if (sess.getPerunPrincipal().getUser() != null) {
+					return getPerunBl().getGroupsManagerBl().isUserMemberOfGroup(sess, sess.getPerunPrincipal().getUser(), group);
+				}
+			}
 		} else if (resource != null) {
 			if (roles.contains(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, resource)) return true;
