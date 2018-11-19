@@ -2646,6 +2646,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
+	public void updateApplicationUser(PerunSession sess, Application app) throws InternalErrorException {
+
+		jdbc.update("update application set user_id=?, modified_at=" + Compatibility.getSysdate() + ", modified_by=? where id=?",
+				(app.getUser() != null) ? app.getUser().getId() : null,
+				sess.getPerunPrincipal().getActor(),
+				app.getId());
+
+	}
+
 	@Override
 	public MailManager getMailManager() {
 		return this.mailManager;

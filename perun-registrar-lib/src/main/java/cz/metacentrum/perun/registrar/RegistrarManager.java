@@ -443,6 +443,16 @@ public interface RegistrarManager {
 	void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException;
 
 	/**
+	 * Updates User within application. Application is decided by passed application ID and
+	 * user is set by passed application user. If null, then null is set in DB.
+	 *
+	 * @param sess PerunSession
+	 * @param app Application to update user
+	 * @throws InternalErrorException
+	 */
+	public void updateApplicationUser(PerunSession sess, Application app) throws InternalErrorException;
+
+	/**
 	 * Getter for Mail manager used for notifications
 	 *
 	 * @return mail manager
