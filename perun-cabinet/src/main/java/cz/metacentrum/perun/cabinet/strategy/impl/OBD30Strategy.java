@@ -52,7 +52,7 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 	// ZČU
 	// http://obd.zcu.cz:6443/fcgi/verso.fpl?fname=obd_exportt_xml&_a_prijmeni=Habernal&_diakritika=0&_a_jmeno=Ivan&_diakritika=0
 	// UK
-	// https://verso.is.cuni.cz/fcgi/verso.fpl?fname=obd_exportt_xml&_a_prijmeni=Voc%C5%AF&_diakritika=0&_v_vlo=2010
+	// https://verso.is.cuni.cz/pub/verso.fpl?fname=obd_exportt_xml&_a_prijmeni=Voc%C5%AF&_diakritika=0&_v_vlo=2010
 
 	@Override
 	public List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException {
