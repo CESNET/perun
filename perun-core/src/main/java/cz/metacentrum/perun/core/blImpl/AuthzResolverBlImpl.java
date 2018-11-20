@@ -474,6 +474,67 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Vo vo) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, vo, null);
+
+		Boolean isAuthorized = doBeforeAttributeRightsCheck(sess, actionType, attrDef);
+
+		if (isAuthorized != null) {
+			return isAuthorized;
+		}
+
+		//This method get all possible roles which can do action on attribute
+		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, vo);
+
+		if (roles.containsKey(Role.VOADMIN)) {
+			if (isAuthorized(sess, Role.VOADMIN, vo)) return true;
+		}
+		if (roles.containsKey(Role.VOOBSERVER)) {
+			if (isAuthorized(sess, Role.VOOBSERVER, vo)) return true;
+		}
+		if (roles.containsKey(Role.GROUPADMIN)) {
+			//if Principal is GroupManager in the vo
+			if (isAuthorized(sess, Role.GROUPADMIN, vo)) return true;
+		}
+		if (roles.containsKey(Role.FACILITYADMIN)) {
+			// is facility manager of any vo resource
+			List<Resource> resourceList = perunBl.getResourcesManagerBl().getResources(sess, vo);
+			for (Resource res : resourceList) {
+				if (isAuthorized(sess, Role.FACILITYADMIN, res)) return true;
+			}
+		}
+		if (roles.containsKey(Role.SELF)) {
+			if (actionType == ActionType.READ ||
+				actionType == ActionType.READ_PUBLIC ||
+				actionType == ActionType.READ_VO) {
+
+				// any user can read
+				return true;
+			}
+			if (roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) {
+				return true;
+			}
+			if (roles.get(Role.SELF).contains(ActionType.WRITE) ||
+				roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
+
+				if (sess.getPerunPrincipal().getUser() != null) {
+					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+					for (Member principalUserMember : principalUserMembers) {
+						if (vo.getId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='" + sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
 
@@ -534,49 +595,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		//Important: There is no options for other roles like service, serviceUser and other!
 
-		if (vo != null) {
-			if (roles.containsKey(Role.VOADMIN)) {
-				if (isAuthorized(sess, Role.VOADMIN, vo)) return true;
-			}
-			if (roles.containsKey(Role.VOOBSERVER)) {
-				if (isAuthorized(sess, Role.VOOBSERVER, vo)) return true;
-			}
-			if (roles.containsKey(Role.GROUPADMIN)) {
-				//if Principal is GroupManager in the vo
-				if (isAuthorized(sess, Role.GROUPADMIN, vo)) return true;
-			}
-			if (roles.containsKey(Role.FACILITYADMIN)) {
-				// is facility manager of any vo resource
-				List<Resource> resourceList = perunBl.getResourcesManagerBl().getResources(sess, vo);
-				for (Resource res : resourceList) {
-					if (isAuthorized(sess, Role.FACILITYADMIN, res)) return true;
-				}
-			}
-			if (roles.containsKey(Role.SELF)) {
-				if (actionType == ActionType.READ ||
-				    actionType == ActionType.READ_PUBLIC ||
-				    actionType == ActionType.READ_VO) {
-
-					// any user can read
-					return true;
-				}
-				if (roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) {
-					return true;
-				}
-				if (roles.get(Role.SELF).contains(ActionType.WRITE) ||
-				    roles.get(Role.SELF).contains(ActionType.WRITE_VO)) {
-
-					if (sess.getPerunPrincipal().getUser() != null) {
-						List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
-						for (Member principalUserMember : principalUserMembers) {
-							if (vo.getId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
-								return true;
-							}
-						}
-					}
-				}
-			}
-		} else if (group != null) {
+		if (group != null) {
 			if (roles.containsKey(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, group)) return true;
 			}
