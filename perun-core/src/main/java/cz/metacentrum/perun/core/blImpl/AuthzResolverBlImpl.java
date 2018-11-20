@@ -205,6 +205,46 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, group, resource);
+
+		Boolean isAuthorized = doBeforeAttributeRightsCheck(sess, actionType, attrDef);
+
+		if (isAuthorized != null) {
+			return isAuthorized;
+		}
+
+		//This method get all possible roles which can do action on attribute
+		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, group, resource);
+
+		if (roles.containsKey(Role.VOADMIN)) {
+			if (isAuthorized(sess, Role.VOADMIN, resource)) return true;
+		}
+		if (roles.containsKey(Role.VOOBSERVER)) {
+			if (isAuthorized(sess, Role.VOOBSERVER, resource)) return true;
+		}
+		if (roles.containsKey(Role.GROUPADMIN)) {
+			//If groupManager has right on the group
+			if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
+		}
+		if (roles.containsKey(Role.FACILITYADMIN)) {
+			//IMPORTANT "for now possible, but need to discuss"
+			if (getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource).contains(group)) {
+				List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
+				for (Group g : groups) {
+					if (isAuthorized(sess, Role.GROUPADMIN, g)) return true;
+				}
+			}
+		}
+//	    if (roles.containsKey(Role.SELF)) ; //Not Allowed
+
+		return false;
+	}
+
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='" + sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
 
@@ -265,28 +305,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		//Important: There is no options for other roles like service, serviceUser and other!
 
-		if (resource != null && group != null) {
-			if (roles.containsKey(Role.VOADMIN)) {
-				if (isAuthorized(sess, Role.VOADMIN, resource)) return true;
-			}
-			if (roles.containsKey(Role.VOOBSERVER)) {
-				if (isAuthorized(sess, Role.VOOBSERVER, resource)) return true;
-			}
-			if (roles.containsKey(Role.GROUPADMIN)) {
-				//If groupManager has right on the group
-				if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
-			}
-			if (roles.containsKey(Role.FACILITYADMIN)) {
-				//IMPORTANT "for now possible, but need to discuss"
-				if (getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource).contains(group)) {
-					List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
-					for (Group g : groups) {
-						if (isAuthorized(sess, Role.GROUPADMIN, g)) return true;
-					}
-				}
-			}
-//			if (roles.containsKey(Role.SELF)) ; //Not Allowed
-		} else if (user != null && facility != null) {
+		if (user != null && facility != null) {
 			if (roles.containsKey(Role.FACILITYADMIN)) if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
 			if (roles.containsKey(Role.SELF)) {
 				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
