@@ -199,16 +199,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 	@Override
 	public List<Vo> getAllowedVos(PerunSession sess, Facility facility) throws InternalErrorException {
-		List<Vo> vos = new ArrayList<Vo>();
-		List<Integer> voIds =  getFacilitiesManagerImpl().getAllowedVosIds(sess, facility);
-		try {
-			for(Integer id : voIds) {
-				vos.add(getPerunBl().getVosManagerBl().getVoById(sess, id));
-			}
-		} catch(VoNotExistsException ex) {
-			throw new ConsistencyErrorException("Non-existent VO is allowed on the facility", ex);
-		}
-		return vos;
+		return getFacilitiesManagerImpl().getAllowedVos(sess, facility);
 	}
 
 	@Override
