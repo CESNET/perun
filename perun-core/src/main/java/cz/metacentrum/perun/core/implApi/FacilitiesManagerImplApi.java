@@ -154,16 +154,16 @@ public interface FacilitiesManagerImplApi {
 	void removeOwner(PerunSession perunSession, Facility facility, Owner owner) throws InternalErrorException, OwnerAlreadyRemovedException;
 
 	/**
-	 * Return all VO' id which can use this facility. (VO must have the resource which belongs to this facility).
+	 * Return all VO which can use this facility. (VO must have the resource which belongs to this facility).
 	 *
 	 * @param perunSession
 	 * @param facility
 	 *
-	 * @return list of Vos' id
+	 * @return list of Vos
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Integer> getAllowedVosIds(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<Vo> getAllowedVos(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Return all members, which are "allowed" on facility.

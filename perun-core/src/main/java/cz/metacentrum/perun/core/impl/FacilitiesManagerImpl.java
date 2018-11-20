@@ -441,11 +441,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public List<Integer> getAllowedVosIds(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Vo> getAllowedVos(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
-			// Select only unique ids
-			return jdbc.query("select distinct vos.id as id from resources, vos where resources.facility_id=? and " +
-					"resources.vo_id=vos.id", Utils.ID_MAPPER, facility.getId());
+			// Select only unique Vos
+			return jdbc.query("select distinct "+ VosManagerImpl.voMappingSelectQuery +" from resources join vos on resources.vo_id=vos.id " +
+				"where resources.facility_id=?", VosManagerImpl.VO_MAPPER, facility.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
