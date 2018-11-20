@@ -245,6 +245,81 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, User user, Facility facility) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, user, facility);
+
+		Boolean isAuthorized = doBeforeAttributeRightsCheck(sess, actionType, attrDef);
+
+		if (isAuthorized != null) {
+			return isAuthorized;
+		}
+
+		//This method get all possible roles which can do action on attribute
+		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, user, facility);
+
+		if (roles.containsKey(Role.FACILITYADMIN)) if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
+		if (roles.containsKey(Role.SELF)) {
+			if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
+			if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
+				if (isAuthorized(sess, Role.SELF, user)) return true;
+			}
+			if ((roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) && sess.getPerunPrincipal().getUser() != null) {
+				List<Member> attributeUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+				List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
+
+				for (Member attributeUserMember : attributeUserMembers) {
+					for (Member principalUserMember : principalUserMembers) {
+						if (attributeUserMember.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		if (roles.containsKey(Role.VOADMIN)) {
+			List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+			HashSet<Resource> resourcesFromUser = new HashSet<>();
+			for (Member memberElement : membersFromUser) {
+				resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
+			}
+			resourcesFromUser.retainAll(getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
+			for (Resource resourceElement : resourcesFromUser) {
+				if (isAuthorized(sess, Role.VOADMIN, resourceElement)) return true;
+			}
+		}
+		if (roles.containsKey(Role.VOOBSERVER)) {
+			List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+			HashSet<Resource> resourcesFromUser = new HashSet<>();
+			for (Member memberElement : membersFromUser) {
+				resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
+			}
+			resourcesFromUser.retainAll(getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
+			for (Resource resourceElement : resourcesFromUser) {
+				if (isAuthorized(sess, Role.VOOBSERVER, resourceElement)) return true;
+			}
+		}
+		if (roles.containsKey(Role.GROUPADMIN)) {
+			//If groupManager has rights on "any group which is assigned to any resource from the facility" and "the user has also member in vo where exists this group"
+			List<Vo> userVos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+			Set<Integer> userVosIds = new HashSet<>();
+			for (Vo voElement : userVos) {
+				userVosIds.add(voElement.getId());
+			}
+
+			List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
+			for (Group groupElement : groupsFromFacility) {
+				if (isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId()))
+					return true;
+			}
+		}
+
+		return false;
+	}
+
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='" + sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
 
@@ -305,63 +380,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		//Important: There is no options for other roles like service, serviceUser and other!
 
-		if (user != null && facility != null) {
-			if (roles.containsKey(Role.FACILITYADMIN)) if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
-			if (roles.containsKey(Role.SELF)) {
-				if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
-				if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
-					if (isAuthorized(sess, Role.SELF, user)) return true;
-				}
-				if ((roles.get(Role.SELF).contains(ActionType.READ_VO) || roles.get(Role.SELF).contains(ActionType.WRITE_VO)) && sess.getPerunPrincipal().getUser() != null) {
-					List<Member> attributeUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-					List<Member> principalUserMembers = getPerunBl().getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
-
-					for (Member attributeUserMember : attributeUserMembers) {
-						for (Member principalUserMember : principalUserMembers) {
-							if (attributeUserMember.getVoId() == principalUserMember.getVoId() && principalUserMember.getStatus() == Status.VALID) {
-								return true;
-							}
-						}
-					}
-				}
-			}
-			if (roles.containsKey(Role.VOADMIN)) {
-				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				HashSet<Resource> resourcesFromUser = new HashSet<>();
-				for (Member memberElement : membersFromUser) {
-					resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
-				}
-				resourcesFromUser.retainAll(getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
-				for (Resource resourceElement : resourcesFromUser) {
-					if (isAuthorized(sess, Role.VOADMIN, resourceElement)) return true;
-				}
-			}
-			if (roles.containsKey(Role.VOOBSERVER)) {
-				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				HashSet<Resource> resourcesFromUser = new HashSet<>();
-				for (Member memberElement : membersFromUser) {
-					resourcesFromUser.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
-				}
-				resourcesFromUser.retainAll(getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
-				for (Resource resourceElement : resourcesFromUser) {
-					if (isAuthorized(sess, Role.VOOBSERVER, resourceElement)) return true;
-				}
-			}
-			if (roles.containsKey(Role.GROUPADMIN)) {
-				//If groupManager has rights on "any group which is assigned to any resource from the facility" and "the user has also member in vo where exists this group"
-				List<Vo> userVos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
-				Set<Integer> userVosIds = new HashSet<>();
-				for (Vo voElement : userVos) {
-					userVosIds.add(voElement.getId());
-				}
-
-				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
-				for (Group groupElement : groupsFromFacility) {
-					if (isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId()))
-						return true;
-				}
-			}
-		} else if (member != null && group != null) {
+		if (member != null && group != null) {
 			if (roles.containsKey(Role.VOADMIN)) {
 				if (isAuthorized(sess, Role.VOADMIN, member)) return true;
 			}
