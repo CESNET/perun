@@ -14,13 +14,13 @@ import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Module for VOs with external users at VŠUP
@@ -39,7 +39,31 @@ public class Vsup implements RegistrarModule {
 	}
 
 	@Override
-	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
+	public List<ApplicationFormItemData> createApplication(PerunSession session, Application application, List<ApplicationFormItemData> data) throws PerunException {
+
+		if (application.getUser() == null) {
+
+			for (ApplicationFormItemData item : data) {
+				if (item.getFormItem() != null &&
+						Objects.equals(AttributesManager.NS_USER_ATTR_DEF+":birthNumber", item.getFormItem().getPerunDestinationAttribute())) {
+
+					// if application contains birth number, try to map to existing user
+					String rc = item.getValue();
+					if (rc != null && !rc.isEmpty()) {
+						try {
+							User user = ((PerunBl) session.getPerun()).getUsersManagerBl().getUserByExtSourceNameAndExtLogin(session, "RC", rc);
+							application.setUser(user);
+							registrar.updateApplicationUser(session, application);
+						} catch (Exception ex) {
+							log.warn("Couldn't find or set user to application {} by RC: {}", application, ex);
+						}
+					}
+					break;
+				}
+			}
+
+		}
+
 		return data;
 	}
 
