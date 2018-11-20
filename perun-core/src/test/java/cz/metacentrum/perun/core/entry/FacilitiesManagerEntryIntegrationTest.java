@@ -347,6 +347,20 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue("our facility should have 1 allowed VO", allowedVos.size() == 1);
 		assertTrue("our facility should have our VO as allowed", allowedVos.contains(vo));
 
+		Vo vo2 = new Vo(1, "facilityTestVo002", "facilityTestVo002");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+		setUpResource2(vo2);
+
+		allowedVos = perun.getFacilitiesManager().getAllowedVos(sess, facility);
+
+		assertTrue("our facility should have 2 allowed VO", allowedVos.size() == 2);
+		assertTrue("our facility should have our VO as allowed", allowedVos.contains(vo2));
+
+		setUpResource2(vo);
+
+		allowedVos = perun.getFacilitiesManager().getAllowedVos(sess, facility);
+
+		assertTrue("our facility should have 2 allowed VO", allowedVos.size() == 2);
 	}
 
 	@Test

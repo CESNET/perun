@@ -199,7 +199,7 @@ public interface FacilitiesManagerBl {
 
 
 	/**
-	 * Return all VO which can use this facility. (VO muset have the resource which belongs to this facility)
+	 * Return all VO which can use this facility. (VO must have the resource which belongs to this facility)
 	 *
 	 * @param perunSession
 	 * @param facility
