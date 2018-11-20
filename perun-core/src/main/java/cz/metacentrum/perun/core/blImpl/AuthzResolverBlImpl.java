@@ -717,6 +717,53 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, UserExtSource ues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, ues, null);
+
+		Boolean isAuthorized = doBeforeAttributeRightsCheck(sess, actionType, attrDef);
+
+		if (isAuthorized != null) {
+			return isAuthorized;
+		}
+
+		//This method get all possible roles which can do action on attribute
+		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, ues);
+
+		User sessUser = sess.getPerunPrincipal().getUser();
+		User uesUser;
+		try {
+			uesUser = getPerunBl().getUsersManagerBl().getUserById(sess, ues.getUserId());
+		} catch (UserNotExistsException ex) {
+			return false;
+		}
+		if (ues.getUserId() == sessUser.getId()) return true;
+		if (roles.containsKey(Role.FACILITYADMIN)) {
+			List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAssignedFacilities(sess, uesUser);
+			for (Facility f : facilities) {
+				if (isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
+			}
+		}
+		if (roles.containsKey(Role.VOADMIN) || roles.containsKey(Role.VOOBSERVER)) {
+			List<Vo> vos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, uesUser);
+			for (Vo v : vos) {
+				if (isAuthorized(sess, Role.VOADMIN, v)) return true;
+				if (isAuthorized(sess, Role.VOOBSERVER, v)) return true;
+			}
+		}
+		if (roles.containsKey(Role.GROUPADMIN)) {
+			List<Vo> vos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, uesUser);
+			for (Vo v : vos) {
+				if (isAuthorized(sess, Role.GROUPADMIN, v)) return true;
+			}
+		}
+
+		return false;
+	}
+
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='" + sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
 
@@ -777,39 +824,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		//Important: There is no options for other roles like service, serviceUser and other!
 
-			if (ues != null) {
-			User sessUser = sess.getPerunPrincipal().getUser();
-			User uesUser;
-			try {
-				uesUser = getPerunBl().getUsersManagerBl().getUserById(sess, ues.getUserId());
-			} catch (UserNotExistsException ex) {
-				return false;
-			}
-			if (ues.getUserId() == sessUser.getId()) return true;
-			if (roles.containsKey(Role.FACILITYADMIN)) {
-				List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAssignedFacilities(sess, uesUser);
-				for (Facility f : facilities) {
-					if (isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
-				}
-			}
-			if (roles.containsKey(Role.VOADMIN) || roles.containsKey(Role.VOOBSERVER)) {
-				List<Vo> vos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, uesUser);
-				for (Vo v : vos) {
-					if (isAuthorized(sess, Role.VOADMIN, v)) return true;
-					if (isAuthorized(sess, Role.VOOBSERVER, v)) return true;
-				}
-			}
-			if (roles.containsKey(Role.GROUPADMIN)) {
-				List<Vo> vos = getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, uesUser);
-				for (Vo v : vos) {
-					if (isAuthorized(sess, Role.GROUPADMIN, v)) return true;
-				}
-			}
-		} else {
-			throw new InternalErrorException("There is no other possible variants for now!");
-		}
-
-		return false;
+		throw new InternalErrorException("There is no other possible variants for now!");
 	}
 
 	/**
