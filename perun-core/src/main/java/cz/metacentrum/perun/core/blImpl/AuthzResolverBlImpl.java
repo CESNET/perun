@@ -689,6 +689,34 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Host host) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, host, null);
+
+		Boolean isAuthorized = doBeforeAttributeRightsCheck(sess, actionType, attrDef);
+
+		if (isAuthorized != null) {
+			return isAuthorized;
+		}
+
+		//This method get all possible roles which can do action on attribute
+		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, host);
+
+		//			if (roles.containsKey(Role.VOADMIN)) ; //Not allowed
+//			if (roles.containsKey(Role.VOOBSERVER)) ; //Not allowed
+//			if (roles.containsKey(Role.GROUPADMIN)) ; //Not allowed
+		if (roles.containsKey(Role.FACILITYADMIN)) {
+			Facility f = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+			if (isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
+		}
+//			if (roles.containsKey(Role.SELF)) ; //Not allowed
+
+		return false;
+	}
+
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='" + sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
 
@@ -749,16 +777,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		//Important: There is no options for other roles like service, serviceUser and other!
 
-		if (host != null) {
-//			if (roles.containsKey(Role.VOADMIN)) ; //Not allowed
-//			if (roles.containsKey(Role.VOOBSERVER)) ; //Not allowed
-//			if (roles.containsKey(Role.GROUPADMIN)) ; //Not allowed
-			if (roles.containsKey(Role.FACILITYADMIN)) {
-				Facility f = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				if (isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
-			}
-//			if (roles.containsKey(Role.SELF)) ; //Not allowed
-		} else //noinspection ConstantConditions
 			if (ues != null) {
 			User sessUser = sess.getPerunPrincipal().getUser();
 			User uesUser;
