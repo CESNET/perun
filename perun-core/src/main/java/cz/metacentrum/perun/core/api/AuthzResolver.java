@@ -179,6 +179,23 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Checks if the principal is authorized to do some action of group attribute.
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute (ex.: write, read, etc...)
+	 * @param attrDef attribute what principal want to work with
+	 * @param group primary Bean of Attribute (can't be null)
+	 * @return true if principal is authorized, false if not
+	 */
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Group group) throws InternalErrorException {
+		try {
+			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, group);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
 	 * Checks if the principal is authorized.
 	 *
 	 * @param sess perun session
