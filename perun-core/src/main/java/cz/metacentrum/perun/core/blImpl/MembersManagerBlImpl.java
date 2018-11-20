@@ -1704,8 +1704,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			List<Attribute> memberAttributes = richMember.getMemberAttributes();
 			List<Attribute> allowedMemberAttributes = new ArrayList<Attribute>();
 			for(Attribute membAttr: memberAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, richMember, null)) {
-					membAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, richMember, null));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, richMember)) {
+					membAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, richMember));
 					allowedMemberAttributes.add(membAttr);
 				}
 			}
@@ -1716,8 +1716,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			List<Attribute> userAttributes = richMember.getUserAttributes();
 			List<Attribute> allowedUserAttributes = new ArrayList<Attribute>();
 			for(Attribute userAttr: userAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, richMember.getUser(), null)) {
-					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, richMember.getUser(), null));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, richMember.getUser())) {
+					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, richMember.getUser()));
 					allowedUserAttributes.add(userAttr);
 				}
 			}
@@ -1773,8 +1773,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						}
 					//if not, get information about authz rights and set record to contextMap
 					} else {
-						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, rm, null)) {
-							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, rm, null);
+						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, rm)) {
+							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, rm);
 							membAttr.setWritable(isWritable);
 							allowedMemberAttributes.add(membAttr);
 							contextMap.put(membAttr.getFriendlyName(), isWritable);
@@ -1799,8 +1799,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						}
 					//if not, get information about authz rights and set record to contextMap
 					} else {
-						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, rm.getUser(), null)) {
-							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, rm.getUser(), null);
+						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, rm.getUser())) {
+							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, rm.getUser());
 							userAttr.setWritable(isWritable);
 							allowedUserAttributes.add(userAttr);
 							contextMap.put(userAttr.getFriendlyName(), isWritable);

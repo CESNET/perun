@@ -986,7 +986,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		//If actor has no right to read attribute for group, throw exception
 		for(Group group: groups) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, group, null)) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, group)) {
 					throw new PrivilegeException(sess, "Actor hasn't right to read attribute for a group.");
 				}
 		}

@@ -144,14 +144,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return true;
 		}
 
-		//If attrDef is type of entityless, return false (only perunAdmin can read and write to entityless)
-		if (getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attrDef, AttributesManager.NS_ENTITYLESS_ATTR))
-			return false;
-
 		return null;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Resource resource, Member member) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Member member, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, resource, member);
@@ -343,6 +339,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (roles.containsKey(Role.VOOBSERVER)) {
 			if (isAuthorized(sess, Role.VOOBSERVER, member)) return true;
 		}
+		if (roles.containsKey(Role.GROUPADMIN)) {
+			if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
+		}
 		if (roles.containsKey(Role.SELF)) {
 			if (roles.get(Role.SELF).contains(ActionType.READ_PUBLIC) || roles.get(Role.SELF).contains(ActionType.WRITE_PUBLIC)) return true;
 			if (roles.get(Role.SELF).contains(ActionType.READ) || roles.get(Role.SELF).contains(ActionType.WRITE)) {
@@ -358,9 +357,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					}
 				}
 			}
-		}
-		if (roles.containsKey(Role.GROUPADMIN)) {
-			if (isAuthorized(sess, Role.GROUPADMIN, group)) return true;
 		}
 
 		return false;
@@ -704,8 +700,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		//Test if handlers are correct for attribute namespace
 		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, host);
-
-		//			if (roles.containsKey(Role.VOADMIN)) ; //Not allowed
+//			if (roles.containsKey(Role.VOADMIN)) ; //Not allowed
 //			if (roles.containsKey(Role.VOOBSERVER)) ; //Not allowed
 //			if (roles.containsKey(Role.GROUPADMIN)) ; //Not allowed
 		if (roles.containsKey(Role.FACILITYADMIN)) {
@@ -764,67 +759,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		log.trace("Entering isAuthorizedForAttribute: sess='" + sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, key, null);
 
 		Boolean isAuthorized = doBeforeAttributeRightsCheck(sess, actionType, attrDef);
+
 		if (isAuthorized != null) {
 			return isAuthorized;
 		}
 
-		//This method get all possible roles which can do action on attribute
-		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
-
-		//Now get information about primary and secondary holders to identify them!
-		//All possible useful perunBeans
-		Vo vo = null;
-		Facility facility = null;
-		Group group = null;
-		Member member = null;
-		User user = null;
-		Host host = null;
-		Resource resource = null;
-		UserExtSource ues = null;
-
-		//Get object for primaryHolder
-		if (primaryHolder != null) {
-			if (primaryHolder instanceof Vo) vo = (Vo) primaryHolder;
-			else if (primaryHolder instanceof Facility) facility = (Facility) primaryHolder;
-			else if (primaryHolder instanceof Group) group = (Group) primaryHolder;
-			else if (primaryHolder instanceof Member) member = (Member) primaryHolder;
-			else if (primaryHolder instanceof User) user = (User) primaryHolder;
-			else if (primaryHolder instanceof Host) host = (Host) primaryHolder;
-			else if (primaryHolder instanceof Resource) resource = (Resource) primaryHolder;
-			else if (primaryHolder instanceof UserExtSource) ues = (UserExtSource) primaryHolder;
-			else {
-				throw new InternalErrorException("There is unrecognized object in primaryHolder.");
-			}
-		} else {
-			throw new InternalErrorException("Adding attribute must have perunBean which is not null.");
-		}
-
-		//Get object for secondaryHolder
-		if (secondaryHolder != null) {
-			if (secondaryHolder instanceof Vo) vo = (Vo) secondaryHolder;
-			else if (secondaryHolder instanceof Facility) facility = (Facility) secondaryHolder;
-			else if (secondaryHolder instanceof Group) group = (Group) secondaryHolder;
-			else if (secondaryHolder instanceof Member) member = (Member) secondaryHolder;
-			else if (secondaryHolder instanceof User) user = (User) secondaryHolder;
-			else if (secondaryHolder instanceof Host) host = (Host) secondaryHolder;
-			else if (secondaryHolder instanceof Resource) resource = (Resource) secondaryHolder;
-			else if (secondaryHolder instanceof UserExtSource) ues = (UserExtSource) secondaryHolder;
-			else {
-				throw new InternalErrorException("There is unrecognized perunBean in secondaryHolder.");
-			}
-		} // If not, its ok, secondary holder can be null
-
-		//Test if handlers are correct for attribute namespace
-		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, (PerunBean) primaryHolder, (PerunBean) secondaryHolder);
-
-
-		//Important: There is no options for other roles like service, serviceUser and other!
-
-		throw new InternalErrorException("There is no other possible variants for now!");
+		// only perun admin can work with entityless attributes
+		return false;
 	}
 
 	/**

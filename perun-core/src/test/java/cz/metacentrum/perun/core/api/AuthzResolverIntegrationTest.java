@@ -320,7 +320,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 
-		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, ActionType.READ, attrDef, attributeUser, null));
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, ActionType.READ, attrDef, attributeUser));
 	}
 
 	@Test
@@ -358,7 +358,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 
-		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, ActionType.READ, attrDef, attributeUser, null));
+		assertTrue(AuthzResolver.isAuthorizedForAttribute(testSession, ActionType.READ, attrDef, attributeUser));
 	}
 
 	@Test
@@ -397,7 +397,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		PerunSessionImpl testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
 
 
-		assertFalse(AuthzResolver.isAuthorizedForAttribute(testSession, ActionType.READ, attrDef, attributeUser, null));
+		assertFalse(AuthzResolver.isAuthorizedForAttribute(testSession, ActionType.READ, attrDef, attributeUser));
 	}
 
 	// private methods ==============================================================
