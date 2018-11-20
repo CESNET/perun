@@ -590,6 +590,45 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Resource resource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
+			"secondaryHolder='{}'", sess, actionType, attrDef, resource, null);
+
+		Boolean isAuthorized = doBeforeAttributeRightsCheck(sess, actionType, attrDef);
+
+		if (isAuthorized != null) {
+			return isAuthorized;
+		}
+
+		//This method get all possible roles which can do action on attribute
+		Map<Role, Set<ActionType>> roles = AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(actionType, attrDef);
+
+		//Test if handlers are correct for attribute namespace
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, resource);
+
+		if (roles.containsKey(Role.VOADMIN)) {
+			if (isAuthorized(sess, Role.VOADMIN, resource)) return true;
+		}
+		if (roles.containsKey(Role.VOOBSERVER)) {
+			if (isAuthorized(sess, Role.VOOBSERVER, resource)) return true;
+		}
+		if (roles.containsKey(Role.FACILITYADMIN)) {
+			if (isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
+		}
+		if (roles.containsKey(Role.RESOURCEADMIN)) {
+			if (isAuthorized(sess, Role.RESOURCEADMIN, resource)) return true;
+		}
+		if (roles.containsKey(Role.GROUPADMIN)) {
+			List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+			for (Group g : groupsFromResource) {
+				if (isAuthorized(sess, Role.GROUPADMIN, g)) return true;
+			}
+		}
+//			if (roles.containsKey(Role.SELF)) ; //Not allowed
+
+		return false;
+	}
+
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		log.trace("Entering isAuthorizedForAttribute: sess='" + sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
 
@@ -650,27 +689,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		//Important: There is no options for other roles like service, serviceUser and other!
 
-		if (resource != null) {
-			if (roles.containsKey(Role.VOADMIN)) {
-				if (isAuthorized(sess, Role.VOADMIN, resource)) return true;
-			}
-			if (roles.containsKey(Role.VOOBSERVER)) {
-				if (isAuthorized(sess, Role.VOOBSERVER, resource)) return true;
-			}
-			if (roles.containsKey(Role.FACILITYADMIN)) {
-				if (isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
-			}
-			if (roles.containsKey(Role.RESOURCEADMIN)) {
-				if (isAuthorized(sess, Role.RESOURCEADMIN, resource)) return true;
-			}
-			if (roles.containsKey(Role.GROUPADMIN)) {
-				List<Group> groupsFromResource = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-				for (Group g : groupsFromResource) {
-					if (isAuthorized(sess, Role.GROUPADMIN, g)) return true;
-				}
-			}
-//			if (roles.containsKey(Role.SELF)) ; //Not allowed
-		} else if (facility != null) {
+		if (facility != null) {
 			if (roles.containsKey(Role.FACILITYADMIN)) if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
 			if (roles.containsKey(Role.VOADMIN)) {
 				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
