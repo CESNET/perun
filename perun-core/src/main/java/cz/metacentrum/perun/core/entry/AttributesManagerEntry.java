@@ -421,10 +421,18 @@ public class AttributesManagerEntry implements AttributesManager {
 		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, member, attrNames, workWithUserAttributes);
 		Iterator<Attribute> attrIter = attributes.iterator();
 		//Choose to which attributes has the principal access
+		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 		while(attrIter.hasNext()) {
 			Attribute attrNext = attrIter.next();
-			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, new AttributeDefinition(attrNext), member, null)) attrIter.remove();
-			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member, null));
+			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, new AttributeDefinition(attrNext), member, null)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member, null));
+			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, new AttributeDefinition(attrNext), user, null)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, null));
+			} else {
+				throw new ConsistencyErrorException("One of getting attributes is not correct type: " + attrNext);
+			}
 		}
 		return attributes;
 	}
