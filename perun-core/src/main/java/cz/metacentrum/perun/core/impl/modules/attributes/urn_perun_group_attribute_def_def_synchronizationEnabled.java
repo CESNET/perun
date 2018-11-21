@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -25,10 +26,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModul
  */
 public class urn_perun_group_attribute_def_def_synchronizationEnabled extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
-	private static final String GROUPSYNCHROINTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationInterval";
-	private static final String GROUPMEMBERSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersQuery";
-	private static final String GROUPEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupExtSource";
-
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		//Null value is ok, means no settings for group
@@ -41,17 +38,17 @@ public class urn_perun_group_attribute_def_def_synchronizationEnabled extends Gr
 		}
 			try {
 				if (attrValue.equals("true")) {
-					Attribute requiredAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROINTERVAL_ATTRNAME);
+					Attribute requiredAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
 					if (requiredAttribute.getValue() == null) {
 						throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
 					}
 
-					requiredAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPMEMBERSQUERY_ATTRNAME);
+					requiredAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 					if (requiredAttribute.getValue() == null) {
 						throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
 					}
 
-					requiredAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPEXTSOURCE_ATTRNAME);
+					requiredAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
 					if (requiredAttribute.getValue() == null) {
 						throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
 					}
