@@ -1334,8 +1334,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		//for OAuth clients, do not allow delegating roles not allowed by scopes
 		if (sess.getPerunClient().getType() == PerunClient.Type.OAUTH) {
 			List<String> oauthScopes = sess.getPerunClient().getScopes();
+			log.trace("refreshAuthz({}) oauthScopes={}",sess.getLogId(),oauthScopes);
 			if(!oauthScopes.contains(PerunClient.PERUN_ADMIN_SCOPE)) {
 				log.debug("removing PERUNADMIN role from session of user {}",sess.getPerunPrincipal().getUserId());
+				log.trace("original roles: {}", sess.getPerunPrincipal().getRoles());
 				sess.getPerunPrincipal().getRoles().remove(Role.PERUNADMIN);
 			}
 			if(!oauthScopes.contains(PerunClient.PERUN_API_SCOPE)) {
