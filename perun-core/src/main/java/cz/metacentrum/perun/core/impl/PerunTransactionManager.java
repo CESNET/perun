@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -27,27 +28,35 @@ public class PerunTransactionManager extends DataSourceTransactionManager implem
 	@Override
 	protected void doBegin(Object transaction, TransactionDefinition definition) {
 		this.getAuditer().newTopLevelTransaction();
-		this.getCacheManager().newTopLevelTransaction();
+		if(BeansUtils.getCoreConfig().isCacheEnabled()) {
+			this.getCacheManager().newTopLevelTransaction();
+		}
 		super.doBegin(transaction, definition);
 	}
 
 	@Override
 	protected void doCommit(DefaultTransactionStatus status) {
-		this.getCacheManager().commit();
+		if(BeansUtils.getCoreConfig().isCacheEnabled()) {
+			this.getCacheManager().commit();
+		}
 		super.doCommit(status);
 		this.getAuditer().flush();
 	}
 
 	@Override
 	protected void doRollback(DefaultTransactionStatus status) {
-		this.getCacheManager().rollback();
+		if(BeansUtils.getCoreConfig().isCacheEnabled()) {
+			this.getCacheManager().rollback();
+		}
 		super.doRollback(status);
 		this.getAuditer().clean();
 	}
 
 	@Override
 	protected void doCleanupAfterCompletion(Object transaction) {
-		this.getCacheManager().clean();
+		if(BeansUtils.getCoreConfig().isCacheEnabled()) {
+			this.getCacheManager().clean();
+		}
 		super.doCleanupAfterCompletion(transaction);
 
 		List<Lock> locks = (List<Lock>) TransactionSynchronizationManager.getResource(PerunLocksUtils.uniqueKey.get());
