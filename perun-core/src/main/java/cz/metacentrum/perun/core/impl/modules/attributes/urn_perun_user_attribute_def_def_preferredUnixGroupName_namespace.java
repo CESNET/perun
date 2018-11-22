@@ -33,14 +33,16 @@ public class urn_perun_user_attribute_def_def_preferredUnixGroupName_namespace e
 		}
 	}
 
+	/*
 	@Override
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("preferredUnixGroupName-namespace:*");
+		attr.setFriendlyName("preferredUnixGroupName-namespace");
 		attr.setType(List.class.getName());
 		attr.setDescription("User preferred unix group name, ordered by user's personal preferrences.");
 		return attr;
 	}
+	*/
 }
 
