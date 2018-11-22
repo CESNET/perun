@@ -150,13 +150,13 @@
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
-			<version>8.2.1.Final</version>
+			<version>9.4.2.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-query</artifactId>
-			<version>8.2.1.Final</version>
+			<version>9.4.2.Final</version>
 		</dependency>
 
 	</dependencies>
