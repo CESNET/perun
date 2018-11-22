@@ -33,12 +33,14 @@ public class urn_perun_user_attribute_def_def_IPAddresses extends UserAttributes
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		List<String> value = attribute.valueAsList();
-		for (String address : value) {
-			Matcher matcherIPv4 = IPv4_PATTERN.matcher(address);
-			Matcher matcherIPv6 = IPv6_PATTERN.matcher(address);
-			Matcher matcherIPv6Short = IPv6_PATTERN_SHORT.matcher(address);
-			if (!matcherIPv4.matches() && !matcherIPv6.matches() && !matcherIPv6Short.matches())
-				throw new WrongAttributeValueException(attribute, "IP address is not in the correct format.");
+		if (value != null) {
+			for (String address : value) {
+				Matcher matcherIPv4 = IPv4_PATTERN.matcher(address);
+				Matcher matcherIPv6 = IPv6_PATTERN.matcher(address);
+				Matcher matcherIPv6Short = IPv6_PATTERN_SHORT.matcher(address);
+				if (!matcherIPv4.matches() && !matcherIPv6.matches() && !matcherIPv6Short.matches())
+					throw new WrongAttributeValueException(attribute, "IP address is not in the correct format.");
+			}
 		}
 	}
 
