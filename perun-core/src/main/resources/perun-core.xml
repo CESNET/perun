@@ -74,7 +74,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.OwnersManagerImpl.createOwner(..))"/>
 		<!-- ResourcesManagerImpl -->
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.createResource(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.setFacility(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.assignGroupToResource(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.assignService(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ResourcesManagerImpl.updateResource(..))"/>
