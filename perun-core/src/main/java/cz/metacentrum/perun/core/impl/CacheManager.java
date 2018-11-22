@@ -1113,9 +1113,7 @@ public class CacheManager implements CacheManagerApi {
 		 */
 		AttributeDefinition found;
 			try {
-				System.out.println("SEARCH BY: " + attribute);
 				found = getAttributeDefinition(attribute.getId());
-				System.out.println("FOUND: " + found);
 				if (!Objects.equals(found.getId(),attribute.getId())) return false;
 				if (!Objects.equals(found.getName(),attribute.getName())) return false;
 				if (!Objects.equals(found.getFriendlyName(),attribute.getFriendlyName())) return false;
@@ -1126,9 +1124,7 @@ public class CacheManager implements CacheManagerApi {
 
 			}
 		try {
-			System.out.println("SEARCH BY: " + attribute);
 			found = getAttributeDefinition(attribute.getName());
-			System.out.println("FOUND: " + found);
 			if (!Objects.equals(found.getId(),attribute.getId())) return false;
 			if (!Objects.equals(found.getName(),attribute.getName())) return false;
 			if (!Objects.equals(found.getFriendlyName(),attribute.getFriendlyName())) return false;
