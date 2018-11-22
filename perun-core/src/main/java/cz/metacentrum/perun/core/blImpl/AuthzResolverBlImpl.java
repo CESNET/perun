@@ -638,7 +638,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                 perun session
 	 * @param user                 the user for setting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin  )
+	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin | resourceselfservice | resourceAdmin )
 	 * @param complementaryObjects objects for which role will be set
 	 */
 	public static void setRole(PerunSession sess, User user, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, AlreadyAdminException {
@@ -669,7 +669,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param user                the user for setting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin | resourceselfservice )
+	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin | resourceselfservice | resourceAdmin )
 	 * @param complementaryObject object for which role will be set
 	 */
 	public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, Role role) throws InternalErrorException, AlreadyAdminException {
@@ -686,7 +686,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                 perun session
 	 * @param authorizedGroup      the group for setting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice )
+	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObjects objects for which role will be set
 	 */
 	public static void setRole(PerunSession sess, Group authorizedGroup, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, AlreadyAdminException {
@@ -717,7 +717,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param authorizedGroup     the group for setting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice )
+	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObject object for which role will be set
 	 */
 	public static void setRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, Role role) throws InternalErrorException, AlreadyAdminException {
@@ -734,7 +734,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                 perun session
 	 * @param user                 the user for unsetting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice )
+	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObjects objects for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, User user, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, UserNotAdminException {
@@ -765,7 +765,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param user                the user for unsetting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObject object for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, User user, PerunBean complementaryObject, Role role) throws InternalErrorException, UserNotAdminException {
@@ -782,7 +782,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                 perun session
 	 * @param authorizedGroup      the group for unsetting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObjects objects for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, Group authorizedGroup, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, GroupNotAdminException {
@@ -813,7 +813,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param authorizedGroup     the group for unsetting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObject object for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, Role role) throws InternalErrorException, GroupNotAdminException {
