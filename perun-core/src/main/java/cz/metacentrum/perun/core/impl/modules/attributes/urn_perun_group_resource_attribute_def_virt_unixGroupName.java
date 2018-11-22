@@ -137,7 +137,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends R
 	@Override
 	public List<String> getDependencies() {
 		List<String> dependencies = new ArrayList<>();
-		dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:");
+		dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:*");
 		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
 		return dependencies;
 	}
@@ -145,7 +145,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends R
 	@Override
 	public List<String> getStrongDependencies() {
 		List<String> dependecies = new ArrayList<String>();
-		dependecies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace" + ":*");
+		dependecies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:*");
 		dependecies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
 		return dependecies;
 	}
