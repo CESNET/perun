@@ -124,7 +124,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 		attr.setFriendlyName("preferredUnixGroupName");
 		attr.setDisplayName("Preferred Unix GroupName");
 		attr.setType(List.class.getName());
-		attr.setDescription("Choosed users preferred unix groupNames for specific facility namespace.");
+		attr.setDescription("Chosen users preferred unix groupNames for specific facility namespace.");
 		return attr;
 	}
 }
