@@ -196,8 +196,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		} // If not, its ok, secondary holder can be null
 
 		//Test if handlers are correct for attribute namespace
-		// FIXME - temporary disabled since it fails on cheks in EntryLayer, where we retrieve eg. both User and Member attributes just by passing Member object.
-		//getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, (PerunBean) primaryHolder, (PerunBean) secondaryHolder);
+		getPerunBl().getAttributesManagerBl().checkAttributeAssignment(sess, attrDef, (PerunBean) primaryHolder, (PerunBean) secondaryHolder);
 
 
 		//Important: There is no options for other roles like service, serviceUser and other!
