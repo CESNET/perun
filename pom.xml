@@ -61,7 +61,6 @@
 		<spring.profiles.default>default</spring.profiles.default>
 
 		<!-- redefine versions of some libraries defined by Spring Boot Starter Parent -->
-		<hsqldb.version>2.3.2</hsqldb.version> <!-- 2.3.3 fails GroupsManagerEntryIntegrationTest.addAdminWhenAlreadyAdmin test -->
 		<tomcat.version>8.5.34</tomcat.version>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
