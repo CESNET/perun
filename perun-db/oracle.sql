@@ -1739,6 +1739,7 @@ create index IDX_FK_AUTHZ_RES on authz(resource_id);
 create index IDX_FK_AUTHZ_SER_PRINC on authz(service_principal_id);
 create index IDX_FK_AUTHZ_SPONSU on authz(sponsored_user_id);
 create index IDX_FK_AUTHZ_SEC_TEAM on authz(security_team_id);
+create unique index IDX_AUTHZ_U on authz(user_id, authorized_group_id, service_principal_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id, security_team_id, sponsored_user_id);
 create index IDX_FK_GRRES_GR on groups_resources(group_id);
 create index IDX_FK_GRRES_RES on groups_resources(resource_id);
 create index IDX_FK_GRPMEM_GR on groups_members(group_id);

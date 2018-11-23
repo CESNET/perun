@@ -1,4 +1,6 @@
 set database sql syntax PGS true;
+-- fix unique index on authz, since PGS compatibility doesn't allow coalesce call in index and treats nulls in columns as different values.
+SET DATABASE SQL UNIQUE NULLS FALSE;
 
 -- database version 3.1.51 (don't forget to update insert statement at the end of file)
 
