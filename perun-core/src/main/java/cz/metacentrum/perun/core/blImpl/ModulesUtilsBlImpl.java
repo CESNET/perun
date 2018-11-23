@@ -163,7 +163,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		Utils.notNull(attrDef, "attributeDefinition");
 		if(resources == null || resources.isEmpty()) return false;
 		for(Resource r: resources) {
-			if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef , r, null)) return true;
+			if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef , r)) return true;
 		}
 		return false;
 	}
@@ -173,7 +173,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		Utils.notNull(attrDef, "attributeDefinition");
 		if(groups == null || groups.isEmpty()) return false;
 		for(Group g: groups) {
-			if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, g, null)) return true;
+			if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, g)) return true;
 		}
 		return false;
 	}
@@ -381,13 +381,13 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public boolean haveRightToWriteAttributeInAnyGroupOrResource(PerunSessionImpl sess, List<Group> groups, List<Resource> resources, AttributeDefinition groupAttribute, AttributeDefinition resourceAttribute) throws InternalErrorException {
 		if(groups != null && !groups.isEmpty() && groupAttribute != null) {
 			for(Group g: groups) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttribute, g, null)) return true;
+				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttribute, g)) return true;
 			}
 		}
 
 		if(resources != null && !resources.isEmpty() && resourceAttribute != null) {
 			for(Resource r: resources) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, resourceAttribute, r, null)) return true;
+				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, resourceAttribute, r)) return true;
 			}
 		}
 

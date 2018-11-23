@@ -1888,8 +1888,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			List<Attribute> groupAttributes = richGroup.getAttributes();
 			List<Attribute> allowedGroupAttributes = new ArrayList<Attribute>();
 			for(Attribute groupAttr : groupAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, richGroup, null)) {
-					groupAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, richGroup, null));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, richGroup)) {
+					groupAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, richGroup));
 					allowedGroupAttributes.add(groupAttr);
 				}
 			}
@@ -1948,8 +1948,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						// no READ for attribute
 					} else {
 						//if not, get information about authz rights and set record to contextMap
-						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg, null)) {
-							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, rg, null);
+						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg)) {
+							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, rg);
 							groupAttr.setWritable(isWritable);
 							allowedGroupAttributes.add(groupAttr);
 							contextMap.put(key + groupAttr.getName(), isWritable);

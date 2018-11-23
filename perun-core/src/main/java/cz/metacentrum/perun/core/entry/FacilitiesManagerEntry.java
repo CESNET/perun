@@ -188,7 +188,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Iterator<Facility> it = facilities.iterator();
 		while (it.hasNext()) {
 			Facility facility = it.next();
-			if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attributeDef, facility, null)) {
+			if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attributeDef, facility)) {
 				it.remove();
 			}
 		}

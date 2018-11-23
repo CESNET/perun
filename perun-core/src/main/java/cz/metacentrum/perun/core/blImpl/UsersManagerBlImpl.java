@@ -964,8 +964,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			List<Attribute> userAttributes = richUser.getUserAttributes();
 			List<Attribute> allowedUserAttributes = new ArrayList<Attribute>();
 			for(Attribute userAttr: userAttributes) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, richUser, null)) {
-					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, richUser, null));
+				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, richUser)) {
+					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, richUser));
 					allowedUserAttributes.add(userAttr);
 				}
 			}

@@ -105,7 +105,7 @@ public class SearcherEntry implements Searcher {
 			boolean isAuthorized = true;
 			for(AttributeDefinition attrDef: attrDefs) {
 				//Test if user has righ to read such attribute for specific user, if not, remove it from returning list
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, user, null)) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, user)) {
 					isAuthorized = false;
 					break;
 				}

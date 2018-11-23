@@ -54,7 +54,7 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 		else {
 			boolean haveRights = false;
 			for(Group groupWithSameGroupName: groupsWithSameGroupNameInTheSameNamespace) {
-				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, groupWithSameGroupName, null)) {
+				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, groupWithSameGroupName)) {
 					haveRights = true;
 					break;
 				}
