@@ -288,7 +288,7 @@ public class GetRichTaskResultsByTaskAndDestination implements JsonCallback, Jso
 	 * Sorts table by objects date
 	 */
 	public void sortTable() {
-		list = new TableSorter<TaskResult>().sortByDestination(getList());
+		list = new TableSorter<TaskResult>().sortByTaskResultDate(getList());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
