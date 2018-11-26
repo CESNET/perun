@@ -818,7 +818,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                 perun session
 	 * @param user                 the user for setting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin  )
+	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin | resourceselfservice | resourceAdmin )
 	 * @param complementaryObjects objects for which role will be set
 	 */
 	public static void setRole(PerunSession sess, User user, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, AlreadyAdminException {
@@ -849,7 +849,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param user                the user for setting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin )
+	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin | resourceselfservice | resourceAdmin )
 	 * @param complementaryObject object for which role will be set
 	 */
 	public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, Role role) throws InternalErrorException, AlreadyAdminException {
@@ -866,7 +866,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                 perun session
 	 * @param authorizedGroup      the group for setting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObjects objects for which role will be set
 	 */
 	public static void setRole(PerunSession sess, Group authorizedGroup, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, AlreadyAdminException {
@@ -897,7 +897,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param authorizedGroup     the group for setting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObject object for which role will be set
 	 */
 	public static void setRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, Role role) throws InternalErrorException, AlreadyAdminException {
@@ -914,7 +914,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                 perun session
 	 * @param user                 the user for unsetting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObjects objects for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, User user, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, UserNotAdminException {
@@ -945,7 +945,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param user                the user for unsetting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObject object for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, User user, PerunBean complementaryObject, Role role) throws InternalErrorException, UserNotAdminException {
@@ -962,7 +962,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                 perun session
 	 * @param authorizedGroup      the group for unsetting role
-	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role                 role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObjects objects for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, Group authorizedGroup, Role role, List<PerunBean> complementaryObjects) throws InternalErrorException, GroupNotAdminException {
@@ -993,7 +993,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess                perun session
 	 * @param authorizedGroup     the group for unsetting role
-	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role                role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | resourceselfservice | resourceAdmin )
 	 * @param complementaryObject object for which role will be unset
 	 */
 	public static void unsetRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, Role role) throws InternalErrorException, GroupNotAdminException {
@@ -1107,6 +1107,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					} else {
 						throw new InternalErrorException("Not supported complementary object for SponsoredUser: " + complementaryObject);
 					}
+				} else if (role.equals(Role.RESOURCESELFSERVICE)) {
+					if (complementaryObject == null) {
+						throw new InternalErrorException("Not supported operation, can't set ResourceSelfService rights without resource.");
+					} else if (complementaryObject instanceof Resource) {
+						if (user != null) authzResolverImpl.addResourceRole(sess, user, role, (Resource) complementaryObject);
+						else authzResolverImpl.addResourceRole(sess, authorizedGroup, role, (Resource) complementaryObject);
+					}
+
 				} else {
 					throw new InternalErrorException("Not supported role: " + role);
 				}
@@ -1196,6 +1204,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 						}
 					} else {
 						throw new InternalErrorException("Not supported complementary object for Sponsor: " + complementaryObject);
+					}
+				} else if (role.equals(Role.RESOURCESELFSERVICE)) {
+					if (complementaryObject == null) {
+						throw new InternalErrorException("Not supported operation, can't unset ResourceSelfService rights without resource this way.");
+					} else if (complementaryObject instanceof Resource) {
+						if (user != null) authzResolverImpl.removeResourceRole(sess, role, (Resource) complementaryObject, user);
+						else authzResolverImpl.removeResourceRole(sess, role, (Resource) complementaryObject, authorizedGroup);
+					} else {
+						throw new InternalErrorException("Not supported complementary object for resourceSelfService: " + complementaryObject);
 					}
 				} else {
 					throw new InternalErrorException("Not supported role: " + role);

@@ -281,7 +281,12 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
 				!AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN, resource)) {
-			throw new PrivilegeException(sess, "assignGroupToResource");
+
+			if (!AuthzResolver.isAuthorized(sess, Role.RESOURCESELFSERVICE, resource) ||
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+
+				throw new PrivilegeException(sess, "assignGroupToResource");
+			}
 		}
 
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -298,7 +303,16 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) &&
 				!AuthzResolver.isAuthorized(perunSession, Role.RESOURCEADMIN, resource)) {
-			throw new PrivilegeException(perunSession, "assignGroupsToResource");
+
+			if (!AuthzResolver.isAuthorized(perunSession, Role.RESOURCESELFSERVICE, resource)) {
+				throw new PrivilegeException(perunSession, "assignGroupsToResource");
+			}
+
+			for (Group group : groups) {
+				if (!AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+					throw new PrivilegeException(perunSession, "assignGroupsToResource");
+				}
+			}
 		}
 
 		for(Group g: groups) {
@@ -333,8 +347,13 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
-				!AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN, resource)) {
-			throw new PrivilegeException(sess, "removeGroupFromResource");
+			!AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN, resource)) {
+
+			if (!AuthzResolver.isAuthorized(sess, Role.RESOURCESELFSERVICE, resource) ||
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+
+				throw new PrivilegeException(sess, "removeGroupFromResource");
+			}
 		}
 
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
@@ -351,7 +370,16 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) &&
 				!AuthzResolver.isAuthorized(perunSession, Role.RESOURCEADMIN, resource)) {
-			throw new PrivilegeException(perunSession, "removeGroupsFromResource");
+
+			if (!AuthzResolver.isAuthorized(perunSession, Role.RESOURCESELFSERVICE, resource)) {
+				throw new PrivilegeException(perunSession, "removeGroupsFromResource");
+			}
+
+			for (Group group : groups) {
+				if (!AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+					throw new PrivilegeException(perunSession, "removeGroupsFromResource");
+				}
+			}
 		}
 
 		for(Group g: groups) {
@@ -1142,6 +1170,114 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		getResourcesManagerBl().removeBan(sess, memberId, resourceId);
+	}
+
+	@Override
+	public void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws InternalErrorException, PrivilegeException, AlreadyAdminException {
+		Utils.checkPerunSession(sess);
+
+		Vo vo;
+		Facility facility;
+
+		try {
+			facility = sess.getPerun().getFacilitiesManager().getFacilityById(sess, resource.getFacilityId());
+		} catch (FacilityNotExistsException e) {
+			throw new InternalErrorException("Failed to find facility for given resource.");
+		}
+
+		try {
+			vo = sess.getPerun().getVosManager().getVoById(sess, resource.getVoId());
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException("Failed to find vo for given resource.");
+		}
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+		    !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "addResourceSelfServiceUser");
+		}
+
+		getResourcesManagerBl().addResourceSelfServiceUser(sess, resource, user);
+	}
+
+	@Override
+	public void addResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws InternalErrorException, PrivilegeException, AlreadyAdminException {
+		Utils.checkPerunSession(sess);
+
+		Vo vo;
+		Facility facility;
+
+		try {
+			facility = sess.getPerun().getFacilitiesManager().getFacilityById(sess, resource.getFacilityId());
+		} catch (FacilityNotExistsException e) {
+			throw new InternalErrorException("Failed to find facility for given resource.");
+		}
+
+		try {
+			vo = sess.getPerun().getVosManager().getVoById(sess, resource.getVoId());
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException("Failed to find vo for given resource.");
+		}
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+			!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "addResourceSelfServiceGroup");
+		}
+
+		getResourcesManagerBl().addResourceSelfServiceGroup(sess, resource, group);
+	}
+
+	@Override
+	public void removeResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws InternalErrorException, PrivilegeException, UserNotAdminException {
+		Utils.checkPerunSession(sess);
+
+		Vo vo;
+		Facility facility;
+
+		try {
+			facility = sess.getPerun().getFacilitiesManager().getFacilityById(sess, resource.getFacilityId());
+		} catch (FacilityNotExistsException e) {
+			throw new InternalErrorException("Failed to find facility for given resource.");
+		}
+
+		try {
+			vo = sess.getPerun().getVosManager().getVoById(sess, resource.getVoId());
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException("Failed to find vo for given resource.");
+		}
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+			!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "removeResourceSelfServiceUser");
+		}
+
+		getResourcesManagerBl().removeResourceSelfServiceUser(sess, resource, user);
+	}
+
+	@Override
+	public void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws InternalErrorException, PrivilegeException, GroupNotAdminException {
+		Utils.checkPerunSession(sess);
+
+		Vo vo;
+		Facility facility;
+
+		try {
+			facility = sess.getPerun().getFacilitiesManager().getFacilityById(sess, resource.getFacilityId());
+		} catch (FacilityNotExistsException e) {
+			throw new InternalErrorException("Failed to find facility for given resource.");
+		}
+
+		try {
+			vo = sess.getPerun().getVosManager().getVoById(sess, resource.getVoId());
+		} catch (VoNotExistsException e) {
+			throw new InternalErrorException("Failed to find vo for given resource.");
+		}
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+			!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "removeResourceSelfServiceGroup");
+		}
+
+		getResourcesManagerBl().removeResourceSelfServiceGroup(sess, resource, group);
 	}
 
 	/**

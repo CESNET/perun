@@ -14,6 +14,10 @@ import cz.metacentrum.perun.audit.events.ResourceManagerEvents.GroupAssignedToRe
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.GroupRemovedFromResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceCreated;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceDeleted;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceSelfServiceAddedForGroup;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceSelfServiceAddedForUser;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceSelfServiceRemovedForGroup;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceSelfServiceRemovedForUser;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceUpdated;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ServiceAssignedToResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ServiceRemovedFromResource;
@@ -954,6 +958,30 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public List<Resource> getResources(PerunSession sess) throws InternalErrorException {
 		return getResourcesManagerImpl().getResources(sess);
+	}
+
+	@Override
+	public void addResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws AlreadyAdminException, InternalErrorException {
+		AuthzResolverBlImpl.setRole(sess, user, resource, Role.RESOURCESELFSERVICE);
+		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceAddedForUser(resource, user));
+	}
+
+	@Override
+	public void addResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws AlreadyAdminException, InternalErrorException {
+		AuthzResolverBlImpl.setRole(sess, group, resource, Role.RESOURCESELFSERVICE);
+		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceAddedForGroup(resource, group));
+	}
+
+	@Override
+	public void removeResourceSelfServiceUser(PerunSession sess, Resource resource, User user) throws UserNotAdminException, InternalErrorException {
+		AuthzResolverBlImpl.unsetRole(sess, user, resource, Role.RESOURCESELFSERVICE);
+		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceRemovedForUser(resource, user));
+	}
+
+	@Override
+	public void removeResourceSelfServiceGroup(PerunSession sess, Resource resource, Group group) throws GroupNotAdminException, InternalErrorException {
+		AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCESELFSERVICE);
+		getPerunBl().getAuditer().log(sess, new ResourceSelfServiceRemovedForGroup(resource, group));
 	}
 
 	/**

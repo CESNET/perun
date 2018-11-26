@@ -610,4 +610,57 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
+	@Override
+	public void addResourceRole(PerunSession sess, User user, Role role, Resource resource) throws InternalErrorException, AlreadyAdminException {
+		if (!role.equals(Role.RESOURCESELFSERVICE)) {
+			throw new InternalErrorException("Role " + role + " cannot be set on resource.");
+		}
+		try {
+			jdbc.update("insert into authz (user_id, role_id, resource_id) values (?, (select id from roles where name=?), ?)", user.getId(),
+				role.getRoleName(), resource.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("User id=" + user.getId() + " is already "+role+" in resource " + resource, e, user, resource, role);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void addResourceRole(PerunSession sess, Group group, Role role, Resource resource) throws InternalErrorException, AlreadyAdminException {
+		if (!role.equals(Role.RESOURCESELFSERVICE)) {
+			throw new IllegalArgumentException("Role "+role+" cannot be set on resource.");
+		}
+		try {
+			jdbc.update("insert into authz (role_id, resource_id, authorized_group_id) values ((select id from roles where name=?), ?, ?)",
+				role.getRoleName(), resource.getId(), group.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("Group id=" + group.getId() + " is already "+role+" in resource " + resource, e, group, resource, role);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+
+	@Override
+	public void removeResourceRole(PerunSession sess, Role role, Resource resource, User user) throws InternalErrorException, UserNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where user_id=? and resource_id=? and role_id=(select id from roles where name=?)", user.getId(), resource.getId(), role.getRoleName())) {
+				throw new UserNotAdminException("User id=" + user.getId() + " is not "+role+" in the resource " + resource);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeResourceRole(PerunSession sess, Role role, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where authorized_group_id=? and resource_id=? and role_id=(select id from roles where name=?)", group.getId(), resource.getId(), role.getRoleName())) {
+				throw new GroupNotAdminException("Group id=" + group.getId() + " is not "+role+" in the resource " + resource);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 }

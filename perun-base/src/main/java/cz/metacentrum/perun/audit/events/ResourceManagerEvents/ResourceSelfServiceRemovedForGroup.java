@@ -1,0 +1,45 @@
+package cz.metacentrum.perun.audit.events.ResourceManagerEvents;
+
+import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Resource;
+
+/**
+ * Event for removing the ResourceSelfService role for group.
+ *
+ * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
+ */
+public class ResourceSelfServiceRemovedForGroup extends AuditEvent {
+
+	private Group group;
+	private Resource resource;
+	private String message;
+
+	@SuppressWarnings("unused") // used by jackson mapper
+	public ResourceSelfServiceRemovedForGroup() {
+	}
+
+	public ResourceSelfServiceRemovedForGroup(Resource resource, Group group) {
+		this.group = group;
+		this.resource = resource;
+		this.message = formatMessage("%s was removed as ResourceSelfService for %s.", group, resource);
+	}
+
+	@Override
+	public String getMessage() {
+		return message;
+	}
+
+	public Group getGroup() {
+		return group;
+	}
+
+	public Resource getResource() {
+		return resource;
+	}
+
+	@Override
+	public String toString() {
+		return message;
+	}
+}

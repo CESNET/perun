@@ -302,7 +302,7 @@ public interface AuthzResolverImplApi {
 	 * Remove role perunAdmin for user.
 	 *
 	 * @param sess
-	 * @param user 
+	 * @param user
 	 * @throws InternalErrorException
 	 */
 	void removePerunAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException;
@@ -391,4 +391,52 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Integer> getVoIdsForUserInRole(PerunSession sess, User user, Role role) throws InternalErrorException;
+
+	/**
+	 * Sets role to given user for given resource.
+	 *
+	 * @param sess session
+	 * @param user user
+	 * @param role role
+	 * @param resource resource
+	 * @throws InternalErrorException internal error
+	 * @throws AlreadyAdminException when already in role
+	 */
+	void addResourceRole(PerunSession sess, User user, Role role, Resource resource) throws InternalErrorException, AlreadyAdminException;
+
+	/**
+	 * Sets role to given group for given resource.
+	 *
+	 * @param sess session
+	 * @param group group
+	 * @param role role
+	 * @param resource resource
+	 * @throws InternalErrorException internal error
+	 * @throws AlreadyAdminException when already in role
+	 */
+	void addResourceRole(PerunSession sess, Group group, Role role, Resource resource) throws InternalErrorException, AlreadyAdminException;
+
+	/**
+	 * Remove role to user for resource.
+	 *
+	 * @param sess session
+	 * @param role role
+	 * @param resource resource
+	 * @param user user
+	 * @throws InternalErrorException internal error
+	 * @throws UserNotAdminException user was not admin
+	 */
+	void removeResourceRole(PerunSession sess, Role role, Resource resource, User user) throws InternalErrorException, UserNotAdminException;
+
+	/**
+	 * Remove role to group for resource.
+	 *
+	 * @param sess session
+	 * @param role role
+	 * @param resource resource
+	 * @param group group
+	 * @throws InternalErrorException internal error
+	 * @throws GroupNotAdminException group was not admin
+	 */
+	void removeResourceRole(PerunSession sess, Role role, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException;
 }

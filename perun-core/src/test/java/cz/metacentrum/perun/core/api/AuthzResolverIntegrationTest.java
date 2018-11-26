@@ -47,6 +47,76 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
+	public void setRoleResourceSelfServiceForUser() throws Exception {
+		System.out.println(CLASS_NAME + "setRoleResourceSelfServiceForUser");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		final Resource resource = setUpResource(createdVo, setUpFacility());
+
+		AuthzResolver.setRole(sess, createdUser, resource, Role.RESOURCESELFSERVICE);
+
+		PerunSession session = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(session);
+
+		assertTrue(AuthzResolver.isAuthorized(session, Role.RESOURCESELFSERVICE, resource));
+	}
+
+	@Test
+	public void unsetRoleResourceSelfServiceForUser() throws Exception {
+		System.out.println(CLASS_NAME + "unsetRoleResourceSelfServiceForUser");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		final Resource resource = setUpResource(createdVo, setUpFacility());
+
+		AuthzResolver.setRole(sess, createdUser, resource, Role.RESOURCESELFSERVICE);
+
+		PerunSession userSession = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(userSession);
+
+		AuthzResolver.unsetRole(sess, createdUser, resource, Role.RESOURCESELFSERVICE);
+		AuthzResolver.refreshAuthz(userSession);
+
+		assertFalse(AuthzResolver.isAuthorized(userSession, Role.RESOURCESELFSERVICE, resource));
+	}
+
+	@Test
+	public void setRoleResourceSelfServiceForGroup() throws Exception {
+		System.out.println(CLASS_NAME + "setRoleResourceSelfServiceForUser");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final Resource resource = setUpResource(createdVo, setUpFacility());
+		final Group group = setUpGroup(createdVo, createdMember);
+
+		AuthzResolver.setRole(sess, group, resource, Role.RESOURCESELFSERVICE);
+
+		PerunSession userSession = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(userSession);
+
+		assertTrue(AuthzResolver.isAuthorized(userSession, Role.RESOURCESELFSERVICE, resource));
+	}
+
+	@Test
+	public void unsetRoleResourceSelfServiceForGroup() throws Exception {
+		System.out.println(CLASS_NAME + "unsetRoleResourceSelfServiceForGroup");
+		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
+		final Member createdMember = createSomeMember(createdVo);
+		final Resource resource = setUpResource(createdVo, setUpFacility());
+		final Group group = setUpGroup(createdVo, createdMember);
+
+		AuthzResolver.setRole(sess, group, resource, Role.RESOURCESELFSERVICE);
+
+		PerunSession userSession = getHisSession(createdMember);
+		AuthzResolver.refreshAuthz(userSession);
+
+		AuthzResolver.unsetRole(sess, group, resource, Role.RESOURCESELFSERVICE);
+		AuthzResolver.refreshAuthz(userSession);
+
+		assertFalse(AuthzResolver.isAuthorized(userSession, Role.RESOURCESELFSERVICE, resource));
+	}
+
+	@Test
 	public void setRoleVoAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "setRole");
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
@@ -401,6 +471,42 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	// private methods ==============================================================
+
+	private Facility setUpFacility() throws Exception {
+
+		Facility facility = new Facility();
+		facility.setName("ResourcesManagerTestFacility");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+		/*
+			 Owner owner = new Owner();
+			 owner.setName("ResourcesManagerTestOwner");
+			 owner.setContact("testingOwner");
+			 perun.getOwnersManager().createOwner(sess, owner);
+			 perun.getFacilitiesManager().addOwner(sess, facility, owner);
+			 */
+		return facility;
+
+	}
+
+	private Resource setUpResource(Vo vo, Facility facility) throws Exception {
+
+		Resource resource = new Resource();
+		resource.setName("ResourcesManagerTestResource");
+		resource.setDescription("Testovaci");
+		resource = perun.getResourcesManagerBl().createResource(sess, resource, vo, facility);
+		return resource;
+
+	}
+
+	private Group setUpGroup(Vo vo, Member member) throws Exception {
+
+		Group group = new Group("Test group", "test group");
+		group = perun.getGroupsManagerBl().createGroup(sess, vo, group);
+
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+
+		return group;
+	}
 
 	private Candidate setUpCandidate(String login) {
 

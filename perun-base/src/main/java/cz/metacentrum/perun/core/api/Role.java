@@ -8,6 +8,7 @@ public enum Role {
 	SELF ("self"),
 	FACILITYADMIN ("facilityadmin"),
 	RESOURCEADMIN ("resourceadmin"),
+	RESOURCESELFSERVICE("resourceselfservice"),
 	REGISTRAR ("registrar"),
 	ENGINE ("engine"),
 	RPC ("rpc"),
