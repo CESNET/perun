@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
+import cz.metacentrum.perun.rpc.serializer.PdfSerializer;
 import cz.metacentrum.perun.rpc.serializer.SvgGraphvizSerializer;
 import cz.metacentrum.perun.rpc.serializer.TextFileSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializer;
@@ -559,6 +560,8 @@ public class Api extends HttpServlet {
 					resp.addHeader("Content-Disposition", "attachment; filename=\"output.txt\"");
 				} else if (ser instanceof SvgGraphvizSerializer) {
 					resp.addHeader("Content-Disposition", "attachment; filename=\"output.svg\"");
+				} else if (ser instanceof PdfSerializer) {
+					resp.addHeader("Content-Disposition", "attachment; filename=\"output.pdf\"");
 				}
 
 				resp.setContentType(ser.getContentType());
@@ -807,6 +810,12 @@ public class Api extends HttpServlet {
 				serializer = new TextFileSerializer(out);
 			} else if ("getAttributeModulesDependenciesGraphImage".equals(method)) {
 				serializer = new SvgGraphvizSerializer(out);
+			}
+		}
+
+		if ("usersManager".equals(manager)) {
+			if ("changePasswordRandom".equals(method)) {
+				serializer = new PdfSerializer(out);
 			}
 		}
 
