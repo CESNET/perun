@@ -81,7 +81,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
 		//for message 1, 2 and 3
 		when(session.getPerunBl().getMembersManagerBl().getMemberById(any(PerunSessionImpl.class), anyInt())).thenReturn(member);
 		when(session.getPerunBl().getResourcesManagerBl().getResourceById(any(PerunSessionImpl.class), anyInt())).thenReturn(resource);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), any(Member.class), anyString())).thenReturn(isBanned);
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Member.class), any(Resource.class), anyString())).thenReturn(isBanned);
 		resolvedMessages = classInstance.resolveVirtualAttributeValueChange(session, message1);
 		assertEquals(resolvedMessages.size(), 1);
 		assertEquals(resolvedMessages.get(0), isBanned.serializeToString() + " set for " + resource.serializeToString() + " and " + member.serializeToString());
@@ -112,7 +112,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
 		//for wrong message
 		when(session.getPerunBl().getMembersManagerBl().getMemberById(any(PerunSessionImpl.class), anyInt())).thenReturn(member);
 		when(session.getPerunBl().getResourcesManagerBl().getResourceById(any(PerunSessionImpl.class), anyInt())).thenReturn(resource);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Resource.class), any(Member.class), anyString())).thenReturn(isBanned);
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Member.class), any(Resource.class), anyString())).thenReturn(isBanned);
 		resolvedMessages = classInstance.resolveVirtualAttributeValueChange(session, wrongMessage);
 		assertTrue(resolvedMessages.isEmpty());
 	}

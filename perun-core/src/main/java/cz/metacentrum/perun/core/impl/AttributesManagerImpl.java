@@ -631,14 +631,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 		} else if (attributesManagerImpl.isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT)) {
-			if (!(attributeHolder instanceof Resource))
+			if (!(attributeHolder instanceof Member))
 				throw new ConsistencyErrorRuntimeException("First attribute holder of member_resource attribute isn't Member");
-			if (attributeHolder2 == null || !(attributeHolder2 instanceof Member))
-				throw new ConsistencyErrorRuntimeException("Second attribute holder of member_resource attribute isn't resource");
+			if (attributeHolder2 == null || !(attributeHolder2 instanceof Resource))
+				throw new ConsistencyErrorRuntimeException("Second attribute holder of member_resource attribute isn't Resource");
 
 			try {
 				ResourceMemberVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getResourceMemberVirtualAttributeModule(sess, attribute);
-				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Resource) attributeHolder, (Member) attributeHolder2, attribute);
+				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Member) attributeHolder, (Resource) attributeHolder2, attribute);
 			} catch (InternalErrorException ex) {
 				throw new InternalErrorRuntimeException(ex);
 			}
@@ -735,8 +735,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	static class ResourceMemberAttributeRowMapper extends AttributeRowMapper<Resource, Member> {
-		ResourceMemberAttributeRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, Resource attributeHolder, Member attributeHolder2) {
+	static class MemberResourceAttributeRowMapper extends AttributeRowMapper<Member, Resource> {
+		MemberResourceAttributeRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, Member attributeHolder, Resource attributeHolder2) {
 			super(sess, attributesManagerImpl, attributeHolder, attributeHolder2);
 		}
 	}
@@ -967,12 +967,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.MEMBER, Holder.HolderType.RESOURCE);
 			return this.setValuesOfAttributes(sess, attrs, member, resource);
 		}
-		return getVirtualAttributes(new ResourceMemberAttributeRowMapper(sess, this, resource, member), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+		return getVirtualAttributes(new MemberResourceAttributeRowMapper(sess, this, member, resource), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
 	}
 
 	@Override
@@ -1074,7 +1074,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction())
 			return perun.getCacheManager().getAllNonEmptyAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 
@@ -1083,7 +1083,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"left join   member_resource_attr_values   mem        on attr_names.id=mem.attr_id and mem.resource_id=? and member_id=? " +
 							"where namespace in (?,?) and (mem.attr_value is not null or mem.attr_value_text is not null)",
-					new ResourceMemberAttributeRowMapper(sess, this, resource, member),
+					new MemberResourceAttributeRowMapper(sess, this, member, resource),
 					resource.getId(), member.getId(),
 					AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT);
 		} catch (EmptyResultDataAccessException ex) {
@@ -1140,7 +1140,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_res") + " from attr_names " +
 							"left join member_resource_attr_values mem_res on id=mem_res.attr_id and member_id=:mId and resource_id=:rId " +
 							"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
-					parameters, new ResourceMemberAttributeRowMapper(sess, this, resource, member));
+					parameters, new MemberResourceAttributeRowMapper(sess, this, member, resource));
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -1802,7 +1802,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Member member, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			return setValueOfAttribute(sess, attr, member, resource);
@@ -1813,7 +1813,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 							"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
 							"where attr_name=?",
-					new ResourceMemberAttributeRowMapper(sess, this, resource, member), resource.getId(), member.getId(), attributeName);
+					new MemberResourceAttributeRowMapper(sess, this, member, resource), resource.getId(), member.getId(), attributeName);
 
 
 		} catch (EmptyResultDataAccessException ex) {
@@ -2164,7 +2164,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, AttributeNotExistsException {
+	public Attribute getAttributeById(PerunSession sess, Member member, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException {
 		if(!CacheManager.isCacheDisabled()) {
 			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 			return setValueOfAttribute(sess, attr, member, resource);
@@ -2872,7 +2872,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource) throws InternalErrorException {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(resourceToGetServicesFrom);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -2885,7 +2885,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"where namespace in (?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
-					new ResourceMemberAttributeRowMapper(sess, this, resource, member), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
+					new MemberResourceAttributeRowMapper(sess, this, member, resource), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
 		} catch (RuntimeException ex) {
@@ -3132,7 +3132,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource) throws InternalErrorException {
 		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
 			List<Integer> attrIds = getRequiredAttributeIds(service);
 			List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -3146,7 +3146,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 							"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
 							"where namespace in (?,?,?)",
-					new ResourceMemberAttributeRowMapper(sess, this, resource, member), service.getId(), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+					new MemberResourceAttributeRowMapper(sess, this, member, resource), service.getId(), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3333,7 +3333,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				// if not present, put in map
 				AttributeRowMapper attributeRowMapper;
 				if (resource != null) {
-					attributeRowMapper = new ResourceMemberAttributeRowMapper(sess, attributesManager, resource, mem);
+					attributeRowMapper = new MemberResourceAttributeRowMapper(sess, attributesManager, mem, resource);
 				} else {
 					attributeRowMapper = new SingleBeanAttributeRowMapper<>(sess, attributesManager, mem);
 				}
@@ -3595,7 +3595,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException {
+	public Attribute fillAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException {
 		//Use attributes module
 		ResourceMemberAttributesModuleImplApi attributeModule = getResourceMemberAttributeModule(sess, attribute);
 		if (attributeModule == null) {
@@ -3604,7 +3604,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		try {
-			return attributeModule.fillAttribute((PerunSessionImpl) sess, resource, member, attribute);
+			return attributeModule.fillAttribute((PerunSessionImpl) sess, member, resource, attribute);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3835,12 +3835,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		ResourceMemberAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
 		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
 		try {
-			resourceMemberGroupModule.changedAttributeHook((PerunSessionImpl) sess, resource, member, attribute);
+			resourceMemberGroupModule.changedAttributeHook((PerunSessionImpl) sess, member, resource, attribute);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3938,12 +3938,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		ResourceMemberAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
 		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
 		try {
-			resourceMemberGroupModule.checkAttributeValue((PerunSessionImpl) sess, resource, member, attribute);
+			resourceMemberGroupModule.checkAttributeValue((PerunSessionImpl) sess, member, resource, attribute);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -4177,7 +4177,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_resource_attr_values WHERE attr_id=? AND member_id=? AND resource_id=?", attribute.getId(), member.getId(), resource.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
@@ -4191,7 +4191,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
+	public void removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_resource_attr_values WHERE resource_id=? AND member_id=?", resource.getId(), member.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));

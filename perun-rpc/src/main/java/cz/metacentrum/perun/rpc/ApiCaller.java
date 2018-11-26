@@ -320,7 +320,7 @@ public class ApiCaller {
 	}
 
 	public Attribute getAttributeById(Resource resource, Member member, int id) throws PerunException {
-		return getAttributesManager().getAttributeById(rpcSession, resource, member, id);
+		return getAttributesManager().getAttributeById(rpcSession, member, resource, id);
 	}
 
 	public Attribute getAttributeById(Member member, Group group, int id) throws PerunException {

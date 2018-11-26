@@ -44,7 +44,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 	private final String OPERATION_UPDATED = "updated";
 
 	@Override
-    public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException {
+    public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
         Attribute attribute = new Attribute(attributeDefinition);
 		//Default value is false
 		attribute.setValue(false);
@@ -115,7 +115,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 
 		for(Pair<Resource, Member> affectedObjects : listOfAffectedObjects) {
 			try {
-				Attribute attrVirtMemberResourceIsBanned = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, affectedObjects.getLeft(), affectedObjects.getRight(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":isBanned");
+				Attribute attrVirtMemberResourceIsBanned = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, affectedObjects.getRight(), affectedObjects.getLeft(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":isBanned");
 
 				resolvingMessages.add(attrVirtMemberResourceIsBanned.serializeToString() + " " + operationType + " for " + affectedObjects.getLeft().serializeToString() + " and " + affectedObjects.getRight().serializeToString());
 			} catch (AttributeNotExistsException ex) {

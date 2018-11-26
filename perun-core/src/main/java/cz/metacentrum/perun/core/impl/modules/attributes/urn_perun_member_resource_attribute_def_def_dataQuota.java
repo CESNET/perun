@@ -40,7 +40,7 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Resou
 	long E = P * 1024;
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Attribute attrDataLimit = null;
 		String dataQuota = null;
 		String dataLimit = null;
@@ -52,7 +52,7 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Resou
 
 		//Get attrDataLimit attribute
 		try {
-			attrDataLimit = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, member, A_MR_dataLimit);
+			attrDataLimit = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, member, resource, A_MR_dataLimit);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException("Attribute with dataLimit from member " + member.getId() + " and resource " + resource.getId() + " could not obtained.", ex);
 		} catch (MemberResourceMismatchException ex) {

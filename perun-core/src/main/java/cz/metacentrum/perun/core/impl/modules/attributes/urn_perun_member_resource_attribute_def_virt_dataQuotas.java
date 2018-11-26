@@ -36,7 +36,7 @@ public class urn_perun_member_resource_attribute_def_virt_dataQuotas extends Res
 	public static final String A_MR_dataQuotasOverride = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":dataQuotasOverride";
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		//get resource quotas
@@ -63,7 +63,7 @@ public class urn_perun_member_resource_attribute_def_virt_dataQuotas extends Res
 		Map<String, Pair<BigDecimal, BigDecimal>> memberTransferedQuotas;
 		Attribute memberQuotas;
 		try {
-			memberQuotas = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, member, A_MR_dataQuotas);
+			memberQuotas = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, member, resource, A_MR_dataQuotas);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {
@@ -85,7 +85,7 @@ public class urn_perun_member_resource_attribute_def_virt_dataQuotas extends Res
 		Map<String, Pair<BigDecimal, BigDecimal>> memberTransferedQuotasOverride;
 		Attribute memberQuotasOverride;
 		try {
-			memberQuotasOverride = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, member, A_MR_dataQuotasOverride);
+			memberQuotasOverride = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, member, resource, A_MR_dataQuotasOverride);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {
