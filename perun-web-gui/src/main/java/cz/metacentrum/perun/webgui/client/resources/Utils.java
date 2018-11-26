@@ -1393,4 +1393,72 @@ public class Utils {
 
 	}
 
+	/**
+	 * Convert binary data (passed as base64 string - UTF-8) to downloadable file
+	 * and force browser to open in in "Save as..." dialog.
+	 *
+	 * @see Utils#getBinaryResource(String, String)
+	 * @param fileName Name of The file to download
+	 * @param contentType Content type like "application/pdf" or whatever
+	 * @param dataInput Binary content as base64 string
+	 */
+	public static native void convertBinaryToDownloadableFile(String fileName, String contentType, String dataInput) /*-{
+		$wnd.jQuery('<a></a>')
+			.attr('id','downloadFile')
+			.attr('href',"data:"+contentType+";charset=utf-8;base64," + dataInput)
+			.attr('download',fileName)
+			.appendTo('body');
+
+		$wnd.jQuery('#downloadFile').ready(function() {
+		$wnd.jQuery('#downloadFile').get(0).click();
+		});
+	}-*/;
+
+	/**
+	 * Perform POST callback to specified URL with specified data.
+	 * Expect to get binary data back and transforms them to base64 string
+	 *
+	 * @param url URL to call
+	 * @param data JSON data to pass
+	 * @return Binary file as safe base64 string
+	 */
+	public static native String getBinaryResource(String url, String data) /*-{
+
+		function base64Encode(str) {
+			var CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+			var out = "", i = 0, len = str.length, c1, c2, c3;
+			while (i < len) {
+				c1 = str.charCodeAt(i++) & 0xff;
+				if (i == len) {
+					out += CHARS.charAt(c1 >> 2);
+					out += CHARS.charAt((c1 & 0x3) << 4);
+					out += "==";
+					break;
+				}
+				c2 = str.charCodeAt(i++);
+				if (i == len) {
+					out += CHARS.charAt(c1 >> 2);
+					out += CHARS.charAt(((c1 & 0x3)<< 4) | ((c2 & 0xF0) >> 4));
+					out += CHARS.charAt((c2 & 0xF) << 2);
+					out += "=";
+					break;
+				}
+				c3 = str.charCodeAt(i++);
+				out += CHARS.charAt(c1 >> 2);
+				out += CHARS.charAt(((c1 & 0x3) << 4) | ((c2 & 0xF0) >> 4));
+				out += CHARS.charAt(((c2 & 0xF) << 2) | ((c3 & 0xC0) >> 6));
+				out += CHARS.charAt(c3 & 0x3F);
+			}
+			return out;
+		}
+
+		var req = new XMLHttpRequest();
+		req.open("POST", url, false);  // The last parameter determines whether the request is asynchronous.
+		req.overrideMimeType('text/plain; charset=x-user-defined');
+		req.send(data);
+		if (req.status == 200) {
+			return base64Encode(req.responseText);
+		} else return null
+	}-*/;
+
 }

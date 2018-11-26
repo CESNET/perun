@@ -2244,26 +2244,31 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @return String representing HTML template for password reset
 	 */
 	private String getPasswordResetTemplate(PerunSession session, String loginNamespace) {
-		String template;
+		String template =
+				"<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
+						"<head>\n" +
+						"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"></meta>\n" +
+						"</head>"+
+						"<body><div style=\"padding: 25px;color: black;text-align: center;\">" +
+						"<h1>Password reset</h1>" +
+						"<p>Password for user {login} has been reset by the administrator.<br />" +
+						"The new password is <br />" +
+						"<h2><b>{password}</b></h2>" +
+						"</p></div>" +
+						"</body>" +
+						"</html>";
 		try {
 			Attribute templateAttribute = perunBl.getAttributesManagerBl().getAttribute(session, loginNamespace,
 				AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":randomPwdResetTemplate");
-			template = (String) templateAttribute.getValue();
+			if (templateAttribute.getValue() != null) {
+				template = (String) templateAttribute.getValue();
+			}
 		} catch (AttributeNotExistsException | WrongAttributeAssignmentException | InternalErrorException e) {
 			log.warn("Failed to get template attribute for password reset in namespace {}, using default. Exception " +
 				"class: {}, Exception message: {}", loginNamespace, e.getClass().getName(), e.getMessage());
-			template =
-				"<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
-				"<body><div style=\"padding: 25px;color: black;text-align: center;\">" +
-				"<h1>Password reset</h1>" +
-				"<p>Password for user {login} has been reset by the administrator.<br />" +
-				"The new password is <br />" +
-				"<h2><b>{password}</b></h2>" +
-				"</p></div>" +
-				"</body>" +
-				"</html>";
 		}
 
 		return template;
 	}
+
 }

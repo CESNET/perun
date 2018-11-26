@@ -885,12 +885,27 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 							innerTable.setHTML(rowCount, 1, SafeHtmlUtils.fromString(a.getValue()).asString());
 							// change password
 							if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
+
 								CustomButton cb = new CustomButton("Change password…", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
 									public void onClick(ClickEvent event) {
 										session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
 									}
 								});
+
 								innerTable.setWidget(rowCount, 2, cb);
+
+								CustomButton cb2 = new CustomButton("Reset to randomly generated password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
+									public void onClick(ClickEvent event) {
+
+										String response = Utils.getBinaryResource(PerunWebSession.getInstance().getRpcUrl()+"usersManager/changePasswordRandom",
+												"{ \"userId\": " + userId + " , \"loginNamespace\": \"" + a.getFriendlyNameParameter() + "\" }");
+
+										Utils.convertBinaryToDownloadableFile("PasswordReset.pdf", "application/pdf", response);
+
+									}
+								});
+								innerTable.setWidget(rowCount, 3, cb2);
+
 							}
 							rowCount++;
 						}
