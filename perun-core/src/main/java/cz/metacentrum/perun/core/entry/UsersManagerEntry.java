@@ -1327,4 +1327,16 @@ public class UsersManagerEntry implements UsersManager {
 			return usersManagerBl.convertUsersToRichUsersWithAttributesByNames(sess, sponsors, attrNames);
 		}
 	}
+
+	@Override
+	public String changePasswordRandom(PerunSession sess, User user, String loginNamespace)	throws InternalErrorException, PrivilegeException, PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException("changePasswordRandom");
+		}
+
+		return usersManagerBl.changePasswordRandom(sess, user, loginNamespace);
+	}
 }

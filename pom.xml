@@ -69,6 +69,7 @@
 		<commons-collections.version>3.2.2</commons-collections.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.4.3</expiringmap.version>
+		<flying-saucer-pdf.version>9.1.16</flying-saucer-pdf.version>
 		<google-api-services-admin-directory.version>directory_v1-rev103-1.24.1</google-api-services-admin-directory.version>
 		<graphviz.version>0.5.4</graphviz.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>

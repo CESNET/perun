@@ -1134,4 +1134,17 @@ public interface UsersManager {
 	 */
 	List<RichUser> getSponsors(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
+	/**
+	 * Generates new random password for given user and returns String representing HTML
+	 * where is the new password.
+	 * <p>
+	 * The HTML template is taken from entityless attribute randomPwdResetTemplate and the
+	 * loginNamespace is used as a key.
+	 *
+	 * @param sess           session
+	 * @param user           user
+	 * @param loginNamespace login namespace
+	 * @return String representing HTML with data about new generated password
+	 */
+	String changePasswordRandom(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PrivilegeException, PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException;
 }
