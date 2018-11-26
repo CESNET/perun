@@ -9,12 +9,16 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.impl.CacheManager;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -37,7 +41,10 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Michal Karm Babacek
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-tasks-lib.xml" })
+@ContextHierarchy({
+@ContextConfiguration(locations = { "classpath:perun-base.xml", "classpath:perun-core.xml" }),
+@ContextConfiguration(locations = { "classpath:perun-tasks-lib.xml" })
+})
 @Transactional(transactionManager = "springTransactionManager")
 public class ServiceDenialDaoTest {
 

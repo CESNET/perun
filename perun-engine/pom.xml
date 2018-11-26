@@ -78,7 +78,7 @@
 				<artifactId>maven-shade-plugin</artifactId>
 				<!-- Main-Class taken from property ${start-class} -->
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -125,12 +125,6 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-tasks-lib</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
 		<!-- TESTS -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -158,7 +152,7 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- OTHERS - Hornet Q -->
 		<dependency>
 			<groupId>org.hornetq</groupId>
