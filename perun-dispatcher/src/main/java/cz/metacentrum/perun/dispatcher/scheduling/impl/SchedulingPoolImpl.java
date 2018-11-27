@@ -2,6 +2,7 @@ package cz.metacentrum.perun.dispatcher.scheduling.impl;
 
 import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
+import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
@@ -36,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -246,6 +248,34 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			log.error("[{}] Task NOT added to waiting queue, service is blocked: {}.", task.getId(), task);
 			// do not change Task status or any other data !
 			if (!removeTask) return;
+		}
+
+		try {
+			List<Destination> destinations = perun.getServicesManager().getDestinations(sess, task.getService(), task.getFacility());
+			if (destinations != null && !destinations.isEmpty()) {
+				Iterator<Destination> iter = destinations.iterator();
+				while (iter.hasNext()) {
+					Destination dest = iter.next();
+					if (generalServiceManager.isServiceBlockedOnDestination(task.getService(), dest.getId())) {
+						iter.remove();
+					}
+				}
+				if (destinations.isEmpty()) {
+					// All service destinations were blocked -> Task is denied to be sent to engine just like
+					// when service is blocked globally in Perun or on facility as a whole.
+					log.debug("[{}] Task NOT added to waiting queue, all its destinations are blocked.", task.getId());
+					if (!removeTask) return;
+				}
+			}
+
+		} catch (ServiceNotExistsException e) {
+			log.error("[{}] Task NOT added to waiting queue, service not exists: {}.", task.getId(), task);
+			removeTask = true;
+		} catch (FacilityNotExistsException e) {
+			log.error("[{}] Task NOT added to waiting queue, facility not exists: {}.", task.getId(), task);
+			removeTask = true;
+		}  catch (InternalErrorException | PrivilegeException e) {
+			log.error("[{}] {}", task.getId(), e);
 		}
 
 		try {
