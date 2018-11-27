@@ -65,7 +65,7 @@ public class urn_perun_user_facility_attribute_def_virt_fileQuotas extends Facil
 			Map<String, Pair<BigDecimal, BigDecimal>> memberResourceFinalFileQuotas;
 			Attribute memberResourceFinalFileQuotasAttribute;
 			try {
-				memberResourceFinalFileQuotasAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberOnResource, A_MR_V_fileQuotas);
+				memberResourceFinalFileQuotasAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, memberOnResource, resource, A_MR_V_fileQuotas);
 			} catch (MemberResourceMismatchException | WrongAttributeAssignmentException ex) {
 				throw new InternalErrorException(ex);
 			} catch (AttributeNotExistsException ex) {

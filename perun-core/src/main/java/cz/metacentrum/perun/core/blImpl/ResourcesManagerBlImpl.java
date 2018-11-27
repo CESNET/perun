@@ -9,7 +9,6 @@ import cz.metacentrum.perun.audit.events.ResourceManagerEvents.AdminUserRemovedF
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanRemovedForResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanSetForResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanUpdatedForResource;
-import cz.metacentrum.perun.audit.events.ResourceManagerEvents.FacilitySetForResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.GroupAssignedToResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.GroupRemovedFromResource;
 import cz.metacentrum.perun.audit.events.ResourceManagerEvents.ResourceCreated;
@@ -117,10 +116,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			List<Member> templateResourceMembers = perunBl.getResourcesManagerBl().getAssignedMembers(sess, templateResource);
 			try {
 				for (Member member : templateResourceMembers) {
-					List<Attribute> memberResourceAttrs = perunBl.getAttributesManagerBl().getAttributes(sess, templateResource, member);
+					List<Attribute> memberResourceAttrs = perunBl.getAttributesManagerBl().getAttributes(sess, member, templateResource);
 					for (Attribute attr : memberResourceAttrs) {
 						if (!attr.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT)) {
-							perunBl.getAttributesManagerBl().setAttribute(sess, newResource, member, attr);
+							perunBl.getAttributesManagerBl().setAttribute(sess, member, newResource, attr);
 						}
 					}
 				}

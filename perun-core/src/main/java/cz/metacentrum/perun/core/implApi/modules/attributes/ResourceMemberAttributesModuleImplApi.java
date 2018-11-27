@@ -24,8 +24,8 @@ public interface ResourceMemberAttributesModuleImplApi extends AttributesModuleI
 	 * This method checks Member's attributes at a specified resource.
 	 *
 	 * @param perunSession Perun session
-	 * @param resource Resource
 	 * @param member Member
+	 * @param resource Resource
 	 * @param attribute Attribute to be checked.
 	 *
 	 * @throws InternalErrorException if an exception is raised in particular
@@ -35,14 +35,14 @@ public interface ResourceMemberAttributesModuleImplApi extends AttributesModuleI
 	 *         the parameter is to be compared is not available
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method MAY fill Member's attributes at a specified resource.
 	 *
 	 * @param perunSession Perun session
-	 * @param resource Resource
 	 * @param member Member
+	 * @param resource Resource
 	 * @param attribute Attribute to be filled in
 	 *
 	 * @return Attribute which MAY be filled in.
@@ -51,15 +51,14 @@ public interface ResourceMemberAttributesModuleImplApi extends AttributesModuleI
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	Attribute fillAttribute(PerunSessionImpl perunSession, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
-	 *
-	 * @param session session
-	 * @param resource the resource
+	 *  @param session session
 	 * @param member the member
+	 * @param resource the resource
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 }

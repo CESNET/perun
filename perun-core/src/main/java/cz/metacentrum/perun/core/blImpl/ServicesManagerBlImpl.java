@@ -285,7 +285,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	private ServiceAttributes getData(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException {
 		ServiceAttributes memberServiceAttributes = new ServiceAttributes();
 		try {
-			memberServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource, member, true));
+			memberServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, member, resource, true));
 		} catch(MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}

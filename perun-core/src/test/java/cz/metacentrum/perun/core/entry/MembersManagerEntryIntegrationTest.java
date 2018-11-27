@@ -226,7 +226,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		map.put("A", "B");
 		map.put("C", "D");
 		Attribute memberResourceAttribute1 = setUpAttribute(LinkedHashMap.class.getName(), "testMemberResourceAttribute1", AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, map);
-		perun.getAttributesManagerBl().setAttributes(sess, resource, createdMember, new ArrayList<>(Arrays.asList(memberResourceAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, resource, new ArrayList<>(Arrays.asList(memberResourceAttribute1)));
 
 		List<String> attrNames = new ArrayList<>(Arrays.asList(userAttribute1.getName(), memberAttribute1.getName(), userFacilityAttribute1.getName(), memberResourceAttribute1.getName()));
 		List<RichMember> richMembers = membersManagerEntry.getCompleteRichMembers(sess, createdGroup, resource, attrNames, Arrays.asList("INVALID", "DISABLED", "SUSPENDED", "EXPIRED"));
@@ -268,7 +268,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		map.put("C", "D");
 		Attribute memberResourceAttribute1 = setUpAttribute(LinkedHashMap.class.getName(), "testMemberResourceAttribute1", AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, map);
 		//test of member-group attributes
-		perun.getAttributesManagerBl().setAttributes(sess, resource, createdMember, new ArrayList<>(Arrays.asList(memberResourceAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, resource, new ArrayList<>(Arrays.asList(memberResourceAttribute1)));
 		Map<String, String> groupMap = new LinkedHashMap<>();
 		groupMap.put("E", "F");
 		groupMap.put("G", "H");

@@ -212,9 +212,9 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourceMemberAttrDef.setType(Integer.class.getName());
 		resourceMemberAttrDef = perun.getAttributesManagerBl().createAttribute(sess, resourceMemberAttrDef);
 
-		Attribute resourceMemberAttr = perun.getAttributesManagerBl().getAttribute(sess, resource, member, resourceMemberAttrDef.getName());
+		Attribute resourceMemberAttr = perun.getAttributesManagerBl().getAttribute(sess, member, resource, resourceMemberAttrDef.getName());
 		resourceMemberAttr.setValue(1);
-		perun.getAttributesManagerBl().setAttribute(sess, resource, member, resourceMemberAttr);
+		perun.getAttributesManagerBl().setAttribute(sess, member, resource, resourceMemberAttr);
 
 		resourcesManager.copyResource(sess, resource, destinationResource, true);
 
@@ -227,7 +227,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertFalse("Resource tag not created for destination resource.", resourcesManager.getAllResourcesTagsForResource(sess, createdResource).isEmpty());
 
 		// resource-member attributes check
-		List<Attribute> resMembAttrs = perun.getAttributesManagerBl().getAttributes(sess, createdResource, member);
+		List<Attribute> resMembAttrs = perun.getAttributesManagerBl().getAttributes(sess, member, createdResource);
 		assertFalse("Created resource does not contain any resource-member attributes.", resMembAttrs.isEmpty());
 		assertTrue("Created resource does not contain template resource-member attribute (or copied value of attribute is wrong).",resMembAttrs.contains(resourceMemberAttr));
 	}
@@ -334,7 +334,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		// shouldn't find resource
 
 	}
-	
+
 	@Test
 	public void getVo() throws Exception {
 		System.out.println(CLASS_NAME + "getVo");

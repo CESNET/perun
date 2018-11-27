@@ -172,25 +172,25 @@ public interface AttributesManagerImplApi {
 	 * Get all <b>non-empty</b> attributes associated with the member on the resource.
 	 *
 	 * @param sess perun session
-	 * @param resource to get the attributes from
 	 * @param member to get the attributes from
+	 * @param resource to get the attributes from
 	 * @return list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException;
+	List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Get all virtual attributes associated with the member on the resource.
 	 *
 	 * @param sess perun session
-	 * @param resource to get the attributes from
 	 * @param member to get the attributes from
+	 * @param resource to get the attributes from
 	 * @return list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException;
+	List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Get all <b>non-empty, non-virtual</b> attributes associated with the member in the group.
@@ -584,15 +584,15 @@ public interface AttributesManagerImplApi {
 	/**
 	 * Get particular attribute for the member on this resource.
 	 *
-	 * @param attributeName attribute name defined in the particular manager
-	 * @param resource to get attribute from
 	 * @param member to get attribute from
+	 * @param resource to get attribute from
+	 * @param attributeName attribute name defined in the particular manager
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttribute(PerunSession sess, Member member, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the member in this group.
@@ -763,15 +763,15 @@ public interface AttributesManagerImplApi {
 	/**
 	 * Get particular attribute for the member on this resource.
 	 *
-	 * @param id attribute id
-	 * @param resource to get attribute from
 	 * @param member to get attribute from
+	 * @param resource to get attribute from
+	 * @param id attribute id
 	 * @return attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 */
-	Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Member member, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the member in this group.
@@ -1140,13 +1140,13 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param resourceToGetServicesFrom resource from which the services are taken
-	 * @param resource you get attributes for this resource and the member
 	 * @param member you get attributes for this member and the resource
+	 * @param resource you get attributes for this resource and the member
 	 * @return list of member-resource attributes which are required by services which are assigned to another resource.
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Get user-facility attributes which are required by services. Services are known from the resource.
@@ -1242,14 +1242,14 @@ public interface AttributesManagerImplApi {
 	 * Get member-resource attributes which are required by the service.
 	 *
 	 * @param sess perun session
-	 * @param resource you get attributes for this resource and the member
-	 * @param member you get attributes for this member and the resource
 	 * @param service attribute required by this service you'll get
+	 * @param member you get attributes for this member and the resource
+	 * @param resource you get attributes for this resource and the member
 	 * @return list of attributes which are required by the service.
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Get member-resource attributes which are required by service for each member in list of members.
@@ -1386,14 +1386,14 @@ public interface AttributesManagerImplApi {
 	 * This method try to fill value of the member-resource attribute. This value is automatically generated, but not all atrributes can be filled this way.
 	 *
 	 * @param sess perun session
-	 * @param resource  attribute of this resource (and member) and you want to fill
 	 * @param member attribute of this member (and resource) and you want to fill
+	 * @param resource  attribute of this resource (and member) and you want to fill
 	 * @param attribute attribute to fill. If attributes already have set value, this value won't be owerwriten. This means the attribute value must be empty otherwise this method won't fill it.
 	 * @return attribute which MAY have filled value
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	Attribute fillAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException;
+	Attribute fillAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * This method tries to fill value of the member-group attribute. This value is automatically generated, but not all attributes can be filled this way.
@@ -1576,14 +1576,14 @@ public interface AttributesManagerImplApi {
 	 * If you need to do some further work with other modules, this method do that
 	 *
 	 * @param sess
-	 * @param resource
 	 * @param member
+	 * @param resource
 	 * @param attribute
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1678,15 +1678,15 @@ public interface AttributesManagerImplApi {
 	 *
 	 *
 	 * @param sess perun session
-	 * @param resource resource for which (and for specified member) you want to check validity of attribute
 	 * @param member member for which (and for specified resource) you want to check validity of attribute
+	 * @param resource resource for which (and for specified member) you want to check validity of attribute
 	 * @param attribute attribute to check
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if value of this member-group attribute is valid.
@@ -1894,23 +1894,24 @@ public interface AttributesManagerImplApi {
 	 * Unset particular member-resorce attribute for the member on the resource.
 	 *
 	 * @param sess perun session
-	 * @param resource remove attributes for this resource
 	 * @param member remove attribute from this member
+	 * @param resource remove attributes for this resource
 	 * @param attribute attribute to remove
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException;
 
 	/**
 	 * Unset all (member-resource) attributes for the member on the resource.
 	 *
 	 * @param sess perun session
 	 * @param member remove attributes from this member
+	 * @param resource remove attributes from this resource
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException;
+	void removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Unset particular attribute for the member in the group. Core attributes can't be removed this way.

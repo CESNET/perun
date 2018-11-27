@@ -122,7 +122,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, member);
 			List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
 			for(Resource resource : resources) {
-				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, member);
+				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, member, resource);
 			}
 		} catch(AttributeValueException ex) {
 			throw new ConsistencyErrorException("Member is removed from all groups. There are no required attribute for this member. Member's attributes can be removed without problem.", ex);
@@ -983,7 +983,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			List<Attribute> userAttributes = new ArrayList<Attribute>();
 			List<Attribute> memberAttributes = new ArrayList<Attribute>();
 
-			List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, richMember, attrNames, true);
+			List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, resource, attrNames, true);
 
 			for(Attribute attribute: attributes) {
 				if(attribute.getName().startsWith(AttributesManager.NS_USER_ATTR)) userAttributes.add(attribute);
@@ -1028,7 +1028,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			List<Attribute> userAttributes = new ArrayList<>();
 			List<Attribute> memberAttributes = new ArrayList<>();
 
-			List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, group, resource, richMember, attrNames, true);
+			List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, group, richMember, resource, attrNames, true);
 
 			for(Attribute attribute: attributes) {
 				if(attribute.getName().startsWith(AttributesManager.NS_USER_ATTR)) userAttributes.add(attribute);

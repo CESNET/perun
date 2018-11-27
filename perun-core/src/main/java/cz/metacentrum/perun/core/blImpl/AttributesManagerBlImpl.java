@@ -236,13 +236,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
-		return getAttributesManagerImpl().getVirtualAttributes(sess, resource, member);
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
+		return getAttributesManagerImpl().getVirtualAttributes(sess, member, resource);
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
-		return getAttributes(sess, resource, member, false);
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException, MemberResourceMismatchException {
+		return getAttributes(sess, member, resource, false);
 	}
 
 	@Override
@@ -309,11 +309,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		// get virtual attributes
-		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, resource, member);
-		List<Attribute> virtualAttributes = getVirtualAttributes(sess, resource, member);
+		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, member, resource);
+		List<Attribute> virtualAttributes = getVirtualAttributes(sess, member, resource);
 		//remove virtual attributes with null value
 		Iterator<Attribute> virtualAttributesIterator = virtualAttributes.iterator();
 		while (virtualAttributesIterator.hasNext())
@@ -333,9 +333,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
-		if (attrNames.isEmpty()) return this.getAttributes(sess, resource, member, workWithUserAttributes);
+		if (attrNames.isEmpty()) return this.getAttributes(sess, member, resource, workWithUserAttributes);
 
 		List<String> userAndMemberAttributeNames = new ArrayList<>();
 		List<String> memberResourceAttributeNames = new ArrayList<>();
@@ -368,9 +368,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Group group, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException, GroupResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Group group, Member member, Resource resource, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException, GroupResourceMismatchException {
 		checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
-		List<Attribute> attributes = getAttributes(sess, resource, member, attrNames, workWithUserAttributes);
+		List<Attribute> attributes = getAttributes(sess, member, resource, attrNames, workWithUserAttributes);
 
 		if (attrNames.isEmpty()) {
 			attributes.addAll(getAttributes(sess, member, group));
@@ -630,7 +630,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<>();
-		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, resource, member));
+		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, resource));
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, facility, user));
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, user));
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member));
@@ -764,8 +764,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
-		setAttributes(sess, resource, member, attributes, false);
+	public void setAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+		setAttributes(sess, member, resource, attributes, false);
 	}
 
 	@Override
@@ -868,7 +868,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 
 	@Override
-	public void setAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void setAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
@@ -887,7 +887,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			for (Attribute attribute : attributesToSet) {
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
-					setAttributeWithoutCheck(sess, resource, member, attribute, false);
+					setAttributeWithoutCheck(sess, member, resource, attribute, false);
 				}
 			}
 			log.debug("addMember timer: setAttributes (for(Attribute attribute : attributes)) [{}].", Utils.getRunningTime(timer));
@@ -904,7 +904,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 					if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
 						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, resource, member, attribute, false);
+						changed = setAttributeWithoutCheck(sess, member, resource, attribute, false);
 						if (changed) {
 							log.debug("addMember timer: setAttribute rm [{}] [{}].", attribute, Utils.getRunningTime(timer));
 						}
@@ -934,7 +934,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		//if checkAttributesValue fails it causes rollback so no attribute will be stored
-		checkAttributesValue(sess, resource, member, attributesToSet, workWithUserAttributes);
+		checkAttributesValue(sess, member, resource, attributesToSet, workWithUserAttributes);
 		this.checkAttributesDependencies(sess, resource, member, attributesToSet, workWithUserAttributes);
 	}
 
@@ -957,7 +957,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 
 				if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-					setAttributeWithoutCheck(sess, resource, member, attribute, false);
+					setAttributeWithoutCheck(sess, member, resource, attribute, false);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 					setAttributeWithoutCheck(sess, facility, user, attribute);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
@@ -994,7 +994,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 
 				if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-					setAttributeWithoutCheck(sess, resource, member, attribute, false);
+					setAttributeWithoutCheck(sess, member, resource, attribute, false);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 					setAttributeWithoutCheck(sess, facility, user, attribute);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
@@ -1305,13 +1305,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, MemberResourceMismatchException, WrongAttributeAssignmentException, AttributeNotExistsException {
+	public Attribute getAttribute(PerunSession sess, Member member, Resource resource, String attributeName) throws InternalErrorException, MemberResourceMismatchException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		//check namespace
 		if (!attributeName.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR))
 			throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
 
-		return getAttributesManagerImpl().getAttribute(sess, resource, member, attributeName);
+		return getAttributesManagerImpl().getAttribute(sess, member, resource, attributeName);
 	}
 
 	@Override
@@ -1563,12 +1563,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
+	public Attribute getAttributeById(PerunSession sess, Member member, Resource resource, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		AttributeDefinition attributeDefinition = getAttributeDefinitionById(sess, id);
 
 		if (getAttributesManagerImpl().isFromNamespace(attributeDefinition, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-			Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, resource, member, id);
+			Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, member, resource, id);
 			getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
 			return attribute;
 		} else if (getAttributesManagerImpl().isFromNamespace(attributeDefinition, AttributesManager.NS_USER_FACILITY_ATTR)) {
@@ -1679,7 +1679,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			//skip core attributes
 			if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 				if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-					this.setAttributeWithoutCheck(sess, resource, member, attribute, false);
+					this.setAttributeWithoutCheck(sess, member, resource, attribute, false);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 					this.setAttributeWithoutCheck(sess, facility, user, attribute);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
@@ -1699,7 +1699,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attr : attributes) {
 			if (this.isVirtAttribute(sess, attr)) {
 				if (getAttributesManagerImpl().isFromNamespace(attr, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-					attr.setValue(this.getAttribute(sess, resource, member, attr.getName()).getValue());
+					attr.setValue(this.getAttribute(sess, member, resource, attr.getName()).getValue());
 				} else if (getAttributesManagerImpl().isFromNamespace(attr, AttributesManager.NS_USER_FACILITY_ATTR)) {
 					attr.setValue(this.getAttribute(sess, facility, user, attr.getName()).getValue());
 				} else if (getAttributesManagerImpl().isFromNamespace(attr, AttributesManager.NS_USER_ATTR)) {
@@ -1875,14 +1875,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void setAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
-			removeAttribute(sess, resource, member, attribute);
+			removeAttribute(sess, member, resource, attribute);
 			return;
 		}
-		if (setAttributeWithoutCheck(sess, resource, member, attribute, false)) {
-			checkAttributeValue(sess, resource, member, attribute);
+		if (setAttributeWithoutCheck(sess, member, resource, attribute, false)) {
+			checkAttributeValue(sess, member, resource, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, attribute));
 		}
 	}
@@ -1904,19 +1904,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
-			removeAttribute(sess, resource, member, attribute);
+			removeAttribute(sess, member, resource, attribute);
 			return;
 		}
 		if (!workWithUserAttributes) {
-			if (setAttributeWithoutCheck(sess, resource, member, attribute, false)) {
+			if (setAttributeWithoutCheck(sess, member, resource, attribute, false)) {
 				this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, attribute));
-				checkAttributeValue(sess, resource, member, attribute);
+				checkAttributeValue(sess, member, resource, attribute);
 			}
 		} else {
-			if (setAttributeWithoutCheck(sess, resource, member, attribute, true)) {
+			if (setAttributeWithoutCheck(sess, member, resource, attribute, true)) {
 				List<Attribute> listOfAttributes = new ArrayList<>();
 				listOfAttributes.add(attribute);
-				checkAttributesValue(sess, resource, member, listOfAttributes, true);
+				checkAttributesValue(sess, member, resource, listOfAttributes, true);
 				this.checkAttributesDependencies(sess, resource, member, listOfAttributes, true);
 			}
 		}
@@ -1950,7 +1950,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public boolean setAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public boolean setAttributeWithoutCheck(PerunSession sess, Member member, Resource resource, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
 			throw new WrongAttributeAssignmentException(attribute);
@@ -1964,7 +1964,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				changed = getAttributesManagerImpl().setAttribute(sess, resource, member, attribute);
 				if (changed) {
 					getPerunBl().getAuditer().log(sess, new AttributeSetForResourceAndMember(attribute, resource, member));
-					getAttributesManagerImpl().changedAttributeHook(sess, resource, member, attribute);
+					getAttributesManagerImpl().changedAttributeHook(sess, member, resource, attribute);
 				}
 			}
 		} else if (workWithUserAttributes) {
@@ -2544,16 +2544,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
-		return getResourceRequiredAttributes(sess, resourceToGetServicesFrom, resource, member, false);
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource) throws InternalErrorException, MemberResourceMismatchException {
+		return getResourceRequiredAttributes(sess, resourceToGetServicesFrom, member, resource, false);
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Resource resource, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<>();
 
-		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, resource, member));
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, member, resource));
 
 		if (workWithUserAttributes) {
 			User user;
@@ -2618,13 +2618,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
-		return this.getResourceRequiredAttributes(sess, resource, resource, member);
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException, MemberResourceMismatchException {
+		return this.getResourceRequiredAttributes(sess, resource, member, resource);
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
-		return this.getResourceRequiredAttributes(sess, resource, resource, member, workWithUserAttributes);
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Resource resource, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
+		return this.getResourceRequiredAttributes(sess, resource, member, resource, workWithUserAttributes);
 	}
 
 	@Override
@@ -2686,7 +2686,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<>();
-		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, resource, member));
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, member, resource));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, facility, user));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, user));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, member));
@@ -2757,21 +2757,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException, MemberResourceMismatchException {
-		return getRequiredAttributes(sess, service, resource, member, false);
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource) throws InternalErrorException, MemberResourceMismatchException {
+		return getRequiredAttributes(sess, service, member, resource, false);
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Resource resource, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if (!workWithUserAttributes)
-			return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, member);
+			return getAttributesManagerImpl().getRequiredAttributes(sess, service, member, resource);
 
 		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 
 		List<Attribute> attributes = new ArrayList<>();
-		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, member));
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member, resource));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, user));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, user));
@@ -2786,7 +2786,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		List<Attribute> attributes = new ArrayList<>();
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member, group));
-		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, member));
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member, resource));
 
 		if (workWithUserAttributes) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -2940,7 +2940,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<>();
-		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, member));
+		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member, resource));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, member));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, user));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, user));
@@ -3015,27 +3015,27 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public Attribute fillAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
 
-		return getAttributesManagerImpl().fillAttribute(sess, resource, member, attribute);
+		return getAttributesManagerImpl().fillAttribute(sess, member, resource, attribute);
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
-		return fillAttributes(sess, resource, member, attributes, false);
+	public List<Attribute> fillAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		return fillAttributes(sess, member, resource, attributes, false);
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public List<Attribute> fillAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if (!workWithUserAttributes) {
 			List<Attribute> filledAttributes = new ArrayList<>();
 			for (Attribute attribute : attributes) {
 				getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
 				if (attribute.getValue() == null) {
-					filledAttributes.add(getAttributesManagerImpl().fillAttribute(sess, resource, member, attribute));
+					filledAttributes.add(getAttributesManagerImpl().fillAttribute(sess, member, resource, attribute));
 				} else {
 					//skip non-empty attribute
 					filledAttributes.add(attribute);
@@ -3051,7 +3051,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-					filledAttributes.add(getAttributesManagerImpl().fillAttribute(sess, resource, member, attribute));
+					filledAttributes.add(getAttributesManagerImpl().fillAttribute(sess, member, resource, attribute));
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 					filledAttributes.add(getAttributesManagerImpl().fillAttribute(sess, facility, user, attribute));
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
@@ -3127,7 +3127,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-					filledAttributes.add(getAttributesManagerImpl().fillAttribute(sess, resource, member, attribute));
+					filledAttributes.add(getAttributesManagerImpl().fillAttribute(sess, member, resource, attribute));
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 					filledAttributes.add(getAttributesManagerImpl().fillAttribute(sess, facility, user, attribute));
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
@@ -3157,7 +3157,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				if (attribute.getValue() == null) {
 					Attribute a;
 					if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-						a = getAttributesManagerImpl().fillAttribute(sess, resource, member, attribute);
+						a = getAttributesManagerImpl().fillAttribute(sess, member, resource, attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 						a = getAttributesManagerImpl().fillAttribute(sess, facility, user, attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
@@ -3416,17 +3416,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void checkAttributeValue(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
 
-		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, resource, member, attribute)) return;
-		getAttributesManagerImpl().checkAttributeValue(sess, resource, member, attribute);
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, resource, attribute)) return;
+		getAttributesManagerImpl().checkAttributeValue(sess, member, resource, attribute);
 	}
 
 	@Override
-	public void checkAttributesValue(PerunSession sess, Resource resource, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
-		checkAttributesValue(sess, resource, member, attributes, false);
+	public void checkAttributesValue(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+		checkAttributesValue(sess, member, resource, attributes, false);
 	}
 
 	@Override
@@ -3491,14 +3491,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void checkAttributesValue(PerunSession sess, Resource resource, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void checkAttributesValue(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		if (!workWithUserAttributes) {
 			for (Attribute attribute : attributes) {
 				getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
-				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, resource, member, attribute))
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, resource, attribute))
 					continue;
-				getAttributesManagerImpl().checkAttributeValue(sess, resource, member, attribute);
+				getAttributesManagerImpl().checkAttributeValue(sess, member, resource, attribute);
 			}
 		} else {
 			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
@@ -3506,9 +3506,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 			for (Attribute attribute : attributes) {
 				if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, resource, member, attribute))
+					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, resource, attribute))
 						continue;
-					getAttributesManagerImpl().checkAttributeValue(sess, resource, member, attribute);
+					getAttributesManagerImpl().checkAttributeValue(sess, member, resource, attribute);
 
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, user, attribute))
@@ -3536,9 +3536,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		for (Attribute attribute : attributes) {
 			if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, resource, member, attribute))
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, resource, attribute))
 					continue;
-				getAttributesManagerImpl().checkAttributeValue(sess, resource, member, attribute);
+				getAttributesManagerImpl().checkAttributeValue(sess, member, resource, attribute);
 			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, user, attribute))
 					continue;
@@ -3561,9 +3561,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		for (Attribute attribute : attributes) {
 			if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, resource, member, attribute))
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, resource, attribute))
 					continue;
-				getAttributesManagerImpl().checkAttributeValue(sess, resource, member, attribute);
+				getAttributesManagerImpl().checkAttributeValue(sess, member, resource, attribute);
 			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, user, attribute))
 					continue;
@@ -3853,7 +3853,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
 					if (removeAttributeWithoutCheck(sess, user, attribute)) attributesToCheck.add(attribute);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-					if (removeAttributeWithoutCheck(sess, resource, member, attribute))
+					if (removeAttributeWithoutCheck(sess, member, resource, attribute))
 						attributesToCheck.add(attribute);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 					if (removeAttributeWithoutCheck(sess, facility, user, attribute)) attributesToCheck.add(attribute);
@@ -3880,7 +3880,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
 					if (removeAttributeWithoutCheck(sess, user, attribute)) attributesToCheck.add(attribute);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-					if (removeAttributeWithoutCheck(sess, resource, member, attribute))
+					if (removeAttributeWithoutCheck(sess, member, resource, attribute))
 						attributesToCheck.add(attribute);
 				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 					if (removeAttributeWithoutCheck(sess, facility, user, attribute)) attributesToCheck.add(attribute);
@@ -4239,24 +4239,24 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
-		if (removeAttributeWithoutCheck(sess, resource, member, attribute)) {
-			checkAttributeValue(sess, resource, member, new Attribute(attribute));
+	public void removeAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+		if (removeAttributeWithoutCheck(sess, member, resource, attribute)) {
+			checkAttributeValue(sess, member, resource, new Attribute(attribute));
 			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, new Attribute(attribute)));
 		}
 	}
 
 	@Override
-	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
 		if (getAttributesManagerImpl().isCoreAttribute(sess, attribute))
 			throw new WrongAttributeAssignmentException(attribute);
 
-		boolean changed = getAttributesManagerImpl().removeAttribute(sess, resource, member, attribute);
+		boolean changed = getAttributesManagerImpl().removeAttribute(sess, member, resource, attribute);
 		if (changed) {
 			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, resource, member, new Attribute(attribute));
+				getAttributesManagerImpl().changedAttributeHook(sess, member, resource, new Attribute(attribute));
 			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
@@ -4268,21 +4268,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void removeAttributes(PerunSession sess, Member member, Resource resource, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_RESOURCE_ATTR);
 		List<AttributeDefinition> attributesToCheck = new ArrayList<>();
 		for (AttributeDefinition attribute : attributes) {
 			if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
-				if (removeAttributeWithoutCheck(sess, resource, member, attribute)) attributesToCheck.add(attribute);
+				if (removeAttributeWithoutCheck(sess, member, resource, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		checkAttributesValue(sess, resource, member, attributesFromDefinitions(attributesToCheck));
+		checkAttributesValue(sess, member, resource, attributesFromDefinitions(attributesToCheck));
 		this.checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributesToCheck));
 	}
 
 	private void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		if (!(workWithUserAttributes)) {
-			removeAttributes(sess, resource, member, attributes);
+			removeAttributes(sess, member, resource, attributes);
 		} else {
 			List<AttributeDefinition> attributesToCheck = new ArrayList<>();
 			for (AttributeDefinition attribute : attributes) {
@@ -4290,7 +4290,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 					User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 					if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-						if (removeAttributeWithoutCheck(sess, resource, member, attribute))
+						if (removeAttributeWithoutCheck(sess, member, resource, attribute))
 							attributesToCheck.add(attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
 						if (removeAttributeWithoutCheck(sess, facility, user, attribute))
@@ -4304,30 +4304,30 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					}
 				}
 			}
-			checkAttributesValue(sess, resource, member, attributesFromDefinitions(attributesToCheck), true);
+			checkAttributesValue(sess, member, resource, attributesFromDefinitions(attributesToCheck), true);
 			this.checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributesToCheck), true);
 		}
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
+	public void removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
-		List<Attribute> attributes = getAttributes(sess, resource, member);
-		getAttributesManagerImpl().removeAllAttributes(sess, resource, member);
+		List<Attribute> attributes = getAttributes(sess, member, resource);
+		getAttributesManagerImpl().removeAllAttributes(sess, member, resource);
 
 		log.info("{} removed all attributes from member {} on resource {}.",sess.getLogId(), member.getId(), resource.getId());
 		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForResourceAndMember(resource, member));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
-			checkAttributesValue(sess, resource, member, attributes);
+			checkAttributesValue(sess, member, resource, attributes);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 
 		for (Attribute attribute : attributes) {
 			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, resource, member, new Attribute(attribute));
+				getAttributesManagerImpl().changedAttributeHook(sess, member, resource, new Attribute(attribute));
 			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
@@ -4994,7 +4994,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public boolean isTrulyRequiredAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+	public boolean isTrulyRequiredAttribute(PerunSession sess, Member member, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		this.checkNamespace(sess, attributeDefinition, NS_MEMBER_RESOURCE_ATTR);
 		List<Member> allowedMembers = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
@@ -5564,7 +5564,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 							if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Resource) {
 								if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Member) {
 									try {
-										this.checkAttributeValue(sess, (Resource) richAttribute.getPrimaryHolder(), (Member) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
+										this.checkAttributeValue(sess, (Member) richAttribute.getSecondaryHolder(), (Resource) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
 									} catch (MemberResourceMismatchException ex) {
 										throw new ConsistencyErrorException(ex);
 									}
@@ -5574,7 +5574,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 							} else if (richAttribute.getSecondaryHolder() != null && richAttribute.getSecondaryHolder() instanceof Resource) {
 								if (richAttribute.getPrimaryHolder() != null && richAttribute.getPrimaryHolder() instanceof Member) {
 									try {
-										this.checkAttributeValue(sess, (Resource) richAttribute.getSecondaryHolder(), (Member) richAttribute.getPrimaryHolder(), richAttribute.getAttribute());
+										this.checkAttributeValue(sess, (Member) richAttribute.getPrimaryHolder(), (Resource) richAttribute.getSecondaryHolder(), richAttribute.getAttribute());
 									} catch (MemberResourceMismatchException ex) {
 										throw new ConsistencyErrorException(ex);
 									}
@@ -9979,7 +9979,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
 			for (Resource resourceElement : resources) {
-				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, member, attrDef.getName());
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, resourceElement, attrDef.getName());
 				listOfRichAttributes.add(new RichAttribute<>(resourceElement, member, attribute));
 			}
 		}
@@ -10008,7 +10008,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			membersForResourceElement = new ArrayList<>(new HashSet<>(membersForResourceElement));
 			for (Member memberElement : membersForResourceElement) {
 				if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
-					Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
+					Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, resourceElement, attrDef.getName());
 					listOfRichAttributes.add(new RichAttribute<>(resourceElement, memberElement, attribute));
 				}
 			}
@@ -10033,7 +10033,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		for (Member memberElement : members) {
 			if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, memberElement)) {
-				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberElement, attrDef.getName());
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, resource, attrDef.getName());
 				listOfRichAttributes.add(new RichAttribute<>(resource, memberElement, attribute));
 			}
 		}
@@ -10137,7 +10137,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		membersFromGroup.retainAll(membersFromResource);
 		membersFromGroup = new ArrayList<>(new HashSet<>(membersFromGroup));
 		for (Member memberElement : membersFromGroup) {
-			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, memberElement, attrDef.getName());
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, resource, attrDef.getName());
 			listOfRichAttributes.add(new RichAttribute<>(resource, memberElement, attribute));
 		}
 		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
@@ -10163,7 +10163,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
 			List<Resource> resourcesFromGroup = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
 			for (Resource resourceElement : resourcesFromGroup) {
-				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, member, attrDef.getName());
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, resourceElement, attrDef.getName());
 				listOfRichAttributes.add(new RichAttribute<>(resourceElement, member, attribute));
 			}
 		}
@@ -10186,7 +10186,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	private List<RichAttribute> getMemberResourceAttributes(PerunSession sess, Member member, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, MemberResourceMismatchException {
 		List<RichAttribute> listOfRichAttributes = new ArrayList<>();
 		if (getPerunBl().getMembersManagerBl().isMemberAllowed(sess, member)) {
-			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, member, attrDef.getName());
+			Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, resource, attrDef.getName());
 			listOfRichAttributes.add(new RichAttribute<>(resource, member, attribute));
 		}
 		listOfRichAttributes = new ArrayList<>(new HashSet<>(listOfRichAttributes));
@@ -10219,7 +10219,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			membersForResourceElement.retainAll(membersFromUser);
 			membersForResourceElement = new ArrayList<>(new HashSet<>(membersForResourceElement));
 			for (Member memberElement : membersForResourceElement) {
-				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, resourceElement, attrDef.getName());
 				listOfRichAttributes.add(new RichAttribute<>(resourceElement, memberElement, attribute));
 			}
 		}
@@ -10248,7 +10248,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Resource resourceElement : resources) {
 			List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement);
 			for (Member memberElement : membersFromResource) {
-				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, resourceElement, memberElement, attrDef.getName());
+				Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, resourceElement, attrDef.getName());
 				listOfRichAttributes.add(new RichAttribute<>(resourceElement, memberElement, attribute));
 			}
 		}
