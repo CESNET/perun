@@ -1573,7 +1573,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					intervalMultiplier = Integer.parseInt((String) intervalAttribute.getValue());
 				} else {
 					intervalMultiplier = defaultIntervalMultiplier;
-					log.warn("Group {} hasn't set synchronization interval, using default {} seconds", group, intervalMultiplier);
+					log.debug("Group {} hasn't set synchronization interval, using default {} seconds", group, intervalMultiplier);
 				}
 			} catch (AttributeNotExistsException e) {
 				log.error("Required attribute {} isn't defined in Perun! Using default value from properties instead!", GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
@@ -1688,7 +1688,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, failedDueToException, exceptionMessage);
 					} catch (Exception ex) {
 						log.error("When synchronization group " + group + ", exception was thrown.", ex);
-						log.info("Info about exception from synchronization: " + skippedMembersMessage);
+						log.error("Info about exception from synchronization: {}", skippedMembersMessage);
 					}
 					//Remove job from running jobs
 					if(!poolOfGroupsToBeSynchronized.removeJob(group)) {
