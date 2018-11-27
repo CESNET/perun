@@ -81,15 +81,19 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		//resource attributes
 		List<Attribute> templateResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess,templateResource);
-		for (Attribute resourceAttribute : templateResourceAttributes) {
-			try {
-				if (!resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT) &&
-						!resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_CORE)) {
-					perunBl.getAttributesManagerBl().setAttribute(sess, newResource, resourceAttribute);
-				}
-			} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
-				throw new ConsistencyErrorException("DB inconsistency while copying attributes from one resource to another. Cause:{}", ex);
+		//Remove all virt and core attributes before setting
+		Iterator<Attribute> resourceAttrIterator = templateResourceAttributes.iterator();
+		while(resourceAttrIterator.hasNext()) {
+			Attribute resourceAttribute = resourceAttrIterator.next();
+			if (resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT) ||
+				resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_CORE)) {
+				resourceAttrIterator.remove();
 			}
+		}
+		try {
+			perunBl.getAttributesManagerBl().setAttributes(sess, newResource, templateResourceAttributes);
+		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
+			throw new ConsistencyErrorException("DB inconsistency while copying attributes from one resource to another. Cause:{}", ex);
 		}
 
 		//if withGroups is true we also copy groups and group-resource/member-resource attributes
@@ -98,12 +102,16 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			try {
 				assignGroupsToResource(sess, templateResourceGroups, newResource);
 				for (Group group : templateResourceGroups) {
-					List<Attribute> groupResourceAttrs = perunBl.getAttributesManagerBl().getAttributes(sess, templateResource, group);
-					for (Attribute attr : groupResourceAttrs) {
-						if (!attr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT)) {
-							perunBl.getAttributesManagerBl().setAttribute(sess, newResource, group, attr);
+					List<Attribute> templateGroupResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess, templateResource, group);
+					//Remove all virt attributes before setting
+					Iterator<Attribute> groupResourceAttrIterator = templateGroupResourceAttributes.iterator();
+					while(groupResourceAttrIterator.hasNext()) {
+						Attribute groupResourceAttribute = groupResourceAttrIterator.next();
+						if (groupResourceAttribute.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT)) {
+							groupResourceAttrIterator.remove();
 						}
 					}
+					perunBl.getAttributesManagerBl().setAttributes(sess, newResource, group, templateGroupResourceAttributes);
 				}
 			} catch (GroupResourceMismatchException | WrongAttributeValueException | GroupAlreadyAssignedException |
 				WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
@@ -113,12 +121,16 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			List<Member> templateResourceMembers = perunBl.getResourcesManagerBl().getAssignedMembers(sess, templateResource);
 			try {
 				for (Member member : templateResourceMembers) {
-					List<Attribute> memberResourceAttrs = perunBl.getAttributesManagerBl().getAttributes(sess, templateResource, member);
-					for (Attribute attr : memberResourceAttrs) {
-						if (!attr.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT)) {
-							perunBl.getAttributesManagerBl().setAttribute(sess, newResource, member, attr);
+					List<Attribute> templateMemberResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess, templateResource, member);
+					//Remove all virt attributes before setting
+					Iterator<Attribute> memberResourceAttrIterator = templateMemberResourceAttributes.iterator();
+					while(memberResourceAttrIterator.hasNext()) {
+						Attribute memberResourceAttribute = memberResourceAttrIterator.next();
+						if (memberResourceAttribute.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT)) {
+							memberResourceAttrIterator.remove();
 						}
 					}
+					perunBl.getAttributesManagerBl().setAttributes(sess, newResource, member, templateMemberResourceAttributes);
 				}
 			} catch (MemberResourceMismatchException | WrongAttributeValueException|
 					WrongAttributeAssignmentException| WrongReferenceAttributeValueException ex) {
