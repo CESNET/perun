@@ -7,6 +7,9 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Class used for sorting list of different types of objects in their tables
@@ -379,6 +382,18 @@ public class TableSorter<T> {
 		});
 		return list;
 
+	}
+
+	/**
+	 * Sort by reverse order so the latest TaskResults are on top.
+	 *
+	 * @param list
+	 * @return
+	 */
+	public ArrayList<TaskResult> sortByTaskResultDate(ArrayList<TaskResult> list){
+		if(list == null) return null;
+		list.sort(Comparator.comparing(TaskResult::getTimestamp).reversed());
+		return list;
 	}
 
 	public static int smartCompare(String s1, String s2) {
