@@ -20,7 +20,7 @@ Available options:
  --subject           | -s subject
  --batch             | -b batch
  --help              | -h prints this help
- 
+
 };
 }
 
@@ -46,6 +46,7 @@ if (defined($messageFile) and !defined($message)) {
 	open MSG, $messageFile or die "ERROR: MessageFile cannot be opened\n";
 	binmode MSG,":utf8";
 	my $lin;
+	$message = "";
 	while ($lin = <MSG>) {
 		$message = $message.$lin;
 	}
