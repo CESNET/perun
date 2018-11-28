@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public abstract class ResourceMemberVirtualAttributesModuleAbstract extends ResourceMemberAttributesModuleAbstract implements ResourceMemberVirtualAttributesModuleImplApi{
+public abstract class MemberResourceVirtualAttributesModuleAbstract extends MemberResourceAttributesModuleAbstract implements MemberResourceVirtualAttributesModuleImplApi {
 
 
 	public Attribute getAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException {

@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @author Milan Halenar <mhalenar@gmail.com>
  */
-public interface ResourceGroupAttributesModuleImplApi extends AttributesModuleImplApi{
+public interface GroupResourceAttributesModuleImplApi extends AttributesModuleImplApi{
 
 	/**
 	 * Checks if value of this facility attribute is valid.

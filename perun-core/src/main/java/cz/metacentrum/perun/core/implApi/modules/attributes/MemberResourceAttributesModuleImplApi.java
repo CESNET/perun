@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @author Lukáš Pravda <luky.pravda@gmail.com>
  */
-public interface ResourceMemberAttributesModuleImplApi extends AttributesModuleImplApi{
+public interface MemberResourceAttributesModuleImplApi extends AttributesModuleImplApi{
 
 	/**
 	 * This method checks Member's attributes at a specified resource.

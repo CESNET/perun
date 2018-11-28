@@ -20,7 +20,7 @@ import java.util.List;
  * @author Michal Stava <stavamichal@gmail.com>
  *
  */
-public abstract class FacilityUserVirtualAttributesModuleAbstract extends FacilityUserAttributesModuleAbstract implements FacilityUserVirtualAttributesModuleImplApi{
+public abstract class UserFacilityVirtualAttributesModuleAbstract extends UserFacilityAttributesModuleAbstract implements UserFacilityVirtualAttributesModuleImplApi {
 
 
 	public Attribute getAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {

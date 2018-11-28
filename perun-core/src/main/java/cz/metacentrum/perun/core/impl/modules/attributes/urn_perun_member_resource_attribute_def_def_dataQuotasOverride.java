@@ -10,8 +10,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceAttributesModuleImplApi;
 
 import java.util.LinkedHashMap;
 
@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
  *
  * @author Michal Stava stavamichal@gmail.com
  */
-public class urn_perun_member_resource_attribute_def_def_dataQuotasOverride extends ResourceMemberAttributesModuleAbstract implements ResourceMemberAttributesModuleImplApi {
+public class urn_perun_member_resource_attribute_def_def_dataQuotasOverride extends MemberResourceAttributesModuleAbstract implements MemberResourceAttributesModuleImplApi {
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {

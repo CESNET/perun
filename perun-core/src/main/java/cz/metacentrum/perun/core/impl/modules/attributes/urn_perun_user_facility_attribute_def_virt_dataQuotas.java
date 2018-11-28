@@ -18,7 +18,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleAbstract;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import java.util.Map;
  *
  * @author Michal Stava stavamichal@gmail.com
  */
-public class urn_perun_user_facility_attribute_def_virt_dataQuotas extends FacilityUserVirtualAttributesModuleAbstract {
+public class urn_perun_user_facility_attribute_def_virt_dataQuotas extends UserFacilityVirtualAttributesModuleAbstract {
 	public static final String A_MR_V_dataQuotas = AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":dataQuotas";
 
 	@Override

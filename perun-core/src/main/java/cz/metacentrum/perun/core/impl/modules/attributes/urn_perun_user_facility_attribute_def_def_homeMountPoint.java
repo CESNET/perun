@@ -21,15 +21,15 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
 
 /**
  *
  * @author Milan Halenar <255818@mail.muni.cz>
  * @date 27.4.2011
  */
-public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
+public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends UserFacilityAttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
 
 	private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$*");
 

@@ -32,8 +32,8 @@ import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleImplApi;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttributesModuleImplApi;
@@ -43,10 +43,10 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupAttribute
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupVirtualAttributesModuleImplApi;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberAttributesModuleImplApi;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserExtSourceAttributesModuleImplApi;
@@ -556,7 +556,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				throw new ConsistencyErrorRuntimeException("Second attribute holder of user_facility attribute isn't facility");
 
 			try {
-				FacilityUserVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getFacilityUserVirtualAttributeModule(sess, attribute);
+				UserFacilityVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getFacilityUserVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Facility) attributeHolder2, (User) attributeHolder, attribute);
 			} catch (InternalErrorException ex) {
 				throw new InternalErrorRuntimeException(ex);
@@ -624,7 +624,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				throw new ConsistencyErrorRuntimeException("Second attribute holder of group-resource attribute isn't resource");
 
 			try {
-				ResourceGroupVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getResourceGroupVirtualAttributeModule(sess, attribute);
+				GroupResourceVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getResourceGroupVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Resource) attributeHolder2, (Group) attributeHolder, attribute);
 			} catch (InternalErrorException ex) {
 				throw new InternalErrorRuntimeException(ex);
@@ -637,7 +637,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				throw new ConsistencyErrorRuntimeException("Second attribute holder of member_resource attribute isn't Resource");
 
 			try {
-				ResourceMemberVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getResourceMemberVirtualAttributeModule(sess, attribute);
+				MemberResourceVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getResourceMemberVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Member) attributeHolder, (Resource) attributeHolder2, attribute);
 			} catch (InternalErrorException ex) {
 				throw new InternalErrorRuntimeException(ex);
@@ -3597,7 +3597,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public Attribute fillAttribute(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException {
 		//Use attributes module
-		ResourceMemberAttributesModuleImplApi attributeModule = getResourceMemberAttributeModule(sess, attribute);
+		MemberResourceAttributesModuleImplApi attributeModule = getResourceMemberAttributeModule(sess, attribute);
 		if (attributeModule == null) {
 			log.debug("Attribute wasn't filled. There is no module for: {}.", attribute.getName());
 			return attribute;
@@ -3629,7 +3629,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException {
 		//Use attributes module
-		FacilityUserAttributesModuleImplApi attributeModule = getFacilityUserAttributeModule(sess, attribute);
+		UserFacilityAttributesModuleImplApi attributeModule = getFacilityUserAttributeModule(sess, attribute);
 		if (attributeModule == null) {
 			log.debug("Attribute wasn't filled. There is no module for: {}.", attribute.getName());
 			return attribute;
@@ -3672,7 +3672,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public Attribute fillAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException {
-		ResourceGroupAttributesModuleImplApi attributeModule = getResourceGroupAttributeModule(sess, attribute);
+		GroupResourceAttributesModuleImplApi attributeModule = getResourceGroupAttributeModule(sess, attribute);
 		if (attributeModule == null) {
 			log.debug("Attribute wasn't filled. There is no module for: {}.", attribute.getName());
 			return attribute;
@@ -3813,7 +3813,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public void changedAttributeHook(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//Call attribute module
-		ResourceGroupAttributesModuleImplApi resourceGroupModule = getResourceGroupAttributeModule(sess, attribute);
+		GroupResourceAttributesModuleImplApi resourceGroupModule = getResourceGroupAttributeModule(sess, attribute);
 		if (resourceGroupModule == null) return; //facility module doesn't exists
 		try {
 			resourceGroupModule.changedAttributeHook((PerunSessionImpl) sess, resource, group, attribute);
@@ -3837,7 +3837,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//Call attribute module
-		ResourceMemberAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
+		MemberResourceAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
 		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
 		try {
 			resourceMemberGroupModule.changedAttributeHook((PerunSessionImpl) sess, member, resource, attribute);
@@ -3861,7 +3861,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//Call attribute module
-		FacilityUserAttributesModuleImplApi facilityUserModule = getFacilityUserAttributeModule(sess, attribute);
+		UserFacilityAttributesModuleImplApi facilityUserModule = getFacilityUserAttributeModule(sess, attribute);
 		if (facilityUserModule == null) return; //facility module doesn't exists
 		try {
 			facilityUserModule.changedAttributeHook((PerunSessionImpl) sess, facility, user, attribute);
@@ -3940,7 +3940,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public void checkAttributeValue(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//Call attribute module
-		ResourceMemberAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
+		MemberResourceAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
 		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
 		try {
 			resourceMemberGroupModule.checkAttributeValue((PerunSessionImpl) sess, member, resource, attribute);
@@ -3963,7 +3963,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public void checkAttributeValue(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException {
-		FacilityUserAttributesModuleImplApi attributeModule = getFacilityUserAttributeModule(sess, attribute);
+		UserFacilityAttributesModuleImplApi attributeModule = getFacilityUserAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
 			attributeModule.checkAttributeValue((PerunSessionImpl) sess, facility, user, attribute);
@@ -4018,7 +4018,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public void checkAttributeValue(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		ResourceGroupAttributesModuleImplApi attributeModule = getResourceGroupAttributeModule(sess, attribute);
+		GroupResourceAttributesModuleImplApi attributeModule = getResourceGroupAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
 			attributeModule.checkAttributeValue((PerunSessionImpl) sess, resource, group, attribute);
@@ -4751,12 +4751,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @return instance resource member attribute module
 	 * null if the module doesn't exists
 	 */
-	private ResourceMemberAttributesModuleImplApi getResourceMemberAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private MemberResourceAttributesModuleImplApi getResourceMemberAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
-		if (attributeModule instanceof ResourceMemberAttributesModuleImplApi) {
-			return (ResourceMemberAttributesModuleImplApi) attributeModule;
+		if (attributeModule instanceof MemberResourceAttributesModuleImplApi) {
+			return (MemberResourceAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new WrongModuleTypeException("Required attribute module isn't FacilityAttributesModule");
 		}
@@ -4883,12 +4883,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance user-facility attribute module, null if the module doesn't exists
 	 */
-	private FacilityUserAttributesModuleImplApi getFacilityUserAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private UserFacilityAttributesModuleImplApi getFacilityUserAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
-		if (attributeModule instanceof FacilityUserAttributesModuleImplApi) {
-			return (FacilityUserAttributesModuleImplApi) attributeModule;
+		if (attributeModule instanceof UserFacilityAttributesModuleImplApi) {
+			return (UserFacilityAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new InternalErrorException("Required attribute module isn't FacilityUserAttributesModule");
 		}
@@ -4900,13 +4900,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance user-facility attribute module, null if the module doesn't exists
 	 */
-	private FacilityUserVirtualAttributesModuleImplApi getFacilityUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private UserFacilityVirtualAttributesModuleImplApi getFacilityUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null)
 			throw new ModuleNotExistsException("Virtual attribute module for " + attribute + " doesn't exists.");
 
-		if (attributeModule instanceof FacilityUserVirtualAttributesModuleImplApi) {
-			return (FacilityUserVirtualAttributesModuleImplApi) attributeModule;
+		if (attributeModule instanceof UserFacilityVirtualAttributesModuleImplApi) {
+			return (UserFacilityVirtualAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new WrongModuleTypeException("Required attribute module isn't FacilityUserVirtualAttributesModule");
 		}
@@ -4969,11 +4969,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance resource attribute module, null if the module doesn't exists
 	 */
-	private ResourceGroupAttributesModuleImplApi getResourceGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private GroupResourceAttributesModuleImplApi getResourceGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
-		if (attributeModule instanceof ResourceGroupAttributesModuleImplApi) {
-			return (ResourceGroupAttributesModuleImplApi) attributeModule;
+		if (attributeModule instanceof GroupResourceAttributesModuleImplApi) {
+			return (GroupResourceAttributesModuleImplApi) attributeModule;
 
 		} else {
 			throw new InternalErrorException("Required attribute module isn't ResourceGroupAttributesModule");
@@ -5003,12 +5003,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance group-resource attribute module, null if the module doesn't exists
 	 */
-	ResourceGroupVirtualAttributesModuleImplApi getResourceGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	GroupResourceVirtualAttributesModuleImplApi getResourceGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
-		if (attributeModule instanceof ResourceGroupVirtualAttributesModuleImplApi) {
-			return (ResourceGroupVirtualAttributesModuleImplApi) attributeModule;
+		if (attributeModule instanceof GroupResourceVirtualAttributesModuleImplApi) {
+			return (GroupResourceVirtualAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new InternalErrorException("Required attribute module isn't ResourceGroupVirtualAttributesModule");
 		}
@@ -5020,12 +5020,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attribute attribute for which you get the module
 	 * @return instance member-resource attribute module, null if the module doesn't exists
 	 */
-	ResourceMemberVirtualAttributesModuleImplApi getResourceMemberVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	MemberResourceVirtualAttributesModuleImplApi getResourceMemberVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		Object attributeModule = getAttributesModule(sess, attribute);
 		if (attributeModule == null) return null;
 
-		if (attributeModule instanceof ResourceMemberVirtualAttributesModuleImplApi) {
-			return (ResourceMemberVirtualAttributesModuleImplApi) attributeModule;
+		if (attributeModule instanceof MemberResourceVirtualAttributesModuleImplApi) {
+			return (MemberResourceVirtualAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new InternalErrorException("Required attribute module isn't ResourceMemberVirtualAttributesModule");
 		}

@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * @author Lukáš Pravda <luky.pravda@gmail.com>
  */
-public interface FacilityUserAttributesModuleImplApi extends AttributesModuleImplApi{
+public interface UserFacilityAttributesModuleImplApi extends AttributesModuleImplApi{
 
 	/**
 	 * Checks if assigned attribute in relationship between those two

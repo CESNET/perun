@@ -19,7 +19,7 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * @author Michal Stava <stavamichal@gmail.com>
  *
  */
-public abstract class ResourceMemberAttributesModuleAbstract extends AttributesModuleAbstract implements ResourceMemberAttributesModuleImplApi {
+public abstract class MemberResourceAttributesModuleAbstract extends AttributesModuleAbstract implements MemberResourceAttributesModuleImplApi {
 
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
