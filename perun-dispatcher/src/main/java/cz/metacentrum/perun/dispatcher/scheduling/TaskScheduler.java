@@ -26,9 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.base.CaseFormat;
-
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.DelayQueue;
@@ -135,7 +134,6 @@ public class TaskScheduler extends AbstractRunner {
 		this.taskManager = taskManager;
 	}
 
-
 	// ----- methods -------------------------------------
 
 
@@ -178,7 +176,7 @@ public class TaskScheduler extends AbstractRunner {
 						schedulingPool.scheduleTask(task, -1);
 						break;
 					case DENIED:
-						// Task is lost from waiting queue, since somebody blocked service on facility or globally
+						// Task is lost from waiting queue, since somebody blocked service on facility, all destinations or globally
 						log.info("[{}] Execution was denied for Task before sending to Engine: {}.", task.getId(), task);
 						break;
 					case ERROR:
@@ -346,6 +344,23 @@ public class TaskScheduler extends AbstractRunner {
 		}
 
 		log.debug("[{}] Fetched destinations: {}",  task.getId(), (destinations == null) ? "[]" : destinations.toString());
+
+		if (destinations != null && !destinations.isEmpty()) {
+			Iterator<Destination> iter = destinations.iterator();
+			while (iter.hasNext()) {
+				Destination dest = iter.next();
+				if (serviceDenialDao.isServiceBlockedOnDestination(service.getId(), dest.getId())) {
+					iter.remove();
+					log.debug("[{}] Removed blocked destination: {}",  task.getId(), dest.toString());
+				}
+			}
+			if (destinations.isEmpty()) {
+				// All service destinations were blocked -> Task is denied to be sent to engine just like
+				// when service is blocked globally in Perun or on facility as a whole.
+				return DENIED;
+			}
+		}
+
 		task.setDestinations(destinations);
 
 		// construct JMS message for Engine

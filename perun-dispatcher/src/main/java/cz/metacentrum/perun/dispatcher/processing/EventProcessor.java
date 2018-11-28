@@ -1,7 +1,13 @@
 package cz.metacentrum.perun.dispatcher.processing;
 
+import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -20,8 +26,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
@@ -52,6 +61,9 @@ public class EventProcessor extends AbstractRunner {
 	private EventServiceResolver eventServiceResolver;
 	private ServiceDenialDao serviceDenialDao;
 	private SchedulingPool schedulingPool;
+	private Perun perun;
+	private Properties dispatcherProperties;
+	private PerunSession sess;
 
 	// ----- setters -------------------------------------
 
@@ -100,7 +112,25 @@ public class EventProcessor extends AbstractRunner {
 		this.schedulingPool = schedulingPool;
 	}
 
-	// ----- methods -------------------------------------
+	public Perun getPerun() {
+		return perun;
+	}
+
+	@Autowired
+	public void setPerun(Perun perun) {
+		this.perun = perun;
+	}
+
+	public Properties getDispatcherProperties() {
+		return dispatcherProperties;
+	}
+
+	@Resource(name="dispatcherPropertiesBean")
+	public void setDispatcherProperties(Properties dispatcherProperties) {
+		this.dispatcherProperties = dispatcherProperties;
+	}
+
+// ----- methods -------------------------------------
 
 	/**
 	 * EvProcessor thread, reads EventQueue and convert Events to Tasks,
@@ -145,6 +175,48 @@ public class EventProcessor extends AbstractRunner {
 				if (serviceDenialDao.isServiceBlockedOnFacility(service.getId(), facility.getId())) {
 					log.debug("Service blocked on Facility: {} , {}.", service, facility);
 					continue;
+				}
+
+				// Check if all destinations are not blocked
+				try {
+
+					// init session
+					try {
+						if (sess == null) {
+							sess = perun.getPerunSession(new PerunPrincipal(
+											dispatcherProperties.getProperty("perun.principal.name"),
+											dispatcherProperties.getProperty("perun.principal.extSourceName"),
+											dispatcherProperties.getProperty("perun.principal.extSourceType")),
+									new PerunClient());
+						}
+					} catch (InternalErrorException e1) {
+						log.error("Error establishing perun session to create Task from Event: ", e1);
+						continue;
+					}
+
+					List<Destination> destinations = perun.getServicesManager().getDestinations(sess, service, facility);
+					if (destinations != null && !destinations.isEmpty()) {
+						Iterator<Destination> iter = destinations.iterator();
+						while (iter.hasNext()) {
+							Destination dest = iter.next();
+							if (serviceDenialDao.isServiceBlockedOnDestination(service.getId(), dest.getId())) {
+								iter.remove();
+							}
+						}
+						if (destinations.isEmpty()) {
+							// All service destinations were blocked -> Task is denied to be sent to engine just like
+							// when service is blocked globally in Perun or on facility as a whole.
+							log.debug("{} blocked on all destinations on {}.", service, facility);
+							continue;
+						}
+					}
+
+				} catch (ServiceNotExistsException e) {
+					log.error("Service not exist: {}.", service);
+				} catch (FacilityNotExistsException e) {
+					log.error("Facility not exist: {}.", facility);
+				}  catch (InternalErrorException | PrivilegeException e) {
+					log.error("{}", e);
 				}
 
 				// check for presence of task for this <Service, Facility> pair
