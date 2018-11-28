@@ -6,8 +6,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -16,10 +16,10 @@ import java.util.Date;
  *
  * @author V. Mecko vladimir.mecko@gmail.com
  */
-public class urn_perun_user_facility_attribute_def_def_o365AccountExtension extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
+public class urn_perun_user_facility_attribute_def_def_o365AccountExtension extends UserFacilityAttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String o365AccExtTime = (String) attribute.getValue();
 
 		if(o365AccExtTime == null) return; //null is allowed value

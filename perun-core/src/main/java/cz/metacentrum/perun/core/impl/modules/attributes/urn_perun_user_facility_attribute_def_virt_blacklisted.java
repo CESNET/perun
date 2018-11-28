@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleAbstract;
 
 import java.util.List;
 
@@ -12,9 +12,9 @@ import java.util.List;
  *
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
-public class urn_perun_user_facility_attribute_def_virt_blacklisted extends FacilityUserVirtualAttributesModuleAbstract {
+public class urn_perun_user_facility_attribute_def_virt_blacklisted extends UserFacilityVirtualAttributesModuleAbstract {
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		List<SecurityTeam> securityTeams = sess.getPerunBl().getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);

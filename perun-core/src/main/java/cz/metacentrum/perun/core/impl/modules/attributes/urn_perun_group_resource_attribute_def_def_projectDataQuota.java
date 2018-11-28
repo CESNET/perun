@@ -13,10 +13,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -28,7 +27,7 @@ import java.math.BigDecimal;
  *
  * @author Michal Stava stavamichal@gmail.com
  */
-public class urn_perun_group_resource_attribute_def_def_projectDataQuota extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
+public class urn_perun_group_resource_attribute_def_def_projectDataQuota extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
 
 	private static final String A_GR_projectDataLimit = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":projectDataLimit";
 	private static final Pattern numberPattern = Pattern.compile("[0-9]+[.]?[0-9]*");
@@ -44,7 +43,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDataQuota extends
 	long E = P * 1024;
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Attribute attrProjectDataLimit = null;
 		String projectDataQuota = null;
 		String projectDataLimit = null;
@@ -158,7 +157,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDataQuota extends
 		attr.setNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
 		attr.setFriendlyName("projectDataQuota");
 		attr.setDisplayName("Project soft data quota.");
-		attr.setType(String.class.getName());		
+		attr.setType(String.class.getName());
 		attr.setDescription("Project soft quota including units (M, G, T, ...), G is default.");
 		return attr;
 	}

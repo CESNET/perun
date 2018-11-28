@@ -13,8 +13,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +22,10 @@ import java.util.List;
 	*
 	* @author Jakub Peschel <410368@mail.muni.cz>
 	*/
-public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
+public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends UserFacilityAttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		Attribute namespaceAttribute;
 			try {
 				namespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
@@ -61,7 +61,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends F
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		List<Resource> allowedResources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);

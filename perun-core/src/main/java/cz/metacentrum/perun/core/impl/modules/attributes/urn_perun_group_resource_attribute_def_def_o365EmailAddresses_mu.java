@@ -16,8 +16,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ import static cz.metacentrum.perun.core.impl.Utils.hasDuplicate;
  * @author Martin Kuba &lt;makub@ics.muni.cz>
  */
 @SuppressWarnings("unused")
-public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
+public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu.class);
 
@@ -55,7 +55,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 	static final String ADNAME_ATTRIBUTE = NAMESPACE + ":adName";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		log.trace("checkAttributeValue(resource={},group={},attribute={})", resource, group, attribute);
 		ArrayList<String> emails;
 		//get values
@@ -112,7 +112,7 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu ex
 	 * Prefills value created by joining value of urn:perun:group_resource:attribute-def:def:adName with "@group.muni.cz"
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attrDef) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attrDef) throws InternalErrorException, WrongAttributeAssignmentException {
 		if (!NAMESPACE.equals(attrDef.getNamespace())) throw new WrongAttributeAssignmentException(attrDef);
 		try {
 			Attribute result = new Attribute(attrDef);

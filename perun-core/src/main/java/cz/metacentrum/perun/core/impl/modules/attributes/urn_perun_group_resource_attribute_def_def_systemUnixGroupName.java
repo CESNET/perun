@@ -11,8 +11,8 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,19 +21,19 @@ import java.util.regex.Pattern;
  *
  * @author Michal Stava email:&lt;stavamichal@gmail.com&gt;
  */
-public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
+public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
 
 	private static final String A_GR_systemUnixGID = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGID";
 	private static final String A_GR_systemIsUnixGroup = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":isSystemUnixGroup";
 	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]*$");
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		return new Attribute(attributeDefinition);
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 
 		String groupName = (String) attribute.getValue();
 		Attribute isSystemGroup = new Attribute();

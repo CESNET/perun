@@ -51,7 +51,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTimeTest
 				setValue(1500);
 			}
 		});
-		classInstance.checkAttributeValue(session, new Facility(), new User(), attributeToCheck);
+		classInstance.checkAttributeValue(session, new User(), new Facility(), attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
@@ -64,7 +64,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTimeTest
 					setValue(999);
 				}
 			});
-			classInstance.checkAttributeValue(session, new Facility(), new User(), attributeToCheck);
+			classInstance.checkAttributeValue(session, new User(), new Facility(), attributeToCheck);
 			fail("Assigning lower accountExpirationTime than the time set at facility should throw exception.");
 
 		}
@@ -88,7 +88,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTimeTest
 				setValue(1001);
 			}
 		});
-		attributeToCheck = classInstance.fillAttribute(session, new Facility(), new User(), attributeToCheck);
+		attributeToCheck = classInstance.fillAttribute(session, new User(), new Facility(), attributeToCheck);
 		assertEquals("Filled attribute should be the lowest from all resource and facility values", 999,attributeToCheck.getValue());
 	}
 

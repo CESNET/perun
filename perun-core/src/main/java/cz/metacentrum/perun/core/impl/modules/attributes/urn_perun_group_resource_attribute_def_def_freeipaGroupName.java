@@ -14,10 +14,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -29,13 +28,13 @@ import java.util.regex.Pattern;
  * @author Peter Balcirak <peter.balcirak@gmail.com>
  * @date 16.5.2016
  */
-public class urn_perun_group_resource_attribute_def_def_freeipaGroupName extends ResourceGroupAttributesModuleAbstract implements ResourceGroupAttributesModuleImplApi {
+public class urn_perun_group_resource_attribute_def_def_freeipaGroupName extends GroupResourceAttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
 
 	private static final Pattern pattern = Pattern.compile("^[a-zA-Z0-9_.][a-zA-Z0-9_.-]{0,252}[a-zA-Z0-9_.$-]?$");
 	private static final String A_GR_freeipaGroupName = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":freeipaGroupName";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 		//prepare group name and check its format
 		String groupName = (String) attribute.getValue();

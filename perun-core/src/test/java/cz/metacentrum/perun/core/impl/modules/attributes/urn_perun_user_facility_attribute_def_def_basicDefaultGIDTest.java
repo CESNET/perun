@@ -71,7 +71,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGIDTest {
 				when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(allowedResources);
 				when(session.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(any(PerunSessionImpl.class), any(Attribute.class))).thenReturn(allowedResourcesWithSameGid);
 
-				classInstance.checkAttributeValue(session, facility, user, basic);
+				classInstance.checkAttributeValue(session, user, facility, basic);
 		}
 
 		@Test
@@ -90,7 +90,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGIDTest {
 				when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(allowedResources);
 				when(session.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(any(PerunSessionImpl.class), any(Attribute.class))).thenReturn(allowedResourcesWithSameGid);
 
-				classInstance.checkAttributeValue(session, facility, user, basic);
+				classInstance.checkAttributeValue(session, user, facility, basic);
 		}
 
 		@Test(expected = WrongAttributeValueException.class)
@@ -107,7 +107,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGIDTest {
 				when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(allowedResources);
 				when(session.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(any(PerunSessionImpl.class), any(Attribute.class))).thenReturn(allowedResourcesWithSameGid);
 
-				classInstance.checkAttributeValue(session, facility, user, basic);
+				classInstance.checkAttributeValue(session, user, facility, basic);
 		}
 
 		@Test(expected = WrongAttributeValueException.class)
@@ -124,7 +124,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGIDTest {
 				when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(allowedResources);
 				when(session.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(any(PerunSessionImpl.class), any(Attribute.class))).thenReturn(allowedResourcesWithSameGid);
 
-				classInstance.checkAttributeValue(session, facility, user, basic);
+				classInstance.checkAttributeValue(session, user, facility, basic);
 		}
 
 }

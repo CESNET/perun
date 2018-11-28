@@ -13,8 +13,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,13 +25,13 @@ import java.util.List;
  * @date 12.8.2014
  * @author Michal Stava   <stavamichal@gmail.com>
  */
-public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName extends FacilityUserVirtualAttributesModuleAbstract implements FacilityUserVirtualAttributesModuleImplApi {
+public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName extends UserFacilityVirtualAttributesModuleAbstract implements UserFacilityVirtualAttributesModuleImplApi {
 
 	private static final String A_FACILITY_DEF_UNIX_GROUPNAME_NAMESPACE = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace";
 	private static final String A_USER_DEF_PREFERRED_UNIX_GROUPNAME_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		try {
 			Attribute facilityGroupNameNamespaceAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FACILITY_DEF_UNIX_GROUPNAME_NAMESPACE);
 			if(facilityGroupNameNamespaceAttr.getValue() == null) {
@@ -50,7 +50,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attr = new Attribute(attributeDefinition);
 		Attribute preferredGroupNameAttribute = null;
 
@@ -73,7 +73,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		AttributeDefinition userPreferredGroupNameDefinition;
 		try {
 			Attribute facilityGroupNameNamespaceAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FACILITY_DEF_UNIX_GROUPNAME_NAMESPACE);

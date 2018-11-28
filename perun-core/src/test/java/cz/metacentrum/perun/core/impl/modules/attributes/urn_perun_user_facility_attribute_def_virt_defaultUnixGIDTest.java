@@ -114,7 +114,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGIDTest {
 				//UF:D:basicDefaultGID attr
 				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
 
-				Attribute testAttr = classInstance.getAttributeValue(session, facility, user, attrDef);
+				Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
 				assertEquals(testAttr,dDefaultUnixGid);
 		}
 
@@ -150,7 +150,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGIDTest {
 				//UF:D:basicDefaultGID attr
 				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
 
-				Attribute testAttr = classInstance.getAttributeValue(session, facility, user, attrDef);
+				Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
 				assertEquals(testAttr, new Attribute(attrDef));
 		}
 
@@ -190,7 +190,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGIDTest {
 				//UF:D:basicDefaultGID attr
 				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
 
-				Attribute testAttr = classInstance.getAttributeValue(session, facility, user, attrDef);
+				Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
 				assertEquals(testAttr, prefferedUnixGroupNameSelectedValueGID);
 		}
 
@@ -227,7 +227,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGIDTest {
 				//UF:D:basicDefaultGID attr
 				when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Facility.class), any(User.class), eq(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":basicDefaultGID"))).thenReturn(basicDefaultGID);
 
-				Attribute testAttr = classInstance.getAttributeValue(session, facility, user, attrDef);
+				Attribute testAttr = classInstance.getAttributeValue(session, user, facility, attrDef);
 				assertEquals(testAttr, basicDefaultGID);
 		}
 

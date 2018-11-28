@@ -81,7 +81,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 		when(session.getPerunBl().getFacilitiesManagerBl().getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(new ArrayList<Resource>(){{add(resource);}});
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), eq(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells"))).thenReturn(listOfShells);
 
-		classInstance.checkAttributeValue(session, facility, user, attributeToCheck);
+		classInstance.checkAttributeValue(session, user, facility, attributeToCheck);
 	}
 
 
@@ -96,7 +96,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 		Attribute atr = new Attribute();
 		atr.setValue(("/bin/bash"));
 
-		classInstance.checkAttributeValue(session, facility, user, atr);
+		classInstance.checkAttributeValue(session, user, facility, atr);
 
 	}
 
@@ -111,7 +111,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 		when(session.getPerunBl().getFacilitiesManagerBl().getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(new ArrayList<Resource>(){{add(resource);}});
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfShells);
 
-		classInstance.checkAttributeValue(session, facility, user, new Attribute());
+		classInstance.checkAttributeValue(session, user, facility, new Attribute());
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 		when(session.getPerunBl().getFacilitiesManagerBl().getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(new ArrayList<Resource>(){{add(resource);}});
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfShells);
 
-		classInstance.checkAttributeValue(session, facility, user, attributeToCheck);
+		classInstance.checkAttributeValue(session, user, facility, attributeToCheck);
 		fail("Wrong shell format should have thrown an exception");
 	}
 
@@ -144,7 +144,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 		when(session.getPerunBl().getFacilitiesManagerBl().getAssignedResources(any(PerunSession.class), any(Facility.class))).thenReturn(new ArrayList<Resource>(){{add(resource);}});
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfShells);
 
-		classInstance.checkAttributeValue(session, facility, user, attributeToCheck);
+		classInstance.checkAttributeValue(session, user, facility, attributeToCheck);
 		fail("Wrong shell format should have thrown an exception");
 	}
 
@@ -159,7 +159,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 		Attribute attributeToCheck = new Attribute();
 		attributeToCheck.setValue("/bin/bash/");
 
-		classInstance.checkAttributeValue(session, facility, user, attributeToCheck);
+		classInstance.checkAttributeValue(session, user, facility, attributeToCheck);
 		fail("Wrong shell format should have thrown an exception");
 	}
 }

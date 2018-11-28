@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -17,17 +16,17 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupVirtualAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceVirtualAttributesModuleImplApi;
 
 /**
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
-public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends ResourceGroupVirtualAttributesModuleAbstract implements ResourceGroupVirtualAttributesModuleImplApi {
+public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends GroupResourceVirtualAttributesModuleAbstract implements GroupResourceVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute unixGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
 		Attribute groupNameAttribute;
 		try {
@@ -47,7 +46,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends R
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		Attribute unixGroupNameNamespaceAttribute;
@@ -80,7 +79,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends R
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		Attribute unixGroupNameNamespaceAttribute;
@@ -102,7 +101,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends R
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		Attribute unixGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
 
 		try {
@@ -119,7 +118,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends R
 	}
 
 	@Override
-	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		return false;
 		/* This method remove attribute for Group not only GroupResource (we dont want it)
 			 Attribute unixGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGroupNameNamespaceAttributeWithNotNullValue(sess, resource);

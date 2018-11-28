@@ -13,8 +13,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +24,13 @@ import java.util.List;
  * @date 22.4.2011 10:43:48
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
  */
-public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUserVirtualAttributesModuleAbstract implements FacilityUserVirtualAttributesModuleImplApi {
+public class urn_perun_user_facility_attribute_def_virt_login extends UserFacilityVirtualAttributesModuleAbstract implements UserFacilityVirtualAttributesModuleImplApi {
 
 	/**
 	 * Calls checkAttribute on u:login-namespace:[login-namespace]
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		try  {
 			Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
 			Attribute loginAttribute = null;
@@ -52,7 +52,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 	 * Calls fillAttribute on u:login-namespace:[login-namespace]
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute virtLoginAttribute = new Attribute(attributeDefinition);
 
 		try {
@@ -78,7 +78,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 	 * Gets the value of the attribute f:login-namespace and then finds the value of the attribute u:login-namespace:[login-namespace]
 	 */
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attr = new Attribute(attributeDefinition);
 
 		Attribute loginAttribute = null;
@@ -104,7 +104,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends FacilityUs
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		AttributeDefinition userLoginAttributeDefinition;
 		try {
 			// Get the f:login-namespace attribute

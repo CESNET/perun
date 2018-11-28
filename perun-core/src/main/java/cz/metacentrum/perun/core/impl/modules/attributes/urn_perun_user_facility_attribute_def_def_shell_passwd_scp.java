@@ -12,8 +12,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,12 +22,12 @@ import java.util.regex.Pattern;
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
-public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
+public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends UserFacilityAttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
 
 	private static final Pattern pattern = Pattern.compile("^(/[-_.a-zA-Z0-9]+)+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		String shell = (String) attribute.getValue();
 
 		if(shell == null) throw new WrongAttributeValueException(attribute, "Value can't be null");
@@ -36,7 +36,7 @@ public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends 
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 		try {
 			Attribute shellOnFacilityAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":" + attributeDefinition.getFriendlyName());

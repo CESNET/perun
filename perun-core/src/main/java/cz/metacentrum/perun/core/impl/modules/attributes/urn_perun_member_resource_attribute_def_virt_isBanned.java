@@ -18,8 +18,8 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberVirtualAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michal Stava
  */
-public class urn_perun_member_resource_attribute_def_virt_isBanned extends ResourceMemberVirtualAttributesModuleAbstract implements ResourceMemberVirtualAttributesModuleImplApi {
+public class urn_perun_member_resource_attribute_def_virt_isBanned extends MemberResourceVirtualAttributesModuleAbstract implements MemberResourceVirtualAttributesModuleImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_member_resource_attribute_def_virt_isBanned.class);
 

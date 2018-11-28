@@ -14,10 +14,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleImplApi;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +25,7 @@ import java.util.List;
  * @date 22.4.2011 10:43:48
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
  */
-public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUserVirtualAttributesModuleAbstract implements FacilityUserVirtualAttributesModuleImplApi {
+public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacilityVirtualAttributesModuleAbstract implements UserFacilityVirtualAttributesModuleImplApi {
 
 	/**
 	 * Checks the new UID of the user at the specified facility. The new UID must
@@ -35,7 +33,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
 	 * existing user and the new user is allowed.
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		try {
 			Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
 
@@ -58,7 +56,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
 	 * in range (minUID, maxUID) is returned.
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		try {
 			Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
 
@@ -81,7 +79,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
 	 * Gets the value of the attribute f:uid-namespace and then finds the value of the attribute u:uid-namespace:[uid-namespace]
 	 */
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attr = new Attribute(attributeDefinition);
 
 		Attribute uidAttribute = null;
@@ -107,7 +105,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		AttributeDefinition userUidAttributeDefinition;
 		try {
 			// Get the f:uid-namespace attribute

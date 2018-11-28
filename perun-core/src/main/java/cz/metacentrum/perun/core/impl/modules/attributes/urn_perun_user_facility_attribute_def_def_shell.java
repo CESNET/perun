@@ -15,8 +15,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
 
 /**
  * Checks and fills shell for a specified user at the particular facility.
@@ -24,7 +24,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserAttribut
  * @date 28.4.2011 20:51:05
  * @author Lukáš Pravda   <luky.pravda@gmail.com>
  */
-public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUserAttributesModuleAbstract implements FacilityUserAttributesModuleImplApi {
+public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilityAttributesModuleAbstract implements UserFacilityAttributesModuleImplApi {
 
 	/**
 	 * Checks an attribute with shell for the user at the specified facility. There
@@ -33,7 +33,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends FacilityUse
 	 * in allowed shells and also need to have correct format.
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeAssignmentException {
 		String shell = (String) attribute.getValue();
 
 		if (shell == null) return;

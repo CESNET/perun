@@ -13,7 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleAbstract;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import java.util.Map;
  *
  * @author Michal Stava stavamichal@gmail.com
  */
-public class urn_perun_member_resource_attribute_def_virt_fileQuotas extends ResourceMemberVirtualAttributesModuleAbstract {
+public class urn_perun_member_resource_attribute_def_virt_fileQuotas extends MemberResourceVirtualAttributesModuleAbstract {
 	public static final String A_R_defaultFileQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultFileQuotas";
 	public static final String A_MR_fileQuotas = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":fileQuotas";
 	public static final String A_MR_fileQuotasOverride = AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF + ":fileQuotasOverride";
