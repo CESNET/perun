@@ -34,7 +34,7 @@ public class urn_perun_group_resource_attribute_def_def_freeipaGroupName extends
 	private static final String A_GR_freeipaGroupName = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":freeipaGroupName";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 		//prepare group name and check its format
 		String groupName = (String) attribute.getValue();

@@ -26,7 +26,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceVirtual
 public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupResourceVirtualAttributesModuleAbstract implements GroupResourceVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 		Attribute gidAttribute;
 		try {
@@ -45,7 +45,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		Attribute unixGIDNamespaceAttribute;
@@ -78,7 +78,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 	}
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		Attribute unixGIDNamespaceAttribute;
@@ -100,7 +100,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 
 		try {
@@ -117,7 +117,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 	}
 
 	@Override
-	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		return false;
 		/* This method remove attribute for Group not only GroupResource (we dont want it)
 			 Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);

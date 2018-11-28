@@ -34,7 +34,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 	private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$*");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl session, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 		List<Resource> usersResources = null;
 		usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
@@ -66,7 +66,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, User user, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute returnAttribute = new Attribute(attribute);
 		List<Resource> usersResources = null;
 		usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);

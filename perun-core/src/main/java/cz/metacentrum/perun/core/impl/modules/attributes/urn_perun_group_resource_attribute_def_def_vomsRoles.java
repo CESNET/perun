@@ -25,7 +25,7 @@ public class urn_perun_group_resource_attribute_def_def_vomsRoles extends GroupR
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if(attribute.getValue() == null) {
 			return;
 		}

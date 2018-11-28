@@ -27,7 +27,7 @@ public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends 
 	private static final Pattern pattern = Pattern.compile("^(/[-_.a-zA-Z0-9]+)+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		String shell = (String) attribute.getValue();
 
 		if(shell == null) throw new WrongAttributeValueException(attribute, "Value can't be null");
@@ -36,7 +36,7 @@ public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends 
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute attribute = new Attribute(attributeDefinition);
 		try {
 			Attribute shellOnFacilityAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":" + attributeDefinition.getFriendlyName());

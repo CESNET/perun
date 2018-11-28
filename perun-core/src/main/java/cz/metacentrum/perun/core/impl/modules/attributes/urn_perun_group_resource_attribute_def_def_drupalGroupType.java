@@ -25,7 +25,7 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 	private final static org.slf4j.Logger log = LoggerFactory.getLogger(urn_perun_group_resource_attribute_def_def_drupalGroupType.class);
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String attributeValue = null;
 
 		if(attribute.getValue() == null) {
@@ -41,7 +41,7 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute filledAttribute = new Attribute(attribute);
 
 		String attributeValue = (String) filledAttribute.getValue();
@@ -49,7 +49,7 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 			filledAttribute.setValue("public");
 		} else {
 			try {
-				checkAttributeValue(session, resource, group, filledAttribute);
+				checkAttributeValue(session, group, resource, filledAttribute);
 			} catch (WrongAttributeValueException ex) {
 				log.error("Type of drupal group can be either 'public' or 'private'.", ex);
 			} catch (WrongReferenceAttributeValueException ex) {

@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class urn_perun_user_facility_attribute_def_virt_blacklisted extends UserFacilityVirtualAttributesModuleAbstract {
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		List<SecurityTeam> securityTeams = sess.getPerunBl().getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);

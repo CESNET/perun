@@ -23,15 +23,15 @@ import java.util.List;
 public abstract class GroupResourceVirtualAttributesModuleAbstract extends GroupResourceAttributesModuleAbstract implements GroupResourceVirtualAttributesModuleImplApi {
 
 
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
 		return new Attribute(attribute);
 	}
 
-	public boolean setAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		return false;
 	}
 
-	public boolean removeAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		return false;
 	}
 
