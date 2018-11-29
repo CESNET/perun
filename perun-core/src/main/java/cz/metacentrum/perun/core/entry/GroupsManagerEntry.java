@@ -1026,7 +1026,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		List<RichGroup> richGroups = getGroupsManagerBl().getRichGroupsWithAttributesAssignedToResource(sess, resource, attrNames);
 
-		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, true);
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, resource, true);
 	}
 
 	@Override
@@ -1055,7 +1055,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			}
 		}
 
-		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, true);
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, null, true);
 	}
 
 	@Override
@@ -1083,7 +1083,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			}
 		}
 
-		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, true);
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, null, true);
 	}
 
 	@Override
@@ -1111,7 +1111,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			}
 		}
 
-		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, true);
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, null, true);
 	}
 
 	@Override

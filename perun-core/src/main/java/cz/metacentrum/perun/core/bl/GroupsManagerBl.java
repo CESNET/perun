@@ -1037,10 +1037,11 @@ public interface GroupsManagerBl {
 	 *
 	 * @param sess
 	 * @param richGroups
+	 * @param resource optional resource param used for context
 	 * @return list of RichGroups with only allowed attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, boolean useContext) throws InternalErrorException;
+	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Resource resource, boolean useContext) throws InternalErrorException;
 
 	/**
 	 * This method takes group and creates RichGroup containing all attributes
