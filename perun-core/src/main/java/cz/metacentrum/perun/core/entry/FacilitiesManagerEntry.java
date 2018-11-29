@@ -348,7 +348,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		if(specificService != null) getPerunBl().getServicesManagerBl().checkServiceExists(perunSession, specificService);
 
 		List<RichGroup> richGroups = getFacilitiesManagerBl().getAllowedRichGroupsWithAttributes(perunSession, facility, specificVo, specificService, attrNames);
-		return getPerunBl().getGroupsManagerBl().filterOnlyAllowedAttributes(perunSession, richGroups, true);
+		return getPerunBl().getGroupsManagerBl().filterOnlyAllowedAttributes(perunSession, richGroups, null, true);
 
 	}
 

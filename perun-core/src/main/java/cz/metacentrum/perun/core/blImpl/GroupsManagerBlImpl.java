@@ -1866,7 +1866,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, boolean useContext) throws InternalErrorException {
+	public List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Resource resource, boolean useContext) throws InternalErrorException {
 
 		//If no context should be used - every attribute is unique in context of group (for every group test access rights for all attributes again)
 		if(!useContext) return filterOnlyAllowedAttributes(sess, richGroups);
@@ -1902,8 +1902,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						// no READ for attribute
 					} else {
 						//if not, get information about authz rights and set record to contextMap
-						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg, null)) {
-							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, rg, null);
+						boolean canRead = false;
+						if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg, resource);
+						} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_ATTR)) {
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg, null);
+						}
+						if(canRead) {
+							boolean isWritable = false;
+							if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg, resource);
+							} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_ATTR)) {
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, rg, null);
+							}
 							groupAttr.setWritable(isWritable);
 							allowedGroupAttributes.add(groupAttr);
 							contextMap.put(key + groupAttr.getName(), isWritable);
