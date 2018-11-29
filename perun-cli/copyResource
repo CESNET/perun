@@ -1,0 +1,114 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Copy of templateResource to destinationResource.
+	-------------------------------------------------------
+	Available options:
+	--templateResource    | -t Id of template resource
+	--nameOfDestResource  | -n Name of destination resource
+	--voDestResourceId    | -v Id of VO for destination resource
+	--voDestResourceName  | -V ShortName of VO for destination resource
+	--facDestResourceId   | -f Id of Facility for destination resource
+	--facDestResourceName | -F Name of Facility for destination resource
+	--descOfDestResource  | -d Description of destination resource
+	--copyWithGroups      | -g Copy groups
+	--copyWithServices    | -s Copy services
+	--batch               | -b batch
+	--help                | -h prints this help
+	};
+}
+
+my ($templateResId,$destResName,$destResVoId,$destResVoName,$destResFacId,$destResFacName,$destResDescription,$copyGroups,$copyServices,$batch);
+
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"templateResource|t=i" => \$templateResId,
+	"nameOfDestResource|n=s" => \$destResName,
+	"voDestResourceId|v=i" => \$destResVoId,
+	"voDestResourceName|V=s" => \$destResVoName,
+	"descOfDestResource|d=s" => \$destResDescription,
+	"facDestResourceId|f=i" => \$destResFacId,
+	"facDestResourceName|F=s" => \$destResFacName,
+	"copyWithGroups|g" => \$copyGroups
+)  || die help();
+
+# Check options
+unless (defined $templateResId) { die "ERROR: Id of template resource is required \n";}
+unless (defined $destResName) { warn "WARNING: The name of destination resource will be the same as Name of template Resource \n";}
+if (not defined $destResVoId and not defined $destResVoName) { warn "WARNING: The virtual organization will be the same as VO of template resource \n";}
+if (not defined $destResFacId and not defined $destResFacName) { warn "WARNING: The facility will be the same as Facility of template resource \n";}
+unless (defined $destResDescription) { warn "WARNING: The description of destination resource will be the same as description of template resource \n";}
+
+# Agents
+my $agent = Perun::Agent->new();
+my $resourcesAgent = $agent->getResourcesAgent;
+my $vosAgent = $agent->getVosAgent;
+my $facAgent = $agent->getFacilitiesAgent;
+
+# Find template Resource
+my $templateResource = $resourcesAgent->getResourceById( id => $templateResId);
+my $tempResName=$templateResource->getName();
+my $tempResVoId=$templateResource->getVoId(); 
+my $tempVo = $vosAgent->getVoById( id => $tempResVoId );
+my $tempResVoName = $tempVo->getName();
+my $tempResFacId=$templateResource->getFacilityId;
+my $tempFac = $facAgent->getFacilityById ( id => $tempResFacId);
+my $tempResFacName = $tempFac->getName();
+my $tempResDesc=$templateResource->getDescription();
+	
+# Find destination resource parameters
+if ( not defined $destResVoId and defined $destResVoName ) {
+	my $destVo=$vosAgent->getVoByShortName( shortName => $destResVoName);
+	$destResVoId=$destVo->getId();
+}	
+if ( not defined $destResFacId and defined $destResFacName ) {
+	my $destFac=$facAgent->getFacilityByName( name => $destResFacName);
+	$destResFacId=$destFac->getId();
+}	
+
+# checks
+unless (defined $destResName) {
+	$destResName=$tempResName;
+}
+if (not defined $destResVoId and not defined $destResVoName) {
+	$destResVoId=$tempResVoId;
+	$destResVoName=$tempResVoName;
+}
+if (not defined $destResFacId and not defined $destResFacName) {
+	$destResFacId=$tempResFacId;
+	$destResFacName=$tempResFacName;
+}
+unless (defined $destResDescription) {
+	$destResDescription=$tempResDesc;
+}
+	
+if (defined $copyGroups) {
+	if ($tempResVoId != $destResVoId) {
+		warn "WARNING: copy of groups is not allowed for different template and destination VO. Groups will not be copied";
+		$copyGroups=0;
+	} else {
+		$copyGroups=1;
+	}
+} else { $copyGroups=0;}
+
+my $destResource = Perun::beans::Resource->new;
+my $destResourceId;
+$destResource->setDescription( $destResDescription );
+$destResource->setVoId($destResVoId);
+$destResource->setName($destResName);
+$destResource->setFacilityId($destResFacId);
+
+$resourcesAgent->copyResource(templateResource => $templateResource, destinationResource => $destResource, withGroups => $copyGroups );
+$destResource=$resourcesAgent->getResourceByName(vo => $destResVoId, facility => $destResFacId, name => $destResName);
+$destResourceId=$destResource->getId;
+
+printMessage "Resource $templateResId successfully copied to resource :".$destResource->getId."\n",$batch;
