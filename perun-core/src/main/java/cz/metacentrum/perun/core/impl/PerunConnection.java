@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import java.sql.Array;
 import java.sql.Blob;
@@ -46,21 +47,27 @@ public class PerunConnection implements Connection {
 	@Override
 	public Savepoint setSavepoint() throws SQLException {
 		auditer.newNestedTransaction();
-		cacheManager.newNestedTransaction();
+		if (BeansUtils.getCoreConfig().isCacheEnabled()) {
+			cacheManager.newNestedTransaction();
+		}
 		return connectionImpl.setSavepoint();
 	}
 
 	@Override
 	public Savepoint setSavepoint(String string) throws SQLException {
 		auditer.newNestedTransaction();
-		cacheManager.newNestedTransaction();
+		if (BeansUtils.getCoreConfig().isCacheEnabled()) {
+			cacheManager.newNestedTransaction();
+		}
 		return connectionImpl.setSavepoint(string);
 	}
 
 	@Override
 	public void rollback(Savepoint svpnt) throws SQLException {
 		auditer.cleanNestedTransation();
-		cacheManager.cleanNestedTransaction();
+		if (BeansUtils.getCoreConfig().isCacheEnabled()) {
+			cacheManager.cleanNestedTransaction();
+		}
 		connectionImpl.rollback(svpnt);
 
 	}
@@ -68,7 +75,9 @@ public class PerunConnection implements Connection {
 	@Override
 	public void releaseSavepoint(Savepoint svpnt) throws SQLException {
 		auditer.flushNestedTransaction();
-		cacheManager.flushNestedTransaction();
+		if (BeansUtils.getCoreConfig().isCacheEnabled()) {
+			cacheManager.flushNestedTransaction();
+		}
 		connectionImpl.releaseSavepoint(svpnt);
 	}
 
