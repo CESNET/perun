@@ -1324,12 +1324,13 @@ public interface MembersManagerBl {
 	 *
 	 * @param sess
 	 * @param richMembers list of richMembers for which attributes need to be filtered
+	 * @param group
 	 * @param useContext true or false means using context or not using context (more above in javadoc)
 	 *
 	 * @return list of richMembers with only allowed attributes
 	 * @throws InternalErrorException
 	 */
-	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers, boolean useContext) throws InternalErrorException;
+	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers, Group group, boolean useContext) throws InternalErrorException;
 
 	/**
 	 * Send mail to user's preferred email address with link for non-authz password reset.

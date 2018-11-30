@@ -1739,7 +1739,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers, boolean useContext) throws InternalErrorException {
+	public List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers, Group group, boolean useContext) throws InternalErrorException {
 		//If no context should be used - every attribute is unique in context of member (for every member test access rights for all attributes again)
 		if(!useContext) return filterOnlyAllowedAttributes(sess, richMembers);
 
@@ -1773,8 +1773,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						}
 					//if not, get information about authz rights and set record to contextMap
 					} else {
-						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, rm, null)) {
-							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, rm, null);
+						boolean canRead = false;
+						if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, rm, group);
+						} else if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_ATTR)) {
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, rm, null);
+						}
+						if(canRead) {
+							boolean isWritable = false;
+							if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, rm, group);
+							} else if (membAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_ATTR)) {
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, rm, null);
+							}
 							membAttr.setWritable(isWritable);
 							allowedMemberAttributes.add(membAttr);
 							contextMap.put(membAttr.getFriendlyName(), isWritable);
