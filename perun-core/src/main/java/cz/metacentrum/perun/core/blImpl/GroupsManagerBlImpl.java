@@ -1957,7 +1957,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						if(canRead) {
 							boolean isWritable = false;
 							if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg, resource);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, rg, resource);
 							} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_ATTR)) {
 								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, rg, null);
 							}

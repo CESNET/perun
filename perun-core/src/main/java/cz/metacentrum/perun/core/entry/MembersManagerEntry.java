@@ -455,7 +455,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getRichMemberWithAttributes");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, attrsDef), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, attrsDef), null, true);
 	}
 
 	@Override
@@ -471,7 +471,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, allowedStatuses, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, allowedStatuses, group), group, true);
 	}
 
 	@Override
@@ -487,7 +487,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributesByNames(sess, vo, attrsNames), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributesByNames(sess, vo, attrsNames), null, true);
 	}
 
 	@Override
@@ -503,7 +503,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames), null, true);
 	}
 
 	@Override
@@ -519,7 +519,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames, allowedStatuses), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames, allowedStatuses), null, true);
 	}
 
 	@Override
@@ -535,7 +535,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), group, true);
 	}
 
 	@Override
@@ -567,7 +567,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, allowedStatuses, lookingInParentGroup), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, allowedStatuses, lookingInParentGroup), group, true);
 	}
 
 	@Override
@@ -583,7 +583,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, searchString), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, searchString), null, true);
 	}
 
 	@Override
@@ -599,7 +599,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, allowedStatuses, searchString), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, allowedStatuses, searchString), null, true);
 	}
 
 	@Override
@@ -639,7 +639,7 @@ public class MembersManagerEntry implements MembersManager {
 			richMemberIter.remove();
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, richMembers, false);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, richMembers, null, false);
 	}
 
 	@Override
@@ -655,7 +655,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, group, attrsNames, searchString, lookingInParentGroup), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, group, attrsNames, searchString, lookingInParentGroup), group, true);
 	}
 
 	@Override
@@ -671,7 +671,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, group, attrsNames, allowedStatuses, searchString, lookingInParentGroup), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, group, attrsNames, allowedStatuses, searchString, lookingInParentGroup), group, true);
 	}
 
 	@Override
@@ -687,7 +687,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributesByNames(sess, group, attrsNames), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributesByNames(sess, group, attrsNames), group, true);
 	}
 
 	@Override
@@ -703,7 +703,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getRichMemberWithAttributes");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, group, attrsDef), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, group, attrsDef), group, true);
 	}
 
 	@Override
@@ -719,7 +719,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, group), group, true);
 	}
 
 	@Override
@@ -735,7 +735,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo), null, true);
 	}
 
 	@Override
@@ -751,7 +751,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo, status), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo, status), null, true);
 	}
 
 	@Override
@@ -767,7 +767,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo), null, true);
 	}
 
 	@Override
@@ -783,7 +783,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, status), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, status), null, true);
 	}
 
 	@Override
@@ -894,7 +894,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findRichMembersInGroup");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInGroup(sess, group, searchString), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInGroup(sess, group, searchString), group, true);
 	}
 
 	@Override
@@ -925,7 +925,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findRichMembersInParentGroup");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInParentGroup(sess, group, searchString), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInParentGroup(sess, group, searchString), group, true);
 	}
 
 	@Override
@@ -940,7 +940,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findRichMembersInVo");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersInVo(sess, vo, searchString), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersInVo(sess, vo, searchString), null, true);
 	}
 
 	@Override
@@ -955,7 +955,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findRichMembersWithAttributesInVo");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInVo(sess, vo, searchString), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInVo(sess, vo, searchString), null, true);
 	}
 
 	@Override

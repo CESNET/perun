@@ -329,7 +329,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getGroupRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group), group, true);
 	}
 
 	@Override
@@ -344,7 +344,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getGroupDirectRichMembers");
 		}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupDirectRichMembers(sess, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupDirectRichMembers(sess, group), group, true);
 	}
 
 	@Override
@@ -359,7 +359,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getGroupRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group, status), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group, status), group, true);
 	}
 
 	@Override
@@ -374,7 +374,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getGroupRichMembersWithAttributes");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group), group, true);
 	}
 
 	@Override
@@ -388,7 +388,7 @@ public class GroupsManagerEntry implements GroupsManager {
 				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupRichMembersWithAttributes");
 				}
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group, status), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group, status), group, true);
 	}
 
 	@Override
@@ -864,7 +864,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getParentGroupRichMembers for " + group.getName());
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembers(sess, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembers(sess, group), group, true);
 	}
 
 	@Override
@@ -879,7 +879,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getParentGroupRichMembers for " + group.getName());
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembersWithAttributes(sess, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembersWithAttributes(sess, group), group, true);
 	}
 
 
