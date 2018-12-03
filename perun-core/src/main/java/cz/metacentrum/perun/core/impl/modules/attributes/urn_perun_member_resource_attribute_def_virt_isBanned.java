@@ -1,10 +1,17 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForResourceAndMember;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForResourceAndMember;
+import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanRemovedForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanSetForFacility;
+import cz.metacentrum.perun.audit.events.FacilityManagerEvents.BanUpdatedForFacility;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanRemovedForResource;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanSetForResource;
+import cz.metacentrum.perun.audit.events.ResourceManagerEvents.BanUpdatedForResource;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.BanOnFacility;
-import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
@@ -13,17 +20,18 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +44,8 @@ import org.slf4j.LoggerFactory;
  */
 public class urn_perun_member_resource_attribute_def_virt_isBanned extends MemberResourceVirtualAttributesModuleAbstract implements MemberResourceVirtualAttributesModuleImplApi {
 
+	private final static String A_MR_V_isBanned = AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":isBanned";
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_member_resource_attribute_def_virt_isBanned.class);
-
-	private final Pattern banModification = Pattern.compile("Ban ([a-zA-Z]+):\\[.*\\] was ([a-z]+) for .*Id ([0-9]+) on .*Id ([0-9]+)", Pattern.DOTALL);
-	private final String OPERATION_SET = "set";
-	private final String OPERATION_REMOVED = "removed";
-	private final String OPERATION_UPDATED = "updated";
 
 	@Override
     public Attribute getAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException {
@@ -73,58 +77,157 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Membe
     }
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		List<String> resolvingMessages = new ArrayList<>();
-		if(message == null) return resolvingMessages;
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
+		if (message == null) return resolvingMessages;
 
-		Matcher banModificationMatcher = banModification.matcher(message);
-		List<Pair<Resource, Member>> listOfAffectedObjects = new ArrayList<>();
+		if (message instanceof BanSetForResource) {
+			return resolveBanSetForResource(perunSession, (BanSetForResource) message);
 
-		String operationType = "";
+		} else if (message instanceof BanRemovedForResource) {
+			return resolveBanRemovedForResource(perunSession, (BanRemovedForResource) message);
 
-		if(banModificationMatcher.find()) {
-			try {
-				String banType = banModificationMatcher.group(1);
-				operationType = banModificationMatcher.group(2);
-				int firstHolderId = Integer.valueOf(banModificationMatcher.group(3));
-				int secondHolderId = Integer.valueOf(banModificationMatcher.group(4));
+		} else if (message instanceof BanUpdatedForResource) {
+			return resolveBanUpdatedForResource(perunSession, (BanUpdatedForResource) message);
 
-				if(operationType.equals(OPERATION_UPDATED)) {
-					operationType = OPERATION_SET;
-				} else if (!operationType.equals(OPERATION_SET) && !operationType.equals(OPERATION_REMOVED)) {
-					throw new InternalErrorException("Type of operation '" + operationType + "' is unknown by module.");
-				}
+		} else if (message instanceof BanSetForFacility) {
+			return resolveBanSetForFacility(perunSession, (BanSetForFacility) message);
 
-				if(banType.equals(BanOnResource.class.getSimpleName())) {
-					Member member = perunSession.getPerunBl().getMembersManagerBl().getMemberById(perunSession, firstHolderId);
-					Resource resource = perunSession.getPerunBl().getResourcesManagerBl().getResourceById(perunSession, secondHolderId);
-					listOfAffectedObjects.add(new Pair(resource, member));
-				} else if(banType.equals(BanOnFacility.class.getSimpleName())) {
-					User user = perunSession.getPerunBl().getUsersManagerBl().getUserById(perunSession, firstHolderId);
-					Facility facility = perunSession.getPerunBl().getFacilitiesManagerBl().getFacilityById(perunSession, secondHolderId);
-					listOfAffectedObjects = getAffectedMemberResourceObjects(perunSession, user, facility);
-				} else {
-					throw new InternalErrorException("Type of ban '" + banType + "' is unkown by module.");
-				}
-			} catch (Exception e) {
-				log.error("Can't resolve virtual attribute value change for " + this.getClass().getSimpleName() + " module because of exception.", e);
-				//return empty array, do not throw exception because it can create problems
-				return new ArrayList<>();
-			}
+		} else if (message instanceof BanRemovedForFacility) {
+			return resolveBanRemovedForFacility(perunSession, (BanRemovedForFacility) message);
+
+		} else if (message instanceof BanUpdatedForFacility) {
+			return resolveBanUpdatedForFacility(perunSession, (BanUpdatedForFacility) message);
 		}
 
-		for(Pair<Resource, Member> affectedObjects : listOfAffectedObjects) {
-			try {
-				Attribute attrVirtMemberResourceIsBanned = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, affectedObjects.getRight(), affectedObjects.getLeft(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":isBanned");
+		return resolvingMessages;
+	}
 
-				resolvingMessages.add(attrVirtMemberResourceIsBanned.serializeToString() + " " + operationType + " for " + affectedObjects.getLeft().serializeToString() + " and " + affectedObjects.getRight().serializeToString());
-			} catch (AttributeNotExistsException ex) {
-				//This means that attribute isBanned not exists at all so we can skip this process
-				log.info("Virtual attribute {} not exists.", this.getClass().getSimpleName());
-				break;
-			} catch (MemberResourceMismatchException ex) {
-				throw new InternalErrorException(ex);
+
+	private List<AuditEvent> resolveBanSetForResource(PerunSessionImpl perunSession, BanSetForResource banSetForResource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
+
+		try {
+			Member member = perunSession.getPerunBl().getMembersManagerBl().getMemberById(perunSession, banSetForResource.getMemberId());
+			Resource resource = perunSession.getPerunBl().getResourcesManagerBl().getResourceById(perunSession, banSetForResource.getResourceId());
+			Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, member, resource, A_MR_V_isBanned);
+			resolvingMessages.add(new AttributeSetForResourceAndMember(attribute, resource, member));
+		} catch (MemberNotExistsException | ResourceNotExistsException | MemberResourceMismatchException e) {
+			log.error("Can't resolve virtual attribute value change for " + this.getClass().getSimpleName() + " module because of exception.", e);
+		}
+
+		return resolvingMessages;
+	}
+
+	private List<AuditEvent> resolveBanRemovedForResource(PerunSessionImpl perunSession, BanRemovedForResource banRemovedForResource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
+
+		try {
+			Member member = perunSession.getPerunBl().getMembersManagerBl().getMemberById(perunSession, banRemovedForResource.getMemberId());
+			Resource resource = perunSession.getPerunBl().getResourcesManagerBl().getResourceById(perunSession, banRemovedForResource.getResourceId());
+			Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, member, resource, A_MR_V_isBanned);
+			resolvingMessages.add(new AttributeRemovedForResourceAndMember(attribute, resource, member));
+		} catch (MemberNotExistsException | ResourceNotExistsException | MemberResourceMismatchException e) {
+			log.error("Can't resolve virtual attribute value change for " + this.getClass().getSimpleName() + " module because of exception.", e);
+		}
+
+		return resolvingMessages;
+	}
+
+	private List<AuditEvent> resolveBanUpdatedForResource(PerunSessionImpl perunSession, BanUpdatedForResource banUpdatedForResource) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
+
+		try {
+			Member member = perunSession.getPerunBl().getMembersManagerBl().getMemberById(perunSession, banUpdatedForResource.getMemberId());
+			Resource resource = perunSession.getPerunBl().getResourcesManagerBl().getResourceById(perunSession, banUpdatedForResource.getResourceId());
+			Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, member, resource, A_MR_V_isBanned);
+			resolvingMessages.add(new AttributeSetForResourceAndMember(attribute, resource, member));
+		} catch (MemberNotExistsException | ResourceNotExistsException | MemberResourceMismatchException e) {
+			log.error("Can't resolve virtual attribute value change for " + this.getClass().getSimpleName() + " module because of exception.", e);
+		}
+
+		return resolvingMessages;
+	}
+
+	private List<AuditEvent> resolveBanSetForFacility(PerunSessionImpl perunSession, BanSetForFacility banSetForFacility) throws InternalErrorException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
+
+		try {
+			User user = perunSession.getPerunBl().getUsersManagerBl().getUserById(perunSession, banSetForFacility.getUserId());
+			Facility facility = perunSession.getPerunBl().getFacilitiesManagerBl().getFacilityById(perunSession, banSetForFacility.getFacilityId());
+			List<Pair<Resource, Member>> listOfAffectedObjects = getAffectedMemberResourceObjects(perunSession, user, facility);
+
+			for (Pair<Resource, Member> affectedObjects : listOfAffectedObjects) {
+				try {
+					Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, affectedObjects.getRight(), affectedObjects.getLeft(), A_MR_V_isBanned);
+
+					resolvingMessages.add(new AttributeSetForResourceAndMember(attribute, affectedObjects.getLeft(), affectedObjects.getRight()));
+				} catch (AttributeNotExistsException ex) {
+					//This means that attribute isBanned not exists at all so we can skip this process
+					log.info("Virtual attribute {} not exists.", this.getClass().getSimpleName());
+					break;
+				} catch (MemberResourceMismatchException ex) {
+					throw new InternalErrorException(ex);
+				}
 			}
+		} catch (UserNotExistsException | FacilityNotExistsException e) {
+			log.error("Can't resolve virtual attribute value change for " + this.getClass().getSimpleName() + " module because of exception.", e);
+		}
+
+		return resolvingMessages;
+	}
+
+	private List<AuditEvent> resolveBanRemovedForFacility(PerunSessionImpl perunSession, BanRemovedForFacility banRemovedForFacility) throws InternalErrorException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
+
+		try {
+			User user = perunSession.getPerunBl().getUsersManagerBl().getUserById(perunSession, banRemovedForFacility.getUserId());
+			Facility facility = perunSession.getPerunBl().getFacilitiesManagerBl().getFacilityById(perunSession, banRemovedForFacility.getFacilityId());
+			List<Pair<Resource, Member>> listOfAffectedObjects = getAffectedMemberResourceObjects(perunSession, user, facility);
+
+			for(Pair<Resource, Member> affectedObjects : listOfAffectedObjects) {
+				try {
+					Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession,  affectedObjects.getRight(), affectedObjects.getLeft(), A_MR_V_isBanned);
+
+					resolvingMessages.add(new AttributeRemovedForResourceAndMember(attribute, affectedObjects.getLeft(), affectedObjects.getRight()));
+				} catch (AttributeNotExistsException ex) {
+					//This means that attribute isBanned not exists at all so we can skip this process
+					log.info("Virtual attribute {} not exists.", this.getClass().getSimpleName());
+					break;
+				} catch (MemberResourceMismatchException ex) {
+					throw new InternalErrorException(ex);
+				}
+			}
+		} catch (UserNotExistsException | FacilityNotExistsException e) {
+			log.error("Can't resolve virtual attribute value change for " + this.getClass().getSimpleName() + " module because of exception.", e);
+		}
+
+		return resolvingMessages;
+	}
+
+	private List<AuditEvent> resolveBanUpdatedForFacility(PerunSessionImpl perunSession, BanUpdatedForFacility banUpdatedForFacility) throws InternalErrorException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
+
+		try {
+			User user = perunSession.getPerunBl().getUsersManagerBl().getUserById(perunSession, banUpdatedForFacility.getUserId());
+			Facility facility = perunSession.getPerunBl().getFacilitiesManagerBl().getFacilityById(perunSession, banUpdatedForFacility.getFacilityId());
+			List<Pair<Resource, Member>> listOfAffectedObjects = getAffectedMemberResourceObjects(perunSession, user, facility);
+
+			for (Pair<Resource, Member> affectedObjects : listOfAffectedObjects) {
+				try {
+					Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, affectedObjects.getRight(), affectedObjects.getLeft(), A_MR_V_isBanned);
+
+					resolvingMessages.add(new AttributeSetForResourceAndMember(attribute, affectedObjects.getLeft(), affectedObjects.getRight()));
+				} catch (AttributeNotExistsException ex) {
+					//This means that attribute isBanned not exists at all so we can skip this process
+					log.info("Virtual attribute {} not exists.", this.getClass().getSimpleName());
+					break;
+				} catch (MemberResourceMismatchException ex) {
+					throw new InternalErrorException(ex);
+				}
+			}
+		} catch (UserNotExistsException | FacilityNotExistsException e) {
+			log.error("Can't resolve virtual attribute value change for " + this.getClass().getSimpleName() + " module because of exception.", e);
 		}
 
 		return resolvingMessages;

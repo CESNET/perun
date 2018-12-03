@@ -1,5 +1,11 @@
 package cz.metacentrum.perun.core.implApi.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForUserExtSource;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUes;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUes;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -8,6 +14,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
@@ -21,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Common ancestor class for user virtual attributes that just collect values from userExtSource attributes.
@@ -37,9 +43,6 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private static final Pattern allAttributesRemovedForUserExtSource = Pattern.compile("All attributes removed for UserExtSource:\\[(.*)]", Pattern.DOTALL);
-	private final Pattern removeUserExtSourceAttribute = Pattern.compile("AttributeDefinition:\\[(.*)" + getSourceAttributeFriendlyName() + "(.*)] removed for UserExtSource:\\[(.*)]", Pattern.DOTALL);
-	private final Pattern setUserExtSourceAttribute = Pattern.compile("Attribute:\\[(.*)" + getSourceAttributeFriendlyName() + "(.*)] set for UserExtSource:\\[(.*)]", Pattern.DOTALL);
 	/**
 	 * Specifies friendly (short) name of attribute from namespace urn:perun:ues:attribute-def:def
 	 * whose values are to be collected.
@@ -157,39 +160,73 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 	}
 
 	/**
-	 * Get list of message patterns used for resolving attribute value change.
-	 * @return List of Patterns
+	 * Functional interface for controlling AuditEvents.
+	 *
+	 * Modules can overwrite method shouldBeEventHandled to change or add events that should
+	 * handled. Events that should be handled are events which make modules to produce another
+	 * AuditEvent.
 	 */
-	public List<Pattern> getPatternsForMatch() {
-		List<Pattern> patterns = new ArrayList<>();
-		patterns.add(allAttributesRemovedForUserExtSource);
-		patterns.add(setUserExtSourceAttribute);
-		patterns.add(removeUserExtSourceAttribute);
+	@FunctionalInterface
+	public interface AttributeHandleIdentifier {
 
-		return patterns;
+		/**
+		 * Determines whether given auditEvent should be handled. If it should be the method
+		 * returns userId of user from the auditEvent, otherwise returns null.
+		 *
+		 * @param auditEvent given auditEvent
+		 * @return userId of user from auditEvent, otherwise null
+		 */
+		Integer shouldBeEventHandled(AuditEvent auditEvent);
+	}
+
+	public List<AttributeHandleIdentifier> getHandleIdentifiers() {
+		List<AttributeHandleIdentifier> handleIdenfiers = new ArrayList<>();
+		handleIdenfiers.add(auditEvent -> {
+			if (auditEvent instanceof AllAttributesRemovedForUserExtSource) {
+				return ((AllAttributesRemovedForUserExtSource) auditEvent).getUserExtSource().getUserId();
+			} else {
+				return null;
+			}
+		});
+		handleIdenfiers.add(auditEvent -> {
+			if (auditEvent instanceof AttributeRemovedForUes && ((AttributeRemovedForUes) auditEvent).getAttribute().getFriendlyName().equals(getSourceAttributeFriendlyName())) {
+				return ((AttributeRemovedForUes) auditEvent).getUes().getUserId();
+			} else {
+				return null;
+			}
+		});
+		handleIdenfiers.add(auditEvent -> {
+			if (auditEvent instanceof AttributeSetForUes &&((AttributeSetForUes) auditEvent).getAttribute().getFriendlyName().equals(getSourceAttributeFriendlyName())) {
+				return ((AttributeSetForUes) auditEvent).getUes().getUserId();
+			} else {
+				return null;
+			}
+		});
+		return handleIdenfiers;
 	}
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		List<String> resolvingMessages = new ArrayList<>();
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
-		if (messageNeedsResolve(message)) {
-			log.debug("Resolving virtual attribute value change for message: " + message);
-			User user = perunSession.getPerunBl().getModulesUtilsBl().getUserFromMessage(perunSession, message);
-			if (user != null) {
-				Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, getDestinationAttributeName());
-				@SuppressWarnings("unchecked") List<String> attributeValue = (ArrayList<String>) attribute.getValue();
-				String messageAttributeSet;
-				if (attributeValue == null || attributeValue.isEmpty()) {
-					AttributeDefinition attributeDefinition = new AttributeDefinition(attribute);
-					messageAttributeSet = attributeDefinition.serializeToString() + " removed for " + user.serializeToString() + ".";
-				} else {
-					messageAttributeSet = attribute.serializeToString() + " set for " + user.serializeToString() + ".";
+		List<AttributeHandleIdentifier> list = getHandleIdentifiers();
+		for (AttributeHandleIdentifier attributeHandleIdenfier : list) {
+			Integer userId = attributeHandleIdenfier.shouldBeEventHandled(message);
+			if (userId != null) {
+				try {
+					User user = perunSession.getPerunBl().getUsersManagerBl().getUserById(perunSession, userId);
+					Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, getDestinationAttributeName());
+					if (attribute.valueAsList() == null || attribute.valueAsList().isEmpty()) {
+						AttributeDefinition attributeDefinition = new AttributeDefinition(attribute);
+						resolvingMessages.add(new AttributeRemovedForUser(attributeDefinition, user));
+					} else {
+						resolvingMessages.add(new AttributeSetForUser(attribute, user));
+					}
+				} catch (UserNotExistsException e) {
+					log.warn("User from UserExtSource doesn't exist in Perun. This occurred while parsing message: {}.", message);
 				}
-				resolvingMessages.add(messageAttributeSet);
 			}
-			if(!resolvingMessages.isEmpty()) log.debug("These new messages will be generated: " + resolvingMessages);
 		}
 
 		return resolvingMessages;
@@ -204,17 +241,5 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 		attr.setType(ArrayList.class.getName());
 		attr.setDescription(getDestinationAttributeDescription());
 		return attr;
-	}
-
-	private boolean messageNeedsResolve(String message) {
-		List<Pattern> patterns = getPatternsForMatch();
-
-		for (Pattern p: patterns) {
-			if (p.matcher(message).find()) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 }

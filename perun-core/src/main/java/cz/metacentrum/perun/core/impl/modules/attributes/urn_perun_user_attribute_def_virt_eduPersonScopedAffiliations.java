@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -19,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * All affiliations collected from UserExtSources attributes and eduPersonScopedAffiliationsManuallyAssigned.
@@ -31,10 +33,6 @@ import java.util.regex.Pattern;
 public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations extends UserVirtualAttributeCollectedFromUserExtSource {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-	private final Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)]", Pattern.DOTALL);
-	private final Pattern userEPSAMASetPattern = Pattern.compile("Attribute:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() +">(.*)] set for User:\\[(.*)]", Pattern.DOTALL);
-	private final Pattern userEPSAMARemovePattern = Pattern.compile("AttributeDefinition:\\[(.*)friendlyName=<" + getSecondarySourceAttributeFriendlyName() + ">(.*)] removed for User:\\[(.*)]", Pattern.DOTALL);
 
 	@Override
 	public String getSourceAttributeFriendlyName() {
@@ -107,12 +105,29 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 	}
 
 	@Override
-	public List<Pattern> getPatternsForMatch() {
-		List<Pattern> patterns = super.getPatternsForMatch();
-		patterns.add(userAllAttrsRemovedPattern);
-		patterns.add(userEPSAMARemovePattern);
-		patterns.add(userEPSAMASetPattern);
-
-		return patterns;
+	public List<AttributeHandleIdentifier> getHandleIdentifiers() {
+		List<AttributeHandleIdentifier> handleIdentifiers = super.getHandleIdentifiers();
+		handleIdentifiers.add(auditEvent -> {
+			if (auditEvent instanceof AllAttributesRemovedForUser) {
+				return ((AllAttributesRemovedForUser) auditEvent).getUser().getId();
+			} else {
+				return null;
+			}
+		});
+		handleIdentifiers.add(auditEvent -> {
+			if (auditEvent instanceof AttributeSetForUser && ((AttributeSetForUser) auditEvent).getAttribute().getFriendlyName().equals(getSecondarySourceAttributeFriendlyName())) {
+				return ((AttributeSetForUser) auditEvent).getUser().getId();
+			} else {
+				return null;
+			}
+		});
+		handleIdentifiers.add(auditEvent -> {
+			if (auditEvent instanceof AttributeRemovedForUser &&((AttributeRemovedForUser) auditEvent).getAttribute().getFriendlyName().equals(getSecondarySourceAttributeFriendlyName())) {
+				return ((AttributeRemovedForUser) auditEvent).getUser().getId();
+			} else {
+				return null;
+			}
+		});
+		return handleIdentifiers;
 	}
 }

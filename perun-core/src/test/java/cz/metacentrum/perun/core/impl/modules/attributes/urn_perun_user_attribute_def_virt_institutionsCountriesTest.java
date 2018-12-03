@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForKey;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUes;
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -121,17 +124,17 @@ public class urn_perun_user_attribute_def_virt_institutionsCountriesTest {
 		assertThat(attributeValue.size(), is(0));
 	}
 
-
 	@Test
 	public void resolveVirtualAttributeValueChange() throws Exception {
 		setSchacHomeOrgs("muni.cz;cesnet.cz");
 		Attribute countries = classInstance.getAttributeValue(sess, user, institutionCountriesAttrDef);
 		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess,user,"urn:perun:user:attribute-def:virt:institutionsCountries"))
-				.thenReturn(countries);
+			.thenReturn(countries);
+		when(sess.getPerunBl().getUsersManagerBl().getUserById(sess, userExtSource.getUserId())).thenReturn(user);
 
-		String uesSet = schacHomeOrg.serializeToString() + " set for "+userExtSource.serializeToString()+".";
-		List<String> msgs = classInstance.resolveVirtualAttributeValueChange(sess, uesSet);
-		assertTrue("audit should contain change of institutionsCountries",msgs.get(0).contains("friendlyName=<institutionsCountries>"));
+		AuditEvent uesSet = new AttributeSetForUes(schacHomeOrg, userExtSource);
+		List<AuditEvent> msgs = classInstance.resolveVirtualAttributeValueChange(sess, uesSet);
+		assertTrue("audit should contain change of institutionsCountries",msgs.get(0).getMessage().contains("friendlyName=<institutionsCountries>"));
 	}
 
 	@Test
@@ -141,14 +144,14 @@ public class urn_perun_user_attribute_def_virt_institutionsCountriesTest {
 		dnsMap.put(".cz", czech_republic);
 		Attribute countries = classInstance.getAttributeValue(sess, user, institutionCountriesAttrDef);
 		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:virt:institutionsCountries"))
-				.thenReturn(countries);
+			.thenReturn(countries);
 		Attribute newval = new Attribute(new urn_perun_entityless_attribute_def_def_dnsStateMapping().getAttributeDefinition());
 		newval.setValue(czech_republic);
 
 		when(sess.getPerunBl().getUsersManagerBl().findUsersWithExtSourceAttributeValueEnding(eq(sess), eq(SCHAC_HOME_ATTR_NAME), eq(".cz"), any()))
-				.thenReturn(Collections.singletonList(user));
-		String message = newval.serializeToString() + " set for .cz.";
-		List<String> msgs = classInstance.resolveVirtualAttributeValueChange(sess, message);
-		assertTrue("audit should contain change of institutionsCountries",msgs.get(0).contains("friendlyName=<institutionsCountries>"));
+			.thenReturn(Collections.singletonList(user));
+		AuditEvent event = new AttributeSetForKey(newval, ".cz");
+		List<AuditEvent> msgs = classInstance.resolveVirtualAttributeValueChange(sess, event);
+		assertTrue("audit should contain change of institutionsCountries",msgs.get(0).getMessage().contains("friendlyName=<institutionsCountries>"));
 	}
 }

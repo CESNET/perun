@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -73,5 +74,18 @@ public abstract class AuditEvent {
 		}
 
 		return formattedObjects;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		AuditEvent that = (AuditEvent) o;
+		return Objects.equals(getMessage(), that.getMessage());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getMessage());
 	}
 }
