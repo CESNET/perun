@@ -13,6 +13,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -81,6 +82,9 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 	private int userId;
 
 	private ArrayList<Attribute> userLoginAttrs = new ArrayList<Attribute>();
+
+	// downloadable file tag counter, otherwise browser returns same document.
+	private static int counter = 0;
 
 	/**
 	 * Creates a new view user class
@@ -900,7 +904,8 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 										String response = Utils.getBinaryResource(PerunWebSession.getInstance().getRpcUrl()+"usersManager/changePasswordRandom",
 												"{ \"userId\": " + userId + " , \"loginNamespace\": \"" + a.getFriendlyNameParameter() + "\" }");
 
-										Utils.convertBinaryToDownloadableFile("PasswordReset.pdf", "application/pdf", response);
+										counter++;
+										Utils.convertBinaryToDownloadableFile(counter,"PasswordReset"+Random.nextInt(10000)+".pdf", "application/pdf", response);
 
 									}
 								});
