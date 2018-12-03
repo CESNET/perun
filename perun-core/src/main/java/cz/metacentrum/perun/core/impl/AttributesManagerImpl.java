@@ -5146,12 +5146,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void registerVirtAttributeModules(ServiceLoader<AttributesModuleImplApi> modules) {
+	public void registerAttributeModules(ServiceLoader<AttributesModuleImplApi> modules) {
 		for (AttributesModuleImplApi module : modules) {
-			if (module instanceof VirtualAttributesModuleImplApi) {
-				Auditer.registerAttributeModule((VirtualAttributesModuleImplApi) module);
-				log.debug("Module {} was registered for audit message listening.", module.getClass().getName());
-			}
+			Auditer.registerAttributeModule(module);
+			log.debug("Module {} was registered for audit message listening.", module.getClass().getName());
 		}
 	}
 
