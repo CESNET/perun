@@ -1402,15 +1402,15 @@ public class Utils {
 	 * @param contentType Content type like "application/pdf" or whatever
 	 * @param dataInput Binary content as base64 string
 	 */
-	public static native void convertBinaryToDownloadableFile(String fileName, String contentType, String dataInput) /*-{
+	public static native void convertBinaryToDownloadableFile(int count , String fileName, String contentType, String dataInput) /*-{
 		$wnd.jQuery('<a></a>')
-			.attr('id','downloadFile')
+			.attr('id','download'+count)
 			.attr('href',"data:"+contentType+";charset=utf-8;base64," + dataInput)
 			.attr('download',fileName)
 			.appendTo('body');
 
-		$wnd.jQuery('#downloadFile').ready(function() {
-		$wnd.jQuery('#downloadFile').get(0).click();
+		$wnd.jQuery('#'+'download'+count).ready(function() {
+		$wnd.jQuery('#'+'download'+count).get(0).click();
 		});
 	}-*/;
 
