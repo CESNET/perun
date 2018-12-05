@@ -106,10 +106,12 @@ public class SendPasswordResetRequestTabItem implements TabItem {
 			emails.addItem(s.getKey(), s.getValue());
 		}
 
-		Map<String, String> languagesMap = Utils.getResetPasswordSupportedLanguages();
-		for (Map.Entry<String, String> s : languagesMap.entrySet()) {
-			languages.addItem(s.getKey(), s.getValue());
+		// prefer native language in a list
+		ArrayList<String> list = Utils.getNativeLanguage();
+		if (!list.isEmpty()) {
+			languages.addItem(list.get(1), list.get(0));
 		}
+		languages.addItem("English", "en");
 
 		final CustomButton changeButton = new CustomButton("Send", "Send email with reset password link", SmallIcons.INSTANCE.emailIcon());
 

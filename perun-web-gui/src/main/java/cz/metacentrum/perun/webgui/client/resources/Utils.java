@@ -428,22 +428,6 @@ public class Utils {
 	}
 
 	/**
-	 * Returns map of languages that can be reset password email sent.
-	 *
-	 * @return map of languages
-	 */
-	public static Map<String, String> getResetPasswordSupportedLanguages(){
-
-		Map<String, String> languages = new HashMap<>();
-		languages.put("English", "en");
-		List<String> nativeLanguage = getNativeLanguage();
-		if (nativeLanguage != null || !nativeLanguage.get(0).equals("en")) {
-			languages.put(nativeLanguage.get(2), nativeLanguage.get(0));
-		}
-		return languages;
-	}
-
-	/**
 	 * Returns public key part of Re-Captcha widget (by GOOGLE)
 	 * which is used for anonymous access to application form.
 	 *
