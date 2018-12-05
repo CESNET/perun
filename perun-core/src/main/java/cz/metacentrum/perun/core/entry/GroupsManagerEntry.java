@@ -1227,7 +1227,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
 			throw new PrivilegeException(sess, "extendMembershipInGroup");
 		}
@@ -1245,7 +1245,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
 			throw new PrivilegeException(sess, "canExtendMembershipInGroup");
 		}
@@ -1262,7 +1262,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
 			throw new PrivilegeException(sess, "canExtendMembershipInGroupWithReason");
 		}
