@@ -2063,11 +2063,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				log.error("Can't save lastSuccessSynchronizationTimestamp, because there is missing attribute with name {}",attrName);
 			}
 		} else {
-			//Log to auditer_log that synchronization failed or finished with some errors
+			//Log info about synchronization problems to audit log and to the perun system log
 			if(failedDueToException) {
-				getPerunBl().getAuditer().log(sess,new GroupSyncFailed(group, originalExceptionMessage));
+				getPerunBl().getAuditer().log(sess,new GroupSyncFailed(group));
+				log.debug("{} synchronization failed because of {}", group, originalExceptionMessage);
 			} else {
-				getPerunBl().getAuditer().log(sess, new GroupSyncFinishedWithErrors(group, originalExceptionMessage));
+				getPerunBl().getAuditer().log(sess,new GroupSyncFinishedWithErrors(group));
+				log.debug("{} synchronization finished with errors: {}", group, originalExceptionMessage);
 			}
 		}
 
