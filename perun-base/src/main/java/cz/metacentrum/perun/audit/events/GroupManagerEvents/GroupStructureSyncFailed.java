@@ -5,35 +5,29 @@ import cz.metacentrum.perun.core.api.Group;
 
 public class GroupStructureSyncFailed extends AuditEvent {
 
-    private Group group;
-    private String originalExceptionMessage;
-    private String message;
+	private Group group;
+	private String message;
 
-    @SuppressWarnings("unused") // used by jackson mapper
-    public GroupStructureSyncFailed() {
-    }
+	@SuppressWarnings("unused") // used by jackson mapper
+	public GroupStructureSyncFailed() {
+	}
 
-    public GroupStructureSyncFailed(Group group, String originalExceptionMessage) {
-        this.group = group;
-        this.originalExceptionMessage = originalExceptionMessage;
-        this.message = formatMessage( "%s structure synchronization failed because of %s.", group, originalExceptionMessage);
-    }
+	public GroupStructureSyncFailed(Group group) {
+		this.group = group;
+		this.message = formatMessage( "%s structure synchronization failed.", group);
+	}
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+	@Override
+	public String getMessage() {
+		return message;
+	}
 
-    public Group getGroup() {
-        return group;
-    }
+	public Group getGroup() {
+		return group;
+	}
 
-    public String getOriginalExceptionMessage() {
-        return originalExceptionMessage;
-    }
-
-    @Override
-    public String toString() {
-        return message;
-    }
+	@Override
+	public String toString() {
+		return message;
+	}
 }

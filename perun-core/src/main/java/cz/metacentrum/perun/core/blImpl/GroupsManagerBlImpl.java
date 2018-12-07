@@ -3590,9 +3590,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		} else {
 			if(failedDueToException) {
-				getPerunBl().getAuditer().log(sess, new GroupStructureSyncFailed(group, originalExceptionMessage));
+				getPerunBl().getAuditer().log(sess, new GroupStructureSyncFailed(group));
+				log.debug("{} structure synchronization failed because of {}", group, originalExceptionMessage);
 			} else {
-				getPerunBl().getAuditer().log(sess, new GroupStructureSyncFinishedWithErrors(group, originalExceptionMessage));
+				getPerunBl().getAuditer().log(sess, new GroupStructureSyncFinishedWithErrors(group));
+				log.debug("{} structure synchronization finished with errors: {}", group, originalExceptionMessage);
 			}
 		}
 
