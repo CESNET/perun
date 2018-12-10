@@ -737,6 +737,16 @@ public interface GroupsManagerImplApi {
 	List<Resource> getResourcesWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException;
 
 	/**
+	 * Returns all resources where given group si RESOURCESELFSERVICE.
+	 *
+	 * @param session session
+	 * @param group group
+	 * @return list of all resources where given group is RESOURCESELFSERVICE
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getResourcesWhereGroupIsResourceSelfService(PerunSession session, Group group) throws InternalErrorException;
+
+	/**
 	 * Returns all security teams where given group si SECURITYADMIN.
 	 *
 	 * @param session session

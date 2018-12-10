@@ -408,6 +408,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
+		List<Resource> resourcesWhereGroupIsResourceSelfService = getGroupsManagerImpl().getResourcesWhereGroupIsResourceSelfService(sess, group);
+		for (Resource resource : resourcesWhereGroupIsResourceSelfService) {
+			try {
+				perunBl.getResourcesManagerBl().removeResourceSelfServiceGroup(sess, resource, group);
+			} catch (GroupNotAdminException e) {
+				log.warn("Can't unset group {} as admin of resource {} due to group not admin exception {}.", group, resource, e);
+			}
+		}
+
 		List<SecurityTeam> securityTeamsWhereGroupIsAdmin = getGroupsManagerImpl().getSecurityTeamsWhereGroupIsAdmin(sess, group);
 		for (SecurityTeam securityTeam : securityTeamsWhereGroupIsAdmin) {
 			try {
