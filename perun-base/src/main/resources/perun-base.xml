@@ -47,6 +47,7 @@
 		<property name="oidcIssuers" value="#{'${perun.oidc.issuers}'.split('\s*,\s*')}"/>
 		<property name="allowedCorsDomains" value="#{'${perun.allowedCorsDomains}'.split('\s*,\s*')}" />
 		<property name="cacheEnabled" value="${perun.cacheEnabled}" />
+		<property name="pdfFontPath" value="${perun.pdfFontPath}" />
 	</bean>
 
 
