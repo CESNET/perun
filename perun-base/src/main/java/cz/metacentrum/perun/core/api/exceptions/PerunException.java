@@ -11,17 +11,14 @@ import org.slf4j.LoggerFactory;
 public abstract class PerunException extends Exception {
 	static final long serialVersionUID = 0;
 
-	private final static Logger log = LoggerFactory.getLogger(PerunException.class);
+	private final static Logger log = LoggerFactory.getLogger("ultimate_logger");
 	private String errorId = Long.toHexString(System.currentTimeMillis());
 
 	public PerunException() {
 		super();
 
 		if (!(this instanceof InternalErrorException)) {
-			log.warn("Exception {}: {}.", errorId, this);
-			if (log.isDebugEnabled()) {
-				log.debug("Exception detail:", this);
-			}
+			log.debug("Exception {}: {}.", errorId, this);
 		}
 	}
 
@@ -29,31 +26,26 @@ public abstract class PerunException extends Exception {
 		super(message);
 
 		if (!(this instanceof InternalErrorException)) {
-			log.warn("Exception {}: {}.", errorId, this);
-			if (log.isDebugEnabled()) {
-				log.debug("Exception detail:", this);
-			}
+			log.debug("Exception {}: {}.", errorId, this);
 		}
+
 	}
 
 	public PerunException(String message, Throwable cause) {
 		super(message, cause);
 
 		if (!(this instanceof InternalErrorException)) {
-			log.warn("Exception {}: {}.", errorId, this);
-			if (log.isDebugEnabled()) {
-				log.debug("Exception detail:", this);
-			}
+			log.debug("Exception {}: {}.", errorId, this);
 		}
+
 	}
 
 	public PerunException(Throwable cause) {
+
 		super(cause!=null?cause.getMessage():null,cause);
+
 		if (!(this instanceof InternalErrorException)) {
-			log.warn("Exception {}: {}.", errorId, this);
-			if (log.isDebugEnabled()) {
-				log.debug("Exception detail:", this);
-			}
+			log.debug("Exception {}: {}.", errorId, this);
 		}
 	}
 
