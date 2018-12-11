@@ -1430,7 +1430,10 @@ public class Utils {
 		int amount = Integer.valueOf(countString);
 
 		// Set the gracePeriodCalendar to the extension date
-		int year = extensionCalendar.get(Calendar.YEAR);
+		// We want actual year
+		Calendar actualCalendar = Calendar.getInstance();
+		int year = actualCalendar.get(Calendar.YEAR);
+		// But month and day we need from extensionCalendar
 		int month = extensionCalendar.get(Calendar.MONTH);
 		int day = extensionCalendar.get(Calendar.DAY_OF_MONTH);
 		gracePeriodCalendar.set(year, month, day);
