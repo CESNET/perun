@@ -3416,7 +3416,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				Calendar gracePeriodCalendar = Calendar.getInstance();
 				Pair<Integer, Integer> fieldAmount;
 				try {
-					fieldAmount = Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar, extensionInNextYear);
+					fieldAmount = Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar);
 				} catch (InternalErrorException e) {
 					throw new InternalErrorException("Wrong format of gracePeriod in group membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
 				}
