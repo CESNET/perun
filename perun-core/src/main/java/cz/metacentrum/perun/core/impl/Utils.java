@@ -1418,11 +1418,10 @@ public class Utils {
 	 * @param gracePeriodCalendar grace period calendar
 	 * @param matcher matcher
 	 * @param extensionCalendar extension calendar
-	 * @param extensionInNextYear is extension next year
 	 * @return pair of field(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH) and amount
 	 * @throws InternalErrorException when given matcher contains invalid data
 	 */
-	public static Pair<Integer, Integer> extendGracePeriodCalendar(Calendar gracePeriodCalendar, Matcher matcher, Calendar extensionCalendar, boolean extensionInNextYear) throws InternalErrorException {
+	public static Pair<Integer, Integer> extendGracePeriodCalendar(Calendar gracePeriodCalendar, Matcher matcher, Calendar extensionCalendar) throws InternalErrorException {
 		if (!matcher.matches()) {
 			return null;
 		}
@@ -1434,9 +1433,6 @@ public class Utils {
 		int month = extensionCalendar.get(Calendar.MONTH);
 		int day = extensionCalendar.get(Calendar.DAY_OF_MONTH);
 		gracePeriodCalendar.set(year, month, day);
-		if (extensionInNextYear) {
-			gracePeriodCalendar.add(Calendar.YEAR, 1);
-		}
 
 		int field;
 		String dmyString = matcher.group(2);
