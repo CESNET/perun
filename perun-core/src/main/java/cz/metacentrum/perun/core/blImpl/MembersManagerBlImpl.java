@@ -1634,7 +1634,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
             if (m.matches()) {
 				Calendar gracePeriodCalendar = Calendar.getInstance();
 				try {
-					Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar, extensionInNextYear);
+					Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar);
 				} catch (InternalErrorException e) {
 					throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
 				}
@@ -2083,7 +2083,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						Calendar gracePeriodCalendar = Calendar.getInstance();
 						Pair<Integer, Integer> fieldAmount;
 						try {
-							fieldAmount = Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar, extensionInNextYear);
+							fieldAmount = Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar);
 						} catch (InternalErrorException e) {
 							throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
 						}
