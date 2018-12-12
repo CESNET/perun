@@ -141,7 +141,7 @@ public class ExpirationNotifScheduler {
 					if (didntSubmitExtensionApplication(m)) {
 						// still didn't apply for extension
 
-						expirationPeriod.getExpirationAuditAction().callOn(getPerun().getAuditer(), sess, m, vosMap.get(m.getId()));
+						expirationPeriod.getExpirationAuditAction().callOn(getPerun().getAuditer(), sess, m, vosMap.get(m.getVoId()));
 					} else {
 						log.debug("{} not notified about expiration, has submitted - pending application.", m);
 					}
