@@ -974,6 +974,17 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
+	public List<Resource> getResourcesWhereGroupIsResourceSelfService(PerunSession session, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from authz join resources " +
+					"on authz.resource_id=resources.id where authorized_group_id=? and authz.role_id=(select id from roles where name='resourceselfservice')",
+				ResourcesManagerImpl.RESOURCE_MAPPER, group.getId());
+		}  catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<SecurityTeam> getSecurityTeamsWhereGroupIsAdmin(PerunSession session, Group group) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + SecurityTeamsManagerImpl.securityTeamMappingSelectQuery + " from authz join security_teams " +
