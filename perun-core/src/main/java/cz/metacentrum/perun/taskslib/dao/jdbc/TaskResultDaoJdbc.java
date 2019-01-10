@@ -16,7 +16,6 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
