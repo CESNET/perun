@@ -428,6 +428,19 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns list of Keys which fits the attributeDefinition.
+	 *
+	 * @param attributeDefinition id of the attributeDefinition
+	 * @return List<String> All keys for attributeDefinition
+	 */
+	getEntitylessKeys{
+		@Override
+		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getAttributesManager().getEntitylessKeys(ac.getSession(), ac.getAttributeDefinitionById(parms.readInt("attributeDefinition")));
+		}
+	},
+
+	/*#
 	 * Sets the attributes.
 	 *
 	 * @param facility int Facility <code>id</code>
@@ -2979,6 +2992,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @param attribute int <code>id</code> of attribute to remove
 	 */
+	/*#
+	 * Remove entityless attribute
+	 *
+	 * key
+	 *
+	 * @param key String key for entityless attribute
+	 * @param attribute int <code>id</code> of attribute to remove
+	 */
 	removeAttribute {
 
 		@Override
@@ -3042,6 +3063,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				ac.getAttributesManager().removeAttribute(ac.getSession(),
 						ac.getUserExtSourceById(parms.readInt("userExtSource")),
 						ac.getAttributeDefinitionById(parms.readInt("attribute")));
+			} else if (parms.contains("key")){
+				ac.getAttributesManager().removeAttribute(ac.getSession(), parms.readString("key"),
+					ac.getAttributeDefinitionById(parms.readInt("attribute")));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, group, resource, member, host, user or userExtSource");
 			}
