@@ -26,7 +26,6 @@
 		<module>perun-auditparser</module>
 		<module>perun-core</module>
 		<module>perun-cabinet</module>
-		<module>perun-tasks-lib</module>
 		<module>perun-rpc-lib</module>
 		<module>perun-registrar-lib</module>
 		<module>perun-ldapc</module>
