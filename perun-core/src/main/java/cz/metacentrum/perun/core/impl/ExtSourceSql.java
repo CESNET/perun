@@ -108,171 +108,128 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) throws InternalErrorException {
-		PreparedStatement st = null;
-		ResultSet rs = null;
+		log.debug("Searching for '{}' in external source 'url:{}'", searchString, getAttributes().get("url"));
 
-		if (getAttributes().get("url") == null) {
-			throw new InternalErrorException("url attribute is required");
-		}
+		this.checkAndSetPrerequisites();
 
-		//log.debug("Searching for '{}' using query {} in external source 'url:{}'", new Object[] {searchString, query, (String) getAttributes().get("url")});
-		log.debug("Searching for '{}' in external source 'url:{}'", searchString, (String) getAttributes().get("url"));
+		try (PreparedStatement st = getPreparedStatement(query, searchString, maxResults)) {
+			try (ResultSet rs = st.executeQuery()) {
+				List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
 
-		// Register driver if the attribute has been defined
-		if (getAttributes().get("driver") != null) {
-			try {
-				Class.forName(getAttributes().get("driver"));
-			} catch (ClassNotFoundException e) {
-				throw new InternalErrorException("Driver " + getAttributes().get("driver") + " cannot be registered", e);
-			}
-		}
+				log.trace("Query {}", query);
 
-		try {
-			// Check if we have existing connection. In case of Oracle also checks the connection validity
-			if (this.con == null || (this.isOracle && !this.con.isValid(0))) {
-				this.createConnection();
-			}
+				while (rs.next()) {
+					Map<String, String> map = new HashMap<String, String>();
 
-			st = this.con.prepareStatement(query);
-
-			// Substitute the ? in the query by the seachString
-			if (searchString != null && !searchString.isEmpty()) {
-				for (int i = st.getParameterMetaData().getParameterCount(); i > 0; i--) {
-					st.setString(i, searchString);
-				}
-			}
-
-			// Limit results
-			if (maxResults > 0) {
-				st.setMaxRows(maxResults);
-
-			}
-			rs = st.executeQuery();
-
-			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
-
-			log.trace("Query {}", query);
-
-			while (rs.next()) {
-				Map<String, String> map = new HashMap<String, String>();
-
-				try {
-					map.put("firstName", rs.getString("firstName"));
-				} catch (SQLException e) {
-					// If the column doesn't exists, ignore it
-					map.put("firstName", null);
-				}
-				try {
-					map.put("lastName", rs.getString("lastName"));
-				} catch (SQLException e) {
-					// If the column doesn't exists, ignore it
-					map.put("lastName", null);
-				}
-				try {
-					map.put("middleName", rs.getString("middleName"));
-				} catch (SQLException e) {
-					// If the column doesn't exists, ignore it
-					map.put("middleName", null);
-				}
-				try {
-					map.put("titleBefore", rs.getString("titleBefore"));
-				} catch (SQLException e) {
-					// If the column doesn't exists, ignore it
-					map.put("titleBefore", null);
-				}
-				try {
-					map.put("titleAfter", rs.getString("titleAfter"));
-				} catch (SQLException e) {
-					// If the column doesn't exists, ignore it
-					map.put("titleAfter", null);
-				}
-				try {
-					map.put("login", rs.getString("login"));
-				} catch (SQLException e) {
-					// If the column doesn't exists, ignore it
-					map.put("login", null);
-				}
-
-				for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-					String columnName = rs.getMetaData().getColumnLabel(i);
-					log.trace("Iterating through attribute {}", columnName);
-					// Now go through all other attributes. If the column name(=attribute name) contains ":", then it represents an attribute
-					if (columnName.contains(":")) {
-						// Decode the attribute name (column name has limited size, so we need to code the attribute names)
-						// Coded attribute name: x:y:z
-						// x - m: member, u: user, f: facility, r: resource, mr: member-resource, uf: user-facility, h: host, v: vo, g: group, gr: group-resource
-						// y - d: def, o: opt
-						String[] attributeRaw = columnName.split(":", 3);
-						String attributeName = null;
-						if (!attributeNameMapping.containsKey(attributeRaw[0])) {
-							log.warn("Unknown attribute type '{}' for user {} {}, attributeRaw {}", attributeRaw[0], map.get("firstName"), map.get("lastName"), attributeRaw);
-						} else if (!attributeNameMapping.containsKey(attributeRaw[1])) {
-							log.warn("Unknown attribute type '{}' for user {} {}, attributeRaw {}", attributeRaw[1], map.get("firstName"), map.get("lastName"), attributeRaw);
-						} else {
-							attributeName = attributeNameMapping.get(attributeRaw[0]) + attributeNameMapping.get(attributeRaw[1]) + attributeRaw[2];
-							if (!Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
-								// trace only string data
-								log.trace("Adding attribute {} with value {}", attributeName, rs.getString(i));
-							} else {
-								log.trace("Adding attribute {} with BLOB value", attributeName);
-							}
-						}
-
-						String attributeValue = null;
-						if (Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
-							// source column is binary
-							try {
-								InputStream inputStream = rs.getBinaryStream(i);
-								if (inputStream != null) {
-									ByteArrayOutputStream result = new ByteArrayOutputStream();
-									byte[] buffer = new byte[1024];
-									int length;
-									while ((length = inputStream.read(buffer)) != -1) {
-										result.write(buffer, 0, length);
-									}
-									byte[] bytes = Base64.encodeBase64(result.toByteArray());
-									attributeValue = new String(bytes, "UTF-8");
-								}
-							} catch (IOException ex) {
-								log.error("Unable to read BLOB for column {}", columnName);
-								throw new InternalErrorException("Unable to read BLOB data for column: "+columnName, ex);
-							}
-						} else {
-							// let driver to convert type to string
-							attributeValue = rs.getString(i);
-						}
-						if (rs.wasNull()) {
-							map.put(attributeName, null);
-						} else {
-							map.put(attributeName, attributeValue);
-						}
-					} else if (columnName.toLowerCase().startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
-						// additionalUserExtSources, we must do lower case because some DBs changes lower to upper
-						map.put(columnName.toLowerCase(), rs.getString(i));
-						log.trace("Adding attribute {} with value {}", columnName, rs.getString(i));
+					try {
+						map.put("firstName", rs.getString("firstName"));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put("firstName", null);
 					}
+					try {
+						map.put("lastName", rs.getString("lastName"));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put("lastName", null);
+					}
+					try {
+						map.put("middleName", rs.getString("middleName"));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put("middleName", null);
+					}
+					try {
+						map.put("titleBefore", rs.getString("titleBefore"));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put("titleBefore", null);
+					}
+					try {
+						map.put("titleAfter", rs.getString("titleAfter"));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put("titleAfter", null);
+					}
+					try {
+						map.put("login", rs.getString("login"));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put("login", null);
+					}
+
+					for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+						String columnName = rs.getMetaData().getColumnLabel(i);
+						log.trace("Iterating through attribute {}", columnName);
+						// Now go through all other attributes. If the column name(=attribute name) contains ":", then it represents an attribute
+						if (columnName.contains(":")) {
+							// Decode the attribute name (column name has limited size, so we need to code the attribute names)
+							// Coded attribute name: x:y:z
+							// x - m: member, u: user, f: facility, r: resource, mr: member-resource, uf: user-facility, h: host, v: vo, g: group, gr: group-resource
+							// y - d: def, o: opt
+							String[] attributeRaw = columnName.split(":", 3);
+							String attributeName = null;
+							if (!attributeNameMapping.containsKey(attributeRaw[0])) {
+								log.warn("Unknown attribute type '{}' for user {} {}, attributeRaw {}", attributeRaw[0], map.get("firstName"), map.get("lastName"), attributeRaw);
+							} else if (!attributeNameMapping.containsKey(attributeRaw[1])) {
+								log.warn("Unknown attribute type '{}' for user {} {}, attributeRaw {}", attributeRaw[1], map.get("firstName"), map.get("lastName"), attributeRaw);
+							} else {
+								attributeName = attributeNameMapping.get(attributeRaw[0]) + attributeNameMapping.get(attributeRaw[1]) + attributeRaw[2];
+								if (!Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
+									// trace only string data
+									log.trace("Adding attribute {} with value {}", attributeName, rs.getString(i));
+								} else {
+									log.trace("Adding attribute {} with BLOB value", attributeName);
+								}
+							}
+
+							String attributeValue = null;
+							if (Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
+								// source column is binary
+								try {
+									InputStream inputStream = rs.getBinaryStream(i);
+									if (inputStream != null) {
+										ByteArrayOutputStream result = new ByteArrayOutputStream();
+										byte[] buffer = new byte[1024];
+										int length;
+										while ((length = inputStream.read(buffer)) != -1) {
+											result.write(buffer, 0, length);
+										}
+										byte[] bytes = Base64.encodeBase64(result.toByteArray());
+										attributeValue = new String(bytes, "UTF-8");
+									}
+								} catch (IOException ex) {
+									log.error("Unable to read BLOB for column {}", columnName);
+									throw new InternalErrorException("Unable to read BLOB data for column: " + columnName, ex);
+								}
+							} else {
+								// let driver to convert type to string
+								attributeValue = rs.getString(i);
+							}
+							if (rs.wasNull()) {
+								map.put(attributeName, null);
+							} else {
+								map.put(attributeName, attributeValue);
+							}
+						} else if (columnName.toLowerCase().startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
+							// additionalUserExtSources, we must do lower case because some DBs changes lower to upper
+							map.put(columnName.toLowerCase(), rs.getString(i));
+							log.trace("Adding attribute {} with value {}", columnName, rs.getString(i));
+						}
+					}
+					subjects.add(map);
 				}
-				subjects.add(map);
+
+				log.debug("Returning {} subjects from external source {} for searchString {}", subjects.size(), this, searchString);
+				return subjects;
 			}
-
-			log.debug("Returning {} subjects from external source {} for searchString {}", new Object[] {subjects.size(), this, searchString});
-			return subjects;
-
 		} catch (SQLException e) {
 			log.error("SQL exception during searching for subject '{}'", query);
 			throw new InternalErrorRuntimeException(e);
-		} finally {
-			try {
-				if (rs != null) rs.close();
-				if (st != null) st.close();
-			} catch (SQLException e) {
-				log.error("SQL exception during closing the resultSet or statement, while searching for subject '{}'", query);
-				throw new InternalErrorRuntimeException(e);
-			}
 		}
 	}
 
-	protected void createConnection() throws SQLException, InternalErrorException {
+	protected void createConnection() throws InternalErrorException {
 		try {
 
 			String connectionUrl = getAttributes().get("url");
@@ -306,7 +263,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 			}
 
 		} catch (SQLException e) {
-			log.error("SQL exception during creating the connection to URL", (String) getAttributes().get("url"));
+			log.error("SQL exception during creating the connection to URL", getAttributes().get("url"));
 			throw new InternalErrorRuntimeException(e);
 		}
 	}
@@ -325,5 +282,64 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 
 	protected Map<String,String> getAttributes() throws InternalErrorException {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
+	}
+
+	/**
+	 * Check if needed prerequisites are set to be able to call query.
+	 *
+	 * @throws InternalErrorException if expected attributes are not set
+	 */
+	private void checkAndSetPrerequisites() throws InternalErrorException {
+		if (getAttributes().get("url") == null) {
+			throw new InternalErrorException("url attribute is required");
+		}
+
+		// Register driver if the attribute has been defined
+		if (getAttributes().get("driver") != null) {
+			try {
+				Class.forName(getAttributes().get("driver"));
+			} catch (ClassNotFoundException e) {
+				throw new InternalErrorException("Driver " + getAttributes().get("driver") + " cannot be registered", e);
+			}
+		}
+
+		try {
+			// Check if we have existing connection. In case of Oracle also checks the connection validity
+			if (this.con == null || (this.isOracle && !this.con.isValid(0))) {
+				this.createConnection();
+			}
+		} catch (SQLException ex) {
+			throw new InternalErrorException("Can't check if connection to database is still valid in SQL ExtSource.", ex);
+		}
+	}
+
+	/**
+	 * Prepares query statement from query.
+	 * - substitutes character '?' by searchString.
+	 * - set max results limit.
+	 *
+	 * @param query basic query
+	 * @param searchString search string
+	 * @param maxResults limit of max results where 0 is unlimited
+	 * @return
+	 * @throws SQLException
+	 */
+	private PreparedStatement getPreparedStatement(String query, String searchString, int maxResults) throws SQLException {
+		PreparedStatement st = this.con.prepareStatement(query);
+
+		// Substitute the ? in the query by the searchString
+		if (searchString != null && !searchString.isEmpty()) {
+			for (int i = st.getParameterMetaData().getParameterCount(); i > 0; i--) {
+				st.setString(i, searchString);
+			}
+		}
+
+		// Limit results
+		if (maxResults > 0) {
+			st.setMaxRows(maxResults);
+
+		}
+
+		return st;
 	}
 }
