@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.impl.MembersManagerImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
@@ -2424,6 +2425,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException("cannot set expiration date to today for sponsored member "+sponsoredMember.getId(),e);
 		}
 		return expirationString;
+	}
+
+	@Override
+	public MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
+		return getMembersManagerImpl().getUnifiedMemberGroupStatus(sess, member, resource);
+	}
+
+	@Override
+	public MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility) throws InternalErrorException {
+		return getMembersManagerImpl().getUnifiedMemberGroupStatus(sess, user, facility);
 	}
 
 	/**

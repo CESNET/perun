@@ -2,8 +2,11 @@ package cz.metacentrum.perun.core.implApi;
 
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -272,5 +275,36 @@ public interface MembersManagerImplApi {
 	 */
 	void deleteSponsorLinks(PerunSession sess, Member member) throws InternalErrorException;
 
+	/**
+	 * Returns unified result of MemberGroupStatus for specified member and resource.
+	 *
+	 * If member is VALID in at least one group assigned to the resource, result is VALID.
+	 * If member is not VALID in any of groups assigned to the resource, result is EXPIRED.
+	 * If member is not assigned to the resource at all, result is NULL.
+	 *
+	 * MemberGroupStatus is never related to the members status in a VO as a whole!
+	 *
+	 * @param sess PerunSession
+	 * @param member Member to get unified MemberGroupStatus
+	 * @param resource Resource to get unified MemberGroupStatus
+	 * @return MemberGroupStatus for member unified through all his groups assigned to the resource.
+	 */
+	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Returns unified result of MemberGroupStatus for specified user and facility.
+	 *
+	 * If user is VALID in at least one group assigned to at least one resource on facility, result is VALID.
+	 * If user is not VALID in any of groups assigned to any of resources, result is EXPIRED.
+	 * If user is not assigned to the facility at all, result is NULL.
+	 *
+	 * MemberGroupStatus is never related to the members status in any VO!
+	 *
+	 * @param sess PerunSession
+	 * @param user User to get unified MemberGroupStatus
+	 * @param facility Facility to get unified MemberGroupStatus
+	 * @return MemberGroupStatus for user unified throught all his groups assigned to any of resources of facility.
+	 */
+	MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility) throws InternalErrorException;
 
 }

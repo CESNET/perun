@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class MembersManagerImpl implements MembersManagerImplApi {
@@ -381,6 +382,60 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	@Override
+	public MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
+
+		try {
+			Member result = jdbc.queryForObject("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery +
+							" from groups_resources join groups on groups_resources.group_id=groups.id" +
+					" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
+					" where groups_resources.resource_id=? and members.id=?",
+					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(),
+					member.getId());
+			return result.getGroupStatus();
+		} catch (EmptyResultDataAccessException ex) {
+			return null;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+	}
+
+	@Override
+	public MemberGroupStatus getUnifiedMemberGroupStatus(PerunSession sess, User user, Facility facility) throws InternalErrorException {
+
+		try {
+
+			List<Member> result = jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery +
+							" from groups_resources join groups on groups_resources.group_id=groups.id" +
+							" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
+							" join resources on groups_resources.resource_id=resources.id " +
+							" where resources.facility_id=? and members.user_id=?",
+					MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, facility.getId(),
+					user.getId());
+
+			if (result != null && !result.isEmpty()) {
+
+				for (Member member : result) {
+					if (Objects.equals(MemberGroupStatus.VALID, member.getGroupStatus())) {
+						// is active at least by one member
+						return member.getGroupStatus();
+					}
+				}
+				return MemberGroupStatus.EXPIRED;
+
+			} else {
+				return null;
+			}
+
+		} catch (EmptyResultDataAccessException ex) {
+			return null;
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
 	}
 
 }
