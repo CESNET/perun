@@ -150,20 +150,16 @@
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
-			<version>9.4.2.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-query</artifactId>
-			<version>9.4.2.Final</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.xhtmlrenderer/flying-saucer-pdf -->
 		<dependency>
 			<groupId>org.xhtmlrenderer</groupId>
 			<artifactId>flying-saucer-pdf</artifactId>
-			<version>${flying-saucer-pdf.version}</version>
 		</dependency>
 
 	</dependencies>

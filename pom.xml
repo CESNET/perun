@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.1.RELEASE</version>
+		<version>2.1.2.RELEASE</version>
 		<relativePath/>
 	</parent>
 
@@ -84,8 +84,6 @@
 		<recaptcha4j.version>0.0.7</recaptcha4j.version>
 		<smackx.version>3.1.0</smackx.version>
 		<taglibs-standard.version>1.2.5</taglibs-standard.version>
-		<javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
-		<jersey-common.version>2.23.2</jersey-common.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS
@@ -433,6 +431,19 @@
 				<groupId>org.jboss.javaee</groupId>
 				<artifactId>jboss-jms-api</artifactId>
 				<version>${jboss-jms-api.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.xhtmlrenderer</groupId>
+				<artifactId>flying-saucer-pdf</artifactId>
+				<version>${flying-saucer-pdf.version}</version>
+				<exclusions>
+					<exclusion>
+						<!-- problem with double-dependency on bcmail-jdk14 versions 1.46 and 1.60 in the same time -->
+						<artifactId>bctsp-jdk14</artifactId>
+						<groupId>org.bouncycastle</groupId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
