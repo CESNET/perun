@@ -626,8 +626,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void deleteFacility() throws Exception {
 		System.out.println(CLASS_NAME + "deleteFacility");
 
-		perun.getFacilitiesManager().deleteFacility(sess, facility);
-		perun.getFacilitiesManager().deleteFacility(sess, facility);
+		perun.getFacilitiesManager().deleteFacility(sess, facility, false);
+		perun.getFacilitiesManager().deleteFacility(sess, facility, false);
 		// shouldn't find and delete "deleted facility"
 
 	}
@@ -640,9 +640,23 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// create VO
 		setUpResource(vo);
 		// create Resource for our facility
-		perun.getFacilitiesManager().deleteFacility(sess, facility);
+		perun.getFacilitiesManager().deleteFacility(sess, facility, false);
 		// shouldn't delete facility with resource
 
+	}
+
+	@Test(expected = FacilityNotExistsException.class)
+	public void forceDeleteFacilityWhenRelationExist() throws Exception {
+		System.out.println(CLASS_NAME + "forceDeleteFacilityWhenRelationExist");
+
+		Vo vo = setUpVo();
+		// create VO
+		setUpResource(vo);
+		// create Resource for our facility
+		perun.getFacilitiesManager().deleteFacility(sess, facility, true);
+		// deletes facility with resources
+		perun.getFacilitiesManager().getFacilityById(sess, facility.getId());
+		// shouldn't find the facility
 	}
 
 	@Test

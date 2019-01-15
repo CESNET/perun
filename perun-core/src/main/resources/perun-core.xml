@@ -112,6 +112,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<!-- END OF NESTED TRANSACTIONS FOR COMPATIBILITY WITH POSTGRESQL -->
 	</aop:config>
 
+	<aop:aspectj-autoproxy/>
+
 	<tx:advice id="txAdviceCommon" transaction-manager="perunTransactionManager">
 		<tx:attributes>
 			<tx:method name="*" read-only="false" rollback-for="Exception"/>
@@ -142,6 +144,9 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<tx:method name="*" read-only="false" propagation="REQUIRES_NEW"/>
 		</tx:attributes>
 	</tx:advice>
+
+	<context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>
+	<context:component-scan base-package="cz.metacentrum.perun.controller.service.impl"/>
 
 	<!--FIXME   a hack which forces Spring to call a static method -->
 	<bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setAuthzResolverImpl" scope="singleton">
@@ -437,6 +442,19 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	<bean id="springTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="nestedTransactionAllowed" value="true"/>
+	</bean>
+
+	<!-- DAOs -->
+	<bean id="taskDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskDaoJdbc">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<bean id="taskResult" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskResultDaoJdbc">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<bean id="serviceDenialDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ServiceDenialDaoJdbc">
+		<property name="dataSource" ref="dataSource"/>
 	</bean>
 
 	<beans profile="trace">

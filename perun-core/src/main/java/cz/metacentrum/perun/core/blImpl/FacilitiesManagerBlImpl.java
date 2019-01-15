@@ -35,6 +35,8 @@ import cz.metacentrum.perun.audit.events.FacilityManagerEvents.SecurityTeamRemov
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UserContactsRemovedForFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UsersAddedToContactGroupOfFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UsersRemovedFromContactGroupOfFacility;
+import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.service.TaskManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,6 +95,8 @@ import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.Arrays;
 import java.util.TreeSet;
 
@@ -107,6 +111,9 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	private final FacilitiesManagerImplApi facilitiesManagerImpl;
 	private PerunBl perunBl;
 	private AtomicBoolean initialized = new AtomicBoolean(false);
+
+	@Autowired
+	private TaskManager taskManager;
 
 	private static final List<String> MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT = new ArrayList<>(Arrays.asList(
 	  AttributesManager.NS_USER_ATTR_DEF + ":organization",
@@ -303,10 +310,21 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public void deleteFacility(PerunSession sess, Facility facility) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteFacility(PerunSession sess, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 
-		if (getFacilitiesManagerImpl().getAssignedResources(sess, facility).size() > 0) {
-			throw new RelationExistsException("Facility is still used as a resource");
+		if (force) {
+			List<Resource> resources = this.getAssignedResources(sess, facility);
+			for (Resource resource : resources) {
+				getPerunBl().getResourcesManagerBl().deleteResource(sess, resource);
+			}
+			List<Task> tasks = taskManager.listAllTasksForFacility(facility.getId());
+			for (Task task : tasks) {
+				taskManager.removeTask(task.getId());
+			}
+		} else {
+			if (getFacilitiesManagerImpl().getAssignedResources(sess, facility).size() > 0) {
+				throw new RelationExistsException("Facility is still used as a resource");
+			}
 		}
 
 		//remove hosts
