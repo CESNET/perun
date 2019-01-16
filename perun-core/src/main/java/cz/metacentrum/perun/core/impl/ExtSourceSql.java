@@ -309,84 +309,46 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	 * @throws InternalErrorException
 	 */
 	protected List<Map<String,String>> groupQuery(String query, String searchString, int maxResults) throws InternalErrorException {
-		PreparedStatement st = null;
-		ResultSet rs = null;
 
-		if (getAttributes().get("url") == null) {
-			throw new InternalErrorException("url attribute is required");
-		}
+		this.checkAndSetPrerequisites();
 
-		log.debug("Searching for '{}' in external source 'url:{}'", searchString, getAttributes().get("url"));
+		try (PreparedStatement st = getPreparedStatement(query, searchString, maxResults)) {
+			try (ResultSet rs = st.executeQuery()) {
 
-		if (getAttributes().get("driver") != null) {
-			try {
-				Class.forName(getAttributes().get("driver"));
-			} catch (ClassNotFoundException e) {
-				throw new InternalErrorException("Driver " + getAttributes().get("driver") + " cannot be registered", e);
-			}
-		}
+				List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
 
-		try {
-			if (this.con == null || (this.isOracle && !this.con.isValid(0))) {
-				this.createConnection();
-			}
+				log.trace("Query {}", query);
 
-			st = this.con.prepareStatement(query);
+				while (rs.next()) {
+					Map<String, String> map = new HashMap<String, String>();
 
-			if (searchString != null && !searchString.isEmpty()) {
-				for (int i = st.getParameterMetaData().getParameterCount(); i > 0; i--) {
-					st.setString(i, searchString);
-				}
-			}
-
-			if (maxResults > 0) {
-				st.setMaxRows(maxResults);
-
-			}
-			rs = st.executeQuery();
-
-			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
-
-			log.trace("Query {}", query);
-
-			while (rs.next()) {
-				Map<String, String> map = new HashMap<String, String>();
-
-				try {
-					map.put(GroupsManagerBlImpl.GROUP_NAME, rs.getString(GroupsManagerBlImpl.GROUP_NAME));
-				} catch (SQLException e) {
-					// If the column doesn't exists, ignore it
-					map.put(GroupsManagerBlImpl.GROUP_NAME, null);
-				}
-				try {
-					map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, rs.getString(GroupsManagerBlImpl.PARENT_GROUP_NAME));
-				} catch (SQLException e) {
-					// If the column doesn't exists, ignore it
-					map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, null);
-				}
-				try {
-					map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, rs.getString(GroupsManagerBlImpl.GROUP_DESCRIPTION));
-				} catch (SQLException e) {
-					// If the column doesn't exists, ignore it
-					map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, null);
+					try {
+						map.put(GroupsManagerBlImpl.GROUP_NAME, rs.getString(GroupsManagerBlImpl.GROUP_NAME));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put(GroupsManagerBlImpl.GROUP_NAME, null);
+					}
+					try {
+						map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, rs.getString(GroupsManagerBlImpl.PARENT_GROUP_NAME));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, null);
+					}
+					try {
+						map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, rs.getString(GroupsManagerBlImpl.GROUP_DESCRIPTION));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, null);
+					}
+					subjects.add(map);
 				}
 
-				subjects.add(map);
+				log.debug("Returning {} subjects from external source {} for searchString {}", subjects.size(), this, searchString);
+				return subjects;
 			}
-			log.debug("Returning {} subjects from external source {} for searchString {}", subjects.size(), this, searchString);
-			return subjects;
-
 		} catch (SQLException e) {
 			log.error("SQL exception during searching for subject '{}'", query);
 			throw new InternalErrorRuntimeException(e);
-		} finally {
-			try {
-				if (rs != null) rs.close();
-				if (st != null) st.close();
-			} catch (SQLException e) {
-				log.error("SQL exception during closing the resultSet or statement, while searching for subject '{}'", query);
-				throw new InternalErrorRuntimeException(e);
-			}
 		}
 	}
 
