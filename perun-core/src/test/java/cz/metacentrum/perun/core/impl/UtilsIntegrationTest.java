@@ -2,9 +2,16 @@ package cz.metacentrum.perun.core.impl;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -130,4 +137,44 @@ public class UtilsIntegrationTest {
 		assertEquals("CSc.", parsedRawName.get(titleAfterString));
 	}
 
+	@Test
+	public void extendDateByPeriod() throws InternalErrorException {
+		System.out.println("Utils.extendDateByPeriod");
+		LocalDate localDate = Utils.extendDateByPeriod(LocalDate.of(2019,2,8), "+1d");
+		assertEquals(LocalDate.of(2019, 2, 9), localDate);
+
+		localDate = Utils.extendDateByPeriod(LocalDate.of(2019,2,8), "+1m");
+		assertEquals(LocalDate.of(2019, 3, 8), localDate);
+
+		localDate = Utils.extendDateByPeriod(LocalDate.of(2019,2,8), "+1y");
+		assertEquals(LocalDate.of(2020, 2, 8), localDate);
+	}
+
+	@Test(expected = InternalErrorException.class)
+	public void extendDateByPeriodInBadFormat() throws InternalErrorException {
+		System.out.println("Utils.extendDateByPeriodInBadFormat");
+		LocalDate localDate = Utils.extendDateByPeriod(LocalDate.of(2019,2,8), "+1day");
+	}
+
+	@Test
+	public void extendDateByStaticDate() {
+		System.out.println("Utils.extendDateByStaticDate");
+		String period = "1.1.";
+		Pattern p = Pattern.compile("([0-9]+).([0-9]+).");
+		Matcher m = p.matcher(period);
+		m.matches();
+		LocalDate localDate = Utils.extendDateByStaticDate(LocalDate.of(2019, 2, 9), m);
+		assertEquals(LocalDate.of(2020, 1, 1), localDate);
+	}
+
+	@Test
+	public void prepareGracePeriodDate() throws InternalErrorException {
+		System.out.println("Utils.prepareGracePeriodDate");
+		String gracePeriod = "5d";
+		Pattern p = Pattern.compile("([0-9]+)([dmy]?)");
+		Matcher m = p.matcher(gracePeriod);
+		Pair<Integer, TemporalUnit> fieldAmount = Utils.prepareGracePeriodDate(m);
+		assertEquals(new Integer(5), fieldAmount.getLeft());
+		assertEquals(ChronoUnit.DAYS, fieldAmount.getRight());
+	}
 }

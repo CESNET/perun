@@ -18,7 +18,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1992,21 +1996,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		}
 
-		Calendar calendar = Calendar.getInstance();
+		LocalDate localDate = LocalDate.now();
 
 		// Does the user have expired membership, if yes, then for canExtendMembership return true
 		if (!setAttributeValue && membershipExpirationAttribute.getValue() != null) {
-			try {
-				Date currentMemberExpiration = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpirationAttribute.getValue());
+			LocalDate currentMemberExpiration = LocalDate.parse((String) membershipExpirationAttribute.getValue(), DateTimeFormatter.ISO_LOCAL_DATE);
 
-				Calendar currentMemberExpirationCalendar = Calendar.getInstance();
-				currentMemberExpirationCalendar.setTime(currentMemberExpiration);
-
-				if (calendar.after(currentMemberExpirationCalendar)) {
-					return new Pair<Boolean, Date>(true, null);
-				}
-			} catch (ParseException e) {
-				throw new InternalErrorException("Wrong format of the membersExpiration: " + membershipExpirationAttribute.getValue(), e);
+			if (localDate.isAfter(currentMemberExpiration)) {
+				return new Pair<Boolean, Date>(true, null);
 			}
 		}
 
@@ -2056,7 +2053,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 				// extend calendar by given period
 				try {
-					Utils.extendCalendarByPeriod(calendar, period);
+					localDate = Utils.extendDateByPeriod(localDate, period);
 				} catch (InternalErrorException e) {
 					throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute.", e);
 				}
@@ -2069,7 +2066,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				if (!m.matches()) {
 					throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
 				}
-				boolean extensionInNextYear = Utils.extendCalendarByStaticDate(calendar, m);
+				localDate = Utils.extendDateByStaticDate(localDate, m);
 
 				// ***** GRACE PERIOD *****
 				// Is there a grace period?
@@ -2081,55 +2078,36 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					p = Pattern.compile("([0-9]+)([dmy]?)");
 					m = p.matcher(gracePeriod);
 					if (m.matches()) {
-						Calendar gracePeriodCalendar = Calendar.getInstance();
-						Pair<Integer, Integer> fieldAmount;
-						try {
-							fieldAmount = Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar);
-						} catch (InternalErrorException e) {
-							throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
-						}
+						Pair<Integer, TemporalUnit> fieldAmount;
+						fieldAmount = Utils.prepareGracePeriodDate(m);
+						LocalDate gracePeriodDate = localDate.minus(fieldAmount.getLeft(), fieldAmount.getRight());
 						// Check if we are in grace period
-						if (gracePeriodCalendar.before(Calendar.getInstance())) {
+						if (gracePeriodDate.isBefore(LocalDate.now())) {
 							// We are in grace period, so extend to the next period
-							calendar.add(Calendar.YEAR, 1);
+							localDate = localDate.plusYears(1);
 						}
 
 						// If we do not need to set the attribute value, only check if the current member's expiration time is not in grace period
 						if (!setAttributeValue && membershipExpirationAttribute.getValue() != null) {
-							try {
-								Date currentMemberExpiration = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpirationAttribute.getValue());
-								// subtracts grace period from the currentMemberExpiration
-								Calendar currentMemberExpirationCalendar = Calendar.getInstance();
-								currentMemberExpirationCalendar.setTime(currentMemberExpiration);
-
-								currentMemberExpirationCalendar.add(fieldAmount.getLeft(), -fieldAmount.getRight());
-
-								// if today is before that time, user can extend his period
-								if (currentMemberExpirationCalendar.after(Calendar.getInstance())) {
-									if (throwExceptions) {
-										throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
-												"Member " + member + " cannot extend because we are outside grace period for VO id " + member.getVoId() + ".");
-									} else {
-										return new Pair<Boolean, Date>(false, null);
-									}
+							LocalDate currentMemberExpiration = LocalDate.parse((String) membershipExpirationAttribute.getValue(), DateTimeFormatter.ISO_LOCAL_DATE);
+							currentMemberExpiration = currentMemberExpiration.minus(fieldAmount.getLeft(), fieldAmount.getRight());
+							// if today is before that time, user can extend his period
+							if (currentMemberExpiration.isAfter(LocalDate.now())) {
+								if (throwExceptions) {
+									throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
+											"Member " + member + " cannot extend because we are outside grace period for VO id " + member.getVoId() + ".");
+								} else {
+									return new Pair<Boolean, Date>(false, null);
 								}
-							} catch (ParseException e) {
-								throw new InternalErrorException("Wrong format of the membersExpiration: " + membershipExpirationAttribute.getValue(), e);
 							}
 						}
 					}
 				}
 			}
 
-			// Reset hours, minutes and seconds to 0
-			calendar.set(Calendar.HOUR, 0);
-			calendar.set(Calendar.MINUTE, 0);
-			calendar.set(Calendar.SECOND, 0);
-			calendar.set(Calendar.MILLISECOND, 0);
-
 			// Set new value of the membershipExpiration for the member
 			if (setAttributeValue) {
-				membershipExpirationAttribute.setValue(BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime()));
+				membershipExpirationAttribute.setValue(localDate.toString());
 				try {
 					getPerunBl().getAttributesManagerBl().setAttribute(sess, member, membershipExpirationAttribute);
 				} catch (WrongAttributeValueException e) {
@@ -2141,7 +2119,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				}
 			}
 		}
-		return new Pair<Boolean, Date>(true, calendar.getTime());
+		return new Pair<Boolean, Date>(true, Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
 	}
 
 	/**
