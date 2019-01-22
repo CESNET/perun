@@ -12,7 +12,9 @@ import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupCreatedInVo;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupDeleted;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupMoved;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncFailed;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncFinished;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncFinishedWithErrors;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncStarted;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupUpdated;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberAddedToGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberRemovedFromGroup;
@@ -1449,7 +1451,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		ExtSource membersSource = null;
 
 		try {
-			log.debug("Group synchronization {}: started.", group);
+			long startTime = System.nanoTime();
+			getPerunBl().getAuditer().log(sess,new GroupSyncStarted(group));
+			log.debug("Group synchronization for {} has been started.", group);
 
 			//Initialization of group extSource
 			source = getGroupExtSourceForSynchronization(sess, group);
@@ -1494,7 +1498,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//Remove presented members in group who are not presented in synchronized ExtSource
 			removeFormerMembersWhileSynchronization(sess, group, membersToRemove);
 
-			log.info("Group synchronization {}: ended.", group);
+			long endTime = System.nanoTime();
+			getPerunBl().getAuditer().log(sess,new GroupSyncFinished(group, startTime, endTime));
+			log.info("Group synchronization for {} has been finished.", group);
 		} finally {
 			closeExtSourcesAfterSynchronization(membersSource, source);
 		}
