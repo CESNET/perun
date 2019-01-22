@@ -1,11 +1,15 @@
 package cz.metacentrum.perun.rpc.serializer;
 
 import com.lowagie.text.DocumentException;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -17,6 +21,8 @@ import java.io.OutputStream;
 public class PdfSerializer implements Serializer {
 
 	private OutputStream outputStream;
+
+	final static Logger log = LoggerFactory.getLogger(PdfSerializer.class);
 
 	public PdfSerializer(OutputStream outputStream) {
 		this.outputStream = outputStream;
@@ -35,6 +41,15 @@ public class PdfSerializer implements Serializer {
 			String htmlText = (String) object;
 
 			ITextRenderer renderer = new ITextRenderer();
+
+			if (BeansUtils.getCoreConfig() != null && BeansUtils.getCoreConfig().getPdfFontPath() != null) {
+				try {
+					renderer.getFontResolver().addFont(new File(BeansUtils.getCoreConfig().getPdfFontPath()).getAbsolutePath(), "CP1250",true);
+				} catch (Exception e) {
+					log.error("Failed to add font for PDF: {}", e);
+				}
+			}
+
 			renderer.setDocumentFromString(htmlText);
 			renderer.layout();
 			try {

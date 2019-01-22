@@ -63,6 +63,7 @@ public class CoreConfig {
 	private String smsProgram;
 	private String userExtSourcesPersistent;
 	private List<String> allowedCorsDomains;
+	private String pdfFontPath;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -488,4 +489,11 @@ public class CoreConfig {
 		this.allowedCorsDomains = allowedCorsDomains;
 	}
 
+	public String getPdfFontPath() {
+		return pdfFontPath;
+	}
+
+	public void setPdfFontPath(String pdfFontPath) {
+		this.pdfFontPath = pdfFontPath;
+	}
 }
