@@ -1,12 +1,12 @@
 package cz.metacentrum.perun.core.impl;
 
+import com.zaxxer.hikari.HikariDataSource;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.utils.graphs.Graph;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -291,8 +291,8 @@ public class Utils {
 		// try to deduce database type from jdbc connection metadata
 		try {
 			DataSource ds = jdbc.getDataSource();
-			if (ds instanceof BasicDataSource) {
-				url = ((BasicDataSource) ds).getUrl();
+			if (ds instanceof HikariDataSource) {
+				url = ((HikariDataSource) ds).getJdbcUrl();
 			}
 		} catch (Exception e) {
 			log.error("cannot get JDBC url", e);
