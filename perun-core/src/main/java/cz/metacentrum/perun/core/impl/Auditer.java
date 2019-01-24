@@ -1,34 +1,28 @@
 package cz.metacentrum.perun.core.impl;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-import cz.metacentrum.perun.core.implApi.AuditerListener;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import net.jcip.annotations.GuardedBy;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.MessageFormatter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
-import org.springframework.jdbc.support.lob.DefaultLobHandler;
-import org.springframework.jdbc.support.lob.LobCreator;
-import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
@@ -44,8 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * This class is used for logging audit events. It get messages and stored it in asociation with current transaction. If there's no transaction currently running, message is immediateli flushed out.
@@ -59,15 +51,12 @@ public class Auditer {
 	private static volatile Auditer selfInstance;
 
 	protected final static String auditMessageMappingSelectQuery = "id, msg, actor, created_at, created_by_uid";
-	private LobHandler lobHandler;
 
 	public final static String engineForceKeyword = "forceit";
 
 	private final static Logger log = LoggerFactory.getLogger(Auditer.class);
 	private final static Logger transactionLogger = LoggerFactory.getLogger("transactionLogger");
 	private JdbcPerunTemplate jdbc;
-
-	private Map<AuditerListener, ListenerThread> listenersMap = new HashMap<AuditerListener, ListenerThread>();
 
 	private int lastProcessedId;
 
@@ -164,7 +153,6 @@ public class Auditer {
 
 	public void setPerunPool(DataSource perunPool) throws InternalErrorException {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
-		lobHandler = new DefaultLobHandler();
 	}
 
 	/**
@@ -202,40 +190,6 @@ public class Auditer {
 	 */
 	public void logWithoutTransaction(PerunSession sess, AuditEvent event) {
 		storeMessageToDb(sess, event);
-	}
-
-	/**
-	 * This method take Object and if its PerunBean so serialize it for Auditer and
-	 * if it is list of beans, so try to find perunBeans in it and serialize them
-	 * in the list.
-	 *
-	 * @param arg (object)
-	 *
-	 * @return arg (object)
-	 */
-	private Object serializeObject(Object arg) {
-		if(arg instanceof List) {
-			List<Object> argObjects = (List<Object>) arg;
-			List<Object> newArg = new ArrayList<Object>();
-			for(Object o: argObjects) {
-				if(o instanceof PerunBean) newArg.add(((PerunBean)o).serializeToString());
-				else newArg.add(o);
-			}
-			arg = newArg;
-		} else if(arg instanceof PerunBean) {
-			arg = ((PerunBean)arg).serializeToString();
-		}
-		return arg;
-	}
-
-	/**
-	 * Imidiately fluses mesage to output.
-	 *
-	 * @param message
-	 */
-	@Deprecated
-	private void flush(String message) {
-		log.info("AUDIT: {}", message);
 	}
 
 	/**
@@ -719,6 +673,75 @@ public class Auditer {
 		}
 	}
 
+	/**
+	 * Deserialize messages from JSON to the list of AuditEvent objects.
+	 *
+	 * @return List of AuditEvents parsed from JSON auditer log
+	 */
+	public List<AuditEvent> pollConsumerEvents(String consumerName) throws InternalErrorException {
+		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
+
+		try {
+
+			if(jdbc.queryForInt("select count(*) from auditer_consumers where name=?", consumerName) != 1) {
+				throw new InternalErrorException("Auditer consumer doesn't exist.");
+			}
+
+			List<AuditEvent> eventList = new ArrayList<>();
+
+			int lastProcessedId = getLastProcessedId(consumerName);
+			int maxId = jdbc.queryForInt("select max(id) from auditer_log_json");
+			if (maxId > lastProcessedId) {
+
+				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log_json where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER, this.lastProcessedId, maxId);
+
+				com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+				for (String m : messages) {
+					AuditEvent event;
+					// if deserialization fails, we don't return any more messages
+					Class clazz = Class.forName(getNameOfClassAttribute(m));
+					event = (AuditEvent) mapper.readValue(m, clazz);
+					eventList.add(event);
+				}
+
+				// we successfully de-serialized all messages, bump counter
+				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", maxId, consumerName);
+
+			}
+
+			return eventList;
+
+		} catch (Exception ex) {
+			throw new InternalErrorException(ex);
+		}
+
+	}
+
+	/**
+	 * Get name of class from json string. Used when AuditEvents are deserialized.
+	 *
+	 * @param jsonString audit message in json format
+	 * @return name of class included in json string
+	 */
+	private String getNameOfClassAttribute(String jsonString) throws InternalErrorException {
+		try {
+			//get everything from in between of next quotes
+			String message;
+			int index = jsonString.indexOf("\"name\":\"cz");
+			if (index != -1) {
+				message = jsonString.substring(index + 8);
+				message = message.substring(0, message.indexOf("\""));
+				return message;
+			}
+		} catch (Exception e) {
+			log.error("Could not get name from json string: \"{}\".", jsonString);
+		}
+
+		throw new InternalErrorException("Failed to read attribute 'name' from string: '" + jsonString + "'");
+	}
+
 	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException {
 		Map<String, Integer> auditerConsumers = new HashMap<>();
 
@@ -729,57 +752,6 @@ public class Auditer {
 		}
 
 		return auditerConsumers;
-	}
-
-	/**
-	 * Register the listener.
-	 *
-	 * @param listener
-	 * @return false if the listener is already registered
-	 */
-	@Deprecated
-	public boolean registerListener(AuditerListener listener, String name) throws InternalErrorException {
-		if(listenersMap.containsKey(listener)) return false;
-
-		ListenerThread listenerThread = new ListenerThread(listener);
-		listenersMap.put(listener, listenerThread);
-		listenerThread.setConsumerName(name);
-
-		// Get the last processed id of the current consumer
-		try {
-			// Check if the consumer is registered
-			if (0 == jdbc.queryForInt("select count(id) from auditer_consumers where name=?", name)) {
-				// Create the consumer
-				int consumerId = Utils.getNewId(jdbc, "auditer_consumers_id_seq");
-				jdbc.update("insert into auditer_consumers (id, name, last_processed_id) values (?,?,?)", consumerId, name, this.lastProcessedId);
-				log.debug("New consumer ['{}'] created.", name);
-				listenerThread.setLastProcessedId(this.lastProcessedId);
-			} else {
-				listenerThread.setLastProcessedId(jdbc.queryForInt("select last_processed_id from auditer_consumers where name=?", name));
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-
-		listenerThread.start();
-		log.debug("New Auditer listener registered. {}", listener);
-		return true;
-	}
-
-	/**
-	 * Unregister the listener. All unprocessed messages is lost.
-	 *
-	 * @param listener
-	 * @return false if the listener wasn't registered
-	 */
-	@Deprecated
-	public boolean unregisterListener(AuditerListener listener) {
-		if(!listenersMap.containsKey(listener)) return false;
-
-		ListenerThread listenerThread = listenersMap.remove(listener);
-		log.debug("Sending interrupt signal to listeners thread. Listener: {}", listener);
-		listenerThread.interrupt();
-		return true;
 	}
 
 	public void initialize() throws InternalErrorException {
@@ -853,55 +825,4 @@ public class Auditer {
 		return addedResolvedMessages;
 	}
 
-	private static class ListenerThread extends Thread {
-
-		private AuditerListener listener;
-		private int lastProcessedId;
-		private String consumerName;
-
-		private BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
-
-		public ListenerThread(AuditerListener listener) {
-			this.listener = listener;
-		}
-
-		public void addMessage(String message) {
-			queue.add(message);
-		}
-
-		public void addMessages(List<String> messages) {
-			for(String message : messages) {
-				queue.add(message);
-			}
-		}
-
-		public int getLastProcessedId() {
-			return lastProcessedId;
-		}
-
-		public void setLastProcessedId(int lastProcessedId) {
-			this.lastProcessedId = lastProcessedId;
-		}
-
-		public String getConsumerName() {
-			return consumerName;
-		}
-
-		public void setConsumerName(String consumerName) {
-			this.consumerName = consumerName;
-		}
-
-		public void run() {
-			try {
-				while(!this.isInterrupted()) {
-					listener.notifyWith(queue.take());
-				}
-			} catch(InterruptedException ex) {
-				//mark this thread as interrupted.
-				this.interrupt();
-			} finally {
-				log.debug("ListenerThread stopped. Queue with unprocessed mesages: {}", queue);
-			}
-		}
-	}
 }

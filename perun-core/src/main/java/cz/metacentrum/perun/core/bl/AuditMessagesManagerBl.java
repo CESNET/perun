@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.bl;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -72,6 +73,15 @@ public interface AuditMessagesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<AuditMessage> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException;
+
+	/**
+	 * Returns list of <b>AuditEvent</b>s from audit log which id is bigger than last processed id.
+	 *
+	 * @param consumerName consumer to get messages for
+	 * @return list of audit events
+	 * @throws InternalErrorException
+	 */
+	List<AuditEvent> pollConsumerEvents(String consumerName) throws InternalErrorException;
 
 	/**
 	 * Creates new auditer consumer with last processed id which equals auditer log max id.

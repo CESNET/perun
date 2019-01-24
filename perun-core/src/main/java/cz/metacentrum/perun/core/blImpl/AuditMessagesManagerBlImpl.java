@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -72,6 +73,12 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	public List<AuditMessage> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException {
 
 		return perunBl.getAuditer().pollConsumerMessagesForParser(consumerName);
+	}
+
+	@Override
+	public List<AuditEvent> pollConsumerEvents(String consumerName) throws InternalErrorException {
+
+		return perunBl.getAuditer().pollConsumerEvents(consumerName);
 	}
 
 	@Override

@@ -42,7 +42,7 @@ public interface Perun {
 	 * @return resource manager
 	 */
 	public FacilitiesManager getFacilitiesManager();
-	
+
 	/**
 	 * Gets a database manager.
 	 * @return database manager
@@ -105,7 +105,7 @@ public interface Perun {
 
 	/**
 	 * Gets the Auditer.
-	 * @return Auditer/
+	 * @return Auditer
 	 */
 	public Auditer getAuditer();
 
