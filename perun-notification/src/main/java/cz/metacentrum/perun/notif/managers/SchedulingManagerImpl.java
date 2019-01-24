@@ -1,13 +1,9 @@
 package cz.metacentrum.perun.notif.managers;
 
 import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.AuditMessagesManager;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.impl.AuditerConsumer;
 import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifPoolMessage;
 import cz.metacentrum.perun.notif.utils.NotifUtils;
