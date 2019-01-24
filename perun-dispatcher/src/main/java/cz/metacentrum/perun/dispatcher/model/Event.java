@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.dispatcher.model;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
+
 import java.util.Date;
 import java.util.Objects;
 
@@ -8,7 +10,6 @@ import java.util.Objects;
  *
  * @see cz.metacentrum.perun.dispatcher.processing.AuditerListener
  * @see cz.metacentrum.perun.dispatcher.processing.EventProcessor
- * @see cz.metacentrum.perun.dispatcher.processing.EventQueue
  *
  * @author Michal Karm Babacek
  * @author Pavel Zlámal <zlamal@cesnet.cz>
@@ -16,7 +17,7 @@ import java.util.Objects;
 public class Event {
 
 	private String header;
-	private String data;
+	private AuditEvent data;
 	private long timeStamp;
 
 	/**
@@ -24,7 +25,7 @@ public class Event {
 	 *
 	 * @return event data
 	 */
-	public String getData() {
+	public AuditEvent getData() {
 		return data;
 	}
 
@@ -33,7 +34,7 @@ public class Event {
 	 *
 	 * @param data event data
 	 */
-	public void setData(String data) {
+	public void setData(AuditEvent data) {
 		this.data = data;
 	}
 

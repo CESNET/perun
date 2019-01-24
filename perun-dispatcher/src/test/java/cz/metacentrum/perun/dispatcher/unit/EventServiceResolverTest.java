@@ -3,6 +3,8 @@ package cz.metacentrum.perun.dispatcher.unit;
 import java.util.Map;
 import java.util.Set;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -31,13 +33,13 @@ public class EventServiceResolverTest extends AbstractDispatcherTest {
 	public void parseEventTest() throws ServiceNotExistsException, InvalidEventMessageException, InternalErrorException, PrivilegeException {
 		System.out.println("EventServiceResolver.parseEventTest()");
 
-		String message = member1.serializeToString() + " added to " + group1.serializeToString() + ".";
+		AuditEvent auditEvent = new DirectMemberAddedToGroup(member1, group1);
 
 		Event event = new Event();
 		event.setTimeStamp(System.currentTimeMillis());
 		event.setHeader("portishead");
-		event.setData(message);
-		Map<Facility, Set<Service>> resolvedServices = eventServiceResolver.parseEvent(event.toString());
+		event.setData(auditEvent);
+		Map<Facility, Set<Service>> resolvedServices = eventServiceResolver.resolveEvent(event.getData());
 
 		Assert.assertTrue("We should resolved only one facility-service", resolvedServices.size() == 1);
 

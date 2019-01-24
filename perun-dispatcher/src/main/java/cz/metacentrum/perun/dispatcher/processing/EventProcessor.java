@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.dispatcher.processing;
 
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnFacilityAndService;
+import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnService;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Perun;
@@ -162,7 +164,7 @@ public class EventProcessor extends AbstractRunner {
 	 */
 	private void createTaskFromEvent(Event event) throws ServiceNotExistsException, InvalidEventMessageException, InternalErrorException, PrivilegeException {
 
-		Map<Facility, Set<Service>> resolvedServices = eventServiceResolver.parseEvent(event.toString());
+		Map<Facility, Set<Service>> resolvedServices = eventServiceResolver.resolveEvent(event.getData());
 
 		for (Entry<Facility, Set<Service>> map : resolvedServices.entrySet()) {
 			Facility facility = map.getKey();
@@ -266,7 +268,11 @@ public class EventProcessor extends AbstractRunner {
 	 * @return TRUE = forced propagation / FALSE = normal data change
 	 */
 	private boolean determineForcedPropagation(Event event) {
-		return event.getData().contains("force propagation:");
+
+		return (event.getData() instanceof ForcePropagationOnService ||
+				event.getData() instanceof ForcePropagationOnFacilityAndService);
+
+
 	}
 
 }
