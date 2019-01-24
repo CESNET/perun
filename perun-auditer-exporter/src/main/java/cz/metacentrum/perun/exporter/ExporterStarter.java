@@ -6,8 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.sql.DataSource;
-
+import cz.metacentrum.perun.core.bl.PerunBl;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -20,31 +19,28 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.impl.AuditerConsumer;
 
 /**
  * Exporter which gets all the auditer messages and export them to defined output
  *
  * Author: Michal Prochazka <michalp@ics.muni.cz>
  */
-public class ExporterStarter
-{
-	private DataSource dataSource;
-	private AbstractApplicationContext springCtx;
+public class ExporterStarter {
 
-	private boolean running;
+	private AbstractApplicationContext springCtx;
+	private PerunBl perunBl;
+	private boolean running = true;
 	private OutputType outputType;
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 	public ExporterStarter(OutputType outputType) {
 		springCtx = new ClassPathXmlApplicationContext("/perun-auditer-exporter.xml");
-		this.dataSource = springCtx.getBean("dataSource", DataSource.class);
-
+		this.perunBl = springCtx.getBean("perun", PerunBl.class);
 		this.outputType = outputType;
 	}
 
-	public static void main( String[] args )
-	{
+	public static void main( String[] args ) {
+
 		// create Options object
 		Options options = new Options();
 		options.addOption("id", true, "exporter ID");
@@ -97,14 +93,6 @@ public class ExporterStarter
 	}
 
 	public void run(String exporterId) {
-		//Get instance of auditerConsumer and set runnig to true
-		AuditerConsumer auditerConsumer;
-		try {
-			auditerConsumer = new AuditerConsumer(exporterId, dataSource);
-			running = true;
-		} catch (Exception e) {
-			throw new RuntimeException("Cannot initialize AuditerConsumer.", e);
-		}
 
 		try {
 			//If running is true, then this proccess will be continously
@@ -116,7 +104,7 @@ public class ExporterStarter
 				do {
 					try {
 						// Get messages
-						messages = auditerConsumer.getFullMessages();
+						messages = perunBl.getAuditMessagesManagerBl().pollConsumerFullMessages(exporterId);
 					} catch (InternalErrorException ex) {
 						Thread.sleep(sleepTime);
 						sleepTime+=sleepTime;
