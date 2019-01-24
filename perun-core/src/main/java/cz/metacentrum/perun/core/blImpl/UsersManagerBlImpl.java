@@ -1457,17 +1457,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					//this is OK
 				}
 
-			} else if (loginNamespace.equals("lifescience-hostel")) {
-
-				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://aai-test.bbmri-eric.eu/hostel/");
-				UserExtSource ues = new UserExtSource(extSource, userLogin + "@lifescience-hostel.org");
-				ues.setLoa(0);
-
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
 			}
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
