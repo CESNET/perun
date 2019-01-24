@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.impl.AuditerConsumer;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.processor.EventProcessor;
 import cz.metacentrum.perun.ldapc.processor.LdapConnector;
@@ -51,7 +50,6 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	private LdapProperties ldapProperties;
 
 	//Other variables
-	private AuditerConsumer auditerConsumer;
 	private final static Logger log = LoggerFactory.getLogger(EventProcessorImpl.class);
 	private boolean running = false;
 
