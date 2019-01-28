@@ -6,7 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cz.metacentrum.perun.cabinet.model.Author;
+import cz.metacentrum.perun.cabinet.model.Category;
+import cz.metacentrum.perun.cabinet.model.Publication;
+import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
+import cz.metacentrum.perun.cabinet.model.PublicationSystem;
+import cz.metacentrum.perun.cabinet.model.Thanks;
+import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.model.ApplicationForm;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
+import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -16,6 +28,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpclib.api.Deserializer;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
 /**
  * Deserializer that reads values from JSON content.
@@ -27,36 +40,45 @@ import cz.metacentrum.perun.rpclib.api.Deserializer;
 public class JsonDeserializer extends Deserializer {
 
 	@JsonIgnoreProperties({"name", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
-	private interface AttributeMixIn {}
+	public interface AttributeMixIn {}
 
 	@JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
-	private interface AttributeDefinitionMixIn {}
+	public interface AttributeDefinitionMixIn {}
 
 	@JsonIgnoreProperties({"commonName", "displayName", "beanName"})
-	private interface UserMixIn {}
+	public interface UserMixIn {}
 
 	@JsonIgnoreProperties({"fullMessage"})
-	private interface AuditMessageMixIn {}
+	public interface AuditMessageMixIn {}
 
 	@JsonIgnoreProperties({"beanName"})
-	private interface PerunBeanMixIn {}
+	public interface PerunBeanMixIn {}
 
 	@JsonIgnoreProperties({"userExtSources"})
-	private interface CandidateMixIn {}
+	public interface CandidateMixIn {}
 
 	@JsonIgnoreProperties({"name"})
-	private interface PerunExceptionMixIn {}
+	public interface PerunExceptionMixIn {}
 
 	@JsonIgnoreProperties({"hostNameFromDestination", "beanName"})
-	private interface DestinationMixIn {}
+	public interface DestinationMixIn {}
 
 	@JsonIgnoreProperties({"shortName", "beanName"})
-	private interface GroupMixIn {}
+	public interface GroupMixIn {}
 
 	@JsonIgnoreProperties({"groupStatuses", "groupStatus", "beanName"})
-	private interface MemberMixIn {
+	public interface MemberMixIn {
 		@JsonIgnore
 		void setStatus(String status);
+
+		@JsonDeserialize
+		void setStatus(Status status);
+
+		@JsonIgnore
+		void setMembershipType(String type);
+
+		@JsonDeserialize
+		void setMembershipType(MembershipType type);
 
 		@JsonIgnore
 		void setGroupsStatuses(Map<Integer, MemberGroupStatus> groupsStatuses);
@@ -66,7 +88,11 @@ public class JsonDeserializer extends Deserializer {
 
 		@JsonIgnore
 		void putGroupStatus(int groupId, MemberGroupStatus status);
+
 	}
+
+	@JsonIgnoreProperties({"persistent","beanName"})
+	public interface UserExtSourceMixIn {}
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 	static {
@@ -80,6 +106,22 @@ public class JsonDeserializer extends Deserializer {
 		mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, DestinationMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Group.class, GroupMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(UserExtSource.class, UserExtSourceMixIn.class);
+
+		mapper.getDeserializationConfig().addMixInAnnotations(Application.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationForm.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationFormItem.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationFormItemWithPrefilledValue.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationMail.class, PerunBeanMixIn.class);
+
+		mapper.getDeserializationConfig().addMixInAnnotations(Author.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Category.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Publication.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(PublicationForGUI.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(PublicationSystem.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(Thanks.class, PerunBeanMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ThanksForGUI.class, PerunBeanMixIn.class);
+
 	}
 
 	private JsonNode root;
