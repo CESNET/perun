@@ -82,6 +82,7 @@ public class Api extends HttpServlet {
 	private final static String PERUNREQUESTSURL = "getPendingRequests";
 	private final static String PERUNSTATUS = "getPerunStatus";
 	private final static String PERUNSTATISTICS = "getPerunStatistics";
+	private final static String PERUNSYSTEMTIME = "getPerunSystemTimeInMillis";
 	private final static String VOOTMANAGER = "vootManager";
 	private final static String SCIMMANAGER = "scimManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
@@ -674,6 +675,10 @@ public class Api extends HttpServlet {
 
 				out.close();
 				return;
+			} else if ("utils".equals(manager) && PERUNSYSTEMTIME.equals(method)) {
+				long systemTimeInMillis = System.currentTimeMillis();
+				ser.write(systemTimeInMillis);
+				out.close();
 			}
 
 			// In case of GET requests (read ones) set changing state to false
