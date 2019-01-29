@@ -1102,6 +1102,22 @@ public interface MembersManagerBl {
 	Member setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
 
 	/**
+	 *  Set status of the member to specified status.
+	 *
+	 * @param sess
+	 * @param member
+	 * @param status new status
+	 * @param message message with reason for suspension
+	 * @return member with status set
+	 *
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws MemberNotValidYetException
+	 * @throws WrongAttributeValueException
+	 */
+	Member setStatus(PerunSession sess, Member member, Status status, String message) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
+
+	/**
 	 * Validate all atributes for member and set member's status to VALID.
 	 * This method runs synchronously.
 	 *
@@ -1150,6 +1166,19 @@ public interface MembersManagerBl {
 	 * @throws MemberNotValidYetException
 	 */
 	Member suspendMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException;
+
+	/**
+	 * Suspend member with reason for suspension.
+	 *
+	 * @param sess
+	 * @param member
+	 * @param message
+	 * @return member with new status set
+	 *
+	 * @throws InternalErrorException
+	 * @throws MemberNotValidYetException
+	 */
+	Member suspendMember(PerunSession sess, Member member, String message) throws InternalErrorException, MemberNotValidYetException;
 
 	/**
 	 * Set member's status to expired.

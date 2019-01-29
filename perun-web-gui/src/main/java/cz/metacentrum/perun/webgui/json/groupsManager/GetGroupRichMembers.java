@@ -19,9 +19,9 @@ import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.comparators.GeneralComparator;
 import cz.metacentrum.perun.webgui.json.comparators.RichMemberComparator;
 import cz.metacentrum.perun.webgui.json.keyproviders.RichMemberKeyProvider;
-import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
+import cz.metacentrum.perun.webgui.tabs.memberstabs.ChangeStatusTabItem;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
@@ -131,42 +131,13 @@ public class GetGroupRichMembers implements JsonCallback, JsonCallbackTable<Rich
 		// own onClick tab for changing member's status
 		statusColumn.setFieldUpdater(new FieldUpdater<RichMember,String>(){
 			public void update(int index, final RichMember object, String value) {
-				FlexTable widget = new FlexTable();
-				final ListBox lb = new ListBox(false);
-				lb.addItem("VALID", "VALID");
-				lb.addItem("INVALID", "INVALID");
-				lb.addItem("SUSPENDED", "SUSPENDED");
-				lb.addItem("EXPIRED", "EXPIRED");
-				lb.addItem("DISABLED", "DISABLED");
-				widget.setHTML(0, 0, "<strong>Status: </strong>");
-				widget.setWidget(0, 1, lb);
-
-				// pick which one is already set
-				for (int i=0; i<lb.getItemCount(); i++) {
-					if (lb.getItemText(i).equalsIgnoreCase(object.getStatus())) {
-						lb.setSelectedIndex(i);
+				PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeStatusTabItem(object.cast(), new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						clearTable();
+ 						retrieveData();
 					}
-				}
-
-				Confirm conf = new Confirm("Change member's status: "+object.getUser().getFullName(), widget, true);
-				conf.setCancelButtonText("Cancel");
-				conf.setOkButtonText("Change status");
-				conf.setOkClickHandler(new ClickHandler(){
-					public void onClick(ClickEvent event) {
-						SetStatus call = new SetStatus(object.getId(), new JsonCallbackEvents(){
-							public void onFinished(JavaScriptObject jso) {
-								clearTable();
-								retrieveData();
-							}
-							public void onError(PerunError error) {
-								clearTable();
-								retrieveData();
-							}
-						});
-						call.setStatus(lb.getValue(lb.getSelectedIndex()));
-					}
-				});
-				conf.show();
+				}));
 			}
 		});
 		// status column sortable

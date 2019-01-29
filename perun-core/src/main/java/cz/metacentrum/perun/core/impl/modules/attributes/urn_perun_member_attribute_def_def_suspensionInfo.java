@@ -87,7 +87,7 @@ public class urn_perun_member_attribute_def_def_suspensionInfo extends MemberAtt
 		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
 		attr.setFriendlyName("suspensionInfo");
 		attr.setDisplayName("Suspension Info");
-		attr.setType(String.class.getName());
+		attr.setType(LinkedHashMap.class.getName());
 		attr.setDescription("Suspension info of a member.");
 		return attr;
 	}

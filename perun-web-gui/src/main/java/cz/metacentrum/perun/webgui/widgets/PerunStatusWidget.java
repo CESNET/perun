@@ -153,7 +153,6 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 		button.setTitle("Change status for " + objectName + ".");
 		button.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				RichMember member = object.cast();
 
 				JsonCallbackEvents newEvent = JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents() {
 					@Override
@@ -163,7 +162,7 @@ public class PerunStatusWidget<T extends JavaScriptObject> extends Composite {
 						build();
 					}
 				});
-				PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeStatusTabItem(member, newEvent));
+				PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeStatusTabItem(object.cast(), newEvent));
 			}
 		});
 		return button;
