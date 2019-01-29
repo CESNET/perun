@@ -428,8 +428,8 @@ public class AttributesManagerEntry implements AttributesManager {
 				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, new AttributeDefinition(attrNext), member)) attrIter.remove();
 				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member));
 			} else if (getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
-				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, new AttributeDefinition(attrNext), user, null)) attrIter.remove();
-				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, null));
+				if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, new AttributeDefinition(attrNext), user)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user));
 			} else {
 				throw new ConsistencyErrorException("One of getting attributes is not correct type: " + attrNext);
 			}
