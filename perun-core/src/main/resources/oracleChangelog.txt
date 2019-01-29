@@ -9,10 +9,10 @@
 3.1.51
 alter table action_types drop constraint actiontyp_at_chk;
 alter table action_types add constraint actiontyp_at_chk check (action_type in ('read', 'read_vo', 'read_public', 'write', 'write_vo', 'write_public'));
-insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read_vo', 'Vo related can read value.');
-insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read_public', 'Anyone can read value.');
-insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write_vo', 'Vo related can write, rewrite and remove value.');
-insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write_public', 'Anyone can write, rewrite and remove value.');
+insert into action_types (id, action_type, description) values (action_types_seq.nextval, 'read_vo', 'Vo related can read value.');
+insert into action_types (id, action_type, description) values (action_types_seq.nextval, 'read_public', 'Anyone can read value.');
+insert into action_types (id, action_type, description) values (action_types_seq.nextval, 'write_vo', 'Vo related can write, rewrite and remove value.');
+insert into action_types (id, action_type, description) values (action_types_seq.nextval, 'write_public', 'Anyone can write, rewrite and remove value.');
 update configurations set value='3.1.51' where property='DATABASE VERSION';
 
 3.1.50
