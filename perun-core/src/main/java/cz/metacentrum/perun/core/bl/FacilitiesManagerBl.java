@@ -329,6 +329,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @param perunSession
 	 * @param facility
+	 * @param force
 	 *
 	 * @throws InternalErrorException
 	 * @throws RelationExistsException there are still some resources assigned to this facility
@@ -338,7 +339,7 @@ public interface FacilitiesManagerBl {
 	 * @throws ResourceAlreadyRemovedException if there are at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException there are at least 1 group on resource not affected by deleting from DB
 	 */
-	void deleteFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Updates facility.

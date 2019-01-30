@@ -42,8 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextHierarchy({
-@ContextConfiguration(locations = { "classpath:perun-base.xml", "classpath:perun-core.xml" }),
-@ContextConfiguration(locations = { "classpath:perun-tasks-lib.xml" })
+@ContextConfiguration(locations = { "classpath:perun-base.xml", "classpath:perun-core.xml" })
 })
 @Transactional(transactionManager = "springTransactionManager")
 public class ServiceDenialDaoTest {
