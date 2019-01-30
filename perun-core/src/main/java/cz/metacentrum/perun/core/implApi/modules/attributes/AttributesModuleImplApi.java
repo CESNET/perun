@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.implApi.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichAttribute;
@@ -47,7 +48,7 @@ public interface AttributesModuleImplApi {
 	AttributeDefinition getAttributeDefinition();
 
 	/**
-	 * Get message from auditer, parse it and resolve if is needed to add another messages to DB about virtualAttribute changes.
+	 * Gets message from auditer and resolves if it is needed to add another messages to DB about virtualAttribute changes.
 	 *
 	 * @param perunSession
 	 * @param message
@@ -56,6 +57,6 @@ public interface AttributesModuleImplApi {
 	 * @throws AttributeNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 }

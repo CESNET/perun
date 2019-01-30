@@ -1,18 +1,21 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
+import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceAddedToUser;
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceRemovedFromUser;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.impl.ExtSourceKerberos;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Get and set specified user krb Principal Name in arrayList included all userExtSources which are type of KERBEROS
@@ -21,9 +24,7 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	private static final Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]", Pattern.DOTALL);
-	private static final Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]", Pattern.DOTALL);
-	private static final Pattern extSourceKerberos = Pattern.compile("cz.metacentrum.perun.core.impl.ExtSourceKerberos");
+	private final static String A_U_V_KERBEROS_LOGINS = AttributesManager.NS_USER_ATTR_VIRT + ":kerberosLogins";
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
@@ -64,27 +65,32 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
 	}
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		List<String> resolvingMessages = new ArrayList<String>();
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
-		Matcher addUserExtSourceMatcher = addUserExtSource.matcher(message);
-		Matcher removeUserExtSourceMatcher = removeUserExtSource.matcher(message);
-		Matcher extSourceKerberosMatcher = extSourceKerberos.matcher(message);
+		if (message instanceof UserExtSourceAddedToUser
+			&& ((UserExtSourceAddedToUser) message).getUserExtSource().getExtSource() instanceof ExtSourceKerberos) {
 
-		User user = null;
-		Attribute attrVirtKerberosLogins = null;
-
-		if(extSourceKerberosMatcher.find()) {
-			if (addUserExtSourceMatcher.find() || removeUserExtSourceMatcher.find()) {
-				user = perunSession.getPerunBl().getModulesUtilsBl().getUserFromMessage(perunSession, message);
-				if (user != null) {
-					attrVirtKerberosLogins = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":kerberosLogins");
-					String messageAttributeSet = attrVirtKerberosLogins.serializeToString() + " set for " + user.serializeToString() + ".";
-					resolvingMessages.add(messageAttributeSet);
-				}
-			}
+			resolvingMessages.addAll(resolveEvent(perunSession, ((UserExtSourceAddedToUser) message).getUser()));
 		}
+
+		if (message instanceof UserExtSourceRemovedFromUser
+			&& ((UserExtSourceRemovedFromUser) message).getUserExtSource().getExtSource() instanceof ExtSourceKerberos) {
+
+			resolvingMessages.addAll(resolveEvent(perunSession, ((UserExtSourceRemovedFromUser) message).getUser()));
+		}
+
+		return resolvingMessages;
+	}
+
+	private List<AuditEvent> resolveEvent(PerunSessionImpl perunSession, User user) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
+
+		Attribute attrVirtKerberosLogins = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, A_U_V_KERBEROS_LOGINS);
+		//FIXME: if the attribute value is null or empty, this method should return AttributeRemovedForUser instead
+		resolvingMessages.add(new AttributeSetForUser(attrVirtKerberosLogins, user));
+
 		return resolvingMessages;
 	}
 

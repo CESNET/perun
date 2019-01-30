@@ -1,5 +1,11 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
+import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberAddedToGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberRemovedFromGroupTotally;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -13,15 +19,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Contains all group names of the user
@@ -30,11 +32,8 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_groupNames.class);
 	private static final String FRIENDLY_NAME = "groupNames";
-
-	private static final Pattern memberAddedToPattern = Pattern.compile("Member:\\[(.*)\\] added to Group:\\[(.*)\\]", Pattern.DOTALL);
-	private static final Pattern memberTotallyRemovedFromPattern = Pattern.compile("Member:\\[(.*)\\] was removed from Group:\\[(.*)\\] totally", Pattern.DOTALL);
+	private static final String A_U_V_GROUP_NAMES = AttributesManager.NS_USER_ATTR_VIRT + ":" + FRIENDLY_NAME;
 
 
 	@Override
@@ -60,36 +59,32 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 	}
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl sess, String message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		List<String> resolvingMessages = new ArrayList<>();
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
-		Matcher memberAddedToMatcher = memberAddedToPattern.matcher(message);
-		Matcher memberTotallyRemovedFromMatcher = memberTotallyRemovedFromPattern.matcher(message);
-
-		User user;
-		Attribute attribute;
-
-		if (memberAddedToMatcher.find() || memberTotallyRemovedFromMatcher.find()) {
-
-			user = sess.getPerunBl().getModulesUtilsBl().getUserFromMessage(sess, message);
-			if (user != null) {
-				String messageAttributeSet;
-
-				attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_VIRT + ":" + FRIENDLY_NAME);
-				List<String> value = attribute.valueAsList();
-
-				if (value == null || value.isEmpty()) {
-					AttributeDefinition attributeDefinition = new AttributeDefinition(attribute);
-					messageAttributeSet = attributeDefinition.serializeToString() + " removed for " + user.serializeToString() + ".";
-				} else {
-					messageAttributeSet = attribute.serializeToString() + " set for " + user.serializeToString() + ".";
-				}
-				resolvingMessages.add(messageAttributeSet);
-			} else {
-				log.error("Failed to get user from message: {}", message);
-			}
+		if (message instanceof DirectMemberAddedToGroup) {
+			resolvingMessages.addAll(resolveEvent(sess, ((DirectMemberAddedToGroup) message).getMember()));
+		} else if (message instanceof IndirectMemberAddedToGroup) {
+			resolvingMessages.addAll(resolveEvent(sess, ((IndirectMemberAddedToGroup) message).getMember()));
+		} else if (message instanceof MemberRemovedFromGroupTotally) {
+			resolvingMessages.addAll(resolveEvent(sess, ((MemberRemovedFromGroupTotally) message).getMember()));
 		}
+		return resolvingMessages;
+	}
+
+	private List<AuditEvent> resolveEvent (PerunSessionImpl sess, Member member) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
+
+		User user = sess.getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+		Attribute attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_V_GROUP_NAMES);
+		if (attribute.valueAsList() == null || attribute.valueAsList().isEmpty()){
+			AttributeDefinition attributeDefinition = new AttributeDefinition(attribute);
+			resolvingMessages.add(new AttributeRemovedForUser(attributeDefinition, user));
+		} else {
+			resolvingMessages.add(new AttributeSetForUser(attribute, user));
+		}
+
 		return resolvingMessages;
 	}
 

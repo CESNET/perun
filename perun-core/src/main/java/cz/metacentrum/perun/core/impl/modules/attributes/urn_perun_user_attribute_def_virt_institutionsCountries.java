@@ -1,5 +1,10 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForKey;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForKey;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -18,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 class DnsMapCtx extends UserVirtualAttributeCollectedFromUserExtSource.ModifyValueContext {
 	private Map<String, String> dnsMap;
@@ -53,8 +56,6 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_institutionsCountries.class);
 	private final static AttributeDefinition DNS_STATE_MAPPING_ATTR = new urn_perun_entityless_attribute_def_def_dnsStateMapping().getAttributeDefinition();
-	private final static Pattern AUDIT_MESSAGE_SET_DNS_DOMAIN_COUNTRY = Pattern.compile("Attribute:\\[(.*)" + DNS_STATE_MAPPING_ATTR.getFriendlyName() + "(.*)] set for (.*)\\.", Pattern.DOTALL);
-	private final static Pattern AUDIT_MESSAGE_REMOVED_DNS_DOMAIN_COUNTRY = Pattern.compile("AttributeDefinition:\\[(.*)" + DNS_STATE_MAPPING_ATTR.getFriendlyName() + "(.*)] removed for (.*)\\.", Pattern.DOTALL);
 
 	@Override
 	public String getSourceAttributeFriendlyName() {
@@ -107,44 +108,45 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 		return "".equals(country) ? null : country;
 	}
 
-
 	/**
 	 * For a change in dnsStateMapping attribute, finds all affected users and generates audit message about changing this attribute for each of them.
 	 */
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl sess, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		List<String> messages = super.resolveVirtualAttributeValueChange(sess, message);
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl sess, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<AuditEvent> messages = super.resolveVirtualAttributeValueChange(sess, message);
 		// react to auditlog message about changing dnsStateMapping
-		String key = null;
-		Matcher setMatcher = AUDIT_MESSAGE_SET_DNS_DOMAIN_COUNTRY.matcher(message);
-		if(setMatcher.matches()) {
-			key = setMatcher.group(3);
-		} else {
-			Matcher delMatcher = AUDIT_MESSAGE_REMOVED_DNS_DOMAIN_COUNTRY.matcher(message);
-			if(delMatcher.matches()) {
-				key = delMatcher.group(3);
-			}
-		}
-		if (key!=null) {
-			//find longer matching domains, e.g. ics.muni.cz and muni.cz for .cz
-			List<String> longerDomains =  new ArrayList<>();
-			AttributesManagerBl am = sess.getPerunBl().getAttributesManagerBl();
-			for(String dnsDomain : am.getEntitylessStringAttributeMapping(sess, DNS_STATE_MAPPING_ATTR.getName()).keySet()) {
-				if(dnsDomain.endsWith(key) && dnsDomain.length()>key.length()) {
-					longerDomains.add(dnsDomain);
-				}
-			}
-			log.debug("DNS domain '{}' changed, found longer domains: {}",key, longerDomains);
-			//find users that are affected by the change - have schacHomeOrganization value ending in key, but not ending with longerDomains
-			List<User> affectedUsers = sess.getPerunBl().getUsersManagerBl().findUsersWithExtSourceAttributeValueEnding(sess,getSourceAttributeName(),key,longerDomains);
-			for (User user : affectedUsers) {
-				Attribute thisAttribute = am.getAttribute(sess, user, getDestinationAttributeName());
-				messages.add(thisAttribute.serializeToString() + " set for " + user.serializeToString() + ".");
-			}
+
+		if (message instanceof AttributeSetForKey
+			&& ((AttributeSetForKey) message).getAttribute().getFriendlyName().equals(DNS_STATE_MAPPING_ATTR.getFriendlyName())) {
+
+			messages.addAll(resolveEvent(sess, ((AttributeSetForKey) message).getKey()));
+		} else if (message instanceof AttributeRemovedForKey
+			&& ((AttributeRemovedForKey) message).getAttribute().getFriendlyName().equals(DNS_STATE_MAPPING_ATTR.getFriendlyName())) {
+
+			messages.addAll(resolveEvent(sess, ((AttributeRemovedForKey) message).getKey()));
 		}
 		return messages;
 	}
 
+	private List<AuditEvent> resolveEvent(PerunSessionImpl sess, String key) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException {
+		List<AuditEvent> resolvingMessages = new ArrayList<>();
 
+		List<String> longerDomains =  new ArrayList<>();
+		AttributesManagerBl am = sess.getPerunBl().getAttributesManagerBl();
+		for (String dnsDomain : am.getEntitylessStringAttributeMapping(sess, DNS_STATE_MAPPING_ATTR.getName()).keySet()) {
+			if (dnsDomain.endsWith(key) && dnsDomain.length() > key.length()) {
+				longerDomains.add(dnsDomain);
+			}
+		}
+		log.debug("DNS domain '{}' changed, found longer domains: {}", key, longerDomains);
+		//find users that are affected by the change - have schacHomeOrganization value ending in key but not ending with longerDomains
+		List<User> affectedUsers = sess.getPerunBl().getUsersManagerBl().findUsersWithExtSourceAttributeValueEnding(sess,getSourceAttributeName(), key, longerDomains);
+		for (User user : affectedUsers) {
+			Attribute attribute = am.getAttribute(sess, user, getDestinationAttributeName());
+			resolvingMessages.add(new AttributeSetForUser(attribute, user));
+		}
+
+		return resolvingMessages;
+	}
 }
 
