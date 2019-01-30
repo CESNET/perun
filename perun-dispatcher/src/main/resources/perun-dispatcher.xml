@@ -11,7 +11,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 ">
 
-	<!-- needs perun-core.xml and perun-tasks-lib.xml loaded before this file -->
+	<!-- needs perun-core.xml loaded before this file -->
 
 	<!-- Scans for @Repository, @Service and @Component -->
 	<context:component-scan base-package="cz.metacentrum.perun.dispatcher"/>

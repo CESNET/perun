@@ -359,13 +359,26 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Deletes a facility.
 	 * @param facility int Facility <code>id</code>
 	 */
+	/*#
+	 * Deletes a facility.
+	 * @param facility int Facility <code>id</code>
+	 * @param force Boolean if true deletes all constrains of facility before deleting facility
+	 */
 	deleteFacility {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getFacilitiesManager().deleteFacility(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
-			return null;
+			if (parms.contains("force")){
+				ac.getFacilitiesManager().deleteFacility(ac.getSession(),
+					ac.getFacilityById(parms.readInt("facility")),
+					parms.readBoolean("force"));
+				return null;
+			} else {
+				ac.getFacilitiesManager().deleteFacility(ac.getSession(),
+					ac.getFacilityById(parms.readInt("facility")),
+					false);
+				return null;
+			}
 		}
 	},
 

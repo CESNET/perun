@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:perun-core.xml","classpath:perun-tasks-lib.xml", "classpath:perun-dispatcher-test.xml" })
+@ContextConfiguration(locations = {"classpath:perun-core.xml", "classpath:perun-dispatcher-test.xml" })
 @Rollback
 @Transactional(transactionManager = "springTransactionManager")
 public abstract class AbstractDispatcherTest {

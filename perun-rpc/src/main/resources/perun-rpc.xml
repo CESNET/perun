@@ -6,12 +6,9 @@
 	<!-- this file loads other Spring configs. In Intellij IDEA, use  right-click -> Diagrams -> Show diagram -> Spring Model Dependencies
 	     to see all dependencies, there must be no duplicities (red arrows) in the diagram. -->
 
-	<!-- perun-core is needed for perun-registrar-lib.xml, perun-controller.xml, perun-tasks-lib.xml, perun-cabinet.xml,
+	<!-- perun-core is needed for perun-registrar-lib.xml, perun-controller.xml, perun-cabinet.xml,
 	     perun-notification.xml -->
 	<import resource="classpath:perun-core.xml"/>
-
-	<!-- perun-tasks-lib.xml is needed for  perun-controller.xml, perun-dispatcher.xml -->
-	<import resource="classpath:perun-tasks-lib.xml"/>
 
 	<!--  <import resource="classpath:perun-controller.xml"/>  -->
 	<import resource="classpath:perun-core-synchronizers.xml"/>
