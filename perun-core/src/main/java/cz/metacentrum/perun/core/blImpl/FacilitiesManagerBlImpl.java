@@ -36,6 +36,7 @@ import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UserContactsRemov
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UsersAddedToContactGroupOfFacility;
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.UsersRemovedFromContactGroupOfFacility;
 import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.service.ResultManager;
 import cz.metacentrum.perun.taskslib.service.TaskManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,6 +115,9 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 	@Autowired
 	private TaskManager taskManager;
+
+	@Autowired
+	private ResultManager resultManager;
 
 	private static final List<String> MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT = new ArrayList<>(Arrays.asList(
 	  AttributesManager.NS_USER_ATTR_DEF + ":organization",
@@ -319,6 +323,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			}
 			List<Task> tasks = taskManager.listAllTasksForFacility(facility.getId());
 			for (Task task : tasks) {
+				resultManager.clearByTask(task.getId());
 				taskManager.removeTask(task.getId());
 			}
 		} else {
