@@ -842,6 +842,20 @@ public interface GroupsManager {
 	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
 
 	/**
+	 * Return all RichGroups for specified member, containing selected attributes.
+	 * "members" group is not included.
+	 *
+	 * @param sess internal session
+	 * @param member the member to get the rich groups for
+	 * @param attrNames list of selected attributes
+	 * @return list of rich groups with selected attributes
+	 * @throws InternalErrorException
+	 * @throws MemberNotExistsException
+	 * @throws PrivilegeException
+	 */
+	List<RichGroup> getMemberRichGroupsWithAttributesByNames(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException, MemberNotExistsException, PrivilegeException;
+
+	/**
 	 * Return all RichGroups containing selected attributes
 	 *
 	 * @param sess
