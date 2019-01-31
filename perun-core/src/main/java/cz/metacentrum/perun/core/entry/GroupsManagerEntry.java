@@ -1029,6 +1029,36 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, resource, true);
 	}
 
+	public List<RichGroup> getMemberRichGroupsWithAttributesByNames(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException, MemberNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		this.getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
+			throw new PrivilegeException(sess, "getMemberRichGroupsWithAttributesByNames");
+		}
+
+		List<RichGroup> richGroups = getGroupsManagerBl().getMemberRichGroupsWithAttributesByNames(sess, member, attrNames);
+
+		// Check access rights for each richGroup for GROUPADMIN
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
+			Iterator<RichGroup> groupByName = richGroups.iterator();
+			while (groupByName.hasNext()) {
+				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, groupByName.next())) {
+					groupByName.remove();
+				}
+			}
+		}
+
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, null, true);
+	}
+
 	@Override
 	public List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException, VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);

@@ -1124,6 +1124,18 @@ public interface GroupsManagerBl {
 	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException;
 
 	/**
+	 * Return all RichGroups for specified member, containing selected attributes.
+	 * "members" group is not included.
+	 *
+	 * @param sess internal session
+	 * @param member the member to get the rich groups for
+	 * @param attrNames list of selected attributes
+	 * @return list of rich groups with selected attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichGroup> getMemberRichGroupsWithAttributesByNames(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException;
+
+	/**
 	 * Returns all RichGroups containing selected attributes
 	 *
 	 * @param sess
