@@ -615,7 +615,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		if(storedMember.getUserId() != member.getUserId()) throw new InternalErrorException("Can't change userId in object member");
 		if(!storedMember.getStatus().equals(member.getStatus())) {
 			try {
-				member = setStatus(sess, storedMember, member.getStatus(), null);
+				member = setStatus(sess, storedMember, member.getStatus());
 			} catch(MemberNotValidYetException ex) {
 				throw new WrongAttributeValueException(ex);
 			}
