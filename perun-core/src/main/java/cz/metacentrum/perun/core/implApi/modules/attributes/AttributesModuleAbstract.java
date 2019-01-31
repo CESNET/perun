@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.implApi.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -33,7 +34,7 @@ public abstract class AttributesModuleAbstract implements AttributesModuleImplAp
 		return attr;
 	}
 
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		return new ArrayList<>();
 	}
 

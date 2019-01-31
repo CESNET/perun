@@ -475,4 +475,41 @@ public class ApiCaller {
 	public Object call(String managerName, String methodName, Deserializer parms) throws PerunException {
 		return PerunManager.call(managerName, methodName, this, parms);
 	}
+
+	/**
+	 * Returns a view of the portion of this list between the specified fromIndex, inclusive, and toIndex, inclusive.
+	 *
+	 * If list of objects is null or empty, it will return empty list as sublist.
+	 * If fromIndex is lower than 0, it will be set to 0.
+	 * If toIndex is bigger than size of an input array, it will be set to the size of an array.
+	 * If fromIndex and toIndex are same, it will return array with exactly 1 object on this position.
+	 * If fromIndex is bigger than toIndex, it will return empty array.
+	 *
+	 * @param listOfObjects original list of objects from which we will get the sublist view by indexes
+	 * @param fromIndex index of the object from original list, which will be the first object in the sublist view (included)
+	 * @param toIndex index of the object from original list, which will be the last object in the sublist view (included)
+	 *
+	 * @return a view of the portion of the listOfObjects between fromIndex and toIndex (both inclusive), for example
+	 * if fromIndex=0 and toIndex=10 it will return view on first 11 objects of the input list if they exist. If
+	 * there are only 6 objects, it will return view on all these objects.
+	 */
+	public <E> List<E> getSublist(List<E> listOfObjects, int fromIndex, int toIndex) {
+		//if list if empty or null, return empty list of objects (there is no sublist to be find)
+		if(listOfObjects == null || listOfObjects.isEmpty()) return new ArrayList<>();
+
+		//toIndex should be included in the subList, so we will work with toIndex+1
+		toIndex = toIndex + 1;
+
+		//From index can't be lower than 0
+		if(fromIndex<0) fromIndex = 0;
+
+		//To index can't be bigger than size of an array
+		if(toIndex>listOfObjects.size()) toIndex = listOfObjects.size();
+
+		//To index can't be lower than from index
+		if(toIndex<fromIndex) toIndex = fromIndex;
+
+		return listOfObjects.subList(fromIndex, toIndex);
+
+	}
 }

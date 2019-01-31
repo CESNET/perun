@@ -930,7 +930,41 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns all RichGroups containing selected attributes
+	 * Returns sub-list of all RichGroups, each containing selected attributes, starting at fromIndex (included)
+	 * and ending at the size of the original list.
+	 *
+	 * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
+	 *
+	 * @param vo int <code>id</code> of vo
+	 * @param fromIndex int begin index of returned subList, included
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	/*#
+	 * Returns sub-list of all RichGroups, each containing selected attributes, starting at first index of the original
+	 * list (included) and ending at the toIndex (included).
+	 *
+	 * Example: [1,2,3,4], toIndex=2 => [1,2,3]
+	 *
+	 * @param vo int <code>id</code> of vo
+	 * @param toIndex int end index of returned subList, included
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	/*#
+	 * Returns sub-list of all RichGroups, each containing selected attributes, starting at fromIndex (included)
+	 * and ending at the toIndex (included).
+	 *
+	 * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
+	 *
+	 * @param vo int <code>id</code> of vo
+	 * @param fromIndex int begin index of returned subList, included
+	 * @param toIndex int end index of returned subList, included
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	/*#
+	 * Returns full list of all RichGroups containing selected attributes.
 	 *
 	 * @param vo int <code>id</code> of vo
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
@@ -941,9 +975,95 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			return ac.getGroupsManager().getAllRichGroupsWithAttributesByNames(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")),
-					parms.readList("attrNames", String.class));
+			List<RichGroup> listOfRichGroups = ac.getGroupsManager().getAllRichGroupsWithAttributesByNames(ac.getSession(),
+				ac.getVoById(parms.readInt("vo")),
+				parms.readList("attrNames", String.class));
+
+			if(listOfRichGroups == null) listOfRichGroups = new ArrayList<>();
+
+			if (parms.contains("fromIndex") && parms.contains("toIndex")) {
+				return ac.getSublist(listOfRichGroups, parms.readInt("fromIndex"), parms.readInt("toIndex"));
+			} else if (parms.contains("fromIndex")) {
+				int toIndex = listOfRichGroups.size();
+				return ac.getSublist(listOfRichGroups, parms.readInt("fromIndex"), toIndex);
+			} else if (parms.contains("toIndex")) {
+				return ac.getSublist(listOfRichGroups, 0, parms.readInt("toIndex"));
+			} else {
+				return listOfRichGroups;
+			}
+		}
+	},
+
+	/*#
+	 * Returns sub-list of member's RichGroups, each containing selected attributes, starting at fromIndex (included)
+	 * and ending at the size of the original list.
+	 *
+	 * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
+	 *
+	 * "members" group is not included!
+	 *
+	 * @param member int <code>id</code> of member
+	 * @param fromIndex int begin index of returned subList, included
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	/*#
+	 * Returns sub-list of member's RichGroups, each containing selected attributes, starting at first index of the original
+	 * list (included) and ending at the toIndex (included).
+	 *
+	 * Example: [1,2,3,4], toIndex=2 => [1,2,3]
+	 *
+	 * "members" group is not included!
+	 *
+	 * @param member int <code>id</code> of member
+	 * @param toIndex int end index of returned subList, included
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	/*#
+	 * Returns sub-list of member's RichGroups, each containing selected attributes, starting at fromIndex (included)
+	 * and ending at the toIndex (included).
+	 *
+	 * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
+	 *
+	 * "members" group is not included!
+	 *
+	 * @param member int <code>id</code> of member
+	 * @param fromIndex int begin index of returned subList, included
+	 * @param toIndex int end index of returned subList, included
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	/*#
+	 * Returns full list of member's RichGroups containing selected attributes.
+	 *
+	 * "members" group is not included!
+	 * 
+	 * @param member int <code>id</code> of member
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	getMemberRichGroupsWithAttributesByNames {
+
+		@Override
+		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			List<RichGroup> listOfRichGroups = ac.getGroupsManager().getMemberRichGroupsWithAttributesByNames(ac.getSession(),
+				ac.getMemberById(parms.readInt("member")),
+				parms.readList("attrNames", String.class));
+
+			if(listOfRichGroups == null) listOfRichGroups = new ArrayList<>();
+
+			if (parms.contains("fromIndex") && parms.contains("toIndex")) {
+				return ac.getSublist(listOfRichGroups, parms.readInt("fromIndex"), parms.readInt("toIndex"));
+			} else if (parms.contains("fromIndex")) {
+				int toIndex = listOfRichGroups.size();
+				return ac.getSublist(listOfRichGroups, parms.readInt("fromIndex"), toIndex);
+			} else if (parms.contains("toIndex")) {
+				return ac.getSublist(listOfRichGroups, 0, parms.readInt("toIndex"));
+			} else {
+				return listOfRichGroups;
+			}
 		}
 	},
 

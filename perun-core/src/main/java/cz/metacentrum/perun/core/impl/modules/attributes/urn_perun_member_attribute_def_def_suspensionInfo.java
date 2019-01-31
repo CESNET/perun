@@ -1,12 +1,15 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDisabled;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberExpired;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberValidated;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -20,8 +23,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Message with information about suspension of a member.
@@ -30,9 +31,8 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_member_attribute_def_def_suspensionInfo extends MemberAttributesModuleAbstract {
 
+	private final static String A_M_D_suspensionInfo = AttributesManager.NS_MEMBER_ATTR_DEF + ":suspensionInfo";
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_member_attribute_def_def_suspensionInfo.class);
-
-	private final Pattern statusChange = Pattern.compile("Member:\\[id=<([0-9]+)>.*] ([a-z]+).", Pattern.DOTALL);
 
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
@@ -60,25 +60,35 @@ public class urn_perun_member_attribute_def_def_suspensionInfo extends MemberAtt
 	}
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl session, String message) throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl session, AuditEvent message) throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
-		Matcher statusChangeMatcher = statusChange.matcher(message);
+		Member member = null;
 
-		if (statusChangeMatcher.find() && (statusChangeMatcher.group(2).equals("expired") || statusChangeMatcher.group(2).equals("disabled") || statusChangeMatcher.group(2).equals("validated"))) {
+		if (message instanceof MemberValidated) {
+			member = ((MemberValidated) message).getMember();
+		} else if (message instanceof MemberDisabled) {
+			member = ((MemberDisabled) message).getMember();
+		} else if (message instanceof MemberExpired) {
+			member = ((MemberExpired) message).getMember();
+		}
+
+		clearSuspensionInfo(session, member);
+
+		return new ArrayList<>();
+	}
+
+	private void clearSuspensionInfo(PerunSessionImpl session, Member member) throws WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		if (member != null) {
 			try {
-				int memberId = Integer.valueOf(statusChangeMatcher.group(1));
-				Member member = session.getPerunBl().getMembersManagerBl().getMemberById(session, memberId);
-				Attribute attribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, member, AttributesManager.NS_MEMBER_ATTR_DEF + ":suspensionInfo");
+				Attribute attribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, member, A_M_D_suspensionInfo);
 				attribute.setValue(new LinkedHashMap<String, String>());
 				session.getPerunBl().getAttributesManagerBl().setAttribute(session, member, attribute);
 			} catch (AttributeNotExistsException e) {
 				//suspensionInfo is an optional attribute and it doesn't have to be set.
-			} catch (MemberNotExistsException | WrongAttributeValueException | InternalErrorException e) {
+			} catch (WrongAttributeValueException | InternalErrorException e) {
 				log.error("Can't resolve auditer's message for " + this.getClass().getSimpleName() + " module because of exception.", e);
 			}
 		}
-
-		return new ArrayList<>();
 	}
 
 	@Override

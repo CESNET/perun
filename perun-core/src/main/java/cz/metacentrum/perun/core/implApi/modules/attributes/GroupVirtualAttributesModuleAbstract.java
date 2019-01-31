@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.implApi.modules.attributes;
 
 import java.util.ArrayList;
 import java.util.List;
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Group;
@@ -35,8 +36,8 @@ public abstract class GroupVirtualAttributesModuleAbstract extends GroupAttribut
 	}
 
 	@Override
-	public List<String> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, String message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		return new ArrayList<String>();
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		return new ArrayList<>();
 	}
 
 	@Override

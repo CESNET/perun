@@ -13,19 +13,21 @@ sub help {
 	Available options:
 	--facilityId   | -f facility id
 	--facilityName | -F facility name
+	--force        | -o forcefully deletes facility
 	--batch        | -b batch
 	--help         | -h prints this help
 
 	};
 }
 
-my ($facilityId, $facilityName, $facilityType, $batch);
+my ($facilityId, $facilityName, $force, $batch);
 GetOptions ("help|h"   => sub {
 		print help();
 		exit 0;
 	}, "batch|b"       => \$batch,
 	"facilityId|f=i"   => \$facilityId,
-	"facilityName|F=s" => \$facilityName) || die help();
+	"facilityName|F=s" => \$facilityName,
+	"force|o"        => \$force) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
@@ -38,7 +40,12 @@ unless ($facilityId) {
 	$facilityId = $facility->getId;
 }
 
-$facilitiesAgent->deleteFacility( facility => $facilityId );
+if (defined($force)) {
+	my $forcevalue = 1;
+	$facilitiesAgent->deleteFacility( facility => $facilityId , force => $forcevalue);
+} else {
+	$facilitiesAgent->deleteFacility( facility => $facilityId );
+}
 
 printMessage("Facility Id:$facilityId successfully deleted", $batch);
 
