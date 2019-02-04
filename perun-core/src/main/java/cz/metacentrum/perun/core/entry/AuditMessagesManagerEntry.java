@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import java.util.List;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
@@ -83,6 +84,16 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 		}
 
 		return getAuditMessagesManagerBl().pollConsumerMessagesForParser(consumerName);
+	}
+
+	@Override
+	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "pollConsumerEvents");
+		}
+
+		return getAuditMessagesManagerBl().pollConsumerEvents(consumerName);
 	}
 
 	@Override

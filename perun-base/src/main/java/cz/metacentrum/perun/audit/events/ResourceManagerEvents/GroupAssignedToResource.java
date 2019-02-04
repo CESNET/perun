@@ -10,6 +10,10 @@ public class GroupAssignedToResource extends AuditEvent {
 	private Resource resource;
 	private String message;
 
+	@SuppressWarnings("unused") // used by jackson mapper
+	public GroupAssignedToResource() {
+	}
+
 	public GroupAssignedToResource(Group group, Resource resource) {
 		this.group = group;
 		this.resource = resource;

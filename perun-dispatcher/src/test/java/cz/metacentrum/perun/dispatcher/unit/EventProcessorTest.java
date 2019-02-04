@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.dispatcher.unit;
 
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.dispatcher.AbstractDispatcherTest;
@@ -42,7 +43,7 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 		Event event = new Event();
 		event.setTimeStamp(System.currentTimeMillis());
 		event.setHeader("portishead");
-		event.setData(member1.serializeToString() + " added to " + group1.serializeToString() + ".");
+		event.setData(new DirectMemberAddedToGroup(member1, group1));
 
 		mockQueue.add(event);
 

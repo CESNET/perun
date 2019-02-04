@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.dispatcher.processing;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -25,15 +26,15 @@ import java.util.Set;
 public interface EventServiceResolver {
 
 	/**
-	 * Resolve Facilities and set of Services affected by Event.
+	 * Resolve Facilities and set of Services affected by AuditEvent.
 	 *
-	 * @param event Event to be parsed
+	 * @param event Event to be resolved
 	 * @return Affected Facilities and Services on them.
 	 * @throws InvalidEventMessageException When Event has wrong format.
 	 * @throws ServiceNotExistsException When Service no longer exists.
 	 * @throws InternalErrorException When implementation fails.
 	 * @throws PrivilegeException  When dispatcher lack privileges to call core methods.
 	 */
-	Map<Facility, Set<Service>> parseEvent(String event) throws InvalidEventMessageException, ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	Map<Facility, Set<Service>> resolveEvent(AuditEvent event) throws InvalidEventMessageException, ServiceNotExistsException, InternalErrorException, PrivilegeException;
 
 }

@@ -12,6 +12,10 @@ public class StringMessageEvent extends AuditEvent {
 
 	private String message;
 
+	@SuppressWarnings("unused") // used by jackson mapper
+	public StringMessageEvent() {
+	}
+
 	public StringMessageEvent(String message) {
 		this.message = message;
 	}

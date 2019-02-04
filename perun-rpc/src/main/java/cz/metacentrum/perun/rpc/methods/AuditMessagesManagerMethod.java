@@ -12,13 +12,13 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns messages from audit's logs.
-	 * 
+	 *
 	 * @param count int Messages limit
 	 * @return List<AuditMessage> Audit messages
 	 */
 	/*#
 	 * Returns reasonable number of messages from audit's logs.
-	 * 
+	 *
 	 * @return List<AuditMessage> Audit messages
 	 */
 	getMessages {
