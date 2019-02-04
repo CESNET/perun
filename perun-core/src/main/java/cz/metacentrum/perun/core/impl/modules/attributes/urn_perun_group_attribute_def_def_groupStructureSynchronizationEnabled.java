@@ -38,15 +38,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 
-		if ((boolean) attribute.getValue()) {
-
-			if (!perunSession.getPerunBl().getGroupsManagerBl().getSubGroups(perunSession, group).isEmpty()) {
-				throw new InternalErrorException("Group " + group + " has one or more subGroups, so it is not possible to enable group structure synchronization.");
-			}
-
-			if (!perunSession.getPerunBl().getGroupsManagerBl().getGroupMembers(perunSession, group).isEmpty()) {
-				throw new InternalErrorException("Group " + group + " has one or more members, so it is not possible to enable group structure synchronization.");
-			}
+		if (attribute.valueAsBoolean()) {
 
 			if (perunSession.getPerunBl().getGroupsManagerBl().isGroupSynchronizedFromExternallSource(perunSession, group)) {
 				throw new InternalErrorException("Synchronization is already enabled for one of the parent groups.");

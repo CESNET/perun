@@ -3284,10 +3284,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		List<Attribute> attrsToSet = new ArrayList<>();
 
-		exceptionMessage = processGroupStructureSynchronizationExceptionMessage(sess, group, failedDueToException, correctTimestampString, exceptionMessage, attrsToSet);
+		exceptionMessage = processGroupStructureSynchronizationExceptionMessage(sess, group, failedDueToException, exceptionMessage);
 
-		prepareGroupStructureSynchronizationAttribute(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastGroupStructureSynchronizationState", exceptionMessage, attrsToSet);
-		prepareGroupStructureSynchronizationAttribute(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastGroupStructureSynchronizationTimestamp", correctTimestampString, attrsToSet);
+		if (exceptionMessage == null) {
+			attrsToSet.add(prepareGroupStructureSynchronizationAttribute(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastSuccessGroupStructureSynchronizationTimestamp", correctTimestampString));
+		}
+		attrsToSet.add(prepareGroupStructureSynchronizationAttribute(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastGroupStructureSynchronizationState", exceptionMessage));
+		attrsToSet.add(prepareGroupStructureSynchronizationAttribute(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastGroupStructureSynchronizationTimestamp", correctTimestampString));
 
 		((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttributes(sess, group, attrsToSet);
 	}
@@ -3348,8 +3351,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			Attribute membersQueryForGroup = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-			membersQueryForGroup.setValue(membersQueryAttribute.getValue());
-			membersQueryForGroup.setValue(membersQueryForGroup.getValue().toString().replace("?", group.getShortName()));
+			membersQueryForGroup.setValue(membersQueryAttribute.getValue().toString().replace("?", group.getShortName()));
 			getPerunBl().getAttributesManagerBl().setAttribute(sess, group, membersQueryForGroup);
 
 			Attribute groupMemberExtsource = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME);
@@ -3381,8 +3383,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		boolean failedDueToException = false;
 		try {
 			List<String> skippedMembers = perunBl.getGroupsManagerBl().synchronizeGroup(sess, group);
-
-
 			skippedMembersMessage = prepareSkippedObjectsMessage(skippedMembers, "members");
 			exceptionMessage = skippedMembersMessage;
 
@@ -3423,8 +3423,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		if (!skippedObjects.isEmpty()) {
 			skippedObjectsMessage = "These " + objectName + " from extSource were skipped: { ";
 
-			for (String skippedGroup : skippedObjects) {
-				if (skippedGroup == null) continue;
+			for (String skippedObject : skippedObjects) {
+				if (skippedObject == null) continue;
 
 				skippedObjectsMessage += skippedObjects + ", ";
 			}
@@ -3567,13 +3567,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param sess perun session
 	 * @param group under which was group structure synchronization executed
 	 * @param failedDueToException boolean value if there was an exception raised during group structure synchronization
-	 * @param correctTimestampString correct format of current time stamp
 	 * @param originalExceptionMessage group structure synchronization exception message
-	 * @param attrsToSet list of attributes which will be set later
 	 * @return exceptionMessage, either modified or unmodified
 	 * @throws InternalErrorException
 	 */
-	private String processGroupStructureSynchronizationExceptionMessage(PerunSession sess, Group group, boolean failedDueToException, String correctTimestampString, String originalExceptionMessage, List<Attribute> attrsToSet) throws InternalErrorException {
+	private String processGroupStructureSynchronizationExceptionMessage(PerunSession sess, Group group, boolean failedDueToException, String originalExceptionMessage) {
 		String exceptionMessage = originalExceptionMessage;
 		if (exceptionMessage != null && exceptionMessage.isEmpty()) {
 			exceptionMessage = "Empty message.";
@@ -3581,14 +3579,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			exceptionMessage = exceptionMessage.substring(0, 1000) + " ... message is too long, other info is in perun log file. If needed, please ask perun administrators.";
 		}
 
-		if(exceptionMessage == null) {
-			String attrName = AttributesManager.NS_GROUP_ATTR_DEF + ":lastSuccessGroupStructureSynchronizationTimestamp";
-			try {
-				prepareGroupStructureSynchronizationAttribute(sess, attrName, correctTimestampString, attrsToSet);
-			} catch (AttributeNotExistsException ex) {
-				log.error("Can't save lastSuccessGroupStructureSynchronizationTimestamp, because there is missing attribute with name {}",attrName);
-			}
-		} else {
+		if(exceptionMessage != null) {
 			if(failedDueToException) {
 				getPerunBl().getAuditer().log(sess, new GroupStructureSyncFailed(group));
 				log.debug("{} structure synchronization failed because of {}", group, originalExceptionMessage);
@@ -3609,14 +3600,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param sess perun session
 	 * @param attributeName name of the attribute
 	 * @param attributeValue string value which will be set to the attribute
-	 * @param attrsToSet list where the attribute is added
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
 	 */
-	private void prepareGroupStructureSynchronizationAttribute(PerunSession sess,String attributeName, String attributeValue, List<Attribute> attrsToSet) throws  InternalErrorException, AttributeNotExistsException {
+	private Attribute prepareGroupStructureSynchronizationAttribute(PerunSession sess,String attributeName, String attributeValue) throws  InternalErrorException, AttributeNotExistsException {
 		Attribute attributeToProcess = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, attributeName));
 		attributeToProcess.setValue(attributeValue);
-		attrsToSet.add(attributeToProcess);
+		return attributeToProcess;
 	}
 
 	/**
@@ -3804,13 +3794,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		Group newParentGroup = null;
 
-		if(candidateGroup.getParentGroupName() == null){
-			if(!actualParentName.equals(baseGroup.getShortName())){
+		if (candidateGroup.getParentGroupName() == null) {
+			if(!actualParentName.equals(baseGroup.getShortName())) {
 				newParentGroup = baseGroup;
 			}
-		}
-
-		else if(!actualParentName.equals(candidateGroup.getParentGroupName())){
+		} else if (!actualParentName.equals(candidateGroup.getParentGroupName())) {
 			if(!actualParentName.equals(baseGroup.getShortName())) {
 				newParentGroup = baseGroup;
 			}
@@ -3845,11 +3833,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			if(!groupWithOldDescription.getDescription().equals(groupWithNewDescription.asGroup().getDescription())){
 				groupWithOldDescription.setDescription(groupWithNewDescription.asGroup().getDescription());
 				groupsManagerImpl.updateGroup(sess, groupWithOldDescription);
+				getPerunBl().getAuditer().log(sess, new GroupUpdated(groupWithOldDescription));
 				return true;
 			}
 		} else if(groupWithNewDescription.asGroup().getDescription() != null){
 			groupWithOldDescription.setDescription(groupWithNewDescription.asGroup().getDescription());
 			groupsManagerImpl.updateGroup(sess, groupWithOldDescription);
+			getPerunBl().getAuditer().log(sess, new GroupUpdated(groupWithOldDescription));
 			return true;
 		}
 		return false;

@@ -1298,11 +1298,13 @@ public interface GroupsManagerBl {
 	 * Also log information about failed synchronization to auditer_log.
 	 *
 	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups)
+	 * With a new transaction, rollback on the main method, where this one is used, will not revert saving of this information.
+	 * However, this method cannot be used in method running in the nested transaction, where the group was changed in the database.
 	 *
 	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastSynchronizationState"
 	 *
-	 * FailedDueToException is true means group synchronization failed at all.
+	 * FailedDueToException is true means group synchronization failed completely.
 	 * FailedDueToException is false means group synchronization is ok or finished with some errors (some members were not synchronized)
 	 *
 	 * @param sess perun session
@@ -1322,6 +1324,8 @@ public interface GroupsManagerBl {
 	 * Also log information about failed synchronization to auditer_log.
 	 *
 	 * IMPORTANT: This method runs in nested transaction so it can be used in another transaction
+	 * With a nested transaction, this method can be used in method running in the nested transaction, where the group was changed in the database.
+	 * However, rollback on the main method, where this one is used, will revert saving of this information.
 	 *
 	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastSynchronizationState"
@@ -1347,6 +1351,8 @@ public interface GroupsManagerBl {
 	 * Also log information about failed group structure synchronization to auditer_log.
 	 *
 	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups structures)
+	 * With a new transaction, rollback on the main method, where this one is used, will not revert saving of this information.
+	 * However, this method cannot be used in method running in the nested transaction, where the group was changed in the database.
 	 *
 	 * 1. Get current timestamp
 	 * 2. Check if group or session are null
@@ -1360,7 +1366,7 @@ public interface GroupsManagerBl {
 	 * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastGroupStructureSynchronizationState"
 	 *
-	 * FailedDueToException is true means group structure synchronization failed at all.
+	 * FailedDueToException is true means group structure synchronization failed completely.
 	 * FailedDueToException is false means group structure synchronization is ok or finished with some errors (some groups were not synchronized)
 	 *
 	 * @param sess perun session
@@ -1380,6 +1386,8 @@ public interface GroupsManagerBl {
 	 * Also log information about failed group structure synchronization to auditer_log.
 	 *
 	 * IMPORTANT: This method runs in nested transaction (because of using in synchronization of groups structures)
+	 * With a nested transaction, this method can be used in method running in the nested transaction, where the group was changed in the database.
+	 * However, rollback on the main method, where this one is used, will revert saving of this information.
 	 *
 	 * 1. Get current timestamp
 	 * 2. Check if group or session are null
@@ -1393,7 +1401,7 @@ public interface GroupsManagerBl {
 	 * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastGroupStructureSynchronizationState"
 	 *
-	 * FailedDueToException is true means group structure synchronization failed at all.
+	 * FailedDueToException is true means group structure synchronization failed completely.
 	 * FailedDueToException is false means group structure synchronization is ok or finished with some errors (some groups were not synchronized)
 	 *
 	 * @param sess perun session
@@ -1636,8 +1644,7 @@ public interface GroupsManagerBl {
 	List<String> synchronizeGroupStructure(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException ;
 
 	/**
-	 * Check if there is group structure synchronization enabled for this group or in its parent path
-	 *
+	 * Check if the group or its subgroups are defined as synchronized from an external source at this moment.
 	 *
 	 * @param session
 	 * @param group
@@ -1647,7 +1654,7 @@ public interface GroupsManagerBl {
 	boolean isGroupInStructureSynchronizationTree(PerunSession session, Group group) throws InternalErrorException;
 
 	/**
-	 * Check if there is group structure synchronization enabled in parent path
+	 * Check if the group is defined as synchronized from an external source at this moment.
 	 *
 	 * 1. If group doesn't have parent return false
 	 * 2. Get groups parent object
@@ -1662,7 +1669,7 @@ public interface GroupsManagerBl {
 	boolean isGroupSynchronizedFromExternallSource(PerunSession session, Group group) throws InternalErrorException;
 
 	/**
-	 * Check if there is synchronized child group
+	 * Check if there is a subgroup of the group, which is defined as synchronized from an external source at this moment.
 	 *
 	 * 1. For each subGroup:
 	 *      1.1 if it has enabled group structure synchronization, return true

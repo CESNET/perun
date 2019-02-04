@@ -981,18 +981,18 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
-    public void forceGroupStructureSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupStructureSynchronizationAlreadyRunningException {
-        Utils.checkPerunSession(sess);
-        getGroupsManagerBl().checkGroupExists(sess, group);
+	public void forceGroupStructureSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupStructureSynchronizationAlreadyRunningException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
 
-        // Authorization
-        if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-                && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group))  {
-            throw new PrivilegeException(sess, "synchronizeGroupStructure");
-        }
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group))  {
+			throw new PrivilegeException(sess, "synchronizeGroupStructure");
+		}
 
-        getGroupsManagerBl().forceGroupStructureSynchronization(sess, group);
-    }
+		getGroupsManagerBl().forceGroupStructureSynchronization(sess, group);
+	}
 
 	@Override
 	public void synchronizeGroups(PerunSession sess) throws InternalErrorException, PrivilegeException {
@@ -1018,8 +1018,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		getGroupsManagerBl().synchronizeGroupsStructures(sess);
 	}
 
-		@Override
-		public List<Group> getMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+	@Override
+	public List<Group> getMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
