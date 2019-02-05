@@ -40,17 +40,22 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends U
 				return attr;
 			}
 			//second phase: UF:D:defaultUnixGID is not set, module will select unix group name from preffered list
-			String namespace = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace").getValue();
-			if (namespace == null) {
+			String gidNamespace = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace").getValue();
+			if (gidNamespace == null) {
 				return attr;
 			}
 
-			Attribute userPreferredGroupNames = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" + namespace);
+			String groupNameNamespace = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace").getValue();
+			if (groupNameNamespace == null) {
+				return attr;
+			}
+
+			Attribute userPreferredGroupNames = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:" + groupNameNamespace);
 			List<Resource> resources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
 			if (userPreferredGroupNames.getValue() != null) {
 				Map<String, Resource> resourcesWithName = new HashMap<>();
 				for (Resource resource : resources) {
-					String groupNameForTest = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + namespace).getValue();
+					String groupNameForTest = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace).getValue();
 					if (groupNameForTest != null) {
 						resourcesWithName.put(groupNameForTest, resource);
 					}
@@ -64,7 +69,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends U
 						List<Member> groupMembers = sess.getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
 						groupMembers.retainAll(userMembers);
 						if (!groupMembers.isEmpty()) {
-							String groupNamesForTest = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + namespace).getValue();
+							String groupNamesForTest = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + groupNameNamespace).getValue();
 							if (groupNamesForTest != null) {
 								groupsWithName.put(groupNamesForTest, group);
 							}
@@ -75,7 +80,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends U
 				for (String pGroupName : (List<String>) userPreferredGroupNames.getValue()) {
 					if (resourcesWithName.containsKey(pGroupName)) {
 						Resource resource = resourcesWithName.get(pGroupName);
-						Attribute resourceUnixGID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + namespace);
+						Attribute resourceUnixGID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + gidNamespace);
 						if(resourceUnixGID.getValue() != null) {
 							Utils.copyAttributeToViAttributeWithoutValue(userPreferredGroupNames, attr);
 							attr.setValue(resourceUnixGID.getValue());
@@ -84,7 +89,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends U
 					}
 					if (groupsWithName.containsKey(pGroupName)) {
 						Group group = groupsWithName.get(pGroupName);
-						Attribute groupUnixGID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + namespace);
+						Attribute groupUnixGID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + gidNamespace);
 						if(groupUnixGID.getValue() != null) {
 							Utils.copyAttributeToViAttributeWithoutValue(userPreferredGroupNames, attr);
 							attr.setValue(groupUnixGID.getValue());
@@ -139,6 +144,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends U
 		List<String> strongDependencies = new ArrayList<String>();
 		strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
 		strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
+		strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
 		strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:*");
 		strongDependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:*");
 		strongDependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:*");
