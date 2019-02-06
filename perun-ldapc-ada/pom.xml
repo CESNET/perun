@@ -133,6 +133,12 @@
 			<artifactId>spring-ldap-ldif-batch</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
 		<!-- TESTS -->
 
 		<dependency>
