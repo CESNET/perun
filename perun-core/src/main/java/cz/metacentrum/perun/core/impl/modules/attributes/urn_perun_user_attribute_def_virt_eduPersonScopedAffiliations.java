@@ -182,7 +182,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 			for (Group group: groups) {
 				try {
 					Member groupMember = sess.getPerunBl().getGroupsManagerBl().getGroupMemberById(sess, group, member.getId());
-					if (member.getGroupStatus() == MemberGroupStatus.VALID) {
+					if (groupMember.getGroupStatus() == MemberGroupStatus.VALID) {
 						groupsForAttrCheck.add(group);
 					}
 				} catch (NotGroupMemberException e) {
