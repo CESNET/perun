@@ -1,13 +1,20 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.implApi.DatabaseManagerImplApi;
 import java.beans.Beans;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,22 +33,23 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 	public static final String ORACLE_CHANGELOG = "oracleChangelog.txt";
 	public static final String POSTGRES_CHANGELOG = "postgresChangelog.txt";
 	public static final String HSQLDB_CHANGELOG = "hsqldbChangelog.txt";
+	public static String nameOfOracleArrayMethod = "createOracleArray";
 	private final DatabaseManagerImplApi databaseManagerImpl;
 
 	public DatabaseManagerBlImpl(DatabaseManagerImplApi databaseManagerImpl) {
 		this.databaseManagerImpl = databaseManagerImpl;
 	}
-	
+
 	@Override
 	public String getCurrentDatabaseVersion() throws InternalErrorException {
 		return getDatabaseManagerImpl().getCurrentDatabaseVersion();
 	}
-	
+
 	@Override
 	public String getDatabaseDriverInformation() throws InternalErrorException {
 		return getDatabaseManagerImpl().getDatabaseDriverInformation();
 	}
-	
+
 	@Override
 	public String getDatabaseInformation() throws InternalErrorException {
 		return getDatabaseManagerImpl().getDatabaseInformation();
@@ -113,7 +121,37 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 		}
 		log.debug("Initialize manager ends!");
 	}
-	
+
+	public java.sql.Array prepareOracleArrayOfNumbers(List<? extends PerunBean> perunBeans, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException {
+		int[] arrayOfBeansIds = perunBeans.stream().mapToInt(PerunBean::getId).toArray();
+		Connection oracleConnection = preparedStatement.getConnection().unwrap(Connection.class);
+		java.sql.Array sqlArray;
+		try {
+			Method createOracleArrayMethod = oracleConnection.getClass().getMethod(nameOfOracleArrayMethod, String.class, Object.class);
+			createOracleArrayMethod.setAccessible(true);
+			sqlArray = (java.sql.Array) createOracleArrayMethod.invoke(oracleConnection, AttributesManager.ORACLE_ARRAY_OF_NUMBERS, arrayOfBeansIds);
+		} catch (Exception ex) {
+			throw new InternalErrorRuntimeException("Can't access to method " + nameOfOracleArrayMethod, ex);
+		}
+
+		return sqlArray;
+	}
+
+	public java.sql.Array prepareOracleArrayOfStrings(List<String> strings, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException {
+		String[] arrayOfStrings = (String[]) strings.toArray();
+		Connection oracleConnection = preparedStatement.getConnection().unwrap(Connection.class);
+		java.sql.Array sqlArray;
+		try {
+			Method createOracleArrayMethod = oracleConnection.getClass().getMethod(nameOfOracleArrayMethod, String.class, Object.class);
+			createOracleArrayMethod.setAccessible(true);
+			sqlArray = (java.sql.Array) createOracleArrayMethod.invoke(oracleConnection, AttributesManager.ORACLE_ARRAY_OF_STRINGS, arrayOfStrings);
+		} catch (Exception ex) {
+			throw new InternalErrorRuntimeException("Can't access to method " + nameOfOracleArrayMethod, ex);
+		}
+
+		return sqlArray;
+	}
+
 	public DatabaseManagerImplApi getDatabaseManagerImpl() {
 		return this.databaseManagerImpl;
 	}

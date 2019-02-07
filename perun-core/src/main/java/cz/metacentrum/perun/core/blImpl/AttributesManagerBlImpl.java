@@ -164,8 +164,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	private final Object dependenciesMonitor = new Object();
 
-	private final static int MAX_SIZE_OF_BULK_IN_SQL = 10000;
-
 	/**
 	 * Constructor.
 	 */
@@ -2889,7 +2887,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
 		if (!members.isEmpty()) {
-			return getRequiredAttributesForBulk(sess, service, resource, members);
+			return attributesManagerImpl.getRequiredAttributes(sess, service, resource, members);
 		}
 		return new HashMap<>();
 	}
@@ -2897,7 +2895,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException {
 		if (!members.isEmpty()) {
-			return getRequiredAttributesForBulk(sess, resource, service, members);
+			return attributesManagerImpl.getRequiredAttributes(sess, resource, service, members);
 		}
 		return new HashMap<>();
 	}
@@ -2905,7 +2903,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
 		if (!users.isEmpty()) {
-			return getRequiredAttributesForBulk(sess, service, facility, users);
+			return attributesManagerImpl.getRequiredAttributes(sess, service, facility, users);
 		}
 		return new HashMap<>();
 	}
@@ -2913,7 +2911,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
 		if (!users.isEmpty()) {
-			return getRequiredAttributesForBulk(sess, service, users);
+			return attributesManagerImpl.getRequiredAttributes(sess, service, users);
 		}
 		return new HashMap<>();
 	}
@@ -7329,149 +7327,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		return Graphviz.fromGraph(graph);
-	}
-
-	/**
-	 * Get Map of members with list of member-resource attributes in values.
-	 * <p>
-	 * This method calls 'getRequiredAttributes(session, service, resource, List members)' for
-	 * every MAX_SIZE_OF_BULL_IN_SQL records (default 10000 records) in list of members.
-	 * <p>
-	 * Example: if there are 25000 records in list of members, this method call it by 3 separate
-	 * queries instead of 1, if less or equal to 10000 records are in list of members, than this method
-	 * calls getRequiredAttributes just once without any changes
-	 * <p>
-	 * Reason: SQL error in Oracle for too much records in one SQL query
-	 *
-	 * @param sess     perunSession
-	 * @param service  service to get required attributes for
-	 * @param resource resource to get required attributes for
-	 * @param members  members to get required attributes for
-	 * @return map of members in keys with list of their member-resource attributes in value
-	 */
-	private HashMap<Member, List<Attribute>> getRequiredAttributesForBulk(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
-		if (members.size() <= MAX_SIZE_OF_BULK_IN_SQL)
-			return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members);
-
-		HashMap<Member, List<Attribute>> memberResourceAttrs = new HashMap<>();
-
-		int from = 0;
-		int to = MAX_SIZE_OF_BULK_IN_SQL;
-		do {
-			memberResourceAttrs.putAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members.subList(from, to)));
-			from += MAX_SIZE_OF_BULK_IN_SQL;
-			to += MAX_SIZE_OF_BULK_IN_SQL;
-		} while (members.size() > to);
-		memberResourceAttrs.putAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members.subList(from, members.size())));
-
-		return memberResourceAttrs;
-	}
-
-	/**
-	 * Get Map of members with list of member attributes in values.
-	 * <p>
-	 * This method calls 'getRequiredAttributes(session, resource, service, List members)' for
-	 * every MAX_SIZE_OF_BULL_IN_SQL records (default 10000 records) in list of members.
-	 * <p>
-	 * Example: if there are 25000 records in list of members, this method call it by 3 separate
-	 * queries instead of 1, if less or equal to 10000 records are in list of members, than this method
-	 * calls getRequiredAttributes just once without any changes
-	 * <p>
-	 * Reason: SQL error in Oracle for too much records in one SQL query
-	 *
-	 * @param sess     perunSession
-	 * @param resource resource to get required attributes for
-	 * @param service  service to get required attributes for
-	 * @param members  members to get required attributes for
-	 * @return map of members in keys with list of their member attributes in value
-	 */
-	private HashMap<Member, List<Attribute>> getRequiredAttributesForBulk(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException {
-		if (members.size() <= MAX_SIZE_OF_BULK_IN_SQL)
-			return getAttributesManagerImpl().getRequiredAttributes(sess, resource, service, members);
-
-		HashMap<Member, List<Attribute>> memberAttrs = new HashMap<>();
-
-		int from = 0;
-		int to = MAX_SIZE_OF_BULK_IN_SQL;
-		do {
-			memberAttrs.putAll(getAttributesManagerImpl().getRequiredAttributes(sess, resource, service, members.subList(from, to)));
-			from += MAX_SIZE_OF_BULK_IN_SQL;
-			to += MAX_SIZE_OF_BULK_IN_SQL;
-		} while (members.size() > to);
-		memberAttrs.putAll(getAttributesManagerImpl().getRequiredAttributes(sess, resource, service, members.subList(from, members.size())));
-
-		return memberAttrs;
-	}
-
-	/**
-	 * Get Map of users with list of user-facility attributes in values.
-	 * <p>
-	 * This method calls 'getRequiredAttributes(session, service, facility, List users)' for
-	 * every MAX_SIZE_OF_BULL_IN_SQL records (default 10000 records) in list of users.
-	 * <p>
-	 * Example: if there are 25000 records in list of users, this method call it by 3 separate
-	 * queries instead of 1, if less or equal to 10000 records are in list of users, than this method
-	 * calls getRequiredAttributes just once without any changes
-	 * <p>
-	 * Reason: SQL error in Oracle for too much records in one SQL query
-	 *
-	 * @param sess     perunSession
-	 * @param service  service to get required attributes for
-	 * @param facility facility to get required attributes for
-	 * @param users    users to get required attributes for
-	 * @return map of users in keys with list of their user-facility attributes in value
-	 */
-	private HashMap<User, List<Attribute>> getRequiredAttributesForBulk(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
-		if (users.size() <= MAX_SIZE_OF_BULK_IN_SQL)
-			return getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, users);
-
-		HashMap<User, List<Attribute>> userFacAttrs = new HashMap<>();
-
-		int from = 0;
-		int to = MAX_SIZE_OF_BULK_IN_SQL;
-		do {
-			userFacAttrs.putAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, users.subList(from, to)));
-			from += MAX_SIZE_OF_BULK_IN_SQL;
-			to += MAX_SIZE_OF_BULK_IN_SQL;
-		} while (users.size() > to);
-		userFacAttrs.putAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, users.subList(from, users.size())));
-
-		return userFacAttrs;
-	}
-
-	/**
-	 * Get Map of users with list of user attributes in values.
-	 * <p>
-	 * This method calls 'getRequiredAttributes(session, service, List users)' for
-	 * every MAX_SIZE_OF_BULL_IN_SQL records (default 10000 records) in list of users.
-	 * <p>
-	 * Example: if there are 25000 records in list of users, this method call it by 3 separate
-	 * queries instead of 1, if less or equal to 10000 records are in list of users, than this method
-	 * calls getRequiredAttributes just once without any changes
-	 * <p>
-	 * Reason: SQL error in Oracle for too much records in one SQL query
-	 *
-	 * @param sess    perunSession
-	 * @param service service to get required attributes for
-	 * @param users   users to get required attributes for
-	 * @return map of users in keys with list of their user attributes in value
-	 */
-	private HashMap<User, List<Attribute>> getRequiredAttributesForBulk(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
-		if (users.size() <= MAX_SIZE_OF_BULK_IN_SQL)
-			return getAttributesManagerImpl().getRequiredAttributes(sess, service, users);
-
-		HashMap<User, List<Attribute>> userAttrs = new HashMap<>();
-
-		int from = 0;
-		int to = MAX_SIZE_OF_BULK_IN_SQL;
-		do {
-			userAttrs.putAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, users.subList(from, to)));
-			from += MAX_SIZE_OF_BULK_IN_SQL;
-			to += MAX_SIZE_OF_BULK_IN_SQL;
-		} while (users.size() > to);
-		userAttrs.putAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, users.subList(from, users.size())));
-
-		return userAttrs;
 	}
 
 	// ------------ PRIVATE METHODS FOR ATTRIBUTE DEPENDENCIES LOGIC --------------

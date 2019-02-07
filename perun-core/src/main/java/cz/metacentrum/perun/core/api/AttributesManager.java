@@ -105,6 +105,9 @@ public interface AttributesManager {
 	String NS_UES_ATTR_OPT = "urn:perun:ues:attribute-def:opt";
 	String NS_UES_ATTR_VIRT = "urn:perun:ues:attribute-def:virt";
 
+	String ORACLE_ARRAY_OF_NUMBERS = "PERUN.TPOLECISEL";
+	String ORACLE_ARRAY_OF_STRINGS = "PERUN.TPOLEZNAKU";
+
 	String LOGIN_NAMESPACE = "login-namespace";
 
 	String ATTRIBUTES_REGEXP = "^[-a-zA-Z0-9]+([:][-a-zA-Z0-9]+)?$";
