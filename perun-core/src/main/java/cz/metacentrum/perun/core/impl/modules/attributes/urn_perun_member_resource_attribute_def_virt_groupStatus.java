@@ -59,7 +59,7 @@ public class urn_perun_member_resource_attribute_def_virt_groupStatus extends Me
         attr.setFriendlyName("groupStatus");
         attr.setDisplayName("Group membership status");
         attr.setType(String.class.getName());
-        attr.setDescription("Whether member is ACTIVE or EXPIRED in all groups assigned to the resource.");
+        attr.setDescription("Whether member is VALID or EXPIRED in all groups assigned to the resource.");
         return attr;
     }
 

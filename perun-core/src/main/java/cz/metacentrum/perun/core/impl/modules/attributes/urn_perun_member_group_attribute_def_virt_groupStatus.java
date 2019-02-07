@@ -63,7 +63,7 @@ public class urn_perun_member_group_attribute_def_virt_groupStatus extends Membe
 		attr.setFriendlyName("groupStatus");
 		attr.setDisplayName("Group membership status");
 		attr.setType(String.class.getName());
-		attr.setDescription("Whether member is ACTIVE or EXPIRED in a group.");
+		attr.setDescription("Whether member is VALID or EXPIRED in a group.");
 		return attr;
 	}
 

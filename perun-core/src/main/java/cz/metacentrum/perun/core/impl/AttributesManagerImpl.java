@@ -3165,7 +3165,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
 							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
 							"where namespace in (?,?,?)",
-					new SingleBeanAttributeRowMapper<>(sess, this, member), service.getId(), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+					new MemberGroupAttributeRowMapper(sess, this, member, group), service.getId(), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
