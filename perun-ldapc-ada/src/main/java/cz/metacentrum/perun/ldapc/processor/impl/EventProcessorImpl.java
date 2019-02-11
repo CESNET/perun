@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.impl.AuditerConsumer;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.processor.EventProcessor;
 import cz.metacentrum.perun.ldapc.processor.LdapConnector;
@@ -51,7 +50,6 @@ public class EventProcessorImpl implements Runnable {
 	private LdapProperties ldapProperties;
 
 	//Other variables
-	private AuditerConsumer auditerConsumer;
 	private final static Logger log = LoggerFactory.getLogger(EventProcessorImpl.class);
 	private boolean running = false;
 
@@ -179,7 +177,7 @@ public class EventProcessorImpl implements Runnable {
 	public static final String organizationalUnitPeople = "ou=People";
 
 	/**
-	 * This method waiting for new messages in AuditLog (using AuditerConsumer)
+	 * This method waiting for new messages in AuditLog
 	 * and then call method resolveMessage or catch exceptions and log data to files.
 	 *
 	 * @throws InterruptedException if thread is interrupted
@@ -189,8 +187,6 @@ public class EventProcessorImpl implements Runnable {
 	public void run() {
 
 		if(!ldapProperties.propsLoaded()) throw new RuntimeException("LdapcProperties is not autowired correctly!");
-
-		//Get instance of auditerConsumer and set runnig to true
 
 		running = true;
 		Integer lastProcessedIdNumber = 0;

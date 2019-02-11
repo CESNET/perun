@@ -30,12 +30,10 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.impl.AuditerConsumer;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher;
 import cz.metacentrum.perun.ldapc.processor.EventProcessor;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
-import cz.metacentrum.perun.rpclib.Rpc;
 
 @org.springframework.stereotype.Service(value = "eventDispatcher")
 public class EventDispatcherImpl implements EventDispatcher, Runnable {
@@ -57,7 +55,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 
 		int beanCount = 0;
 		int presentBeans = 0;
-		
+
 		private Group group, parentGroup;
 		private Member member;
 		private Vo vo;
@@ -196,14 +194,12 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 		}
 
 	}
-	
-	
+
+
 	@Override
 	public void run() {
 
 		if(!ldapProperties.propsLoaded()) throw new RuntimeException("LdapcProperties is not autowired correctly!");
-
-		//Get instance of auditerConsumer and set running to true
 
 		running = true;
 		Integer lastProcessedIdNumber = 0;
@@ -213,7 +209,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 		try {
 			PerunSession perunSession = ldapcManager.getPerunSession();
 			Perun perun = ldapcManager.getPerunBl();
-			
+
 			//If running is true, then this process will be continuously
 			while (running) {
 
@@ -281,7 +277,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 		for(Pair<DispatchEventCondition, EventProcessor> subscription : registeredProcessors) {
 			DispatchEventCondition condition = subscription.getLeft();
 			EventProcessor processor = subscription.getRight();
-			
+
 			if(condition.isApplicable(beans, msg)) {
 				String handlerName = condition.getHandlerMethodName();
 				if(handlerName != null) {
@@ -297,7 +293,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 					} catch (Exception e) {
 						log.error("Error dispatching to handler " + handlerName + ": ", e);
 					}
-					
+
 				} else {
 					log.debug("Dispatching message {} to processor {}", msg, processor.getClass().getName());
 					processor.processEvent(msg, beans);
