@@ -3,7 +3,6 @@ package cz.metacentrum.perun.registrar.impl;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInDays;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInMonthNotification;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpired;
-import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberExpired;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -358,7 +357,7 @@ public class ExpirationNotifScheduler {
 				.forEach(member -> {
 					try {
 						perun.getGroupsManagerBl().expireMemberInGroup(sess, member, group);
-						log.info("Switching {} in {} to EXPIRED state, due to expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, "urn:perun:member_group:attribute-def:def:membershipExpiration").getValue());
+						log.info("Switching {} in {} to EXPIRED state, due to expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration").getValue());
 					} catch (InternalErrorException e) {
 						log.error("Consistency error while trying to expire member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
@@ -392,7 +391,7 @@ public class ExpirationNotifScheduler {
 				.forEach(member -> {
 					try {
 						perun.getGroupsManagerBl().validateMemberInGroup(sess, member, group);
-						log.info("Switching {} in {} to VALID state, due to changed expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, "urn:perun:member_group:attribute-def:def:membershipExpiration").getValue());
+						log.info("Switching {} in {} to VALID state, due to changed expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration").getValue());
 					} catch (InternalErrorException e) {
 						log.error("Error during validating member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
