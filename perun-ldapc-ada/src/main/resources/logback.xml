@@ -1,0 +1,34 @@
+<configuration packagingData="false" debug="false" scan="false" scanPeriod="30 seconds">
+
+	<contextName>perun-ldapc</contextName>
+
+	<!-- variable defining the directory where log files will be put, takes system property perun.log -->
+	<variable name="LOGDIR" value="${perun.log:-/var/log/perun/}"/>
+
+	<!-- production setting for format of log lines -->
+	<variable name="ENCODER_PATTERN" value="%date [%thread] %-5level %logger{35} - %msg%n"/>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-ldapc">
+		<file>${LOGDIR}perun-ldapc.log</file>
+		<!-- see https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-ldapc.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<root level="info">
+		<appender-ref ref="perun-ldapc" />
+	</root>
+
+	<logger name="cz.metacentrum.perun.ldapc" level="debug"/>
+
+	<!-- keep Spring quiet -->
+	<logger name="org.springframework" level="warn"/>
+
+</configuration>
