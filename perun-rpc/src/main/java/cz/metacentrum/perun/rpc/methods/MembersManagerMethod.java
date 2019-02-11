@@ -1052,6 +1052,15 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param member int Member <code>id</code>
 	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
 	 * @exampleParam status "SUSPENDED"
+	 * @param message String reason for suspension
+	 * @return Member Member with status after change
+	 */
+	/*#
+	 * Set membership status of a member.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
+	 * @exampleParam status "SUSPENDED"
 	 * @return Member Member with status after change
 	 */
 	setStatus {
@@ -1060,6 +1069,9 @@ public enum MembersManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			Status status = Status.valueOf(parms.readString("status"));
+			if (parms.contains("message")){
+				return ac.getMembersManager().setStatus(ac.getSession(), ac.getMemberById(parms.readInt("member")), status, parms.readString("message"));
+			}
 			return ac.getMembersManager().setStatus(ac.getSession(), ac.getMemberById(parms.readInt("member")), status);
 		}
 	},

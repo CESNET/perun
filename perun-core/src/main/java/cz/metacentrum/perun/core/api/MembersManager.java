@@ -953,6 +953,23 @@ public interface MembersManager {
 	Member setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
 
 	/**
+	 *  Set status of the member to specified status.
+	 *
+	 * @param sess
+	 * @param member
+	 * @param status new status
+	 * @param message message with reason for suspension
+	 * @return member with status set
+	 * @throws InternalErrorException
+	 * @throws MemberNotExistsException
+	 * @throws MemberNotValidYetException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 * @throws PrivilegeException
+	 */
+	Member setStatus(PerunSession sess, Member member, Status status, String message) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
+
+	/**
 	 * Validate all attributes for member and set member's status to VALID.
 	 * This method runs asynchronously. It immediately return member with <b>ORIGINAL</b> status and after asynchronous validation successfully
 	 * finishes it switch member's status to VALID. If validation ends with error, member keeps his status.

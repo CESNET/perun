@@ -29,7 +29,6 @@ import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.GetAssignedFacilities;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetMemberGroups;
 import cz.metacentrum.perun.webgui.json.membersManager.GetMemberByUser;
-import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedResources;
 import cz.metacentrum.perun.webgui.json.usersManager.*;
 import cz.metacentrum.perun.webgui.model.*;
@@ -37,6 +36,7 @@ import cz.metacentrum.perun.webgui.tabs.*;
 import cz.metacentrum.perun.webgui.tabs.attributestabs.SetNewAttributeTabItem;
 import cz.metacentrum.perun.webgui.tabs.cabinettabs.UsersPublicationsTabItem;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.FacilityDetailTabItem;
+import cz.metacentrum.perun.webgui.tabs.memberstabs.ChangeStatusTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MemberDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.resourcestabs.ResourceDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
@@ -611,46 +611,13 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				// member status - on click action
 				status.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
-						FlexTable widget = new FlexTable();
-						final ListBox lb = new ListBox(false);
-						lb.addItem("VALID", "VALID");
-						lb.addItem("INVALID", "INVALID");
-						lb.addItem("SUSPENDED", "SUSPENDED");
-						lb.addItem("EXPIRED", "EXPIRED");
-						lb.addItem("DISABLED", "DISABLED");
-						widget.setHTML(0, 0, "<strong>Status: </strong>");
-						widget.setWidget(0, 1, lb);
-
-						// pick which one is already set
-						for (int i=0; i<lb.getItemCount(); i++) {
-							if (lb.getItemText(i).equalsIgnoreCase(member.getStatus())) {
-								lb.setSelectedIndex(i);
-							}
-						}
-
-						Confirm conf = new Confirm("Change member's status", widget, true);
-						conf.setCancelButtonText("Cancel");
-						conf.setOkButtonText("Change status");
-						conf.setOkClickHandler(new ClickHandler(){
-							public void onClick(ClickEvent event) {
-								SetStatus call = new SetStatus(member.getId(), new JsonCallbackEvents(){
-									@Override
-									public void onLoadingStart() {
-										subContent.setWidget(new AjaxLoaderImage());
-									}
+						PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(
+							new ChangeStatusTabItem(member, new JsonCallbackEvents(){
+								@Override
 								public void onFinished(JavaScriptObject jso) {
-									subContent.setWidget(entryPanel);
-									gmbu.retrieveData();
+									loadMemberSubContent(subContent, voLabel, listbox);
 								}
-								public void onError(PerunError error) {
-									subContent.setWidget(entryPanel);
-									gmbu.retrieveData();
-								}
-								});
-								call.setStatus(lb.getValue(lb.getSelectedIndex()));
-							}
-						});
-						conf.show();
+							}));
 					}
 				});
 

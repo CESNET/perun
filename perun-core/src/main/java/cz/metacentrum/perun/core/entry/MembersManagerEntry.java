@@ -973,6 +973,20 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public Member setStatus(PerunSession sess, Member member, Status status, String message) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+			throw new PrivilegeException(sess, "setStatus");
+		}
+
+		getMembersManagerBl().checkMemberExists(sess, member);
+
+		return getMembersManagerBl().setStatus(sess, member, status, message);
+	}
+
+	@Override
 	public Member validateMemberAsync(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);

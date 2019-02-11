@@ -88,6 +88,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
 import cz.metacentrum.perun.utils.graphs.Graph;
 import cz.metacentrum.perun.utils.graphs.GraphEdge;
 import cz.metacentrum.perun.utils.graphs.Node;
@@ -6551,6 +6552,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setFriendlyName("organization");
 		attr.setDisplayName("Organization (for VO)");
 		attr.setDescription("Organization, from which user comes from (VO wide).");
+		//set attribute rights (with dummy id of attribute - not known yet)
+		rights = new ArrayList<>();
+		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+		rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
+		attributes.put(attr, rights);
+
+		//urn_perun_member_attribute_def_def_suspensionInfo
+		attr = (new urn_perun_member_attribute_def_def_suspensionInfo()).getAttributeDefinition();
 		//set attribute rights (with dummy id of attribute - not known yet)
 		rights = new ArrayList<>();
 		rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));

@@ -14,11 +14,12 @@ import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.membersManager.SetStatus;
-import cz.metacentrum.perun.webgui.model.RichMember;
+import cz.metacentrum.perun.webgui.model.Member;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
+
 
 /**
  * Inner tab for changing members membership status
@@ -28,7 +29,7 @@ import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
  */
 public class ChangeStatusTabItem implements TabItem {
 
-	private RichMember member;
+	private Member member;
 	private int memberId;
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private SimplePanel contentWidget = new SimplePanel();
@@ -39,10 +40,10 @@ public class ChangeStatusTabItem implements TabItem {
 	/**
 	 * Constructor
 	 *
-	 * @param member RichMember object, typically from table
+	 * @param member Member object, typically from table
 	 * @param events Events triggered when status is changed
 	 */
-	public ChangeStatusTabItem(RichMember member, JsonCallbackEvents events){
+	public ChangeStatusTabItem(Member member, JsonCallbackEvents events){
 		this.member = member;
 		this.memberId = member.getId();
 		this.events = events;
@@ -110,7 +111,15 @@ public class ChangeStatusTabItem implements TabItem {
 		TabMenu menu = new TabMenu();
 		final TabItem tab = this;
 
-		final CustomButton changeButton = new CustomButton("Change status", ButtonTranslation.INSTANCE.changeStatus(member.getUser().getFullName()), SmallIcons.INSTANCE.diskIcon());
+		Label description = new Label();
+		description.setText("Reason for suspension:");
+		description.setVisible(false);
+
+		TextArea messageArea = new TextArea();
+		messageArea.setWidth("95%");
+		messageArea.setVisible(false);
+
+		final CustomButton changeButton = new CustomButton("Change status", SmallIcons.INSTANCE.diskIcon());
 		// by default false
 		changeButton.setEnabled(false);
 		changeButton.addClickHandler(new ClickHandler() {
@@ -122,7 +131,7 @@ public class ChangeStatusTabItem implements TabItem {
 						// close without refresh
 						session.getTabManager().closeTab(tab, false);
 					}
-				})));
+				})), messageArea.getText());
 				request.setStatus(lb.getValue(lb.getSelectedIndex()));
 			}
 		});
@@ -152,6 +161,8 @@ public class ChangeStatusTabItem implements TabItem {
 				if (lb.getSelectedIndex() == 0) {
 					// VALIDATING NOTICE
 					if (!member.getStatus().equalsIgnoreCase("VALID")) text.setHTML("Changing status to VALID <strong>will trigger automatic configuration</strong> for provided resources. <br/><strong>If successful</strong>, member will have access on provided resources. <br /><strong>If not</strong>, see displayed error message and do manual configuration on 'settings' tab on members detail.");
+					messageArea.setVisible(false);
+					description.setVisible(false);
 				} else {
 					// INVALIDATING NOTICE
 					if (member.getStatus().equalsIgnoreCase("VALID")) text.setHTML("Changing status to "+lb.getValue(lb.getSelectedIndex())+" will <strong>prevent member from access to provided resources (based on provided service's rules)</strong>.<br /><br />");
@@ -160,18 +171,28 @@ public class ChangeStatusTabItem implements TabItem {
 				// SET INFO
 				if (lb.getSelectedIndex() == 1) {
 					text.setHTML(text.getHTML()+"INVALID status means there is configuration error, which prevents him from access on provided resources.");
+					messageArea.setVisible(false);
+					description.setVisible(false);
 				} else if (lb.getSelectedIndex() == 2) {
 					text.setHTML(text.getHTML()+"SUSPENDED status means, that member did something bad (against VO rules).");
+					messageArea.setVisible(true);
+					description.setVisible(true);
 				} else if (lb.getSelectedIndex() == 3) {
 					text.setHTML(text.getHTML()+"EXPIRED status means, that member didn't extend his membership in VO, but it's still possible for him to do so.");
+					messageArea.setVisible(false);
+					description.setVisible(false);
 				} else if (lb.getSelectedIndex() == 4) {
 					text.setHTML(text.getHTML()+"DISABLED status means, that member didn't extend his membership long ago or was manually disabled by administrator. Member can't enable/extend membership by himself.");
+					messageArea.setVisible(false);
+					description.setVisible(false);
 				}
 
 			}
 		});
 
 		vp.add(layout);
+		vp.add(description);
+		vp.add(messageArea);
 		vp.add(menu);
 		vp.setCellHorizontalAlignment(menu, HasHorizontalAlignment.ALIGN_RIGHT);
 

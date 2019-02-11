@@ -255,7 +255,7 @@ public class MemberColumnProvider {
 		statusColumn.setFieldUpdater(new FieldUpdater<RichMember,String>(){
 			@Override
 			public void update(final int index, final RichMember object, final String value) {
-				PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeStatusTabItem(object, new JsonCallbackEvents(){
+				PerunWebSession.getInstance().getTabManager().addTabToCurrentTab(new ChangeStatusTabItem(object.cast(), new JsonCallbackEvents(){
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						Member m = jso.cast();

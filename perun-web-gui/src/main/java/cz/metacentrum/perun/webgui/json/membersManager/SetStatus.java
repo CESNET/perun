@@ -22,6 +22,7 @@ public class SetStatus implements JsonStatusSetCallback {
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private int memberId = 0;
 	private String status = "";
+	private String message;
 	final String JSON_URL = "membersManager/setStatus";
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 
@@ -40,9 +41,16 @@ public class SetStatus implements JsonStatusSetCallback {
 	 * @param memberId ID of member to set new status
 	 * @param events Custom events
 	 */
+	public SetStatus(int memberId, JsonCallbackEvents events, String message) {
+		this.memberId = memberId;
+		this.events = events;
+		this.message = message;
+	}
+
 	public SetStatus(int memberId, JsonCallbackEvents events) {
 		this.memberId = memberId;
 		this.events = events;
+		this.message = "";
 	}
 
 	/**
@@ -118,6 +126,9 @@ public class SetStatus implements JsonStatusSetCallback {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("member", new JSONNumber(memberId));
 		jsonQuery.put("status", new JSONString(status));
+		if (status.equals("SUSPENDED") && !message.equals("")) {
+			jsonQuery.put("message", new JSONString(message));
+		}
 		return jsonQuery;
 	}
 
