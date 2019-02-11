@@ -163,4 +163,24 @@ sub moveUserExtSource
 	return Perun::Common::callManagerMethod('moveUserExtSource', 'null', @_);
 }
 
+sub setSpecificUser
+{
+	return Perun::Common::callManagerMethod('setSpecificUser', 'null', @_);
+}
+
+sub unsetSpecificUser
+{
+	return Perun::Common::callManagerMethod('unsetSpecificUser', 'null', @_);
+}
+
+sub addSpecificUserOwner
+{
+	return Perun::Common::callManagerMethod('addSpecificUserOwner', 'null', @_);
+}
+
+sub removeSpecificUserOwner
+{
+	return Perun::Common::callManagerMethod('removeSpecificUserOwner', 'null', @_);
+}
+
 1;
