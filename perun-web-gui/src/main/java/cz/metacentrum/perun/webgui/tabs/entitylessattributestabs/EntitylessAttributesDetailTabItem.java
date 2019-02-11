@@ -57,6 +57,10 @@ public class EntitylessAttributesDetailTabItem implements TabItem {
 
 	private final CheckBox selfRead = new CheckBox();
 	private final CheckBox selfWrite = new CheckBox();
+	private final CheckBox selfReadVo = new CheckBox();
+	private final CheckBox selfReadPublic = new CheckBox();
+	private final CheckBox selfWriteVo = new CheckBox();
+	private final CheckBox selfWritePublic = new CheckBox();
 	private final CheckBox voRead = new CheckBox();
 	private final CheckBox voWrite = new CheckBox();
 	private final CheckBox groupRead = new CheckBox();
@@ -177,7 +181,7 @@ public class EntitylessAttributesDetailTabItem implements TabItem {
 			final ArrayList<AttributeRights> list = new ArrayList<>();
 			for (AttributeRights r : rights) {
 				if (r.getRole().equalsIgnoreCase("SELF")) {
-					list.add(getRightsFromWidgets(selfRead, selfWrite, r));
+					list.add(getRightsFromWidgets(selfRead, selfWrite, selfReadPublic, selfWritePublic, selfReadVo, selfWriteVo, r));
 				} else if (r.getRole().equalsIgnoreCase("VOADMIN")) {
 					list.add(getRightsFromWidgets(voRead, voWrite, r));
 				} else if (r.getRole().equalsIgnoreCase("GROUPADMIN")) {
@@ -258,21 +262,27 @@ public class EntitylessAttributesDetailTabItem implements TabItem {
 		rightsTable.setStyleName("inputFormFlexTable");
 
 		rightsTable.setHTML(0, 1, "<strong>SELF</strong>");
-		rightsTable.setHTML(0, 2, "<strong>VO</strong>");
-		rightsTable.setHTML(0, 3, "<strong>GROUP</strong>");
-		rightsTable.setHTML(0, 4, "<strong>FACILITY</strong>");
+		rightsTable.setHTML(0, 2, "<strong>SELF_PUBLIC</strong>");
+		rightsTable.setHTML(0, 3, "<strong>SELF_VO</strong>");
+		rightsTable.setHTML(0, 4, "<strong>VO</strong>");
+		rightsTable.setHTML(0, 5, "<strong>GROUP</strong>");
+		rightsTable.setHTML(0, 6, "<strong>FACILITY</strong>");
 
 		rightsTable.setHTML(1, 0, "<strong>READ</strong>");
 		rightsTable.setHTML(2, 0, "<strong>WRITE</strong>");
 
 		rightsTable.setWidget(1, 1, selfRead);
 		rightsTable.setWidget(2, 1, selfWrite);
-		rightsTable.setWidget(1, 2, voRead);
-		rightsTable.setWidget(2, 2, voWrite);
-		rightsTable.setWidget(1, 3, groupRead);
-		rightsTable.setWidget(2, 3, groupWrite);
-		rightsTable.setWidget(1, 4, facilityRead);
-		rightsTable.setWidget(2, 4, facilityWrite);
+		rightsTable.setWidget(1, 2, selfReadPublic);
+		rightsTable.setWidget(2, 2, selfWritePublic);
+		rightsTable.setWidget(1, 3, selfReadVo);
+		rightsTable.setWidget(2, 3, selfWriteVo);
+		rightsTable.setWidget(1, 4, voRead);
+		rightsTable.setWidget(2, 4, voWrite);
+		rightsTable.setWidget(1, 5, groupRead);
+		rightsTable.setWidget(2, 5, groupWrite);
+		rightsTable.setWidget(1, 6, facilityRead);
+		rightsTable.setWidget(2, 6, facilityWrite);
 
 		rightsTable.addStyleName("centeredTable");
 
@@ -294,7 +304,7 @@ public class EntitylessAttributesDetailTabItem implements TabItem {
 				rights = JsonUtils.jsoAsList(jso);
 				for (AttributeRights r : rights) {
 					if (r.getRole().equalsIgnoreCase("SELF")) {
-						setRightsToWidgets(selfRead, selfWrite, r);
+						setRightsToWidgets(selfRead, selfWrite, selfReadPublic, selfWritePublic, selfReadVo, selfWriteVo, r);
 					} else if (r.getRole().equalsIgnoreCase("VOADMIN")) {
 						setRightsToWidgets(voRead, voWrite, r);
 					} else if (r.getRole().equalsIgnoreCase("GROUPADMIN")) {
@@ -382,9 +392,63 @@ public class EntitylessAttributesDetailTabItem implements TabItem {
 
 	}
 
+	private void setRightsToWidgets(CheckBox read, CheckBox write, CheckBox readPublic, CheckBox writePublic,
+									CheckBox readVo, CheckBox writeVo, AttributeRights right) {
+
+		ArrayList<String> list = new ArrayList<>();
+		for (int i=0; i<right.getRights().length(); i++) {
+			list.add(right.getRights().get(i));
+		}
+
+		if (list.contains("READ")) {
+			read.setValue(true);
+		} else {
+			read.setValue(false);
+		}
+
+		if (list.contains("WRITE")) {
+			write.setValue(true);
+		} else {
+			write.setValue(false);
+		}
+
+		if (list.contains("READ_PUBLIC")) {
+			readPublic.setValue(true);
+		} else {
+			readPublic.setValue(false);
+		}
+
+		if (list.contains("WRITE_PUBLIC")) {
+			writePublic.setValue(true);
+		} else {
+			writePublic.setValue(false);
+		}
+		if (list.contains("READ_VO")) {
+			readVo.setValue(true);
+		} else {
+			readVo.setValue(false);
+		}
+
+		if (list.contains("WRITE_VO")) {
+			writeVo.setValue(true);
+		} else {
+			writeVo.setValue(false);
+		}
+	}
+
 	private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, AttributeRights right) {
 
 		right.setRights(read.getValue(), write.getValue());
+
+		return right;
+
+	}
+
+	private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, CheckBox readPublic, CheckBox writePublic,
+												 CheckBox readVo, CheckBox writeVo, AttributeRights right) {
+
+		right.setSelfRights(read.getValue(), write.getValue(), readPublic.getValue(), writePublic.getValue(),
+			readVo.getValue(), writeVo.getValue());
 
 		return right;
 
@@ -394,6 +458,10 @@ public class EntitylessAttributesDetailTabItem implements TabItem {
 
 		selfRead.setEnabled(enabled);
 		selfWrite.setEnabled(enabled);
+		selfReadPublic.setEnabled(enabled);
+		selfWritePublic.setEnabled(enabled);
+		selfReadVo.setEnabled(enabled);
+		selfWriteVo.setEnabled(enabled);
 		voRead.setEnabled(enabled);
 		voWrite.setEnabled(enabled);
 		groupRead.setEnabled(enabled);
