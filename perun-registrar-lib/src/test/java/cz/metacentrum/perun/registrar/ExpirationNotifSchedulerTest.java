@@ -34,7 +34,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 	private final static String CLASS_NAME = "ExpirationNotifSchedulerTest.";
 
 	private final static String EXPIRATION_URN = "urn:perun:member:attribute-def:def:membershipExpiration";
-	private final static String GROUP_EXPIRATION_URN = "urn:perun:member_group:attribute-def:def:membershipExpiration";
+	private final static String GROUP_EXPIRATION_URN = "urn:perun:member_group:attribute-def:def:groupMembershipExpiration";
 	private ExtSource extSource = new ExtSource(0, "testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
 	private Vo vo = new Vo(0, "SynchronizerTestVo", "SyncTestVo");
 
@@ -390,7 +390,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
-		attr.setFriendlyName("membershipExpiration");
+		attr.setFriendlyName("groupMembershipExpiration");
 		attr.setType(String.class.getName());
 		attr.setDisplayName("Group membership expiration");
 		attr.setDescription("When the member expires in group, format YYYY-MM-DD.");

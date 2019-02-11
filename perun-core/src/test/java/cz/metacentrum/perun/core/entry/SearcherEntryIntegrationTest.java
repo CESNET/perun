@@ -251,7 +251,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		// setup required attribute if not exists
 		try {
-			perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:membershipExpiration");
+			perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration");
 		} catch (AttributeNotExistsException ex) {
 			setUpGroupMembershipExpirationAttribute();
 		}
@@ -263,11 +263,11 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		String yesterday = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
 
 		// set attributes
-		Attribute attribute = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:membershipExpiration"));
+		Attribute attribute = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration"));
 		attribute.setValue(today);
 		perun.getAttributesManager().setAttribute(sess, member1, group, attribute);
 
-		Attribute attribute2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:membershipExpiration"));
+		Attribute attribute2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration"));
 		attribute2.setValue(yesterday);
 		perun.getAttributesManager().setAttribute(sess, member2, group, attribute2);
 
@@ -963,7 +963,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
-		attr.setFriendlyName("membershipExpiration");
+		attr.setFriendlyName("groupMembershipExpiration");
 		attr.setType(String.class.getName());
 		attr.setDisplayName("Group membership expiration");
 		attr.setDescription("When the member expires in group, format YYYY-MM-DD.");
