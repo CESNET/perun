@@ -74,4 +74,30 @@ public class AttributeRights extends JavaScriptObject {
 		}
 	}-*/;
 
+	/**
+	 * Set self rights which belongs to this role-attribute (with self_public and self_vo)
+	 */
+	public final native void setSelfRights(boolean read, boolean write, boolean readPublic, boolean writePublic,
+										   boolean readVo, boolean writeVo) /*-{
+		this.rights = [];
+		if (read) {
+			this.rights.push("READ");
+		}
+		if (write) {
+			this.rights.push("WRITE");
+		}
+		if (readPublic) {
+			this.rights.push("READ_PUBLIC");
+		}
+		if (writePublic) {
+			this.rights.push("WRITE_PUBLIC");
+		}
+		if (readVo) {
+			this.rights.push("READ_VO");
+		}
+		if (writeVo) {
+			this.rights.push("WRITE_VO");
+		}
+	}-*/;
+
 }

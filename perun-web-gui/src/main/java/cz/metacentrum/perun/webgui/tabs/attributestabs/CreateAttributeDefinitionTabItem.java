@@ -55,6 +55,10 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 
 	private final CheckBox selfRead = new CheckBox();
 	private final CheckBox selfWrite = new CheckBox();
+	private final CheckBox selfReadVo = new CheckBox();
+	private final CheckBox selfReadPublic = new CheckBox();
+	private final CheckBox selfWriteVo = new CheckBox();
+	private final CheckBox selfWritePublic = new CheckBox();
 	private final CheckBox voRead = new CheckBox();
 	private final CheckBox voWrite = new CheckBox();
 	private final CheckBox groupRead = new CheckBox();
@@ -193,7 +197,7 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 							ArrayList<AttributeRights> list = new ArrayList<AttributeRights>();
 
 							AttributeRights right = AttributeRights.create(a.getId(), "SELF");
-							list.add(getRightsFromWidgets(selfRead, selfWrite, right));
+							list.add(getRightsFromWidgets(selfRead, selfWrite, selfReadPublic, selfWritePublic, selfReadVo, selfWriteVo, right));
 
 							AttributeRights right2 = AttributeRights.create(a.getId(), "VOADMIN");
 							list.add(getRightsFromWidgets(voRead, voWrite, right2));
@@ -264,21 +268,27 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 		rightsTable.setStyleName("inputFormFlexTable");
 
 		rightsTable.setHTML(0, 1, "<strong>SELF</strong>");
-		rightsTable.setHTML(0, 2, "<strong>VO</strong>");
-		rightsTable.setHTML(0, 3, "<strong>GROUP</strong>");
-		rightsTable.setHTML(0, 4, "<strong>FACILITY</strong>");
+		rightsTable.setHTML(0, 2, "<strong>SELF_PUBLIC</strong>");
+		rightsTable.setHTML(0, 3, "<strong>SELF_VO</strong>");
+		rightsTable.setHTML(0, 4, "<strong>VO</strong>");
+		rightsTable.setHTML(0, 5, "<strong>GROUP</strong>");
+		rightsTable.setHTML(0, 6, "<strong>FACILITY</strong>");
 
 		rightsTable.setHTML(1, 0, "<strong>READ</strong>");
 		rightsTable.setHTML(2, 0, "<strong>WRITE</strong>");
 
 		rightsTable.setWidget(1, 1, selfRead);
 		rightsTable.setWidget(2, 1, selfWrite);
-		rightsTable.setWidget(1, 2, voRead);
-		rightsTable.setWidget(2, 2, voWrite);
-		rightsTable.setWidget(1, 3, groupRead);
-		rightsTable.setWidget(2, 3, groupWrite);
-		rightsTable.setWidget(1, 4, facilityRead);
-		rightsTable.setWidget(2, 4, facilityWrite);
+		rightsTable.setWidget(1, 2, selfReadPublic);
+		rightsTable.setWidget(2, 2, selfWritePublic);
+		rightsTable.setWidget(1, 3, selfReadVo);
+		rightsTable.setWidget(2, 3, selfWriteVo);
+		rightsTable.setWidget(1, 4, voRead);
+		rightsTable.setWidget(2, 4, voWrite);
+		rightsTable.setWidget(1, 5, groupRead);
+		rightsTable.setWidget(2, 5, groupWrite);
+		rightsTable.setWidget(1, 6, facilityRead);
+		rightsTable.setWidget(2, 6, facilityWrite);
 
 		rightsTable.addStyleName("centeredTable");
 
@@ -312,10 +322,24 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 
 	}
 
+	private AttributeRights getRightsFromWidgets(CheckBox read, CheckBox write, CheckBox readPublic, CheckBox writePublic,
+												 CheckBox readVo, CheckBox writeVo, AttributeRights right) {
+
+		right.setSelfRights(read.getValue(), write.getValue(), readPublic.getValue(), writePublic.getValue(),
+			readVo.getValue(), writeVo.getValue());
+
+		return right;
+
+	}
+
 	private void enableDisableWidgets(boolean enabled) {
 
 		selfRead.setEnabled(enabled);
 		selfWrite.setEnabled(enabled);
+		selfReadPublic.setEnabled(enabled);
+		selfWritePublic.setEnabled(enabled);
+		selfReadVo.setEnabled(enabled);
+		selfWriteVo.setEnabled(enabled);
 		voRead.setEnabled(enabled);
 		voWrite.setEnabled(enabled);
 		groupRead.setEnabled(enabled);
