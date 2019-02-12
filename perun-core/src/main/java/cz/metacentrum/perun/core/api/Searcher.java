@@ -165,6 +165,9 @@ public interface Searcher {
 	 * Method returns members with its expiration status for given group.
 	 * Method ignores current member state, just compares expiration date!
 	 *
+	 * Method returns also indirect members of group with expiration set (by accident probably),
+	 * but we manage status only for direct members !!
+	 *
 	 * @param sess Perun session
 	 * @param operator One of "=", "<", ">", "<=", ">=". If null, "=" is anticipated.
 	 * @param date Date to compare expiration with (if null, current date is used).

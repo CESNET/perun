@@ -277,6 +277,25 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue("Member with expiration yesterday was not found for >= yesterday.", perun.getSearcher().getMembersByGroupExpiration(sess, group, ">=", calendar).contains(member2));
 		assertTrue("Member with expiration today was found for = yesterday.", !perun.getSearcher().getMembersByGroupExpiration(sess, group, "=", calendar).contains(member1));
 		assertTrue("Member with expiration yesterday was found for > yesterday.", !perun.getSearcher().getMembersByGroupExpiration(sess, group, ">", calendar).contains(member2));
+
+		// check sub-group logic if it resolve correct status for members
+
+		Group subGroup = new Group("subgroup", "subgroup of test group");
+		perun.getGroupsManager().createGroup(sess, group, subGroup);
+		perun.getGroupsManager().addMember(sess, subGroup, member1);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member1, group, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member1, subGroup, MemberGroupStatus.EXPIRED);
+		List<Member> mems = perun.getSearcher().getMembersByGroupExpiration(sess, group, ">", calendar);
+		assertEquals("Should have found single member", mems.size(), 1);
+		assertTrue("Member1 not found between soon to be expired in a group", mems.contains(member1));
+		assertEquals("Member soon to be expired in a group hadn't have a correct status", MemberGroupStatus.EXPIRED, mems.get(0).getGroupStatus());
+
+		perun.getGroupsManager().setMemberGroupStatus(sess, member1, group, MemberGroupStatus.VALID);
+		mems = perun.getSearcher().getMembersByGroupExpiration(sess, group, ">", calendar);
+		assertEquals("Should have found single member", mems.size(), 1);
+		assertTrue("Member1 not found between soon to be expired in a group", mems.contains(member1));
+		assertEquals("Member soon to be expired in a group hadn't have a correct status", MemberGroupStatus.VALID, mems.get(0).getGroupStatus());
+
 	}
 
 	@Test

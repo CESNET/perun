@@ -52,7 +52,8 @@ public class urn_perun_member_group_attribute_def_def_groupMembershipExpiration 
 
 		// find out members status in given group
 		MemberGroupStatus status = session.getPerunBl().getGroupsManagerBl().getDirectMemberGroupStatus(session, member, group);
-		if(value != null && status.equals(MemberGroupStatus.EXPIRED)) {
+		// status is null if member is not direct at the time -> changing value doesn't affect indirect membership
+		if(value != null && MemberGroupStatus.EXPIRED.equals(status)) {
 			Date expirationDate;
 			try {
 				expirationDate = BeansUtils.getDateFormatterWithoutTime().parse(value);

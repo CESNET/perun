@@ -1,8 +1,13 @@
 package cz.metacentrum.perun.registrar.impl;
 
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.GroupMembershipExpirationInDays;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.GroupMembershipExpirationInMonthNotification;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.GroupMembershipExpired;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInDays;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInMonthNotification;
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpired;
+
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -40,6 +45,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
+ * Class handling incoming membership expiration notifications for VOs and Groups
+ * It also switches actual (group)member status VALID<-->EXPIRED based on expiration date.
+ *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class ExpirationNotifScheduler {
@@ -94,6 +102,14 @@ public class ExpirationNotifScheduler {
 	}
 
 	/**
+	 * Functional interface defining audit action when group members will expire in given time
+	 */
+	@FunctionalInterface
+	private interface GroupExpirationAuditAction<TA extends Auditer, TS extends PerunSession, TM extends Member, TV extends Group> {
+		void callOn(TA auditer, TS session, TM member, TV group) throws InternalErrorException;
+	}
+
+	/**
 	 * Enum defining time before member expiration and action that should be logged in auditer when it happens
 	 */
 	private enum ExpirationPeriod {
@@ -122,6 +138,34 @@ public class ExpirationNotifScheduler {
 	}
 
 	/**
+	 * Enum defining time before member expiration and action that should be logged in auditer when it happens
+	 */
+	private enum GroupExpirationPeriod {
+		MONTH(((auditer, sess, member, group) ->
+				auditer.log(sess, new GroupMembershipExpirationInMonthNotification(member, group))
+		)),
+		DAYS_14(((auditer, sess, member, group) ->
+				auditer.log(sess, new GroupMembershipExpirationInDays(member, 14, group))
+		)),
+		DAYS_7(((auditer, sess, member, group) ->
+				auditer.log(sess, new GroupMembershipExpirationInDays(member, 7, group))
+		)),
+		DAYS_1(((auditer, sess, member, group) ->
+				auditer.log(sess, new GroupMembershipExpirationInDays(member, 1, group))
+		));
+
+		private GroupExpirationAuditAction<Auditer, PerunSession, Member, Group> expirationAuditAction;
+
+		public GroupExpirationAuditAction<Auditer, PerunSession, Member, Group> getExpirationAuditAction() {
+			return this.expirationAuditAction;
+		}
+
+		GroupExpirationPeriod(GroupExpirationAuditAction<Auditer, PerunSession, Member, Group> expirationAuditAction) {
+			this.expirationAuditAction = expirationAuditAction;
+		}
+	}
+
+	/**
 	 * Finds members who should expire in given time, and if they did not submit an extension
 	 * application, notification is logged in auditer
 	 *
@@ -139,7 +183,6 @@ public class ExpirationNotifScheduler {
 					perun.getMembersManagerBl().canExtendMembershipWithReason(sess, m);
 					if (didntSubmitExtensionApplication(m)) {
 						// still didn't apply for extension
-
 						expirationPeriod.getExpirationAuditAction().callOn(getPerun().getAuditer(), sess, m, vosMap.get(m.getVoId()));
 					} else {
 						log.debug("{} not notified about expiration, has submitted - pending application.", m);
@@ -152,9 +195,56 @@ public class ExpirationNotifScheduler {
 					// we don't care about other reasons (LoA), user can update it later
 					if (didntSubmitExtensionApplication(m)) {
 						// still didn't apply for extension
-						ExpirationPeriod.MONTH.getExpirationAuditAction().callOn(getPerun().getAuditer(), sess, m, vosMap.get(m.getVoId()));
+						expirationPeriod.getExpirationAuditAction().callOn(getPerun().getAuditer(), sess, m, vosMap.get(m.getVoId()));
 					} else {
 						log.debug("{} not notified about expiration, has submitted - pending application.", m);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Finds members who should expire in a group in given time, and if they did not submit an extension
+	 * application, notification is logged into Auditer log.
+	 *
+	 * @param allowedStatuses Only members within allowed statuses will get notification.
+	 * @param group Group to check expiration in
+	 * @param timeBeforeExpiration time used for check
+	 * @param expirationPeriod Expiration period, should correspond with given Calendar
+	 * @throws InternalErrorException internal error
+	 */
+	private void auditInfoAboutIncomingGroupMembersExpirationInGivenTime(List<Status> allowedStatuses, Group group, Calendar timeBeforeExpiration, GroupExpirationPeriod expirationPeriod) throws InternalErrorException {
+		List<Member> expireInTime = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "=", timeBeforeExpiration);
+
+		for (Member m : expireInTime) {
+			try {
+				// we don't notify disabled or invalid members
+				if (allowedStatuses.contains(m.getStatus())) {
+					MemberGroupStatus status = perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, m, group);
+					// we don't notify members in indirect only relation
+					if (status != null) {
+						perun.getGroupsManagerBl().canExtendMembershipInGroupWithReason(sess, m, group);
+						if (didntSubmitGroupExtensionApplication(m, group)) {
+							// still didn't apply for extension
+							expirationPeriod.getExpirationAuditAction().callOn(getPerun().getAuditer(), sess, m, group);
+						} else {
+							log.debug("{} not notified about expiration in {}, has submitted - pending application.", m, group);
+						}
+					} else {
+						log.debug("{} not notified about expiration in {}, isn't DIRECT member but still has expiration set!", m, group);
+					}
+				} else {
+					log.debug("{} not notified about expiration in {}, is not in VALID, EXPIRED or SUSPENDED state.", m, group);
+				}
+			} catch (ExtendMembershipException ex) {
+				if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
+					// we don't care about other reasons (LoA), user can update it later
+					if (didntSubmitGroupExtensionApplication(m, group)) {
+						// still didn't apply for extension
+						expirationPeriod.getExpirationAuditAction().callOn(getPerun().getAuditer(), sess, m, group);
+					} else {
+						log.debug("{} not notified about expiration in {}, has submitted - pending application.", m, group);
 					}
 				}
 			}
@@ -306,6 +396,38 @@ public class ExpirationNotifScheduler {
 	}
 
 	/**
+	 * Logs expirations that happened a week ago for a group
+	 *
+	 * @param allowedStatuses allowed Statuses
+	 * @param group group
+	 * @throws InternalErrorException internal error
+	 */
+	private void auditOldGroupExpirations(List<Status> allowedStatuses, Group group) throws InternalErrorException {
+		// log message for all members which expired 7 days ago
+		Calendar expiredWeekAgo = Calendar.getInstance();
+		expiredWeekAgo.add(Calendar.DAY_OF_MONTH, -7);
+		List<Member> expired7DaysAgo = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "=", expiredWeekAgo);
+		for (Member m : expired7DaysAgo) {
+			if (allowedStatuses.contains(m.getStatus())) {
+				MemberGroupStatus status = perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, m, group);
+				// we don't notify members in indirect only relation
+				if (status != null) {
+					if (didntSubmitGroupExtensionApplication(m, group)) {
+						// still didn't apply for extension
+						getPerun().getAuditer().log(sess, new GroupMembershipExpired(m, 7, group));
+					} else {
+						log.debug("{} not notified about expiration in {}, has submitted - pending application.", m, group);
+					}
+				} else {
+					log.debug("{} not notified about expiration in {}, isn't DIRECT member but still has expiration set!", m, group);
+				}
+			} else {
+				log.debug("{} not notified about expiration in {}, is not in VALID, SUSPENDED or EXPIRED state.", m, group);
+			}
+		}
+	}
+
+	/**
 	 * Logs incoming expirations into auditer
 	 *
 	 * @param allowedStatuses allowed statues
@@ -336,19 +458,53 @@ public class ExpirationNotifScheduler {
 	}
 
 	/**
+	 * Logs incoming expirations into auditer for Group expirations
+	 *
+	 * @param allowedStatuses allowed statues
+	 * @param group group
+	 * @throws InternalErrorException internal error
+	 */
+	private void auditIncomingGroupExpirations(List<Status> allowedStatuses, Group group) throws InternalErrorException {
+		Calendar monthBefore = Calendar.getInstance();
+		monthBefore.add(Calendar.MONTH, 1);
+
+		// log message for all members which will expire in 30 days
+		auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, monthBefore, GroupExpirationPeriod.MONTH);
+
+		// log message for all members which will expire in 14 days
+		Calendar expireInA14Days = Calendar.getInstance();
+		expireInA14Days.add(Calendar.DAY_OF_MONTH, 14);
+		auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, expireInA14Days, GroupExpirationPeriod.DAYS_14);
+
+		// log message for all members which will expire in 7 days
+		Calendar expireInA7Days = Calendar.getInstance();
+		expireInA7Days.add(Calendar.DAY_OF_MONTH, 7);
+		auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, expireInA7Days, GroupExpirationPeriod.DAYS_7);
+
+		// log message for all members which will expire tomorrow
+		Calendar expireInADay = Calendar.getInstance();
+		expireInADay.add(Calendar.DAY_OF_MONTH, 1);
+		auditInfoAboutIncomingGroupMembersExpirationInGivenTime(allowedStatuses, group, expireInADay, GroupExpirationPeriod.DAYS_1);
+	}
+
+	/**
 	 * Finds members in given group and if they expire on given date and they have
 	 * VALID MemberGroupState, switch them to EXPIRED
+	 *
 	 * @param group given date
 	 * @param calendar current date
 	 * @throws InternalErrorException internal error
 	 */
 	private void checkGroupMemberExpiration(Group group, Calendar calendar) throws InternalErrorException {
+
 		List<Member> shouldBeExpired = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, "<=", calendar);
 		shouldBeExpired.stream()
-				//read members current group status
+				// read member exact group status (not calculated from other group relations),
+				// since we change status in specified group only for direct members !!
 				.filter(member -> {
 					try {
-						return perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, member, group).equals(MemberGroupStatus.VALID);
+						// if member is not direct in group, false is returned
+						return Objects.equals(MemberGroupStatus.VALID, perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, member, group));
 					} catch (InternalErrorException e) {
 						log.error("Synchronizer: checkGroupMemberExpiration failed to read member's state in group. Member: {}, Group: {}, Exception: {}", member, group, e);
 						return false;
@@ -357,7 +513,7 @@ public class ExpirationNotifScheduler {
 				.forEach(member -> {
 					try {
 						perun.getGroupsManagerBl().expireMemberInGroup(sess, member, group);
-						log.info("Switching {} in {} to EXPIRED state, due to expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration").getValue());
+						log.info("Switching {} in {} to EXPIRED state, due to expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + "groupMembershipExpiration").getValue());
 					} catch (InternalErrorException e) {
 						log.error("Consistency error while trying to expire member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
@@ -377,12 +533,15 @@ public class ExpirationNotifScheduler {
 	 * @throws InternalErrorException internal error
 	 */
 	private void checkGroupMemberValidation(Group group, Calendar calendar) throws InternalErrorException {
+
 		List<Member> shouldNotBeExpired = perun.getSearcherBl().getMembersByGroupExpiration(sess, group, ">", calendar);
 		shouldNotBeExpired.stream()
-				//read members current group status
+				// read member exact group status (not calculated from other group relations),
+				// since we change status in specified group only for direct members !!
 				.filter(member -> {
 					try {
-						return perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, member, group).equals(MemberGroupStatus.EXPIRED);
+						// if member is not direct in group, false is returned
+						return Objects.equals(MemberGroupStatus.EXPIRED, perun.getGroupsManagerBl().getDirectMemberGroupStatus(sess, member, group));
 					} catch (InternalErrorException e) {
 						log.error("Synchronizer: checkGroupMemberExpiration failed to read member's state in group. Member: {}, Group: {}, Exception: {}", member, group, e);
 						return false;
@@ -391,7 +550,7 @@ public class ExpirationNotifScheduler {
 				.forEach(member -> {
 					try {
 						perun.getGroupsManagerBl().validateMemberInGroup(sess, member, group);
-						log.info("Switching {} in {} to VALID state, due to changed expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration").getValue());
+						log.info("Switching {} in {} to VALID state, due to changed expiration {}.", member, group, perun.getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + "groupMembershipExpiration").getValue());
 					} catch (InternalErrorException e) {
 						log.error("Error during validating member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
@@ -410,8 +569,14 @@ public class ExpirationNotifScheduler {
 	 */
 	private void checkGroupMembersState(List<Vo> vos) throws InternalErrorException {
 
-		List<Group> allGroups = new ArrayList<>();
+		// Only members with following statuses will be notified
+		List<Status> allowedStatuses = new ArrayList<>();
+		allowedStatuses.add(Status.VALID);
+		allowedStatuses.add(Status.SUSPENDED);
+		// in opposite to vo expiration we want to notify about incoming group expirations even when user is expired in VO
+		allowedStatuses.add(Status.EXPIRED);
 
+		List<Group> allGroups = new ArrayList<>();
 		for (Vo vo : vos) {
 			allGroups.addAll(perun.getGroupsManagerBl().getGroups(sess, vo));
 		}
@@ -423,13 +588,17 @@ public class ExpirationNotifScheduler {
 				.filter(group -> !group.getName().equals("members"))
 				.collect(Collectors.toList());
 
+		// for all groups in perun
 		for (Group group : allGroups) {
+
+			auditIncomingGroupExpirations(allowedStatuses, group);
+			auditOldGroupExpirations(allowedStatuses, group);
 
 			// check members which should expire today
 			checkGroupMemberExpiration(group, today);
-
 			// check members which should be validated today
 			checkGroupMemberValidation(group, today);
+
 		}
 	}
 
@@ -443,6 +612,28 @@ public class ExpirationNotifScheduler {
 
 		try {
 			Application application = jdbc.queryForObject(RegistrarManagerImpl.APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and apptype=? and user_id=? )", RegistrarManagerImpl.APP_MAPPER, member.getVoId(), String.valueOf(Application.AppType.EXTENSION), member.getUserId());
+			return !Arrays.asList(Application.AppState.NEW, Application.AppState.VERIFIED).contains(application.getState());
+		} catch (EmptyResultDataAccessException ex) {
+			// has no application submitted
+			return true;
+		} catch (Exception ex) {
+			log.error("Unable to check if {} has submitted pending application: {}.", member, ex);
+			return true;
+		}
+
+	}
+
+	/**
+	 * Check if member didn't submit new extension application for a group - in such case, do not send expiration notifications
+	 *
+	 * @param member Member to check applications for
+	 * @param group Group to check applications for
+	 * @return TRUE = didn't submit application / FALSE = otherwise
+	 */
+	private boolean didntSubmitGroupExtensionApplication(Member member, Group group) {
+
+		try {
+			Application application = jdbc.queryForObject(RegistrarManagerImpl.APP_SELECT + " where a.id=(select max(id) from application where vo_id=? and group_id=? and apptype=? and user_id=? )", RegistrarManagerImpl.APP_MAPPER, member.getVoId(), group.getId(), String.valueOf(Application.AppType.EXTENSION), member.getUserId());
 			return !Arrays.asList(Application.AppState.NEW, Application.AppState.VERIFIED).contains(application.getState());
 		} catch (EmptyResultDataAccessException ex) {
 			// has no application submitted
