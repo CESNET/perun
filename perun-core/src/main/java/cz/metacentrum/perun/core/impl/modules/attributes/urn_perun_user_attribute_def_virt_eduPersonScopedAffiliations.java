@@ -12,10 +12,8 @@ import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
@@ -193,15 +191,11 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 
 		for (Group group: groupsForAttrCheck) {
 			try {
-				Attribute groupAffiliations = sess.getPerunBl().getAttributesManager()
+				Attribute groupAffiliations = sess.getPerunBl().getAttributesManagerBl()
 					.getAttribute(sess, group, getTertiarySourceAttributeName());
 				if (groupAffiliations != null && groupAffiliations.valueAsList() != null) {
 					result.addAll(groupAffiliations.valueAsList());
 				}
-			} catch (GroupNotExistsException e) {
-				throw new InternalErrorException("Group with ID: " + group.getId() + " does not exist");
-			} catch (PrivilegeException e) {
-				throw new InternalErrorException("Unauthorized access to the group " + group.getId());
 			} catch (WrongAttributeAssignmentException e) {
 				throw new InternalErrorException("Wrong assignment of " + getTertiarySourceAttributeFriendlyName() + " for user " + user.getId(), e);
 			} catch (AttributeNotExistsException e) {
