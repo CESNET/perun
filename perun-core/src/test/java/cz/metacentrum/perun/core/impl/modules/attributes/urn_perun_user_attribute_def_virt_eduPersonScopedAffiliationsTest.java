@@ -148,7 +148,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		when(session.getPerunBl().getGroupsManagerBl().getGroupMemberById(session, group2, validMember.getId())).thenReturn(
 				groupMember2
 		);
-		when(session.getPerunBl().getAttributesManager().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
 				groupAtt1
 		);
 
@@ -183,8 +183,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 		);
 
 		String tertiarySourceAttrName = classInstance.getTertiarySourceAttributeName();
-		when(session.getPerunBl().getAttributesManager().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
-				groupAtt1
+		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, group1, tertiarySourceAttrName)).thenReturn(
+			groupAtt1
 		);
 
 		Attribute receivedAttr = classInstance.getAttributeValue(session, user, classInstance.getAttributeDefinition());
