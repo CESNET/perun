@@ -8,6 +8,16 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.GroupMembershipExpirationInDays;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.GroupMembershipExpirationInMonthNotification;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.GroupMembershipExpired;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInDays;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpirationInMonthNotification;
+import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpired;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncFailed;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncFinished;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncFinishedWithErrors;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupSyncStarted;
 import cz.metacentrum.perun.core.api.PerunClient;
 
 import org.slf4j.Logger;
@@ -96,6 +106,26 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 	public Map<Facility, Set<Service>> resolveEvent(AuditEvent event) throws InvalidEventMessageException, ServiceNotExistsException, InternalErrorException, PrivilegeException {
 
 		log.info("Event - I am going to process event: {}", event);
+
+		Map<Facility, Set<Service>> result = new HashMap<Facility, Set<Service>>();
+
+		// skip not relevant audit messages
+		// FIXME - create pub-sub mechanism which allows specifying relevant messages
+		if (event instanceof MembershipExpirationInDays ||
+				event instanceof MembershipExpirationInMonthNotification ||
+				event instanceof MembershipExpired ||
+				event instanceof GroupMembershipExpirationInDays ||
+				event instanceof GroupMembershipExpirationInMonthNotification ||
+				event instanceof GroupMembershipExpired ||
+				event instanceof GroupSyncStarted ||
+				event instanceof GroupSyncFinished ||
+				event instanceof GroupSyncFailed ||
+				event instanceof GroupSyncFinishedWithErrors) {
+
+			// ignore message by empty result
+			log.info("{} facilities will be returned", result.size());
+			return result;
+		}
 
 		// GET All Beans (only PerunBeans) from message
 		List<PerunBean> listOfBeans = new ArrayList<PerunBean>();
@@ -224,7 +254,6 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 			servicesResolvedFromEvent.add(service);
 		}
 
-		Map<Facility, Set<Service>> result = new HashMap<Facility, Set<Service>>();
 		for (Resource r : resourcesResolvedFromEvent) {
 
 			Facility facilityResolvedFromEvent;
