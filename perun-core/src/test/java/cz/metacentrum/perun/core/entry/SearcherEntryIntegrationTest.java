@@ -251,7 +251,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		// setup required attribute if not exists
 		try {
-			perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:membershipExpiration");
+			perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration");
 		} catch (AttributeNotExistsException ex) {
 			setUpGroupMembershipExpirationAttribute();
 		}
@@ -263,11 +263,11 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		String yesterday = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
 
 		// set attributes
-		Attribute attribute = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:membershipExpiration"));
+		Attribute attribute = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration"));
 		attribute.setValue(today);
 		perun.getAttributesManager().setAttribute(sess, member1, group, attribute);
 
-		Attribute attribute2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:membershipExpiration"));
+		Attribute attribute2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member_group:attribute-def:def:groupMembershipExpiration"));
 		attribute2.setValue(yesterday);
 		perun.getAttributesManager().setAttribute(sess, member2, group, attribute2);
 
@@ -277,6 +277,25 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue("Member with expiration yesterday was not found for >= yesterday.", perun.getSearcher().getMembersByGroupExpiration(sess, group, ">=", calendar).contains(member2));
 		assertTrue("Member with expiration today was found for = yesterday.", !perun.getSearcher().getMembersByGroupExpiration(sess, group, "=", calendar).contains(member1));
 		assertTrue("Member with expiration yesterday was found for > yesterday.", !perun.getSearcher().getMembersByGroupExpiration(sess, group, ">", calendar).contains(member2));
+
+		// check sub-group logic if it resolve correct status for members
+
+		Group subGroup = new Group("subgroup", "subgroup of test group");
+		perun.getGroupsManager().createGroup(sess, group, subGroup);
+		perun.getGroupsManager().addMember(sess, subGroup, member1);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member1, group, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member1, subGroup, MemberGroupStatus.EXPIRED);
+		List<Member> mems = perun.getSearcher().getMembersByGroupExpiration(sess, group, ">", calendar);
+		assertEquals("Should have found single member", mems.size(), 1);
+		assertTrue("Member1 not found between soon to be expired in a group", mems.contains(member1));
+		assertEquals("Member soon to be expired in a group hadn't have a correct status", MemberGroupStatus.EXPIRED, mems.get(0).getGroupStatus());
+
+		perun.getGroupsManager().setMemberGroupStatus(sess, member1, group, MemberGroupStatus.VALID);
+		mems = perun.getSearcher().getMembersByGroupExpiration(sess, group, ">", calendar);
+		assertEquals("Should have found single member", mems.size(), 1);
+		assertTrue("Member1 not found between soon to be expired in a group", mems.contains(member1));
+		assertEquals("Member soon to be expired in a group hadn't have a correct status", MemberGroupStatus.VALID, mems.get(0).getGroupStatus());
+
 	}
 
 	@Test
@@ -963,7 +982,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
-		attr.setFriendlyName("membershipExpiration");
+		attr.setFriendlyName("groupMembershipExpiration");
 		attr.setType(String.class.getName());
 		attr.setDisplayName("Group membership expiration");
 		attr.setDescription("When the member expires in group, format YYYY-MM-DD.");
