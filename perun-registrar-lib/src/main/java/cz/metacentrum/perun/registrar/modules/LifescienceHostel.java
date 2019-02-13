@@ -57,10 +57,9 @@ public class LifescienceHostel implements RegistrarModule {
 		} else {
 
 			Attribute userLogin = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:lifescience-hostel");
-			if (userLogin.getValue() != null) {
-
+			if (userLogin != null && userLogin.getValue() != null) {
 				ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(session, "https://login.bbmri-eric.eu/lshostel/");
-				UserExtSource ues = new UserExtSource(extSource, userLogin + "@lifescience-hostel.org");
+				UserExtSource ues = new UserExtSource(extSource, userLogin.valueAsString() + "@lifescience-hostel.org");
 				ues.setLoa(0);
 
 				try {
