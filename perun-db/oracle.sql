@@ -1,4 +1,4 @@
--- database version 3.1.51(don't forget to update insert statement at the end of file)
+-- database version 3.1.52(don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1805,7 +1805,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.51');
+insert into configurations values ('DATABASE VERSION','3.1.52');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
@@ -1821,3 +1821,7 @@ insert into action_types (id, action_type, description) values (action_types_seq
 
 -- insert default engine on default port
 insert into engines (id, ip_address, port, last_check_in, created_at, created_by, modified_at, modified_by, status, created_by_uid, modified_by_uid) VALUES (1, '127.0.0.1', 6061, sysdate, sysdate, 'perun', sysdate, 'perun', '1', null, null);
+
+-- create array structures of numbers and characters
+create or replace type TARRAYOFCHARACTERS is table of nvarchar2(2000);
+create or replace type TARRAYOFNUMBERS is table of number(30,0);

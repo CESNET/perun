@@ -36,6 +36,19 @@ public class Compatibility {
 		}
 	}
 
+	public static String getStructureForInClause() throws InternalErrorException {
+		switch (getDbType()) {
+			case "oracle":
+				return " IN (SELECT * FROM TABLE(?)) ";
+			case "postgresql":
+				return " = ANY(?) ";
+			case "hsqldb":
+				return "  IN ( UNNEST(?) ) ";
+			default:
+				throw new InternalErrorException("unknown DB type");
+		}
+	}
+
 	public static String getTrue() throws InternalErrorException {
 		switch (getDbType()) {
 			case "oracle":

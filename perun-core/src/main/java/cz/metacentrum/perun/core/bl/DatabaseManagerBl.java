@@ -68,6 +68,7 @@ public interface DatabaseManagerBl {
 
 	/**
 	 * Take list of perunBeans and generate an array of ids in sql database from it.
+	 * Implementation can be different for every type of supported DB
 	 *
 	 * @param perunBeans list of PerunBeans to get Ids from
 	 * @param preparedStatement database prepared statement to get working connection
@@ -75,10 +76,11 @@ public interface DatabaseManagerBl {
 	 * @throws SQLException if any sql exception has been thrown
 	 * @throws InternalErrorRuntimeException if oracle method to work with an array can't be get or invoked
 	 */
-	java.sql.Array prepareOracleArrayOfNumbers(List<? extends PerunBean> perunBeans, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException;
+	java.sql.Array prepareSQLArrayOfNumbers(List<? extends PerunBean> perunBeans, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException;
 
 	/**
 	 * Take list of String and generate an array in sql database from it.
+	 * Implementation can be different for every type of supported DB
 	 *
 	 * @param strings list of Strings to get an sql array from
 	 * @param preparedStatement database prepared statement to get working connection
@@ -86,7 +88,7 @@ public interface DatabaseManagerBl {
 	 * @throws SQLException if any sql exception has been thrown
 	 * @throws InternalErrorRuntimeException if oracle method to work with an array can't be get or invoked
 	 */
-	java.sql.Array prepareOracleArrayOfStrings(List<String> strings, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException;
+	java.sql.Array prepareSQLArrayOfStrings(List<String> strings, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException;
 
 	/**
 	 * Return JDBC template for performing custom simple SQLs where jdbc is not normally available
