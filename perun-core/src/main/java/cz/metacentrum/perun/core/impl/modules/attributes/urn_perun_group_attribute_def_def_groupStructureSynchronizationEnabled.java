@@ -44,11 +44,6 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 				throw new InternalErrorException("Synchronization is already enabled for one of the parent groups.");
 			}
 
-			List<Group> unionGroups = perunSession.getPerunBl().getGroupsManagerBl().getGroupUnions(perunSession, group, false);
-			if (!unionGroups.isEmpty()) {
-				throw new InternalErrorException("There is one or more group unions created for this group.");
-			}
-
 			try {
 				Attribute attrSynchronizeEnabled = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, group, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
 				if (Objects.equals("true", attrSynchronizeEnabled.getValue())) {
