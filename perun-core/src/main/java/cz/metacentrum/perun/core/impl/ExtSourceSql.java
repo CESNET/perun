@@ -290,17 +290,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	/**
-	 * Get subject groups from external source
-	 *
-	 * 1. Check extSource attributes (url and driver)
-	 * 2. Register driver
-	 * 3. Check if there is an existing connection. In case of Oracle also checks the connection validity
-	 * 4. Prepare query statement
-	 * 5. Substitute the ? in the query by the searchString
-	 * 6. Limit results by maxResults
-	 * 7. Execute query and for each result process subject and put its attributes into map
-	 * 8. Return subjects
-	 * 9. Close connections
+	 * Get subject groups from an external source
 	 *
 	 * @param query to select subject groups
 	 * @param searchString by which will be ? in query replaced

@@ -256,14 +256,7 @@ public interface ExtSourcesManagerBl {
 	Map<String, String> getAttributes(ExtSource extSource) throws InternalErrorException;
 
 	/**
-	 * Get the candidate group from subjectData.
-	 *
-	 * 1. Create new candidate group object
-	 * 2. Set extSource to the candidate group
-	 * 3. Set groupName to the candidate group
-	 * 	  (If first name of candidate is not in correct format of name, set null instead)
-	 * 4. Set parentGroupName to the candidate group
-	 * 5. Set description to the candidate group
+	 * Generate a candidate group from a group subject data.
 	 *
 	 * IMPORTANT: expected, that these subjectData was get from the ExtSource before using.
 	 *
@@ -277,9 +270,7 @@ public interface ExtSourcesManagerBl {
 	CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source) throws InternalErrorException;
 
 	/**
-	 * Get the candidate groups from subjectData.
-	 *
-	 * 1. For each groupSubjectsData call method get CandidateGroup and then add result to List
+	 * Generate candidate groups from a group subject data.
 	 *
 	 * IMPORTANT: expected, that these subjectData was get from the ExtSource before using.
 	 *

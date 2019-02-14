@@ -949,9 +949,7 @@ public interface GroupsManagerBl {
 	void forceGroupSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupSynchronizationAlreadyRunningException;
 
 	/**
-	 * Force group structure synchronization.
-	 *
-	 * 1. Adds the group on the first place to the queue of groups waiting for group structure synchronization.
+	 * Synchronize the group structure with and external group structure. It checks if the synchronization of the same group is already in progress.
 	 *
 	 * @param group the group to be forced this way
 	 * @throws InternalErrorException
@@ -968,12 +966,6 @@ public interface GroupsManagerBl {
 
 	/**
 	 * Synchronize all groups structures which have enabled group structure synchronization. This method is run by the scheduler every 5 minutes.
-	 *
-	 * 1. Process current threads - Interrupt threads after timeout and remove all interrupted threads
-	 * 2. Create and start new threads
-	 * 3. Add new groups to the group structure synchronization pool ( groups which have enabled group structure synchronization)
-	 * 4. Save state of synchronization to the info log
-	 *
 	 *
 	 * @throws InternalErrorException
 	 */
@@ -1354,15 +1346,6 @@ public interface GroupsManagerBl {
 	 * With a new transaction, rollback on the main method, where this one is used, will not revert saving of this information.
 	 * However, this method cannot be used in method running in the nested transaction, where the group was changed in the database.
 	 *
-	 * 1. Get current timestamp
-	 * 2. Check if group or session are null
-	 * 3. Set correct format of currentTimestamp
-	 * 4. prepare container for attributes which will be set
-	 * 5. process exception message
-	 * 6. prepare timestamp and state attributes
-	 * 7. Set attributes at once
-	 *
-	 *
 	 * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastGroupStructureSynchronizationState"
 	 *
@@ -1388,15 +1371,6 @@ public interface GroupsManagerBl {
 	 * IMPORTANT: This method runs in nested transaction (because of using in synchronization of groups structures)
 	 * With a nested transaction, this method can be used in method running in the nested transaction, where the group was changed in the database.
 	 * However, rollback on the main method, where this one is used, will revert saving of this information.
-	 *
-	 * 1. Get current timestamp
-	 * 2. Check if group or session are null
-	 * 3. Set correct format of currentTimestamp
-	 * 4. prepare container for attributes which will be set
-	 * 5. process exception message
-	 * 6. prepare timestamp and state attributes
-	 * 7. Set attributes at once
-	 *
 	 *
 	 * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastGroupStructureSynchronizationState"
@@ -1616,19 +1590,7 @@ public interface GroupsManagerBl {
 	boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException;
 
 	/**
-	 * Synchronize groups with the external source groups under base group.
-	 *
-	 * 1. Get base group extSource from which will be groups synchronized
-	 * 2. Prepare containers for work with groups
-	 * 3. Get all actual groups
-	 * 4. Get subjects from extSource
-	 * 5. If this is synchronization with flat structure, every parentGroup set to null
-	 * 6. Convert subjects to candidate groups
-	 * 7. Categorize which groups will be added, updated and removed
-	 * 8. Add not presented candidate groups under base group
-	 * 9. Update groups already presented under base group
-	 * 10. Remove groups from base group who are not presented in extSource anymore
-	 * 11. Synchronize members for each subGroup under base group
+	 * Synchronize a group structure with an external source group structure under the group.
 	 *
 	 * @param sess
 	 * @param group base group under which will be synchronized structure of groups
@@ -1656,11 +1618,6 @@ public interface GroupsManagerBl {
 	/**
 	 * Check if the group is defined as synchronized from an external source at this moment.
 	 *
-	 * 1. If group doesn't have parent return false
-	 * 2. Get groups parent object
-	 * 3. If that object has group structure synchronization enabled, return true
-	 * 4. Recursively call this method on the parent group object
-	 *
 	 * @param session
 	 * @param group
 	 * @return
@@ -1670,10 +1627,6 @@ public interface GroupsManagerBl {
 
 	/**
 	 * Check if there is a subgroup of the group, which is defined as synchronized from an external source at this moment.
-	 *
-	 * 1. For each subGroup:
-	 *      1.1 if it has enabled group structure synchronization, return true
-	 * 2. Return false
 	 *
 	 * @param session
 	 * @param group

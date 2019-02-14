@@ -466,8 +466,9 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		CandidateGroup candidateGroup = new CandidateGroup();
 
 		candidateGroup.setExtSource(source);
-
 		candidateGroup.asGroup().setName(groupSubjectData.get(GroupsManagerBlImpl.GROUP_NAME));
+
+		// Check if the group name is not null and if it is in valid format.
 		if(candidateGroup.asGroup().getName() != null) {
 			Matcher name = groupNamePattern.matcher(candidateGroup.asGroup().getName());
 			if(!name.matches()) throw new InternalErrorException("Group subject data has to contains valid group name!");

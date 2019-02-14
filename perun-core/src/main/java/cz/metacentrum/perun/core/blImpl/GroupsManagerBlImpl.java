@@ -1833,7 +1833,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public void forceGroupStructureSynchronization(PerunSession sess, Group group) throws GroupStructureSynchronizationAlreadyRunningException, InternalErrorException {
-		//Check if the group is not currently in synchronization process
+		//Adds the group on the first place to the queue of groups waiting for group structure synchronization.
 		if (poolOfGroupsStructuresToBeSynchronized.putJobIfAbsent(group, true)) {
 			log.info("Scheduling synchronization for the group structure {} by force!", group);
 		} else {
@@ -1883,20 +1883,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		/**
 		 * Run group structure synchronization thread
 		 *
-		 * 1. Set thread to default state (waiting for another group structure to synchronize)
-		 * 2. If this thread was interrupted, end it's running
-		 * 3. Containers for messages:
-		 * 3.1 Text of exception if was thrown, null in exceptionMessage means "no exception, it's ok"
-		 * 3.2 Text with all skipped groups and reasons of this skipping
-		 * 3.3 If exception which produce fail of whole group structure synchronization was thrown set boolean to true
-		 * 4. Take another group structure from the pool to synchronize it
-		 * 5. If that ended up with error interrupt this thread
-		 * 6. Set the start time, so we can check the timeout of the thread
-		 * 7. Synchronize Group structure and get information about skipped Groups
-		 * 8. Prepare skippedGroupsMessage, which is also exceptionMessage (if synchronization didn't end up with exception)
-		 * 9. If synchronization ended up with exception, catch that and set exceptionMessage and failedDueToException (to true)
-		 * 10. Save information about group structure synchronization, this method run in new transaction
-		 * 11. Remove job from running jobs
 		 */
 		@Override
 		public void run() {
@@ -3298,15 +3284,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * Synchronize members for each sub group which is under base group
 	 *
-	 * 1. get all sub groups which are under base group
-	 * 2. get group members query and group members extSource which are set for base group
-	 * 3. Order sub groups. (leaf groups are first)
-	 * 4. For each sub group:
-	 *      4.1 set group extSource (if it's not already set)
-	 *      4.2 set group members query
-	 *      4.3 set group members extSource
-	 *      4.4 synchronize members and save result
-	 *
 	 * Method used by group structure synchronization
 	 *
 	 * @param sess
@@ -3330,6 +3307,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			throw new WrongAttributeValueException("Group members query attribute is not set for base group " + baseGroup + "!");
 		}
 
+		//Order subGroups from (leaf groups are first)
 		groupsForMemberSynchronization.sort((g1, g2) -> {
 			int g1size = g1.getName().split(":").length;
 			int g2size = g2.getName().split(":").length;
@@ -3337,6 +3315,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			return g1size - g2size;
 		});
 
+		//for each group set attributes for members synchronization, synchronize them and save the result
 		for (Group group: groupsForMemberSynchronization) {
 
 			if (!getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group).contains(source)) {
@@ -3365,12 +3344,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	/**
 	 * Synchronize members under group and save information about it
-	 *
-	 * 1. Prepare containers for messages
-	 * 2. Synchronize members
-	 * 3. prepare skipped groups message, which is also exception message (if synchronization didn't end up with error)
-	 * 4. In case of error, set exception message and set failedDueToException attribute to true
-	 * 5. Save information about members synchronization
 	 *
 	 * Method used by group structure synchronization
 	 *
@@ -3436,12 +3409,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * Interrupt threads after timeout and remove all interrupted threads (group structure synchronization threads)
 	 *
-	 * 1. Get the default group structure synchronization timeout from the configuration file
-	 * 2. While there are threads in lists:
-	 * 		2.1 If thread start time is 0, this thread is waiting for another job, skip it
-	 * 		2.2 If thread was interrupted by anything, remove it from the pool of active threads
-	 * 		2.3 If the time is greater than timeout set in the configuration file (in minutes), interrupt and remove this thread from pool
-	 *
 	 * Method used by group structure synchronization
 	 *
 	 * @return number of removed threads
@@ -3454,6 +3421,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		while(threadIterator.hasNext()) {
 			GroupStructureSynchronizerThread thread = threadIterator.next();
 			long threadStart = thread.getStartTime();
+			//If the thread start time is 0, this thread is waiting for another job, skip it
 			if(threadStart == 0) continue;
 
 			long timeDiff = System.currentTimeMillis() - threadStart;
@@ -3473,9 +3441,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	/**
 	 * Create and start new threads for group structure synchronization
-	 *
-	 * 1. While there is place for threads:
-	 * 		1.1 Start new thread
 	 *
 	 * Method used by group structure synchronization
 	 *
@@ -3498,14 +3463,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	/**
 	 * Add new groups to the group structure synchronization poll
-	 *
-	 * 1. Get the default group structure synchronization interval from the configuration file
-	 * 2. Get the number of seconds from the epoch, so we can divide it by the group structure synchronization interval value
-	 * 3. Get the groups with synchronization enabled
-	 * 4. For each group:
-	 * 		5.1 Get the synchronization interval for the group structure
-	 * 		5.2 Multiply it with 5 to get real minutes
-	 * 		5.3 If the minutesFromEpoch can be divided by the intervalMultiplier, then synchronize
 	 *
 	 * Method used by group structure synchronization
 	 *
@@ -3540,6 +3497,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			intervalMultiplier = intervalMultiplier*5;
 
+			//If the minutesFromEpoch can be divided by the intervalMultiplier, then synchronize
 			if ((minutesFromEpoch % intervalMultiplier) == 0) {
 				if (poolOfGroupsStructuresToBeSynchronized.putJobIfAbsent(group, false)) {
 					numberOfNewlyAddedGroups++;
@@ -3555,12 +3513,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	/**
 	 * Checks content of exception message and base on that sets attributes, logs, etc...
-	 *
-	 * 1. If exceptionMessage is empty, use "Empty message" instead
-	 * 2. Else if, trim the message on 1000 characters if not null
-	 * 3. If exceptionMessage is null, set lastSuccessSynchronizationTimestamp (means success)
-	 * 4. Else log to auditer that synchronization failed or finished with some errors
-	 * 5. return exceptionMessage
 	 *
 	 * Method used by group structure synchronization
 	 *
@@ -3612,14 +3564,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * This method categorize candidate groups to groups to add, update and remove
 	 *
-	 * 1. Add all candidate groups to candidateGroupsToAdd container
-	 * 2. Add all current groups to groupsToRemove container
-	 * 3. Create mapping structure (from current groups) for more efficient searching
-	 * 4. For each candidate group:
-	 * 		4.1 try to find already existing candidateGroups between current groups
-	 * 		4.2 If it finds such a group, then puts that candidate group to groupsToUpdate container
-	 * 			and removes it from candidateGroupsToAdd and groupsToRemove containers
-	 *
 	 * Method used by group structure synchronization
 	 *
 	 * @param currentGroups current groups
@@ -3639,6 +3583,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		for(CandidateGroup candidateGroup: candidateGroups) {
 			String candidateShortName = candidateGroup.asGroup().getShortName();
+			// if the candidate group exists in perun remove it from groupsToAdd and groupsToRemove
 			if(mappingStructure.containsKey(candidateShortName)) {
 				groupsToUpdate.put(candidateGroup, mappingStructure.get(candidateShortName));
 				candidateGroupsToAdd.remove(candidateGroup);
@@ -3653,7 +3598,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * True: we don't want to synchronize group structure with hierarchy,
 	 *       every group in structure will be placed under base group
 	 * False: we want to synchronize group structure with hierarchy.
-	 *        That means, we want to create groups and subgroups as they are ine extSource
+	 *        That means, we want to create groups and subgroups as they are in the extSource
 	 *
 	 * Method used by group structure synchronization
 	 *
@@ -3676,9 +3621,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * Return List of subjects, where subject is map of attribute names and attribute values.
 	 * Every subject is structure for creating CandidateGroup from ExtSource.
-	 *
-	 * 1. Get all group attributes and store them to map (info like query, time interval etc.)
-	 * 2. Get Subjects in form of map where left string is name of attribute and right string is value of attribute, every subject is one map
 	 *
 	 * Method used by group structure synchronization
 	 *
@@ -3713,11 +3655,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * Get Map groupsToUpdate and update their parent group and description.
 	 * We don't have to update short name, because if short name has changed, group will be removed and created with new name.
-	 *
-	 * 1. For every pair in map:
-	 * 		1.1 specify parent group for updated group
-	 * 		1.2 if parent group changed, move updated group under new parent.
-	 * 		1.3 Update description (if changed)
 	 *
 	 * If some problem occurs, add groupToUpdate to skippedGroups and skip it.
 	 *
@@ -3768,13 +3705,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * Specify parent group for group which is updated by synchronization
 	 *
-	 * 1. Gets actual parent group name
-	 * 2. If candidate group doesn't have parent and actual parent is not base group, specify base group as parent
-	 * 3. if both groups (candidate and toUpdate) have parents which are not equal there can be two scenarios:
-	 *		3.1 There is subGroup with name equals to candidateGroups parent name -> specify subGroup as new parent
-	 *		3.2 There isn't subGroup with name equals to candidateGroup parent name -> specify baseGroup as new parent
-	 * 4. In case parent group hasn't changed, method will return null
-	 *
 	 * Method is used by group structure synchronization.
 	 *
 	 * @param groupToUpdate for which will be parent specified
@@ -3794,14 +3724,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		Group newParentGroup = null;
 
+		//If candidate group doesn't have parent and actual parent is not base group, specify base group as parent
 		if (candidateGroup.getParentGroupName() == null) {
 			if(!actualParentName.equals(baseGroup.getShortName())) {
 				newParentGroup = baseGroup;
 			}
 		} else if (!actualParentName.equals(candidateGroup.getParentGroupName())) {
+			//If actualParentName does not equal candidate group parent name, set baseGroup as newParentGroup (default option which can be changed)
 			if(!actualParentName.equals(baseGroup.getShortName())) {
 				newParentGroup = baseGroup;
 			}
+			// if the parent exists in the structure of the baseGroup, change newParentGroup from baseGroup to to that subGroup
 			List<Group> subGroups = getAllSubGroups(sess, baseGroup);
 			for (Group subGroup : subGroups) {
 				if (subGroup.getShortName().equals(candidateGroup.getParentGroupName())) {
@@ -3816,10 +3749,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * Update group description.
 	 *
-	 *  1. Compare descriptions.
-	 * 		1.1 If they differ, set new description into the old one, update whole group and return true.
-	 * 		    Otherwise return false.
-	 *
 	 * Method is used by group structure synchronization.
 	 *
 	 * @param sess
@@ -3829,6 +3758,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	private boolean updateGroupDescription(PerunSession sess, Group groupWithOldDescription, CandidateGroup groupWithNewDescription) throws InternalErrorException {
+		//If the old description is not null, compare it with the newDescription and update it if they differ
 		if(groupWithOldDescription.getDescription() != null) {
 			if(!groupWithOldDescription.getDescription().equals(groupWithNewDescription.asGroup().getDescription())){
 				groupWithOldDescription.setDescription(groupWithNewDescription.asGroup().getDescription());
@@ -3836,6 +3766,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				getPerunBl().getAuditer().log(sess, new GroupUpdated(groupWithOldDescription));
 				return true;
 			}
+		// If the new description is not null set the old description to new one
 		} else if(groupWithNewDescription.asGroup().getDescription() != null){
 			groupWithOldDescription.setDescription(groupWithNewDescription.asGroup().getDescription());
 			groupsManagerImpl.updateGroup(sess, groupWithOldDescription);
@@ -3847,11 +3778,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	/**
 	 * Add missing groups under base group in Perun
-	 *
-	 * 1. For every candidateGroup:
-	 * 		1.1. Specify where to add that group
-	 * 		1.2. Create group.
-	 * 2. Update created groups, so they have parents correctly set
 	 *
 	 * If some problem occurs, add candidateGroup to skippedGroups and skip it.
 	 *
@@ -3883,16 +3809,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				skippedGroups.add("GroupEntry:[" + candidateGroup + "] was skipped because group relation already exists: Exception: " + e.getName() + " => " + e.getMessage() + "]");
 			}
 		}
+		// update newly added groups in case some of them came in wrong order (the hierarchy would be incorect)
 		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, skippedGroups);
 	}
 
 	/**
 	 * Specify where the new group will be added while synchronization.
-	 *
-	 * 1. If candidateGroups parent name is not null, try to find subGroup under destination group with that name.
-	 * 2. If there is such subGroup, set it as destinationGroup.
-	 * 3. In other cases (candidateGroups parent name == null or there is no such name under destination group)
-	 *    destinationGroup will not change.
 	 *
 	 * Method is used by group structure synchronization.
 	 *
@@ -3904,6 +3826,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 */
 	private Group specifyDestinationGroupForAddedGroup(PerunSession sess, Group destinationGroup, CandidateGroup candidateGroup) throws InternalErrorException {
 		String parent = candidateGroup.getParentGroupName();
+		//If parent is not null try to find that parent in the hierarchy of the destination group
+		//If parent is null or it cannot be find in the hierarchy return destinationGroup unchanged
 		if (parent != null) {
 			List<Group> subGroups = getAllSubGroups(sess, destinationGroup);
 			for (Group subGroup : subGroups) {
@@ -3917,10 +3841,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	/**
 	 * remove groups which are not listed in extSource anymore
-	 *
-	 * 1. For each group which is not listed in ExtSource anymore:
-	 * 		1.1 Move subgroups under baseGroup.
-	 * 		1.2 Remove group.
 	 *
 	 * If some problem occurs, add groupToRemove to skippedGroups and skip it.
 	 *
@@ -4134,8 +4054,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public boolean isGroupSynchronizedFromExternallSource(PerunSession session, Group group) throws InternalErrorException {
-		Attribute attrSynchronizeEnabled = null;
-		Group parentGroup = null;
+		Attribute attrSynchronizeEnabled;
+		Group parentGroup;
 
 		if (group.getParentGroupId() == null) {
 			return false;
@@ -4153,6 +4073,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		} catch (AttributeNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
+
 		if (attrSynchronizeEnabled.getValue() != null && attrSynchronizeEnabled.getValue().equals(true)) {
 			return true;
 		}
@@ -4161,7 +4082,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public boolean hasGroupSynchronizedChild(PerunSession session, Group group) throws InternalErrorException {
-		Attribute attrSynchronizeEnabled = null;
+		Attribute attrSynchronizeEnabled;
 		try {
 			for(Group subGroup: getAllSubGroups(session, group)) {
 				attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(session, subGroup, getPerunBl().getGroupsManager().GROUPSSTRUCTURESYNCHROENABLED_ATTRNAME);
