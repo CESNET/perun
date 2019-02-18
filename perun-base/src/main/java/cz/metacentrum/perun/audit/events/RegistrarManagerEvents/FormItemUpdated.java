@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.RegistrarManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 
-public class FormItemUpdated extends AuditEvent {
+public class FormItemUpdated extends AuditEvent implements EngineIgnoreEvent {
 
 	private ApplicationForm form;
 	private ApplicationFormItem item;

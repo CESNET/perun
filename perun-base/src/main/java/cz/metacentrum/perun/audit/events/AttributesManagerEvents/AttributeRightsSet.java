@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.AttributesManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.AttributeRights;
 
-public class AttributeRightsSet extends AuditEvent {
+public class AttributeRightsSet extends AuditEvent implements EngineIgnoreEvent {
 
 	private AttributeRights rights;
 	private String message;

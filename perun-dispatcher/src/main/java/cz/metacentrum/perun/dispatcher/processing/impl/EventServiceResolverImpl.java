@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.PerunClient;
 
 import org.slf4j.Logger;
@@ -96,6 +97,13 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 	public Map<Facility, Set<Service>> resolveEvent(AuditEvent event) throws InvalidEventMessageException, ServiceNotExistsException, InternalErrorException, PrivilegeException {
 
 		log.info("Event - I am going to process event: {}", event);
+
+		Map<Facility, Set<Service>> result = new HashMap<Facility, Set<Service>>();
+
+		if (event instanceof EngineIgnoreEvent) {
+			log.info("Event ignored {} facilities will be returned", result.size());
+			return result;
+		}
 
 		// GET All Beans (only PerunBeans) from message
 		List<PerunBean> listOfBeans = new ArrayList<PerunBean>();
@@ -224,7 +232,6 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 			servicesResolvedFromEvent.add(service);
 		}
 
-		Map<Facility, Set<Service>> result = new HashMap<Facility, Set<Service>>();
 		for (Resource r : resourcesResolvedFromEvent) {
 
 			Facility facilityResolvedFromEvent;

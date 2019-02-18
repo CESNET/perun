@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.AttributesManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 
-public class AttributeAuthzDeleted extends AuditEvent {
+public class AttributeAuthzDeleted extends AuditEvent implements EngineIgnoreEvent {
 
 	private AttributeDefinition attributeDefinition;
 	private String message;

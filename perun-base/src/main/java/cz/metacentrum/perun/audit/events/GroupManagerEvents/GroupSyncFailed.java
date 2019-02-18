@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.GroupManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Group;
 
-public class GroupSyncFailed extends AuditEvent {
+public class GroupSyncFailed extends AuditEvent implements EngineIgnoreEvent {
 
 	private Group group;
 	private String message;

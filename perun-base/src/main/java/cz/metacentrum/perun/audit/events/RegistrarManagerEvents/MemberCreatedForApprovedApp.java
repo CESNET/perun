@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.RegistrarManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.registrar.model.Application;
 
-public class MemberCreatedForApprovedApp extends AuditEvent {
+public class MemberCreatedForApprovedApp extends AuditEvent implements EngineIgnoreEvent {
 
 	private Member member;
 	private Application app;

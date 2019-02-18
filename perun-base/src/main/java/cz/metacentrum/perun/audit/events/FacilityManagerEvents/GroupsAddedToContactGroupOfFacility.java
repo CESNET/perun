@@ -1,11 +1,12 @@
 package cz.metacentrum.perun.audit.events.FacilityManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.ContactGroup;
 
 import java.util.List;
 
-public class GroupsAddedToContactGroupOfFacility extends AuditEvent {
+public class GroupsAddedToContactGroupOfFacility extends AuditEvent implements EngineIgnoreEvent {
 
 	private List<Integer> groupsId;
 	private ContactGroup contactGroup;

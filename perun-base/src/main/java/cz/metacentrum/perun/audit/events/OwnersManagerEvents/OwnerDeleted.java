@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.OwnersManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Owner;
 
-public class OwnerDeleted extends AuditEvent {
+public class OwnerDeleted extends AuditEvent implements EngineIgnoreEvent {
 
 	private Owner owner;
 	private String message;

@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.ExpirationNotifScheduler;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;
 
-public class MembershipExpired extends AuditEvent {
+public class MembershipExpired extends AuditEvent implements EngineIgnoreEvent {
 
 	private Member member;
 	private int daysAfterExpiration;

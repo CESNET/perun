@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.ServicesManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 
-public class ServiceRemovedFromServicesPackage extends AuditEvent {
+public class ServiceRemovedFromServicesPackage extends AuditEvent implements EngineIgnoreEvent {
 
 	private Service service;
 	private ServicesPackage servicesPackage;

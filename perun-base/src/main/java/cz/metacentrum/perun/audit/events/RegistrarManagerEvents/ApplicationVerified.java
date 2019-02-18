@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.RegistrarManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.registrar.model.Application;
 
-public class ApplicationVerified extends AuditEvent {
+public class ApplicationVerified extends AuditEvent implements EngineIgnoreEvent {
 
 	private Application app;
 	private String message;

@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.AuthorshipManagementEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 
-public class AuthorshipDeleted extends AuditEvent {
+public class AuthorshipDeleted extends AuditEvent implements EngineIgnoreEvent {
 
 	private Authorship authorship;
 	private String message;

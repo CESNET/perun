@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.VoManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Vo;
 
-public class VoCreated extends AuditEvent {
+public class VoCreated extends AuditEvent implements EngineIgnoreEvent {
 
 	private Vo vo;
 	private String message;
