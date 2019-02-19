@@ -1804,9 +1804,10 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param facility remove attributes from this facility
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Remove all non-virtual group-resource attribute on selected resource
@@ -1842,10 +1843,10 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param vo remove attributes from this vo
-	 *
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Unset particular attribute for the group.
@@ -1863,10 +1864,10 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param group remove attributes from this group
-	 *
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Group group) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Group group) throws InternalErrorException;
 
 
 	/**
@@ -1885,10 +1886,10 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param resource remove attributes from this resource
-	 *
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Unset particular member-resorce attribute for the member on the resource.
@@ -1908,10 +1909,10 @@ public interface AttributesManagerImplApi {
 	 * @param sess perun session
 	 * @param member remove attributes from this member
 	 * @param resource remove attributes from this resource
-	 *
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Unset particular attribute for the member in the group. Core attributes can't be removed this way.
@@ -1931,9 +1932,10 @@ public interface AttributesManagerImplApi {
 	 * @param sess perun session
 	 * @param group remove attributes for this group
 	 * @param member remove attributes from this member
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException;
 
 	/**
 	 * Unset particular member attribute
@@ -1951,9 +1953,10 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param member
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Member member) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
 	 * Unset particular user-facility attribute
@@ -1973,9 +1976,10 @@ public interface AttributesManagerImplApi {
 	 * @param sess perun session
 	 * @param facility
 	 * @param user
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException;
 
 	/**
 	 * Unset all (user-facility) <b>non-virtual</b> attributes for any user on the facility.
@@ -1984,16 +1988,17 @@ public interface AttributesManagerImplApi {
 	 * @param facility
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException;
+	boolean removeAllUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Unset all (user-facility) <b>non-virtual</b> attributes for the user and <b>all facilities</b>
 	 *
 	 * @param sess perun session
 	 * @param user
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllUserFacilityAttributes(PerunSession sess, User user) throws InternalErrorException;
+	boolean removeAllUserFacilityAttributes(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
 	 * Unset particular user-facility virtual attribute value.
@@ -2050,9 +2055,10 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param user
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, User user) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
 	 * Unset particular host attribute
@@ -2069,9 +2075,10 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param host
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException;
 
 	/**
 	 * Unset particular group_resource attribute
@@ -2091,9 +2098,10 @@ public interface AttributesManagerImplApi {
 	 * @param sess perun session
 	 * @param resource Resource
 	 * @param group Group
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException;
 
 	/**
 	 * Unset particular user external source attribute
@@ -2111,9 +2119,10 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param ues
+	 * @return {@code true} if attributes was deleted or {@code false} if attributes was not deleted
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException;
+	boolean removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException;
 
 	/**
 	 * Check if attribute exists in underlaying data source.

@@ -3899,9 +3899,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, facility);
-		getAttributesManagerImpl().removeAllAttributes(sess, facility);
+		if (getAttributesManagerImpl().removeAllAttributes(sess, facility)) {
+			getPerunBl().getAuditer().log(sess,new FacilityAllAttributesRemoved(facility));
+		}
 		log.info("{} removed all attributes from facility {}.", sess.getLogId(), facility.getId());
-		getPerunBl().getAuditer().log(sess,new FacilityAllAttributesRemoved(facility));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
@@ -3932,9 +3933,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		removeAllAttributes(sess, facility);
 		if (removeAlsoUserFacilityAttributes) {
 			List<Attribute> userFacilityAttributes = getUserFacilityAttributesForAnyUser(sess, facility);
-			getAttributesManagerImpl().removeAllUserFacilityAttributesForAnyUser(sess, facility);
+			if (getAttributesManagerImpl().removeAllUserFacilityAttributesForAnyUser(sess, facility)) {
+				getPerunBl().getAuditer().log(sess, new AllUserFacilityAttributesRemoved(facility));
+			}
 			log.info("{} removed all attributes from any user on facility {}.",sess.getLogId(), facility.getId());
-			getPerunBl().getAuditer().log(sess, new AllUserFacilityAttributesRemoved(facility));
 
 			for (Attribute attribute : userFacilityAttributes) attribute.setValue(null);
 			List<User> facilityUsers = perunBl.getFacilitiesManagerBl().getAllowedUsers(sess, facility);
@@ -4008,9 +4010,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException, WrongAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, host);
-		getAttributesManagerImpl().removeAllAttributes(sess, host);
+		if (getAttributesManagerImpl().removeAllAttributes(sess, host)) {
+			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForHost(host));
+		}
 		log.info("{} removed all attributes from host {}.", sess.getLogId(), host.getId());
-		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForHost(host));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
@@ -4075,9 +4078,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, vo);
-		getAttributesManagerImpl().removeAllAttributes(sess, vo);
+		if (getAttributesManagerImpl().removeAllAttributes(sess, vo)) {
+			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForVo(vo));
+		}
 		log.info("{} removed all attributes from vo {}.",sess.getLogId(), vo.getId());
-		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForVo(vo));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
@@ -4140,10 +4144,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAllAttributes(PerunSession sess, Group group) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, group);
-		getAttributesManagerImpl().removeAllAttributes(sess, group);
-
+		if (getAttributesManagerImpl().removeAllAttributes(sess, group)) {
+			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForGroup(group));
+		}
 		log.info("{} removed all attributes from group {}.",sess.getLogId(), group.getId());
-		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForGroup(group));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
@@ -4213,14 +4217,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, resource);
-		getAttributesManagerImpl().removeAllAttributes(sess, resource);
-
+		if (getAttributesManagerImpl().removeAllAttributes(sess, resource)) {
+			getPerunBl().getAuditer().log(sess,  new AllAttributesRemovedForResource(resource));
+		}
+		log.info("{} removed all attributes from resource {}.",sess.getLogId(), resource.getId());
 		//remove all virtual attributes
 		/*for(Attribute attribute : getVirtualAttributes(sess, resource)) {
 			getAttributesManagerImpl().removeVirtualAttribute(sess, resource, attribute);
 			}*/
-		log.info("{} removed all attributes from resource {}.",sess.getLogId(), resource.getId());
-		getPerunBl().getAuditer().log(sess,  new AllAttributesRemovedForResource(resource));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
@@ -4314,10 +4318,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = getAttributes(sess, member, resource);
-		getAttributesManagerImpl().removeAllAttributes(sess, member, resource);
-
+		if (getAttributesManagerImpl().removeAllAttributes(sess, member, resource)) {
+			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForResourceAndMember(resource, member));
+		}
 		log.info("{} removed all attributes from member {} on resource {}.",sess.getLogId(), member.getId(), resource.getId());
-		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForResourceAndMember(resource, member));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
@@ -4406,10 +4410,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, member, group);
-		getAttributesManagerImpl().removeAllAttributes(sess, member, group);
-
+		if (getAttributesManagerImpl().removeAllAttributes(sess, member, group)) {
+			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForMemberAndGroup(member, group));
+		}
 		log.info("{} removed all attributes from member {} in group {}.",sess.getLogId(), member.getId(), group.getId());
-		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForMemberAndGroup(member, group));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
@@ -4474,9 +4478,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAllAttributes(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, member);
-		getAttributesManagerImpl().removeAllAttributes(sess, member);
+		if (getAttributesManagerImpl().removeAllAttributes(sess, member)) {
+			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForMember(member));
+		}
 		log.info("{} removed all attributes from member {}.",sess.getLogId(), member.getId());
-		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForMember(member));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
@@ -4551,17 +4556,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, facility, user);
 		//remove all non-virtual attributes
-		getAttributesManagerImpl().removeAllAttributes(sess, facility, user);
+		boolean changed = getAttributesManagerImpl().removeAllAttributes(sess, facility, user);
 
 		//remove all virtual attributes
 		List<Attribute> virtualAttributes = getVirtualAttributes(sess, facility, user);
 		for (Attribute attribute : virtualAttributes) {
-			getAttributesManagerImpl().removeVirtualAttribute(sess, facility, user, attribute);
+			changed = getAttributesManagerImpl().removeVirtualAttribute(sess, facility, user, attribute) || changed;
 		}
 		attributes.addAll(virtualAttributes);
-
+		if (changed) {
+			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForFacilityAndUser(facility, user));
+		}
 		log.info("{} removed all attributes from user {} on facility {}.",sess.getLogId(), user.getId(), facility.getId());
-		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForFacilityAndUser(facility, user));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
@@ -4586,10 +4592,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		List<RichAttribute<User, Facility>> userFacilitiesAttributes = getAttributesManagerImpl().getAllUserFacilityRichAttributes(sess, user);
 
 		//remove all non-virtual attributes
-		getAttributesManagerImpl().removeAllUserFacilityAttributes(sess, user);
-
+		if (getAttributesManagerImpl().removeAllUserFacilityAttributes(sess, user)) {
+			getPerunBl().getAuditer().log(sess, new AllUserFacilityAttributesRemovedForFacilitiesAndUser(user));
+		}
 		log.info("{} removed all attributes from user {} on all facilities.", sess.getLogId(), user.getId());
-		getPerunBl().getAuditer().log(sess, new AllUserFacilityAttributesRemovedForFacilitiesAndUser(user));
 
 		for (RichAttribute<User, Facility> richAttribute : userFacilitiesAttributes) {
 			try {
@@ -4652,10 +4658,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAllAttributes(PerunSession sess, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, user);
-		getAttributesManagerImpl().removeAllAttributes(sess, user);
-
+		if (getAttributesManagerImpl().removeAllAttributes(sess, user)) {
+			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForUser(user));
+		}
 		log.info("{} removed all attributes from  user {}.", sess.getLogId(), user.getId());
-		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForUser(user));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
@@ -4747,10 +4753,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException, WrongAttributeValueException, GroupResourceMismatchException, WrongReferenceAttributeValueException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		List<Attribute> attributes = getAttributes(sess, resource, group);
-		getAttributesManagerImpl().removeAllAttributes(sess, resource, group);
-
+		if (getAttributesManagerImpl().removeAllAttributes(sess, resource, group)) {
+			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForGroupAndResource(group, resource));
+		}
 		log.info("{} removed all attributes from group {} on resource {}.", sess.getLogId(), group.getId(), resource.getId());
-		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForGroupAndResource(group, resource));
 
 		//remove all virtual attributes
 		/*for(Attribute attribute : getVirtualAttributes(sess, resource)) {
@@ -4817,10 +4823,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, ues);
-		getAttributesManagerImpl().removeAllAttributes(sess, ues);
-
+		if (getAttributesManagerImpl().removeAllAttributes(sess, ues)) {
+			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForUserExtSource(ues));
+		}
 		log.info("{} removed all attributes from user external source {}.", sess.getLogId(), ues.getId());
-		getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForUserExtSource(ues));
 
 		for (Attribute attribute : attributes) attribute.setValue(null);
 		try {
