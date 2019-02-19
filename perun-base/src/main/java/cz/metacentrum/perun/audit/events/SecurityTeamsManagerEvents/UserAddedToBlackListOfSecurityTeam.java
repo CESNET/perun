@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.SecurityTeamsManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineForceEvent;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
 
-public class UserAddedToBlackListOfSecurityTeam extends AuditEvent {
+public class UserAddedToBlackListOfSecurityTeam extends AuditEvent implements EngineForceEvent {
 
 	private User user;
 	private SecurityTeam securityTeam;

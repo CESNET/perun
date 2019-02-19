@@ -1,24 +1,24 @@
-package cz.metacentrum.perun.audit.events.GroupManagerEvents;
+package cz.metacentrum.perun.audit.events.VoManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 
-public class AdminAddedForGroup extends AuditEvent implements EngineIgnoreEvent {
+public class AdminGroupAddedForVo extends AuditEvent implements EngineIgnoreEvent {
 
-	private User user;
+	private Vo vo;
 	private Group group;
 	private String message;
 
 	@SuppressWarnings("unused") // used by jackson mapper
-	public AdminAddedForGroup() {
+	public AdminGroupAddedForVo() {
 	}
 
-	public AdminAddedForGroup(User user, Group group) {
-		this.user = user;
+	public AdminGroupAddedForVo(Group group, Vo vo) {
 		this.group = group;
-		this.message = formatMessage("%s was added as admin of %s.", user, group);
+		this.vo = vo;
+		this.message = formatMessage("Group %s was added as admin of %s.", group, vo);
 	}
 
 	@Override
@@ -26,12 +26,12 @@ public class AdminAddedForGroup extends AuditEvent implements EngineIgnoreEvent 
 		return message;
 	}
 
-	public User getUser() {
-		return user;
-	}
-
 	public Group getGroup() {
 		return group;
+	}
+
+	public Vo getVo() {
+		return vo;
 	}
 
 	@Override

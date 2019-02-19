@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.ResourceManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 
-public class AdminGroupAddedForResource extends AuditEvent {
+public class AdminGroupAddedForResource extends AuditEvent implements EngineIgnoreEvent {
 
 	private Group group;
 	private Resource resource;
