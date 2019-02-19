@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.UserManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.User;
 
-public class OwnershipRemovedForSpecificUser extends AuditEvent {
+public class OwnershipRemovedForSpecificUser extends AuditEvent implements EngineIgnoreEvent {
 
 	private User user;
 	private User specificUser;

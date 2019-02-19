@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.MembersManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Status;
 
-public class MemberValidatedFailed extends AuditEvent {
+public class MemberValidatedFailed extends AuditEvent implements EngineIgnoreEvent {
 
 	private Member member;
 	private Status status;

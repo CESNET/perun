@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.GroupManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.User;
 
-public class AdminRemovedForGroup extends AuditEvent {
+public class AdminRemovedForGroup extends AuditEvent implements EngineIgnoreEvent {
 
 	private User user;
 	private Group group;

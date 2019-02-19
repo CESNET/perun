@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminAddedForVo;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminGroupAddedForVo;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminGroupRemovedForVo;
+import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminRemovedForVo;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoCreated;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoDeleted;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoUpdated;
@@ -497,6 +501,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		List<User> adminsOfVo = this.getAdmins(sess, vo);
 		if (adminsOfVo.contains(user)) throw new AlreadyAdminException(user, vo);
 		AuthzResolverBlImpl.setRole(sess, user, vo, Role.VOADMIN);
+		getPerunBl().getAuditer().log(sess, new AdminAddedForVo(user, vo));
 		log.debug("User {} added like administrator to VO {}", user, vo);
 	}
 
@@ -505,6 +510,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		List<Group> adminsOfVo = this.getAdminGroups(sess, vo);
 		if (adminsOfVo.contains(group)) throw new AlreadyAdminException(group, vo);
 		AuthzResolverBlImpl.setRole(sess, group, vo, Role.VOADMIN);
+		getPerunBl().getAuditer().log(sess, new AdminGroupAddedForVo(group, vo));
 		log.debug("Group {} added like administrator to VO {}", group, vo);
 	}
 
@@ -513,6 +519,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		List<User> adminsOfVo = this.getAdmins(sess, vo);
 		if (!adminsOfVo.contains(user)) throw new UserNotAdminException(user);
 		AuthzResolverBlImpl.unsetRole(sess, user, vo, Role.VOADMIN);
+		getPerunBl().getAuditer().log(sess, new AdminRemovedForVo(user, vo));
 		log.debug("User {} deleted like administrator from VO {}", user, vo);
 	}
 
@@ -521,6 +528,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		List<Group> adminsOfVo = this.getAdminGroups(sess, vo);
 		if (!adminsOfVo.contains(group)) throw new GroupNotAdminException(group);
 		AuthzResolverBlImpl.unsetRole(sess, group, vo, Role.VOADMIN);
+		getPerunBl().getAuditer().log(sess, new AdminGroupRemovedForVo(group, vo));
 		log.debug("Group {} deleted like administrator from VO {}", group, vo);
 	}
 

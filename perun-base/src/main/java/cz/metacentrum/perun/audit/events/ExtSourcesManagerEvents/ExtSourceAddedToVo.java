@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.ExtSourcesManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 
-public class ExtSourceAddedToVo extends AuditEvent {
+public class ExtSourceAddedToVo extends AuditEvent implements EngineIgnoreEvent {
 
 	private ExtSource source;
 	private Vo vo;

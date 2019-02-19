@@ -2,7 +2,6 @@ package cz.metacentrum.perun.audit.events.MembersManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.User;
 
 public class SponsoredMemberSet extends AuditEvent {
 

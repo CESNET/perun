@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.MailManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 
-public class MailSentForApplication extends AuditEvent {
+public class MailSentForApplication extends AuditEvent implements EngineIgnoreEvent {
 
 	private ApplicationMail.MailType mailType;
 	private int appId;

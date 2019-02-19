@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.ServicesManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 
-public class ServicesPackageUpdated extends AuditEvent {
+public class ServicesPackageUpdated extends AuditEvent implements EngineIgnoreEvent {
 
 	private ServicesPackage servicesPackage;
 	private String message;

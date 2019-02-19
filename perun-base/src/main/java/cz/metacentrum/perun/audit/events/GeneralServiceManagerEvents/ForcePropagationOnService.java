@@ -1,12 +1,13 @@
 package cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineForceEvent;
 import cz.metacentrum.perun.core.api.Service;
 
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
-public class ForcePropagationOnService extends AuditEvent {
+public class ForcePropagationOnService extends AuditEvent implements EngineForceEvent {
 
 	private Service service;
 	private String message;

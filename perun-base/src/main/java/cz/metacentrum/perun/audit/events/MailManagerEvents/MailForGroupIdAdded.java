@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.MailManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 
-public class MailForGroupIdAdded extends AuditEvent {
+public class MailForGroupIdAdded extends AuditEvent implements EngineIgnoreEvent {
 
 	private ApplicationMail mail;
 	private Group group;

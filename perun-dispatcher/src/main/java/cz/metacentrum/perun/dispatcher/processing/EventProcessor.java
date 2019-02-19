@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.dispatcher.processing;
 
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnFacilityAndService;
-import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnService;
+import cz.metacentrum.perun.audit.events.EngineForceEvent;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Perun;
@@ -269,9 +268,7 @@ public class EventProcessor extends AbstractRunner {
 	 */
 	private boolean determineForcedPropagation(Event event) {
 
-		return (event.getData() instanceof ForcePropagationOnService ||
-				event.getData() instanceof ForcePropagationOnFacilityAndService);
-
+		return (event.getData() instanceof EngineForceEvent);
 
 	}
 

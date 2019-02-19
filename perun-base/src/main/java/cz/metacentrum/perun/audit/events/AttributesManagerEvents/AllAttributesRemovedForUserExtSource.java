@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.audit.events.AttributesManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.UserExtSource;
 
-public class AllAttributesRemovedForUserExtSource extends AuditEvent {
+public class AllAttributesRemovedForUserExtSource extends AuditEvent implements EngineIgnoreEvent {
 
 	private UserExtSource userExtSource;
 	private String message;

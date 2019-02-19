@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.FacilityManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.User;
 
-public class AdminRemovedForFacility extends AuditEvent {
+public class AdminRemovedForFacility extends AuditEvent implements EngineIgnoreEvent {
 
 	private User user;
 	private Facility facility;

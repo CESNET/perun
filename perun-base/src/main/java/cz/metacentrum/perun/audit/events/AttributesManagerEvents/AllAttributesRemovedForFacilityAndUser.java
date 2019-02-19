@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.audit.events.AttributesManagerEvents;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.audit.events.EngineIgnoreEvent;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.User;
 
-public class AllAttributesRemovedForFacilityAndUser extends AuditEvent {
+public class AllAttributesRemovedForFacilityAndUser extends AuditEvent implements EngineIgnoreEvent {
 
 	private Facility facility;
 	private User user;
