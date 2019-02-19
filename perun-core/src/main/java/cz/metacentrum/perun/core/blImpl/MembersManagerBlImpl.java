@@ -1588,7 +1588,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       }
     }
 
-    Calendar calendar = Calendar.getInstance();
+    LocalDate localDate = LocalDate.now();
 
     String period = null;
     // Default extension
@@ -1612,7 +1612,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
     if (period != null) {
       if (period.startsWith("+")) {
 		  try {
-			  Utils.extendCalendarByPeriod(calendar, period);
+			  localDate = Utils.extendDateByPeriod(localDate, period);
 		  } catch (InternalErrorException e) {
 		  	throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute.", e);
 		  }
@@ -1625,7 +1625,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		  if (!m.matches()) {
 			  throw new InternalErrorException("Wrong format of period in VO membershipExpirationRules attribute. Period: " + period);
 		  }
-		  boolean extensionInNextYear = Utils.extendCalendarByStaticDate(calendar, m);
+		  localDate = Utils.extendDateByStaticDate(localDate, m);
 
           // ***** GRACE PERIOD *****
           // Is there a grace period?
@@ -1637,30 +1637,25 @@ public class MembersManagerBlImpl implements MembersManagerBl {
             p = Pattern.compile("([0-9]+)([dmy]?)");
             m = p.matcher(gracePeriod);
             if (m.matches()) {
-				Calendar gracePeriodCalendar = Calendar.getInstance();
+				LocalDate gracePeriodDate = LocalDate.now();
 				try {
-					Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar);
+					Pair<Integer, TemporalUnit> fieldAmount = Utils.prepareGracePeriodDate(m);
+					gracePeriodDate = gracePeriodDate.minus(fieldAmount.getLeft(), fieldAmount.getRight());
 				} catch (InternalErrorException e) {
 					throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
 				}
 
               // Check if we are in grace period
-              if (gracePeriodCalendar.before(Calendar.getInstance())) {
+              if (gracePeriodDate.isBefore(LocalDate.now())) {
                 // We are in grace period, so extend to the next period
-                calendar.add(Calendar.YEAR, 1);
+                localDate = localDate.plusYears(1);
               }
             }
           }
       }
-
-      // Reset hours, minutes and seconds to 0
-      calendar.set(Calendar.HOUR, 0);
-      calendar.set(Calendar.MINUTE, 0);
-      calendar.set(Calendar.SECOND, 0);
-      calendar.set(Calendar.MILLISECOND, 0);
     }
 
-    return calendar.getTime();
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 
 	@Override
