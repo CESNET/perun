@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.api.exceptions.rt.ConsistencyErrorRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
@@ -52,7 +53,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserExtSourceAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserExtSourceVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +61,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -73,6 +74,7 @@ import java.io.Reader;
 import java.lang.IllegalArgumentException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Array;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -3415,14 +3417,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		try {
-			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
-							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"JOIN members ON " + BeansUtils.prepareInSQLClause("members.id", members) +
-							"LEFT JOIN member_resource_attr_values mem ON attr_names.id=mem.attr_id AND mem.resource_id=? " +
-							"AND mem.member_id=members.id WHERE namespace IN (?,?,?)",
-					new MemberAttributeExtractor(sess, this, resource, members), service.getId(), resource.getId(),
-					AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
-		} catch (RuntimeException ex) {
+			return jdbc.execute("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
+				"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
+				"JOIN members ON members.id " + Compatibility.getStructureForInClause() +
+				"LEFT JOIN member_resource_attr_values mem ON attr_names.id=mem.attr_id AND mem.resource_id=? " +
+				"AND mem.member_id=members.id WHERE namespace IN (?,?,?)", (PreparedStatementCallback<HashMap<Member, List<Attribute>>>) preparedStatement -> {
+					Array sqlArray = ((PerunBlImpl)perun).getDatabaseManagerBl().prepareSQLArrayOfNumbers(members, preparedStatement);
+					preparedStatement.setInt(1, service.getId());
+					preparedStatement.setArray(2, sqlArray);
+					preparedStatement.setInt(3, resource.getId());
+					preparedStatement.setString(4, AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
+					preparedStatement.setString(5, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT);
+					preparedStatement.setString(6, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+					MemberAttributeExtractor memberAttributeExtractor = new MemberAttributeExtractor(sess, this, resource, members);
+					return memberAttributeExtractor.extractData(preparedStatement.executeQuery());
+			});
+		} catch (InternalErrorRuntimeException ex) {
+			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -3440,17 +3451,24 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return hashMap;
 		}
 
-	    try {
-			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
-							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"JOIN members ON " + BeansUtils.prepareInSQLClause("members.id", members) +
-							"LEFT JOIN member_attr_values mem ON attr_names.id=mem.attr_id " +
-							"AND mem.member_id=members.id WHERE namespace IN (?,?,?,?)",
-					new MemberAttributeExtractor(sess, this, members), service.getId(),
-					AttributesManager.NS_MEMBER_ATTR_CORE, AttributesManager.NS_MEMBER_ATTR_DEF, AttributesManager.NS_MEMBER_ATTR_OPT, AttributesManager.NS_MEMBER_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			return new HashMap<>();
-		} catch (RuntimeException ex) {
+		try {
+			return jdbc.execute("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
+				"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
+				"JOIN members ON members.id " + Compatibility.getStructureForInClause() +
+				"LEFT JOIN member_attr_values mem ON attr_names.id=mem.attr_id " +
+				"AND mem.member_id=members.id WHERE namespace IN (?,?,?,?)", (PreparedStatementCallback<HashMap<Member, List<Attribute>>>) preparedStatement -> {
+				Array sqlArray = ((PerunBlImpl) perun).getDatabaseManagerBl().prepareSQLArrayOfNumbers(members, preparedStatement);
+				preparedStatement.setInt(1, service.getId());
+				preparedStatement.setArray(2, sqlArray);
+				preparedStatement.setString(3, AttributesManager.NS_MEMBER_ATTR_CORE);
+				preparedStatement.setString(4, AttributesManager.NS_MEMBER_ATTR_DEF);
+				preparedStatement.setString(5, AttributesManager.NS_MEMBER_ATTR_OPT);
+				preparedStatement.setString(6, AttributesManager.NS_MEMBER_ATTR_VIRT);
+				MemberAttributeExtractor memberAttributeExtractor = new MemberAttributeExtractor(sess, this, members);
+				return memberAttributeExtractor.extractData(preparedStatement.executeQuery());
+			});
+		} catch (InternalErrorRuntimeException ex) {
+			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -3469,15 +3487,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		try {
-			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("usr_fac") + ", users.id FROM attr_names " +
-							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"JOIN users ON " + BeansUtils.prepareInSQLClause("users.id", users) +
-							"LEFT JOIN user_facility_attr_values usr_fac ON attr_names.id=usr_fac.attr_id AND facility_id=? AND user_id=users.id " +
-							"WHERE namespace IN (?,?,?)",
-					new UserAttributeExtractor(sess, this, users, facility), service.getId(), facility.getId(), AttributesManager.NS_USER_FACILITY_ATTR_DEF, AttributesManager.NS_USER_FACILITY_ATTR_OPT, AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			return new HashMap<>();
-		} catch (RuntimeException ex) {
+			return jdbc.execute("SELECT " + getAttributeMappingSelectQuery("usr_fac") + ", users.id FROM attr_names " +
+				"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
+				"JOIN users ON users.id " + Compatibility.getStructureForInClause() +
+				"LEFT JOIN user_facility_attr_values usr_fac ON attr_names.id=usr_fac.attr_id AND facility_id=? AND user_id=users.id " +
+				"WHERE namespace IN (?,?,?)", (PreparedStatementCallback<HashMap<User, List<Attribute>>>) preparedStatement -> {
+					Array sqlArray = ((PerunBlImpl)perun).getDatabaseManagerBl().prepareSQLArrayOfNumbers(users, preparedStatement);
+					preparedStatement.setInt(1, service.getId());
+					preparedStatement.setArray(2, sqlArray);
+					preparedStatement.setInt(3, facility.getId());
+					preparedStatement.setString(4, AttributesManager.NS_USER_FACILITY_ATTR_DEF);
+					preparedStatement.setString(5, AttributesManager.NS_USER_FACILITY_ATTR_OPT);
+					preparedStatement.setString(6, AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+					UserAttributeExtractor userAttributeExtractor = new UserAttributeExtractor(sess, this, users, facility);
+					return userAttributeExtractor.extractData(preparedStatement.executeQuery());
+			});
+		} catch (InternalErrorRuntimeException ex) {
+			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -3495,17 +3521,24 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return hashMap;
 		}
 
-		//user and user core attributes
 		try {
-			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("usr") + ", users.id FROM attr_names " +
-							"JOIN service_required_attrs on attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"JOIN users ON " + BeansUtils.prepareInSQLClause("users.id", users) +
-							"LEFT JOIN user_attr_values usr ON attr_names.id=usr.attr_id AND user_id=users.id " +
-							"WHERE namespace IN (?,?,?,?)",
-					new UserAttributeExtractor(sess, this, users), service.getId(), AttributesManager.NS_USER_ATTR_CORE, AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT, AttributesManager.NS_USER_ATTR_VIRT);
-		} catch (EmptyResultDataAccessException ex) {
-			return new HashMap<>();
-		} catch (RuntimeException ex) {
+			return jdbc.execute("SELECT " + getAttributeMappingSelectQuery("usr") + ", users.id FROM attr_names " +
+				"JOIN service_required_attrs on attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
+				"JOIN users ON users.id " + Compatibility.getStructureForInClause() +
+				"LEFT JOIN user_attr_values usr ON attr_names.id=usr.attr_id AND user_id=users.id " +
+				"WHERE namespace IN (?,?,?,?)", (PreparedStatementCallback<HashMap<User, List<Attribute>>>) preparedStatement -> {
+				Array sqlArray = ((PerunBlImpl) perun).getDatabaseManagerBl().prepareSQLArrayOfNumbers(users, preparedStatement);
+				preparedStatement.setInt(1, service.getId());
+				preparedStatement.setArray(2, sqlArray);
+				preparedStatement.setString(3, AttributesManager.NS_USER_ATTR_CORE);
+				preparedStatement.setString(4, AttributesManager.NS_USER_ATTR_DEF);
+				preparedStatement.setString(5, AttributesManager.NS_USER_ATTR_OPT);
+				preparedStatement.setString(6, AttributesManager.NS_USER_ATTR_VIRT);
+				UserAttributeExtractor userAttributeExtractor = new UserAttributeExtractor(sess, this, users);
+				return userAttributeExtractor.extractData(preparedStatement.executeQuery());
+			});
+		} catch (InternalErrorRuntimeException ex) {
+			//Finding or invoking oracle array method was unsuccessful
 			throw new InternalErrorException(ex);
 		}
 	}

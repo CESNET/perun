@@ -1,19 +1,28 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.implApi.DatabaseManagerImplApi;
 import java.beans.Beans;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.JDBCType;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Database manager can work with database version and upgraded state of perun DB.
@@ -26,22 +35,23 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 	public static final String ORACLE_CHANGELOG = "oracleChangelog.txt";
 	public static final String POSTGRES_CHANGELOG = "postgresChangelog.txt";
 	public static final String HSQLDB_CHANGELOG = "hsqldbChangelog.txt";
+	public static final String NAME_OF_ORACLE_ARRAY_METHOD = "createOracleArray";
 	private final DatabaseManagerImplApi databaseManagerImpl;
 
 	public DatabaseManagerBlImpl(DatabaseManagerImplApi databaseManagerImpl) {
 		this.databaseManagerImpl = databaseManagerImpl;
 	}
-	
+
 	@Override
 	public String getCurrentDatabaseVersion() throws InternalErrorException {
 		return getDatabaseManagerImpl().getCurrentDatabaseVersion();
 	}
-	
+
 	@Override
 	public String getDatabaseDriverInformation() throws InternalErrorException {
 		return getDatabaseManagerImpl().getDatabaseDriverInformation();
 	}
-	
+
 	@Override
 	public String getDatabaseInformation() throws InternalErrorException {
 		return getDatabaseManagerImpl().getDatabaseInformation();
@@ -113,7 +123,40 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 		}
 		log.debug("Initialize manager ends!");
 	}
-	
+
+	public java.sql.Array prepareSQLArrayOfNumbers(List<? extends PerunBean> perunBeans, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException {
+		Connection connection = preparedStatement.getConnection().unwrap(Connection.class);
+		if(Compatibility.isOracle()) {
+			int[] arrayOfBeansIds = perunBeans.stream().mapToInt(PerunBean::getId).toArray();
+			try {
+				Method createOracleArrayMethod = connection.getClass().getMethod(NAME_OF_ORACLE_ARRAY_METHOD, String.class, Object.class);
+				createOracleArrayMethod.setAccessible(true);
+				return (java.sql.Array) createOracleArrayMethod.invoke(connection, AttributesManager.ORACLE_ARRAY_OF_NUMBERS, arrayOfBeansIds);
+			} catch (Exception ex) {
+				throw new InternalErrorRuntimeException("Can't access to method " + NAME_OF_ORACLE_ARRAY_METHOD, ex);
+			}
+		} else {
+			Integer[] arrayOfBeansIds = perunBeans.stream().map(PerunBean::getId).toArray(Integer[]::new);
+			return connection.createArrayOf(JDBCType.INTEGER.name(), arrayOfBeansIds);
+		}
+	}
+
+	public java.sql.Array prepareSQLArrayOfStrings(List<String> strings, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException {
+		String[] arrayOfStrings = strings.stream().toArray(String[]::new);
+		Connection connection = preparedStatement.getConnection().unwrap(Connection.class);
+		if(Compatibility.isOracle()) {
+			try {
+				Method createOracleArrayMethod = connection.getClass().getMethod(NAME_OF_ORACLE_ARRAY_METHOD, String.class, Object.class);
+				createOracleArrayMethod.setAccessible(true);
+				return (java.sql.Array) createOracleArrayMethod.invoke(connection, AttributesManager.ORACLE_ARRAY_OF_STRINGS, arrayOfStrings);
+			} catch (Exception ex) {
+				throw new InternalErrorRuntimeException("Can't access to method " + NAME_OF_ORACLE_ARRAY_METHOD, ex);
+			}
+		} else {
+			return connection.createArrayOf(JDBCType.VARCHAR.name(), arrayOfStrings);
+		}
+	}
+
 	public DatabaseManagerImplApi getDatabaseManagerImpl() {
 		return this.databaseManagerImpl;
 	}
