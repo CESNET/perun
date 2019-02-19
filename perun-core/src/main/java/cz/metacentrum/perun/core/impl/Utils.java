@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.utils.graphs.Graph;
+import net.sf.cglib.core.Local;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,10 @@ import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1382,6 +1386,40 @@ public class Utils {
 	}
 
 	/**
+	 * Extends given date by given period.
+	 *
+	 * @param localDate date to be extended
+	 * @param period period used to extend date
+	 * @throws InternalErrorException when the period has wrong format,
+	 * allowed format is given by regex "\\+([0-9]+)([dmy]?)"
+	 */
+	public static LocalDate extendDateByPeriod(LocalDate localDate, String period) throws InternalErrorException {
+		// By default do not add nothing
+		int amount = 0;
+
+		// We will add days/months/years
+		Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
+		Matcher m = p.matcher(period);
+		if (m.matches()) {
+			String countString = m.group(1);
+			amount = Integer.valueOf(countString);
+
+			String dmyString = m.group(2);
+			if (dmyString.equals("d")) {
+				return localDate.plusDays(amount);
+			} else if (dmyString.equals("m")) {
+				return localDate.plusMonths(amount);
+			} else if (dmyString.equals("y")) {
+				return localDate.plusYears(amount);
+			} else {
+				throw new InternalErrorException("Wrong format of period. Period: " + period);
+			}
+		} else {
+			throw new InternalErrorException("Wrong format of period. Period: " + period);
+		}
+	}
+
+	/**
 	 * Extends given calendar by values from given matcher.
 	 * @param calendar calendar to be extended
 	 * @param matcher matcher with day and month values
@@ -1411,6 +1449,36 @@ public class Utils {
 		}
 
 		return extensionInNextYear;
+	}
+
+	/**
+	 * Extends given date by values from given matcher.
+	 * @param localDate date to be extended
+	 * @param matcher matcher with day and month values
+	 * @return Extended date.
+	 */
+	public static LocalDate extendDateByStaticDate(LocalDate localDate, Matcher matcher) {
+
+		int day = Integer.valueOf(matcher.group(1));
+		int month = Integer.valueOf(matcher.group(2));
+
+		// Get current year
+		int year = localDate.getYear();
+
+		// We must detect if the extension date is in current year or in a next year
+		boolean extensionInNextYear;
+		LocalDate extensionDate = LocalDate.of(year, month, day);
+
+		// check if extension is next year
+		extensionInNextYear = extensionDate.isBefore(LocalDate.now());
+
+		// Set the date to which the membership should be extended, can be changed if there was grace period, see next part of the code
+		localDate = LocalDate.of(year, month, day);
+		if (extensionInNextYear) {
+			localDate = localDate.plusYears(1);
+		}
+
+		return localDate;
 	}
 
 	/**
@@ -1453,5 +1521,37 @@ public class Utils {
 		gracePeriodCalendar.add(field, -amount);
 
 		return new Pair<>(field, amount);
+	}
+
+	/**
+	 * Prepares grace period date by values from given matcher.
+	 * @param matcher matcher
+	 * @return pair of field(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH) and amount
+	 * @throws InternalErrorException when given matcher contains invalid data
+	 */
+	public static Pair<Integer, TemporalUnit> prepareGracePeriodDate(Matcher matcher) throws InternalErrorException {
+		if (!matcher.matches()) {
+			return null;
+		}
+		String countString = matcher.group(1);
+		int amount = Integer.valueOf(countString);
+
+		TemporalUnit field;
+		String dmyString = matcher.group(2);
+		switch (dmyString) {
+			case "d":
+				field = ChronoUnit.DAYS;
+				break;
+			case "m":
+				field = ChronoUnit.MONTHS;
+				break;
+			case "y":
+				field = ChronoUnit.YEARS;
+				break;
+			default:
+				throw new InternalErrorException("Wrong format of gracePeriod.");
+		}
+
+		return new Pair<>(amount, field);
 	}
 }
