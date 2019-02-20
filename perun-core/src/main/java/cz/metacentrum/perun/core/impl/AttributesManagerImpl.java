@@ -4120,15 +4120,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM facility_attr_values WHERE facility_id=?", facility.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(facility.getId(), Holder.HolderType.FACILITY));
 				log.debug("All attributes values were removed from facility {}.", facility);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4146,15 +4148,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM vo_attr_values WHERE vo_id=?", vo.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(vo.getId(), Holder.HolderType.VO));
 				log.debug("All attributes values were removed from vo {}.", vo);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4172,15 +4176,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Group group) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM group_attr_values WHERE group_id=?", group.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(group.getId(), Holder.HolderType.GROUP));
 				log.debug("All attributes values were removed from group {}.", group);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4198,15 +4204,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM resource_attr_values WHERE resource_id=?", resource.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 				log.debug("All attributes values were removed from resource {}.", resource);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4224,15 +4232,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Member member, Resource resource) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_resource_attr_values WHERE resource_id=? AND member_id=?", resource.getId(), member.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 				log.debug("All attributes values were removed from member {} on resource {}.", member, resource);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4250,15 +4260,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_group_attr_values WHERE group_id=? AND member_id=?", group.getId(), member.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(group.getId(), Holder.HolderType.GROUP));
 				log.debug("All attributes values were removed from member {} in group {}.", member, group);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4276,15 +4288,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Member member) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Member member) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM member_attr_values WHERE member_id=?", member.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(member.getId(), Holder.HolderType.MEMBER));
 				log.debug("All attributes values were removed from member {}", member);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4303,39 +4317,45 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_facility_attr_values WHERE user_id=? AND facility_id=?", user.getId(), facility.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
 				log.debug("All attributes values were removed from user {} on facility {}.", user, facility);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
-	public void removeAllUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException {
+	public boolean removeAllUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_facility_attr_values WHERE facility_id=?", facility.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(Holder.HolderType.USER, new Holder(facility.getId(), Holder.HolderType.FACILITY));
 				log.debug("All attributes values were removed from any user on facility {}.", facility);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
-	public void removeAllUserFacilityAttributes(PerunSession sess, User user) throws InternalErrorException {
+	public boolean removeAllUserFacilityAttributes(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_facility_attr_values WHERE user_id=?", user.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(user.getId(), Holder.HolderType.USER), Holder.HolderType.FACILITY);
 				log.debug("All attributes values were removed from user {} on  all facilities.", user);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4368,15 +4388,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, User user) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_attr_values WHERE user_id=?", user.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(user.getId(), Holder.HolderType.USER));
 				log.debug("All attributes values were removed from user {}.", user);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4394,15 +4416,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM group_resource_attr_values WHERE group_id=? AND resource_id=?", group.getId(), resource.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(group.getId(), Holder.HolderType.GROUP), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 				log.debug("All attributes values were removed from group {} on resource{}.", group, resource);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4420,15 +4444,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM host_attr_values WHERE host_id=?", host.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(host.getId(), Holder.HolderType.HOST));
 				log.debug("All attributes values were removed from host {}.", host);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
@@ -4448,15 +4474,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+	public boolean removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM user_ext_source_attr_values WHERE user_ext_source_id=?", ues.getId())) {
 				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(ues.getId(), Holder.HolderType.UES));
 				log.debug("All attributes values were removed from user external source {}.", ues);
+				return true;
 			}
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+		return false;
 	}
 
 	@Override
