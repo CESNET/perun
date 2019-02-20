@@ -460,8 +460,9 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 	@Override
 	public CandidateGroup generateCandidateGroup(PerunSession perunSession, Map<String,String> groupSubjectData, ExtSource source) throws InternalErrorException {
-		if(groupSubjectData == null || groupSubjectData.isEmpty()) throw new InternalErrorException(" Group subject data can't be null or empty, at least group name has to exists.");
-		if(source == null) throw new InternalErrorException(" ExtSource cannot be null while generating CandidateGroup");
+		if(groupSubjectData == null) throw new InternalErrorException("Group subject data cannot be null.");
+		if(groupSubjectData.isEmpty()) throw new InternalErrorException("Group subject data cannot be empty, at least group name has to exists.");
+		if(source == null) throw new InternalErrorException("ExtSource cannot be null while generating CandidateGroup");
 
 		CandidateGroup candidateGroup = new CandidateGroup();
 

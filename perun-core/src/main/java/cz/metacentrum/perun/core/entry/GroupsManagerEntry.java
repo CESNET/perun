@@ -84,7 +84,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "createGroup - subGroup");
 		}
 
-		if(getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, parentGroup))	{
+		if (getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, parentGroup)) {
 			throw new ExternallyManagedException("Parent group " + parentGroup + " is externally managed");
 		}
 
@@ -106,7 +106,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "deleteGroup");
 				}
 
-		if(getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group) || getGroupsManagerBl().hasGroupSynchronizedChild(sess, group))	{
+		if (getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group) || getGroupsManagerBl().hasGroupSynchronizedChild(sess, group)) {
 			throw new ExternallyManagedException("Group " + group + " or some of the subGroups are externally managed");
 		}
 		getGroupsManagerBl().deleteGroup(sess, group, forceDelete);
@@ -140,7 +140,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		for(Group group: groups) {
 			getGroupsManagerBl().checkGroupExists(perunSession, group);
 
-			if(getGroupsManagerBl().isGroupInStructureSynchronizationTree(perunSession, group) || getGroupsManagerBl().hasGroupSynchronizedChild(perunSession, group))	{
+			if (getGroupsManagerBl().isGroupInStructureSynchronizationTree(perunSession, group) || getGroupsManagerBl().hasGroupSynchronizedChild(perunSession, group)) {
 				throw new ExternallyManagedException("Group " + group + " or some of the subGroups are externally managed!");
 			}
 
@@ -264,7 +264,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Check if the group is externally synchronized
 		Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
-		if (Objects.equals("true", (String) attrSynchronizeEnabled.getValue()) || getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
+		if ("true".equals(attrSynchronizeEnabled.getValue()) || getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
 			throw new ExternallyManagedException("Adding of member is not allowed. Group is externally managed.");
 		}
 
@@ -285,7 +285,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Check if the group is externally synchronized
 		Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
-		if (Objects.equals("true", (String) attrSynchronizeEnabled.getValue()) || getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
+		if ("true".equals(attrSynchronizeEnabled.getValue()) || getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
 			throw new ExternallyManagedException("Removing of member is not allowed. Group is externally managed.");
 		}
 
@@ -988,7 +988,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
 			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group))  {
-			throw new PrivilegeException(sess, "synchronizeGroupStructure");
+			throw new PrivilegeException(sess, "forceGroupStructureSynchronization");
 		}
 
 		getGroupsManagerBl().forceGroupStructureSynchronization(sess, group);

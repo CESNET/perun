@@ -50,7 +50,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 					throw new WrongReferenceAttributeValueException(attribute, attrSynchronizeEnabled);
 				}
 
-				Attribute requiredAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, group, GroupsManager.GROUPSTRUCTURESYNCHROINTERVAL_ATTRNAME);
+				Attribute requiredAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, group, GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);
 				if (requiredAttribute.getValue() == null) {
 					throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
 				}

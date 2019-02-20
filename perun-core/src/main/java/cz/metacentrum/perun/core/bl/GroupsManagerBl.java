@@ -949,7 +949,7 @@ public interface GroupsManagerBl {
 	void forceGroupSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupSynchronizationAlreadyRunningException;
 
 	/**
-	 * Synchronize the group structure with and external group structure. It checks if the synchronization of the same group is already in progress.
+	 * Synchronize the group structure with an external group structure. It checks if the synchronization of the same group is already in progress.
 	 *
 	 * @param group the group to be forced this way
 	 * @throws InternalErrorException
@@ -1290,7 +1290,7 @@ public interface GroupsManagerBl {
 	 * Also log information about failed synchronization to auditer_log.
 	 *
 	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups)
-	 * With a new transaction, rollback on the main method, where this one is used, will not revert saving of this information.
+	 * This method is run in a new transaction to ensure successful saving of given information, in case of a rollback in previous transaction.
 	 * However, this method cannot be used in method running in the nested transaction, where the group was changed in the database.
 	 *
 	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
@@ -1317,7 +1317,7 @@ public interface GroupsManagerBl {
 	 *
 	 * IMPORTANT: This method runs in nested transaction so it can be used in another transaction
 	 * With a nested transaction, this method can be used in method running in the nested transaction, where the group was changed in the database.
-	 * However, rollback on the main method, where this one is used, will revert saving of this information.
+	 * However, rollback on the outer transaction, where this method is used, will revert saving of given information.
 	 *
 	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastSynchronizationState"
@@ -1342,8 +1342,8 @@ public interface GroupsManagerBl {
 	 * This method will set timestamp, state and exceptionMessage to group attributes for the group structure.
 	 * Also log information about failed group structure synchronization to auditer_log.
 	 *
-	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups structures)
-	 * With a new transaction, rollback on the main method, where this one is used, will not revert saving of this information.
+	 * IMPORTANT: This method runs in new transaction (because of it being used in synchronization of groups structures)
+	 * This method is run in a new transaction to ensure successful saving of given information, in case of a rollback in previous transaction.
 	 * However, this method cannot be used in method running in the nested transaction, where the group was changed in the database.
 	 *
 	 * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
@@ -1368,9 +1368,9 @@ public interface GroupsManagerBl {
 	 * This method will set timestamp, state and exceptionMessage to group attributes for the group structure.
 	 * Also log information about failed group structure synchronization to auditer_log.
 	 *
-	 * IMPORTANT: This method runs in nested transaction (because of using in synchronization of groups structures)
+	 * IMPORTANT: This method runs in nested transaction.
 	 * With a nested transaction, this method can be used in method running in the nested transaction, where the group was changed in the database.
-	 * However, rollback on the main method, where this one is used, will revert saving of this information.
+	 * However, rollback on the outer transaction, where this method is used, will revert saving of given information.
 	 *
 	 * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastGroupStructureSynchronizationState"

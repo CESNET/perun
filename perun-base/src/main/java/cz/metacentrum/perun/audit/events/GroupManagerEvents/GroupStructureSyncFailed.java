@@ -14,7 +14,7 @@ public class GroupStructureSyncFailed extends AuditEvent {
 
 	public GroupStructureSyncFailed(Group group) {
 		this.group = group;
-		this.message = formatMessage( "%s structure synchronization failed.", group);
+		this.message = formatMessage("%s structure synchronization failed.", group);
 	}
 
 	@Override

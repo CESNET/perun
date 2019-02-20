@@ -839,6 +839,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 
 			ac.getGroupsManager().forceGroupStructureSynchronization(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));

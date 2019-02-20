@@ -94,7 +94,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 	@Test
 	public void addGroupUnderBaseGroupTest() throws Exception {
-		System.out.println(CLASS_NAME + "addGroupToEmptyStructureTest");
+		System.out.println(CLASS_NAME + "addGroupUnderBaseGroupTest");
 
 		// setup
 		final TestGroup testGroup = new TestGroup("createdGroup", baseGroup.getShortName(), "group is child of base group");
@@ -179,7 +179,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 	@Test
 	public void addGroupsToBaseGroupInDifferentOrder() throws Exception {
-		System.out.println(CLASS_NAME + "addMultipleGroupsToBaseGroup");
+		System.out.println(CLASS_NAME + "addGroupsToBaseGroupInDifferentOrder");
 
 		final TestGroup testGroupA = new TestGroup("groupA", null, "description of group A");
 		final TestGroup testGroupB = new TestGroup("groupB", "groupA", "description of group B");
@@ -201,7 +201,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 	@Test
 	public void addGroupAsSubGroupTest() throws Exception {
-		System.out.println(CLASS_NAME + "addGroupParentDoesNotExist");
+		System.out.println(CLASS_NAME + "addGroupAsSubGroupTest");
 
 		// setup
 		final Group subGroup = new Group("baseSubGroup", "child of base group");
