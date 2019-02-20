@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -552,17 +553,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public List<UserExtSource> getActiveUserExtSources(PerunSession sess, User user) throws InternalErrorException {
 		//get now date
-		Calendar date = Calendar.getInstance();
-		date.add(Calendar.MONTH, -MAX_OLD_OF_ACTIVE_USER_EXTSOURCE);
-
-		// create sql toDate()
-		String compareDate = BeansUtils.getDateFormatterWithoutTime().format(date.getTime());
+		LocalDate date = LocalDate.now();
+		date = date.minusMonths(MAX_OLD_OF_ACTIVE_USER_EXTSOURCE);
 
 		try {
 			String query = "select " + userExtSourceMappingSelectQuery + ", " + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
 					" from user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id where " +
 					" user_ext_sources.user_id=? and " +
-					" user_ext_sources.last_access > " + Compatibility.toDate("'" + compareDate + "'", "'YYYY-MM-DD'");
+					" user_ext_sources.last_access > " + Compatibility.toDate("'" + date + "'", "'YYYY-MM-DD'");
 
 			return jdbc.query(query, USEREXTSOURCE_MAPPER, user.getId());
 		} catch(EmptyResultDataAccessException ex) {
