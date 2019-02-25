@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModul
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -73,6 +74,16 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 				throw new ConsistencyErrorException(e);
 			}
 		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<String>();
+		dependencies.add(GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);
+		dependencies.add(GroupsManager.GROUPSQUERY_ATTRNAME);
+		dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		dependencies.add(GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		return dependencies;
 	}
 
 	@Override

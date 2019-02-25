@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -15,6 +16,9 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Flat group structure synchronization
  *
@@ -25,7 +29,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModul
  * @author Erik Horváth <horvatherik3@gmail.com>
  */
 public class urn_perun_group_attribute_def_def_flatGroupStructureEnabled extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
-	private static final String MANDATORY_ATTRIBUTE_NAME = new urn_perun_group_attribute_def_def_groupStructureSynchronizationEnabled().getAttributeDefinition().getName();
+	private static final String MANDATORY_ATTRIBUTE_NAME = GroupsManager.GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME;
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
@@ -41,6 +45,13 @@ public class urn_perun_group_attribute_def_def_flatGroupStructureEnabled extends
 		} catch (AttributeNotExistsException exc) {
 			throw new ConsistencyErrorException("Attribute " + MANDATORY_ATTRIBUTE_NAME + " is supposed to exist", exc);
 		}
+	}
+
+	@Override
+	public List<String> getDependencies() {
+		List<String> dependencies = new ArrayList<String>();
+		dependencies.add(MANDATORY_ATTRIBUTE_NAME);
+		return dependencies;
 	}
 
 	@Override
