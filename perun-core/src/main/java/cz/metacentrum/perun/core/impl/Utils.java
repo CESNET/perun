@@ -939,7 +939,29 @@ public class Utils {
 			if (messageTemplate == null) {
 				message.setText(textEn);
 			} else {
-				messageTemplate = messageTemplate.replace("{link}", link);
+
+				// allow enforcing per-language links
+				if (messageTemplate.contains("{link-")) {
+					Pattern pattern = Pattern.compile("\\{link-[^\\}]+\\}");
+					Matcher matcher = pattern.matcher(messageTemplate);
+					while (matcher.find()) {
+
+						// whole "{link-something}"
+						String toSubstitute = matcher.group(0);
+						String langLink = link.toString();
+
+						Pattern namespacePattern = Pattern.compile("\\-(.*?)\\}");
+						Matcher m2 = namespacePattern.matcher(toSubstitute);
+						if (m2.find()) {
+							// only language "cs", "en",...
+							String lang = m2.group(1);
+							langLink = langLink + "&locale=" + lang;
+						}
+						messageTemplate = messageTemplate.replace(toSubstitute, langLink);
+					}
+				} else {
+					messageTemplate = messageTemplate.replace("{link}", link);
+				}
 				messageTemplate = messageTemplate.replace("{displayName}", user.getDisplayName());
 				messageTemplate = messageTemplate.replace("{namespace}", namespace);
 				messageTemplate = messageTemplate.replace("{validity}", validityFormatted);
