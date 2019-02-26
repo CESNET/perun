@@ -16,8 +16,8 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -92,12 +92,12 @@ public class SearcherBlImpl implements SearcherBl {
 	}
 
 	@Override
-	public List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date) throws InternalErrorException {
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date) throws InternalErrorException {
 		return getSearcherImpl().getMembersByExpiration(sess, operator, date, 0);
 	}
 
 	@Override
-	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, Calendar date) throws InternalErrorException {
+	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date) throws InternalErrorException {
 		return getSearcherImpl().getMembersByGroupExpiration(sess, group, operator, date, 0);
 	}
 

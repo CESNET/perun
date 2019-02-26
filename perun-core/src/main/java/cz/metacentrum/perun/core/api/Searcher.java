@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -111,7 +111,7 @@ public interface Searcher {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date) throws PrivilegeException, InternalErrorException;
+	List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date) throws PrivilegeException, InternalErrorException;
 
 	/**
 	 * This method get Map of Attributes with searching values and try to find all facilities, which have specific attributes in format.
@@ -175,5 +175,5 @@ public interface Searcher {
 	 * @throws InternalErrorException internal error
 	 * @throws PrivilegeException insufficient permission
 	 */
-	List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, Calendar date) throws PrivilegeException, InternalErrorException;
+	List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date) throws PrivilegeException, InternalErrorException;
 }
