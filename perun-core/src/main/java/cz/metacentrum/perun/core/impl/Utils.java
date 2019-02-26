@@ -32,10 +32,10 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
-import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
@@ -926,10 +926,9 @@ public class Utils {
 
 			//validity formatting
 			String validity = Integer.toString(BeansUtils.getCoreConfig().getPwdresetValidationWindow());
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			Calendar calendar = Calendar.getInstance();
-			calendar.add(Calendar.HOUR, Integer.parseInt(validity));
-			String validityFormatted = sdf.format(calendar.getTime());
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			LocalDateTime localDateTime = LocalDateTime.now().plusHours(Integer.parseInt(validity));
+			String validityFormatted = dtf.format(localDateTime);
 
 			// Build message en
 			String textEn = "Dear " + user.getDisplayName() + ",\n\nWe've received request to reset your password in namespace \"" + namespace + "\"." +
