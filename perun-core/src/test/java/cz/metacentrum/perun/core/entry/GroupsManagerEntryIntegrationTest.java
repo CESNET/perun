@@ -6,12 +6,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -23,7 +21,6 @@ import java.util.Optional;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -747,19 +744,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull("membership attribute must be set", membershipAttribute);
 		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
 
-		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
-		Calendar extendedCalendar = Calendar.getInstance();
-		extendedCalendar.setTime(extendedDate);
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
 
 		// Set to 1.1. next year
-		Calendar requiredCalendar = Calendar.getInstance();
-		requiredCalendar.set(Calendar.MONTH, 0);
-		requiredCalendar.set(Calendar.DAY_OF_MONTH, 1);
-		requiredCalendar.add(Calendar.YEAR, 1);
+		LocalDate requiredDate = LocalDate.of(LocalDate.now().getYear()+1, 1, 1);
 
-		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
-		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
-		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
 	}
 
 	@Test
@@ -785,19 +777,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull("membership attribute must be set", membershipAttribute);
 		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
 
-		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
-		Calendar extendedCalendar = Calendar.getInstance();
-		extendedCalendar.setTime(extendedDate);
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
 
 		// Set to 1.1. next year
-		Calendar requiredCalendar = Calendar.getInstance();
-		requiredCalendar.set(Calendar.MONTH, 0);
-		requiredCalendar.set(Calendar.DAY_OF_MONTH, 1);
-		requiredCalendar.add(Calendar.YEAR, 1);
+		LocalDate requiredDate = LocalDate.of(LocalDate.now().getYear()+1, 1, 1);
 
-		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
-		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
-		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
 	}
 
 	@Test
@@ -829,16 +816,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull("membership attribute must be set", membershipAttribute);
 		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
 
-		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
-		Calendar extendedCalendar = Calendar.getInstance();
-		extendedCalendar.setTime(extendedDate);
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
 
-		Calendar requiredCalendar = Calendar.getInstance();
-		requiredCalendar.add(Calendar.DAY_OF_MONTH, 10); // Add 10 days to today
+		LocalDate requiredDate = LocalDate.now().plusDays(10);
 
-		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
-		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
-		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
 	}
 
 	@Test
@@ -854,15 +838,12 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Period will be set to the next day
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DAY_OF_MONTH, 1);
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		int month = calendar.get(Calendar.MONTH)+1;
+		LocalDate date = LocalDate.now().plusDays(1);
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
 		// Set perid to day after today
-		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, day + "." + month + ".");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, date.getDayOfMonth() + "." + date.getMonthValue() + ".");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
@@ -878,17 +859,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull("membership attribute must be set", membershipAttribute);
 		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
 
-		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
-		Calendar extendedCalendar = Calendar.getInstance();
-		extendedCalendar.setTime(extendedDate);
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
 
-		Calendar requiredCalendar = Calendar.getInstance();
-		requiredCalendar.add(Calendar.DAY_OF_MONTH, 1);
-		requiredCalendar.add(Calendar.YEAR, 1);
+		LocalDate requiredDate = LocalDate.now().plusDays(1).plusYears(1);
 
-		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
-		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
-		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
 	}
 
 	@Test
@@ -904,16 +881,12 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set period to three months later
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.MONTH, 3);
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		int month = calendar.get(Calendar.MONTH)+1;
-
+		LocalDate date = LocalDate.now().plusMonths(3);
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
 		// Set perid to day after today
-		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, day + "." + month + ".");
+		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, date.getDayOfMonth() + "." + date.getMonthValue() + ".");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
@@ -929,16 +902,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull("membership attribute must be set", membershipAttribute);
 		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
 
-		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
-		Calendar extendedCalendar = Calendar.getInstance();
-		extendedCalendar.setTime(extendedDate);
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
 
-		Calendar requiredCalendar = Calendar.getInstance();
-		requiredCalendar.add(Calendar.MONTH, 3);
+		LocalDate requiredDate = LocalDate.now().plusMonths(3);
 
-		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
-		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
-		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
 	}
 
 	@Test
@@ -980,19 +950,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull("membership attribute must be set", membershipAttribute);
 		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
 
-		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
-		Calendar extendedCalendar = Calendar.getInstance();
-		extendedCalendar.setTime(extendedDate);
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
 
 		// Set to 1.1. next year
-		Calendar requiredCalendar = Calendar.getInstance();
-		requiredCalendar.set(Calendar.MONTH, 0);
-		requiredCalendar.set(Calendar.DAY_OF_MONTH, 1);
-		requiredCalendar.add(Calendar.YEAR, 1);
+		LocalDate requiredDate = LocalDate.of(LocalDate.now().getYear()+1, 1, 1);
 
-		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
-		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
-		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
 	}
 
 	@Test
@@ -1020,8 +985,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
 
 		Attribute membershipExpirationAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
-		Calendar nowCalendar = Calendar.getInstance();
-		membershipExpirationAttribute.setValue(BeansUtils.getDateFormatterWithoutTime().format(nowCalendar.getTime()));
+		LocalDate now = LocalDate.now();
+		membershipExpirationAttribute.setValue(now.toString());
 		attributesManager.setAttribute(sess, member1, group, membershipExpirationAttribute);
 
 		// Set LOA 1 for member
@@ -1042,7 +1007,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		assertNotNull("membership attribute must be set", membershipAttribute);
 		assertEquals("membership attribute value must contains same value as before extension.",
-				BeansUtils.getDateFormatterWithoutTime().format(nowCalendar.getTime()), membershipAttribute.getValue()); // Attribute cannot contain any value
+				now.toString(), membershipAttribute.getValue()); // Attribute cannot contain any value
 	}
 
 	@Test
@@ -1093,16 +1058,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull("membership attribute must be set", membershipAttribute);
 		assertNotNull("membership attribute value must be set", membershipAttribute.getValue());
 
-		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
-		Calendar extendedCalendar = Calendar.getInstance();
-		extendedCalendar.setTime(extendedDate);
+		LocalDate expectedDate = LocalDate.parse((String) membershipAttribute.getValue());
 
-		Calendar requiredCalendar = Calendar.getInstance();
-		requiredCalendar.add(Calendar.MONTH, 1);
+		LocalDate requiredDate = LocalDate.now().plusMonths(1);
 
-		assertEquals("Year must match", requiredCalendar.get(Calendar.YEAR), extendedCalendar.get(Calendar.YEAR));
-		assertEquals("Month must match", requiredCalendar.get(Calendar.MONTH), extendedCalendar.get(Calendar.MONTH));
-		assertEquals("Day must match", requiredCalendar.get(Calendar.DAY_OF_MONTH), extendedCalendar.get(Calendar.DAY_OF_MONTH));
+		assertEquals("Year must match", requiredDate.getYear(), expectedDate.getYear());
+		assertEquals("Month must match", requiredDate.getMonthValue(), expectedDate.getMonthValue());
+		assertEquals("Day must match", requiredDate.getDayOfMonth(), expectedDate.getDayOfMonth());
 	}
 
 	@Test
@@ -1218,12 +1180,10 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
 
 		// Set expiration date to tomorrow (one day after grace period begun)
-		Calendar today = Calendar.getInstance();
-		today.add(Calendar.DATE, 1);
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		LocalDate today = LocalDate.now().plusDays(1);
 
 		Attribute expirationAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
-		expirationAttr.setValue(format.format(today.getTime()));
+		expirationAttr.setValue(today.toString());
 		attributesManager.setAttribute(sess, member1, group, expirationAttr);
 
 		// Check if enviroment is set properly
@@ -1258,12 +1218,10 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
 
 		// Set expiration date to three days after. (one day untill grace period begins)
-		Calendar today = Calendar.getInstance();
-		today.add(Calendar.DATE, 3);
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		LocalDate today = LocalDate.now().plusDays(3);
 
 		Attribute expirationAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
-		expirationAttr.setValue(format.format(today.getTime()));
+		expirationAttr.setValue(today.toString());
 		attributesManager.setAttribute(sess, member1, group, expirationAttr);
 
 		// Check if enviroment is set properly
@@ -1298,12 +1256,10 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
 
 		// Set expiration date to tomorrow (one day after grace period begun)
-		Calendar today = Calendar.getInstance();
-		today.add(Calendar.DATE, 1);
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		LocalDate today = LocalDate.now().plusDays(1);
 
 		Attribute expirationAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
-		expirationAttr.setValue(format.format(today.getTime()));
+		expirationAttr.setValue(today.toString());
 		attributesManager.setAttribute(sess, member1, group, expirationAttr);
 
 		// Check if enviroment is set properly
@@ -1338,12 +1294,10 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attributesManager.setAttribute(sess, group, extendMembershipRulesAttribute);
 
 		// Set expiration date to three days after. (one day untill grace period begins)
-		Calendar today = Calendar.getInstance();
-		today.add(Calendar.DATE, 3);
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		LocalDate today = LocalDate.now().plusDays(3);
 
 		Attribute expirationAttr = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_GROUP_ATTR_DEF+":groupMembershipExpiration"));
-		expirationAttr.setValue(format.format(today.getTime()));
+		expirationAttr.setValue(today.toString());
 		attributesManager.setAttribute(sess, member1, group, expirationAttr);
 
 		// Check if enviroment is set properly
