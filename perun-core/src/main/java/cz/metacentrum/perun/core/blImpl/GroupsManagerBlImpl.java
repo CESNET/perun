@@ -1322,11 +1322,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public List<Group> getGroupsByIds(PerunSession sess, List<Integer> groupsIds) throws InternalErrorException {
-		return getGroupsManagerImpl().getGroupsByIds(sess, groupsIds);
-	}
-
-	@Override
 	public int getGroupsCount(PerunSession sess, Vo vo) throws InternalErrorException {
 		return getGroupsManagerImpl().getGroupsCount(sess, vo);
 	}

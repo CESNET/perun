@@ -589,21 +589,6 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
-	public List<Resource> getResourcesByIds(PerunSession sess, List<Integer> resourcesIds) throws InternalErrorException {
-		if (resourcesIds.size() == 0) {
-			return new ArrayList<Resource>();
-		}
-
-		try {
-			return this.namedParameterJdbcTemplate.query("select " + resourceMappingSelectQuery + "  from resources where " +
-					BeansUtils.prepareInSQLClause(resourcesIds, "resources.id"),
-					RESOURCE_MAPPER);
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
 	public Resource updateResource(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
 			Map<String, Object> map = jdbc.queryForMap("select name, dsc from resources where id=?", resource.getId());

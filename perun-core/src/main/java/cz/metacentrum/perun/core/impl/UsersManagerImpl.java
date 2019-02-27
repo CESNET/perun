@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
@@ -9,12 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -1075,16 +1078,17 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		if (usersIds.size() == 0) {
 			return new ArrayList<User>();
 		}
-
-		try {
-			return namedParameterJdbcTemplate.query("select " + userMappingSelectQuery +
-					"  from users where " + BeansUtils.prepareInSQLClause(usersIds, "users.id"),
-			        USER_MAPPER);
-		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<User>();
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return jdbc.execute("select " + userMappingSelectQuery + "  from users where users.id " + Compatibility.getStructureForInClause(),
+			(PreparedStatementCallback<List<User>>) preparedStatement -> {
+				Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(usersIds, preparedStatement);
+				preparedStatement.setArray(1, sqlArray);
+				ResultSet rs = preparedStatement.executeQuery();
+				List<User> users = new ArrayList<>();
+				while (rs.next()) {
+					users.add(USER_MAPPER.mapRow(rs, rs.getRow()));
+				}
+				return users;
+			});
 	}
 
 	@Override

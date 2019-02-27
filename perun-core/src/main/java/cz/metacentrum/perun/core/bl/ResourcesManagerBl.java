@@ -415,16 +415,6 @@ public interface ResourcesManagerBl {
 	List<RichResource> getRichResources(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
-	 * Get list of resources by theirs IDs.
-	 *
-	 * @param sess
-	 * @param resourcesIds
-	 * @return list of resources
-	 * @throws InternalErrorException
-	 */
-	List<Resource> getResourcesByIds(PerunSession sess, List<Integer> resourcesIds) throws InternalErrorException;
-
-	/**
 	 * Get all VO resources count.
 	 *
 	 * @param perunSession

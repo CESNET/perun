@@ -406,7 +406,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 	}
 
 	@Override
-	public void processPerunNotifPoolMessagesFromDb() {
+	public void processPerunNotifPoolMessagesFromDb() throws InternalErrorException {
 
 		//in format templateId = list<PoolMessage>
 		Map<Integer, List<PoolMessage>> poolMessages = perunNotifPoolMessageDao.getAllPoolMessagesForProcessing();
