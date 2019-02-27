@@ -80,7 +80,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 			</list>
 		</property>
 	</bean>
-	
+
 	<bean id="creationEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.CreationEventProcessor">
 		<property name="dispatchConditions">
 			<list>
@@ -127,7 +127,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 			</list>
 		</property>
 	</bean>
-	
+
 	<bean id="updateEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.UpdateEventProcessor">
 		<property name="dispatchConditions">
 			<list>
@@ -166,7 +166,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 			</list>
 		</property>
 	</bean>
-	
+
 	<bean id="userAttributeEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.UserAttributeProcessor">
 		<property name="dispatchConditions">
 			<list>
@@ -344,7 +344,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="preferredMail" />
 							<property name="namespace" value="urn:perun:user:attribute-def:def" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="mail" />
@@ -354,7 +354,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="preferredMail" />
 							<property name="namespace" value="urn:perun:user:attribute-def:def" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="o" />
@@ -364,7 +364,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="organization" />
 							<property name="namespace" value="urn:perun:user:attribute-def:def" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="telephoneNumber" />
@@ -374,7 +374,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="phone" />
 							<property name="namespace" value="urn:perun:user:attribute-def:def" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="userCertificateSubject" />
@@ -390,13 +390,13 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 											<bean class="cz.metacentrum.perun.ldapc.beans.RegexpSubst">
 												<property name="find" value="^[0-9]+[:]" />
 												<property name="replace" value="" />
-											</bean>	
+											</bean>
 										</list>
 									</property>
 								</bean>
 							</property>
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="schacHomeOrganizations" />
@@ -406,7 +406,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="schacHomeOrganizations" />
 							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="eduPersonScopedAffiliations" />
@@ -416,7 +416,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="eduPersonScopedAffiliations" />
 							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="groupNames" />
@@ -426,7 +426,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="groupNames" />
 							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="schacHomeOrganizations" />
@@ -436,7 +436,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="schacHomeOrganizations" />
 							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="institutionsCountries" />
@@ -446,7 +446,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="institutionsCountries" />
 							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="libraryIDs" />
@@ -456,7 +456,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="libraryIDs" />
 							<property name="namespace" value="urn:perun:user:attribute-def:def" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="uidNumber;x-ns-" />
@@ -467,7 +467,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="namespace" value="urn:perun:user:attribute-def:def:uid-namespace" />
 							<property name="name" value="" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="login;x-ns-" />
@@ -478,7 +478,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="namespace" value="urn:perun:user:attribute-def:def:login-namespace" />
 							<property name="name" value="" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="userPassword" />
@@ -492,17 +492,17 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 								<bean class="cz.metacentrum.perun.ldapc.beans.PasswordValueTransformer" />
 							</property>
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="bonaFideStatus" />
 					<property name="required" value="false" />
 					<property name="singleValueExtractor">
 						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
-							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
+							<property name="namespace" value="urn:perun:user:attribute-def:def" />
 							<property name="name" value="elixirBonaFideStatus" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 			</list>
 		</property>
@@ -520,7 +520,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="entityID" />
 							<property name="namespace" value="urn:perun:facility:attribute-def:def" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="OIDCClientID" />
@@ -530,7 +530,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<property name="name" value="OIDCClientID" />
 							<property name="namespace" value="urn:perun:facility:attribute-def:def" />
 						</bean>
-					</property> 
+					</property>
 				</bean>
 			</list>
 		</property>
@@ -538,10 +538,10 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 
 	<bean id="perunGroup" class="cz.metacentrum.perun.ldapc.model.impl.PerunGroupImpl">
 	</bean>
-		
+
 	<bean id="perunVO" class="cz.metacentrum.perun.ldapc.model.impl.PerunVOImpl">
 	</bean>
-		
+
     <bean id="ldapProperties" class="cz.metacentrum.perun.ldapc.beans.LdapProperties">
         <constructor-arg name="ldapConsumerName" index="0" value="${ldap.consumerName}" />
         <constructor-arg name="ldapBase" index="1" value="${ldap.base}" />
@@ -549,16 +549,16 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     </bean>
 
     <!-- These beans are for define ldapTemplate -->
-	<ldap:context-source 
+	<ldap:context-source
 		url="${ldap.url}"
 		base="${ldap.base}"
-		username="${ldap.userDn}" 
+		username="${ldap.userDn}"
 		password="${ldap.password}">
 		<ldap:pooling />
 	</ldap:context-source>
-	
+
 	<ldap:ldap-template />
 
 	<import resource="file:${perun.conf.custom}/perun-ldapc-attributes.xml" />
-	
+
 </beans>

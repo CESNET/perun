@@ -8,7 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 public interface PerunAttribute<T extends PerunBean> {
 
 	public interface PerunAttributeNames {
-	
+
 		//PERUN ATTRIBUTES NAMES
 		public static final String perunAttrPreferredMail = "preferredMail";
 		public static final String perunAttrMail = "mail";
@@ -23,7 +23,7 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String perunAttrClientID = "OIDCClientID";
 		public static final String perunAttrGroupNames = "groupNames";
 		public static final String perunAttrInstitutionsCountries = "institutionsCountries";
-	
+
 		//LDAP ATTRIBUTES NAMES
 		public static final String ldapAttrAssignedToResourceId = "assignedToResourceId";
 		public static final String ldapAttrAssignedGroupId = "assignedGroupId";
@@ -63,7 +63,7 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String ldapAttrIsSponsoredUser = "isSponsoredUser";
 		public static final String ldapAttrGroupNames = perunAttrGroupNames;
 		public static final String ldapAttrInstitutionsCountries = perunAttrInstitutionsCountries;
-	
+
 		//LDAP OBJECT CLASSES
 		public static final String objectClassTop = "top";
 		public static final String objectClassPerunResource = "perunResource";
@@ -76,10 +76,10 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String objectClassPerunUser = "perunUser";
 		public static final String objectClassTenOperEntry = "tenOperEntry";
 		public static final String objectClassInetUser = "inetUser";
-	
+
 		//LDAP ORGANIZATION UNITS
 		public static final String organizationalUnitPeople = "ou=People";
-	
+
 	}
 
 	interface SingleValueExtractor<T> {
@@ -95,15 +95,15 @@ public interface PerunAttribute<T extends PerunBean> {
 
 	public static final boolean MULTIVALUED = true;
 	public static final boolean SINGLE = false;
-	
+
 	public boolean isRequired();
 
 	public boolean isMultiValued();
 
 	public String getName();
-	
+
 	public String getName(AttributeDefinition attr);
-	
+
 	public String getBaseName();
 
 	public boolean hasValue(T bean, Attribute... attributes) throws InternalErrorException;
