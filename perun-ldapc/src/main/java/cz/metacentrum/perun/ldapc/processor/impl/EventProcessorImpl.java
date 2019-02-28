@@ -567,7 +567,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 						ldapConnector.updateUsersAttributeInLDAP(String.valueOf(this.user.getId()), ldapAttrUserCertDNs, subjectsArray);
 					}
 
-				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrBonaFideStatus)) {
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrBonaFideStatus)) {
 					if(this.attribute.getValue() != null) {
 						updateUserAttribute(ldapAttrBonaFideStatus, (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
 					} else {
@@ -666,7 +666,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 						updateUserAttribute(ldapAttrInstitutionsCountries, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 
-				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrBonaFideStatus)) {
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrBonaFideStatus)) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrBonaFideStatus)) {
 						updateUserAttribute(ldapAttrBonaFideStatus, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
