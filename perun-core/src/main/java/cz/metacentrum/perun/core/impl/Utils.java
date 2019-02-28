@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -452,7 +453,7 @@ public class Utils {
 			//if length of nameParts is 1, save it to the lastName
 			if(nameParts.length == 1) {
 				lastName = nameParts[0];
-			//if length of nameParts is more than 1, try to choose which part belong to which value
+				//if length of nameParts is more than 1, try to choose which part belong to which value
 			} else {
 				//variables for states
 				boolean titleBeforeDone = false;
@@ -506,7 +507,7 @@ public class Utils {
 							else lastName+= " " + part;
 							//go on next part
 							continue;
-						//if last name not matches
+							//if last name not matches
 						} else {
 							//because last name can't be empty, save this part to lastName even if not matches
 							if(lastName.isEmpty()) {
@@ -853,10 +854,10 @@ public class Utils {
 
 			// Build message
 			String text = "Dear "+user.getDisplayName()+",\n\nWe've received request to change your preferred email address to: "+email+"."+
-				"\n\nTo confirm this change please use link below:\n\n"+link+"\n\n" +
-				"Message is automatically generated." +
-				"\n----------------------------------------------------------------" +
-				"\nPerun - Identity & Access Management System";
+					"\n\nTo confirm this change please use link below:\n\n"+link+"\n\n" +
+					"Message is automatically generated." +
+					"\n----------------------------------------------------------------" +
+					"\nPerun - Identity & Access Management System";
 
 			message.setText(text);
 
@@ -923,6 +924,9 @@ public class Utils {
 			link.append(URLEncoder.encode(i, "UTF-8"));
 			link.append("&m=");
 			link.append(URLEncoder.encode(m, "UTF-8"));
+			// append login-namespace so GUI is themes and password checked by namespace rules
+			link.append("&login-namespace=");
+			link.append(URLEncoder.encode(namespace, "UTF-8"));
 
 			//validity formatting
 			String validity = Integer.toString(BeansUtils.getCoreConfig().getPwdresetValidationWindow());
@@ -974,6 +978,8 @@ public class Utils {
 
 			mailSender.send(message);
 
+		} catch (MailException ex) {
+			throw new InternalErrorException("Unable to send mail for password reset.", ex);
 		} catch (UnsupportedEncodingException ex) {
 			throw new InternalErrorException("Unable to encode URL for password reset.", ex);
 		} catch (MalformedURLException ex) {
@@ -1009,17 +1015,17 @@ public class Utils {
 		String i = cipherInput(String.valueOf(user.getId()), false);
 		String m = cipherInput(namespace, false);
 
-			// Build message
-			String text = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
-					"\n\nThis message is automatically sent to all your email addresses registered in "+instanceName+" in order to prevent malicious password reset without your knowledge.\n\n" +
-					"If you didn't request / perform password reset, please notify your administrators and support at "+BeansUtils.getCoreConfig().getMailchangeBackupFrom()+" to resolve this security issue.\n\n" +
-					"Message is automatically generated." +
-					"\n----------------------------------------------------------------" +
-					"\nPerun - Identity & Access Management System";
+		// Build message
+		String text = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
+				"\n\nThis message is automatically sent to all your email addresses registered in "+instanceName+" in order to prevent malicious password reset without your knowledge.\n\n" +
+				"If you didn't request / perform password reset, please notify your administrators and support at "+BeansUtils.getCoreConfig().getMailchangeBackupFrom()+" to resolve this security issue.\n\n" +
+				"Message is automatically generated." +
+				"\n----------------------------------------------------------------" +
+				"\nPerun - Identity & Access Management System";
 
-			message.setText(text);
+		message.setText(text);
 
-			mailSender.send(message);
+		mailSender.send(message);
 
 	}
 
