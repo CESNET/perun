@@ -782,16 +782,6 @@ public interface GroupsManagerBl {
 	List<Group> getGroups(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
-	 * Get groups by theirs Id.
-	 *
-	 * @param sess
-	 * @param groupsIds
-	 * @return list of groups
-	 * @throws InternalErrorException
-	 */
-	List<Group> getGroupsByIds(PerunSession sess, List<Integer> groupsIds) throws InternalErrorException;
-
-	/**
 	 * @param sess
 	 * @param vo
 	 *

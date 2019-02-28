@@ -1624,28 +1624,6 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	}
 
 	@Test
-	public void getResourcesByIds() throws Exception {
-		System.out.println(CLASS_NAME + "getResourcesByIds");
-
-		vo = setUpVo();
-		facility = setUpFacility();
-		List ids = new ArrayList();
-		List resources = new ArrayList();
-
-		for (int i = 1; i < 1002; i++) {
-			Resource resource = new Resource();
-			resource.setName("ResourcesManagerTestResource" + i);
-			resource.setDescription("Testovaci" + i);
-			resourcesManager.createResource(sess, resource, vo, facility);
-			ids.add(resource.getId());
-			resources.add(resource);
-		}
-
-		assertEquals(resources, perun.getResourcesManagerBl().getResourcesByIds(sess, ids));
-
-	}
-
-	@Test
 	public void addResourceSelfServiceUser() throws Exception {
 		System.out.println(CLASS_NAME + "addResourceSelfServiceGroup");
 

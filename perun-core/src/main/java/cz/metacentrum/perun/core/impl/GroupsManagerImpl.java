@@ -525,23 +525,6 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Group> getGroupsByIds(PerunSession sess, List<Integer> groupsIds) throws InternalErrorException {
-		// If groupsIds are empty, we can immediately return empty result
-		if (groupsIds.size() == 0) {
-			return new ArrayList<Group>();
-		}
-
-		try {
-			return this.namedParameterJdbcTemplate.query("select " + groupMappingSelectQuery + " from groups where " + BeansUtils.prepareInSQLClause(groupsIds, "groups.id"),
-					GROUP_MAPPER);
-		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<Group>();
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	@Override
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
 		try {
 			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups_members join groups on groups_members.group_id = groups.id " +

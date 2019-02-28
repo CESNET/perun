@@ -3937,25 +3937,6 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
-	public void getGroupsByIds() throws Exception {
-		System.out.println(CLASS_NAME + "getGroupsByIds");
-
-		vo = setUpVo();
-		List ids = new ArrayList();
-		List groups = new ArrayList();
-
-		for (int i = 1; i < 1002; i++) {
-			Group group = new Group("GroupsManagerTestGroup" + i,"testovaci" + i);
-			groupsManager.createGroup(sess, vo, group);
-			ids.add(group.getId());
-			groups.add(group);
-		}
-
-		assertEquals(groups, groupsManagerBl.getGroupsByIds(sess, ids));
-
-	}
-
-	@Test
 	public void getGroupDirectMembers() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupDirectMembers");
 

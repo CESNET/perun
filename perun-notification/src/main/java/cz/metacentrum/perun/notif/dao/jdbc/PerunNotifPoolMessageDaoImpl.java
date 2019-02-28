@@ -1,7 +1,8 @@
 package cz.metacentrum.perun.notif.dao.jdbc;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
+import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.dao.PerunNotifPoolMessageDao;
 import cz.metacentrum.perun.notif.dto.PoolMessage;
@@ -56,7 +57,7 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 	}
 
 	@Override
-	public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing() {
+	public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing() throws InternalErrorException {
 
 		Days days = Days.days(10);
 		removeOldPoolMessages(days.toStandardDuration().getMillis());
@@ -76,20 +77,20 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 	}
 
 	@Override
-	public void removeAllPoolMessages(Set<Integer> proccessedIds) {
+	public void removeAllPoolMessages(Set<Integer> proccessedIds) throws InternalErrorException {
 
 		if (proccessedIds == null || proccessedIds.isEmpty()) {
 			return;
 		}
 
 		logger.debug("Removing poolMessages from db with ids: {}", proccessedIds);
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("delete from pn_pool_message where " + BeansUtils.prepareInSQLClause(new ArrayList<Integer>(proccessedIds), "id"));
-		this.getJdbcTemplate().update(buffer.toString());
+		this.getJdbcTemplate().update("delete from pn_pool_message where id " + Compatibility.getStructureForInClause(),
+			preparedStatement ->
+				preparedStatement.setArray(1, DatabaseManagerBl.prepareSQLArrayOfNumbersFromIntegers(new ArrayList<>(proccessedIds), preparedStatement)));
 		logger.debug("PoolMessages with id: {}, removed.", proccessedIds);
 	}
 
-	private void removeOldPoolMessages(long olderThan) {
+	private void removeOldPoolMessages(long olderThan) throws InternalErrorException {
 		Set<Integer> proccessedIds = new HashSet<Integer>();
 		long actualTimeInMillis = new DateTime().getMillis();
 		SqlRowSet srs = this.getJdbcTemplate().queryForRowSet("SELECT id,created FROM pn_pool_message");

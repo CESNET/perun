@@ -189,18 +189,6 @@ public interface GroupsManagerImplApi {
 	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException;
 
 	/**
-	 * Return groups by theirs id.
-	 *
-	 * @param perunSession
-	 * @param groupsIds list of group ids
-	 *
-	 * @return list groups
-	 *
-	 * @throws InternalErrorException
-	 */
-	List<Group> getGroupsByIds(PerunSession perunSession, List<Integer> groupsIds) throws InternalErrorException;
-
-	/**
 	 * Return list of assigned groups on the resource.
 	 *
 	 * @param perunSession

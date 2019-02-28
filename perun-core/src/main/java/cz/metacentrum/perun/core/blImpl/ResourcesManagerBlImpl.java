@@ -587,11 +587,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public List<Resource> getResourcesByIds(PerunSession sess, List<Integer> resourcesIds) throws InternalErrorException {
-		return getResourcesManagerImpl().getResourcesByIds(sess, resourcesIds);
-	}
-
-	@Override
 	public int getResourcesCount(PerunSession sess, Vo vo) throws InternalErrorException {
 		return getResourcesManagerImpl().getResourcesCount(sess, vo);
 	}

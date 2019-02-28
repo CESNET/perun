@@ -28,7 +28,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.api.exceptions.rt.ConsistencyErrorRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
+import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
@@ -3422,7 +3422,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				"JOIN members ON members.id " + Compatibility.getStructureForInClause() +
 				"LEFT JOIN member_resource_attr_values mem ON attr_names.id=mem.attr_id AND mem.resource_id=? " +
 				"AND mem.member_id=members.id WHERE namespace IN (?,?,?)", (PreparedStatementCallback<HashMap<Member, List<Attribute>>>) preparedStatement -> {
-					Array sqlArray = ((PerunBlImpl)perun).getDatabaseManagerBl().prepareSQLArrayOfNumbers(members, preparedStatement);
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbers(members, preparedStatement);
 					preparedStatement.setInt(1, service.getId());
 					preparedStatement.setArray(2, sqlArray);
 					preparedStatement.setInt(3, resource.getId());
@@ -3457,7 +3457,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				"JOIN members ON members.id " + Compatibility.getStructureForInClause() +
 				"LEFT JOIN member_attr_values mem ON attr_names.id=mem.attr_id " +
 				"AND mem.member_id=members.id WHERE namespace IN (?,?,?,?)", (PreparedStatementCallback<HashMap<Member, List<Attribute>>>) preparedStatement -> {
-				Array sqlArray = ((PerunBlImpl) perun).getDatabaseManagerBl().prepareSQLArrayOfNumbers(members, preparedStatement);
+				Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbers(members, preparedStatement);
 				preparedStatement.setInt(1, service.getId());
 				preparedStatement.setArray(2, sqlArray);
 				preparedStatement.setString(3, AttributesManager.NS_MEMBER_ATTR_CORE);
@@ -3492,7 +3492,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				"JOIN users ON users.id " + Compatibility.getStructureForInClause() +
 				"LEFT JOIN user_facility_attr_values usr_fac ON attr_names.id=usr_fac.attr_id AND facility_id=? AND user_id=users.id " +
 				"WHERE namespace IN (?,?,?)", (PreparedStatementCallback<HashMap<User, List<Attribute>>>) preparedStatement -> {
-					Array sqlArray = ((PerunBlImpl)perun).getDatabaseManagerBl().prepareSQLArrayOfNumbers(users, preparedStatement);
+					Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbers(users, preparedStatement);
 					preparedStatement.setInt(1, service.getId());
 					preparedStatement.setArray(2, sqlArray);
 					preparedStatement.setInt(3, facility.getId());
@@ -3527,7 +3527,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				"JOIN users ON users.id " + Compatibility.getStructureForInClause() +
 				"LEFT JOIN user_attr_values usr ON attr_names.id=usr.attr_id AND user_id=users.id " +
 				"WHERE namespace IN (?,?,?,?)", (PreparedStatementCallback<HashMap<User, List<Attribute>>>) preparedStatement -> {
-				Array sqlArray = ((PerunBlImpl) perun).getDatabaseManagerBl().prepareSQLArrayOfNumbers(users, preparedStatement);
+				Array sqlArray = DatabaseManagerBl.prepareSQLArrayOfNumbers(users, preparedStatement);
 				preparedStatement.setInt(1, service.getId());
 				preparedStatement.setArray(2, sqlArray);
 				preparedStatement.setString(3, AttributesManager.NS_USER_ATTR_CORE);
