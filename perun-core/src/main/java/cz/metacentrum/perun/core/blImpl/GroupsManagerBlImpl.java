@@ -4,7 +4,6 @@ import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminAddedForGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminGroupAddedForGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminGroupRemovedFromGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.AdminRemovedForGroup;
-import cz.metacentrum.perun.audit.events.GroupManagerEvents.AllGroupsFromVoDeleted;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberRemovedFromGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.GroupCreatedAsSubgroup;
@@ -21,7 +20,6 @@ import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberRemove
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberExpiredInGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberRemovedFromGroupTotally;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberValidatedInGroup;
-import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberExpired;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 
 import java.text.ParseException;
@@ -30,7 +28,6 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -3354,7 +3351,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 		LinkedHashMap<String, String> membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
 
-		Calendar calendar = Calendar.getInstance();
+		LocalDate localDate = LocalDate.now();
 
 		// Get current membershipExpiration date
 		Attribute membershipExpirationAttribute = getMemberExpiration(sess, member, group);
@@ -3376,23 +3373,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// Do we extend for x months or for static date?
 		if (period != null) {
 			if (period.startsWith("+")) {
-				extendForMonths(calendar, period, membershipExpirationRules, membershipExpirationAttribute, member, group);
+				localDate = extendForMonths(localDate, period, membershipExpirationRules, membershipExpirationAttribute, member, group);
 			} else {
 				// We will extend to particular date
-
-				extendForStaticDate(calendar, period, membershipExpirationRules, membershipExpirationAttribute, member, group);
+				localDate = extendForStaticDate(localDate, period, membershipExpirationRules, membershipExpirationAttribute, member, group);
 			}
 		}
 
-		// Reset hours, minutes and seconds to 0
-		calendar.set(Calendar.HOUR, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-
 		if (setValue) {
 			// Set new value of the membershipExpiration for the member
-			membershipExpirationAttribute.setValue(BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime()));
+			membershipExpirationAttribute.setValue(localDate.toString());
 			try {
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, member, group, membershipExpirationAttribute);
 			} catch (WrongAttributeValueException e) {
@@ -3408,7 +3398,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		extendMembershipInGroup(sess, member, group, true);
 	}
 
-	private void extendForStaticDate(Calendar calendar, String period, LinkedHashMap<String, String> membershipExpirationRules, Attribute membershipExpirationAttribute, Member member, Group group) throws InternalErrorException, ExtendMembershipException {
+	/**
+	 * Returns localDate extended to given date
+	 *
+	 * @param localDate localDate
+	 * @param period period
+	 * @param membershipExpirationRules rules used in check
+	 * @param membershipExpirationAttribute attributes used to check
+	 * @param member member that is checked
+	 * @param group group that is checked
+	 * @return localDate localDate extended to given date
+	 * @throws InternalErrorException internal error
+	 * @throws ExtendMembershipException when cannot extend
+	 */
+	private LocalDate extendForStaticDate(LocalDate localDate, String period, LinkedHashMap<String, String> membershipExpirationRules, Attribute membershipExpirationAttribute, Member member, Group group) throws InternalErrorException, ExtendMembershipException {
 		// Parse date
 		Pattern p = Pattern.compile("([0-9]+).([0-9]+).");
 		Matcher m = p.matcher(period);
@@ -3417,7 +3420,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			throw new InternalErrorException("Wrong format of period in Group membershipExpirationRules attribute. Period: " + period);
 		}
 
-		boolean extensionInNextYear = Utils.extendCalendarByStaticDate(calendar, m);
+		localDate = Utils.extendDateByStaticDate(localDate, m);
 
 		// ***** GRACE PERIOD *****
 		// Is there a grace period?
@@ -3429,55 +3432,44 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			p = Pattern.compile("([0-9]+)([dmy]?)");
 			m = p.matcher(gracePeriod);
 			if (m.matches()) {
-				Calendar gracePeriodCalendar = Calendar.getInstance();
-				Pair<Integer, Integer> fieldAmount;
-				try {
-					fieldAmount = Utils.extendGracePeriodCalendar(gracePeriodCalendar, m, calendar);
-				} catch (InternalErrorException e) {
-					throw new InternalErrorException("Wrong format of gracePeriod in group membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
-				}
+				Pair<Integer, TemporalUnit> amountField = Utils.prepareGracePeriodDate(m);
+				LocalDate gracePeriodDate = localDate.minus(amountField.getLeft(), amountField.getRight());
+
 				// Check if we are in grace period
-				if (gracePeriodCalendar.before(Calendar.getInstance())) {
+				if (gracePeriodDate.isBefore(LocalDate.now())) {
 					// We are in grace period, so extend to the next period
-					calendar.add(Calendar.YEAR, 1);
+					localDate = localDate.plusYears(1);
 				}
 
 				// If we do not need to set the attribute value, only check if the current member's expiration time is not in grace period
 				if (membershipExpirationAttribute.getValue() != null) {
-					try {
-						Date currentMemberExpiration = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpirationAttribute.getValue());
-						// subtracts grace period from the currentMemberExpiration
-						Calendar currentMemberExpirationCalendar = Calendar.getInstance();
-						currentMemberExpirationCalendar.setTime(currentMemberExpiration);
+					LocalDate currentMemberExpirationDate = LocalDate.parse((String) membershipExpirationAttribute.getValue()).minus(amountField.getLeft(), amountField.getRight());
 
-						currentMemberExpirationCalendar.add(fieldAmount.getLeft(), -fieldAmount.getRight());
-
-						// if today is before that time, user can extend his period
-						if (currentMemberExpirationCalendar.after(Calendar.getInstance())) {
-							throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
-										"Member " + member + " cannot extend because we are outside grace period for GROUP id " + group.getId() + ".");
-						}
-					} catch (ParseException e) {
-						throw new InternalErrorException("Wrong format of the members group expiration: " + membershipExpirationAttribute.getValue(), e);
+					// if today is before that time, user can extend his period
+					if (currentMemberExpirationDate.isAfter(LocalDate.now())) {
+						throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
+							"Member " + member + " cannot extend because we are outside grace period for GROUP id " + group.getId() + ".");
 					}
 				}
 			}
 		}
+		return localDate;
 	}
 
 	/**
-	 * Checks given attributes and extends given calendar by given period
+	 * Checks given attributes and returns localDate extended by given period
 	 *
-	 * @param calendar calendar
+	 * @param localDate localDate
 	 * @param period period
 	 * @param membershipExpirationRules rules used in check
 	 * @param membershipExpirationAttribute attributes used to check
 	 * @param member member that is checked
 	 * @param group group that is checked
+	 * @return localDate localDate extended by period
 	 * @throws InternalErrorException internal error
 	 * @throws ExtendMembershipException when cannot extend
 	 */
-	private void extendForMonths(Calendar calendar, String period, Map<String, String> membershipExpirationRules,
+	private LocalDate extendForMonths(LocalDate localDate, String period, Map<String, String> membershipExpirationRules,
 								 Attribute membershipExpirationAttribute, Member member, Group group) throws InternalErrorException, ExtendMembershipException {
 		if (!isMemberInGracePeriod(membershipExpirationRules, (String) membershipExpirationAttribute.getValue())) {
 			throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
@@ -3485,7 +3477,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		try {
-			Utils.extendCalendarByPeriod(calendar, period);
+			return Utils.extendDateByPeriod(localDate, period);
 		} catch (InternalErrorException e) {
 			throw new InternalErrorException("Wrong format of period in Group membershipExpirationRules attribute.", e);
 		}
