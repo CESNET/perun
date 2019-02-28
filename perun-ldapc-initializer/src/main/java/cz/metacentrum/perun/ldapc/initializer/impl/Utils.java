@@ -474,7 +474,7 @@ public class Utils implements cz.metacentrum.perun.ldapc.initializer.api.UtilsAp
 			String bonaFideStatus = "bonaFideStatus: ";
 			Attribute attrBonaFideStatus = null;
 			try {
-				attrBonaFideStatus = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":elixirBonaFideStatus");
+				attrBonaFideStatus = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":elixirBonaFideStatus");
 			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("Bona fide status attribute is missing or it's assignment is wrong. Attribute was skipped.", ex);
 			}
