@@ -2195,8 +2195,17 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		char[] possibleCharacters =
 			    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+;:,<.>/?"
 				.toCharArray();
+		int count = 12;
 
-		String newRandomPassword = RandomStringUtils.random(12, 0, possibleCharacters.length - 1, false,
+		// FIXME - We will replace following logic once each login-namespace will implement
+		// FIXME   pwd-manager module and have server side checks
+		if (Objects.equals(loginNamespace, "vsup")) {
+			count = 14;
+			// removed O, l, specific only: +, -, *, /, .
+			possibleCharacters = "ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789+-*/.".toCharArray();
+		}
+
+		String newRandomPassword = RandomStringUtils.random(count, 0, possibleCharacters.length - 1, false,
 			false, possibleCharacters, new SecureRandom());
 
 		try {
