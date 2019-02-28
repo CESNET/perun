@@ -2207,28 +2207,23 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		int amount = Integer.valueOf(m.group(1));
 
-		int field;
+		TemporalUnit gracePeriodTimeUnit;
 		String dmyString = m.group(2);
 		if (dmyString.equals("d")) {
-			field = Calendar.DAY_OF_YEAR;
+			gracePeriodTimeUnit = ChronoUnit.DAYS;
 		} else if (dmyString.equals("m")) {
-			field = Calendar.MONTH;
+			gracePeriodTimeUnit = ChronoUnit.MONTHS;
 		} else if (dmyString.equals("y")) {
-			field = Calendar.YEAR;
+			gracePeriodTimeUnit = ChronoUnit.YEARS;
 		} else {
 			throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
 		}
 
-		try {
-			Calendar beginOfGracePeriod = Calendar.getInstance();
-			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-			beginOfGracePeriod.setTime(format.parse(membershipExpiration));
-			beginOfGracePeriod.add(field, -amount);
-			if (beginOfGracePeriod.before(Calendar.getInstance())) {
-				return true;
-			}
-		} catch (ParseException e) {
-			throw new InternalErrorException("Wrong format of membership expiration attribute: " + membershipExpiration, e);
+		LocalDate beginOfGracePeriod = LocalDate.parse(membershipExpiration, DateTimeFormatter.ISO_LOCAL_DATE);
+		beginOfGracePeriod = beginOfGracePeriod.minus(amount, gracePeriodTimeUnit);
+
+		if (beginOfGracePeriod.isBefore(LocalDate.now())) {
+			return true;
 		}
 
 		return false;
