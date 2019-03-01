@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -139,7 +140,7 @@ public class SearcherEntry implements Searcher {
 	}
 
 	@Override
-	public List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date) throws PrivilegeException, InternalErrorException {
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date) throws PrivilegeException, InternalErrorException {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
@@ -173,7 +174,7 @@ public class SearcherEntry implements Searcher {
 	}
 
 	@Override
-	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, Calendar date) throws PrivilegeException, InternalErrorException {
+	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date) throws PrivilegeException, InternalErrorException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "getMembersByGroupExpiration");
