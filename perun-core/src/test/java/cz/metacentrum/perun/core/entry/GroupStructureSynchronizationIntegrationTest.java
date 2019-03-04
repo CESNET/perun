@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -13,10 +12,11 @@ import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.ExtSourceLdap;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,11 +38,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -56,39 +54,53 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	private static final String EXT_SOURCE_NAME = "GroupSyncExtSource";
 
 	private Group baseGroup = new Group("baseGroup", "I am base group");
-
+	private Vo vo;
 	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_LDAP);
 
-	private Vo vo;
-
-	// exists before every method
+	//This annotation is used so spied extSourceManagerBl is used in the perun object.
+	//Mocks are not injected yet. They are injected to perun when initMocks method is called.
 	@InjectMocks
-	private PerunBl perun;
+	private PerunBlImpl perun;
+
 	private GroupsManagerBl groupsManagerBl;
+	private ExtSourcesManagerBl extSourceManagerBlBackup;
+	private AttributesManagerBl attributesManagerBl;
+
+	//ExtSource manager has to work as usual except one case so we use spy annotation.
+	//Be aware that spy annotation does not work for all managers!
 	@Spy
 	private ExtSourcesManagerBl extSourceManagerBl;
-	private AttributesManagerBl attributesManagerBl;
-	private GroupsManager groupsManager;
+	//Mocked extSource, so we can simulate obtaining real extSource data
 	private ExtSourceSimpleApi essa = mock(ExtSourceLdap.class);
+
 
 	@Before
 	public void setUpBeforeEveryMethod() throws Exception {
-		perun = super.perun;
+		//perun from AbstractPerunIntegrationTest need to be assigned to our perun object in which we are injecting mocks.
+		this.perun = (PerunBlImpl)super.perun;
+
+		//Injected mocks would preserve in the perun object even after this test class,
+		//because it is created by Spring in parent class and it is is used by other tests classes again.
+		//To prevent this situation, we need to back up the real extSourceManagerBl and set it back to the perun after tests finish.
+		extSourceManagerBlBackup = perun.getExtSourcesManagerBl();
+
 		groupsManagerBl = perun.getGroupsManagerBl();
-		attributesManagerBl = perun.getAttributesManagerBl();
 		extSourceManagerBl = perun.getExtSourcesManagerBl();
-		groupsManager = perun.getGroupsManager();
+		attributesManagerBl = perun.getAttributesManagerBl();
+
 		vo = setUpVo();
 		setUpBaseGroup(vo);
 
 		MockitoAnnotations.initMocks(this);
 
 		doReturn(essa).when(extSourceManagerBl).getExtSourceByName(any(PerunSession.class), any(String.class));
+		doReturn(EXT_SOURCE_NAME).when((ExtSourceLdap)essa).getName();
 		doNothing().when(extSourceManagerBl).addExtSource(any(PerunSession.class), any(Group.class), any(ExtSource.class));
 	}
 
 	@After
 	public void cleanUp() {
+		perun.setExtSourcesManagerBl(extSourceManagerBlBackup);
 		Mockito.reset(extSourceManagerBl);
 	}
 
@@ -464,10 +476,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	public void setUpBaseGroup(Vo vo) throws Exception {
 		extSource = extSourceManagerBl.createExtSource(sess, extSource, null);
 
-		groupsManagerBl.createGroup(sess, vo, baseGroup);
+		Group returnedGroup = groupsManagerBl.createGroup(sess, vo, baseGroup);
 
 		extSourceManagerBl.addExtSource(sess, vo, extSource);
-		Attribute attr = attributesManagerBl.getAttribute(sess, baseGroup, groupsManager.GROUPEXTSOURCE_ATTRNAME);
+		Attribute attr = attributesManagerBl.getAttribute(sess, baseGroup, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
 		attr.setValue(extSource.getName());
 		attributesManagerBl.setAttribute(sess, baseGroup, attr);
 		extSourceManagerBl.addExtSource(sess, baseGroup, extSource);
@@ -475,6 +487,9 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		Attribute membersQuery = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
 		membersQuery.setValue("SELECT * from members where groupName='?';");
 		attributesManagerBl.setAttribute(sess, baseGroup, membersQuery);
+
+		// create test Group in database
+		assertNotNull("unable to create testing Group",returnedGroup);
 	}
 
 	/**
