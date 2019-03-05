@@ -108,6 +108,10 @@ public class GetListOfAttributes implements JsonCallback {
 
 		}
 
+		if (params.endsWith("&")) {
+			params = params.substring(0, params.length()-1);
+		}
+
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, params, this);
 
