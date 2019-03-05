@@ -1689,10 +1689,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
             p = Pattern.compile("([0-9]+)([dmy]?)");
             m = p.matcher(gracePeriod);
             if (m.matches()) {
-				LocalDate gracePeriodDate = LocalDate.now();
+				LocalDate gracePeriodDate;
 				try {
 					Pair<Integer, TemporalUnit> fieldAmount = Utils.prepareGracePeriodDate(m);
-					gracePeriodDate = gracePeriodDate.minus(fieldAmount.getLeft(), fieldAmount.getRight());
+					gracePeriodDate = localDate.minus(fieldAmount.getLeft(), fieldAmount.getRight());
 				} catch (InternalErrorException e) {
 					throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
 				}
