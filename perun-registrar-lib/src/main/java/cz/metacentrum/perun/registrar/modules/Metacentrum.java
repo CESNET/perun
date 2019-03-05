@@ -16,7 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -142,17 +143,10 @@ public class Metacentrum implements RegistrarModule {
 				// get eligible date + 1 year
 				Date eligibleDate = df.parse(eligibleString);
 
-				Calendar c = Calendar.getInstance();
-				c.setTime(eligibleDate);
-				c.add(Calendar.YEAR, 1);
-				Date eligibleDatePlusYear = c.getTime();
-
-				// get now
-				Calendar cal = Calendar.getInstance();
-				Date now = cal.getTime();
+				LocalDateTime timeInOneYear = LocalDateTime.ofInstant(eligibleDate.toInstant(), ZoneId.systemDefault()).plusYears(1);
 
 				// compare
-				if (now.before(eligibleDatePlusYear)) {
+				if (LocalDateTime.now().isBefore(timeInOneYear)) {
 					return;
 				}
 
