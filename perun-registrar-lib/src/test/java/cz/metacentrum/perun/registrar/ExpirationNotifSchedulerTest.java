@@ -3,7 +3,6 @@ package cz.metacentrum.perun.registrar;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -19,7 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
@@ -77,14 +76,11 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		System.out.println(CLASS_NAME + "checkMembersState");
 
 		// setup expiration date
-		Calendar calendar = Calendar.getInstance();
-		String today = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		String today = LocalDate.now().toString();
 
-		calendar.add(Calendar.DAY_OF_MONTH, 1);
-		String tomorrow = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		String tomorrow = LocalDate.now().plusDays(1).toString();
 
-		calendar.add(Calendar.DAY_OF_MONTH, -2);
-		String yesterday = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		String yesterday = LocalDate.now().minusDays(1).toString();
 
 		Member member1 = setUpMember();
 		Member member2 = setUpMember();
@@ -207,9 +203,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		System.out.println(CLASS_NAME + "checkMembersGroupStateShouldBeValidatedToday");
 
 		// setup expiration date
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DAY_OF_MONTH, 1);
-		String tomorrow = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		String tomorrow = LocalDate.now().plusDays(1).toString();
 
 		// set up member in group
 		Member member1 = setUpMember();
@@ -239,9 +233,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		System.out.println(CLASS_NAME + "checkMembersGroupStateShouldBeValidatedToday");
 
 		// setup expiration date
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DAY_OF_MONTH, 1);
-		String tomorrow = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		String tomorrow = LocalDate.now().plusDays(1).toString();
 
 		// set up member in group
 		Member member1 = setUpMember();
@@ -256,8 +248,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		perun.getAttributesManager().setAttribute(session, member1, group, m1Expiration);
 
 		// set group expiration for yesterday
-		calendar.add(Calendar.DAY_OF_MONTH, -2);
-		String yesterday = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		String yesterday = LocalDate.now().minusDays(1).toString();
 
 		Attribute m2Expiration = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GROUP_EXPIRATION_URN));
 		m2Expiration.setValue(yesterday);
@@ -277,9 +268,8 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 	public void checkMembersGroupStateShouldExpireToday() throws Exception {
 		System.out.println(CLASS_NAME + "checkMembersGroupStateShouldExpireToday");
 
-		// setup expiration date to tomorrow
-		Calendar calendar = Calendar.getInstance();
-		String today = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		// setup expiration date to today
+		String today = LocalDate.now().toString();
 
 		// set up member in group
 		Member member1 = setUpMember();
@@ -302,9 +292,8 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 	public void checkMembersGroupStateShouldExpireTodayDoesNotAffectOthers() throws Exception {
 		System.out.println(CLASS_NAME + "checkMembersGroupStateShouldExpireToday");
 
-		// setup expiration date to tomorrow
-		Calendar calendar = Calendar.getInstance();
-		String today = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		// setup expiration date to today
+		String today = LocalDate.now().toString();
 
 		// set up member in group
 		// set up member in group
@@ -320,8 +309,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		perun.getAttributesManager().setAttribute(session, member1, group, m1Expiration);
 
 		// set group expiration for tomorrow
-		calendar.add(Calendar.DAY_OF_MONTH, 1);
-		String tomorrow = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		String tomorrow = LocalDate.now().plusDays(1).toString();
 		Attribute m2Expiration = new Attribute(perun.getAttributesManager().getAttributeDefinition(session, GROUP_EXPIRATION_URN));
 		m1Expiration.setValue(tomorrow);
 		perun.getAttributesManager().setAttribute(session, member2, group, m2Expiration);
