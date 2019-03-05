@@ -93,6 +93,9 @@ public class GetRequiredAttributes implements JsonCallback, JsonCallbackTable<At
 		for (Map.Entry<String, Integer> attr : this.ids.entrySet()) {
 			params += attr.getKey() + "=" + attr.getValue() + "&";
 		}
+		if (params.endsWith("&")) {
+			params = params.substring(0, params.length()-1);
+		}
 		JsonClient js = new JsonClient();
 		js.retrieveData(GetRequiredAttributes.JSON_URL, params, this);
 	}

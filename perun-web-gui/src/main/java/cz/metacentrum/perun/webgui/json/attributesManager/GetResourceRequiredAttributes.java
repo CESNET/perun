@@ -87,6 +87,9 @@ public class GetResourceRequiredAttributes implements JsonCallback, JsonCallback
 		for (Map.Entry<String, Integer> attr : this.ids.entrySet()) {
 			params += attr.getKey() + "=" + attr.getValue() + "&";
 		}
+		if (params.endsWith("&")) {
+			params = params.substring(0, params.length()-1);
+		}
 		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, params, this);
 	}

@@ -130,6 +130,9 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
 				params += "services[]=" + s.getId() + "&";
 			}
 		}
+		if (params.endsWith("&")) {
+			params = params.substring(0, params.length()-1);
+		}
 		JsonClient js = new JsonClient();
 		js.retrieveData(GetRequiredAttributesV2.JSON_URL, params, this);
 	}
