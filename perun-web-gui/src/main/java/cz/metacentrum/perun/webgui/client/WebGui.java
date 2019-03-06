@@ -70,6 +70,9 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 	private RootLayoutPanel body;
 	private boolean connected = true;
 
+	private int keepAliveTreshold = 5;
+	private int keepAliveCounter = 0;
+
 	/**
 	 * This is ENTRY POINT method. It's called automatically when web page
 	 * containing this GUI is loaded in browser.
@@ -240,6 +243,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 										BasicOverlayType type = jso.cast();
 										checkPending = false;
 										connected = true;
+										keepAliveCounter = 0;
 										if (type.getString().equals("OK")) {
 											if (c.isShowing()) {
 												c.hide();
@@ -253,18 +257,25 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 										checkPending = false;
 										// connection lost only IF TIMEOUT
 										if (error != null && error.getErrorId().equals("0")) {
-											connected = false;
-											if (!c.isShowing()) {
-												c.show();
-											}
-											layout.setVisible(true);
-											c.getOkButton().setText("Reload");
-											c.getOkButton().addClickHandler(new ClickHandler() {
-												@Override
-												public void onClick(ClickEvent event) {
-													Window.Location.reload();
+											keepAliveCounter++;
+											if (keepAliveCounter >= keepAliveTreshold) {
+												connected = false;
+												if (!c.isShowing()) {
+													c.show();
 												}
-											});
+												layout.setVisible(true);
+												c.getOkButton().setText("Reload");
+												c.getOkButton().addClickHandler(new ClickHandler() {
+													@Override
+													public void onClick(ClickEvent event) {
+														Window.Location.reload();
+													}
+												});
+
+											} else {
+												// not connected but under treshold
+												appendKeepAliveChecker(c);
+											}
 
 										}
 									}
@@ -603,6 +614,7 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 					public void onFinished(JavaScriptObject jso) {
 						BasicOverlayType type = jso.cast();
 						checkPending = false;
+						keepAliveCounter = 0;
 						if (type.getString().equals("OK")) {
 							if (c.isShowing()) {
 								c.hide();
@@ -613,11 +625,14 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 					public void onError(PerunError error) {
 						checkPending = false;
 						if (error != null && error.getErrorId().equals("0")) {
-							// connection lost only IF TIMEOUT
-							if (!c.isShowing()) {
-								c.show();
+							keepAliveCounter++;
+							if (keepAliveCounter >= keepAliveTreshold) {
+								// connection lost only IF TIMEOUT and treshold
+								if (!c.isShowing()) {
+									c.show();
+								}
+								connected = false;
 							}
-							connected = false;
 						}
 					}
 				});
