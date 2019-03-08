@@ -17,8 +17,10 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	<import resource="classpath:perun-base.xml"/>
 
 	<aop:config>
-		<aop:advisor advice-ref="txAdviceReadOnly" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHierarchicalData(..))"/>
-		<aop:advisor advice-ref="txAdviceReadOnly" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getDataWithGroups(..))"/>
+		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHierarchicalData(..))"/>
+		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getDataWithGroups(..))"/>
+		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getDataWithVos(..))"/>
+		<aop:advisor advice-ref="txAdviceReadOnlySerialized" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getFlatData(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.entry.*.*(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl.setAttributeInNestedTransaction(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.insertAttribute(..))"/>
@@ -137,6 +139,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	<tx:advice id="txAdviceReadOnly" transaction-manager="perunTransactionManager">
 		<tx:attributes>
 			<tx:method name="*" read-only="true" rollback-for="Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<tx:advice id="txAdviceReadOnlySerialized" transaction-manager="perunTransactionManager">
+		<tx:attributes>
+			<tx:method name="*" read-only="true" rollback-for="Exception" isolation="SERIALIZABLE"/>
 		</tx:attributes>
 	</tx:advice>
 	<tx:advice id="txAdviceRequiresNewTransaction" transaction-manager="perunTransactionManager">
