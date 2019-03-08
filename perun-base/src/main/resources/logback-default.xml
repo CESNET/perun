@@ -134,6 +134,22 @@
 	<logger name="cz.metacentrum.perun.core.impl.PerunTransactionManager" level="error"/>
 	<logger name="cz.metacentrum.perun.core.impl.PerunBasicDataSource" level="error"/>
 
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-ultimate">
+        <file>${LOGDIR}perun-ultimate.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-ultimate.log.%d.%i</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+    	<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+    </appender>
+	<logger name="ultimate_logger" level="debug" additivity="false">
+		<appender-ref ref="perun-ultimate"/>
+    </logger>
+
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-eventProcessor">
 		<file>${LOGDIR}perun-dispatcher-eventProcessor.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">

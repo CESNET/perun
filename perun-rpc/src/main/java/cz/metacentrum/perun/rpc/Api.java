@@ -738,15 +738,18 @@ public class Api extends HttpServlet {
 			if (!isJsonp) {
 				resp.setStatus(400);
 			}
+			log.warn("Perun exception {}: {}.", pex.getErrorId(), pex);
 			ser.writePerunException(pex);
 		} catch (PerunRuntimeException prex) {
 			// If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
 			if (!isJsonp) {
 				resp.setStatus(400);
 			}
+			log.warn("PerunRuntime exception {}: {}.", prex.getErrorId(), prex);
 			ser.writePerunRuntimeException(prex);
 		} catch (IOException ioex) { //IOException gets logged and is rethrown
 			//noinspection ThrowableNotThrown
+			log.warn("IO exception {}: {}.", Long.toHexString(System.currentTimeMillis()), ioex);
 			new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ioex);
 			throw ioex;
 		} catch (Exception ex) {
@@ -754,6 +757,7 @@ public class Api extends HttpServlet {
 			if (!isJsonp) {
 				resp.setStatus(500);
 			}
+			log.warn("Perun exception {}: {}.", Long.toHexString(System.currentTimeMillis()), ex);
 			ser.writePerunException(new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ex));
 		} finally {
 			if (!isGet && !isPut && perunRequest != null) {
