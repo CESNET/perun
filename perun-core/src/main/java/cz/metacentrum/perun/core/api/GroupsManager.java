@@ -273,7 +273,37 @@ public interface GroupsManager {
 	 * @throws PrivilegeException insufficient permission
 	 * @throws GroupNotExistsException when group does not exist
 	 */
-	List<Member> getGroupDirectMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;;
+	List<Member> getGroupDirectMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+
+	/**
+	 * Return all members of the group who are active (valid) in the group.
+	 *
+	 * Do not return expired members of the group.
+	 *
+	 * @param sess perun session
+	 * @param group to get members from
+	 * @return list of active (valid) members
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException insufficient permission
+	 * @throws GroupNotExistsException when group does not exist
+	 */
+	List<Member> getActiveGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+
+	/**
+	 * Return all members of the group who are inactive (expired) in the group.
+	 *
+	 * Do not return active members of the group.
+	 *
+	 * @param sess perun session
+	 * @param group to get members from
+	 * @return list of inactive (expired) members
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException insufficient permission
+	 * @throws GroupNotExistsException when group does not exist
+	 */
+	List<Member> getInactiveGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
 	 * Return group members with specified vo membership status.
