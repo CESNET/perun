@@ -47,7 +47,14 @@ sub TO_JSON
 		$voId = 0;
 	}
 
-	return { id => $id, name => $name, description => $description, voId => $voId, beanName => "Group" };
+	my $parentGroupId;
+	if (defined($self->{_parentGroupId})) {
+		$parentGroupId = $self->{_parentGroupId} * 1;
+	} else {
+		$parentGroupId = undef;
+	}
+
+	return { id => $id, name => $name, description => $description, voId => $voId, parentGroupId => $parentGroupId, beanName => "Group" };
 }
 
 sub getId
@@ -106,12 +113,24 @@ sub setVoId
 	my $self = shift;
 	$self->{_voId} = shift;
 }
+
+sub getParentGroupId
+{
+	my $self = shift;
+	return $self->{_parentGroupId};
+}
+
+sub setParentGroupId
+{
+	my $self = shift;
+	$self->{_parentGroupId} = shift;
+}
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_voId}, $self->{_name}, $self->{_description});
+	return ($self->{_id}, $self->{_voId}, $self->{_name}, $self->{_description}, $self->{_parentGroupId});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'VO ID', 'Name', 'Description');
+	return ('ID', 'VO ID', 'Name', 'Description', 'Parent Group ID');
 }
 1;

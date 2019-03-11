@@ -78,9 +78,9 @@ sub getAllGroups
 	return Perun::Common::callManagerMethod('getAllGroups', '[]Group', @_);
 }
 
-sub getParentGroups
+sub getParentGroup
 {
-	return Perun::Common::callManagerMethod('getParentGroups', '[]Group', @_);
+	return Perun::Common::callManagerMethod('getParentGroup', 'Group', @_);
 }
 
 sub getSubGroups
