@@ -643,6 +643,7 @@ public class Api extends HttpServlet {
 				auditerConsumers = (Map<String, Integer>) caller.call("auditMessagesManager", "getAllAuditerConsumers", des);
 
 				List<String> perunStatus = new ArrayList<>();
+				perunStatus.add("Version of Perun: " + getPerunRpcVersion());
 				perunStatus.add("Version of PerunDB: " + caller.call("databaseManager", "getCurrentDatabaseVersion", des));
 				perunStatus.add("Version of Servlet: " + getServletContext().getServerInfo());
 				perunStatus.add("Version of DB-driver: " + caller.call("databaseManager", "getDatabaseDriverInformation", des));
