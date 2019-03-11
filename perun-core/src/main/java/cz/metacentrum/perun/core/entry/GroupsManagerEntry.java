@@ -303,6 +303,36 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
+	public List<Member> getActiveGroupMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "getActiveGroupMembers");
+		}
+
+		return getGroupsManagerBl().getActiveGroupMembers(sess, group);
+	}
+
+	@Override
+	public List<Member> getInactiveGroupMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "getInactiveGroupMembers");
+		}
+
+		return getGroupsManagerBl().getInactiveGroupMembers(sess, group);
+	}
+
+	@Override
 	public List<Member> getGroupMembers(PerunSession sess, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);

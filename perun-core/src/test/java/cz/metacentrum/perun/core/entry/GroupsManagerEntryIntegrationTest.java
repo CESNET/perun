@@ -3987,6 +3987,97 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("Found invalid member.", foundMembers.get(0), expectedRichMember);
 	}
 
+	@Test
+	public void getActiveGroupMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getActiveGroupMembers");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+		Member m3 = setUpMemberWithDifferentParam(vo, 2);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+		groupsManagerBl.addMember(sess, g1, m3);
+		groupsManagerBl.addMember(sess, g2, m3);
+
+		groupsManagerBl.expireMemberInGroup(sess, m2, g2);
+		groupsManagerBl.expireMemberInGroup(sess, m3, g1);
+
+		List<Member> activeMembers = groupsManagerBl.getActiveGroupMembers(sess, g1);
+		assertTrue(activeMembers.contains(m1));
+		assertFalse(activeMembers.contains(m2));
+		assertTrue(activeMembers.contains(m3));
+	}
+
+	@Test
+	public void getInactiveGroupMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getInactiveGroupMembers");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+		Member m3 = setUpMemberWithDifferentParam(vo, 2);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+		groupsManagerBl.addMember(sess, g1, m3);
+		groupsManagerBl.addMember(sess, g2, m3);
+
+		groupsManagerBl.expireMemberInGroup(sess, m2, g2);
+		groupsManagerBl.expireMemberInGroup(sess, m3, g1);
+
+		List<Member> inactiveMembers = groupsManagerBl.getInactiveGroupMembers(sess, g1);
+		assertFalse(inactiveMembers.contains(m1));
+		assertTrue(inactiveMembers.contains(m2));
+		assertFalse(inactiveMembers.contains(m3));
+	}
+
+	@Test
+	public void allMembersEqualsInactivePlusActiveMembersInGroup() throws Exception {
+		System.out.println(CLASS_NAME + "allMembersEqualsInactivePlusActiveMembersInGroup");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+		Member m3 = setUpMemberWithDifferentParam(vo, 2);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+		groupsManagerBl.addMember(sess, g1, m3);
+		groupsManagerBl.addMember(sess, g2, m3);
+
+		groupsManagerBl.expireMemberInGroup(sess, m2, g2);
+		groupsManagerBl.expireMemberInGroup(sess, m3, g1);
+
+		List<Member> inactiveAndActiveMembers = groupsManagerBl.getActiveGroupMembers(sess, g1);
+		inactiveAndActiveMembers.addAll(groupsManagerBl.getInactiveGroupMembers(sess, g1));
+		List<Member> allMembers = groupsManagerBl.getGroupMembers(sess, g1);
+
+		Collections.sort(allMembers);
+		Collections.sort(inactiveAndActiveMembers);
+		
+		assertEquals(allMembers, inactiveAndActiveMembers);
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {
