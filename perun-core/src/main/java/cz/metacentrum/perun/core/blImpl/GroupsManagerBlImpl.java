@@ -999,6 +999,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<Member> getActiveGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
+		return filterMembersByStatusInGroup(getGroupMembers(sess, group), MemberGroupStatus.VALID);
+	}
+
+	@Override
+	public List<Member> getInactiveGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
+		return filterMembersByStatusInGroup(getGroupMembers(sess, group), MemberGroupStatus.EXPIRED);
+	}
+
+	@Override
 	public List<Member> getGroupMembers(PerunSession sess, Group group, Status status) throws InternalErrorException {
 		if (status == null) {
 			return this.getGroupMembers(sess, group);
@@ -3700,5 +3710,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		return false;
 
+	}
+
+	/**
+	 * Return list of members with allowedStatus filtered from input array list membersToFilter.
+	 *
+	 * @param membersToFilter list of members to filter
+	 * @param allowedStatus allowed status to filter by
+	 * @return list of members with filtered status in group
+	 * @throws InternalErrorException if allowed status is null
+	 */
+	private List<Member> filterMembersByStatusInGroup(List<Member> membersToFilter, MemberGroupStatus allowedStatus) throws InternalErrorException {
+		if (allowedStatus == null) throw new InternalErrorException("Allowed status can't be null.");
+		List<Member> filteredMembers = new ArrayList<>();
+		if (membersToFilter == null || membersToFilter.isEmpty()) return filteredMembers;
+		for(Member member: membersToFilter) {
+			if (allowedStatus.equals(member.getGroupStatus())) filteredMembers.add(member);
+		}
+		return filteredMembers;
 	}
 }

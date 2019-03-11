@@ -375,6 +375,30 @@ public interface GroupsManagerBl {
 	List<Member> getGroupDirectMembers(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
+	 * Return all members of the group who are active (valid) in the group.
+	 *
+	 * Do not return expired members of the group.
+	 *
+	 * @param sess perun session
+	 * @param group to get members from
+	 * @return list of active (valid) members
+	 * @throws InternalErrorException
+	 */
+	List<Member> getActiveGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException;
+
+	/**
+	 * Return all members of the group who are inactive (expired) in the group.
+	 *
+	 * Do not return active members of the group.
+	 *
+	 * @param sess perun session
+	 * @param group to get members from
+	 * @return list of inactive (expired) members
+	 * @throws InternalErrorException
+	 */
+	List<Member> getInactiveGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException;
+
+	/**
 	 * Return only valid, suspended, expired and disabled group members.
 	 *
 	 * @param perunSession
