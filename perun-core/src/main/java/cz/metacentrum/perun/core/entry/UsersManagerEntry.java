@@ -1214,7 +1214,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -1224,7 +1224,7 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "requestPreferredEmailChange");
 		}
 
-		getPerunBl().getUsersManagerBl().requestPreferredEmailChange(sess, url, user, email);
+		getPerunBl().getUsersManagerBl().requestPreferredEmailChange(sess, url, user, email, lang);
 
 	}
 

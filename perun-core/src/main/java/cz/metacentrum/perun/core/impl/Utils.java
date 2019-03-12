@@ -786,8 +786,8 @@ public class Utils {
 			throw new NullPointerException("input must not be null");
 		try {
 			Mac mac = Mac.getInstance("HmacSHA256");
-			mac.init(new SecretKeySpec(BeansUtils.getCoreConfig().getMailchangeSecretKey().getBytes("UTF-8"),"HmacSHA256"));
-			byte[] macbytes = mac.doFinal(input.getBytes("UTF-8"));
+			mac.init(new SecretKeySpec(BeansUtils.getCoreConfig().getMailchangeSecretKey().getBytes(StandardCharsets.UTF_8),"HmacSHA256"));
+			byte[] macbytes = mac.doFinal(input.getBytes(StandardCharsets.UTF_8));
 			return new BigInteger(macbytes).toString(Character.MAX_RADIX);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -802,9 +802,11 @@ public class Utils {
 	 * @param url base URL of running perun instance passed from RPC
 	 * @param email new email address to send notification to
 	 * @param changeId ID of change request in DB
+	 * @param subject Template subject or null
+	 * @param content Template message or null
 	 * @throws InternalErrorException
 	 */
-	public static void sendValidationEmail(User user, String url, String email, int changeId) throws InternalErrorException {
+	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content) throws InternalErrorException {
 
 		// create mail sender
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -817,7 +819,12 @@ public class Utils {
 
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
-		message.setSubject("["+instanceName+"] New email address verification");
+		if (subject == null ||subject.isEmpty()) {
+			message.setSubject("["+instanceName+"] New email address verification");
+		} else {
+			subject = subject.replace("{instanceName}", instanceName);
+			message.setSubject(subject);
+		}
 
 		// get validation link params
 		String i = Integer.toString(changeId, Character.MAX_RADIX);
@@ -860,7 +867,12 @@ public class Utils {
 					"\n----------------------------------------------------------------" +
 					"\nPerun - Identity & Access Management System";
 
-			message.setText(text);
+			if (content == null || content.isEmpty()) {
+				message.setText(text);
+			} else {
+				content = content.replace("{link}",link);
+				message.setText(content);
+			}
 
 			mailSender.send(message);
 

@@ -1121,6 +1121,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 *
 	 * @param user int User <code>id</code>
 	 * @param email String new email address to set
+	 * @param lang String language to get confirmation mail in (optional)
 	 */
 	requestPreferredEmailChange {
 		@Override
@@ -1135,7 +1136,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 			ac.getUsersManager().requestPreferredEmailChange(ac.getSession(),
 					referer,
 					ac.getUserById(parms.readInt("user")),
-					parms.readString("email"));
+					parms.readString("email"),
+					parms.contains("lang") ? parms.readString("lang") : null);
 
 			return null;
 
