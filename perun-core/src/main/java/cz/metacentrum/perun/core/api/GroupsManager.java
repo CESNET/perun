@@ -872,6 +872,48 @@ public interface GroupsManager {
 	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
 
 	/**
+	 * Returns all member's groups where member is in active state (is valid there)
+	 * Excluded members group.
+	 *
+	 * @param sess perun session
+	 * @param member member to get groups for
+	 * @return list of groups where member is in active state (valid)
+	 *
+	 * @throws MemberNotExistsException member in parameter not exists in perun
+	 * @throws PrivilegeException user is not privileged to call this method
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
+
+	/**
+	 * Returns all member's groups where member is in inactive state (it is not valid and it is expired there)
+	 * Excluded members group.
+	 *
+	 * @param sess perun session
+	 * @param member member to get groups for
+	 * @return list of groups where member is in inactive state (expired)
+	 *
+	 * @throws MemberNotExistsException member in parameter not exists in perun
+	 * @throws PrivilegeException user is not privileged to call this method
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsWhereMemberIsInactive(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
+
+	/**
+	 * Returns all member's groups where member is in active state (is valid there)
+	 * Included members group.
+	 *
+	 * @param sess perun session
+	 * @param member member to get groups for
+	 * @return list of groups where member is in active state (valid)
+	 *
+	 * @throws MemberNotExistsException member in parameter not exists in perun
+	 * @throws PrivilegeException user is not privileged to call this method
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAllGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
+
+	/**
 	 * Return all RichGroups for specified member, containing selected attributes.
 	 * "members" group is not included.
 	 *

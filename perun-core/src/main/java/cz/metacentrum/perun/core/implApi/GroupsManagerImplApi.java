@@ -259,6 +259,17 @@ public interface GroupsManagerImplApi {
 	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
+	 * Returns all member's groups where member is in active state (is valid there)
+	 * Included members group.
+	 *
+	 * @param sess perun session
+	 * @param member member to get groups for
+	 * @return list of groups where member is in active state (valid)
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAllGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
 	 * Return group members.
 	 *
 	 * @param sess
