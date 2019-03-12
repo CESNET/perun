@@ -1265,15 +1265,17 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
 		Utils.checkPerunSession(sess);
+
+		if (lang == null || lang.isEmpty()) lang = "en"; // fallback to english
 
 		int userId = Integer.parseInt(Utils.cipherInput(i,true));
 		// this will make also "if exists check"
 		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
 
-		getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, user, m, password);
+		getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, user, m, password, lang);
 
 	}
 

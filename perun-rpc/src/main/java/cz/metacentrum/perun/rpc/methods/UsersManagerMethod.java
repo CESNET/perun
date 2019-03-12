@@ -961,13 +961,14 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param i String first encrypted parameter
 	 * @param m String second encrypted parameter
 	 * @param password String new password
+	 * @param lang String language to get notifications in (optional).
 	 */
 	changeNonAuthzPassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("i"), parms.readString("m"), parms.readString("password"));
+			ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("i"), parms.readString("m"), parms.readString("password"), (parms.contains("lang") ? parms.readString("lange") : null));
 
 			return null;
 		}

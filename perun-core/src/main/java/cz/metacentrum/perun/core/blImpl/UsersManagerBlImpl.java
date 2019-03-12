@@ -2089,7 +2089,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
 		String requestId = Utils.cipherInput(m, true);
 		String namespace = getUsersManagerImpl().loadPasswordResetRequest(user, Integer.parseInt(requestId));
@@ -2141,8 +2141,38 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		}
 
+		// get template
+
+		String subject;
+		try {
+			Attribute subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, lang,
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailSubject:" + namespace);
+			subject = (String) subjectTemplateAttribute.getValue();
+			if (subject == null) {
+				subjectTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
+						AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailSubject:" + namespace);
+				subject = (String) subjectTemplateAttribute.getValue();
+			}
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		String message;
+		try {
+			Attribute messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, lang,
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailTemplate:" + namespace);
+			message = (String) messageTemplateAttribute.getValue();
+			if (message == null) {
+				messageTemplateAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, "en",
+						AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":nonAuthzPwdResetConfirmMailTemplate:" + namespace);
+				message = (String) messageTemplateAttribute.getValue();
+			}
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+
 		for (String email : emails) {
-			Utils.sendPasswordResetConfirmationEmail(user, email, namespace);
+			Utils.sendPasswordResetConfirmationEmail(user, email, namespace, subject, message);
 		}
 
 	}

@@ -751,12 +751,13 @@ public interface UsersManager {
 	 * @param i
 	 * @param m
 	 * @param password
+	 * @param lang language to get notification in
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws LoginNotExistsException
 	 * @throws PasswordChangeFailedException
 	 */
-	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password)
+	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang)
 			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 
