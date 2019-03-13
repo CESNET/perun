@@ -723,7 +723,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Group> getGroupsToSynchronize(PerunSession sess) throws InternalErrorException{
-		return getGroupsManagerImpl().getGroupsToSynchronize(sess);
+		List<Group> groups = getGroupsManagerImpl().getGroupsToSynchronize(sess);
+		// Sort
+		Collections.sort(groups);
+		return groups;
 	}
 
 	@Override
@@ -1168,7 +1171,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Group> getAdminGroups(PerunSession sess, Group group) throws InternalErrorException {
-		return getGroupsManagerImpl().getGroupAdmins(sess, group);
+		List<Group> groups = getGroupsManagerImpl().getGroupAdmins(sess, group);
+		// Sort
+		Collections.sort(groups);
+		return groups;
 	}
 
 	@Override
@@ -1222,7 +1228,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Group> getAssignedGroupsToResource(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
-		return getGroupsManagerImpl().getAssignedGroupsToResource(sess, resource, member);
+		List<Group> groups = getGroupsManagerImpl().getAssignedGroupsToResource(sess, resource, member);
+		// Sort
+		Collections.sort(groups);
+		return groups;
 	}
 
 	@Override
@@ -1245,12 +1254,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			groupsToProcess = groupsToAdd;
 			done = groupsToProcess.isEmpty();
 		}
+
+		// Sort
+		Collections.sort(assignedGroups);
 		return assignedGroups;
 	}
 
 	@Override
 	public List<Group> getAssignedGroupsToFacility(PerunSession sess, Facility facility) throws InternalErrorException {
-		return getGroupsManagerImpl().getAssignedGroupsToFacility(sess, facility);
+		List<Group> assignedGroups = getGroupsManagerImpl().getAssignedGroupsToFacility(sess, facility);
+		// Sort
+		Collections.sort(assignedGroups);
+		return assignedGroups;
 	}
 
 	@Override
@@ -1318,6 +1333,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			groupsInQueue.addAll(getGroupsManagerImpl().getSubGroups(sess, groupsInQueue.peek()));
 			allSubGroups.add(groupsInQueue.poll());
 		}
+
+		// Sort
+		Collections.sort(allSubGroups);
 		return allSubGroups;
 	}
 
@@ -1408,7 +1426,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
-		return getGroupsManagerImpl().getAllMemberGroups(sess, member);
+		List<Group> groups = getGroupsManagerImpl().getAllMemberGroups(sess, member);
+		// Sort
+		Collections.sort(groups);
+		return groups;
 	}
 
 	@Override
@@ -1431,7 +1452,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Group> getAllGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException {
-		return getGroupsManagerImpl().getAllGroupsWhereMemberIsActive(sess, member);
+		List<Group> groups = getGroupsManagerImpl().getAllGroupsWhereMemberIsActive(sess, member);
+		// Sort
+		Collections.sort(groups);
+		return groups;
 	}
 
 	@Override
@@ -1821,7 +1845,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public List<Group> getGroupsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getPerunBl().getAttributesManagerBl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 		if(!(getPerunBl().getAttributesManagerBl().isDefAttribute(sess, attribute) || getPerunBl().getAttributesManagerBl().isOptAttribute(sess, attribute))) throw new WrongAttributeAssignmentException("This method can process only def and opt attributes");
-		return getGroupsManagerImpl().getGroupsByAttribute(sess, attribute);
+		List<Group> groups = getGroupsManagerImpl().getGroupsByAttribute(sess, attribute);
+		// Sort
+		Collections.sort(groups);
+		return groups;
 	}
 
 	@Override
@@ -1898,6 +1925,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		groups = new ArrayList<Group>(new HashSet<Group>(groups));
+		// Sort
+		Collections.sort(groups);
 		return groups;
 	}
 
@@ -2188,7 +2217,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException {
-		return getGroupsManagerImpl().getGroupsWithAssignedExtSourceInVo(sess, source, vo);
+		List<Group> groups = getGroupsManagerImpl().getGroupsWithAssignedExtSourceInVo(sess, source, vo);
+		// Sort
+		Collections.sort(groups);
+		return groups;
 	}
 
 	//----------- PRIVATE METHODS FOR  GROUP SYNCHRONIZATION -----------
@@ -3146,9 +3178,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public List<Group> getGroupUnions(PerunSession session, Group group, boolean reverseDirection) throws InternalErrorException {
 		if (reverseDirection) {
-			return groupsManagerImpl.getResultGroups(session, group.getId());
+			List<Group> resultGroups = groupsManagerImpl.getResultGroups(session, group.getId());;
+			// Sort
+			Collections.sort(resultGroups);
+			return resultGroups;
 		} else {
-			return groupsManagerImpl.getOperandGroups(session, group.getId());
+			List<Group> operandGroups = groupsManagerImpl.getOperandGroups(session, group.getId());
+			// Sort
+			Collections.sort(operandGroups);
+			return operandGroups;
 		}
 	}
 
