@@ -5,7 +5,9 @@ import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetFor
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberAddedToGroup;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberExpiredInGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberRemovedFromGroupTotally;
+import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberValidatedInGroup;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -47,7 +49,7 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 			Vo vo = sess.getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
 			voNames.add(vo.getShortName());
 
-			List<Group> groups = sess.getPerunBl().getGroupsManagerBl().getMemberGroups(sess, member);
+			List<Group> groups = sess.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(sess, member);
 			for (Group group : groups) {
 				groupNames.add(vo.getShortName() +":"+ group.getName());
 			}
@@ -69,6 +71,10 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 			resolvingMessages.addAll(resolveEvent(sess, ((IndirectMemberAddedToGroup) message).getMember()));
 		} else if (message instanceof MemberRemovedFromGroupTotally) {
 			resolvingMessages.addAll(resolveEvent(sess, ((MemberRemovedFromGroupTotally) message).getMember()));
+		} else if (message instanceof MemberExpiredInGroup) {
+			resolvingMessages.addAll(resolveEvent(sess, ((MemberExpiredInGroup) message).getMember()));
+		} else if (message instanceof MemberValidatedInGroup) {
+			resolvingMessages.addAll(resolveEvent(sess, ((MemberValidatedInGroup) message).getMember()));
 		}
 		return resolvingMessages;
 	}
