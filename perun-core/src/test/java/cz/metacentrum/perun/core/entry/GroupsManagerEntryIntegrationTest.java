@@ -34,6 +34,7 @@ import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -3985,6 +3986,286 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		assertEquals("Found more members than expected", foundMembers.size(), 1);
 		assertEquals("Found invalid member.", foundMembers.get(0), expectedRichMember);
+	}
+
+	@Test
+	public void getActiveGroupMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getActiveGroupMembers");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+		Member m3 = setUpMemberWithDifferentParam(vo, 2);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+		groupsManagerBl.addMember(sess, g1, m3);
+		groupsManagerBl.addMember(sess, g2, m3);
+
+		groupsManagerBl.expireMemberInGroup(sess, m2, g2);
+		groupsManagerBl.expireMemberInGroup(sess, m3, g1);
+
+		List<Member> activeMembers = groupsManagerBl.getActiveGroupMembers(sess, g1);
+		assertTrue(activeMembers.contains(m1));
+		assertFalse(activeMembers.contains(m2));
+		assertTrue(activeMembers.contains(m3));
+	}
+
+	@Test
+	public void getInactiveGroupMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getInactiveGroupMembers");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+		Member m3 = setUpMemberWithDifferentParam(vo, 2);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+		groupsManagerBl.addMember(sess, g1, m3);
+		groupsManagerBl.addMember(sess, g2, m3);
+
+		groupsManagerBl.expireMemberInGroup(sess, m2, g2);
+		groupsManagerBl.expireMemberInGroup(sess, m3, g1);
+
+		List<Member> inactiveMembers = groupsManagerBl.getInactiveGroupMembers(sess, g1);
+		assertFalse(inactiveMembers.contains(m1));
+		assertTrue(inactiveMembers.contains(m2));
+		assertFalse(inactiveMembers.contains(m3));
+	}
+
+	@Test
+	public void allMembersEqualsInactivePlusActiveMembersInGroup() throws Exception {
+		System.out.println(CLASS_NAME + "allMembersEqualsInactivePlusActiveMembersInGroup");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+		Member m3 = setUpMemberWithDifferentParam(vo, 2);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+		groupsManagerBl.addMember(sess, g1, m3);
+		groupsManagerBl.addMember(sess, g2, m3);
+
+		groupsManagerBl.expireMemberInGroup(sess, m2, g2);
+		groupsManagerBl.expireMemberInGroup(sess, m3, g1);
+
+		List<Member> inactiveAndActiveMembers = groupsManagerBl.getActiveGroupMembers(sess, g1);
+		inactiveAndActiveMembers.addAll(groupsManagerBl.getInactiveGroupMembers(sess, g1));
+		List<Member> allMembers = groupsManagerBl.getGroupMembers(sess, g1);
+
+		Collections.sort(allMembers);
+		Collections.sort(inactiveAndActiveMembers);
+
+		assertEquals(allMembers, inactiveAndActiveMembers);
+	}
+
+	@Test
+	public void getValidGroupMembersInGroupAndInVo() throws Exception {
+		System.out.println(CLASS_NAME + "getValidGroupMembersInGroupAndInVo");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+		Member m3 = setUpMemberWithDifferentParam(vo, 2);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+		groupsManagerBl.addMember(sess, g1, m3);
+		groupsManagerBl.addMember(sess, g2, m3);
+
+		groupsManagerBl.expireMemberInGroup(sess, m2, g2);
+		groupsManagerBl.expireMemberInGroup(sess, m3, g1);
+		perun.getMembersManagerBl().expireMember(sess, m1);
+
+		List<Member> filteredMembers = groupsManagerBl.getGroupMembers(sess, g1, MemberGroupStatus.VALID, Status.VALID);
+		assertFalse(filteredMembers.contains(m1));
+		assertFalse(filteredMembers.contains(m2));
+		assertTrue(filteredMembers.contains(m3));
+	}
+
+	@Test
+	public void getValidGroupMembersInGroupAndExpiredInVo() throws Exception {
+		System.out.println(CLASS_NAME + "getValidGroupMembersInGroupAndExpiredInVo");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+		Member m3 = setUpMemberWithDifferentParam(vo, 2);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+		groupsManagerBl.addMember(sess, g1, m3);
+		groupsManagerBl.addMember(sess, g2, m3);
+
+		groupsManagerBl.expireMemberInGroup(sess, m2, g2);
+		groupsManagerBl.expireMemberInGroup(sess, m3, g1);
+		perun.getMembersManagerBl().expireMember(sess, m1);
+
+		List<Member> filteredMembers = groupsManagerBl.getGroupMembers(sess, g1, MemberGroupStatus.VALID, Status.EXPIRED);
+		assertTrue(filteredMembers.contains(m1));
+		assertFalse(filteredMembers.contains(m2));
+		assertFalse(filteredMembers.contains(m3));
+	}
+
+	@Test
+	public void getExpiredGroupMembersInGroupAndVo() throws Exception {
+		System.out.println(CLASS_NAME + "getExpiredGroupMembersInGroupAndVo");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+		Member m2 = setUpMemberWithDifferentParam(vo, 1);
+		Member m3 = setUpMemberWithDifferentParam(vo, 2);
+
+		groupsManagerBl.addMember(sess, g1, m1);
+		groupsManagerBl.addMember(sess, g2, m2);
+		groupsManagerBl.addMember(sess, g1, m3);
+		groupsManagerBl.addMember(sess, g2, m3);
+
+		groupsManagerBl.expireMemberInGroup(sess, m2, g2);
+		groupsManagerBl.expireMemberInGroup(sess, m1, g1);
+		perun.getMembersManagerBl().expireMember(sess, m1);
+
+		List<Member> filteredMembers = groupsManagerBl.getGroupMembers(sess, g1, MemberGroupStatus.EXPIRED, Status.EXPIRED);
+		assertTrue(filteredMembers.contains(m1));
+		assertFalse(filteredMembers.contains(m2));
+		assertFalse(filteredMembers.contains(m3));
+	}
+
+	@Test
+	public void getAllGroupsWhereMemberIsActive() throws Exception {
+		System.out.println(CLASS_NAME + "getAllGroupsWhereMemberIsActive");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		Group g3 = new Group("G3", "G3");
+		Group g4 = new Group("G4", "G4");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+		g3 = groupsManagerBl.createGroup(sess, g2, g3);
+		g4 = groupsManagerBl.createGroup(sess, vo, g4);
+		Group membersGroup = perun.getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+
+		groupsManagerBl.addMember(sess, g2, m1);
+		groupsManagerBl.addMember(sess, g3, m1);
+		groupsManagerBl.addMember(sess, g4, m1);
+
+		groupsManagerBl.expireMemberInGroup(sess, m1, g3);
+
+		List<Group> activeGroups = groupsManagerBl.getAllGroupsWhereMemberIsActive(sess, m1);
+
+		assertTrue(activeGroups.contains(g1));
+		assertTrue(activeGroups.contains(g2));
+		assertFalse(activeGroups.contains(g3));
+		assertTrue(activeGroups.contains(g4));
+		assertTrue(activeGroups.contains(membersGroup));
+	}
+
+	@Test
+	public void getGroupsWhereMemberIsActive() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWhereMemberIsActive");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		Group g3 = new Group("G3", "G3");
+		Group g4 = new Group("G4", "G4");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+		g3 = groupsManagerBl.createGroup(sess, g2, g3);
+		g4 = groupsManagerBl.createGroup(sess, vo, g4);
+		Group membersGroup = perun.getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+
+		groupsManagerBl.addMember(sess, g2, m1);
+		groupsManagerBl.addMember(sess, g3, m1);
+		groupsManagerBl.addMember(sess, g4, m1);
+
+		groupsManagerBl.expireMemberInGroup(sess, m1, g3);
+
+		List<Group> activeGroups = groupsManagerBl.getGroupsWhereMemberIsActive(sess, m1);
+
+		assertTrue(activeGroups.contains(g1));
+		assertTrue(activeGroups.contains(g2));
+		assertFalse(activeGroups.contains(g3));
+		assertTrue(activeGroups.contains(g4));
+		assertFalse(activeGroups.contains(membersGroup));
+	}
+
+	@Test
+	public void getGroupsWhereMemberIsInactive() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWhereMemberIsInactive");
+
+		vo = setUpVo();
+
+		Group g1 = new Group("G1", "G1");
+		Group g2 = new Group("G2", "G2");
+		Group g3 = new Group("G3", "G3");
+		Group g4 = new Group("G4", "G4");
+		g1 = groupsManagerBl.createGroup(sess, vo, g1);
+		g2 = groupsManagerBl.createGroup(sess, g1, g2);
+		g3 = groupsManagerBl.createGroup(sess, g2, g3);
+		g4 = groupsManagerBl.createGroup(sess, vo, g4);
+		Group membersGroup = perun.getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
+
+		Member m1 = setUpMemberWithDifferentParam(vo, 0);
+
+		groupsManagerBl.addMember(sess, g2, m1);
+		groupsManagerBl.addMember(sess, g3, m1);
+		groupsManagerBl.addMember(sess, g4, m1);
+
+		groupsManagerBl.expireMemberInGroup(sess, m1, g3);
+
+		List<Group> activeGroups = groupsManagerBl.getGroupsWhereMemberIsInactive(sess, m1);
+
+		assertFalse(activeGroups.contains(g1));
+		assertFalse(activeGroups.contains(g2));
+		assertTrue(activeGroups.contains(g3));
+		assertFalse(activeGroups.contains(g4));
+		assertFalse(activeGroups.contains(membersGroup));
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------
