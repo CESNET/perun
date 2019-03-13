@@ -1138,6 +1138,54 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns all member's groups where member is in active state (is valid there)
+	 * Excluded members group.
+	 *
+	 * @param member int <code>id</code> of member
+	 * @return List<Group> Groups where member is in active state (valid)
+	 */
+	getGroupsWhereMemberIsActive {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getGroupsWhereMemberIsActive(ac.getSession(),
+				ac.getMemberById(parms.readInt("member")));
+		}
+	},
+
+	/*#
+	 * Returns all member's groups where member is in inactive state (it is not valid and it is expired there)
+	 * Excluded members group.
+	 *
+	 * @param member int <code>id</code> of member
+	 * @return List<Group> Groups where member is in inactive state (expired)
+	 */
+	getGroupsWhereMemberIsInactive {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getGroupsWhereMemberIsInactive(ac.getSession(),
+				ac.getMemberById(parms.readInt("member")));
+		}
+	},
+
+	/**
+	 * Returns all member's groups where member is in active state (is valid there)
+	 * Included members group.
+	 *
+	 * @param member int <code>id</code> of member
+	 * @return List<Group> All groups where member is in active state (valid)
+	 */
+	getAllGroupsWhereMemberIsActive {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getAllGroupsWhereMemberIsActive(ac.getSession(),
+				ac.getMemberById(parms.readInt("member")));
+		}
+	},
+
+	/*#
 	 * Return all members of the group who are active (valid) in the group.
 	 *
 	 * Do not return expired members of the group.

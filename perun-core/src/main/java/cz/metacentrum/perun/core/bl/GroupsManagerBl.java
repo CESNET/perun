@@ -387,6 +387,19 @@ public interface GroupsManagerBl {
 	List<Member> getActiveGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
+	 * Return all members of the group who are active (valid) in the group and have specific status in the Vo.
+	 *
+	 * Do not return expired members of the group.
+	 *
+	 * @param sess perun session
+	 * @param group to get members from
+	 * @param status to get only members with this specific status in the Vo
+	 * @return list of active (valid) members with specific status in the Vo
+	 * @throws InternalErrorException
+	 */
+	List<Member> getActiveGroupMembers(PerunSession sess, Group group, Status status) throws InternalErrorException;
+
+	/**
 	 * Return all members of the group who are inactive (expired) in the group.
 	 *
 	 * Do not return active members of the group.
@@ -397,6 +410,33 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Member> getInactiveGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException;
+
+	/**
+	 * Return all members of the group who are inactive (expired) in the group and have specific status in the Vo.
+	 *
+	 * Do not return active members of the group.
+	 *
+	 * @param sess perun session
+	 * @param group to get members from
+	 * @param status to get only members with this specific status in the Vo
+	 * @return list of inactive (expired) members with specific status in the Vo
+	 * @throws InternalErrorException
+	 */
+	List<Member> getInactiveGroupMembers(PerunSession sess, Group group, Status status) throws InternalErrorException;
+
+	/**
+	 * Return all members of the group who has specific status in the group and also specific status in the Vo.
+	 *
+	 * For example: All members with valid status in the Vo and also valid status in the group.
+	 *
+	 * @param sess perun session
+	 * @param group to get members from
+	 * @param statusInGroup to get only members with this specific status in the group
+	 * @param status to get only members with this specific status in the Vo
+	 * @return list of members with specific status in group and specific status in the Vo
+	 * @throws InternalErrorException
+	 */
+	List<Member> getGroupMembers(PerunSession sess, Group group, MemberGroupStatus statusInGroup, Status status) throws InternalErrorException;
 
 	/**
 	 * Return only valid, suspended, expired and disabled group members.
@@ -958,6 +998,40 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
+	 * Returns all member's groups where member is in active state (is valid there)
+	 * Excluded members group.
+	 *
+	 * @param sess perun session
+	 * @param member member to get groups for
+	 * @return list of groups where member is in active state (valid)
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
+	 * Returns all member's groups where member is in inactive state (it is not valid and it is expired there)
+	 * Excluded members group.
+	 *
+	 * @param sess perun session
+	 * @param member member to get groups for
+	 * @return list of groups where member is in inactive state (expired)
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsWhereMemberIsInactive(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
+	 * Returns all member's groups where member is in active state (is valid there)
+	 * Included members group.
+	 *
+	 * @param sess perun session
+	 * @param member member to get groups for
+	 * @return list of groups where member is in active state (valid)
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAllGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException;
+
 
 	/**
 	 * Returns all groups which have set the attribute with the value. Searching only def and opt attributes.

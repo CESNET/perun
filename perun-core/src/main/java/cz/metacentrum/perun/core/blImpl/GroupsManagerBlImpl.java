@@ -999,8 +999,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<Member> getGroupMembers(PerunSession sess, Group group, MemberGroupStatus statusInGroup, Status status) throws InternalErrorException {
+		return filterMembersByStatusInGroup(getGroupMembers(sess, group, status), statusInGroup);
+	}
+
+	@Override
+	public List<Member> getActiveGroupMembers(PerunSession sess, Group group, Status status) throws InternalErrorException {
+		return filterMembersByStatusInGroup(getGroupMembers(sess, group, status), MemberGroupStatus.VALID);
+	}
+
+	@Override
 	public List<Member> getActiveGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
 		return filterMembersByStatusInGroup(getGroupMembers(sess, group), MemberGroupStatus.VALID);
+	}
+
+	@Override
+	public List<Member> getInactiveGroupMembers(PerunSession sess, Group group, Status status) throws InternalErrorException {
+		return filterMembersByStatusInGroup(getGroupMembers(sess, group, status), MemberGroupStatus.EXPIRED);
 	}
 
 	@Override
@@ -1394,6 +1409,29 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
 		return getGroupsManagerImpl().getAllMemberGroups(sess, member);
+	}
+
+	@Override
+	public List<Group> getGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException {
+		List<Group> groupsWhereMemberIsActive = this.getAllGroupsWhereMemberIsActive(sess, member);
+		groupsWhereMemberIsActive.removeIf(g -> VosManager.MEMBERS_GROUP.equals(g.getName()));
+		return groupsWhereMemberIsActive;
+	}
+
+	@Override
+	public List<Group> getGroupsWhereMemberIsInactive(PerunSession sess, Member member) throws InternalErrorException {
+		//IMPORTANT: this is the easiest way but also more time consuming - this code can be optimize if needed
+		List<Group> membersGroups = this.getMemberGroups(sess, member);
+		List<Group> activeMembersGroup = this.getGroupsWhereMemberIsActive(sess, member);
+		//Inactive are groups where member has no active state (all-active=inactive)
+		membersGroups.removeAll(activeMembersGroup);
+
+		return membersGroups;
+	}
+
+	@Override
+	public List<Group> getAllGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException {
+		return getGroupsManagerImpl().getAllGroupsWhereMemberIsActive(sess, member);
 	}
 
 	@Override

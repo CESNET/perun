@@ -1042,6 +1042,57 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
+	public List<Group> getGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			throw new PrivilegeException(sess, "getGroupsWhereMemberIsActive");
+		}
+
+		return getGroupsManagerBl().getGroupsWhereMemberIsActive(sess, member);
+	}
+
+	@Override
+	public List<Group> getGroupsWhereMemberIsInactive(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			throw new PrivilegeException(sess, "getGroupsWhereMemberIsInactive");
+		}
+
+		return getGroupsManagerBl().getGroupsWhereMemberIsInactive(sess, member);
+	}
+
+	@Override
+	public List<Group> getAllGroupsWhereMemberIsActive(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			throw new PrivilegeException(sess, "getAllGroupsWhereMemberIsActive");
+		}
+
+		return getGroupsManagerBl().getAllGroupsWhereMemberIsActive(sess, member);
+	}
+
+	@Override
 	public List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, ResourceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		this.getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
