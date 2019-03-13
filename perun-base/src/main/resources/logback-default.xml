@@ -3,7 +3,7 @@
 	It is inherited by transitive dependencies into all Perun modules,
 	and loaded by PerunLogbackConfigurator class if no logback.xml is found
 	(i.e. not provided by a module or specified by system property logback.configurationFile).
-	
+
     You can load another file by e.g.
      -Dlogback.configurationFile=file:///etc/perun/logback.xml
     and change the directory for log files by e.g.
@@ -160,7 +160,7 @@
 			<pattern>${ENCODER_PATTERN}</pattern>
 		</encoder>
 	</appender>
-	<logger name="cz.metacentrum.perun.dispatcher.processing.impl.EventProcessorImpl" level="info" additivity="false">
+	<logger name="cz.metacentrum.perun.dispatcher.processing.EventProcessor" level="info" additivity="false">
 		<appender-ref ref="perun-dispatcher-eventProcessor"/>
 	</logger>
 
