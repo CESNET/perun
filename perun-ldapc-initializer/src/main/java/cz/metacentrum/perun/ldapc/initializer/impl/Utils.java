@@ -321,7 +321,7 @@ public class Utils implements cz.metacentrum.perun.ldapc.initializer.api.UtilsAp
 
 				//all DNs of valid members of the group
 				List<Member> members;
-				members = perun.getGroupsManagerBl().getGroupMembers(perunSession, group, Status.VALID);
+				members = perun.getGroupsManagerBl().getActiveGroupMembers(perunSession, group, Status.VALID);
 				writer.write(cn + '\n');
 				writer.write(perunUniqueGroupName + '\n');
 				writer.write(perunGroupId + '\n');
@@ -643,7 +643,7 @@ public class Utils implements cz.metacentrum.perun.ldapc.initializer.api.UtilsAp
 				if(member.getStatus().equals(Status.VALID)) {
 					membersOfPerunVo.add("memberOfPerunVo: " + member.getVoId());
 					List<Group> groups;
-					groups = perun.getGroupsManagerBl().getAllMemberGroups(perunSession, member);
+					groups = perun.getGroupsManagerBl().getAllGroupsWhereMemberIsActive(perunSession, member);
 					for(Group group: groups) {
 						membersOf.add("memberOf: " + "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + "," + ldapBase);
 					}

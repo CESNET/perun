@@ -341,19 +341,18 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 
 		// 1) IF GROUP AND MEMBER WERE FOUND, TRY TO WORK WITH GROUP-MEMBER SPECIFIC OPERATIONS
 		if(this.group != null && this.member != null) {
-			// 1.1) ONLY FOR VALID MEMBER WE ADD HIM TO THE GROUP IN LDAP
-			if(this.member.getStatus().equals(Status.VALID)) {
-				Matcher addedTo = addedToPattern.matcher(msg);
-
-				if(addedTo.find()) {
+			Matcher addedTo = addedToPattern.matcher(msg);
+			Matcher totallyRemovedFrom = totallyRemovedFromPatter.matcher(msg);
+			Matcher validated = validatedPattern.matcher(msg);
+			Matcher expired = otherStateOfMemberPattern.matcher(msg);
+			// 1.1) ONLY FOR VALID MEMBER IN VO WE ADD HIM TO THE GROUP IN LDAP
+			if (addedTo.find() || validated.find()) {
+				if(Status.VALID.equals(this.member.getStatus())) {
 					if(!ldapConnector.isAlreadyMember(this.member, this.group)) ldapConnector.addMemberToGroup(this.member, this.group);
 				}
-			}
 			// 1.2) MEMBER WILL BE REMOVED FROM GROUP
-			Matcher totallyRemovedFrom = totallyRemovedFromPatter.matcher(msg);
-
-			if(totallyRemovedFrom.find()) {
-				if(ldapConnector.isAlreadyMember(this.member, this.group)) ldapConnector.removeMemberFromGroup(this.member, this.group);
+			} else if (totallyRemovedFrom.find() || expired.find()) {
+				if (ldapConnector.isAlreadyMember(this.member, this.group)) ldapConnector.removeMemberFromGroup(this.member, this.group);
 			}
 
 			// 2) IF 2 GROUPS WERE FOUND, TRY TO WORK WITH PARENT_GROUP-SUBGROUP SPECIFIC OPERATIONS
@@ -430,7 +429,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			if(validated.find()) {
 				List<Group> memberGroups = new ArrayList<Group>();
 				try {
-					memberGroups = Rpc.GroupsManager.getAllMemberGroups(ldapcManager.getRpcCaller(), this.member);
+					//need to add him only to groups where he should be active
+					memberGroups = Rpc.GroupsManager.getAllGroupsWhereMemberIsActive(ldapcManager.getRpcCaller(), this.member);
 				} catch (MemberNotExistsException e) {
 					//IMPORTANT this is not problem, if member not exist, we expected that will be deleted in some message after that, in DB is deleted
 				} catch (PrivilegeException e) {
@@ -445,6 +445,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			} else if(otherStateOfMember.find()) {
 				List<Group> memberGroups = new ArrayList<Group>();
 				try {
+					//need to remove him from all possible groups, because he is no more valid in VO
+					//if there is group where member is inactive, it isn't problem, he wont be member and it will be skipped
 					memberGroups = Rpc.GroupsManager.getAllMemberGroups(ldapcManager.getRpcCaller(), this.member);
 				} catch (MemberNotExistsException e) {
 					//IMPORTATNT this is not problem, if member not exist, we expected that will be deleted in some message after that, in DB is deleted

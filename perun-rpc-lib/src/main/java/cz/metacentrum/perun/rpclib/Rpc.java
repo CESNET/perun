@@ -287,6 +287,23 @@ public class Rpc {
 				throw new ConsistencyErrorException(e);
 			}
 		}
+
+		public static List<Group> getAllGroupsWhereMemberIsActive(RpcCaller rpcCaller, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("member", member.getId());
+
+			try {
+				return rpcCaller.call("groupsManager", "getAllGroupsWhereMemberIsActive", params).readList(Group.class);
+			} catch (MemberNotExistsException e) {
+				throw e;
+			} catch (PrivilegeException e) {
+				throw e;
+			} catch (InternalErrorException e) {
+				throw e;
+			} catch (PerunException e) {
+				throw new ConsistencyErrorException(e);
+			}
+		}
 	}
 
 	// ResourcesManager
