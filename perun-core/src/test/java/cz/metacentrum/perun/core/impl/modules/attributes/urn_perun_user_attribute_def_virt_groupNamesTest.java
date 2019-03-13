@@ -74,10 +74,10 @@ public class urn_perun_user_attribute_def_virt_groupNamesTest {
                 Arrays.asList(member1, member2)
         );
 
-        when(session.getPerunBl().getGroupsManagerBl().getMemberGroups(session, member1)).thenReturn(
+        when(session.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(session, member1)).thenReturn(
                 Collections.singletonList(group1)
         );
-        when(session.getPerunBl().getGroupsManagerBl().getMemberGroups(session, member2)).thenReturn(
+        when(session.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(session, member2)).thenReturn(
                 Collections.singletonList(group2)
         );
 
