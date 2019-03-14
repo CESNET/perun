@@ -28,6 +28,7 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -785,8 +786,8 @@ public class Utils {
 			throw new NullPointerException("input must not be null");
 		try {
 			Mac mac = Mac.getInstance("HmacSHA256");
-			mac.init(new SecretKeySpec(BeansUtils.getCoreConfig().getMailchangeSecretKey().getBytes("UTF-8"),"HmacSHA256"));
-			byte[] macbytes = mac.doFinal(input.getBytes("UTF-8"));
+			mac.init(new SecretKeySpec(BeansUtils.getCoreConfig().getMailchangeSecretKey().getBytes(StandardCharsets.UTF_8),"HmacSHA256"));
+			byte[] macbytes = mac.doFinal(input.getBytes(StandardCharsets.UTF_8));
 			return new BigInteger(macbytes).toString(Character.MAX_RADIX);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -801,9 +802,11 @@ public class Utils {
 	 * @param url base URL of running perun instance passed from RPC
 	 * @param email new email address to send notification to
 	 * @param changeId ID of change request in DB
+	 * @param subject Template subject or null
+	 * @param content Template message or null
 	 * @throws InternalErrorException
 	 */
-	public static void sendValidationEmail(User user, String url, String email, int changeId) throws InternalErrorException {
+	public static void sendValidationEmail(User user, String url, String email, int changeId, String subject, String content) throws InternalErrorException {
 
 		// create mail sender
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -816,7 +819,12 @@ public class Utils {
 
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
-		message.setSubject("["+instanceName+"] New email address verification");
+		if (subject == null ||subject.isEmpty()) {
+			message.setSubject("["+instanceName+"] New email address verification");
+		} else {
+			subject = subject.replace("{instanceName}", instanceName);
+			message.setSubject(subject);
+		}
 
 		// get validation link params
 		String i = Integer.toString(changeId, Character.MAX_RADIX);
@@ -859,7 +867,12 @@ public class Utils {
 					"\n----------------------------------------------------------------" +
 					"\nPerun - Identity & Access Management System";
 
-			message.setText(text);
+			if (content == null || content.isEmpty()) {
+				message.setText(text);
+			} else {
+				content = content.replace("{link}",link);
+				message.setText(content);
+			}
 
 			mailSender.send(message);
 
@@ -993,9 +1006,11 @@ public class Utils {
 	 * @param user user to send notification for
 	 * @param email user's email to send notification to
 	 * @param namespace namespace the password was re-set
+	 * @param subject Subject from template or null
+	 * @param content Message from template or null
 	 * @throws InternalErrorException
 	 */
-	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace) throws InternalErrorException {
+	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String subject, String content) throws InternalErrorException {
 
 		// create mail sender
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -1008,11 +1023,13 @@ public class Utils {
 
 		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
-		message.setSubject("["+instanceName+"] Password reset in namespace: "+namespace);
-
-		// get validation link params
-		String i = cipherInput(String.valueOf(user.getId()), false);
-		String m = cipherInput(namespace, false);
+		if (subject == null || subject.isEmpty()) {
+			message.setSubject("["+instanceName+"] Password reset in namespace: "+namespace);
+		} else {
+			subject = subject.replace("{namespace}", namespace);
+			subject = subject.replace("{instanceName}", instanceName);
+			message.setSubject(subject);
+		}
 
 		// Build message
 		String text = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
@@ -1022,7 +1039,12 @@ public class Utils {
 				"\n----------------------------------------------------------------" +
 				"\nPerun - Identity & Access Management System";
 
-		message.setText(text);
+
+		if (content == null || content.isEmpty()) {
+			message.setText(text);
+		} else {
+			message.setText(content);
+		}
 
 		mailSender.send(message);
 
@@ -1046,18 +1068,18 @@ public class Utils {
 			String initVector = BeansUtils.getCoreConfig().getPwdresetInitVector();
 
 			Cipher c = Cipher.getInstance("AES/CBC/PKCS5PADDING");
-			SecretKeySpec k = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
-			c.init((decrypt) ? Cipher.DECRYPT_MODE : Cipher.ENCRYPT_MODE, k, new IvParameterSpec(initVector.getBytes("UTF-8")));
+			SecretKeySpec k = new SecretKeySpec(encryptionKey.getBytes(StandardCharsets.UTF_8), "AES");
+			c.init((decrypt) ? Cipher.DECRYPT_MODE : Cipher.ENCRYPT_MODE, k, new IvParameterSpec(initVector.getBytes(StandardCharsets.UTF_8)));
 
 			if (decrypt) {
 
-				byte[] bytes = Base64.decodeBase64(plainText.getBytes("UTF-8"));
-				return new String(c.doFinal(bytes), "UTF-8");
+				byte[] bytes = Base64.decodeBase64(plainText.getBytes(StandardCharsets.UTF_8));
+				return new String(c.doFinal(bytes), StandardCharsets.UTF_8);
 
 			} else {
 
-				byte[] bytes = Base64.encodeBase64(c.doFinal(plainText.getBytes("UTF-8")));
-				return new String(bytes, "UTF-8");
+				byte[] bytes = Base64.encodeBase64(c.doFinal(plainText.getBytes(StandardCharsets.UTF_8)));
+				return new String(bytes, StandardCharsets.UTF_8);
 
 			}
 

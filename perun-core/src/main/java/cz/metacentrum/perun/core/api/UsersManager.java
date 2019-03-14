@@ -751,12 +751,13 @@ public interface UsersManager {
 	 * @param i
 	 * @param m
 	 * @param password
+	 * @param lang language to get notification in
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws LoginNotExistsException
 	 * @throws PasswordChangeFailedException
 	 */
-	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password)
+	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang)
 			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 
@@ -1027,12 +1028,13 @@ public interface UsersManager {
 	 * @param url base URL of running perun instance passed from RPC.
 	 * @param user User to request preferred email change for
 	 * @param email new email address
+	 * @param lang Language to get confirmation mail in (optional)
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang) throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
 	/**
 	 * Validate change of user's preferred email address.
