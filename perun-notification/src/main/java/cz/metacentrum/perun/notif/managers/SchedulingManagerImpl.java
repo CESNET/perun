@@ -1,13 +1,12 @@
 package cz.metacentrum.perun.notif.managers;
 
-import cz.metacentrum.perun.core.api.AuditMessage;
+import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifPoolMessage;
 import cz.metacentrum.perun.notif.utils.NotifUtils;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -121,16 +120,13 @@ public class SchedulingManagerImpl {
 	 * The method loads perun audit messages from the database and saves them as PerunNotifAudiMessages.
 	 */
 	public void processPerunAuditMessages() throws Exception {
-		List<PerunNotifAuditMessage> perunNotifAuditMessages = new ArrayList<PerunNotifAuditMessage>();
 		try {
-			List<AuditMessage> messages = perun.getAuditMessagesManagerBl().pollConsumerMessagesForParser(consumerName);
-
-			for (AuditMessage message : messages) {
+			List<AuditEvent> events = perun.getAuditMessagesManagerBl().pollConsumerEvents(consumerName);
+			for (AuditEvent event : events) {
 				try {
-					PerunNotifAuditMessage perunNotifAuditMessage = perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(message.getMsg(), session);
-					perunNotifAuditMessages.add(perunNotifAuditMessage);
+					perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(event.getMessage(), session);
 				} catch (InternalErrorException ex) {
-					logger.error("Error during saving message to db. Message: " + message.getMsg());
+					logger.error("Error during saving message to db. Message: " + event.getMessage());
 					throw ex;
 				}
 			}
