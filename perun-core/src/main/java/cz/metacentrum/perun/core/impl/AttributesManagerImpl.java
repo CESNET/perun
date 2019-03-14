@@ -2467,15 +2467,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			String valueColName = (largeAttribute ? "attr_value_text" : "attr_value");
 
 			// if the DB value is the same as parameter, return
-			if (!largeAttribute) {
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from " + tableName + " where " + buildParameters(columnNames, "=?", " and "), String.class, columnValues.toArray()), attribute.getType());
-					if (attribute.getValue().equals(value)) {
-						return false;
-					}
-				} catch (EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
+			try {
+				Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select "+valueColName+" from " + tableName + " where " + buildParameters(columnNames, "=?", " and "), String.class, columnValues.toArray()), attribute.getType());
+				if (attribute.getValue().equals(value)) {
+					return false;
 				}
+			} catch (EmptyResultDataAccessException ex) {
+				//This is ok. Attribute will be stored later.
 			}
 
 			int repetatCounter = 0;
