@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.json.usersManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -120,6 +121,9 @@ public class RequestPreferredEmailChange {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("user", new JSONNumber(user.getId()));
 		jsonQuery.put("email", new JSONString(email));
+		String locale = LocaleInfo.getCurrentLocale().getLocaleName();
+		if ("default".equals(locale)) locale = "en";
+		jsonQuery.put("lang", new JSONString(locale));
 		return jsonQuery;
 	}
 

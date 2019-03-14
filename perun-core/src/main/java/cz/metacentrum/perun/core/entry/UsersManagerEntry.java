@@ -1214,7 +1214,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+	public void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -1224,7 +1224,7 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "requestPreferredEmailChange");
 		}
 
-		getPerunBl().getUsersManagerBl().requestPreferredEmailChange(sess, url, user, email);
+		getPerunBl().getUsersManagerBl().requestPreferredEmailChange(sess, url, user, email, lang);
 
 	}
 
@@ -1265,15 +1265,17 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password, String lang) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
 		Utils.checkPerunSession(sess);
+
+		if (lang == null || lang.isEmpty()) lang = "en"; // fallback to english
 
 		int userId = Integer.parseInt(Utils.cipherInput(i,true));
 		// this will make also "if exists check"
 		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
 
-		getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, user, m, password);
+		getPerunBl().getUsersManagerBl().changeNonAuthzPassword(sess, user, m, password, lang);
 
 	}
 
