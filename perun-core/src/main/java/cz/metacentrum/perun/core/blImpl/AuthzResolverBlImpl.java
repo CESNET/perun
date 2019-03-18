@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.audit.events.UserManagerEvents.UserPromotedToPerunAdmin;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.AuthzResolverBl;
@@ -1003,6 +1004,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
+	 * Make user to be perunAdmin!
+	 *
+	 * @param sess
+	 * @param user which will get role "PERUNADMIN" in the system
+	 * @throws InternalErrorException
+	 */
+	public static void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException {
+		getPerunBl().getAuditer().log(sess, new UserPromotedToPerunAdmin(user));
+		authzResolverImpl.makeUserPerunAdmin(sess, user);
+	}
+
+	/**
 	 * Set or unset role for user or authorized group and complementary object
 	 * <p>
 	 * If user and authorizedGroup are null, throw exception. Only one can be filled at once, if both, throw exception.
@@ -1030,7 +1043,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			case SET_ROLE:
 				//Check role
 				if (role.equals(Role.PERUNADMIN)) {
-					if (user != null) authzResolverImpl.makeUserPerunAdmin(sess, user);
+					if (user != null) makeUserPerunAdmin(sess, user);
 					else throw new InternalErrorException("Not supported perunRole on authorizedGroup.");
 				} else if (role.equals(Role.VOOBSERVER)) {
 					if (complementaryObject == null) {
