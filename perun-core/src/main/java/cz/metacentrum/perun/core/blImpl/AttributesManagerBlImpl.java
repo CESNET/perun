@@ -6856,12 +6856,31 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
 		attr.setType("java.lang.LargeString");
 		attr.setFriendlyName("randomPwdResetTemplate");
-		attr.setDisplayName("Random password reset templates.");
+		attr.setDisplayName("Random password reset templates");
 		attr.setDescription("Random password reset templates. Each value should be String representing an HTML page." +
 			" Keywords {password} and {login} will be replaced.");
 
 		rights = new ArrayList<>();
-		rights.add(new AttributeRights(-1, Role.PERUNADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+		attributes.put(attr, rights);
+
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setFriendlyName("preferredMailChangeMailSubject");
+		attr.setDisplayName("PreferredMail change mail subject");
+		attr.setDescription("Subject of the preferred mail change notification. Keyword {instanceName} will be replaced.");
+
+		rights = new ArrayList<>();
+		attributes.put(attr, rights);
+
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+		attr.setType("java.lang.LargeString");
+		attr.setFriendlyName("preferredMailChangeMailTemplate");
+		attr.setDisplayName("PreferredMail change mail template");
+		attr.setDescription("Template of the preferred mail change notification. Keyword {link} will be replaced with the link to verify new mail address.");
+
+		rights = new ArrayList<>();
 		attributes.put(attr, rights);
 
 		if (perunBl.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");
