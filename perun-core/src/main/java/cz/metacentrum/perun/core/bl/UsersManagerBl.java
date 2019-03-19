@@ -1230,4 +1230,27 @@ public interface UsersManagerBl {
 	 * @throws PasswordChangeFailedException     password change failed
 	 */
 	String changePasswordRandom(PerunSession session, User user, String loginNamespace) throws PasswordOperationTimeoutException, LoginNotExistsException, InternalErrorException, PasswordChangeFailedException;
+
+	/**
+	 * Return all groups where user is active (has VALID status in VO and Group together)
+	 * for specified user and resource
+	 *
+	 * @param sess PerunSession
+	 * @param resource Only groups assigned to this resource might be returned
+	 * @param user Only groups where this user is VALID member might be returned
+	 * @return List of groups where user is active (is a VALID vo and group member) on specified resource
+	 */
+	List<Group> getGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user) throws InternalErrorException;
+
+	/**
+	 * Return all groups where user is active (has VALID status in VO and Group together)
+	 * for specified user and facility
+	 *
+	 * @param sess PerunSession
+	 * @param facility Only groups assigned to this facility (all its resources) might be returned
+	 * @param user Only groups where this user is VALID member might be returned
+	 * @return List of groups where user is active (is a VALID vo and group member) on specified facility
+	 */
+	List<Group> getGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user) throws InternalErrorException;
+
 }
