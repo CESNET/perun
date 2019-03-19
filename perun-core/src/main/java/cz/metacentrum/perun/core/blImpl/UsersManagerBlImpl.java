@@ -2254,8 +2254,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public String changePasswordRandom(PerunSession session, User user, String loginNamespace) throws PasswordOperationTimeoutException, LoginNotExistsException, InternalErrorException, PasswordChangeFailedException {
 
 		char[] possibleCharacters =
-			    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+;:,<.>/?"
-				.toCharArray();
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+;:,<.>/?"
+						.toCharArray();
 		int count = 12;
 
 		// FIXME - We will replace following logic once each login-namespace will implement
@@ -2267,7 +2267,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		String newRandomPassword = RandomStringUtils.random(count, 0, possibleCharacters.length - 1, false,
-			false, possibleCharacters, new SecureRandom());
+				false, possibleCharacters, new SecureRandom());
 
 		try {
 			changePassword(session, user, loginNamespace, null, newRandomPassword, false);
@@ -2288,8 +2288,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		return template
-			.replace("{password}", StringEscapeUtils.escapeHtml4(newRandomPassword))
-			.replace("{login}", StringEscapeUtils.escapeHtml4(userLogin));
+				.replace("{password}", StringEscapeUtils.escapeHtml4(newRandomPassword))
+				.replace("{login}", StringEscapeUtils.escapeHtml4(userLogin));
 	}
 
 	/**
@@ -2318,7 +2318,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						"</html>";
 		try {
 			Attribute templateAttribute = perunBl.getAttributesManagerBl().getAttribute(session, loginNamespace,
-				AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":randomPwdResetTemplate");
+					AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":randomPwdResetTemplate");
 			if (templateAttribute.getValue() != null) {
 				template = (String) templateAttribute.getValue();
 			}
@@ -2328,6 +2328,48 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		return template;
+	}
+
+	@Override
+	public List<Group> getGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user) throws InternalErrorException {
+
+		Vo vo = getPerunBl().getResourcesManagerBl().getVo(sess, resource);
+		Member voMember = null;
+		try {
+			voMember = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, user);
+		} catch (MemberNotExistsException e) {
+			// user is not member of VO from this Resource -> No groups allowed
+			return new ArrayList<>();
+		}
+
+		// Only valid members are considered for allowed groups
+		if (!Status.VALID.equals(voMember.getStatus())) return new ArrayList<>();
+
+		List<Group> assignedGroups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource, voMember);
+
+		// no groups of member are assigned to such resource, can't be allowed
+		if (assignedGroups.isEmpty()) return new ArrayList<>();
+
+		// get and filter groups by removing all where user is not VALID group member
+		List<Group> inactiveMembersGroups = getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsInactive(sess, voMember);
+		assignedGroups.removeAll(inactiveMembersGroups);
+
+		return assignedGroups;
+
+	}
+
+	@Override
+	public List<Group> getGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user) throws InternalErrorException {
+
+		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+		Set<Group> groups = new HashSet<>();
+
+		for (Resource resource : resources) {
+			groups.addAll(getGroupsWhereUserIsActive(sess, resource, user));
+		}
+
+		return new ArrayList<>(groups);
+
 	}
 
 }

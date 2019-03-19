@@ -1341,4 +1341,56 @@ public class UsersManagerEntry implements UsersManager {
 
 		return usersManagerBl.changePasswordRandom(sess, user, loginNamespace);
 	}
+
+	@Override
+	public List<Group> getGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user) throws PrivilegeException, InternalErrorException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException("getGroupsWhereUserIsActive");
+		}
+
+		return perunBl.getUsersManagerBl().getGroupsWhereUserIsActive(sess, resource, user);
+	}
+
+	@Override
+	public List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException, MemberNotExistsException {
+
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException("getRichGroupsWhereUserIsActive");
+		}
+
+		return perunBl.getGroupsManagerBl().filterOnlyAllowedAttributes(sess,
+				perunBl.getGroupsManagerBl().convertGroupsToRichGroupsWithAttributes(sess,
+						perunBl.getUsersManagerBl().getGroupsWhereUserIsActive(sess, resource, user), attrNames), null, true);
+
+	}
+
+	@Override
+	public List<Group> getGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user) throws PrivilegeException, InternalErrorException {
+		Utils.checkPerunSession(sess);
+
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException("getGroupsWhereUserIsActive");
+		}
+
+		return perunBl.getUsersManagerBl().getGroupsWhereUserIsActive(sess, facility, user);
+	}
+
+	@Override
+	public List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException {
+
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException("getRichGroupsWhereUserIsActive");
+		}
+
+		return perunBl.getGroupsManagerBl().filterOnlyAllowedAttributes(sess,
+				perunBl.getGroupsManagerBl().convertGroupsToRichGroupsWithAttributes(sess,
+						perunBl.getUsersManagerBl().getGroupsWhereUserIsActive(sess, facility, user), attrNames), null, true);
+
+
+	}
+
 }

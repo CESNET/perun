@@ -323,7 +323,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		//Authrorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
-			throw new PrivilegeException(perunSession, "getAllowedGroups");
+			throw new PrivilegeException(perunSession, "getGroupsWhereUserIsActive");
 		}
 
 		getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
