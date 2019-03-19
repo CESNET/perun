@@ -1149,4 +1149,51 @@ public interface UsersManager {
 	 * @return String representing HTML with data about new generated password
 	 */
 	String changePasswordRandom(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PrivilegeException, PasswordOperationTimeoutException, LoginNotExistsException, PasswordChangeFailedException;
+
+	/**
+	 * Return all groups where user is active (has VALID status in VO and Group together)
+	 * for specified user and resource
+	 *
+	 * @param sess PerunSession
+	 * @param resource Only groups assigned to this resource might be returned
+	 * @param user Only groups where this user is VALID member might be returned
+	 * @return List of groups where user is active (is a VALID vo and group member) on specified resource
+	 */
+	List<Group> getGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user) throws PrivilegeException, InternalErrorException;
+
+	/**
+	 * Return all RichGroups where user is active (has VALID status in VO and Group together)
+	 * for specified user and resource with specified group attributes by their names (URNs).
+	 *
+	 * @param sess PerunSession
+	 * @param resource Only groups assigned to this resource might be returned
+	 * @param user Only groups where this user is VALID member might be returned
+	 * @param attrNames Names (URNs) of group attributes to get with each returned group
+	 * @return List of groups where user is active (is a VALID vo and group member) on specified resource
+	 */
+	List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException, MemberNotExistsException;
+
+	/**
+	 * Return all groups where user is active (has VALID status in VO and Group together)
+	 * for specified user and facility
+	 *
+	 * @param sess PerunSession
+	 * @param facility Only groups assigned to this facility (all its resources) might be returned
+	 * @param user Only groups where this user is VALID member might be returned
+	 * @return List of groups where user is active (is a VALID vo and group member) on specified facility
+	 */
+	List<Group> getGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user) throws PrivilegeException, InternalErrorException;
+
+	/**
+	 * Return all groups where user is active (has VALID status in VO and Group together)
+	 * for specified user and resource
+	 *
+	 * @param sess PerunSession
+	 * @param facility Only groups assigned to this facility (all its resources) might be returned
+	 * @param user Only groups where this user is VALID member might be returned
+	 * @param attrNames Names (URNs) of group attributes to get with each returned group
+	 * @return List of groups where user is active (is a VALID vo and group member) on specified facility
+	 */
+	List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Facility facility, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException;
+
 }

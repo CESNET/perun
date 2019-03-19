@@ -1028,6 +1028,88 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
+	@Test
+	public void getGroupsWhereUserIsActive() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWhereUserIsActive(resource/facility)");
+
+		Member member = setUpMember(vo);
+		User u = perun.getUsersManager().getUserByMember(sess, member);
+
+		Facility f = new Facility(0, "name", "description");
+		f = perun.getFacilitiesManager().createFacility(sess, f);
+
+		Resource r = new Resource(0, "name", "description", f.getId());
+		r = perun.getResourcesManager().createResource(sess, r, vo, f);
+
+		Group g1 = setUpGroup(vo, member, "group1");
+		Group g2 = setUpGroup(vo, member, "group2");
+
+		perun.getResourcesManager().assignGroupToResource(sess, g1, r);
+
+		// more groups case
+
+		List<Group> groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, f, u);
+		assertTrue("Should have only one group", groups.size() == 1);
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, r, u);
+		assertTrue("Should have only one group", groups.size() == 1);
+
+		perun.getMembersManager().setStatus(sess, member, Status.EXPIRED);
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, f, u);
+		assertTrue("Should have no groups, since member should be VO expired", groups.isEmpty());
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, r, u);
+		assertTrue("Should have no groups, since member should be VO expired", groups.isEmpty());
+
+		perun.getMembersManager().setStatus(sess, member, Status.VALID);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r);
+
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, f, u);
+		assertTrue("Should have 2 groups", groups.size() == 2);
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, r, u);
+		assertTrue("Should have 2 groups", groups.size() == 2);
+
+		perun.getGroupsManager().setMemberGroupStatus(sess, member, g1, MemberGroupStatus.EXPIRED);
+
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, f, u);
+		assertTrue("Should have 1 group since in one should be expired", groups.size() == 1);
+		assertTrue("Should be a G1 group.", groups.contains(g2));
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, r, u);
+		assertTrue("Should have 1 group since in one should be expired", groups.size() == 1);
+		assertTrue("Should be a G1 group.", groups.contains(g2));
+
+		// more resources case
+
+		Resource r2 = new Resource(0, "name2", "description2", f.getId());
+		r2 = perun.getResourcesManager().createResource(sess, r2, vo, f);
+
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, f, u);
+		assertTrue("Should have 1 group since in one should be expired", groups.size() == 1);
+		assertTrue("Should be a G1 group.", groups.contains(g2));
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, r, u);
+		assertTrue("Should have 1 group since in one should be expired", groups.size() == 1);
+		assertTrue("Should be a G1 group.", groups.contains(g2));
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, r2, u);
+		assertTrue("Should be empty since there are no groups on R2 resource.", groups.size() == 0);
+
+		perun.getResourcesManager().removeGroupFromResource(sess, g2, r);
+		perun.getResourcesManager().assignGroupToResource(sess, g2, r2);
+
+		perun.getGroupsManager().setMemberGroupStatus(sess, member, g1, MemberGroupStatus.VALID);
+
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, f, u);
+		assertTrue("Should have 2 groups", groups.size() == 2);
+
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, r, u);
+		assertTrue("Should have 1 group on R1", groups.size() == 1);
+		assertTrue("Should be a G1 group.", groups.contains(g1));
+
+		groups = perun.getUsersManager().getGroupsWhereUserIsActive(sess, r2, u);
+		assertTrue("Should have 1 group on R2", groups.size() == 1);
+		assertTrue("Should be a G2 group.", groups.contains(g2));
+
+	}
+
+
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 

@@ -1309,5 +1309,83 @@ public enum UsersManagerMethod implements ManagerMethod {
 				ac.getUserById(parms.readInt("userId")),
 				parms.readString("loginNamespace"));
 		}
+	},
+
+	/*#
+	 * Get list of groups of user on specified resource where use is active,
+	 * that means User is a VALID in the VO and the Group and groups are assigned to the resource.
+	 *
+	 * @param resource Integer ID of Resource
+	 * @param user Integer ID of User
+	 *
+	 * @return List<Group> Groups where User is active
+	 */
+	/*#
+	 * Get list of groups of user on specified resource where use is active,
+	 * that means User is a VALID in the VO and the Group and groups are assigned to the facility.
+	 *
+	 * @param facility Integer ID of Facility
+	 * @param user Integer ID of User
+	 *
+	 * @return List<Group> Groups where User is active
+	 */
+	getGroupsWhereUserIsActive {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			if (parms.contains("resource")) {
+				return ac.getUsersManager().getGroupsWhereUserIsActive(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						ac.getUserById(parms.readInt("user")));
+			} else {
+				return ac.getUsersManager().getGroupsWhereUserIsActive(ac.getSession(),
+						ac.getFacilityById(parms.readInt("facility")),
+						ac.getUserById(parms.readInt("user")));
+			}
+
+
+		}
+	},
+
+	/*#
+	 * Get list of rich groups of user on specified resource with group attributes specified by the list of their names.
+	 * Groups where user is active are returned, that means groups, where User is a VALID in the VO and the Group and
+	 * groups are assigned to the resource.
+	 *
+	 * @param resource Integer ID of Resource
+	 * @param user Integer ID of User
+	 * @param attrNames List<String> Attribute names (list of their URNs)
+	 *
+	 * @return List<RichGroup> Groups where User is active
+	 */
+	/*#
+	 * Get list of rich groups of user on specified resource with group attributes specified by the list of their names.
+	 * Groups where user is active are returned, that means groups, where User is a VALID in the VO and the Group and
+	 * groups are assigned to the facility.
+	 *
+	 * @param facility Integer ID of Facility
+	 * @param user Integer ID of User
+	 * @param attrNames List<String> Attribute names (list of their URNs)
+	 *
+	 * @return List<RichGroup> Groups where User is active
+	 */
+	getRichGroupsWhereUserIsActive {
+		@Override
+		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			if (parms.contains("resource")) {
+				return ac.getUsersManager().getRichGroupsWhereUserIsActive(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						ac.getUserById(parms.readInt("user")),
+						parms.readList("attrNames", String.class));
+			} else {
+				return ac.getUsersManager().getRichGroupsWhereUserIsActive(ac.getSession(),
+						ac.getFacilityById(parms.readInt("facility")),
+						ac.getUserById(parms.readInt("user")),
+						parms.readList("attrNames", String.class));
+			}
+
+		}
 	}
+
 }
