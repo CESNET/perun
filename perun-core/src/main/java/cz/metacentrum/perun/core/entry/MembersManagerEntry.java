@@ -1251,6 +1251,31 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user, List<String> attrNames) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+		perunBl.getVosManagerBl().checkVoExists(sess, vo);
+		perunBl.getUsersManagerBl().checkUserExists(sess, user);
+
+		if (!(AuthzResolver.isAuthorized(sess, Role.REGISTRAR)||AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo))) {
+			throw new PrivilegeException(sess, "getSponsoredMembers");
+		}
+
+		List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
+		for (String attrName : attrNames) {
+			attributeDefinitions.add(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName));
+		}
+
+		//Basic rich Members without attributes
+		List<RichMember> richMembers = membersManagerBl.convertMembersToRichMembers(sess, membersManagerBl.getSponsoredMembers(sess, vo, user));
+		//Enriched rich members with attributes by list of attributes
+		richMembers = membersManagerBl.convertMembersToRichMembersWithAttributes(sess, richMembers, attributeDefinitions);
+		//RichMembers with filtered attributes by rights from session
+		richMembers = membersManagerBl.filterOnlyAllowedAttributes(sess, richMembers, null, true);
+
+		return richMembers;
+	}
+
+	@Override
 	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(vo, "vo");

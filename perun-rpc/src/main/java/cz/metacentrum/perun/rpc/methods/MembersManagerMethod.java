@@ -232,8 +232,6 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Gets members sponsored by a given user in a VO. User is specified by user id.
 	 *
-	 * Can be called only by REGISTRAR.
-	 *
 	 * @param vo int VO ID
 	 * @param sponsor int id of sponsoring user
 	 * @return List<RichMember> sponsored members
@@ -241,20 +239,32 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Gets members from VO who are sponsored.
 	 *
-	 * Can be called only by REGISTRAR.
-	 *
 	 * @param vo int VO ID
 	 * @return List<RichMember> sponsored members
+	 */
+	/*#
+	 * Gets members with attributes sponsored by a given user in a VO. User is specified by user id.
+	 *
+	 * @param vo int VO ID
+	 * @param sponsor int id of sponsoring user
+	 * @param attrNames List<String> list of attribute names
+	 * @return List<RichMember> sponsored members with attributes
 	 */
 	getSponsoredMembers {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer params) throws PerunException {
 			Vo vo = ac.getVoById(params.readInt("vo"));
-			if(params.contains("sponsor")) {
+			if(params.contains("attrNames")) {
 				User sponsor = ac.getUserById(params.readInt("sponsor"));
-				return ac.getMembersManager().getSponsoredMembers(ac.getSession(), vo, sponsor);
+				List<String> attrNames = params.readList("attrNames", String.class);
+				return ac.getMembersManager().getSponsoredMembers(ac.getSession(), vo, sponsor, attrNames);
 			} else {
-				return ac.getMembersManager().getSponsoredMembers(ac.getSession(), vo);
+				if (params.contains("sponsor")) {
+					User sponsor = ac.getUserById(params.readInt("sponsor"));
+					return ac.getMembersManager().getSponsoredMembers(ac.getSession(), vo, sponsor);
+				} else {
+					return ac.getMembersManager().getSponsoredMembers(ac.getSession(), vo);
+				}
 			}
 		}
 	},
