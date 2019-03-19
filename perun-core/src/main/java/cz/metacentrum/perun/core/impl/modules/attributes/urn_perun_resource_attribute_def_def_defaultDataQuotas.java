@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +72,7 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuotas extends Reso
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(A_R_maxUserDataQuotas);
 		return dependencies;
 	}

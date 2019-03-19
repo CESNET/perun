@@ -95,9 +95,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 			} else {
 				attr.setValue(null);
 			}
-		} catch (AttributeNotExistsException e) {
-			throw new ConsistencyErrorException(e);
-		} catch (WrongAttributeAssignmentException e) {
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
 			throw new ConsistencyErrorException(e);
 		}
 
@@ -143,7 +141,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> StrongDependencies = new ArrayList<String>();
+		List<String> StrongDependencies = new ArrayList<>();
 		StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
 		StrongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace" + ":*");
 		return StrongDependencies;

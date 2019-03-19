@@ -71,6 +71,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -605,7 +606,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		User ourUser = perun.getUsersManagerBl().getUserByMember(sess, member);
 		Attribute automaticlySettedAttribute = perun.getAttributesManagerBl().getAttribute(sess, ourUser, userUidNamespace.getName());
 		Integer value = (Integer) automaticlySettedAttribute.getValue();
-		assertTrue(value == 1);
+		assertEquals(1, (int) value);
 	}
 
 	@Test
@@ -616,14 +617,14 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		perun.getAttributesManagerBl().setAttribute(sess, vo1, attribute);
 
 		//Prepare richAttribute with holders (attribute is not needed but holders are needed)
-		RichAttribute richAttr = new RichAttribute<Resource, Member>(resource1InVo1, member1OfUser1, null);
+		RichAttribute richAttr = new RichAttribute<>(resource1InVo1, member1OfUser1, null);
 
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
-		assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
+		assertEquals("return only 1 vo", 1, listOfRichAttributes.size());
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
-		assertTrue("the Vo is vo1", vo1.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
+		assertEquals("the Vo is vo1", vo1, listOfRichAttributes.get(0).getPrimaryHolder());
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		assertEquals("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()), attribute);
 	}
 
 	@Test
@@ -634,14 +635,14 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		perun.getAttributesManagerBl().setAttribute(sess, vo1, attribute);
 
 		//Prepare richAttribute with holders (attribute is not needed but holders are needed)
-		RichAttribute richAttr = new RichAttribute<Resource, Group>(resource1InVo1, group1InVo1, null);
+		RichAttribute richAttr = new RichAttribute<>(resource1InVo1, group1InVo1, null);
 
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
-		assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
+		assertEquals("return only 1 vo", 1, listOfRichAttributes.size());
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		assertTrue("the Vo is vo1", vo1.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
-		assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		assertEquals("the Vo is vo1", vo1, listOfRichAttributes.get(0).getPrimaryHolder());
+		assertEquals("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()), attribute);
 	}
 
 	@Test
@@ -653,15 +654,15 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		perun.getAttributesManagerBl().setAttribute(sess, vo2, attribute);
 
 		//Prepare richAttribute with holders (attribute is not needed but holders are needed)
-		RichAttribute richAttr = new RichAttribute<User, Facility>(user2, facility2, null);
+		RichAttribute richAttr = new RichAttribute<>(user2, facility2, null);
 
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
-		assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
+		assertEquals("return only 1 vo", 1, listOfRichAttributes.size());
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		assertTrue("the Vo is vo2", vo2.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
-		assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		assertEquals("the Vo is vo2", vo2, listOfRichAttributes.get(0).getPrimaryHolder());
+		assertEquals("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()), attribute);
 	}
 
 	@Test
@@ -677,11 +678,11 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
-		assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
+		assertEquals("return only 1 vo", 1, listOfRichAttributes.size());
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		assertTrue("the Vo is vo2", vo2.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
-		assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		assertEquals("the Vo is vo2", vo2, listOfRichAttributes.get(0).getPrimaryHolder());
+		assertEquals("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()), attribute);
 	}
 
 	@Test
@@ -697,7 +698,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
-		assertTrue("Return no vo.", listOfRichAttributes.size() == 0);
+		assertEquals("Return no vo.", 0, listOfRichAttributes.size());
 	}
 
 	@Test
@@ -713,11 +714,11 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
-		assertTrue("return only 1 vo", listOfRichAttributes.size() == 1);
+		assertEquals("return only 1 vo", 1, listOfRichAttributes.size());
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		assertTrue("the Vo is vo2", vo2.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
-		assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		assertEquals("the Vo is vo2", vo2, listOfRichAttributes.get(0).getPrimaryHolder());
+		assertEquals("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()), attribute);
 	}
 
 	@Test
@@ -733,11 +734,11 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
-		assertTrue("return 1 vo", listOfRichAttributes.size() == 1);
+		assertEquals("return 1 vo", 1, listOfRichAttributes.size());
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		assertTrue("the Vo is vo1", vo1.equals(listOfRichAttributes.get(0).getPrimaryHolder()));
-		assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		assertEquals("the Vo is vo1", vo1, listOfRichAttributes.get(0).getPrimaryHolder());
+		assertEquals("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()), attribute);
 	}
 
 	@Test
@@ -758,8 +759,8 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertTrue("return at least 2 vos", listOfRichAttributes.size() >= 2);
 		assertTrue("return maximum of 3 vos", listOfRichAttributes.size() <= 3);
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		List<Vo> returnedVos = new ArrayList<Vo>();
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		List<Vo> returnedVos = new ArrayList<>();
 		for(RichAttribute ra: listOfRichAttributes) {
 			returnedVos.add((Vo) ra.getPrimaryHolder());
 		}
@@ -784,8 +785,8 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertTrue("return at least 1 vos", listOfRichAttributes.size() >= 1);
 		assertTrue("return max 2 vos", listOfRichAttributes.size() <= 2);
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		List<Vo> returnedVos = new ArrayList<Vo>();
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		List<Vo> returnedVos = new ArrayList<>();
 		for(RichAttribute ra: listOfRichAttributes) {
 			returnedVos.add((Vo) ra.getPrimaryHolder());
 		}
@@ -807,11 +808,11 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
 		//Return facilities Administrator too if exists
-		assertTrue("return 1 specific vo", listOfRichAttributes.size() == 1);
+		assertEquals("return 1 specific vo", 1, listOfRichAttributes.size());
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		assertTrue("returned vos contains vo2", listOfRichAttributes.get(0).getPrimaryHolder().equals(vo2));
-		assertTrue("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()).equals(attribute));
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		assertEquals("returned vos contains vo2", listOfRichAttributes.get(0).getPrimaryHolder(), vo2);
+		assertEquals("attribute in richAttribute is equals to our attribute", (listOfRichAttributes.get(0).getAttribute()), attribute);
 	}
 
 	@Test
@@ -830,8 +831,8 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		//Return facilities Administrator too if exists
 		assertTrue("return at least 2 vos", listOfRichAttributes.size() > 1);
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Vo);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		List<Vo> returnedVos = new ArrayList<Vo>();
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		List<Vo> returnedVos = new ArrayList<>();
 		for(RichAttribute ra: listOfRichAttributes) {
 			returnedVos.add((Vo) ra.getPrimaryHolder());
 		}
@@ -854,7 +855,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
-		assertTrue("Return no group.", listOfRichAttributes.size() == 0);
+		assertEquals("Return no group.", 0, listOfRichAttributes.size());
 	}
 
 	@Test
@@ -872,11 +873,11 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
 		//Return facilities Administrator too if exists
-		assertTrue("return only one group", listOfRichAttributes.size() == 1);
+		assertEquals("return only one group", 1, listOfRichAttributes.size());
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Group);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		assertTrue("richObject have in primaryAttribute our group", listOfRichAttributes.get(0).getPrimaryHolder().equals(group2InVo2));
-		assertTrue("richObject have in Attribute our attribute, which was set before", listOfRichAttributes.get(0).getAttribute().equals(attribute));
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		assertEquals("richObject have in primaryAttribute our group", listOfRichAttributes.get(0).getPrimaryHolder(), group2InVo2);
+		assertEquals("richObject have in Attribute our attribute, which was set before", listOfRichAttributes.get(0).getAttribute(), attribute);
 	}
 
 	@Test
@@ -894,16 +895,16 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<RichAttribute> listOfRichAttributes = perun.getAttributesManagerBl().getRichAttributesWithHoldersForAttributeDefinition(sess, new AttributeDefinition(attribute), richAttr);
 
-		assertTrue("return two groups", listOfRichAttributes.size() == 2);
+		assertEquals("return two groups", 2, listOfRichAttributes.size());
 		assertTrue("primary holder is type of vo", listOfRichAttributes.get(0).getPrimaryHolder() instanceof Group);
-		assertTrue("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder() == null);
-		List<Group> groups = new ArrayList<Group>();
+		assertNull("secondary holder is null", listOfRichAttributes.get(0).getSecondaryHolder());
+		List<Group> groups = new ArrayList<>();
 		for(RichAttribute ra: listOfRichAttributes) {
 			groups.add((Group) ra.getPrimaryHolder());
 		}
 		assertTrue("groups contains group1InVo2", groups.contains(group1InVo2));
 		assertTrue("groups contains group2InVo2", groups.contains(group2InVo2));
-		assertTrue("richObject have in Attribute our attribute, which was set before", listOfRichAttributes.get(0).getAttribute().equals(attribute));
+		assertEquals("richObject have in Attribute our attribute, which was set before", listOfRichAttributes.get(0).getAttribute(), attribute);
 	}
 
 	//TODO Another TESTS for getRichAttributesWithHolders
@@ -912,7 +913,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 	public void getAllSimilarAttributeNames() throws Exception {
 		System.out.println(CLASS_NAME + "getAllSimilarAttributeNames");
 
-		List<String> similarAttrNames = new ArrayList<String>();
+		List<String> similarAttrNames = new ArrayList<>();
 		String name = "urn:perun:user:attribute-def:def:login-namespace";
 		similarAttrNames = perun.getAttributesManagerBl().getAllSimilarAttributeNames(sess, name);
 		assertTrue("returned less than 0 names",similarAttrNames.size() >= 0);
@@ -962,7 +963,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 
 		assertTrue("our atttributes not returned",attributes.containsAll(retAttr));
-		assertTrue("returned 3 attributes",retAttr.size() == 3);
+		assertEquals("returned 3 attributes", 3, retAttr.size());
 	}
 
 	@Test
@@ -982,7 +983,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to get resource attributes", retAttr);
 
 		assertTrue("our atttributes not returned",attributes.containsAll(retAttr));
-		assertTrue("returned 3 attributes",retAttr.size() == 3);
+		assertEquals("returned 3 attributes", 3, retAttr.size());
 	}
 
 	@Test
@@ -1012,7 +1013,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		List<Host> hosts = setUpHost();
 		User user = perun.getUsersManager().getUserByMember(sess, member);
 		service = setUpService();
-		List<Attribute> attribute = new ArrayList<Attribute>();
+		List<Attribute> attribute = new ArrayList<>();
 		attributes = setUpFacilityAttribute();
 		perun.getAttributesManagerBl().setAttribute(sess, facility, attributes.get(0));
 		assertEquals(attributes.get(0), perun.getAttributesManagerBl().getAttribute(sess, facility, attributes.get(0).getName()));
@@ -1084,11 +1085,11 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		List<String> attr1Value = (List<String>) attr1.getValue();
 		List<String> attr2Value = (List<String>) attr2.getValue();
 
-		assertTrue("Values must be equals", attr1Value.equals(attributes.get(0).getValue()));
-		assertTrue("Values must be equals", attr2Value.equals(attributes.get(0).getValue()));
-		assertTrue("Attributes are the same", attr1.equals(attr2));
-		assertTrue("Attributes are the same", attr1.equals(attributes.get(0)));
-		assertTrue("Attributes are the same", attr2.equals(attributes.get(0)));
+		assertEquals("Values must be equals", attr1Value, attributes.get(0).getValue());
+		assertEquals("Values must be equals", attr2Value, attributes.get(0).getValue());
+		assertEquals("Attributes are the same", attr1, attr2);
+		assertEquals("Attributes are the same", attr1, attributes.get(0));
+		assertEquals("Attributes are the same", attr2, attributes.get(0));
 	}
 
 	@Test
@@ -1109,11 +1110,11 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		Map<String, String> attr1Value = (Map<String, String>) attr1.getValue();
 		Map<String, String> attr2Value = (Map<String, String>) attr2.getValue();
 
-		assertTrue("Values must be equals", attr1Value.equals(attributes.get(0).getValue()));
-		assertTrue("Values must be equals", attr2Value.equals(attributes.get(0).getValue()));
-		assertTrue("Attributes are the same", attr1.equals(attr2));
-		assertTrue("Attributes are the same", attr1.equals(attributes.get(0)));
-		assertTrue("Attributes are the same", attr2.equals(attributes.get(0)));
+		assertEquals("Values must be equals", attr1Value, attributes.get(0).getValue());
+		assertEquals("Values must be equals", attr2Value, attributes.get(0).getValue());
+		assertEquals("Attributes are the same", attr1, attr2);
+		assertEquals("Attributes are the same", attr1, attributes.get(0));
+		assertEquals("Attributes are the same", attr2, attributes.get(0));
 	}
 
 	@Test
@@ -1357,7 +1358,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		vo = setUpVo();
 		member = setUpMember();
 
-		attributesManager.getAttributes(sess, member, new Group(), new ArrayList<String>(), true);
+		attributesManager.getAttributes(sess, member, new Group(), new ArrayList<>(), true);
 		// shouldn't find group
 	}
 
@@ -1368,7 +1369,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		vo = setUpVo();
 		group = setUpGroup();
 
-		attributesManager.getAttributes(sess, new Member(), group, new ArrayList<String>(), true);
+		attributesManager.getAttributes(sess, new Member(), group, new ArrayList<>(), true);
 		// shouldn't find member
 	}
 
@@ -1390,7 +1391,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		attributesManager.createAttribute(sess, attr);
 		attributesManager.setAttribute(sess, member, group, attr);
 
-		List<String> attrNames = new ArrayList<String>();
+		List<String> attrNames = new ArrayList<>();
 		attrNames.add(attributes.get(0).getName());
 		attrNames.add(attr.getName());
 
@@ -1418,7 +1419,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		attributesManager.createAttribute(sess, attr);
 		attributesManager.setAttribute(sess, member, group, attr);
 
-		List<String> attrNames = new ArrayList<String>();
+		List<String> attrNames = new ArrayList<>();
 		attrNames.add(attr.getName());
 
 		List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group, attrNames);
@@ -1468,7 +1469,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		attributesManager.createAttribute(sess, attr);
 		attributesManager.setAttribute(sess, member, attr);
 
-		List<String> attrNames = new ArrayList<String>();
+		List<String> attrNames = new ArrayList<>();
 		attrNames.add(attributes.get(0).getName());
 		attrNames.add(attr.getName());
 
@@ -1495,7 +1496,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		attributesManager.createAttribute(sess, attr);
 		attributesManager.setAttribute(sess, member, attr);
 
-		List<String> attrNames = new ArrayList<String>();
+		List<String> attrNames = new ArrayList<>();
 		attrNames.add(attr.getName());
 
 		List<Attribute> retAttr = attributesManager.getAttributes(sess, member, attrNames);
@@ -2194,7 +2195,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		attributesManager.createAttribute(sess, attr);
 		attributesManager.setAttribute(sess, member, group, attr);
 
-		List<String> attrNames = new ArrayList<String>();
+		List<String> attrNames = new ArrayList<>();
 		attrNames.add(attributes.get(0).getName());
 		attrNames.add(attr.getName());
 
@@ -2481,7 +2482,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		List<Attribute> attributes_member = setUpMemberAttribute();
 		User user =sess.getPerun().getUsersManager().getUserByMember(sess, member);
 		List<Attribute> attributes_user = setUpUserAttribute();
-		attributes = new ArrayList<Attribute>();
+		attributes = new ArrayList<>();
 		attributes.addAll(attributes_member);
 		attributes.addAll(attributes_user);
 
@@ -2920,7 +2921,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		List<String> attrNames = new ArrayList<>(Arrays.asList(userAttribute1.getName(), memberAttribute1.getName(), userFacilityAttribute1.getName(), memberResourceAttribute1.getName()));
 		List<Attribute> returnedAttributes = attributesManager.getAttributes(sess, member, resource, attrNames, true);
 
-		assertTrue(returnedAttributes.size() == 4);
+		assertEquals(4, returnedAttributes.size());
 		assertTrue(returnedAttributes.contains(userAttribute1));
 		assertTrue(returnedAttributes.contains(memberAttribute1));
 		assertTrue(returnedAttributes.contains(userFacilityAttribute1));
@@ -3297,7 +3298,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> retAttributes = attributesManager.getAttributes(sess, group, attNames);
 		assertNotNull("unable to get group attributes", retAttributes);
-		assertTrue("returned opt attributes are not correct", attributes.equals(retAttributes));
+		assertEquals("returned opt attributes are not correct", attributes, retAttributes);
 	}
 
 	@Test (expected=GroupNotExistsException.class)
@@ -3516,7 +3517,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		AttributeDefinition attrDef = attributesManager.getAttributeDefinition(sess, "urn:perun:vo:attribute-def:core:id");
 		assertNotNull("unable to get attribute definition by name",attrDef);
-		assertTrue("returned wrong attr def by name", attrDef.getName().equals("urn:perun:vo:attribute-def:core:id"));
+		assertEquals("returned wrong attr def by name", "urn:perun:vo:attribute-def:core:id", attrDef.getName());
 
 	}
 
@@ -3535,7 +3536,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		Attribute attr = setUpSpecificMemberResourceAttribute(member, resource);
 
-		List<PerunBean> perunBeans = new ArrayList<PerunBean>();
+		List<PerunBean> perunBeans = new ArrayList<>();
 		perunBeans.add(member);
 		perunBeans.add(resource);
 
@@ -3590,7 +3591,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		AttributeDefinition retAttrDef = attributesManager.getAttributeDefinitionById(sess, attrDef.getId());
 		assertNotNull("unable to get attribute definition",retAttrDef);
-		assertTrue("returned wrong attr definition", retAttrDef.getName().equals(attrDef.getName()));
+		assertEquals("returned wrong attr definition", retAttrDef.getName(), attrDef.getName());
 
 	}
 
@@ -5308,9 +5309,9 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 				attributesManager.createAttribute(sess, attrDef);
 				AttributeDefinition attributeDefinition = attributesManager.getAttributeDefinition(sess, namespace + ":" + friendlyName);
 				assertFalse("attribute marked unique", attributeDefinition.isUnique());
-				assertTrue("friendly name not loaded correctly", friendlyName.equals(attributeDefinition.getFriendlyName()));
-				assertTrue("namespace not loaded correctly", namespace.equals(attributeDefinition.getNamespace()));
-				assertTrue("description not loaded correctly", description.equals(attributeDefinition.getDescription()));
+				assertEquals("friendly name not loaded correctly", friendlyName, attributeDefinition.getFriendlyName());
+				assertEquals("namespace not loaded correctly", namespace, attributeDefinition.getNamespace());
+				assertEquals("description not loaded correctly", description, attributeDefinition.getDescription());
 
 				//create values
 				Attribute a = new Attribute(attributeDefinition);
@@ -5459,9 +5460,9 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 				attributesManager.createAttribute(sess, attrDef);
 				AttributeDefinition attributeDefinition = attributesManager.getAttributeDefinition(sess, namespace + ":" + friendlyName);
 				assertTrue("attribute not marked unique", attributeDefinition.isUnique());
-				assertTrue("friendly name not loaded correctly", friendlyName.equals(attributeDefinition.getFriendlyName()));
-				assertTrue("namespace not loaded correctly", namespace.equals(attributeDefinition.getNamespace()));
-				assertTrue("description not loaded correctly", description.equals(attributeDefinition.getDescription()));
+				assertEquals("friendly name not loaded correctly", friendlyName, attributeDefinition.getFriendlyName());
+				assertEquals("namespace not loaded correctly", namespace, attributeDefinition.getNamespace());
+				assertEquals("description not loaded correctly", description, attributeDefinition.getDescription());
 				//test uniqueness check
 				Attribute a = new Attribute(attributeDefinition);
 				Attribute b = new Attribute(attributeDefinition);
@@ -5765,7 +5766,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, facility);
 		assertNotNull("unable to get required facility attributes for its services",reqAttr);
-		assertTrue("should have only 1 req facility attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req facility attribute", 1, reqAttr.size());
 
 	}
 
@@ -5779,7 +5780,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		facility = setUpFacility();
 		resource = setUpResource();
 		service = setUpService();
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.addAll(setUpMemberAttribute());
 		attributes.addAll(setUpUserAttribute());
 		attributes.addAll(setUpMemberResourceAttribute());
@@ -5811,7 +5812,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, resource, group, true);
 
 		assertNotNull("unable to get required group_resource and group attributes for its services",reqAttr);
-		assertTrue("should have only 2 req group_resource and group attributes",reqAttr.size() == 2);
+		assertEquals("should have only 2 req group_resource and group attributes", 2, reqAttr.size());
 
 	}
 
@@ -5838,7 +5839,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, resource);
 		assertNotNull("unable to get required resource attributes for its services",reqAttr);
-		assertTrue("should have only 1 req resource attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req resource attribute", 1, reqAttr.size());
 
 	}
 
@@ -5865,7 +5866,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, member, resource);
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
-		assertTrue("should have only 1 req member resource attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req member resource attribute", 1, reqAttr.size());
 
 	}
 
@@ -5890,12 +5891,12 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, serviceList, resource);
 		assertNotNull("unable to get required resource attributes for its services",reqAttr);
-		assertTrue("should have only 1 req resource attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req resource attribute", 1, reqAttr.size());
 
 		serviceList.add(service2);
 		reqAttr = attributesManager.getRequiredAttributes(sess, serviceList, resource);
 		assertNotNull("unable to get required resource attributes for its services",reqAttr);
-		assertTrue("should have only 1 req resource attribute",reqAttr.size() == 2);
+		assertEquals("should have only 1 req resource attribute", 2, reqAttr.size());
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
@@ -5946,15 +5947,15 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, resource);
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource", 0, reqAttr.size());
 
 		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, fakeResource);
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource and no value set",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource and no value set", 0, reqAttr.size());
 
 		reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, member, fakeResource);
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
-		assertTrue("Should return 1 attribute (but with no value)",reqAttr.size() == 1);
+		assertEquals("Should return 1 attribute (but with no value)", 1, reqAttr.size());
 
 	}
 
@@ -6038,15 +6039,15 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, resource, true);
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource", 0, reqAttr.size());
 
 		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, fakeResource, true);
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource and no value set",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource and no value set", 0, reqAttr.size());
 
 		reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, member, fakeResource, true);
 		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
-		assertTrue("Should return 4 attributes (but with no value)",reqAttr.size() == 4);
+		assertEquals("Should return 4 attributes (but with no value)", 4, reqAttr.size());
 		// member_resource, user_facility, user, member
 
 	}
@@ -6078,7 +6079,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, member, group);
 		assertNotNull("unable to get required member group attributes for its services", reqAttr);
-		assertTrue("should have only 1 req member group attribute", reqAttr.size() == 1);
+		assertEquals("should have only 1 req member group attribute", 1, reqAttr.size());
 	}
 
 	@Test (expected=ResourceNotExistsException.class)
@@ -6129,7 +6130,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, group);
 		assertNotNull("unable to get required member group attributes for its services", reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource", reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource", 0, reqAttr.size());
 	}
 
 
@@ -6212,7 +6213,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, group, true);
 		assertNotNull("unable to get required member group attributes for its services", reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource", reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource", 0, reqAttr.size());
 	}
 
 	@Test (expected=MemberNotExistsException.class)
@@ -6247,7 +6248,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, facility, user);
 		assertNotNull("unable to get required facility user attributes for its services",reqAttr);
-		assertTrue("should have only 1 req facility user attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req facility user attribute", 1, reqAttr.size());
 
 	}
 
@@ -6317,7 +6318,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, facility, user);
 		assertNotNull("unable to get required facility user attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource", 0, reqAttr.size());
 
 	}
 
@@ -6335,7 +6336,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, member);
 		assertNotNull("Unable to get member required attributes for resource", reqAttr);
-		assertTrue("There should be only one required attribute", reqAttr.size() == 1);
+		assertEquals("There should be only one required attribute", 1, reqAttr.size());
 
 	}
 
@@ -6375,7 +6376,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member);
 		assertNotNull("unable to get required member attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource", 0, reqAttr.size());
 
 	}
 
@@ -6395,7 +6396,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, user);
 		assertNotNull("Unable to get user required attributes for resource", reqAttr);
-		assertTrue("There should be only one required attribute", reqAttr.size() == 1);
+		assertEquals("There should be only one required attribute", 1, reqAttr.size());
 
 	}
 
@@ -6439,7 +6440,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, user);
 		assertNotNull("unable to get required user attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource", 0, reqAttr.size());
 
 	}
 
@@ -6457,7 +6458,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, resource, group);
 		assertNotNull("unable to get required group resource attributes for its services",reqAttr);
-		assertTrue("should have only 1 req group resource attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req group resource attribute", 1, reqAttr.size());
 
 	}
 
@@ -6509,15 +6510,15 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, resource, group);
 		assertNotNull("unable to get required group resource attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource", 0, reqAttr.size());
 
 		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, fakeResource, group);
 		assertNotNull("unable to get required group resource attributes for its services",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource and no value set",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource and no value set", 0, reqAttr.size());
 
 		reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, fakeResource, group);
 		assertNotNull("unable to get required group resource attributes for its services",reqAttr);
-		assertTrue("Should return 1 attribute (but with no value)",reqAttr.size() == 1);
+		assertEquals("Should return 1 attribute (but with no value)", 1, reqAttr.size());
 
 	}
 
@@ -6549,7 +6550,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, group);
 		assertNotNull("Unable to get group required attributes for resource", reqAttr);
-		assertTrue("There should be only one required attribute", reqAttr.size() == 1);
+		assertEquals("There should be only one required attribute", 1, reqAttr.size());
 
 	}
 
@@ -6589,7 +6590,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, group);
 		assertNotNull("unable to get required group attributes for resource",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource", 0, reqAttr.size());
 
 	}
 
@@ -6611,7 +6612,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, host);
 		assertNotNull("Unable to get host required attributes for resource", reqAttr);
-		assertTrue("There should be only one required attribute", reqAttr.size() == 1);
+		assertEquals("There should be only one required attribute", 1, reqAttr.size());
 
 	}
 
@@ -6649,7 +6650,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, host);
 		assertNotNull("unable to get required host attributes for resource",reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource",reqAttr.size() == 0);
+		assertEquals("Shouldn't return attribute, when there is no service on resource", 0, reqAttr.size());
 
 	}
 
@@ -6715,7 +6716,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, facility);
 		assertNotNull("unable to get required facility attributes for one service",reqAttr);
-		assertTrue("should have only 1 req attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req attribute", 1, reqAttr.size());
 
 	}
 
@@ -6752,7 +6753,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource);
 		assertNotNull("unable to get required resource attributes for one service",reqAttr);
-		assertTrue("should have only 1 req attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req attribute", 1, reqAttr.size());
 
 	}
 
@@ -6794,7 +6795,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, member, resource);
 		assertNotNull("unable to get required resource-member attributes for one service",reqAttr);
-		assertTrue("should have only 1 req attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req attribute", 1, reqAttr.size());
 
 	}
 
@@ -6816,7 +6817,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		HashMap<Member, List<Attribute>> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource, members);
 		assertNotNull("unable to get required resource-member attributes for one service",reqAttr);
-		assertTrue("should have only 1 req attribute", reqAttr.size() == 1);
+		assertEquals("should have only 1 req attribute", 1, reqAttr.size());
 
 	}
 
@@ -6961,7 +6962,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		HashMap<Member, List<Attribute>> reqAttr = attributesManager.getRequiredAttributes(sess, resource, service, members);
 		assertNotNull("unable to get required member attributes for one service",reqAttr);
-		assertTrue("should have only 1 req attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req attribute", 1, reqAttr.size());
 
 	}
 
@@ -6979,7 +6980,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, member);
 		assertNotNull("unable to get required member attributes for one service",reqAttr);
-		assertTrue("should have only 1 req attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req attribute", 1, reqAttr.size());
 
 	}
 
@@ -7065,7 +7066,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource,group);
 		assertNotNull("unable to get required resource-group attributes for one service",reqAttr);
-		assertTrue("should have only 1 req attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req attribute", 1, reqAttr.size());
 
 	}
 
@@ -7122,7 +7123,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, group);
 		assertNotNull("unable to get required group attributes for one service",reqAttr);
-		assertTrue("should have only 1 req attribute",reqAttr.size() == 1);
+		assertEquals("should have only 1 req attribute", 1, reqAttr.size());
 
 	}
 
@@ -7162,7 +7163,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, host);
 		assertNotNull("Unable to get required host attributes for one service",reqAttr);
-		assertTrue("There should be 1 required host attribute",reqAttr.size() == 1);
+		assertEquals("There should be 1 required host attribute", 1, reqAttr.size());
 
 	}
 
@@ -7289,7 +7290,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		List<Attribute> attributes_user_facility = setUpFacilityUserAttribute();
 		List<Attribute> attributes_member_resource = setUpMemberResourceAttribute();
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.addAll(attributes_user);
 		attributes.addAll(attributes_member);
 		attributes.addAll(attributes_user_facility);
@@ -9182,7 +9183,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 
 	@Test
-	public void isCoreAttribute() throws Exception {
+	public void isCoreAttribute() {
 		System.out.println(CLASS_NAME + "isCoreAttribute");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
@@ -9199,7 +9200,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 
 	@Test
-	public void isOptAttribute() throws Exception {
+	public void isOptAttribute() {
 		System.out.println(CLASS_NAME + "isOptAttribute");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
@@ -9216,7 +9217,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 	@Ignore
 	@Test
-	public void isCoreManagedAttribute() throws Exception {
+	public void isCoreManagedAttribute() {
 		System.out.println(CLASS_NAME + "isCoreManagedAttribute");
 		// TODO co je míněno core managed attributem ??
 	/*
@@ -9234,7 +9235,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 
 	@Test
-	public void isFromNamespace() throws Exception {
+	public void isFromNamespace() {
 		System.out.println(CLASS_NAME + "isFromNamespace");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
@@ -9277,7 +9278,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		Attribute attribute = new Attribute(attrDef);
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attribute);
 
 		attributesManager.checkNamespace(sess, attributes, "urn:perun:facility:attribute-def:opt");
@@ -9289,7 +9290,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		System.out.println(CLASS_NAME + "getNamespaceFromAttributeName");
 
 		String nameSpace = attributesManager.getNamespaceFromAttributeName("urn:perun:facility:attribute-def:opt:attr-manager-test-attribute");
-		assertTrue("get wrong namespace from name",nameSpace.equals("urn:perun:facility:attribute-def:opt"));
+		assertEquals("get wrong namespace from name", "urn:perun:facility:attribute-def:opt", nameSpace);
 
 	}
 
@@ -9298,7 +9299,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		System.out.println(CLASS_NAME + "getFriendlyNameFromAttributeName");
 
 		String nameSpace = attributesManager.getFriendlyNameFromAttributeName("urn:perun:facility:attribute-def:opt:attr-manager-test-attribute");
-		assertTrue("get wrong namespace from name",nameSpace.equals("attr-manager-test-attribute"));
+		assertEquals("get wrong namespace from name", "attr-manager-test-attribute", nameSpace);
 
 	}
 
@@ -9341,18 +9342,18 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		System.out.println(CLASS_NAME + "getAttributeRights");
 
 		// setting rights
-		List<ActionType> listOfActions = new ArrayList<ActionType>();
+		List<ActionType> listOfActions = new ArrayList<>();
 		listOfActions.add(ActionType.WRITE);
 		listOfActions.add(ActionType.READ);
-		List<AttributeRights> rights = new ArrayList<AttributeRights>();
+		List<AttributeRights> rights = new ArrayList<>();
 		rights.add(new AttributeRights(1, Role.VOADMIN, listOfActions));
-		rights.add(new AttributeRights(1, Role.SELF, new ArrayList<ActionType>()));
+		rights.add(new AttributeRights(1, Role.SELF, new ArrayList<>()));
 		perun.getAttributesManager().setAttributeRights(sess, rights);
 
 		// getting rights
 		rights.clear();
 		rights = perun.getAttributesManager().getAttributeRights(sess, 1);
-		assertTrue("list of rights should have 4 items for each role", rights.size() == 4);
+		assertEquals("list of rights should have 4 items for each role", 4, rights.size());
 		for (AttributeRights attributeRights : rights) {
 			if (attributeRights.getRole().equals(Role.VOADMIN)) {
 				assertTrue("our attribute 1 should have right READ for VOADMIN", attributeRights.getRights().contains(ActionType.READ));
@@ -9367,10 +9368,10 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 	@Test
 	public void setAttributeRights() throws Exception {
 		System.out.println(CLASS_NAME + "setAttributeRights");
-		List<ActionType> listOfActions = new ArrayList<ActionType>();
+		List<ActionType> listOfActions = new ArrayList<>();
 		listOfActions.add(ActionType.WRITE);
 		listOfActions.add(ActionType.READ);
-		List<AttributeRights> rights = new ArrayList<AttributeRights>();
+		List<AttributeRights> rights = new ArrayList<>();
 		rights.add(new AttributeRights(1, Role.VOADMIN, listOfActions));
 		listOfActions.clear();
 		listOfActions.add(ActionType.READ);
@@ -9380,7 +9381,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		listOfActions.clear();
 		rights.clear();
 		listOfActions.add(ActionType.WRITE);
-		rights.add(new AttributeRights(1, Role.VOADMIN, new ArrayList<ActionType>()));
+		rights.add(new AttributeRights(1, Role.VOADMIN, new ArrayList<>()));
 		rights.add(new AttributeRights(1, Role.SELF, listOfActions));
 		perun.getAttributesManager().setAttributeRights(sess, rights);
 
@@ -14435,7 +14436,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		candidate.setTitleAfter("");
 		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		assertNotNull("No member created", member);
@@ -14510,7 +14511,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		Host host = new Host();
 		host.setHostname("AttrTestHost");
-		List<Host> hosts = new ArrayList<Host>();
+		List<Host> hosts = new ArrayList<>();
 		hosts.add(host);
 
 		// create cluster type facility
@@ -14539,7 +14540,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 				break;
 			}
 		}
-		assertTrue("User has more more UserExtSources than expected. Expected 2 (PERUN, testExtSource), contains " + userExtSources.size(), userExtSources.size() == 2);
+		assertEquals("User has more more UserExtSources than expected. Expected 2 (PERUN, testExtSource), contains " + userExtSources.size(), 2, userExtSources.size());
 		return ues;
 	}
 
@@ -14548,16 +14549,15 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		String extSourceName = "AttributesManagerEntryIntegrationTest";
 
 		ExtSource extSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		extSource = perun.getExtSourcesManager().createExtSource(sess, extSource, new HashMap<String,String>());
+		extSource = perun.getExtSourcesManager().createExtSource(sess, extSource, new HashMap<>());
 
-		UserExtSource userExtSource = new UserExtSource(0, extSource, "let's fake it");
-		return userExtSource;
+		return new UserExtSource(0, extSource, "let's fake it");
 
 	}
 
 	private List<Attribute> setUpRequiredAttributes() throws Exception {
 
-		List<Attribute> attrList = new ArrayList<Attribute>();
+		List<Attribute> attrList = new ArrayList<>();
 
 		attrList.add(setUpFacilityAttribute().get(0));
 		attrList.add(setUpVoAttribute().get(0));
@@ -14606,7 +14606,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create user_facility attribute",attributesManager.createAttribute(sess, attr));
 		// create new facility-user attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14624,7 +14624,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create facility attribute",attributesManager.createAttribute(sess, attr));
 		// create new facility attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14642,7 +14642,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create facility attribute",attributesManager.createAttribute(sess, attr));
 		//create new entityless attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 		return attributes;
@@ -14658,7 +14658,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create vo attribute",attributesManager.createAttribute(sess, attr));
 		// create new vo attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14676,7 +14676,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create resource attribute",attributesManager.createAttribute(sess, attr));
 		// create new resource attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14705,7 +14705,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create member-resource attribute",attributesManager.createAttribute(sess, attr));
 		// create new resource member attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14723,7 +14723,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create member-group attribute",attributesManager.createAttribute(sess, attr));
 		// create new member-group attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14740,7 +14740,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create user attribute",attributesManager.createAttribute(sess, attr));
 		// create new resource member attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14754,13 +14754,13 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
 		attr.setFriendlyName("user-large-test-attribute");
 		attr.setType(LinkedHashMap.class.getName());
-		Map<String, String> value = new LinkedHashMap<String, String>();
+		Map<String, String> value = new LinkedHashMap<>();
 		value.put("UserLargeAttribute", "test value");
 		attr.setValue(value);
 		assertNotNull("unable to create user attribute",attributesManager.createAttribute(sess, attr));
 		// create new resource member attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14774,14 +14774,14 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		attr.setNamespace("urn:perun:resource:attribute-def:opt");
 		attr.setFriendlyName("resource-large-test-attribute");
 		attr.setType(LinkedHashMap.class.getName());
-		Map<String, String> value = new LinkedHashMap<String, String>();
+		Map<String, String> value = new LinkedHashMap<>();
 		value.put("ResourceLargeAttribute", "test value");
 		value.put("ResourceTestLargeAttr", "test value 2");
 		attr.setValue(value);
 		assertNotNull("unable to create user attribute",attributesManager.createAttribute(sess, attr));
 		// create new resource member attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 		return attributes;
@@ -14799,7 +14799,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create member attribute",attributesManager.createAttribute(sess, attr));
 		// create new resource member attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14819,7 +14819,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create group attribute",attributesManager.createAttribute(sess, attr));
 		// create new group attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14836,7 +14836,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		attr.setType(String.class.getName());
 		attr.setValue("GroupAttribute");
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr));
 		attributes.add(attr);
 
@@ -14877,7 +14877,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		attr.setType(String.class.getName());
 		attr.setValue("ResourceAttribute");
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr));
 		attributes.add(attr);
 
@@ -14919,7 +14919,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create host attribute",attributesManager.createAttribute(sess, attr));
 		// create new host attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -14973,7 +14973,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		assertNotNull("unable to create Group_Resource attribute",attributesManager.createAttribute(sess, attr));
 		// create new group resource attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -15002,7 +15002,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 		assertNotNull("unable to create userExtSource attribute", attributesManager.createAttribute(sess, attr));
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		return attributes;
 	}
@@ -15020,12 +15020,11 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 	}
 
 	private Map<AttributeDefinition, Set<AttributeDefinition>> getAllDependenciesMapForTesting() {
-		Map<AttributeDefinition, Set<AttributeDefinition>> allDependenciesForTesting = new HashMap<AttributeDefinition, Set<AttributeDefinition>>();
 		//Prepare every possible way to test Attribute with Attribute
 
 		//TODO FILL THIS MAP FOR USING
 
-		return allDependenciesForTesting;
+		return new HashMap<>();
 	}
 
 }

@@ -27,7 +27,7 @@ public class urn_perun_user_attribute_def_virt_eduPersonPrincipalNames extends U
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		List<String> idpLogins = new ArrayList<String>();
+		List<String> idpLogins = new ArrayList<>();
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
 		for(UserExtSource uES: userExtSources) {

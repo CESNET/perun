@@ -26,7 +26,7 @@ public class urn_perun_user_attribute_def_def_phone extends UserAttributesModule
 	private static final Pattern pattern = Pattern.compile("^[+][0-9]{4,16}$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 		String phone = null;
 
 		// null attribute

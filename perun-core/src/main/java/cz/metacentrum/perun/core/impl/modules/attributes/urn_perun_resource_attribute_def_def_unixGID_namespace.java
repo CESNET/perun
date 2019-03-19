@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -23,7 +22,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Resource unixGID-namespace attribute.
@@ -50,8 +48,8 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 		//If there exist some groupName of this resource
 		if(!groupNamesOfResource.isEmpty()) {
 			//Get All Groups and Resources with some same GroupName in the same Namespace
-			List<Group> groupsWithSameGroupNameInSameNamespace = new ArrayList<Group>();
-			List<Resource> resourcesWithSameGroupNameInSameNamespace = new ArrayList<Resource>();
+			List<Group> groupsWithSameGroupNameInSameNamespace = new ArrayList<>();
+			List<Resource> resourcesWithSameGroupNameInSameNamespace = new ArrayList<>();
 			for(Attribute attr: groupNamesOfResource) {
 				Attribute groupNameOfGroup;
 				try {
@@ -127,17 +125,16 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 			}
 
 			//Prepare lists for all groups and resources with same GID in the same namespace
-			List<Group> allGroupsWithSameGIDInSameNamespace = new ArrayList<Group>();
-			List<Resource> allResourcesWithSameGIDInSameNamespace = new ArrayList<Resource>();
+			List<Group> allGroupsWithSameGIDInSameNamespace = new ArrayList<>();
+			List<Resource> allResourcesWithSameGIDInSameNamespace = new ArrayList<>();
 
 			//Prepare attributes for searching through groups and resources
-			Attribute resourceGIDAttribute = attribute;
 			Attribute groupGIDAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_G_unixGID_namespace + ":" + gidNamespace));
-			groupGIDAttribute.setValue(resourceGIDAttribute.getValue());
+			groupGIDAttribute.setValue(attribute.getValue());
 
 			//Fill lists of Groups and Resources by data
 			allGroupsWithSameGIDInSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupGIDAttribute));
-			allResourcesWithSameGIDInSameNamespace.addAll(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceGIDAttribute));
+			allResourcesWithSameGIDInSameNamespace.addAll(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, attribute));
 			//remove this resource
 			allResourcesWithSameGIDInSameNamespace.remove(resource);
 
@@ -240,7 +237,7 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
 		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID");
 		//Disallowed because of crosschecks between modules and performance reason

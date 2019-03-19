@@ -22,15 +22,8 @@ public interface HostAttributesModuleImplApi extends AttributesModuleImplApi {
 	 * @param host Host
 	 * @param attribute Attribute of the member.
 	 *
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-	 * @throws WrongReferenceAttributeValueException if an referenced attribute against
-	 *         the parameter is to be compared is not available
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeValue(PerunSessionImpl session, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSessionImpl session, Host host, Attribute attribute);
 
 	/**
 	 * Tries to fill an attribute to the specified host.
@@ -40,11 +33,8 @@ public interface HostAttributesModuleImplApi extends AttributesModuleImplApi {
 	 * @param attribute Attribute of the member
 	 * @return Attribute which MAY be filled in
 	 *
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute fillAttribute(PerunSessionImpl session, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	Attribute fillAttribute(PerunSessionImpl session, Host host, AttributeDefinition attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -53,6 +43,6 @@ public interface HostAttributesModuleImplApi extends AttributesModuleImplApi {
 	 * @param host Host
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, Host host, Attribute attribute);
 
 }

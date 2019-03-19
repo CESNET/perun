@@ -27,7 +27,7 @@ public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttr
 	private static final Pattern pattern = Pattern.compile("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute == null) return; //null is OK
 		List<String> value = (List<String>) attribute.getValue();
 		for(String login : value) {
@@ -38,7 +38,7 @@ public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttr
 
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
-		List<String> value = new ArrayList<String>();
+		List<String> value = new ArrayList<>();
 		try {
 			String loginMU = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:login-namespace:mu").getValue();
 			if(loginMU != null) value.add(loginMU + "@eduroam.muni.cz");

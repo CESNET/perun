@@ -2,8 +2,6 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -31,7 +29,7 @@ public class urn_perun_facility_attribute_def_def_shells extends FacilityAttribu
 	 * e.g. corretct unix path.
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 		List<String> shells = (List<String>) attribute.getValue();
 
 		if (shells == null) {
@@ -52,7 +50,7 @@ public class urn_perun_facility_attribute_def_def_shells extends FacilityAttribu
 	 * Probably it will not be neccessary.
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

@@ -99,7 +99,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// create list of hosts with 1 host
 		createdHost = new Host();
 		createdHost.setHostname("FacilitiesManagerTest");
-		hosts = new ArrayList<Host>();
+		hosts = new ArrayList<>();
 		hosts.add(createdHost);
 
 		//create empty facility
@@ -231,7 +231,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "getOwners");
 
 		List<Owner> owners = perun.getFacilitiesManager().getOwners(sess, facility);
-		assertTrue("there should be 1 owner", owners.size() == 1);
+		assertEquals("there should be 1 owner", 1, owners.size());
 		assertTrue("facility should be owned by our owner", owners.contains(owner));
 
 		perun.getFacilitiesManager().removeOwner(sess, facility, owner);
@@ -261,7 +261,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getFacilitiesManager().addOwner(sess, facility, secondOwner);
 
 		List<Owner> owners = perun.getFacilitiesManager().getOwners(sess, facility);
-		assertTrue("facility should have 2 owners", owners.size() == 2);
+		assertEquals("facility should have 2 owners", 2, owners.size());
 		assertTrue("our owner should own our facility", owners.contains(secondOwner));
 
 	}
@@ -344,7 +344,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Vo> allowedVos = perun.getFacilitiesManager().getAllowedVos(sess, facility);
 
-		assertTrue("our facility should have 1 allowed VO", allowedVos.size() == 1);
+		assertEquals("our facility should have 1 allowed VO", 1, allowedVos.size());
 		assertTrue("our facility should have our VO as allowed", allowedVos.contains(vo));
 
 		Vo vo2 = new Vo(1, "facilityTestVo002", "facilityTestVo002");
@@ -353,14 +353,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		allowedVos = perun.getFacilitiesManager().getAllowedVos(sess, facility);
 
-		assertTrue("our facility should have 2 allowed VO", allowedVos.size() == 2);
+		assertEquals("our facility should have 2 allowed VO", 2, allowedVos.size());
 		assertTrue("our facility should have our VO as allowed", allowedVos.contains(vo2));
 
 		setUpResource2(vo);
 
 		allowedVos = perun.getFacilitiesManager().getAllowedVos(sess, facility);
 
-		assertTrue("our facility should have 2 allowed VO", allowedVos.size() == 2);
+		assertEquals("our facility should have 2 allowed VO", 2, allowedVos.size());
 	}
 
 	@Test
@@ -376,7 +376,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
 
 		List<User> users = perun.getFacilitiesManager().getAllowedUsers(sess, facility);
-		assertTrue("our facility should have 1 allowed user", users.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users.size());
 		assertTrue("our user should be between allowed on facility", users.contains(user));
 
 	}
@@ -397,7 +397,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2);
 
 		List<User> users = perun.getFacilitiesManager().getAllowedUsers(sess, facility);
-		assertTrue("our facility should have 1 allowed user", users.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users.size());
 		assertTrue("our user should be between allowed on facility", users.contains(user));
 
 	}
@@ -434,47 +434,47 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group2, resource2);
 
 		List<User> users = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo, serv);
-		assertTrue("our facility should have 1 allowed user",users.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users.size());
 		assertTrue("our user should be between allowed on facility",users.contains(user));
 
 		List<User> users2 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo2, serv);
-		assertTrue("our facility should have 1 allowed user",users2.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users2.size());
 		assertTrue("our user should be between allowed on facility",users2.contains(user2));
 
 		List<User> users3 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, null, serv);
-		assertTrue("our facility should have 1 allowed user",users3.size() == 2);
+		assertEquals("our facility should have 1 allowed user", 2, users3.size());
 		assertTrue("our user should be between allowed on facility",users3.contains(user));
 		assertTrue("our user should be between allowed on facility",users3.contains(user2));
 
 		List<User> users4 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo, null);
-		assertTrue("our facility should have 1 allowed user",users4.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users4.size());
 		assertTrue("our user should be between allowed on facility",users4.contains(user));
 
 		List<User> users5 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo2, null);
-		assertTrue("our facility should have 1 allowed user",users5.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users5.size());
 		assertTrue("our user should be between allowed on facility",users5.contains(user2));
 
 		// remove service from resource2 to test other edge cases
 		perun.getResourcesManager().removeService(sess, resource2, serv);
 
 		List<User> users6 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo, serv);
-		assertTrue("our facility should have 1 allowed user",users6.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users6.size());
 		assertTrue("our user should be between allowed on facility",users6.contains(user));
 
 		List<User> users7 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo2, serv);
-		assertTrue("our user shouldn't be allowed on facility with vo filter on", users7.size() == 0);
+		assertEquals("our user shouldn't be allowed on facility with vo filter on", 0, users7.size());
 
 		List<User> users8 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, null, serv);
-		assertTrue("our facility should have 1 allowed user",users8.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users8.size());
 		assertTrue("our user should be between allowed on facility",users8.contains(user));
 		assertTrue("our user shouldn't be between allowed on facility",!users8.contains(user2));
 
 		List<User> users9 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo, null);
-		assertTrue("our facility should have 1 allowed user",users9.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users9.size());
 		assertTrue("our user should be between allowed on facility",users9.contains(user));
 
 		List<User> users10 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo2, null);
-		assertTrue("our facility should have 1 allowed user",users10.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users10.size());
 		assertTrue("our user should be between allowed on facility",users10.contains(user2));
 
 		// create different service to test another edge cases
@@ -485,26 +485,26 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getResourcesManager().assignService(sess, resource2, serv2);
 
 		List<User> users11 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo, serv2);
-		assertTrue("our facility shouldn't have allowed user with vo and service filter on",users11.size() == 0);
+		assertEquals("our facility shouldn't have allowed user with vo and service filter on", 0, users11.size());
 
 		List<User> users12 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo2, serv2);
-		assertTrue("our facility should have 1 allowed user",users12.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users12.size());
 		assertTrue("our user should be between allowed on facility",users12.contains(user2));
 
 		List<User> users13 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, null, serv2);
-		assertTrue("our facility should have 1 allowed user",users13.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users13.size());
 		assertTrue("our user should be between allowed on facility",users13.contains(user2));
 
 		List<User> users14 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo, null);
-		assertTrue("our facility should have 1 allowed user",users14.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users14.size());
 		assertTrue("our user should be between allowed on facility",users14.contains(user));
 
 		List<User> users15 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo2, null);
-		assertTrue("our facility should have 1 allowed user",users15.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users15.size());
 		assertTrue("our user should be between allowed on facility",users15.contains(user2));
 
 		List<User> users16 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, null, null);
-		assertTrue("our facility should have 2 allowed users",users16.size() == 2);
+		assertEquals("our facility should have 2 allowed users", 2, users16.size());
 		assertTrue("our user should be between allowed on facility",users16.contains(user));
 		assertTrue("our user should be between allowed on facility",users16.contains(user2));
 
@@ -512,21 +512,21 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getMembersManager().setStatus(sess, member, Status.DISABLED);
 
 		List<User> users17 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, null, null);
-		assertTrue("our facility should have 1 allowed user",users17.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users17.size());
 		assertTrue("our user should be between allowed on facility",users17.contains(user2));
 
 		List<User> users18 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo, null);
-		assertTrue("our facility shouldn't have allowed user with vo filter on",users18.size() == 0);
+		assertEquals("our facility shouldn't have allowed user with vo filter on", 0, users18.size());
 
 		List<User> users19 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo2, null);
-		assertTrue("our facility should have 1 allowed user",users19.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users19.size());
 		assertTrue("our user should be between allowed on facility",users19.contains(user2));
 
 		List<User> users20 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo2, serv);
-		assertTrue("our facility shouldn't have allowed user with vo and service filter on",users20.size() == 0);
+		assertEquals("our facility shouldn't have allowed user with vo and service filter on", 0, users20.size());
 
 		List<User> users21 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo2, serv2);
-		assertTrue("our facility should have 1 allowed user",users21.size() == 1);
+		assertEquals("our facility should have 1 allowed user", 1, users21.size());
 		assertTrue("our user should be between allowed on facility",users21.contains(user2));
 
 	}
@@ -549,7 +549,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<Resource> assignedResources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
 
-		assertTrue("our facility should have 1 assigned Resource", assignedResources.size() == 1);
+		assertEquals("our facility should have 1 assigned Resource", 1, assignedResources.size());
 		assertTrue("our facility should have our Resource assigned", assignedResources.contains(resource));
 
 	}
@@ -574,14 +574,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<RichResource> assignedResources = perun.getFacilitiesManager().getAssignedRichResources(sess, facility);
 
-		List<Vo> vos = new ArrayList<Vo>();
+		List<Vo> vos = new ArrayList<>();
 		for (RichResource rr : assignedResources){
-			assertTrue("RichResource must have VO value filled",rr.getVo() != null);
+			assertNotNull("RichResource must have VO value filled", rr.getVo());
 			vos.add(rr.getVo());
 		}
 		assertTrue("Our VO must be between RichResources VOs", vos.contains(vo));
 
-		assertTrue("our facility should have 1 assigned Resource", assignedResources.size() == 1);
+		assertEquals("our facility should have 1 assigned Resource", 1, assignedResources.size());
 		assertTrue("our facility should have our Resource assigned", assignedResources.contains(rresource));
 
 	}
@@ -664,7 +664,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "getOwnerFacilities");
 
 		List<Facility> facilities = perun.getFacilitiesManager().getOwnerFacilities(sess, owner);
-		assertTrue("our owner should own 1 facility", facilities.size() == 1);
+		assertEquals("our owner should own 1 facility", 1, facilities.size());
 		assertTrue("owner should own his facility", facilities.contains(facility));
 
 	}
@@ -720,7 +720,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsWithPattern");
 
 		String hostname = "name[00-01]surname[99-100]cz";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostname);
 		hostname = "local";
 		listOfHosts.add(hostname);
@@ -729,7 +729,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertNotNull("Unable to add hosts", hosts);
 		assertEquals("There should be 5 hosts in list", 5, hosts.size());
 
-		Set<String> hostNames = new HashSet<String>();
+		Set<String> hostNames = new HashSet<>();
 		for (Host h: hosts) {
 			hostNames.add(h.getHostname());
 		}
@@ -745,7 +745,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsWithWrongPattern");
 
 		String hostname = "name[00]-01]surname[99-100]cz";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostname);
 		hostname = "local";
 		listOfHosts.add(hostname);
@@ -757,7 +757,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsWithWrongPattern2");
 
 		String hostname = "name[00-a01]surname[99-100]cz";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostname);
 		hostname = "local";
 		listOfHosts.add(hostname);
@@ -769,7 +769,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsWithWrongPattern3");
 
 		String hostname = "name[01-00]surname[99-100]cz";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostname);
 		hostname = "local";
 		listOfHosts.add(hostname);
@@ -927,7 +927,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource",
 				"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
@@ -1110,7 +1110,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// tests
 		List<Attribute> destinationAttributes = perun.getAttributesManager().getAttributes(sess, secondFacility);
 		assertNotNull(destinationAttributes);
-		assertTrue((destinationAttributes.size() - perun.getAttributesManager().getAttributes(sess, facility).size()) == 1);
+		assertEquals(1, (destinationAttributes.size() - perun.getAttributesManager().getAttributes(sess, facility).size()));
 		assertTrue(destinationAttributes.contains(firstAttribute));
 		assertTrue(destinationAttributes.contains(secondAttribute));
 		assertTrue(destinationAttributes.contains(thirdAttribute));
@@ -1135,7 +1135,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, user);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, user);
-		assertTrue(cg.equals(cgs.get(0)));
+		assertEquals(cg, cgs.get(0));
 		assertEquals(user.getId(), cgs.get(0).getUsers().get(0).getId());
 	}
 
@@ -1170,7 +1170,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, owner);
-		assertTrue(cg.equals(cgs.get(0)));
+		assertEquals(cg, cgs.get(0));
 		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
 	}
 
@@ -1194,7 +1194,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		ContactGroup cgReturned = facilitiesManagerEntry.getFacilityContactGroup(sess, facility, contactGroupName);
 
-		assertTrue(cg.equals(cgReturned));
+		assertEquals(cg, cgReturned);
 
 		assertEquals(owner.getId(), cgReturned.getOwners().get(0).getId());
 		assertEquals(group.getId(), cgReturned.getGroups().get(0).getId());
@@ -1221,7 +1221,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, facility);
 
-		assertTrue(cg.equals(cgs.get(0)));
+		assertEquals(cg, cgs.get(0));
 
 		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
 		assertEquals(group.getId(), cgs.get(0).getGroups().get(0).getId());
@@ -1268,7 +1268,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, user);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, user);
-		assertTrue(cg.equals(cgs.get(0)));
+		assertEquals(cg, cgs.get(0));
 		assertEquals(user.getId(), cgs.get(0).getUsers().get(0).getId());
 
 		facilitiesManagerEntry.removeFacilityContact(sess, cg);
@@ -1311,7 +1311,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, owner);
-		assertTrue(cg.equals(cgs.get(0)));
+		assertEquals(cg, cgs.get(0));
 		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
 
 		facilitiesManagerEntry.removeFacilityContact(sess, cg);
@@ -1395,7 +1395,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facilitiesManagerEntry.assignSecurityTeam(sess, facility, st0);
 
 		List<SecurityTeam> actual = facilitiesManagerEntry.getAssignedSecurityTeams(sess, facility);
-		assertTrue("Facility should have only 1 security team.", actual.size() == 1);
+		assertEquals("Facility should have only 1 security team.", 1, actual.size());
 		assertTrue("Expected security team is not assigned to facility.", actual.contains(st0));
 	}
 
@@ -1444,7 +1444,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		expected.remove(st0);
 
 		List<SecurityTeam> actual = facilitiesManagerEntry.getAssignedSecurityTeams(sess, facility);
-		assertTrue("Facility should have only 1 security team.", actual.size() == 1);
+		assertEquals("Facility should have only 1 security team.", 1, actual.size());
 		assertTrue("Facility shouldn't have security team 0 assigned.", !actual.contains(st0));
 		assertTrue("Facility should have security team 1 assigned.", actual.contains(st1));
 
@@ -1639,7 +1639,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		List<BanOnFacility> bansOnFacility = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
-		assertTrue(bansOnFacility.size() == 1);
+		assertEquals(1, bansOnFacility.size());
 
 		perun.getFacilitiesManagerBl().removeBan(sess, banOnFacility.getId());
 
@@ -1666,7 +1666,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		List<BanOnFacility> bansOnFacility = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
-		assertTrue(bansOnFacility.size() == 1);
+		assertEquals(1, bansOnFacility.size());
 
 		perun.getFacilitiesManagerBl().removeBan(sess, banOnFacility.getUserId(), banOnFacility.getFacilityId());
 
@@ -1695,7 +1695,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		List<BanOnFacility> bansOnFacility = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
-		assertTrue(bansOnFacility.size() == 1);
+		assertEquals(1, bansOnFacility.size());
 
 		perun.getFacilitiesManagerBl().removeAllExpiredBansOnFacilities(sess);
 
@@ -1724,12 +1724,12 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
 
 		List<BanOnFacility> bansOnFacility = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
-		assertTrue(bansOnFacility.size() == 1);
+		assertEquals(1, bansOnFacility.size());
 
 		perun.getFacilitiesManagerBl().removeAllExpiredBansOnFacilities(sess);
 
 		bansOnFacility = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
-		assertTrue(bansOnFacility.size() == 1);
+		assertEquals(1, bansOnFacility.size());
 	}
 
 	@Test
@@ -1754,7 +1754,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
 		facilitiesManagerEntry.addAdmin(sess, secondFacility, userOne);
 		// Sets userOne as actor in this test with role facility admin for facility
-		List<PerunBean> list = new ArrayList<PerunBean>();
+		List<PerunBean> list = new ArrayList<>();
 		list.add(facility);
 		list.add(secondFacility);
 		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, list);
@@ -1763,16 +1763,16 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		// Adds host to facility
 		facilitiesManagerEntry.addHost(sess, hostOne, facility);
-		assertTrue(facilitiesManagerEntry.getHosts(sess, facility).size() == 1);
+		assertEquals(1, facilitiesManagerEntry.getHosts(sess, facility).size());
 		// Adds destination with same name as host to facility
 		servicesManagerEntry.addDestination(sess, service, facility, destination);
-		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
+		assertEquals(1, servicesManagerEntry.getDestinations(sess, service, facility).size());
 		// Adds same host to second facility
 		facilitiesManagerEntry.addHost(sess, hostOne, secondFacility);
-		assertTrue(facilitiesManagerEntry.getHosts(sess, secondFacility).size() == 1);
+		assertEquals(1, facilitiesManagerEntry.getHosts(sess, secondFacility).size());
 		// Adds destination with same name as host to secondFacility
 		servicesManagerEntry.addDestination(sess, service, secondFacility, destination);
-		assertTrue(servicesManagerEntry.getDestinations(sess, service, secondFacility).size() == 1);
+		assertEquals(1, servicesManagerEntry.getDestinations(sess, service, secondFacility).size());
 	}
 
 	@Test(expected = PrivilegeException.class)
@@ -1800,7 +1800,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		sess.getPerunPrincipal().setUser(userOne);
 		// Adds host to facility
 		facilitiesManagerEntry.addHost(sess, host, facility);
-		assertTrue(facilitiesManagerEntry.getHosts(sess, facility).size() == 1);
+		assertEquals(1, facilitiesManagerEntry.getHosts(sess, facility).size());
 
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
@@ -1841,7 +1841,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		sess.getPerunPrincipal().setUser(userOne);
 		// Adds destination to facility
 		servicesManagerEntry.addDestination(sess, service, facility, destination);
-		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
+		assertEquals(1, servicesManagerEntry.getDestinations(sess, service, facility).size());
 
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
@@ -1856,7 +1856,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsStringsSameHostsDifferentAdmin");
 		// Sets list of hostnames
 		String hostName = "testHostOne";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostName);
 		hostName = "testHostTwo";
 		listOfHosts.add(hostName);
@@ -1894,7 +1894,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	 	// Sets list of hostnames
 		String hostName = "testHostOne";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostName);
 		hostName = "testHostTwo";
 		listOfHosts.add(hostName);
@@ -1923,7 +1923,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		sess.getPerunPrincipal().setUser(userOne);
 		// Adds destination to facility
 		servicesManagerEntry.addDestination(sess, service, facility, destination);
-		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
+		assertEquals(1, servicesManagerEntry.getDestinations(sess, service, facility).size());
 
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
@@ -1937,7 +1937,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void addHostsSameHostsDifferentAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "addHostsSameHostsDifferentAdmin");
 		// Sets list of hosts
-		List<Host> listOfHosts = new ArrayList<Host>();
+		List<Host> listOfHosts = new ArrayList<>();
 		Host testHost = new Host(0, "testHostOne");
 		listOfHosts.add(testHost);
 		testHost = new Host(0, "testHostTwo");
@@ -1975,7 +1975,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsStringsSameDestinationDifferentAdmin");
 
 	 	// Sets list of hosts
-		List<Host> listOfHosts = new ArrayList<Host>();
+		List<Host> listOfHosts = new ArrayList<>();
 		Host testHost = new Host(0, "testHostOne");
 		listOfHosts.add(testHost);
 		String hostName = "testHostTwo";
@@ -2006,7 +2006,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		sess.getPerunPrincipal().setUser(userOne);
 		// Adds destination to facility
 		servicesManagerEntry.addDestination(sess, service, facility, destination);
-		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
+		assertEquals(1, servicesManagerEntry.getDestinations(sess, service, facility).size());
 
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
@@ -2049,7 +2049,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// test new way - single select
 		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility);
 		Assert.notNull(members);
-		assertTrue(members.size() == 2);
+		assertEquals(2, members.size());
 		assertTrue(members.contains(member11));
 		assertTrue(members.contains(member21));
 		assertTrue(!members.contains(member12));
@@ -2057,7 +2057,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		// test old way - iterate over resources
 		List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
-		List<Member> oldMembers = new ArrayList<Member>();
+		List<Member> oldMembers = new ArrayList<>();
 		for (Resource r : resources) {
 			oldMembers.addAll(perun.getResourcesManager().getAllowedMembers(sess, r));
 		}
@@ -2104,7 +2104,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// test new way - single select
 		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility);
 		Assert.notNull(members);
-		assertTrue(members.size() == 2);
+		assertEquals(2, members.size());
 		assertTrue(members.contains(member11));
 		assertTrue(members.contains(member21));
 		assertTrue(!members.contains(member12));
@@ -2113,14 +2113,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// check getting all
 		List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
 		Assert.notNull(resources);
-		assertTrue(resources.size() == 2);
+		assertEquals(2, resources.size());
 		assertTrue(resources.contains(resource1));
 		assertTrue(resources.contains(resource2));
 
 		// check getting by VO
 		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, vo, null);
 		Assert.notNull(resources);
-		assertTrue(resources.size() == 1);
+		assertEquals(1, resources.size());
 		assertTrue(resources.contains(resource1));
 		assertTrue(!resources.contains(resource2));
 
@@ -2132,14 +2132,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// service should be only on 1 resource
 		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, null, service);
 		Assert.notNull(resources);
-		assertTrue(resources.size() == 1);
+		assertEquals(1, resources.size());
 		assertTrue(resources.contains(resource1));
 		assertTrue(!resources.contains(resource2));
 
 		// vo-service should by only for 1 resource
 		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, vo, service);
 		Assert.notNull(resources);
-		assertTrue(resources.size() == 1);
+		assertEquals(1, resources.size());
 		assertTrue(resources.contains(resource1));
 		assertTrue(!resources.contains(resource2));
 
@@ -2215,7 +2215,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 		UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String, String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}

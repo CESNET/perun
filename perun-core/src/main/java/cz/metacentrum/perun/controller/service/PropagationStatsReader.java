@@ -22,11 +22,11 @@ import cz.metacentrum.perun.taskslib.model.TaskResult;
  */
 public interface PropagationStatsReader {
 
-	Task getTask(PerunSession perunSession, Service service, Facility facility) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	Task getTask(PerunSession perunSession, Service service, Facility facility);
 
-	Task getTaskById(PerunSession perunSession, int id) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	Task getTaskById(PerunSession perunSession, int id);
 
-	List<Task> listAllTasks(PerunSession perunSession) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	List<Task> listAllTasks(PerunSession perunSession);
 
 	/**
 	 * Returns all tasks associated with selected facility
@@ -36,30 +36,26 @@ public interface PropagationStatsReader {
 	 *
 	 * @return all tasks for facility
 	 *
-	 * @throws ServiceNotExistsException
-	 * @throws PrivilegeException
-	 * @throws InternalErrorException
-	 * @throws FacilityNotExistsException
 	 */
-	List<Task> listAllTasksForFacility(PerunSession session, int facilityId) throws ServiceNotExistsException, PrivilegeException, InternalErrorException, FacilityNotExistsException;
+	List<Task> listAllTasksForFacility(PerunSession session, int facilityId);
 
-	List<Task> listAllTasksInState(PerunSession perunSession, TaskStatus state) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	List<Task> listAllTasksInState(PerunSession perunSession, TaskStatus state);
 
 	boolean isThereSuchTask(Service service, Facility facility);
 
 	int countTasks();
 
-	Task getTask(PerunSession perunSession, int serviceId, int facilityId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	Task getTask(PerunSession perunSession, int serviceId, int facilityId);
 
 	List<TaskResult> getTaskResults();
 
 	List<TaskResult> getTaskResultsByTask(int taskId);
 
-	List<TaskResult> getTaskResultsForGUIByTaskOnlyNewest(PerunSession session, int taskId) throws DestinationNotExistsException, PrivilegeException, InternalErrorException;
+	List<TaskResult> getTaskResultsForGUIByTaskOnlyNewest(PerunSession session, int taskId);
 
-	List<TaskResult> getTaskResultsForGUIByTask(PerunSession session, int taskId) throws DestinationNotExistsException, PrivilegeException, InternalErrorException;
+	List<TaskResult> getTaskResultsForGUIByTask(PerunSession session, int taskId);
 
-	List<TaskResult> getTaskResultsForGUIByTaskAndDestination(PerunSession session, int taskId, int destinationId) throws InternalErrorException;
+	List<TaskResult> getTaskResultsForGUIByTaskAndDestination(PerunSession session, int taskId, int destinationId);
 
 	TaskResult getTaskResultById(int taskResultId);
 
@@ -83,10 +79,9 @@ public interface PropagationStatsReader {
 	 * @return all facilities propagation statuses
 	 * @throws PrivilegeException
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 * @throws FacilityNotExistsException
 	 */
-	List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, UserNotExistsException;
+	List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * Return propagation status of all facilities related to VO resources
@@ -95,11 +90,10 @@ public interface PropagationStatsReader {
 	 * @return all facilities propagation statuses
 	 * @throws PrivilegeException
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 * @throws FacilityNotExistsException
 	 * @throws VoNotExistsException
 	 */
-	List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException, UserNotExistsException;
+	List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException;
 
 	// TODO - add more methods
 
@@ -110,7 +104,7 @@ public interface PropagationStatsReader {
 	 * @param destinationsNames
 	 * @return list of tasks results
 	 */
-	List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException, PrivilegeException;
+	List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException;
 
 	/**
 	 * Returns list of ResourceStates for VO.
@@ -134,10 +128,9 @@ public interface PropagationStatsReader {
 	 * @param facility
 	 * @return list of ServiceStates
 	 * @throws InternalErrorException
-	 * @throws ServiceNotExistsException
 	 * @throws PrivilegeException
 	 */
-	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException, ServiceNotExistsException, PrivilegeException;
+	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Delete Task and it's TaskResults. Use this method only before deleting whole Facility.

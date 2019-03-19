@@ -41,22 +41,17 @@ public class urn_perun_facility_attribute_def_virt_minUID extends FacilityVirtua
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) {
 		return new Attribute(attributeDefinition);
 	}
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		try {
-			Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
-			if(uidNamespaceAttribute.getValue() == null) return attribute;
-			Attribute namespaceMinUidAttribute = getNamespaceMinUidAttribute(sess, (String) uidNamespaceAttribute.getValue());
-			attribute = Utils.copyAttributeToVirtualAttributeWithValue(namespaceMinUidAttribute, attribute);
-			return attribute;
-		} catch(WrongReferenceAttributeValueException ex) {
-			return attribute;
-		}
+		Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
+		if(uidNamespaceAttribute.getValue() == null) return attribute;
+		Attribute namespaceMinUidAttribute = getNamespaceMinUidAttribute(sess, (String) uidNamespaceAttribute.getValue());
+		return Utils.copyAttributeToVirtualAttributeWithValue(namespaceMinUidAttribute, attribute);
 	}
 
 	@Override
@@ -77,7 +72,7 @@ public class urn_perun_facility_attribute_def_virt_minUID extends FacilityVirtua
 		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attributeDefinition);
 	}
 
-	private Attribute getNamespaceMinUidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException, WrongReferenceAttributeValueException {
+	private Attribute getNamespaceMinUidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, (String) uidNamespace, A_E_namespaceMinUID);
 		} catch(AttributeNotExistsException ex) { throw new ConsistencyErrorException(ex);
@@ -88,14 +83,13 @@ public class urn_perun_facility_attribute_def_virt_minUID extends FacilityVirtua
 	private Attribute getUidNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_uidNamespace);
-		} catch(AttributeNotExistsException ex) { throw new InternalErrorException(ex);
-		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
+		} catch(AttributeNotExistsException | WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(A_E_namespaceMinUID);
 		dependencies.add(A_FAC_uidNamespace);
 		return dependencies;
@@ -103,7 +97,7 @@ public class urn_perun_facility_attribute_def_virt_minUID extends FacilityVirtua
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(A_E_namespaceMinUID);
 		strongDependencies.add(A_FAC_uidNamespace);
 		return strongDependencies;

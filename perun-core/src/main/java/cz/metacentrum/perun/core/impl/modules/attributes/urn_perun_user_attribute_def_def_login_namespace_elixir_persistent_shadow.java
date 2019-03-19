@@ -37,10 +37,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 	 * @param attribute Attribute to fill value to
 	 * @return Filled attribute
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 
@@ -63,10 +62,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 	 * @param user User to set UserExtSource for
 	 * @param attribute Attribute containing elixirID
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
-	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException
 	 */
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException {
 		try {
 			String userNamespace = attribute.getFriendlyNameParameter();
 

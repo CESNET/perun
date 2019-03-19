@@ -54,74 +54,66 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	public final static String taskMappingSelectQuery = " tasks.id as tasks_id, tasks.schedule as tasks_schedule, tasks.recurrence as tasks_recurrence, " +
 		"tasks.delay as tasks_delay, tasks.status as tasks_status, tasks.start_time as tasks_start_time, tasks.end_time as tasks_end_time, tasks.engine_id as tasks_engine_id ";
 
-	public static final RowMapper<Task> TASK_ROWMAPPER = new RowMapper<Task>() {
+	public static final RowMapper<Task> TASK_ROWMAPPER = (rs, i) -> {
 
-		public Task mapRow(ResultSet rs, int i) throws SQLException {
+		Task task = new Task();
 
-			Task task = new Task();
+		task.setDelay(rs.getInt("tasks_delay"));
+		task.setId(rs.getInt("tasks_id"));
+		task.setRecurrence(rs.getInt("tasks_recurrence"));
 
-			task.setDelay(rs.getInt("tasks_delay"));
-			task.setId(rs.getInt("tasks_id"));
-			task.setRecurrence(rs.getInt("tasks_recurrence"));
-
-			if (rs.getTimestamp("tasks_start_time") != null) {
-				task.setStartTime(rs.getTimestamp("tasks_start_time"));
-			}
-			if (rs.getTimestamp("tasks_schedule") != null) {
-				task.setSchedule(rs.getTimestamp("tasks_schedule"));
-			}
-			if (rs.getTimestamp("tasks_end_time") != null) {
-				task.setEndTime(rs.getTimestamp("tasks_end_time"));
-			}
-
-			if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.WAITING.toString())) {
-				task.setStatus(TaskStatus.WAITING);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.PLANNED.toString())) {
-				task.setStatus(TaskStatus.PLANNED);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.SENDERROR.toString())) {
-				task.setStatus(TaskStatus.SENDERROR);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERROR.toString())) {
-				task.setStatus(TaskStatus.GENERROR);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERATING.toString())) {
-				task.setStatus(TaskStatus.GENERATING);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERATED.toString())) {
-				task.setStatus(TaskStatus.GENERATED);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.SENDING.toString())) {
-				task.setStatus(TaskStatus.SENDING);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.DONE.toString())) {
-				task.setStatus(TaskStatus.DONE);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.ERROR.toString())) {
-				task.setStatus(TaskStatus.ERROR);
-			} else {
-				throw new IllegalArgumentException("Task status [" + rs.getString("tasks_status") + "] unknown");
-			}
-
-			task.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(rs, i));
-
-			task.setService(ServicesManagerImpl.SERVICE_MAPPER.mapRow(rs, i));
-
-			return task;
+		if (rs.getTimestamp("tasks_start_time") != null) {
+			task.setStartTime(rs.getTimestamp("tasks_start_time"));
+		}
+		if (rs.getTimestamp("tasks_schedule") != null) {
+			task.setSchedule(rs.getTimestamp("tasks_schedule"));
+		}
+		if (rs.getTimestamp("tasks_end_time") != null) {
+			task.setEndTime(rs.getTimestamp("tasks_end_time"));
 		}
 
+		if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.WAITING.toString())) {
+			task.setStatus(TaskStatus.WAITING);
+		} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.PLANNED.toString())) {
+			task.setStatus(TaskStatus.PLANNED);
+		} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.SENDERROR.toString())) {
+			task.setStatus(TaskStatus.SENDERROR);
+		} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERROR.toString())) {
+			task.setStatus(TaskStatus.GENERROR);
+		} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERATING.toString())) {
+			task.setStatus(TaskStatus.GENERATING);
+		} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERATED.toString())) {
+			task.setStatus(TaskStatus.GENERATED);
+		} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.SENDING.toString())) {
+			task.setStatus(TaskStatus.SENDING);
+		} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.DONE.toString())) {
+			task.setStatus(TaskStatus.DONE);
+		} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.ERROR.toString())) {
+			task.setStatus(TaskStatus.ERROR);
+		} else {
+			throw new IllegalArgumentException("Task status [" + rs.getString("tasks_status") + "] unknown");
+		}
+
+		task.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(rs, i));
+
+		task.setService(ServicesManagerImpl.SERVICE_MAPPER.mapRow(rs, i));
+
+		return task;
 	};
 
-	public static final RowMapper<Pair<Task, Integer>> TASK_CLIENT_ROWMAPPER = new RowMapper<Pair<Task, Integer>>() {
+	public static final RowMapper<Pair<Task, Integer>> TASK_CLIENT_ROWMAPPER = (rs, i) -> {
 
-		public Pair<Task, Integer> mapRow(ResultSet rs, int i) throws SQLException {
+		Task task = TASK_ROWMAPPER.mapRow(rs, i);
 
-			Task task = TASK_ROWMAPPER.mapRow(rs, i);
-
-			int engineID = rs.getInt("tasks_engine_id");
-			if(rs.wasNull()) {
-				engineID = -1;
-			}
-			return new Pair<Task, Integer>(task, engineID);
+		int engineID = rs.getInt("tasks_engine_id");
+		if(rs.wasNull()) {
+			engineID = -1;
 		}
-
+		return new Pair<>(task, engineID);
 	};
 
 	@Override
-	public int scheduleNewTask(Task task, int engineID) throws InternalErrorException {
+	public int scheduleNewTask(Task task, int engineID) {
 		int newTaskId = 0;
 		try {
 			newTaskId = Utils.getNewId(this.getJdbcTemplate(), "tasks_id_seq");
@@ -140,7 +132,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	}
 
 	@Override
-	public int insertTask(Task task, int engineID) throws InternalErrorException {
+	public int insertTask(Task task, int engineID) {
 		int newTaskId = 0;
 		try {
 			newTaskId = task.getId();
@@ -338,7 +330,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	public boolean isThereSuchTask(Service service, Facility facility, int engineID) {
 		this.getJdbcTemplate().update("select id from services where id = ?", service.getId());
 
-		List<Integer> tasks = new ArrayList<Integer>();
+		List<Integer> tasks = new ArrayList<>();
 		tasks = this.getJdbcTemplate().queryForList("select id from tasks where service_id = ? and facility_id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"),
 				engineID < 0 ? new Integer[] { service.getId(), facility.getId() }
 					: new Integer[] { service.getId(), facility.getId(),  engineID }, Integer.class);
@@ -354,7 +346,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	public boolean isThereSuchTask(Service service, Facility facility) {
 		//this.getJdbcTemplate().update("select id from services where id = ? for update", service.getId());
 
-		List<Integer> tasks = new ArrayList<Integer>();
+		List<Integer> tasks = new ArrayList<>();
 		tasks = this.getJdbcTemplate().queryForList("select id from tasks where service_id = ? and facility_id = ?",
 				new Integer[] { service.getId(), facility.getId() }, Integer.class);
 		if (tasks.size() == 0) {

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.RTMessagesManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -32,7 +31,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 
 	@Override
 	@Deprecated
-	public RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+	public RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text) throws InternalErrorException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		perunBl.getMembersManagerBl().checkMemberExists(sess, member);
 
@@ -42,7 +41,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 	}
 
 	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) throws InternalErrorException, PrivilegeException {
+	public RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
@@ -51,7 +50,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 	}
 
 	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) throws InternalErrorException, PrivilegeException {
+	public RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.
@@ -60,7 +59,7 @@ public class RTMessagesManagerEntry implements RTMessagesManager{
 	}
 
 	@Override
-	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException, PrivilegeException {
+	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		AuthzResolver.refreshAuthz(sess); //FIXME this is used for authz inicialization. maybe use something better for it.

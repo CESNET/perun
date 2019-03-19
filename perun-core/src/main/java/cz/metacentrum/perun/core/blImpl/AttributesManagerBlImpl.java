@@ -582,7 +582,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupResourceMismatchException {
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException {
 		return getAttributesManagerImpl().getAttributes(sess, resource, group);
 	}
 
@@ -768,12 +768,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserNotExistsException {
+	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		setAttributes(sess, member, group, attributes, false);
 	}
 
 	@Override
-	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserNotExistsException {
+	public void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
@@ -1248,13 +1248,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		try {
 			method.invoke(member, attribute.getValue());
-		} catch (IllegalAccessException ex) {
-			throw new InternalErrorException(ex);
 		} catch (InvocationTargetException ex) {
 			throw new WrongAttributeValueException(ex);
 		} catch (IllegalArgumentException ex) {
 			throw new WrongAttributeValueException(attribute, "Probably bad type of value", ex);
-		} catch (RuntimeException ex) {
+		} catch (IllegalAccessException | RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -1397,7 +1395,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<AttributeDefinition> getAttributesDefinitionWithRights(PerunSession sess, List<PerunBean> entities) throws InternalErrorException, AttributeNotExistsException {
+	public List<AttributeDefinition> getAttributesDefinitionWithRights(PerunSession sess, List<PerunBean> entities) throws InternalErrorException {
 		List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
 
 		//if there is no entities, so no attribute definition will be returned => empty array list of ADs
@@ -1857,11 +1855,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		boolean changed;
 		if (isVirtAttribute(sess, attribute)) {
-			try {
-				changed = getAttributesManagerImpl().setVirtualAttribute(sess, group, attribute);
-			} catch (WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			changed = getAttributesManagerImpl().setVirtualAttribute(sess, group, attribute);
 		} else {
 			changed = getAttributesManagerImpl().setAttribute(sess, group, attribute);
 		}
@@ -1887,7 +1881,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, member, group, attribute);
@@ -2062,11 +2056,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		boolean changed;
 		if (isVirtAttribute(sess, attribute)) {
-			try {
-				return getAttributesManagerImpl().setVirtualAttribute(sess, member, attribute);
-			} catch (WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			return getAttributesManagerImpl().setVirtualAttribute(sess, member, attribute);
 
 			//FIXME update "changed" variable
 
@@ -2574,12 +2564,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException {
 		return getResourceRequiredAttributes(sess, resourceToGetServicesFrom, member, group, false);
 	}
 
 	@Override
-	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException {
 		List<Attribute> attributes = new ArrayList<>();
 
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, resourceToGetServicesFrom, member, group));
@@ -2778,7 +2768,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException, GroupResourceMismatchException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 
@@ -3174,12 +3164,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException {
 		throw new InternalErrorException("Not implemented yet!");
 	}
 
 	@Override
-	public List<Attribute> fillAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> fillAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException {
 		throw new InternalErrorException("Not implemented yet!");
 	}
 
@@ -3730,11 +3720,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_ENTITYLESS_ATTR);
 		boolean changed = getAttributesManagerImpl().removeAttribute(sess, key, attribute);
 		if (changed) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, key, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, key, new Attribute(attribute));
 			log.info("{} removed attribute: {} by key {}.",sess.getLogId(), attribute.getName(), key);
 			getPerunBl().getAuditer().log(sess, new AttributeRemovedForKey(new AttributeDefinition(attribute), key));
 		}
@@ -3742,13 +3728,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
 		this.attributesManagerImpl.removeAllMemberResourceAttributes(sess, resource);
 		this.getPerunBl().getAuditer().log(sess, new AllMemberResourceAttributesRemovedForMembers(resource));
 	}
 
 	@Override
-	public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
+	public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
 		List<Group> groups = this.getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		for (Group group : groups) {
 			this.getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, group);
@@ -3772,11 +3758,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			throw new WrongAttributeAssignmentException(attribute);
 		boolean changed = getAttributesManagerImpl().removeAttribute(sess, facility, attribute);
 		if (changed) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, facility, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, facility, new Attribute(attribute));
 			log.info("{} removed attribute: {} from facility {}.",sess.getLogId(), attribute.getName(), facility.getId());
 			getPerunBl().getAuditer().log(sess, new AttributeRemovedForFacility(new AttributeDefinition(attribute), facility));
 		}
@@ -3910,11 +3892,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			throw new ConsistencyErrorException(ex);
 		}
 		for (Attribute attribute : attributes) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, facility, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, facility, new Attribute(attribute));
 		}
 	}
 
@@ -3946,11 +3924,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					throw new ConsistencyErrorException(ex);
 				}
 				for (Attribute attribute : userFacilityAttributes) {
-					try {
-						getAttributesManagerImpl().changedAttributeHook(sess, facility, user, new Attribute(attribute));
-					} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-						throw new InternalErrorException(ex);
-					}
+					getAttributesManagerImpl().changedAttributeHook(sess, facility, user, new Attribute(attribute));
 				}
 			}
 		}
@@ -3976,11 +3950,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		boolean changed = getAttributesManagerImpl().removeAttribute(sess, host, attribute);
 		if (changed) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, host, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, host, new Attribute(attribute));
 			log.info("{} removed attribute {} from host {}.", sess.getLogId(), attribute.getName(), host.getId());
 			getPerunBl().getAuditer().log(sess, new AttributeRemovedForHost(new AttributeDefinition(attribute), host));
 		}
@@ -4024,11 +3994,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		for (Attribute attribute : attributes) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, host, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, host, new Attribute(attribute));
 		}
 	}
 
@@ -4048,11 +4014,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		boolean changed = getAttributesManagerImpl().removeAttribute(sess, vo, attribute);
 		if (changed) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, vo, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, vo, new Attribute(attribute));
 			log.info("{} removed attribute {} from vo {}.",sess.getLogId(), attribute.getName(), vo.getId());
 			getPerunBl().getAuditer().log(sess, new AttributeRemovedForVo(new AttributeDefinition(attribute), vo));
 		}
@@ -4090,11 +4052,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		for (Attribute attribute : attributes) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, vo, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, vo, new Attribute(attribute));
 		}
 	}
 
@@ -4116,7 +4074,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if (changed) {
 			try {
 				getAttributesManagerImpl().changedAttributeHook(sess, group, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			} catch (WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from group {}.",sess.getLogId(), attribute.getName(), group.getId());
@@ -4158,7 +4116,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) {
 			try {
 				getAttributesManagerImpl().changedAttributeHook(sess, group, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			} catch (WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
 		}
@@ -4235,7 +4193,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) {
 			try {
 				getAttributesManagerImpl().changedAttributeHook(sess, resource, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			} catch (WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
 		}
@@ -4258,11 +4216,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		boolean changed = getAttributesManagerImpl().removeAttribute(sess, member, resource, attribute);
 		if (changed) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, member, resource, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, member, resource, new Attribute(attribute));
 			log.info("{} removed attribute {} from member {} on resource {}.",sess.getLogId(), attribute.getName(), member.getId(), resource.getId());
 			getPerunBl().getAuditer().log(sess, new AttributeRemovedForResourceAndMember(new AttributeDefinition(attribute), resource, member));
 		}
@@ -4329,11 +4283,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		for (Attribute attribute : attributes) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, member, resource, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, member, resource, new Attribute(attribute));
 		}
 	}
 
@@ -4354,11 +4304,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		boolean changed = getAttributesManagerImpl().removeAttribute(sess, member, group, attribute);
 		if (changed) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, member, group, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, member, group, new Attribute(attribute));
 			log.info("{} removed attribute {} from member {} in group {}.",sess.getLogId(), attribute.getName(), member.getId(), group.getId());
 			getPerunBl().getAuditer().log(sess, new AttributeRemovedForMemberAndGroup(new AttributeDefinition(attribute), member, group));
 		}
@@ -4406,7 +4352,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		List<Attribute> attributes = getAttributes(sess, member, group);
 		if (getAttributesManagerImpl().removeAllAttributes(sess, member, group)) {
 			getPerunBl().getAuditer().log(sess, new AllAttributesRemovedForMemberAndGroup(member, group));
@@ -4421,11 +4367,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		for (Attribute attribute : attributes) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, member, group, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, member, group, new Attribute(attribute));
 		}
 	}
 
@@ -4449,7 +4391,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if (changed) {
 			try {
 				getAttributesManagerImpl().changedAttributeHook(sess, member, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			} catch (WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from member {}.",sess.getLogId(), attribute.getName(), member.getId());
@@ -4492,7 +4434,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) {
 			try {
 				getAttributesManagerImpl().changedAttributeHook(sess, member, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			} catch (WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
 		}
@@ -4521,11 +4463,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		if (changed) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, facility, user, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, facility, user, new Attribute(attribute));
 			log.info("{} removed attribute {} from user {} on facility {}.",sess.getLogId(), attribute.getName(), user.getId(), facility.getId());
 			getPerunBl().getAuditer().log(sess, new AttributeRemovedForFacilityAndUser(new AttributeDefinition(attribute), facility, user));
 		}
@@ -4576,11 +4514,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		for (Attribute attribute : attributes) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, facility, user, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, facility, user, new Attribute(attribute));
 		}
 	}
 
@@ -4604,11 +4538,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		for (RichAttribute<User, Facility> attribute : userFacilitiesAttributes) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, attribute.getSecondaryHolder(), attribute.getPrimaryHolder(), new Attribute(attribute.getAttribute()));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, attribute.getSecondaryHolder(), attribute.getPrimaryHolder(), new Attribute(attribute.getAttribute()));
 		}
 	}
 
@@ -4631,7 +4561,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if (changed) {
 			try {
 				getAttributesManagerImpl().changedAttributeHook(sess, user, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			} catch (WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
 			log.info("{} removed attribute {} from  user {}.", sess.getLogId(), attribute.getName(), user.getId());
@@ -4672,7 +4602,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for (Attribute attribute : attributes) {
 			try {
 				getAttributesManagerImpl().changedAttributeHook(sess, user, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			} catch (WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
 		}
@@ -4691,18 +4621,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
 		boolean changed;
-		try {
-			if (this.isVirtAttribute(sess, attribute)) {
-				changed = getAttributesManagerImpl().removeVirtualAttribute(sess, resource, group, attribute);
-			} else {
-				changed = getAttributesManagerImpl().removeAttribute(sess, resource, group, attribute);
-			}
-
-			if (changed)
-				getAttributesManagerImpl().changedAttributeHook(sess, resource, group, new Attribute(attribute));
-		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-			throw new InternalErrorException(ex);
+		if (this.isVirtAttribute(sess, attribute)) {
+			changed = getAttributesManagerImpl().removeVirtualAttribute(sess, resource, group, attribute);
+		} else {
+			changed = getAttributesManagerImpl().removeAttribute(sess, resource, group, attribute);
 		}
+
+		if (changed)
+			getAttributesManagerImpl().changedAttributeHook(sess, resource, group, new Attribute(attribute));
 		if (changed)
 			log.info("{} removed attribute {} from group {} on resource {}.", sess.getLogId(), attribute.getName(), group.getId(), resource.getId());
 			getPerunBl().getAuditer().log(sess, new AttributeRemovedForGroupAndResource(new AttributeDefinition(attribute), group, resource));
@@ -4770,11 +4696,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		for (Attribute attribute : attributes) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, resource, group, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, resource, group, new Attribute(attribute));
 		}
 	}
 
@@ -4794,11 +4716,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		boolean changed = getAttributesManagerImpl().removeAttribute(sess, ues, attribute);
 		if (changed) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, ues, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, ues, new Attribute(attribute));
 			log.info("{} removed attribute {} from user external source {}.", sess.getLogId(), attribute.getName(), ues.getId());
 			getPerunBl().getAuditer().log(sess, new AttributeRemovedForUes(new AttributeDefinition(attribute), ues));
 		}
@@ -4835,11 +4753,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		for (Attribute attribute : attributes) {
-			try {
-				getAttributesManagerImpl().changedAttributeHook(sess, ues, new Attribute(attribute));
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			}
+			getAttributesManagerImpl().changedAttributeHook(sess, ues, new Attribute(attribute));
 		}
 	}
 
@@ -5045,12 +4959,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public void doTheMagic(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void doTheMagic(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		doTheMagic(sess, member, false);
 	}
 
 	@Override
-	public void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member);
 		for (Resource resource : resources) {
@@ -5234,15 +5148,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Prepare identifier and reverse identifier of namespace for handlers
 		if(handler1 != null && handler2 != null) {
 			firstIdentifier = handler1.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");
-			secondIdentifier = handler2.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");;
+			secondIdentifier = handler2.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");
 			identifier = firstIdentifier + "_" + secondIdentifier;
 			reverseIdentifier = secondIdentifier + "_" + firstIdentifier;
 		} else if(handler1 != null) {
-			firstIdentifier = handler1.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");;
+			firstIdentifier = handler1.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");
 			identifier = firstIdentifier;
 			reverseIdentifier = identifier;
 		} else if(handler2 != null) {
-			firstIdentifier = handler2.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");;
+			firstIdentifier = handler2.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");
 			identifier = firstIdentifier;
 			reverseIdentifier = identifier;
 		} else {
@@ -5629,7 +5543,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, UserNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
+	public List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, UserNotExistsException, VoNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException, MemberResourceMismatchException {
 		//Filling objects from aidingAttr
 		if (aidingAttr == null) throw new InternalErrorException("Aiding attribute cant be null.");
 		if (attrDef == null) throw new InternalErrorException("attrDef cant be null.");
@@ -7270,7 +7184,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> setWritableTrue(PerunSession sess, List<Attribute> attributes) throws InternalErrorException {
+	public List<Attribute> setWritableTrue(PerunSession sess, List<Attribute> attributes) {
 		List<Attribute> emptyList = new ArrayList<>();
 		if (attributes == null) return emptyList;
 
@@ -7368,14 +7282,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format) throws InternalErrorException {
+	public String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format) {
 		Graph graph = getAttributeModulesDependenciesGraph(session);
 
 		return format.getSerializer().generateTextFileContent(graph);
 	}
 
 	@Override
-	public String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format, AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format, AttributeDefinition attributeDefinition) {
 		NodeGenerator<AttributeDefinition> nodeGenerator = new ModuleDependencyNodeGenerator();
 		Graph graph = getAttributeModulesDependenciesGraph(session, nodeGenerator);
 
@@ -7408,7 +7322,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public Graph getAttributeModulesDependenciesGraph(PerunSession session) throws InternalErrorException {
+	public Graph getAttributeModulesDependenciesGraph(PerunSession session) {
 		return getAttributeModulesDependenciesGraph(session, new ModuleDependencyNodeGenerator());
 	}
 

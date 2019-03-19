@@ -126,7 +126,7 @@ public interface ExtSourcesManager {
 	 *
 	 * @return existing or newly created extSource is returned
 	 */
-	ExtSource checkOrCreateExtSource(PerunSession perunSession, String extSourceName, String extSourceType) throws InternalErrorException, PrivilegeException;
+	ExtSource checkOrCreateExtSource(PerunSession perunSession, String extSourceName, String extSourceType) throws InternalErrorException;
 
 	/**
 	 * Returns list of users stored by this ExtSource, which are not valid.
@@ -152,7 +152,7 @@ public interface ExtSourcesManager {
 	 * @return a Candidate object
 	 */
 	@SuppressWarnings("unused")
-	Candidate getCandidate(PerunSession perunSession, Map<String, String> subjectData, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
+	Candidate getCandidate(PerunSession perunSession, Map<String, String> subjectData, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException;
 
 	/**
 	 * Loads ext source definitions from the configuration file and updates entries stored in the DB.

@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.bl.PerunBl;
+
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -30,8 +30,8 @@ import java.util.concurrent.Executor;
  */
 public class PerunConnection implements Connection {
 
-	private Auditer auditer;
-	private CacheManager cacheManager;
+	private final Auditer auditer;
+	private final CacheManager cacheManager;
 	private final Connection connectionImpl;
 
 	// Constructor

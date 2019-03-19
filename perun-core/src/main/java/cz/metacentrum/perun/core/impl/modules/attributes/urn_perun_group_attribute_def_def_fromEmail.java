@@ -24,7 +24,7 @@ public class urn_perun_group_attribute_def_def_fromEmail  extends GroupAttribute
 	private static final Pattern pattern = Pattern.compile("^\".+\" <.+>$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
 		String fromEmail = null;
 
 		// null attribute

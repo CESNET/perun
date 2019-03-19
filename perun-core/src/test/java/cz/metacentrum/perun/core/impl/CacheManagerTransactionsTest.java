@@ -6,12 +6,10 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsExcepti
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
-import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,9 +39,9 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 
 	private Holder groupHolder;
 	private Holder groupHolder1;
-	private String subject = "Test subject";
-	private String timeCreated = "2016-04-24";
-	private String creator = "Admin";
+	private final String subject = "Test subject";
+	private final String timeCreated = "2016-04-24";
+	private final String creator = "Admin";
 
 	@Before
 	public void setUp() throws Exception {
@@ -198,7 +196,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		// new transaction needed, else the rollback called after this method by spring would throw exception
 		cacheManager.newTopLevelTransaction();
 
-		assertTrue("there should be one less definition after deleting attribute", numOfAttrDefs - 1 == cacheManager.getAttributesDefinitions().size());
+		assertEquals("there should be one less definition after deleting attribute", numOfAttrDefs - 1, cacheManager.getAttributesDefinitions().size());
 
 		assertEquals("returned attribute is not same as stored", groupAttr1, cacheManager.getAttributeByName(groupAttr1.getName(), groupHolder, null));
 		assertEquals("returned attribute is not same as stored", groupAttr1, cacheManager.getAttributeById(groupAttr1.getId(), groupHolder, null));
@@ -578,7 +576,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 
 		cacheManager.cleanNestedTransaction();
 
-		assertEquals("returned attribute value should be null", null, cacheManager.getEntitylessAttrValue(attr.getId(), subject));
+		assertNull("returned attribute value should be null", cacheManager.getEntitylessAttrValue(attr.getId(), subject));
 	}
 
 	@Test
@@ -624,7 +622,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 
 		cacheManager.cleanNestedTransaction();
 
-		assertEquals("returned attribute value should be null", null, cacheManager.getEntitylessAttrValue(attr.getId(), subject));
+		assertNull("returned attribute value should be null", cacheManager.getEntitylessAttrValue(attr.getId(), subject));
 	}
 
 	@Test
@@ -642,16 +640,16 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		assertEquals("returned attribute value is not same as stored", attr.getValue(), cacheManager.getEntitylessAttrValue(attr.getId(), subject));
 
 		cacheManager.removeEntitylessAttribute(attr, subject);
-		assertEquals("returned attribute value should be null", null, cacheManager.getEntitylessAttrValue(attr.getId(), subject));
+		assertNull("returned attribute value should be null", cacheManager.getEntitylessAttrValue(attr.getId(), subject));
 
 		cacheManager.setEntitylessAttribute(attr, subject);
 		assertEquals("returned attribute value is not same as stored", attr.getValue(), cacheManager.getEntitylessAttrValue(attr.getId(), subject));
 
 		cacheManager.removeEntitylessAttribute(attr, subject);
-		assertEquals("returned attribute value should be null", null, cacheManager.getEntitylessAttrValue(attr.getId(), subject));
+		assertNull("returned attribute value should be null", cacheManager.getEntitylessAttrValue(attr.getId(), subject));
 
 		cacheManager.flushNestedTransaction();
-		assertEquals("returned attribute value should be null", null, cacheManager.getEntitylessAttrValue(attr.getId(), subject));
+		assertNull("returned attribute value should be null", cacheManager.getEntitylessAttrValue(attr.getId(), subject));
 	}
 
 	@Test
@@ -671,21 +669,21 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		List<Attribute> attrs = cacheManager.getAttributesByNames(attributeNames, groupHolder, null);
 		assertTrue("result should contain group attribute", attrs.contains(groupAttr));
 		assertTrue("result should contain group attribute definition", attrs.contains(groupAttrDef));
-		assertTrue("it should return 2 attributes", attrs.size() == 2);
+		assertEquals("it should return 2 attributes", 2, attrs.size());
 
 		cacheManager.removeAttribute(groupAttr, groupHolder, null);
 
 		attrs = cacheManager.getAttributesByNames(attributeNames, groupHolder, null);
 		assertTrue("result should not contain group attribute", !attrs.contains(groupAttr));
 		assertTrue("result should contain group attribute definition", attrs.contains(groupAttrDef));
-		assertTrue("it should return 2 attribute definitions", attrs.size() == 2);
+		assertEquals("it should return 2 attribute definitions", 2, attrs.size());
 
 		cacheManager.flushNestedTransaction();
 
 		attrs = cacheManager.getAttributesByNames(attributeNames, groupHolder, null);
 		assertTrue("result should not contain group attribute", !attrs.contains(groupAttr));
 		assertTrue("result should contain group attribute definition", attrs.contains(groupAttrDef));
-		assertTrue("it should return 2 attribute definitions", attrs.size() == 2);
+		assertEquals("it should return 2 attribute definitions", 2, attrs.size());
 	}
 
 	@Test
@@ -849,7 +847,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return  attributeDefinition;
 	}
 
-	private AttributeDefinition setUpAttributeDefinition(String namespace, String friendlyName) throws InternalErrorException {
+	private AttributeDefinition setUpAttributeDefinition(String namespace, String friendlyName) {
 
 		AttributeDefinition attr = new Attribute();
 		attr.setNamespace(namespace);
@@ -876,7 +874,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return setUpAttribute(attributeDefinition, value);
 	}
 
-	private Attribute setUpAttribute(AttributeDefinition attributeDefinition, String value) throws InternalErrorException {
+	private Attribute setUpAttribute(AttributeDefinition attributeDefinition, String value) {
 		Attribute attr = new Attribute(attributeDefinition);
 
 		attr.setValue(value);

@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -53,7 +54,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	private final static String CLASS_NAME = "GroupsManager.";
 	private static final String EXT_SOURCE_NAME = "GroupSyncExtSource";
 
-	private Group baseGroup = new Group("baseGroup", "I am base group");
+	private final Group baseGroup = new Group("baseGroup", "I am base group");
 	private Vo vo;
 	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_LDAP);
 
@@ -71,7 +72,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	@Spy
 	private ExtSourcesManagerBl extSourceManagerBl;
 	//Mocked extSource, so we can simulate obtaining real extSource data
-	private ExtSourceSimpleApi essa = mock(ExtSourceLdap.class);
+	private final ExtSourceSimpleApi essa = mock(ExtSourceLdap.class);
 
 
 	@Before
@@ -122,7 +123,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
-		assertTrue("New sub group should be created under base group!", 1 == subGroups.size());
+		assertEquals("New sub group should be created under base group!", 1, subGroups.size());
 
 		Group createdGroup = subGroups.get(0);
 		assertGroup(testGroup.getGroupName(), baseGroup.getId(), testGroup.getDescription(), createdGroup);
@@ -143,7 +144,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
-		assertTrue("New sub group under base group should be created!", 1 == subGroups.size());
+		assertEquals("New sub group under base group should be created!", 1, subGroups.size());
 
 		Group createdGroup = subGroups.get(0);
 		assertGroup(testGroup.getGroupName(), baseGroup.getId(), testGroup.getDescription(), createdGroup);
@@ -164,7 +165,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
-		assertTrue("New sub group under base group should be created!", 1 == subGroups.size());
+		assertEquals("New sub group under base group should be created!", 1, subGroups.size());
 
 		Group createdGroup = subGroups.get(0);
 		assertGroup(testGroup.getGroupName(), baseGroup.getId(), testGroup.getDescription(), createdGroup);
@@ -186,7 +187,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
-		assertTrue("2 new sub groups under base group should be created!", 2 == subGroups.size());
+		assertEquals("2 new sub groups under base group should be created!", 2, subGroups.size());
 	}
 
 	@Test
@@ -206,7 +207,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		Group groupA = groupsManagerBl.getGroupByName(sess, vo, "baseGroup:groupA");
 		Group groupB = groupsManagerBl.getGroupByName(sess, vo, "baseGroup:groupA:groupB");
 
-		assertTrue("1 new sub group under base group should be created!", 1 == subGroups.size());
+		assertEquals("1 new sub group under base group should be created!", 1, subGroups.size());
 		assertTrue("groupA should be created under base group!", subGroups.contains(groupA));
 		assertTrue("groupB should be created under groupA!", groupsManagerBl.getSubGroups(sess, groupA).contains(groupB));
 	}
@@ -235,7 +236,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, subGroup);
 
-		assertTrue("New sub group under base group should be created!", 1 == subGroups.size());
+		assertEquals("New sub group under base group should be created!", 1, subGroups.size());
 
 		Group createdGroup = subGroups.get(0);
 		assertGroup(testGroup.getGroupName(), subGroup.getId(), testGroup.getDescription(), createdGroup);
@@ -264,11 +265,11 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		// assert structure
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
-		assertTrue("No direct children should be added or removed from base group!", 1 == subGroups.size());
+		assertEquals("No direct children should be added or removed from base group!", 1, subGroups.size());
 		Group checkedGroup = subGroups.get(0);
-		assertTrue("Short name of existing group should not change!", childOfBaseGroup.getShortName().equals(checkedGroup.getShortName()));
-		assertTrue("Name of existing group should not change!", childOfBaseGroup.getName().equals(checkedGroup.getName()));
-		assertTrue("Description of existing group should no change!", childOfBaseGroup.getDescription().equals(checkedGroup.getDescription()));
+		assertEquals("Short name of existing group should not change!", childOfBaseGroup.getShortName(), checkedGroup.getShortName());
+		assertEquals("Name of existing group should not change!", childOfBaseGroup.getName(), checkedGroup.getName());
+		assertEquals("Description of existing group should no change!", childOfBaseGroup.getDescription(), checkedGroup.getDescription());
 
 		subGroups = groupsManagerBl.getAllSubGroups(sess, childOfBaseGroup);
 		assertComplexGroupTree(childOfBaseGroup, subGroups);
@@ -318,7 +319,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
-		assertTrue("Leaf group should be removed!", 1 == subGroups.size());
+		assertEquals("Leaf group should be removed!", 1, subGroups.size());
 
 		Group returnedGroup = subGroups.get(0);
 		assertGroup(subBaseTestGroup.getGroupName(), baseGroup.getId(), subBaseTestGroup.getDescription(), returnedGroup);
@@ -347,17 +348,17 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
-		assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
+		assertEquals("Base group should have exactly one child!", 1, subGroups.size());
 		Group baseGroupChild = subGroups.get(0);
 		assertGroup(subBaseTestGroup.getGroupName(), baseGroup.getId(), subBaseTestGroup.getDescription(), baseGroupChild);
 
 		subGroups = groupsManagerBl.getSubGroups(sess, baseGroupChild);
 
-		assertTrue("Child of base group should have only one child!", 1 == subGroups.size());
+		assertEquals("Child of base group should have only one child!", 1, subGroups.size());
 		Group subBaseGroupChild = subGroups.get(0);
 		assertGroup(leafTestGroup.getGroupName(), baseGroupChild.getId(), leafTestGroup.getDescription(), subBaseGroupChild);
 
-		assertTrue("Leaf group should not have any children!", 0 == groupsManagerBl.getSubGroupsCount(sess, subBaseGroupChild));
+		assertEquals("Leaf group should not have any children!", 0, groupsManagerBl.getSubGroupsCount(sess, subBaseGroupChild));
 	}
 
 	@Test
@@ -377,7 +378,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		assertTrue("No users should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-		assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
+		assertEquals("Base group should have exactly one child!", 1, subGroups.size());
 		Group subBaseGroupChild = subGroups.get(0);
 		assertGroup(modifiedSubBaseTestGroup.getGroupName(), baseGroup.getId(), modifiedSubBaseTestGroup.getDescription(), subBaseGroupChild);
 	}
@@ -399,7 +400,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		assertTrue("No users should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-		assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
+		assertEquals("Base group should have exactly one child!", 1, subGroups.size());
 		Group subBaseGroupChild = subGroups.get(0);
 		assertGroup(modifiedSubBaseTestGroup.getGroupName(), baseGroup.getId(), modifiedSubBaseTestGroup.getDescription(), subBaseGroupChild);
 	}
@@ -425,13 +426,13 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		assertTrue("No users should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
-		assertTrue("Base group should have exactly one child!",1 == subGroups.size());
+		assertEquals("Base group should have exactly one child!", 1, subGroups.size());
 
 		Group subBaseGroup = subGroups.get(0);
 		assertGroup(testGroupA.getGroupName(), baseGroup.getId(), testGroupA.getDescription(), subBaseGroup);
 
 		subGroups = groupsManagerBl.getSubGroups(sess, subBaseGroup);
-		assertTrue("Child of base group should have exactly one child!", 1 == subGroups.size());
+		assertEquals("Child of base group should have exactly one child!", 1, subGroups.size());
 
 		Group childOfBaseGroup = subGroups.get(0);
 		assertGroup(testGroupB.getGroupName(), groupA.getId(), testGroupB.getDescription(), childOfBaseGroup);
@@ -578,16 +579,16 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	}
 
 	private void assertGroup(String expectedName, Integer expectedParentId, String expectedDescription, Group group) {
-		assertTrue("Group should not have null name!", group.getShortName() != null);
+		assertNotNull("Group should not have null name!", group.getShortName());
 		assertEquals("Group should have correct name!", expectedName, group.getShortName());
 		if (expectedParentId == null) {
-			assertTrue("Group A should have null as parent group!", group.getParentGroupId() == null);
+			assertNull("Group A should have null as parent group!", group.getParentGroupId());
 		} else {
-			assertTrue("Group A should not have null parent group!", group.getParentGroupId() != null);
+			assertNotNull("Group A should not have null parent group!", group.getParentGroupId());
 			assertEquals("Group A should have tree root as parent group!", (int) expectedParentId, (int) group.getParentGroupId());
 		}
 
-		assertTrue("Group A should not have null description!", group.getDescription() != null);
+		assertNotNull("Group A should not have null description!", group.getDescription());
 		assertEquals("Group A should have correct description!", expectedDescription, group.getDescription());
 	}
 

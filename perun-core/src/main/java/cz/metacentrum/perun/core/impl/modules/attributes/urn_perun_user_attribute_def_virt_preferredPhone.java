@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -60,10 +59,8 @@ public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtua
 
 			return attribute;
 
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
 		}
 	}
 

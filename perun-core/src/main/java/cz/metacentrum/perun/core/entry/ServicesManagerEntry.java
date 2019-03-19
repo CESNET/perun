@@ -441,7 +441,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException {
+	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, WrongPatternException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(services, "services");
 		Utils.checkDestinationType(destination);
@@ -453,8 +453,8 @@ public class ServicesManagerEntry implements ServicesManager {
 		}
 
 		//prepare lists of facilities
-		List<Facility> facilitiesByHostname = new ArrayList<Facility>();
-		List<Facility> facilitiesByDestination = new ArrayList<Facility>();
+		List<Facility> facilitiesByHostname = new ArrayList<>();
+		List<Facility> facilitiesByDestination = new ArrayList<>();
 		if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) ||
 				destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) ||
 				destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE)) {
@@ -506,8 +506,8 @@ public class ServicesManagerEntry implements ServicesManager {
 		}
 
 		//prepare lists of facilities
-		List<Facility> facilitiesByHostname = new ArrayList<Facility>();
-		List<Facility> facilitiesByDestination = new ArrayList<Facility>();
+		List<Facility> facilitiesByHostname = new ArrayList<>();
+		List<Facility> facilitiesByDestination = new ArrayList<>();
 		if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) ||
 				destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) ||
 				destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE)) {
@@ -668,7 +668,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
+	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
@@ -791,7 +791,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public int getDestinationsCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public int getDestinationsCount(PerunSession sess) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		return getServicesManagerBl().getDestinationsCount(sess);

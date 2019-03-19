@@ -29,10 +29,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_fireprot extends u
 	 * @param attribute Attribute to fill value to
 	 * @return Filled attribute
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 		if (filledAttribute.getValue() == null) {

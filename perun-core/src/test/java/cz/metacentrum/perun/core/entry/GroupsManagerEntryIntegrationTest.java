@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -29,7 +30,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
-import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
@@ -45,7 +45,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
-import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.junit.Before;
@@ -98,7 +97,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	private UsersManagerBl usersManagerBl;
 
 	@Before
-	public void setUpBeforeEveryMethod() throws Exception {
+	public void setUpBeforeEveryMethod() {
 
 		groupsManager = perun.getGroupsManager();
 		groupsManagerBl = perun.getGroupsManagerBl();
@@ -412,21 +411,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
 		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
 		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
-		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
-		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
+		assertNull("Member's init group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+		assertNull("Member's init group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
 
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
-		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
-		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
+		assertNull("Member's init group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+		assertNull("Member's init group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
 
 		groupsManagerBl.moveGroup(sess, group4, group);
 
 		// verify after statuses
 		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
-		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
-		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertNull("Member's group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertNull("Member's group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
 		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
 		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group5));
 
@@ -437,8 +436,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
 
 		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
-		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
-		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
+		assertNull("Member's group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
+		assertNull("Member's group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
 		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
 		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
 	}
@@ -473,7 +472,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// verify after statuses
 		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
-		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertNull("Member's group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
 		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
 	}
 
@@ -498,7 +497,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.expireMemberInGroup(sess, member1, group2);
 
 		// verify init statuses
-		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertNull("Member's init group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
 
@@ -542,21 +541,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 
 		Attribute withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
-		assertTrue("Wrong member_group status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertEquals("Wrong member_group status for valid member", "VALID", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, m, g, withValue);
 
 		// expire him
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
-		assertTrue("Wrong member_group status for expired member", "EXPIRED".equals((String)withValue.getValue()));
+		assertEquals("Wrong member_group status for expired member", "EXPIRED", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, m, g, withValue);
 
 		// remove him (will lost assignment)
 		perun.getGroupsManager().removeMember(sess, g, m);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
-		assertTrue(withValue.getValue() == null);
+		assertNull(withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, m, g, withValue);
 
 	}
@@ -595,21 +594,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 
 		Attribute withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
-		assertTrue("Wrong member_resource status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertEquals("Wrong member_resource status for valid member", "VALID", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
 
 		// expire him in first group
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 		// should be still valid from second
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
-		assertTrue("Wrong member_resource status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertEquals("Wrong member_resource status for valid member", "VALID", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
 
 		// expire him in second group
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g2);
 		// should be expired
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
-		assertTrue("Wrong member_resource status for expired member", "EXPIRED".equals((String)withValue.getValue()));
+		assertEquals("Wrong member_resource status for expired member", "EXPIRED", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
 
 		// validate him in first group
@@ -618,14 +617,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		perun.getGroupsManager().removeMember(sess, g2, m);
 		// should be valid from first group
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
-		assertTrue("Wrong member_resource status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertEquals("Wrong member_resource status for valid member", "VALID", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
 
 		// remove him (will lost assignment)
 		perun.getGroupsManager().removeMember(sess, g, m);
 		// value should be null
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
-		assertTrue(withValue.getValue() == null);
+		assertNull(withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
 
 	}
@@ -665,21 +664,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 
 		Attribute withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertEquals("Wrong user_facility status for valid member", "VALID", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// expire him
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals((String)withValue.getValue()));
+		assertEquals("Wrong user_facility status for expired member", "EXPIRED", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// remove him (will lost assignment)
 		perun.getGroupsManager().removeMember(sess, g, m);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue(withValue.getValue() == null);
+		assertNull(withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// now multiple resources context
@@ -691,34 +690,34 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		perun.getGroupsManager().addMember(sess, g2, m2);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertEquals("Wrong user_facility status for valid member", "VALID", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// expire him in first
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 		// is still valid
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertEquals("Wrong user_facility status for valid member", "VALID", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// expire him in second
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m2, g2);
 		// should be expired
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals((String)withValue.getValue()));
+		assertEquals("Wrong user_facility status for expired member", "EXPIRED", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// remove from first group
 		perun.getGroupsManager().removeMember(sess, g, m);
 		// should be expired
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals((String)withValue.getValue()));
+		assertEquals("Wrong user_facility status for expired member", "EXPIRED", (String) withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// remove him from second (will lost assignment)
 		perun.getGroupsManager().removeMember(sess, g2, m2);
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue(withValue.getValue() == null);
+		assertNull(withValue.getValue());
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 	}
@@ -801,7 +800,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+10d");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
@@ -842,7 +841,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		LocalDate date = LocalDate.now().plusDays(1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		// Set perid to day after today
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, date.getDayOfMonth() + "." + date.getMonthValue() + ".");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
@@ -885,7 +884,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		LocalDate date = LocalDate.now().plusMonths(3);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		// Set perid to day after today
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, date.getDayOfMonth() + "." + date.getMonthValue() + ".");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
@@ -927,7 +926,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0,1");
 
@@ -976,7 +975,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0,1");
 
@@ -1026,7 +1025,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m");
@@ -1083,7 +1082,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m.");
@@ -1128,7 +1127,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m.");
@@ -1171,7 +1170,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+6m");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 
@@ -1209,7 +1208,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+6m");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 
@@ -1247,7 +1246,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 
@@ -1285,7 +1284,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 
@@ -1343,7 +1342,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManagerBl.removeMember(sess, group, member1);
 
-		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertNull("Member's init group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
@@ -1390,14 +1389,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
 		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
 		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
-		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
-		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
+		assertNull("Member's init group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+		assertNull("Member's init group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
 
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
 		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
-		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
-		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
+		assertNull("Member's init group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+		assertNull("Member's init group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
 
 		groupsManagerBl.createGroupUnion(sess, group4, group, false);
 
@@ -1484,14 +1483,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
 		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
 		assertEquals("Member's group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
-		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
-		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
+		assertNull("Member's group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+		assertNull("Member's group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group5));
 
 		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
 		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
 		assertEquals("Member's group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
-		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
-		assertEquals("Member's group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
+		assertNull("Member's group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+		assertNull("Member's group status is not null", groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group5));
 	}
 
 
@@ -1529,8 +1528,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		User u = perun.getUsersManager().getUserByMember(sess, member);
 
 		List<User> users = groupsManagerBl.getGroupUsers(sess, group);
-		assertTrue("Users of group can't be null", users != null);
-		assertTrue("Group must have exactly 1 user", users.size() == 1);
+		assertNotNull("Users of group can't be null", users);
+		assertEquals("Group must have exactly 1 user", 1, users.size());
 		assertTrue("User of group is not same as originally added", users.contains(u));
 
 	}
@@ -1565,7 +1564,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		Group g3 = groupsManager.getGroupById(sess, g2.getId());
 
-		assertTrue("Result name must be made from parentGroup name and group name.", g3.getName().equals(name1+":"+name2));
+		assertEquals("Result name must be made from parentGroup name and group name.", g3.getName(), name1 + ":" + name2);
 		assertTrue("Name is longer than 128 chars.", g3.getName().length() >= 128);
 
 
@@ -1645,7 +1644,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		vo = setUpVo();
 		List<Group> groups = setUpGroupsWithSubgroups(vo);
 
-		List<Group> topLevels = new ArrayList<Group>();
+		List<Group> topLevels = new ArrayList<>();
 		for (Group group : groups) {
 			// get only top-level groups
 			if (!group.getName().contains(":")) topLevels.add(group);
@@ -1657,9 +1656,9 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// there should be only "members" group left
 		List<Group> retrievedGroups = groupsManager.getGroups(sess, vo);
-		assertTrue(retrievedGroups != null);
-		assertTrue(retrievedGroups.size() == 1);
-		assertTrue(retrievedGroups.get(0).getName().equals(VosManager.MEMBERS_GROUP));
+		assertNotNull(retrievedGroups);
+		assertEquals(1, retrievedGroups.size());
+		assertEquals(retrievedGroups.get(0).getName(), VosManager.MEMBERS_GROUP);
 
 	}
 
@@ -1741,19 +1740,19 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroupUnion(sess, group4, group5);
 		groupsManager.createGroupUnion(sess, group2, group7);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 4);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 4);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group4).size() == 3);
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 3);
-		assertTrue(groupsManager.getGroupMembers(sess, group7).size() == 1);
+		assertEquals(4, groupsManager.getGroupMembers(sess, group).size());
+		assertEquals(4, groupsManager.getGroupMembers(sess, group2).size());
+		assertEquals(1, groupsManager.getGroupMembers(sess, group3).size());
+		assertEquals(3, groupsManager.getGroupMembers(sess, group4).size());
+		assertEquals(1, groupsManager.getGroupMembers(sess, group5).size());
+		assertEquals(3, groupsManager.getGroupMembers(sess, group6).size());
+		assertEquals(1, groupsManager.getGroupMembers(sess, group7).size());
 
 		groupsManager.deleteGroup(sess, group, true);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group7).size() == 1);
+		assertEquals(1, groupsManager.getGroupMembers(sess, group5).size());
+		assertEquals(0, groupsManager.getGroupMembers(sess, group6).size());
+		assertEquals(1, groupsManager.getGroupMembers(sess, group7).size());
 	}
 
 	@Test
@@ -1770,16 +1769,16 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Member member = setUpMember(vo);
 		groupsManager.addMember(sess, group3, member);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 1);
+		assertEquals(1, groupsManager.getGroupMembers(sess, group).size());
+		assertEquals(1, groupsManager.getGroupMembers(sess, group2).size());
+		assertEquals(1, groupsManager.getGroupMembers(sess, group3).size());
 		assertEquals(groupsManager.getGroupMembers(sess, group3).get(0).getId(), member.getId());
 
 		groupsManager.removeMember(sess, group3, member);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 0);
+		assertEquals(0, groupsManager.getGroupMembers(sess, group3).size());
+		assertEquals(0, groupsManager.getGroupMembers(sess, group2).size());
+		assertEquals(0, groupsManager.getGroupMembers(sess, group).size());
 	}
 
 	@Test
@@ -1795,15 +1794,15 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManager.createGroupUnion(sess, group, group2);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
+		assertEquals(1, groupsManager.getGroupMembers(sess, group).size());
 		Member returnMember = groupsManager.getGroupMembers(sess, group).get(0);
 		assertEquals(returnMember.getMembershipType(), MembershipType.INDIRECT);
 		assertEquals(returnMember.getSourceGroupId(), Integer.valueOf(group2.getId()));
 
-		assertTrue(groupsManagerBl.getGroupUnions(sess, group, false).size() == 1);
-		assertTrue(groupsManagerBl.getGroupUnions(sess, group2, true).size() == 1);
-		assertTrue(groupsManagerBl.getGroupUnions(sess, group, false).get(0).getId() == group2.getId());
-		assertTrue(groupsManagerBl.getGroupUnions(sess, group2, true).get(0).getId() == group.getId());
+		assertEquals(1, groupsManagerBl.getGroupUnions(sess, group, false).size());
+		assertEquals(1, groupsManagerBl.getGroupUnions(sess, group2, true).size());
+		assertEquals(groupsManagerBl.getGroupUnions(sess, group, false).get(0).getId(), group2.getId());
+		assertEquals(groupsManagerBl.getGroupUnions(sess, group2, true).get(0).getId(), group.getId());
 	}
 
 	@Test
@@ -1819,13 +1818,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManager.createGroupUnion(sess, group, group2);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
+		assertEquals(1, groupsManager.getGroupMembers(sess, group).size());
 
 		groupsManager.removeGroupUnion(sess, group, group2);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 0);
-		assertTrue(groupsManagerBl.getGroupUnions(sess, group, false).size() == 0);
-		assertTrue(groupsManagerBl.getGroupUnions(sess, group2, true).size() == 0);
+		assertEquals(0, groupsManager.getGroupMembers(sess, group).size());
+		assertEquals(0, groupsManagerBl.getGroupUnions(sess, group, false).size());
+		assertEquals(0, groupsManagerBl.getGroupUnions(sess, group2, true).size());
 	}
 
 	@Test(expected=GroupRelationAlreadyExists.class)
@@ -1977,20 +1976,20 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		List<Member> thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
 		List<Member> fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
 
-		assertTrue(topMembers != null);
-		assertTrue(secondMembers != null);
-		assertTrue(thirdMembers != null);
-		assertTrue(fourthMembers != null);
+		assertNotNull(topMembers);
+		assertNotNull(secondMembers);
+		assertNotNull(thirdMembers);
+		assertNotNull(fourthMembers);
 
-		assertTrue(topMembers.size() == 1);
-		assertTrue(secondMembers.size() == 1);
-		assertTrue(thirdMembers.size() == 1);
-		assertTrue(fourthMembers.size() == 1);
+		assertEquals(1, topMembers.size());
+		assertEquals(1, secondMembers.size());
+		assertEquals(1, thirdMembers.size());
+		assertEquals(1, fourthMembers.size());
 
-		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
-		assertTrue(secondMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
-		assertTrue(thirdMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
-		assertTrue(fourthMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+		assertEquals(topMembers.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(secondMembers.get(0).getMembershipType(), MembershipType.DIRECT);
+		assertEquals(thirdMembers.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(fourthMembers.get(0).getMembershipType(), MembershipType.DIRECT);
 
 		perun.getGroupsManager().removeMember(sess, secondLevel, member);
 
@@ -1999,15 +1998,15 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
 		fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
 
-		assertTrue(topMembers.size() == 1);
-		assertTrue(secondMembers.size() == 1);
-		assertTrue(thirdMembers.size() == 1);
-		assertTrue(fourthMembers.size() == 1);
+		assertEquals(1, topMembers.size());
+		assertEquals(1, secondMembers.size());
+		assertEquals(1, thirdMembers.size());
+		assertEquals(1, fourthMembers.size());
 
-		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
-		assertTrue(secondMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
-		assertTrue(thirdMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
-		assertTrue(fourthMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+		assertEquals(topMembers.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(secondMembers.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(thirdMembers.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(fourthMembers.get(0).getMembershipType(), MembershipType.DIRECT);
 
 		perun.getGroupsManager().addMember(sess, secondLevel, member);
 		perun.getGroupsManager().removeMember(sess, fourthLevel, member);
@@ -2017,13 +2016,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
 		fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
 
-		assertTrue(topMembers.size() == 1);
-		assertTrue(secondMembers.size() == 1);
-		assertTrue(thirdMembers.size() == 0);
-		assertTrue(fourthMembers.size() == 0);
+		assertEquals(1, topMembers.size());
+		assertEquals(1, secondMembers.size());
+		assertEquals(0, thirdMembers.size());
+		assertEquals(0, fourthMembers.size());
 
-		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
-		assertTrue(secondMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+		assertEquals(topMembers.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(secondMembers.get(0).getMembershipType(), MembershipType.DIRECT);
 
 		perun.getGroupsManager().addMember(sess, topLevel, member);
 
@@ -2032,13 +2031,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
 		fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
 
-		assertTrue(topMembers.size() == 1);
-		assertTrue(secondMembers.size() == 1);
-		assertTrue(thirdMembers.size() == 0);
-		assertTrue(fourthMembers.size() == 0);
+		assertEquals(1, topMembers.size());
+		assertEquals(1, secondMembers.size());
+		assertEquals(0, thirdMembers.size());
+		assertEquals(0, fourthMembers.size());
 
-		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
-		assertTrue(secondMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+		assertEquals(topMembers.get(0).getMembershipType(), MembershipType.DIRECT);
+		assertEquals(secondMembers.get(0).getMembershipType(), MembershipType.DIRECT);
 
 		perun.getGroupsManager().removeMember(sess, secondLevel, member);
 
@@ -2047,12 +2046,12 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
 		fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
 
-		assertTrue(topMembers.size() == 1);
-		assertTrue(secondMembers.size() == 0);
-		assertTrue(thirdMembers.size() == 0);
-		assertTrue(fourthMembers.size() == 0);
+		assertEquals(1, topMembers.size());
+		assertEquals(0, secondMembers.size());
+		assertEquals(0, thirdMembers.size());
+		assertEquals(0, fourthMembers.size());
 
-		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+		assertEquals(topMembers.get(0).getMembershipType(), MembershipType.DIRECT);
 
 		perun.getGroupsManager().addMember(sess, fourthLevel, member);
 
@@ -2061,15 +2060,15 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
 		fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
 
-		assertTrue(topMembers.size() == 1);
-		assertTrue(secondMembers.size() == 1);
-		assertTrue(thirdMembers.size() == 1);
-		assertTrue(fourthMembers.size() == 1);
+		assertEquals(1, topMembers.size());
+		assertEquals(1, secondMembers.size());
+		assertEquals(1, thirdMembers.size());
+		assertEquals(1, fourthMembers.size());
 
-		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
-		assertTrue(secondMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
-		assertTrue(thirdMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
-		assertTrue(fourthMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+		assertEquals(topMembers.get(0).getMembershipType(), MembershipType.DIRECT);
+		assertEquals(secondMembers.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(thirdMembers.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(fourthMembers.get(0).getMembershipType(), MembershipType.DIRECT);
 
 	}
 
@@ -2543,7 +2542,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addMember(sess, group, member);
 
 		List<Member> members = groupsManager.getGroupMembers(sess, group);
-		assertTrue(members.size() == 1);
+		assertEquals(1, members.size());
 		assertTrue(members.contains(member));
 
 	}
@@ -2595,7 +2594,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addMember(sess, group, member);
 
 		int count = groupsManager.getGroupMembersCount(sess, group);
-		assertTrue(count == 1);
+		assertEquals(1, count);
 
 	}
 
@@ -2677,7 +2676,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		List<Group> groups = groupsManager.getSubGroups(sess, group);
 
-		assertTrue(groups.size() == 1);
+		assertEquals(1, groups.size());
 		assertTrue(groups.contains(createdGroup21));
 
 	}
@@ -2696,7 +2695,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		List<Group> groups = groupsManager.getAllSubGroups(sess, group);
 
-		assertTrue(groups.size() == 4);
+		assertEquals(4, groups.size());
 		assertTrue(groups.contains(createdGroup21));
 		assertTrue(groups.contains(createdGroup2));
 		assertTrue(groups.contains(createdGroup3));
@@ -2732,7 +2731,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addAdmin(sess, group, user);
 
 		List<User> admins = groupsManager.getAdmins(sess, group);
-		assertTrue("group should have 1 admin",admins.size() == 1);
+		assertEquals("group should have 1 admin", 1, admins.size());
 		assertTrue("our user should be admin",admins.contains(user));
 
 	}
@@ -2790,7 +2789,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addAdmin(sess, group, returnedGroup);
 
 		List<Group> admins = groupsManager.getAdminGroups(sess, group);
-		assertTrue("group should have 1 admin",admins.size() == 1);
+		assertEquals("group should have 1 admin", 1, admins.size());
 		assertTrue("our user should be admin",admins.contains(authorizedGroup));
 
 	}
@@ -2894,7 +2893,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		candidate.setTitleAfter("");
 		UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
@@ -2902,7 +2901,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// test
 		List<User> admins = groupsManager.getAdmins(sess, group);
-		assertTrue("group should have 2 admins",admins.size() == 2);
+		assertEquals("group should have 2 admins", 2, admins.size());
 		assertTrue("our member as direct user should be admin",admins.contains(user));
 		assertTrue("our member as member of admin group should be admin",admins.contains(user2));
 	}
@@ -2919,7 +2918,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addAdmin(sess, group, user);
 
 		List<User> admins = groupsManager.getDirectAdmins(sess, group);
-		assertTrue("group should have 1 admin",admins.size() == 1);
+		assertEquals("group should have 1 admin", 1, admins.size());
 		assertTrue("our member should be admin",admins.contains(user));
 
 	}
@@ -3019,16 +3018,16 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 			groupsManager.addMember(sess,group2,member);
 		}
 		int count = groupsManager.getGroupMembersCount(sess, group2);
-		assertTrue(count == 5);
+		assertEquals(5, count);
 		Candidate candidate = setUpCandidate(5);
 		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		assertNotNull("No member created", member);
 		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
 		groupsManager.addMember(sess, group, member);
 		count = groupsManager.getGroupMembersCount(sess, group2);
-		assertTrue(count == 6);
+		assertEquals(6, count);
 		count = groupsManager.getGroupMembersCount(sess, group);
-		assertTrue(count == 6);
+		assertEquals(6, count);
 
 	}
 
@@ -3041,7 +3040,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group firstLayerSubGroup = this.groupsManager.createGroup(sess, group, group2);
 		Group secondLayerSubGroup = this.groupsManager.createGroup(sess, group2, group3);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.add(setUpMemberWithDifferentParam(vo, 1));
 
 		this.groupsManager.addMember(sess, group2, members.get(0));
@@ -3067,7 +3066,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group topGroup = this.groupsManager.createGroup(sess, vo, group);
 		Group subGroup = this.groupsManager.createGroup(sess, group, group2);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.add(setUpMemberWithDifferentParam(vo, 1));
 
 		this.groupsManager.addMember(sess, group, members.get(0));
@@ -3091,7 +3090,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group subGroup = this.groupsManager.createGroup(sess, group, group2);
 		Group subSubGroup = this.groupsManager.createGroup(sess, group2, group3);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.add(setUpMemberWithDifferentParam(vo, 1));
 
 		this.groupsManager.addMember(sess, group3, members.get(0));
@@ -3122,7 +3121,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		this.groupsManager.createGroup(sess, group, group21);
 		this.groupsManager.createGroup(sess, group2, group3);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		for(int i=0;i<4;i++)
 			members.add(setUpMemberWithDifferentParam(vo, i));
 
@@ -3207,7 +3206,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull(groupsManager.createGroup(sess, group, group21));
 
 		int count = groupsManager.getSubGroupsCount(sess, group);
-		assertTrue("our group should have one sub-group",count == 1);
+		assertEquals("our group should have one sub-group", 1, count);
 
 	}
 
@@ -3249,7 +3248,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		this.groupsManager.createGroup(sess, vo, group);
 		this.groupsManager.createGroup(sess, group, group2);
 		this.groupsManager.addMember(sess, group2, member);
-		assertTrue(this.groupsManager.getGroupMembers(sess, group).size()==1);
+		assertEquals(1, this.groupsManager.getGroupMembers(sess, group).size());
 		assertEquals(this.groupsManager.getGroupMembers(sess, group).get(0).getMembershipType(), MembershipType.INDIRECT);
 		assertEquals(this.groupsManager.getGroupMembers(sess, group2).get(0).getMembershipType(), MembershipType.DIRECT);
 	}
@@ -3324,7 +3323,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		List<RichGroup> returnedGroups = groupsManager.getRichGroupsAssignedToResourceWithAttributesByNames(sess, resource, attrNames);
 
-		assertTrue(returnedGroups.size() == groups.size());
+		assertEquals(returnedGroups.size(), groups.size());
 		assertTrue(returnedGroups.containsAll(richGroups));
 	}
 
@@ -3510,7 +3509,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		// test new way - single select
 		List<Group> groups = perun.getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
 		Assert.notNull(groups);
-		assertTrue(groups.size() == 2);
+		assertEquals(2, groups.size());
 		assertTrue(groups.contains(group11));
 		assertTrue(groups.contains(group21));
 		assertTrue(!groups.contains(group12));
@@ -3518,7 +3517,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// test old way - iterate over resources
 		List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
-		List<Group> oldGroups = new ArrayList<Group>();
+		List<Group> oldGroups = new ArrayList<>();
 		for (Resource r : resources) {
 			oldGroups.addAll(perun.getResourcesManager().getAssignedGroups(sess, r));
 		}
@@ -3690,7 +3689,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManagerBl.moveGroup(sess, group2, group4);
 
-		assertTrue("group4 has different parent id than group2 id", group2.getId() == groupsManager.getGroupById(sess, group4.getId()).getParentGroupId());
+		assertEquals("group4 has different parent id than group2 id", group2.getId(), (int) groupsManager.getGroupById(sess, group4.getId()).getParentGroupId());
 
 		assertEquals("Group4 has wrong name after moving", "GroupsManagerTestGroup1:GroupsManagerTestGroup2:GroupsManagerTestGroup4", groupsManager.getGroupById(sess, group4.getId()).getName());
 		assertEquals("Group5 has wrong name after moving", "GroupsManagerTestGroup1:GroupsManagerTestGroup2:GroupsManagerTestGroup4:GroupsManagerTestGroup5", groupsManager.getGroupById(sess, group5.getId()).getName());
@@ -3720,7 +3719,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManagerBl.moveGroup(sess, null, group4);
 
-		assertTrue("group4 doesn't have null parent id ", groupsManager.getGroupById(sess, group4.getId()).getParentGroupId() == null);
+		assertNull("group4 doesn't have null parent id ", groupsManager.getGroupById(sess, group4.getId()).getParentGroupId());
 
 		assertEquals("Group4 has wrong name after moving", "GroupsManagerTestGroup4", groupsManager.getGroupById(sess, group4.getId()).getName());
 		assertEquals("Group5 has wrong name after moving", "GroupsManagerTestGroup4:GroupsManagerTestGroup5", groupsManager.getGroupById(sess, group5.getId()).getName());
@@ -3934,7 +3933,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue("There should not be relation between group4 and group5", !relationsGroup5.contains(groupsManager.getGroupById(sess, group4.getId())));
 		assertTrue("There should be relation between group5 and group6", relationsGroup5.contains(groupsManager.getGroupById(sess, group6.getId())));
 		assertTrue("There should be relation between group5 and group6", relationsGroup6.contains(groupsManager.getGroupById(sess, group5.getId())));
-		assertTrue("There should be 7 members in group1", groupsManagerBl.getGroupMembers(sess, group).size() == 7);
+		assertEquals("There should be 7 members in group1", 7, groupsManagerBl.getGroupMembers(sess, group).size());
 		assertTrue("There should be just member4 in group4", groupsManagerBl.getGroupMembers(sess, group4).contains(member4) && groupsManagerBl.getGroupMembers(sess, group4).size() == 1);
 		assertEquals("Group5 has wrong name after moving", "GroupsManagerTestGroup1:GroupsManagerTestGroup2:GroupsManagerTestGroup3:GroupsManagerTestGroup6:GroupsManagerTestGroup5", groupsManager.getGroupById(sess, group5.getId()).getName());
 
@@ -4313,14 +4312,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
 		candidate.setFirstName(userFirstName);
-		candidate.setId(0+i);
+		candidate.setId(i);
 		candidate.setMiddleName("");
 		candidate.setLastName(userLastName);
 		candidate.setTitleBefore("");
 		candidate.setTitleAfter("");
 		final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}
@@ -4401,7 +4400,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	private List<Attribute> setUpGroupAttributes() throws Exception {
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 
 		// attribute1
 		Attribute attr = new Attribute();
@@ -4436,7 +4435,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull("unable to create Group_Resource attribute",attributesManager.createAttribute(sess, attr));
 		// create new group resource attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 

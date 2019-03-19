@@ -464,7 +464,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (roles.containsKey(Role.GROUPADMIN)) {
 			//if principal is groupManager in vo where the member has membership
 			Vo v = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
-			if (isAuthorized(sess, Role.GROUPADMIN, v)) return true;
+			return isAuthorized(sess, Role.GROUPADMIN, v);
 		}
 //			if (roles.containsKey(Role.FACILITYADMIN)) ; //Not allowed
 
@@ -706,7 +706,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 //			if (roles.containsKey(Role.GROUPADMIN)) ; //Not allowed
 		if (roles.containsKey(Role.FACILITYADMIN)) {
 			Facility f = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-			if (isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
+			return isAuthorized(sess, Role.FACILITYADMIN, f);
 		}
 //			if (roles.containsKey(Role.SELF)) ; //Not allowed
 
@@ -760,7 +760,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) throws InternalErrorException, AttributeNotExistsException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, key, null);
 
@@ -1378,7 +1378,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param sess perun session
 	 * @return currently logged user
 	 */
-	public static User getLoggedUser(PerunSession sess) throws UserNotExistsException, InternalErrorException {
+	public static User getLoggedUser(PerunSession sess) throws InternalErrorException {
 		// We need to load additional information about the principal
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
 			refreshAuthz(sess);
@@ -1740,7 +1740,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess use session to add roles
 	 */
-	private static void prepareServiceRoles(PerunSession sess) throws InternalErrorException {
+	private static void prepareServiceRoles(PerunSession sess) {
 		// Load list of perunAdmins from the configuration, split the list by the comma
 		List<String> perunAdmins = BeansUtils.getCoreConfig().getAdmins();
 

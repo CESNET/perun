@@ -11,7 +11,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -149,12 +148,11 @@ public interface ModulesUtilsBl {
 	 * @param attribute group or resource unixGID-namespace attribute with value
 	 *
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException if minGid or maxGid is null
 	 * @throws WrongAttributeAssignmentException
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeValueException
 	 */
-	void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
+	void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
 
 	/**
 	 * Return true if i have right on any of groups or resources to WRITE the attribute
@@ -203,9 +201,8 @@ public interface ModulesUtilsBl {
 	 * @return list of namespaces
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	Set<String> getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(PerunSessionImpl sess, List<Facility> facilities, Attribute unixGroupNameNamespace) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	Set<String> getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(PerunSessionImpl sess, List<Facility> facilities, Attribute unixGroupNameNamespace) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get list of facilities and namespace of group or resource attribute unixGID-namespace and
@@ -231,10 +228,9 @@ public interface ModulesUtilsBl {
 	 * If there is no property in this file, it reads the default hardcoded values.
 	 *
 	 * @param groupNameAttribute unixGroupName-namespace
-	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 */
-	void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws WrongAttributeValueException;
 
 	/**
 	 * Check if value of login attribute is unpermitted.
@@ -245,10 +241,9 @@ public interface ModulesUtilsBl {
 	 * If there is no property in this file, it reads the default hardcoded values.
 	 *
 	 * @param loginAttribute login-namespace
-	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 */
-	void checkUnpermittedUserLogins(Attribute loginAttribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkUnpermittedUserLogins(Attribute loginAttribute) throws WrongAttributeValueException;
 
 	/**
 	 * Get value of attribute A_F_Def_unixGroupName-Namespace

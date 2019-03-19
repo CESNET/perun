@@ -220,5 +220,5 @@ public interface ExtSourcesManagerImplApi {
 	 * @return			Map of attributes for external source
 	 * @throws InternalErrorException
 	 */
-	public Map<String,String> getAttributes(ExtSource extSource) throws InternalErrorException;
+	Map<String,String> getAttributes(ExtSource extSource) throws InternalErrorException;
 }

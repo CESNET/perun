@@ -32,18 +32,17 @@ public abstract class UserFacilityVirtualAttributesModuleAbstract extends UserFa
 		return false;
 	}
 
-	public boolean removeAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute) {
 		return false;
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) {
 		return new ArrayList<>();
 	}
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<>();
-		return dependecies;
+		return new ArrayList<>();
 	}
 }

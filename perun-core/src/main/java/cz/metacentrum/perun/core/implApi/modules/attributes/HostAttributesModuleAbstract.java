@@ -20,15 +20,15 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public abstract class HostAttributesModuleAbstract implements HostAttributesModuleImplApi {
 
-	public void checkAttributeValue(PerunSessionImpl session, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl session, Host host, Attribute attribute) {
 
 	}
 
-	public Attribute fillAttribute(PerunSessionImpl session, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Host host, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
-	public void changedAttributeHook(PerunSessionImpl session, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void changedAttributeHook(PerunSessionImpl session, Host host, Attribute attribute) {
 
 	}
 }

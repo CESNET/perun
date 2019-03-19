@@ -20,7 +20,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 public class urn_perun_user_attribute_def_def_preferredShells extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		List<String> pshell = (List<String>) attribute.getValue();
 
 		if (pshell != null){

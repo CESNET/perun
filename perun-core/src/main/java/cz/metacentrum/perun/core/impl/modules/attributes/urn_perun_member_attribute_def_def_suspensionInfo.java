@@ -60,7 +60,7 @@ public class urn_perun_member_attribute_def_def_suspensionInfo extends MemberAtt
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl session, AuditEvent message) throws WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl session, AuditEvent message) throws WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 		Member member = null;
 

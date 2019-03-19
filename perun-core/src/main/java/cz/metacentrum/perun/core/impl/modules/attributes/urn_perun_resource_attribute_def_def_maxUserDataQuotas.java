@@ -11,9 +11,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-import java.util.HashMap;
+
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Attribute for setting maximum of data quotas for any volume on defined resource.
@@ -25,7 +24,7 @@ import java.util.Map;
 public class urn_perun_resource_attribute_def_def_maxUserDataQuotas extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		//attribute can be null, it means there are no max user settings on resource
 		if(attribute.getValue() == null) {
 			return;

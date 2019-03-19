@@ -4,7 +4,6 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -31,12 +30,12 @@ public class urn_perun_group_attribute_def_def_groupMembershipExpirationRules ex
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Group group, AttributeDefinition attribute) {
 		return null;
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) {
 
 	}
 

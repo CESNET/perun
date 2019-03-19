@@ -31,7 +31,7 @@ public interface GeneralServiceManager {
 	 * @throws InternalErrorException
 	 * @throws ServiceAlreadyBannedException
 	 */
-	public void blockServiceOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException;
+	void blockServiceOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException;
 
 	/**
 	 * Bans Service on destination.
@@ -43,7 +43,7 @@ public interface GeneralServiceManager {
 	 * @param destinationId The destination on which we want to ban the Service
 	 * @throws InternalErrorException
 	 */
-	public void blockServiceOnDestination(PerunSession perunSession, Service service, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException;
+	void blockServiceOnDestination(PerunSession perunSession, Service service, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException, ServiceAlreadyBannedException;
 
 	/**
 	 * Block all services currently assigned on this facility.
@@ -55,7 +55,7 @@ public interface GeneralServiceManager {
 	 *
 	 * @throws InternalErrorException
 	 */
-	public void blockAllServicesOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
+	void blockAllServicesOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
 
 	/**
 	 * Block all services currently assigned on this destination.
@@ -67,7 +67,7 @@ public interface GeneralServiceManager {
 	 *
 	 * @throws InternalErrorException
 	 */
-	public void blockAllServicesOnDestination(PerunSession perunSession, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException;
+	void blockAllServicesOnDestination(PerunSession perunSession, int destinationId) throws InternalErrorException, PrivilegeException, DestinationNotExistsException;
 
 	/**
 	 * List all the Services that are banned on this facility.
@@ -76,11 +76,8 @@ public interface GeneralServiceManager {
 	 * @param facility
 	 * @return a list of Services that are denied on the facility
 	 *
-	 * @throws PrivilegeException
-	 * @throws InternalErrorException
-	 * @throws ServiceNotExistsException
 	 */
-	public List<Service> getServicesBlockedOnFacility(PerunSession perunSession, Facility facility) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	List<Service> getServicesBlockedOnFacility(PerunSession perunSession, Facility facility);
 
 	/**
 	 * List all the Services that are banned on this destination.
@@ -89,11 +86,8 @@ public interface GeneralServiceManager {
 	 * @param destinationId
 	 * @return a list of Services that are denied on the destination
 	 *
-	 * @throws PrivilegeException
-	 * @throws InternalErrorException
-	 * @throws ServiceNotExistsException
 	 */
-	public List<Service> getServicesBlockedOnDestination(PerunSession perunSession, int destinationId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	List<Service> getServicesBlockedOnDestination(PerunSession perunSession, int destinationId);
 
 	/**
 	 * Is this Service denied on the facility?
@@ -103,7 +97,7 @@ public interface GeneralServiceManager {
 	 * @return true - in case the Service is denied on the facility false - in
 	 *         case the Service in NOT denied on the facility
 	 */
-	public boolean isServiceBlockedOnFacility(Service service, Facility facility);
+	boolean isServiceBlockedOnFacility(Service service, Facility facility);
 
 	/**
 	 * Is this Service denied on the destination?
@@ -113,7 +107,7 @@ public interface GeneralServiceManager {
 	 * @return true - in case the Service is denied on the destination false - in case
 	 *         the Service in NOT denied on the destination
 	 */
-	public boolean isServiceBlockedOnDestination(Service service, int destinationId);
+	boolean isServiceBlockedOnDestination(Service service, int destinationId);
 
 	/**
 	 * Erase all the possible denials on this facility.
@@ -122,9 +116,8 @@ public interface GeneralServiceManager {
 	 * @param perunSession
 	 * @param facility Facility we want to clear of all the denials.
 	 *
-	 * @throws InternalErrorException
 	 */
-	public void unblockAllServicesOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	void unblockAllServicesOnFacility(PerunSession perunSession, Facility facility);
 
 	/**
 	 * Erase all the possible denials on this destination.
@@ -133,9 +126,8 @@ public interface GeneralServiceManager {
 	 * @param perunSession
 	 * @param destinationId The id of a destination we want to clear of all the denials.
 	 *
-	 * @throws InternalErrorException
 	 */
-	public void unblockAllServicesOnDestination(PerunSession perunSession, int destinationId) throws InternalErrorException;
+	void unblockAllServicesOnDestination(PerunSession perunSession, int destinationId);
 
 	/**
 	 * Free the denial of the Service on this facility.
@@ -146,9 +138,8 @@ public interface GeneralServiceManager {
 	 * @param service The Service, the denial of which we want to free on this facility.
 	 * @param facility The facility on which we want to free the denial of the Service.
 	 *
-	 * @throws InternalErrorException
 	 */
-	public void unblockServiceOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
+	void unblockServiceOnFacility(PerunSession perunSession, Service service, Facility facility);
 
 	/**
 	 * Free the denial of the Service on this destination.
@@ -159,9 +150,8 @@ public interface GeneralServiceManager {
 	 * @param service The Service, the denial of which we want to free on this destination.
 	 * @param destinationId The id of a destination on which we want to free the denial of the Service.
 	 *
-	 * @throws InternalErrorException
 	 */
-	public void unblockServiceOnDestination(PerunSession perunSession, Service service, int destinationId) throws InternalErrorException;
+	void unblockServiceOnDestination(PerunSession perunSession, Service service, int destinationId);
 
 	/**
 	 * Forces service propagation on defined facility.
@@ -171,12 +161,8 @@ public interface GeneralServiceManager {
 	 * @param facility
 	 * @return true if it is possible, false if not
 	 *
-	 * @throws ServiceNotExistsException
-	 * @throws FacilityNotExistsException
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 */
-	boolean forceServicePropagation(PerunSession perunSession, Facility facility, Service service) throws ServiceNotExistsException, FacilityNotExistsException, InternalErrorException, PrivilegeException;
+	boolean forceServicePropagation(PerunSession perunSession, Facility facility, Service service);
 
 	/**
 	 * Forces service propagation on all facilities where the service is defined on.
@@ -185,11 +171,8 @@ public interface GeneralServiceManager {
 	 * @param service
 	 * @return true if it is possible, false if not
 	 *
-	 * @throws ServiceNotExistsException
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 */
-	boolean forceServicePropagation(PerunSession perunSession, Service service) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	boolean forceServicePropagation(PerunSession perunSession, Service service);
 
 	/**
 	 * Plans service propagation on defined facility.
@@ -199,12 +182,8 @@ public interface GeneralServiceManager {
 	 * @param service
 	 * @return true if it is possible, false if not
 	 *
-	 * @throws ServiceNotExistsException
-	 * @throws FacilityNotExistsException
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 */
-	boolean planServicePropagation(PerunSession perunSession, Facility facility, Service service) throws ServiceNotExistsException, FacilityNotExistsException, InternalErrorException, PrivilegeException;
+	boolean planServicePropagation(PerunSession perunSession, Facility facility, Service service);
 
 	/**
 	 * Forces service propagation on all facilities where the service is defined on.
@@ -213,11 +192,8 @@ public interface GeneralServiceManager {
 	 * @param service
 	 * @return true if it is possible, false if not
 	 *
-	 * @throws ServiceNotExistsException
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 */
-	boolean planServicePropagation(PerunSession perunSession, Service service) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	boolean planServicePropagation(PerunSession perunSession, Service service);
 
 	/**
 	 * Return list of ServiceForGUI assigned on facility, (Service with "allowedOnFacility" property filled).

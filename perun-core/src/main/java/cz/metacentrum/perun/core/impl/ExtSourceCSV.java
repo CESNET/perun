@@ -39,22 +39,22 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public List<Map<String, String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException("For CSV using this method is not optimized, use findSubjects instead.");
     }
 
     @Override
-    public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException("For CSV using this method is not optimized, use findSubjects instead.");
     }
 
     @Override
-    public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException {
         return findSubjects(searchString, 0);
     }
 
     @Override
-    public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
         try {
             query = getAttributes().get("query");
 
@@ -82,7 +82,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException, ExtSourceUnsupportedOperationException {
+    public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
         try {
             query = getAttributes().get("loginQuery");
 
@@ -119,7 +119,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
         try {
             // Get the query for the group subjects
             String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -141,12 +141,12 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public void close() throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException("Using this method is not supported for CSV.");
     }
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException {
 		try {
 			String queryForGroup = attributes.get(GroupsManager.GROUPSQUERY_ATTRNAME);
 
@@ -172,8 +172,8 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         }
     }
 
-    private List<Map<String, String>> csvParsing(String query, int maxResults) throws InternalErrorException, FileNotFoundException, IOException {
-        List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+    private List<Map<String, String>> csvParsing(String query, int maxResults) throws InternalErrorException, IOException {
+        List<Map<String, String>> subjects = new ArrayList<>();
 
         FileReader fileReader = new FileReader(file);
         if (fileReader == null) {
@@ -269,43 +269,43 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
      */
     private Map<String, String> convertLineToMap(String[] line) throws InternalErrorException {
 
-        Map<String, String> lineAsMap = new HashMap<String, String>();
+        Map<String, String> lineAsMap = new HashMap<>();
 
         String mapping = getAttributes().get("csvMapping");
 
         String[] mappingArray = mapping.split(",\n");
 
-        for (int i = 0; i < mappingArray.length; i++) {
+	    for (String s : mappingArray) {
 
-            for (int j = 0; j < line.length; j++) {
+		    for (int j = 0; j < line.length; j++) {
 
-                String attr = mappingArray[i].trim();
+			    String attr = s.trim();
 
-                int index = attr.indexOf("=");
+			    int index = attr.indexOf("=");
 
-                if (index <= 0) {
-                    throw new InternalErrorException("There is no text in csvMapping attribute or there is no '=' character.");
-                }
+			    if (index <= 0) {
+				    throw new InternalErrorException("There is no text in csvMapping attribute or there is no '=' character.");
+			    }
 
-                String name = attr.substring(0, index);
-                String value = attr.substring(index + 1);
+			    String name = attr.substring(0, index);
+			    String value = attr.substring(index + 1);
 
-                if (value.startsWith("{")) {
+			    if (value.startsWith("{")) {
 
-                    // exclude curly brackets from value
-                    value = value.substring(1, value.length() - 1);
+				    // exclude curly brackets from value
+				    value = value.substring(1, value.length() - 1);
 
-                    if (value.compareTo(header[j]) == 0) {
-                        value = line[j];
-                        lineAsMap.put(name.trim(), value.trim());
-                        break;
-                    }
-                } else {
-                    lineAsMap.put(name.trim(), value.trim());
-                    break;
-                }
-            }
-        }
+				    if (value.compareTo(header[j]) == 0) {
+					    value = line[j];
+					    lineAsMap.put(name.trim(), value.trim());
+					    break;
+				    }
+			    } else {
+				    lineAsMap.put(name.trim(), value.trim());
+				    break;
+			    }
+		    }
+	    }
         return lineAsMap;
     }
 

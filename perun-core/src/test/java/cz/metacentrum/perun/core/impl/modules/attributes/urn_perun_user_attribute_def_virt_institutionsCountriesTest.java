@@ -48,14 +48,14 @@ public class urn_perun_user_attribute_def_virt_institutionsCountriesTest {
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_institutionsCountriesTest.class);
 	public static final String SCHAC_HOME_ATTR_NAME = "urn:perun:ues:attribute-def:def:schacHomeOrganization";
 
-	private urn_perun_user_attribute_def_virt_institutionsCountries classInstance = new urn_perun_user_attribute_def_virt_institutionsCountries();
-	private AttributeDefinition institutionCountriesAttrDef = classInstance.getAttributeDefinition();
+	private final urn_perun_user_attribute_def_virt_institutionsCountries classInstance = new urn_perun_user_attribute_def_virt_institutionsCountries();
+	private final AttributeDefinition institutionCountriesAttrDef = classInstance.getAttributeDefinition();
 
-	private User user = new User(10, "Joe", "Doe", "W.", "", "");
-	private UserExtSource userExtSource = new UserExtSource(1, new ExtSource(100, "es_name", "es_type"), "joe", user.getId());
-	private List<UserExtSource> userExtSources = Collections.singletonList(userExtSource);
+	private final User user = new User(10, "Joe", "Doe", "W.", "", "");
+	private final UserExtSource userExtSource = new UserExtSource(1, new ExtSource(100, "es_name", "es_type"), "joe", user.getId());
+	private final List<UserExtSource> userExtSources = Collections.singletonList(userExtSource);
 
-	private Map<String, String> dnsMap = new HashMap<>();
+	private final Map<String, String> dnsMap = new HashMap<>();
 	private PerunSessionImpl sess;
 	private Attribute schacHomeOrg;
 

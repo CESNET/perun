@@ -10,8 +10,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl;
-
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
@@ -20,7 +18,7 @@ public class PerunAuthenticatorImpl extends Authenticator {
 	private final static Logger log = LoggerFactory.getLogger(PerunAuthenticatorImpl.class);
 
 	@GuardedBy("itself")
-	private ConcurrentMap<String, PasswordAuthentication> passwordAuthenticationsForURL = new ConcurrentHashMap<String, PasswordAuthentication>();
+	private final ConcurrentMap<String, PasswordAuthentication> passwordAuthenticationsForURL = new ConcurrentHashMap<>();
 
 	@GuardedBy("PerunAuthenticatorImpl.class")
 	private static PerunAuthenticatorImpl instance;

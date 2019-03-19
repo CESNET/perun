@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForKey;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForKey;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 class DnsMapCtx extends UserVirtualAttributeCollectedFromUserExtSource.ModifyValueContext {
-	private Map<String, String> dnsMap;
+	private final Map<String, String> dnsMap;
 
 	DnsMapCtx(PerunSessionImpl sess, User user, AttributeDefinition ad, Map<String, String> dnsMap) {
 		super(sess, user, ad);

@@ -39,7 +39,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -161,9 +160,8 @@ public interface GroupsManagerBl {
 	 * @throws GroupNotExistsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
-	 * @throws NotGroupMemberException
 	 */
-	void deleteMembersGroup(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, NotGroupMemberException;
+	void deleteMembersGroup(PerunSession sess, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Deletes all groups under the VO except built-in groups (members, admins groups).
@@ -174,11 +172,10 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws GroupAlreadyRemovedException
 	 * @throws GroupAlreadyRemovedFromResourceException
-	 * @throws GroupNotExistsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteAllGroups(PerunSession perunSession, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteAllGroups(PerunSession perunSession, Vo vo) throws InternalErrorException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Updates group by ID.
@@ -777,10 +774,9 @@ public interface GroupsManagerBl {
 	 * @param group
 	 *
 	 * @throws InternalErrorException
-	 * @throws  UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
 	 * Gets list of all administrators of this group, which are assigned directly, like RichUsers without attributes.
@@ -789,10 +785,9 @@ public interface GroupsManagerBl {
 	 * @param group
 	 *
 	 * @throws InternalErrorException
-	 * @throws  UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
 	 * Gets list of all administrators of this group like RichUsers with attributes.
@@ -932,11 +927,9 @@ public interface GroupsManagerBl {
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws ExtSourceNotExistsException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupNotExistsException
 	 */
-	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
+	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, GroupNotExistsException;
 
 	/**
 	 * Synchronize the group with external group. It checks if the synchronization of the same group is already in progress.
@@ -1106,7 +1099,7 @@ public interface GroupsManagerBl {
 	 * @param members list of members to filtering
 	 * @return filteredMembers list of members without duplicit after filtering
 	 */
-	List<Member> filterMembersByMembershipTypeInGroup(List<Member> members) throws InternalErrorException;
+	List<Member> filterMembersByMembershipTypeInGroup(List<Member> members);
 
 	/**
 	 * For richGroup filter all his group attributes and remove all which principal has no access to.
@@ -1601,9 +1594,8 @@ public interface GroupsManagerBl {
 	 * @throws ExtSourceNotExistsException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws GroupNotExistsException
 	 */
-	List<String> synchronizeGroupStructure(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException ;
+	List<String> synchronizeGroupStructure(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Check if the group or its subgroups are defined as synchronized from an external source at this moment.

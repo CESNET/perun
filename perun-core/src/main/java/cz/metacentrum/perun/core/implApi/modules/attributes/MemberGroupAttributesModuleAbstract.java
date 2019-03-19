@@ -21,15 +21,15 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public abstract class MemberGroupAttributesModuleAbstract extends AttributesModuleAbstract implements MemberGroupAttributesModuleImplApi {
 
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
 
 	}
 
-	public Attribute fillAttribute(PerunSessionImpl session, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Member member, Group group, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute) throws InternalErrorException {
 
 	}
 }

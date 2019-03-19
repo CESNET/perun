@@ -33,7 +33,7 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		HashMap<String, String> certsExpirations = new LinkedHashMap<String, String>();
+		HashMap<String, String> certsExpirations = new LinkedHashMap<>();
 
 		try {
 			Attribute userCertsAttribute = getUserCertsAttribute(sess, user);
@@ -74,7 +74,7 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":userCertificates");
 		return strongDependencies;
 	}

@@ -40,9 +40,9 @@ public class urn_perun_group_resource_attribute_def_def_o365EmailAddresses_muTes
 	private urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu classInstance;
 	private PerunSessionImpl session;
 	private Attribute attributeToCheck;
-	private Group group = new Group(1,"group1","Group 1",null,null,null,null,0,0);
-	private Resource resource = new Resource(2,"resource2","Resource 2",3);
-	private String adName = "aaaaa";
+	private final Group group = new Group(1,"group1","Group 1",null,null,null,null,0,0);
+	private final Resource resource = new Resource(2,"resource2","Resource 2",3);
+	private final String adName = "aaaaa";
 	private Attribute adNameAttr;
 	private AttributesManagerBl am;
 

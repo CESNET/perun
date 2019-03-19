@@ -49,7 +49,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public void deleteVo(PerunSession sess, Vo vo, boolean forceDelete) throws InternalErrorException, RelationExistsException {
+	public void deleteVo(PerunSession sess, Vo vo, boolean forceDelete) throws InternalErrorException {
 		log.debug("Deleting vo {}", vo);
 
 		try {
@@ -139,7 +139,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public void deleteVo(PerunSession sess, Vo vo) throws InternalErrorException, RelationExistsException {
+	public void deleteVo(PerunSession sess, Vo vo) throws InternalErrorException {
 		// delete VO only if it is completely empty
 		this.deleteVo(sess, vo, false);
 	}
@@ -266,8 +266,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 								// retrieve data about subjects from subjects we already have locally
 								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
 							}
-						} catch (ExtSourceNotExistsException e) {
-							throw new ConsistencyErrorException("Getting candidate from non-existing extSource " + source, e);
 						} catch (CandidateNotExistsException e) {
 							throw new ConsistencyErrorException("findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);
 						} catch (ExtSourceUnsupportedOperationException e) {
@@ -387,8 +385,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 								// retrieve data about subjects from subjects we already have locally
 								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
 							}
-						} catch (ExtSourceNotExistsException e) {
-							throw new ConsistencyErrorException("Getting candidate from non-existing extSource " + source, e);
 						} catch (CandidateNotExistsException e) {
 							throw new ConsistencyErrorException("findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);
 						} catch (ExtSourceUnsupportedOperationException e) {
@@ -577,7 +573,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Deprecated
 	@Override
-	public List<RichUser> getDirectRichAdmins(PerunSession sess, Vo vo) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getDirectRichAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
 		return perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(sess, getVosManagerImpl().getDirectAdmins(sess, vo));
 	}
 
@@ -589,7 +585,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException {
 		List<User> users = this.getAdmins(perunSession, vo);
 		return perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
 	}
@@ -613,7 +609,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getDirectRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
 		} catch (AttributeNotExistsException ex) {
@@ -701,23 +697,18 @@ public class VosManagerBlImpl implements VosManagerBl {
 	@Override
 	public void handleUserLostVoRole(PerunSession sess, User user, Vo vo, Role role) throws InternalErrorException {
 		log.debug("handleUserLostVoRole(user={},vo={},role={})",user.getLastName(),vo.getShortName(),role);
-		switch (role) {
-			case SPONSOR:
-				removeSponsorFromSponsoredMembers(sess, vo, user);
-				break;
+		if (role == Role.SPONSOR) {
+			removeSponsorFromSponsoredMembers(sess, vo, user);
 		}
 	}
 
 	@Override
 	public void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, Role role) throws InternalErrorException {
-		switch (role) {
-			case SPONSOR:
-				//remove all group members as sponsors
-				UsersManagerBl um = getPerunBl().getUsersManagerBl();
-				for (Member groupMember : getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group)) {
-					removeSponsorFromSponsoredMembers(sess, vo, um.getUserByMember(sess, groupMember));
-				}
-				break;
+		if (role == Role.SPONSOR) {//remove all group members as sponsors
+			UsersManagerBl um = getPerunBl().getUsersManagerBl();
+			for (Member groupMember : getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group)) {
+				removeSponsorFromSponsoredMembers(sess, vo, um.getUserByMember(sess, groupMember));
+			}
 		}
 	}
 

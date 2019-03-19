@@ -20,8 +20,8 @@ import cz.metacentrum.perun.core.api.exceptions.*;
  */
 public interface VosManager {
 
-	static final String MEMBERS_GROUP = "members";
-	static final String MEMBERS_GROUP_DESCRIPTION = "Group containing VO members";
+	String MEMBERS_GROUP = "members";
+	String MEMBERS_GROUP_DESCRIPTION = "Group containing VO members";
 
 	/**
 	 * Get list of Vos by Access Righs:
@@ -70,9 +70,8 @@ public interface VosManager {
 	 * @throws VoNotExistsException
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws RelationExistsException exception is thrown when forceDelete is false and there are some entities associated with the VO
 	 */
-	void deleteVo(PerunSession perunSession, Vo vo, boolean forceDelete) throws VoNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException;
+	void deleteVo(PerunSession perunSession, Vo vo, boolean forceDelete) throws VoNotExistsException, InternalErrorException, PrivilegeException;
 
 
 	/**
@@ -419,11 +418,9 @@ public interface VosManager {
 	 * @param sess PerunSession
 	 *
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 *
 	 * @return count of all vos
 	 */
-	int getVosCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	int getVosCount(PerunSession sess) throws InternalErrorException;
 
 	/**
 	 * Adds role SPONSOR for user in a VO.
@@ -460,12 +457,11 @@ public interface VosManager {
 	 * @param user user in VO for removal of sponsor role
 	 * @throws InternalErrorException
 	 * @throws UserNotAdminException
-	 * @throws MemberNotValidYetException if the member is still invalid (his record in perun is not complete)
 	 * @throws VoNotExistsException
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
 	 */
-	void removeSponsorRole(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException, MemberNotValidYetException, VoNotExistsException, UserNotExistsException, PrivilegeException;
+	void removeSponsorRole(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Removes role SPONSOR from group in a VO.
@@ -474,11 +470,10 @@ public interface VosManager {
 	 * @param group group in VO for removal of sponsor role
 	 * @throws InternalErrorException
 	 * @throws GroupNotAdminException
-	 * @throws MemberNotValidYetException if the member is still invalid (his record in perun is not complete)
 	 * @throws VoNotExistsException
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
 	 */
-	void removeSponsorRole(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException, MemberNotValidYetException, VoNotExistsException, GroupNotExistsException, PrivilegeException;
+	void removeSponsorRole(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException;
 
 }

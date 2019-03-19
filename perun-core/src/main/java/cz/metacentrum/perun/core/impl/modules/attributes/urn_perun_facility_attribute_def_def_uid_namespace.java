@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -29,7 +26,7 @@ public class urn_perun_facility_attribute_def_def_uid_namespace extends Facility
 	 * Checks if the corresponding attribute u:uid-namespace:[namespace] exists.
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws WrongAttributeValueException, InternalErrorException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, facility, "Missing uid namespace for facility.");
 
 		String userFacilityUidNamespaceAttributeName =
@@ -43,7 +40,7 @@ public class urn_perun_facility_attribute_def_def_uid_namespace extends Facility
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

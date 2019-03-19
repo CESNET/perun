@@ -22,11 +22,10 @@ public interface RTMessagesManager {
 	 * @param text text of message
 	 * @return RTMessage with information about success or not
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException if there are bad rights for this action
 	 * @throws MemberNotExistsException if the Member not exist in the system
 	 */
 	@Deprecated
-	RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
+	RTMessage sendMessageToRT(PerunSession sess, Member member, String queue, String subject, String text) throws InternalErrorException, MemberNotExistsException;
 
 	/**
 	 * This method get needed information and by predefined service user send message to RT which try to create new ticket
@@ -40,9 +39,8 @@ public interface RTMessagesManager {
 	 * @param text text of message
 	 * @return RTMessage with information about success or not
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException if there are bad rights for this action
 	 */
-	RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) throws InternalErrorException, PrivilegeException;
+	RTMessage sendMessageToRT(PerunSession sess, String queue, String subject, String text) throws InternalErrorException;
 
 	/**
 	 * This method get needed information and by predefined service user send message to RT which try to create new ticket
@@ -58,9 +56,8 @@ public interface RTMessagesManager {
 	 * @param text text of message
 	 * @return RTMessage with information about success or not
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException if there are bad rights for this action
 	 */
-	RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) throws InternalErrorException, PrivilegeException;
+	RTMessage sendMessageToRT(PerunSession sess, int voId, String queue, String subject, String text) throws InternalErrorException;
 
 	/**
 	 * This method get needed information and by predefined service user send message to RT which try to create new ticket
@@ -74,7 +71,6 @@ public interface RTMessagesManager {
 	 * @param text text of message
 	 * @return RTMessage with information about success or not
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException if there are bad rights for this action
 	 */
-	RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException, PrivilegeException;
+	RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException;
 }

@@ -44,7 +44,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends UserFacili
 			Attribute facilityShells = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":shells");
 			Attribute userPrefferedShells = (sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredShells"));
 			List<Resource> resources = sess.getPerunBl().getUsersManagerBl().getAllowedResources(sess, facility, user);
-			Set<String> resourcesShells = new HashSet<String>();
+			Set<String> resourcesShells = new HashSet<>();
 
 			for (Resource resource : resources) {
 				List<String> resourcesShellsForTest = (List<String>) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells").getValue();
@@ -83,16 +83,14 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends UserFacili
 			return  sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attributeToSet);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongAttributeValueException ex) {
+		} catch (AttributeNotExistsException | WrongAttributeValueException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":shell");
 		strongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":shells");
 		strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":preferredShells");

@@ -19,7 +19,7 @@ public interface TaskDao {
 
 	Task getTask(Service service, Facility facility);
 
-	int insertTask(Task task, int engineID) throws InternalErrorException;
+	int insertTask(Task task, int engineID);
 
 	List<Task> listAllTasks();
 
@@ -43,7 +43,7 @@ public interface TaskDao {
 
 	Task getTask(int serviceId, int facilityId);
 
-	int scheduleNewTask(Task task, int engineID) throws InternalErrorException;
+	int scheduleNewTask(Task task, int engineID);
 
 	Task getTask(Service service, Facility facility, int engineID);
 

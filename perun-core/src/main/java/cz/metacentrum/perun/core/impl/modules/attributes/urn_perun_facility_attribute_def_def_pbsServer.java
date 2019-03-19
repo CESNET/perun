@@ -22,7 +22,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		String pbsServer = null;
 		if(attribute.getValue() != null) {
 			pbsServer = (String) attribute.getValue();
@@ -31,7 +31,7 @@ public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttr
 		}
 
 		//TODO better method for searching Facility by querry in DB
-		List<Facility> allFacilities = new ArrayList<Facility>();
+		List<Facility> allFacilities = new ArrayList<>();
 		allFacilities = perunSession.getPerunBl().getFacilitiesManagerBl().getFacilities(perunSession);
 		boolean success = false;
 		for(Facility f: allFacilities) {
@@ -44,7 +44,7 @@ public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttr
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

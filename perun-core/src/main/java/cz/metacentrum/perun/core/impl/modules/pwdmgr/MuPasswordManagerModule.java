@@ -77,12 +77,12 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void checkPassword(PerunSession sess, String userLogin, String password) throws InternalErrorException, LoginNotExistsException {
+	public void checkPassword(PerunSession sess, String userLogin, String password) {
 		// silently skip, since MU doesn't check old before change.
 	}
 
 	@Override
-	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException, LoginNotExistsException {
+	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException {
 
 		try {
 			int requestID = (new Random()).nextInt(1000000) + 1;
@@ -96,7 +96,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void validatePassword(PerunSession sess, String userLogin) throws InternalErrorException {
+	public void validatePassword(PerunSession sess, String userLogin) {
 		// silently skip, since generic code calls this but MU doesn't validate it.
 	}
 
@@ -149,7 +149,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		try (
 				OutputStream output = con.getOutputStream();
-				PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true);
+				PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true)
 		) {
 			// Send param about return
 			writer.append("--" + boundary).append(CRLF);

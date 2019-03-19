@@ -35,8 +35,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	final static String groupsMembersMappingSelectQuery = memberMappingSelectQuery + ", groups_members.membership_type as membership_type, " +
 			"groups_members.source_group_id as source_group_id, groups_members.source_group_status as source_group_status, groups_members.group_id as group_id";
 
-	private JdbcPerunTemplate jdbc;
-	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+	private final JdbcPerunTemplate jdbc;
+	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	static final RowMapper<Member> MEMBER_MAPPER = (rs, i) -> {
 		Member member = new Member(rs.getInt("members_id"), rs.getInt("members_user_id"), rs.getInt("members_vo_id"), Status.getStatus(rs.getInt("members_status")),

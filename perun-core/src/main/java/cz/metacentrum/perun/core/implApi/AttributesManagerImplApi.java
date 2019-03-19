@@ -886,7 +886,7 @@ public interface AttributesManagerImplApi {
 	 *         false otherwise (value do not change)
 	 * @throws InternalErrorException
 	 */
-	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
+	boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
 
 	/**
 	 * Update attribute value in DB.
@@ -901,7 +901,7 @@ public interface AttributesManagerImplApi {
 	 *         false otherwise (value do not change)
 	 * @throws InternalErrorException
 	 */
-	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
+	boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
 
 	/**
 	 * Set entityless attribute with null value (for key and attribute). Shouldn't be called from upper layer !!!
@@ -954,9 +954,8 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws ModuleNotExistsException
 	 * @throws WrongModuleTypeException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+	boolean setVirtualAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException;
 
 	/**
 	 * Store the particular virtual attribute associated with the facility and user combination.
@@ -999,9 +998,8 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws ModuleNotExistsException
 	 * @throws WrongModuleTypeException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+	boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException;
 
 	/**
 	 * Store the particular virtual attribute associated with the member.
@@ -1013,9 +1011,8 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws ModuleNotExistsException
 	 * @throws WrongModuleTypeException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+	boolean setVirtualAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException;
 
 	/**
 	 * Store the particular virtual attribute associated with the user.
@@ -1027,9 +1024,8 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws ModuleNotExistsException
 	 * @throws WrongModuleTypeException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+	boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException;
 
 	/**
 	 * Store the particular virtual attribute associated with the user external source.
@@ -1041,9 +1037,8 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws ModuleNotExistsException
 	 * @throws WrongModuleTypeException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setVirtualAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+	boolean setVirtualAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException;
 
 	/**
 	 * Creates an attribute, the attribute is stored into the appropriate DB table according to the namespace.
@@ -1470,10 +1465,8 @@ public interface AttributesManagerImplApi {
 	 * @param facility
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1482,10 +1475,8 @@ public interface AttributesManagerImplApi {
 	 * @param key
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, String key, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1494,10 +1485,8 @@ public interface AttributesManagerImplApi {
 	 * @param vo
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1506,10 +1495,8 @@ public interface AttributesManagerImplApi {
 	 * @param host
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1519,9 +1506,8 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1531,9 +1517,8 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1543,9 +1528,8 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1555,10 +1539,8 @@ public interface AttributesManagerImplApi {
 	 * @param group
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1568,9 +1550,8 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1580,10 +1561,8 @@ public interface AttributesManagerImplApi {
 	 * @param resource
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1593,10 +1572,8 @@ public interface AttributesManagerImplApi {
 	 * @param group
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1606,10 +1583,8 @@ public interface AttributesManagerImplApi {
 	 * @param user
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -1618,10 +1593,8 @@ public interface AttributesManagerImplApi {
 	 * @param ues
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * Check if value of this facility attribute is valid.
@@ -1644,9 +1617,8 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
 	 * Check if value of this group attribute is valid.
@@ -1698,9 +1670,8 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
 	 * Check if value of this user-facility attribute is valid.
@@ -1745,7 +1716,7 @@ public interface AttributesManagerImplApi {
 	 */
 	void checkAttributeValue(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
-	void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException;
 
 	void checkAttributeValue(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
@@ -1759,9 +1730,8 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
 	 * Check if value of this user external source attribute is valid.
@@ -1772,10 +1742,8 @@ public interface AttributesManagerImplApi {
 	 * @param attribute attribute to check
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * Unset particular attribute for the facility.
@@ -2034,10 +2002,8 @@ public interface AttributesManagerImplApi {
 	 * @param attribute
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean removeVirtualAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	boolean removeVirtualAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException;
 
 	/**
 	 * Unset particular user attribute
@@ -2404,7 +2370,7 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongModuleTypeException
 	 * @throws ModuleNotExistsException
 	 */
-	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException;
+	UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException;
 
 	/**
 	 * Init attribute modules map in Impl layer.
@@ -2412,7 +2378,8 @@ public interface AttributesManagerImplApi {
 	 * @see AttributesManagerBlImpl#initialize()
 	 * @param modules List of attribute module class instances
 	 */
-	public void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
+	@SuppressWarnings("JavadocReference")
+	void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
 
 	/**
 	 * Register attribute modules in Auditer for message listening.
@@ -2420,7 +2387,8 @@ public interface AttributesManagerImplApi {
 	 * @see AttributesManagerBlImpl#initialize()
 	 * @param modules List of attribute module class instances
 	 */
-	public void registerAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
+	@SuppressWarnings("JavadocReference")
+	void registerAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
 
 	/**
 	 * Finds ids of PerunBeans that have the attribute's value for the attribute.

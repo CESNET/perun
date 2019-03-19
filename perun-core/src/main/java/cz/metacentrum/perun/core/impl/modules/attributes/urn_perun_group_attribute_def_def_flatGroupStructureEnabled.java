@@ -32,7 +32,7 @@ public class urn_perun_group_attribute_def_def_flatGroupStructureEnabled extends
 	private static final String MANDATORY_ATTRIBUTE_NAME = GroupsManager.GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME;
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 
@@ -49,7 +49,7 @@ public class urn_perun_group_attribute_def_def_flatGroupStructureEnabled extends
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(MANDATORY_ATTRIBUTE_NAME);
 		return dependencies;
 	}

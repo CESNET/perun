@@ -58,9 +58,7 @@ public class AuthzRole {
 				return false;
 		} else if (!complementaryObject.equals(other.complementaryObject))
 			return false;
-		if (role != other.role)
-			return false;
-		return true;
+		return role == other.role;
 	}
 
 	public String toString() {

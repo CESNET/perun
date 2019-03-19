@@ -35,9 +35,8 @@ public interface SecurityTeamsManagerImplApi {
 	 * @param securityTeam
 	 * @return Newly created Security team with new id
 	 * @throws InternalErrorException
-	 * @throws SecurityTeamExistsException
 	 */
-	SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamExistsException;
+	SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
 
 	/**
 	 * Update security team

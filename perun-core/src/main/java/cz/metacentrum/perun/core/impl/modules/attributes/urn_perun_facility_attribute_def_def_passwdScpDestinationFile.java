@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +30,7 @@ public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile exten
 	 * Try to check if the path is equal to pattern ^(/[-_a-zA-Z0-9]+)+$
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 
 		String path = (String) attribute.getValue();
 		if (path == null) {
@@ -47,7 +45,7 @@ public class urn_perun_facility_attribute_def_def_passwdScpDestinationFile exten
 	 * Return attribute with value equal null.
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) {
 
 		return new Attribute(attribute);
 	}

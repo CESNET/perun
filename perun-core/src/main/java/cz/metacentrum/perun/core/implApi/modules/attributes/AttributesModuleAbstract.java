@@ -20,18 +20,15 @@ import java.util.List;
 public abstract class AttributesModuleAbstract implements AttributesModuleImplApi {
 
 	public List<String> getDependencies() {
-		List<String> dependecies = new ArrayList<String>();
-		return dependecies;
+		return new ArrayList<>();
 	}
 
 	public List<Role> getAuthorizedRoles() {
-		List<Role> roles = new ArrayList<Role>();
-		return roles;
+		return new ArrayList<>();
 	}
 
 	public AttributeDefinition getAttributeDefinition() {
-		AttributeDefinition attr = new AttributeDefinition();
-		return attr;
+		return new AttributeDefinition();
 	}
 
 	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {

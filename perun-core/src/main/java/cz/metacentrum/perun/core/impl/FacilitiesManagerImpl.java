@@ -82,168 +82,150 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		"facilities_bans.created_at as fac_bans_created_at, facilities_bans.created_by as fac_bans_created_by, facilities_bans.modified_at as fac_bans_modified_at, " +
 		"facilities_bans.modified_by as fac_bans_modified_by, facilities_bans.created_by_uid as fac_bans_created_by_uid, facilities_bans.modified_by_uid as fac_bans_modified_by_uid";
 
-	public static final RowMapper<Facility> FACILITY_MAPPER = new RowMapper<Facility>() {
-		@Override
-		public Facility mapRow(ResultSet rs, int i) throws SQLException {
-			Facility facility = new Facility();
+	public static final RowMapper<Facility> FACILITY_MAPPER = (rs, i) -> {
+		Facility facility = new Facility();
 
-			facility.setId(rs.getInt("facilities_id"));
-			facility.setName(rs.getString("facilities_name"));
-			facility.setDescription(rs.getString("facilities_dsc"));
-			facility.setCreatedAt(rs.getString("facilities_created_at"));
-			facility.setCreatedBy(rs.getString("facilities_created_by"));
-			facility.setModifiedAt(rs.getString("facilities_modified_at"));
-			facility.setModifiedBy(rs.getString("facilities_modified_by"));
-			if(rs.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
-			else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
-			if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
-			else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
-			return facility;
-		}
+		facility.setId(rs.getInt("facilities_id"));
+		facility.setName(rs.getString("facilities_name"));
+		facility.setDescription(rs.getString("facilities_dsc"));
+		facility.setCreatedAt(rs.getString("facilities_created_at"));
+		facility.setCreatedBy(rs.getString("facilities_created_by"));
+		facility.setModifiedAt(rs.getString("facilities_modified_at"));
+		facility.setModifiedBy(rs.getString("facilities_modified_by"));
+		if(rs.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
+		else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
+		if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
+		else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
+		return facility;
 	};
 
 	//Host mapper
-	private static final RowMapper<Host> HOST_MAPPER = new RowMapper<Host>() {
-		@Override
-		public Host mapRow(ResultSet rs, int i) throws SQLException {
-			Host h = new Host();
-			h.setId(rs.getInt("hosts_id"));
-			h.setHostname(rs.getString("hosts_hostname"));
-			h.setCreatedAt(rs.getString("hosts_created_at"));
-			h.setCreatedBy(rs.getString("hosts_created_by"));
-			h.setModifiedAt(rs.getString("hosts_modified_at"));
-			h.setModifiedBy(rs.getString("hosts_modified_by"));
-			if(rs.getInt("hosts_modified_by_uid") == 0) h.setModifiedByUid(null);
-			else h.setModifiedByUid(rs.getInt("hosts_modified_by_uid"));
-			if(rs.getInt("hosts_created_by_uid") == 0) h.setCreatedByUid(null);
-			else h.setCreatedByUid(rs.getInt("hosts_created_by_uid"));
-			return h;
-		}
+	private static final RowMapper<Host> HOST_MAPPER = (rs, i) -> {
+		Host h = new Host();
+		h.setId(rs.getInt("hosts_id"));
+		h.setHostname(rs.getString("hosts_hostname"));
+		h.setCreatedAt(rs.getString("hosts_created_at"));
+		h.setCreatedBy(rs.getString("hosts_created_by"));
+		h.setModifiedAt(rs.getString("hosts_modified_at"));
+		h.setModifiedBy(rs.getString("hosts_modified_by"));
+		if(rs.getInt("hosts_modified_by_uid") == 0) h.setModifiedByUid(null);
+		else h.setModifiedByUid(rs.getInt("hosts_modified_by_uid"));
+		if(rs.getInt("hosts_created_by_uid") == 0) h.setCreatedByUid(null);
+		else h.setCreatedByUid(rs.getInt("hosts_created_by_uid"));
+		return h;
 	};
 
 	//Facility Contact Mapper
-	private static final RowMapper<ContactGroup> FACILITY_CONTACT_MAPPER = new RowMapper<ContactGroup>() {
-		@Override
-		public ContactGroup mapRow(ResultSet rs, int i) throws SQLException {
-			ContactGroup contactGroup = new ContactGroup();
+	private static final RowMapper<ContactGroup> FACILITY_CONTACT_MAPPER = (rs, i) -> {
+		ContactGroup contactGroup = new ContactGroup();
 
-			//set Facility
-			Facility facility = new Facility();
-			facility.setId(rs.getInt("facilities_id"));
-			facility.setName(rs.getString("facilities_name"));
-			facility.setDescription(rs.getString("facilities_dsc"));
-			facility.setCreatedAt(rs.getString("facilities_created_at"));
-			facility.setCreatedBy(rs.getString("facilities_created_by"));
-			facility.setModifiedAt(rs.getString("facilities_modified_at"));
-			facility.setModifiedBy(rs.getString("facilities_modified_by"));
-			if(rs.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
-			else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
-			if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
-			else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
-			contactGroup.setFacility(facility);
+		//set Facility
+		Facility facility = new Facility();
+		facility.setId(rs.getInt("facilities_id"));
+		facility.setName(rs.getString("facilities_name"));
+		facility.setDescription(rs.getString("facilities_dsc"));
+		facility.setCreatedAt(rs.getString("facilities_created_at"));
+		facility.setCreatedBy(rs.getString("facilities_created_by"));
+		facility.setModifiedAt(rs.getString("facilities_modified_at"));
+		facility.setModifiedBy(rs.getString("facilities_modified_by"));
+		if(rs.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
+		else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
+		if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
+		else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
+		contactGroup.setFacility(facility);
 
-			//set Name
-			String name = rs.getString("fc_name");
-			contactGroup.setName(name);
+		//set Name
+		String name = rs.getString("fc_name");
+		contactGroup.setName(name);
 
-			//if exists set owner
-			List<Owner> owners = new ArrayList<>();
-			if(rs.getInt("owners_id") != 0) {
-				Owner owner = new Owner();
-				owner.setId(rs.getInt("owners_id"));
-				owner.setName(rs.getString("owners_name"));
-				owner.setContact(rs.getString("owners_contact"));
-				owner.setTypeByString(rs.getString("owners_type"));
-				owner.setCreatedAt(rs.getString("owners_created_at"));
-				owner.setCreatedBy(rs.getString("owners_created_by"));
-				owner.setModifiedAt(rs.getString("owners_modified_at"));
-				owner.setModifiedBy(rs.getString("owners_modified_by"));
-				if(rs.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
-				else owner.setModifiedByUid(rs.getInt("owners_modified_by_uid"));
-				if(rs.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
-				else owner.setCreatedByUid(rs.getInt("owners_created_by_uid"));
-				owners.add(owner);
-			}
-			contactGroup.setOwners(owners);
-
-			//if exists set user
-			List<RichUser> users = new ArrayList<>();
-			if(rs.getInt("users_id") != 0) {
-				RichUser user = new RichUser();
-				user.setId(rs.getInt("users_id"));
-				user.setFirstName(rs.getString("users_first_name"));
-				user.setLastName(rs.getString("users_last_name"));
-				user.setMiddleName(rs.getString("users_middle_name"));
-				user.setTitleBefore(rs.getString("users_title_before"));
-				user.setTitleAfter(rs.getString("users_title_after"));
-				user.setCreatedAt(rs.getString("users_created_at"));
-				user.setCreatedBy(rs.getString("users_created_by"));
-				user.setModifiedAt(rs.getString("users_modified_at"));
-				user.setModifiedBy(rs.getString("users_modified_by"));
-				user.setServiceUser(rs.getBoolean("users_service_acc"));
-				if(rs.getInt("users_created_by_uid") == 0) user.setCreatedByUid(null);
-				else user.setCreatedByUid(rs.getInt("users_created_by_uid"));
-				if(rs.getInt("users_modified_by_uid") == 0) user.setModifiedByUid(null);
-				else user.setModifiedByUid(rs.getInt("users_modified_by_uid"));
-				users.add(user);
-			}
-			contactGroup.setUsers(users);
-
-			//if exists set group
-			List<Group> groups = new ArrayList<>();
-			if(rs.getInt("groups_id") != 0) {
-				Group group = new Group();
-				group.setId(rs.getInt("groups_id"));
-			//ParentGroup with ID=0 is not supported
-			if(rs.getInt("groups_parent_group_id") != 0) group.setParentGroupId(rs.getInt("groups_parent_group_id"));
-			else group.setParentGroupId(null);
-			group.setName(rs.getString("groups_name"));
-			group.setShortName(group.getName().substring(group.getName().lastIndexOf(":") + 1));
-			group.setDescription(rs.getString("groups_dsc"));
-			group.setVoId(rs.getInt("groups_vo_id"));
-			group.setCreatedAt(rs.getString("groups_created_at"));
-			group.setCreatedBy(rs.getString("groups_created_by"));
-			group.setModifiedAt(rs.getString("groups_modified_at"));
-			group.setModifiedBy(rs.getString("groups_modified_by"));
-			if(rs.getInt("groups_modified_by_uid") == 0) group.setModifiedByUid(null);
-			else group.setModifiedByUid(rs.getInt("groups_modified_by_uid"));
-			if(rs.getInt("groups_created_by_uid") == 0) group.setCreatedByUid(null);
-			else group.setCreatedByUid(rs.getInt("groups_created_by_uid"));
-				groups.add(group);
-			}
-			contactGroup.setGroups(groups);
-
-			return contactGroup;
+		//if exists set owner
+		List<Owner> owners = new ArrayList<>();
+		if(rs.getInt("owners_id") != 0) {
+			Owner owner = new Owner();
+			owner.setId(rs.getInt("owners_id"));
+			owner.setName(rs.getString("owners_name"));
+			owner.setContact(rs.getString("owners_contact"));
+			owner.setTypeByString(rs.getString("owners_type"));
+			owner.setCreatedAt(rs.getString("owners_created_at"));
+			owner.setCreatedBy(rs.getString("owners_created_by"));
+			owner.setModifiedAt(rs.getString("owners_modified_at"));
+			owner.setModifiedBy(rs.getString("owners_modified_by"));
+			if(rs.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
+			else owner.setModifiedByUid(rs.getInt("owners_modified_by_uid"));
+			if(rs.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
+			else owner.setCreatedByUid(rs.getInt("owners_created_by_uid"));
+			owners.add(owner);
 		}
+		contactGroup.setOwners(owners);
+
+		//if exists set user
+		List<RichUser> users = new ArrayList<>();
+		if(rs.getInt("users_id") != 0) {
+			RichUser user = new RichUser();
+			user.setId(rs.getInt("users_id"));
+			user.setFirstName(rs.getString("users_first_name"));
+			user.setLastName(rs.getString("users_last_name"));
+			user.setMiddleName(rs.getString("users_middle_name"));
+			user.setTitleBefore(rs.getString("users_title_before"));
+			user.setTitleAfter(rs.getString("users_title_after"));
+			user.setCreatedAt(rs.getString("users_created_at"));
+			user.setCreatedBy(rs.getString("users_created_by"));
+			user.setModifiedAt(rs.getString("users_modified_at"));
+			user.setModifiedBy(rs.getString("users_modified_by"));
+			user.setServiceUser(rs.getBoolean("users_service_acc"));
+			if(rs.getInt("users_created_by_uid") == 0) user.setCreatedByUid(null);
+			else user.setCreatedByUid(rs.getInt("users_created_by_uid"));
+			if(rs.getInt("users_modified_by_uid") == 0) user.setModifiedByUid(null);
+			else user.setModifiedByUid(rs.getInt("users_modified_by_uid"));
+			users.add(user);
+		}
+		contactGroup.setUsers(users);
+
+		//if exists set group
+		List<Group> groups = new ArrayList<>();
+		if(rs.getInt("groups_id") != 0) {
+			Group group = new Group();
+			group.setId(rs.getInt("groups_id"));
+		//ParentGroup with ID=0 is not supported
+		if(rs.getInt("groups_parent_group_id") != 0) group.setParentGroupId(rs.getInt("groups_parent_group_id"));
+		else group.setParentGroupId(null);
+		group.setName(rs.getString("groups_name"));
+		group.setShortName(group.getName().substring(group.getName().lastIndexOf(":") + 1));
+		group.setDescription(rs.getString("groups_dsc"));
+		group.setVoId(rs.getInt("groups_vo_id"));
+		group.setCreatedAt(rs.getString("groups_created_at"));
+		group.setCreatedBy(rs.getString("groups_created_by"));
+		group.setModifiedAt(rs.getString("groups_modified_at"));
+		group.setModifiedBy(rs.getString("groups_modified_by"));
+		if(rs.getInt("groups_modified_by_uid") == 0) group.setModifiedByUid(null);
+		else group.setModifiedByUid(rs.getInt("groups_modified_by_uid"));
+		if(rs.getInt("groups_created_by_uid") == 0) group.setCreatedByUid(null);
+		else group.setCreatedByUid(rs.getInt("groups_created_by_uid"));
+			groups.add(group);
+		}
+		contactGroup.setGroups(groups);
+
+		return contactGroup;
 	};
 
-	private static final RowMapper<String> FACILITY_CONTACT_NAMES_MAPPER = new RowMapper<String>() {
-		@Override
-		public String mapRow(ResultSet rs, int i) throws SQLException {
+	private static final RowMapper<String> FACILITY_CONTACT_NAMES_MAPPER = (rs, i) -> rs.getString("name");
 
-			return rs.getString("name");
-		}
-	};
-
-	protected static final RowMapper<BanOnFacility> BAN_ON_FACILITY_MAPPER = new RowMapper<BanOnFacility>() {
-		@Override
-		public BanOnFacility mapRow(ResultSet rs, int i) throws SQLException {
-			BanOnFacility banOnFacility = new BanOnFacility();
-			banOnFacility.setId(rs.getInt("fac_bans_id"));
-			banOnFacility.setUserId(rs.getInt("fac_bans_user_id"));
-			banOnFacility.setFacilityId(rs.getInt("fac_bans_facility_id"));
-			banOnFacility.setDescription(rs.getString("fac_bans_description"));
-			banOnFacility.setValidityTo(rs.getTimestamp("fac_bans_validity_to"));
-			banOnFacility.setCreatedAt(rs.getString("fac_bans_created_at"));
-			banOnFacility.setCreatedBy(rs.getString("fac_bans_created_by"));
-			banOnFacility.setModifiedAt(rs.getString("fac_bans_modified_at"));
-			banOnFacility.setModifiedBy(rs.getString("fac_bans_modified_by"));
-			if(rs.getInt("fac_bans_modified_by_uid") == 0) banOnFacility.setModifiedByUid(null);
-			else banOnFacility.setModifiedByUid(rs.getInt("fac_bans_modified_by_uid"));
-			if(rs.getInt("fac_bans_created_by_uid") == 0) banOnFacility.setCreatedByUid(null);
-			else banOnFacility.setCreatedByUid(rs.getInt("fac_bans_created_by_uid"));
-			return banOnFacility;
-		}
+	protected static final RowMapper<BanOnFacility> BAN_ON_FACILITY_MAPPER = (rs, i) -> {
+		BanOnFacility banOnFacility = new BanOnFacility();
+		banOnFacility.setId(rs.getInt("fac_bans_id"));
+		banOnFacility.setUserId(rs.getInt("fac_bans_user_id"));
+		banOnFacility.setFacilityId(rs.getInt("fac_bans_facility_id"));
+		banOnFacility.setDescription(rs.getString("fac_bans_description"));
+		banOnFacility.setValidityTo(rs.getTimestamp("fac_bans_validity_to"));
+		banOnFacility.setCreatedAt(rs.getString("fac_bans_created_at"));
+		banOnFacility.setCreatedBy(rs.getString("fac_bans_created_by"));
+		banOnFacility.setModifiedAt(rs.getString("fac_bans_modified_at"));
+		banOnFacility.setModifiedBy(rs.getString("fac_bans_modified_by"));
+		if(rs.getInt("fac_bans_modified_by_uid") == 0) banOnFacility.setModifiedByUid(null);
+		else banOnFacility.setModifiedByUid(rs.getInt("fac_bans_modified_by_uid"));
+		if(rs.getInt("fac_bans_created_by_uid") == 0) banOnFacility.setCreatedByUid(null);
+		else banOnFacility.setCreatedByUid(rs.getInt("fac_bans_created_by_uid"));
+		return banOnFacility;
 	};
 
 	public FacilitiesManagerImpl(DataSource perunPool) {
@@ -460,7 +442,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" where resources.facility_id=? and members.status!=? and members.status!=?", MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, facility.getId(),
 					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Member>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -538,7 +520,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					"where facility_attr_values.attr_id=? and facility_attr_values.attr_value=?",
 					FACILITY_MAPPER, attribute.getId(), BeansUtils.attributeValueToString(attribute));
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Facility>();
+			return new ArrayList<>();
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -573,7 +555,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<User> getAdmins(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
-			Set<User> setOfAdmins = new HashSet<User>();
+			Set<User> setOfAdmins = new HashSet<>();
 			// direct admins
 			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
 						"  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
@@ -589,7 +571,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return new ArrayList(setOfAdmins);
 
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -602,7 +584,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					"  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
 					UsersManagerImpl.USER_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -615,7 +597,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					" where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
 					GroupsManagerImpl.GROUP_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -667,7 +649,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		try {
 			return jdbc.query("select " + hostMappingSelectQuery + " from hosts where hosts.hostname=? order by id", HOST_MAPPER, hostname);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Host>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -691,7 +673,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities join hosts on hosts.facility_id=facilities.id " +
 					"where hosts.hostname=?", FACILITY_MAPPER, hostname);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Facility>();
+			return new ArrayList<>();
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -702,7 +684,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		try {
 			return jdbc.query("select " + hostMappingSelectQuery + " from hosts where hosts.facility_id=? order by id", HOST_MAPPER, facility.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Host>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -799,7 +781,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			RichUser ru = new RichUser(user, null);
 			List<RichUser> rulist = new ArrayList<>();
 			rulist.add(ru);
-			contactGroup = new ContactGroup(name, facility, new ArrayList<Group>(), new ArrayList<Owner>(), rulist);
+			contactGroup = new ContactGroup(name, facility, new ArrayList<>(), new ArrayList<>(), rulist);
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -823,7 +805,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					"values (?,?,?)", facility.getId(), name, owner.getId());
 			List<Owner> ownlist = new ArrayList<>();
 			ownlist.add(owner);
-			contactGroup = new ContactGroup(name, facility, new ArrayList<Group>(), ownlist, new ArrayList<RichUser>());
+			contactGroup = new ContactGroup(name, facility, new ArrayList<>(), ownlist, new ArrayList<>());
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -847,7 +829,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					"values (?,?,?)", facility.getId(), name, group.getId());
 			List<Group> grplist = new ArrayList<>();
 			grplist.add(group);
-			contactGroup = new ContactGroup(name, facility, grplist, new ArrayList<Owner>(), new ArrayList<RichUser>());
+			contactGroup = new ContactGroup(name, facility, grplist, new ArrayList<>(), new ArrayList<>());
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -1292,9 +1274,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -1318,9 +1298,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			while(contactGroupIter.hasNext()) {
 				if(first) {
 					contactGroup = contactGroupIter.next();
-					if(contactGroup.getGroups() == null) contactGroup.setGroups(new ArrayList<Group>());
-					if(contactGroup.getOwners() == null) contactGroup.setOwners(new ArrayList<Owner>());
-					if(contactGroup.getUsers() == null) contactGroup.setUsers(new ArrayList<RichUser>());
+					if(contactGroup.getGroups() == null) contactGroup.setGroups(new ArrayList<>());
+					if(contactGroup.getOwners() == null) contactGroup.setOwners(new ArrayList<>());
+					if(contactGroup.getUsers() == null) contactGroup.setUsers(new ArrayList<>());
 					first = false;
 				} else {
 					ContactGroup cp = contactGroupIter.next();

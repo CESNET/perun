@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -51,16 +50,15 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 
 		try {
 			//prepare attributes group and resource unixGroupName
-			Attribute groupUnixGroupName = attribute;
 			Attribute resourceUnixGroupName = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_R_unixGroupName_namespace + ":" + groupNameNamespace));
 			resourceUnixGroupName.setValue(attribute.getValue());
 
 			//prepare lists of groups and resources with the same groupName value in the same namespace
-			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<Group>();
-			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<Resource>();
+			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<>();
+			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<>();
 
 			//Fill lists of groups and resources
-			groupsWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupUnixGroupName));
+			groupsWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, attribute));
 			resourcesWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceUnixGroupName));
 			//Remove self from the list of groups with the same namespace
 			groupsWithSameGroupNameInTheSameNamespace.remove(group);
@@ -69,7 +67,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 			if(groupsWithSameGroupNameInTheSameNamespace.isEmpty() && resourcesWithSameGroupNameInTheSameNamespace.isEmpty()) return;
 
 			//First need to know that i have right to write any of duplicit groupName-namespace attribute
-			boolean haveRights = sess.getPerunBl().getModulesUtilsBl().haveRightToWriteAttributeInAnyGroupOrResource(sess, groupsWithSameGroupNameInTheSameNamespace, resourcesWithSameGroupNameInTheSameNamespace, groupUnixGroupName, resourceUnixGroupName);
+			boolean haveRights = sess.getPerunBl().getModulesUtilsBl().haveRightToWriteAttributeInAnyGroupOrResource(sess, groupsWithSameGroupNameInTheSameNamespace, resourcesWithSameGroupNameInTheSameNamespace, attribute, resourceUnixGroupName);
 			if(!haveRights) throw new WrongReferenceAttributeValueException(attribute, "This groupName is already used for other group or resource and user has no rights to use it.");
 
 			//Now if rights are ok, prepare lists of UnixGIDs attributes of this group (also equivalent resource GID)
@@ -119,7 +117,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 				//This is ok, for now no changes for removing some GroupName of this Group
 			} else {
 				//First need to find all facilities for the group
-				Set<Facility> facilitiesOfGroup = new HashSet<Facility>();
+				Set<Facility> facilitiesOfGroup = new HashSet<>();
 				List<Resource> resourcesOfGroup = session.getPerunBl().getResourcesManagerBl().getAssignedResources(session, group);
 				for(Resource r: resourcesOfGroup) {
 					facilitiesOfGroup.add(session.getPerunBl().getResourcesManagerBl().getFacility(session, r));
@@ -127,7 +125,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 
 				//Prepare list of gid namespaces of all facilities which have the same groupName namespace like this unixGroupName namespace
 				Set<String> gidNamespaces;
-				gidNamespaces = session.getPerunBl().getModulesUtilsBl().getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(session, new ArrayList<Facility>(facilitiesOfGroup), attribute);
+				gidNamespaces = session.getPerunBl().getModulesUtilsBl().getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(session, new ArrayList<>(facilitiesOfGroup), attribute);
 
 				//If there is any gidNamespace which is need to be set, do it there
 				if(!gidNamespaces.isEmpty()) {
@@ -164,13 +162,12 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<>();
 		//Disallowed because of crosschecks between modules and performance reason
 		//dependencies.add(A_G_unixGID_namespace + ":*");
 		//dependencies.add(A_R_unixGID_namespace + ":*");
 		//Disallowed because it does not affect value of dependent attribute
 		//dependencies.add(A_R_unixGroupName_namespace + ":*");
-		return dependencies;
+		return new ArrayList<>();
 	}
 
 	/*public AttributeDefinition getAttributeDefinition() {

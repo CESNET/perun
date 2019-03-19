@@ -20,7 +20,7 @@ public interface Perun {
 	 *
 	 * @return true or false (readOnly or not)
 	 */
-	public boolean isPerunReadOnly();
+	boolean isPerunReadOnly();
 
 	/**
 	 * Gets a (possibly cached) Perun session.
@@ -35,101 +35,101 @@ public interface Perun {
 	 * Gets a groups manager.
 	 * @return groups manager
 	 */
-	public GroupsManager getGroupsManager();
+	GroupsManager getGroupsManager();
 
 	/**
 	 * Gets a resource manager.
 	 * @return resource manager
 	 */
-	public FacilitiesManager getFacilitiesManager();
+	FacilitiesManager getFacilitiesManager();
 
 	/**
 	 * Gets a database manager.
 	 * @return database manager
 	 */
-	public DatabaseManager getDatabaseManager();
+	DatabaseManager getDatabaseManager();
 
 	/**
 	 * Gets a users manager.
 	 * @return users manager
 	 */
-	public UsersManager getUsersManager();
+	UsersManager getUsersManager();
 
 	/**
 	 * Gets a members manager.
 	 * @return members manager
 	 */
-	public MembersManager getMembersManager();
+	MembersManager getMembersManager();
 
 	/**
 	 * Gets a VOs manager.
 	 * @return VOs manager
 	 */
-	public VosManager getVosManager();
+	VosManager getVosManager();
 
 	/**
 	 * Gets a AuditMessages manager.
 	 * @return AuditMessages manager
 	 */
-	public AuditMessagesManager getAuditMessagesManager();
+	AuditMessagesManager getAuditMessagesManager();
 
 	/**
 	 * Gets a Resources manager.
 	 * @return Resources manager
 	 */
-	public ResourcesManager getResourcesManager();
+	ResourcesManager getResourcesManager();
 
 	/**
 	 * Gets a ExtSources manager.
 	 * @return ExtSources manager
 	 */
-	public ExtSourcesManager getExtSourcesManager();
+	ExtSourcesManager getExtSourcesManager();
 
 	/**
 	 * Gets a Attributes manager.
 	 * @return Attributes manager
 	 */
-	public AttributesManager getAttributesManager();
+	AttributesManager getAttributesManager();
 
 	/**
 	 * Gets a Services manager.
 	 * @return Services manager
 	 */
-	public ServicesManager getServicesManager();
+	ServicesManager getServicesManager();
 
 	/**
 	 * Gets a Owners manager.
 	 * @return Owners manager
 	 */
-	public OwnersManager getOwnersManager();
+	OwnersManager getOwnersManager();
 
 	/**
 	 * Gets the Auditer.
 	 * @return Auditer
 	 */
-	public Auditer getAuditer();
+	Auditer getAuditer();
 
 	/**
 	 * Gets a cache manager
 	 * @return Cache manager
 	 */
-	public CacheManager getCacheManager();
+	CacheManager getCacheManager();
 
 	/**
 	 * Gets a Messages manager.
 	 * @return Messages manager
 	 */
-	public RTMessagesManager getRTMessagesManager();
+	RTMessagesManager getRTMessagesManager();
 
 	/**
 	 * Gets a Security teams manager.
 	 * @return Security teams manager
 	 */
-	public SecurityTeamsManager getSecurityTeamsManager();
+	SecurityTeamsManager getSecurityTeamsManager();
 
 	/**
 	 * Gets a Searcher.
 	 * @return Searcher
 	 */
-	public Searcher getSearcher();
+	Searcher getSearcher();
 }

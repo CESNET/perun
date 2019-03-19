@@ -34,10 +34,8 @@ public interface MemberVirtualAttributesModuleImplApi extends MemberAttributesMo
 	 * @param member member which is needed for computing the value
 	 * @param attribute attribute to operate on
 	 * @return
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute);
 
 	/**
 	 * Currently do nothing.

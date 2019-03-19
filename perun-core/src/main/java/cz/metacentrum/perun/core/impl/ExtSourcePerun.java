@@ -8,7 +8,6 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -55,7 +54,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourcePerun.class);
 
-	private static String format = "json";
+	private static final String format = "json";
 	private String perunUrl;
 	private String username;
 	private String password;
@@ -73,22 +72,22 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
 		return findSubjectsLogins(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("For Perun ExtSource is not supported to use this method. Use findSubjects instead.");
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
 		setEnviroment();
 		List<RichUser> richUsers = findRichUsers(searchString);
 		if(maxResults != 0) {
@@ -97,19 +96,17 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 			}
 		}
 
-		List<Map<String,String>> subjects = convertRichUsersToListOfSubjects(richUsers);
-		return subjects;
+		return convertRichUsersToListOfSubjects(richUsers);
 	}
 
 	@Override
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
 		setEnviroment();
-		Map<String,String> subject = covertRichUserToSubject(findRichUser(login));
-		return subject;
+		return covertRichUserToSubject(findRichUser(login));
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 		setEnviroment();
 		// Get the query for the group subjects
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -119,9 +116,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 		Integer groupId = Integer.valueOf(queryForGroup);
 
-		List<Map<String,String>> subjectsFromGroup = convertRichUsersToListOfSubjects(findRichUsers(groupId));
-
-		return subjectsFromGroup;
+		return convertRichUsersToListOfSubjects(findRichUsers(groupId));
 	}
 
 	private List<Map<String, String>> convertRichUsersToListOfSubjects(List<RichUser> richUsers) throws InternalErrorException {
@@ -133,7 +128,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	private Map<String, String> covertRichUserToSubject(RichUser richUser) throws InternalErrorException {
-		Map<String,String> richUserInMap = new HashMap<String,String>();
+		Map<String,String> richUserInMap = new HashMap<>();
 		String mapping = getAttributes().get("xmlMapping");
 		String[] mappingArray = mapping.split(",\n");
 
@@ -149,25 +144,26 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		//Null login is not allowed there
 		if(login == null) throw new InternalErrorException("There is missing login for user " + richUser + " and extSource " + extSourceNameForLogin);
 
-		for(int i=0; i<mappingArray.length; i++) {
-			String attr = mappingArray[i].trim();
+		for (String s : mappingArray) {
+			String attr = s.trim();
 			int index = attr.indexOf("=");
 
-			if(index <= 0) throw new InternalErrorException("There is no text in xmlMapping attribute or there is no '=' character.");
+			if (index <= 0)
+				throw new InternalErrorException("There is no text in xmlMapping attribute or there is no '=' character.");
 			String name = attr.substring(0, index);
-			String value = attr.substring(index +1);
+			String value = attr.substring(index + 1);
 
 			Matcher attributeMatcher = attributePattern.matcher(value);
 			//Try to find perun attributes in value part
 			if (attributeMatcher.find()) {
-				if(attributeMatcher.group(1).equals("login")) {
+				if (attributeMatcher.group(1).equals("login")) {
 					value = attributeMatcher.replaceFirst(login);
 				} else {
 					String replacement = lookingForValueInRichUserAttributes(attributeMatcher.group(1), richUser);
-					if(replacement == null) replacement = "";
+					if (replacement == null) replacement = "";
 					value = attributeMatcher.replaceFirst(replacement);
 					//If whole value is empty because of replacement, it means null for us
-					if(value.isEmpty()) value = null;
+					if (value.isEmpty()) value = null;
 				}
 			} else if (value.startsWith("urn:perun:")) {
 				//DEPRECATED, but need to be first removed from all settings of PerunExtSource in perun-extSource.xml file
@@ -195,7 +191,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	private RichUser findRichUser(String login) throws InternalErrorException, SubjectNotExistsException {
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<>();
 
 		List<RichUser> richUsers = this.findRichUsers(login);
 
@@ -274,7 +270,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		BeansUtils.notNull(extSourceNameForLogin, "extSourceNameForLogin");
 	}
 
-	private List<RichUser> convertListOfRichMembersToListOfRichUsers(List<RichMember> richMembers) throws InternalErrorException {
+	private List<RichUser> convertListOfRichMembersToListOfRichUsers(List<RichMember> richMembers) {
 		List<RichUser> richUsers = new ArrayList<>();
 		if(richMembers == null || richMembers.isEmpty()) return richUsers;
 
@@ -360,12 +356,12 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public void close() throws InternalErrorException {
+	public void close() {
 		//not needed there
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 

@@ -55,7 +55,7 @@ public interface ResourcesManagerBl {
 	 * @param resource resource to create
 	 * @throws InternalErrorException
 	 */
-	Resource createResource(PerunSession perunSession, Resource resource, Vo vo, Facility facility) throws InternalErrorException, FacilityNotExistsException, ResourceExistsException;
+	Resource createResource(PerunSession perunSession, Resource resource, Vo vo, Facility facility) throws InternalErrorException, ResourceExistsException;
 
 	/**
 	 * Copy "template" settings from user's another existing resource and create new resource with this template.
@@ -71,9 +71,8 @@ public interface ResourcesManagerBl {
 	 *                   if set to false we will NOT copy groups and group related attributes.
 	 * @throws ResourceExistsException
 	 * @throws InternalErrorException
-	 * @throws FacilityNotExistsException
 	 */
-	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException, FacilityNotExistsException;
+	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException;
 
 	/**
 	 *  Deletes resource by id.
@@ -82,11 +81,10 @@ public interface ResourcesManagerBl {
 	 * @param resource
 	 *
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException
 	 * @throws ResourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group not affected by deleting from DB
 	 */
-	void deleteResource(PerunSession perunSession, Resource resource) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 *  Deletes all resources for the VO.
@@ -95,11 +93,10 @@ public interface ResourcesManagerBl {
 	 * @param vo
 	 *
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException
 	 * @throws ResourceAlreadyRemovedException if there is at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group not affected by deleting from DB
 	 */
-	void deleteAllResources(PerunSession perunSession, Vo vo) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupAlreadyRemovedFromResourceException;
+	void deleteAllResources(PerunSession perunSession, Vo vo) throws InternalErrorException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Get facility which belongs to the concrete resource.
@@ -350,10 +347,9 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
-	 * @throws ServiceNotExistsException
 	 * @throws ServiceAlreadyAssignedException
 	 */
-	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Assign all services from services package to resource.
@@ -363,10 +359,9 @@ public interface ResourcesManagerBl {
 	 * @param servicesPackage
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
-	 * @throws ServicesPackageNotExistsException
 	 * @throws InternalErrorException
 	 */
-	void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Remove service from resource.
@@ -379,7 +374,7 @@ public interface ResourcesManagerBl {
 	 * @throws ServiceNotAssignedException
 	 */
 	void removeService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException,
-			 ServiceNotExistsException, ServiceNotAssignedException;
+		ServiceNotAssignedException;
 
 	/**
 	 * Remove from resource all services from services package.
@@ -390,7 +385,7 @@ public interface ResourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	void removeServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException;
+	void removeServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException;
 
 	/**
 	 * Get all VO resources.
@@ -654,7 +649,7 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Copy all services of the source resource to the destination resource.
@@ -667,7 +662,7 @@ public interface ResourcesManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 */
-	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Copy all groups of the source resource to the destination resource.
@@ -678,7 +673,7 @@ public interface ResourcesManagerBl {
 	 * @param destinationResource
 	 * @throws InternalErrorException
 	 */
-	public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException;
+	void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException;
 
 
 	void checkResourceExists(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException;

@@ -26,10 +26,9 @@ public class urn_perun_user_attribute_def_def_titleBeforeVema extends UserAttrib
 	 * @param user
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
 	 */
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException {
 
 		user.setTitleBefore((String)attribute.getValue());
 		try {

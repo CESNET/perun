@@ -33,11 +33,11 @@ public interface PasswordManagerModule {
 
 	void reserveRandomPassword(PerunSession session, String userLogin) throws InternalErrorException;
 
-	void checkPassword(PerunSession sess, String userLogin, String password) throws InternalErrorException, LoginNotExistsException;
+	void checkPassword(PerunSession sess, String userLogin, String password);
 
-	void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException, LoginNotExistsException;
+	void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException;
 
-	void validatePassword(PerunSession sess, String userLogin) throws InternalErrorException;
+	void validatePassword(PerunSession sess, String userLogin);
 
 	void deletePassword(PerunSession sess, String userLogin) throws InternalErrorException;
 

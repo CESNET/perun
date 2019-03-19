@@ -40,27 +40,27 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	private TaskManager taskManager;
 
 	@Override
-	public Task getTask(PerunSession perunSession, Service service, Facility facility) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+	public Task getTask(PerunSession perunSession, Service service, Facility facility) {
 		return taskDao.getTask(service, facility);
 	}
 
 	@Override
-	public Task getTaskById(PerunSession perunSession, int id) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+	public Task getTaskById(PerunSession perunSession, int id) {
 		return taskDao.getTaskById(id);
 	}
 
 	@Override
-	public List<Task> listAllTasks(PerunSession perunSession) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+	public List<Task> listAllTasks(PerunSession perunSession) {
 		return taskDao.listAllTasks();
 	}
 
 	@Override
-	public List<Task> listAllTasksForFacility(PerunSession session, int facilityId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+	public List<Task> listAllTasksForFacility(PerunSession session, int facilityId) {
 		return taskDao.listAllTasksForFacility(facilityId);
 	}
 
 	@Override
-	public List<Task> listAllTasksInState(PerunSession perunSession,TaskStatus state) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+	public List<Task> listAllTasksInState(PerunSession perunSession,TaskStatus state) {
 		return taskDao.listAllTasksInState(state);
 	}
 
@@ -75,7 +75,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	}
 
 	@Override
-	public Task getTask(PerunSession perunSession,int serviceId, int facilityId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+	public Task getTask(PerunSession perunSession,int serviceId, int facilityId) {
 		return taskDao.getTask(serviceId, facilityId);
 	}
 
@@ -90,17 +90,17 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	}
 
 	@Override
-	public List<TaskResult> getTaskResultsForGUIByTaskOnlyNewest(PerunSession session, int taskId) throws DestinationNotExistsException, PrivilegeException, InternalErrorException {
+	public List<TaskResult> getTaskResultsForGUIByTaskOnlyNewest(PerunSession session, int taskId) {
 		return taskResultDao.getTaskResultsByTaskOnlyNewest(taskId);
 	}
 
 	@Override
-	public List<TaskResult> getTaskResultsForGUIByTaskAndDestination(PerunSession session, int taskId, int destinationId) throws InternalErrorException {
+	public List<TaskResult> getTaskResultsForGUIByTaskAndDestination(PerunSession session, int taskId, int destinationId) {
 		return taskResultDao.getTaskResultsByTaskAndDestination(taskId, destinationId);
 	}
 
 	@Override
-	public List<TaskResult> getTaskResultsForGUIByTask(PerunSession session, int taskId) throws DestinationNotExistsException, PrivilegeException, InternalErrorException {
+	public List<TaskResult> getTaskResultsForGUIByTask(PerunSession session, int taskId) {
 		return taskResultDao.getTaskResultsByTask(taskId);
 	}
 
@@ -143,7 +143,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 			if (task.getService() != null) {
 				List<TaskResult> results = taskResultDao.getTaskResultsByTask(task.getId());
 
-				Map<Service, Map<Destination, TaskResult>> latestResults = new HashMap<Service, Map<Destination, TaskResult>>();
+				Map<Service, Map<Destination, TaskResult>> latestResults = new HashMap<>();
 				for (TaskResult res : results) {
 
 					if (latestResults.get(res.getService()) == null) {
@@ -190,9 +190,9 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	}
 
 	@Override
-	public List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, UserNotExistsException {
-		List<FacilityState> list = new ArrayList<FacilityState>();
-		List<Facility> facs = new ArrayList<Facility>();
+	public List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
+		List<FacilityState> list = new ArrayList<>();
+		List<Facility> facs = new ArrayList<>();
 
 		// return facilities where user is admin or all if perun admin
 		facs = perun.getFacilitiesManager().getFacilities(session);
@@ -201,16 +201,16 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 			list.add(getFacilityState(session, facility));
 		}
 		return list;
-	};
+	}
 
 	@Override
-	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException, UserNotExistsException {
+	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException {
 
-		List<FacilityState> list = new ArrayList<FacilityState>();
-		List<RichResource> facs = new ArrayList<RichResource>();
+		List<FacilityState> list = new ArrayList<>();
+		List<RichResource> facs = new ArrayList<>();
 		facs = perun.getResourcesManager().getRichResources(session, vo);
 
-		Set<Facility> facilities = new HashSet<Facility>();
+		Set<Facility> facilities = new HashSet<>();
 		for (RichResource res : facs) {
 			facilities.add(res.getFacility());
 		}
@@ -219,7 +219,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 		}
 		Collections.sort(list);
 		return list;
-	};
+	}
 
 	@Override
 	public TaskResult getTaskResultById(int taskResultId) {
@@ -250,7 +250,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 		this.generalServiceManager = generalServiceManager;
 	}
 
-	public List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException, PrivilegeException {
+	public List<TaskResult> getTaskResultsForDestinations(PerunSession session, List<String> destinationsNames) throws InternalErrorException {
 
 		//FIXME check privileges, probably only some monitoring system can request these data
 		return getTaskResultDao().getTaskResultsForDestinations(destinationsNames);
@@ -260,7 +260,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	public List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException {
 
 		List<Resource> resources = perun.getResourcesManager().getResources(session, vo);
-		List<ResourceState> resourceStateList = new ArrayList<ResourceState>();
+		List<ResourceState> resourceStateList = new ArrayList<>();
 
 		for (Resource resource : resources) {
 			List<Task> taskList = taskManager.listAllTasksForFacility(resource.getFacilityId());
@@ -278,13 +278,13 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	}
 
 	@Override
-	public List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws ServiceNotExistsException, InternalErrorException, PrivilegeException{
+	public List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException{
 
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException("getFacilityServicesState");
 		}
 
-		Map<Service, ServiceState> serviceStates = new HashMap<Service, ServiceState>();
+		Map<Service, ServiceState> serviceStates = new HashMap<>();
 
 		// fill states for all services which are currently on facility
 		for (Service service : perun.getServicesManagerBl().getAssignedServices(sess, facility)) {
@@ -319,7 +319,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 
 		}
 
-		return new ArrayList<ServiceState>(serviceStates.values());
+		return new ArrayList<>(serviceStates.values());
 
 	}
 

@@ -27,7 +27,7 @@ public abstract class MemberVirtualAttributesModuleAbstract extends MemberAttrib
 		return new Attribute(attribute);
 	}
 
-	public boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) {
 		return false;
 	}
 
@@ -36,13 +36,12 @@ public abstract class MemberVirtualAttributesModuleAbstract extends MemberAttrib
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) {
 		return new ArrayList<>();
 	}
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<>();
-		return dependecies;
+		return new ArrayList<>();
 	}
 }

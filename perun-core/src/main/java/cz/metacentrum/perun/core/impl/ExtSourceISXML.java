@@ -37,7 +37,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 	private String groupName = null;
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 		// Get the query for the group
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 		//If there is no query for group, throw exception
@@ -63,7 +63,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
@@ -97,7 +97,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 
 		try (
 			OutputStream output = getCon().getOutputStream();
-			PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true);
+			PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true)
 		) {
 			// Send param about return
 			writer.append("--" + boundary).append(CRLF);
@@ -120,8 +120,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 		//String text = "";
 		int responseCode = this.getCon().getResponseCode();
 		if(responseCode == 200) {
-			InputStream is = this.getCon().getInputStream();
-			return is;
+			return this.getCon().getInputStream();
 		}
 
 		throw new InternalErrorException("Wrong response code while opening connection on uri '" + uri + "'. Response code: " + responseCode);
@@ -132,7 +131,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 	 *
 	 * @return request with specific settings for group (by XML setting in perun-extSource.xml file)
 	 */
-	private String getQueryForGroup() throws InternalErrorException {
+	private String getQueryForGroup() {
 		log.debug("RequestID for ISXML ExtSource group " + workplace + ":" + groupName + " = " + requestID);
 
 		return	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +

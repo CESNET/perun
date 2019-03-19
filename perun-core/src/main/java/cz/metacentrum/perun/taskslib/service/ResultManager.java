@@ -33,7 +33,7 @@ public interface ResultManager {
 
 	int clearAll(int engineID);
 
-	int clearOld(int engineID, int numDays) throws InternalErrorException;
+	int clearOld(int engineID, int numDays);
 
 	List<TaskResult> getTaskResultsByTask(int taskId, int engineID);
 

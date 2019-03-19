@@ -4,6 +4,7 @@
  */
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -49,7 +50,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
 		classInstance = new urn_perun_user_facility_attribute_def_def_homeMountPoint();
 		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
-		ArrayList<String> mntPts = new ArrayList<String>();
+		ArrayList<String> mntPts = new ArrayList<>();
 		mntPts.add("/mnt/mnt1");
 		mntPts.add("/tmp/mnt2");
 		listOfMntPts.setValue(mntPts);
@@ -117,7 +118,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
 		Attribute filledAttribute = classInstance.fillAttribute(session, user, facility, new AttributeDefinition());
-		assertTrue("A different homeMountPoint was filled than those available", ( listOfMntPts.getValue()).equals(filledAttribute.getValue()));
+		assertEquals("A different homeMountPoint was filled than those available", (listOfMntPts.getValue()), filledAttribute.getValue());
 	}
 
 	/**
@@ -128,7 +129,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
 	public void testFillAttributeOfUnknownUser() throws Exception {
 		System.out.println("testFillAttributeOfUnknownUser()");
 
-		when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(new ArrayList<Resource>());
+		when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(new ArrayList<>());
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
 		Attribute atr = classInstance.fillAttribute(session, user, facility, new AttributeDefinition());
@@ -140,7 +141,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPointTest {
 		public void testCheckAttributeValueOfUnknownUser() throws Exception {
 			System.out.println("testCheckAttributeValueOfUnknownUser()");
 
-			when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(new ArrayList<Resource>());
+			when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(new ArrayList<>());
 			when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfMntPts);
 
 			Attribute atr = new Attribute();

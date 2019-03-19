@@ -43,7 +43,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			"security_teams.modified_by as security_teams_modified_by, security_teams.modified_at as security_teams_modified_at, " +
 			"security_teams.created_by_uid as security_teams_created_by_uid, security_teams.modified_by_uid as security_teams_modified_by_uid";
 
-	private JdbcPerunTemplate jdbc;
+	private final JdbcPerunTemplate jdbc;
 
 	/**
 	 * Create new instance of this class.
@@ -55,24 +55,17 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	/**
 	 * Converts s ResultSet's row to a SecurityTeam instance.
 	 */
-	protected static final RowMapper<SecurityTeam> SECURITY_TEAM_MAPPER = new RowMapper<SecurityTeam>() {
-
-		@Override
-		public SecurityTeam mapRow(ResultSet rs, int i) throws SQLException {
-			return new SecurityTeam(rs.getInt("security_teams_id"), rs.getString("security_teams_name"), rs.getString("security_teams_description"),
-					rs.getString("security_teams_created_at"),
-					rs.getString("security_teams_created_by"), rs.getString("security_teams_modified_at"), rs.getString("security_teams_modified_by"),
-					rs.getInt("security_teams_created_by_uid") == 0 ? null : rs.getInt("security_teams_created_by_uid"),
-					rs.getInt("security_teams_modified_by_uid") == 0 ? null : rs.getInt("security_teams_modified_by_uid"));
-		}
-	};
+	protected static final RowMapper<SecurityTeam> SECURITY_TEAM_MAPPER = (rs, i) -> new SecurityTeam(rs.getInt("security_teams_id"), rs.getString("security_teams_name"), rs.getString("security_teams_description"),
+			rs.getString("security_teams_created_at"),
+			rs.getString("security_teams_created_by"), rs.getString("security_teams_modified_at"), rs.getString("security_teams_modified_by"),
+			rs.getInt("security_teams_created_by_uid") == 0 ? null : rs.getInt("security_teams_created_by_uid"),
+			rs.getInt("security_teams_modified_by_uid") == 0 ? null : rs.getInt("security_teams_modified_by_uid"));
 
 	@Override
 	public List<SecurityTeam> getAllSecurityTeams(PerunSession sess) throws InternalErrorException {
 		try {
-			List<SecurityTeam> list = jdbc.query("select " + securityTeamMappingSelectQuery + " from security_teams", SECURITY_TEAM_MAPPER);
 
-			return list;
+			return jdbc.query("select " + securityTeamMappingSelectQuery + " from security_teams", SECURITY_TEAM_MAPPER);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -175,7 +168,8 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	@Override
 	public List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
 		try {
-			List<User> list = jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery +
+
+			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery +
 							" from users inner join (" +
 							"select user_id from authz where security_team_id=? " +
 							"UNION (" +
@@ -186,8 +180,6 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 							") " + Compatibility.getAsAlias("member_group_ids") + " on members.id=member_group_ids.member_id)" +
 							") " + Compatibility.getAsAlias("user_ids") + " on users.id=user_ids.user_id",
 					UsersManagerImpl.USER_MAPPER, securityTeam.getId(), securityTeam.getId());
-
-			return list;
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -200,7 +192,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 					"  where authz.security_team_id=? ",
 					UsersManagerImpl.USER_MAPPER, securityTeam.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -213,7 +205,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 					" where authz.security_team_id=?",
 					GroupsManagerImpl.GROUP_MAPPER, securityTeam.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -320,9 +312,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			}
 		} catch(EmptyResultDataAccessException ex) {
 			// is ok. No row with same name was founded
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -367,9 +357,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -378,8 +366,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	public boolean isUserBlacklisted(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			int number = jdbc.queryForInt("select count(1) from blacklists where user_id=?", user.getId());
-			if (number >= 1) return true;
-			return false;
+			return number >= 1;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException e) {
@@ -398,9 +385,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -411,10 +396,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
 					" left outer join members on members.id=groups_members.member_id " +
 					" where (user_id=? or members.user_id=?) and security_team_id=? ", user.getId(), user.getId(), securityTeam.getId());
-			if (number > 0) {
-				return true;
-			}
-			return false;
+			return number > 0;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException e) {
@@ -433,9 +415,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}

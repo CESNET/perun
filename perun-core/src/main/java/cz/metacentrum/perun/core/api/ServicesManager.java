@@ -33,7 +33,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
  */
 public interface ServicesManager {
 
-	public static final String SERVICE_NAME_REGEXP = "^[a-zA-Z0-9_]+$";
+	String SERVICE_NAME_REGEXP = "^[a-zA-Z0-9_]+$";
 
 	/**
 	 * Creates new service.
@@ -385,7 +385,7 @@ public interface ServicesManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	public List<ServicesPackage> getServicesPackages(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
+	List<ServicesPackage> getServicesPackages(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Get package by Id
@@ -466,7 +466,7 @@ public interface ServicesManager {
 	 * @throws ServiceNotExistsException
 	 * @throws ServiceAlreadyAssignedException
 	 */
-	public void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServicesPackageNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException, PrivilegeException;
+	void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServicesPackageNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException, PrivilegeException;
 
 	/**
 	 * Remove Service from Services Package
@@ -481,7 +481,7 @@ public interface ServicesManager {
 	 * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from servicePackage in DB
 	 * @throws ServiceNotExistsException
 	 */
-	public void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException, ServiceAlreadyRemovedFromServicePackageException;
+	void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServicesPackageNotExistsException, ServiceNotExistsException, PrivilegeException, ServiceAlreadyRemovedFromServicePackageException;
 
 	/**
 	 * List services stored in the packages
@@ -494,7 +494,7 @@ public interface ServicesManager {
 	 * @throws PrivilegeException
 	 * @throws ServicesPackageNotExistsException
 	 */
-	public List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException;
+	List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException;
 
 	/* TODO createPackage
 		 getRequiredAttributes(PerunSession perunSession, Service service);
@@ -585,10 +585,9 @@ public interface ServicesManager {
 	 * @throws InternalErrorException
 	 * @throws ServiceNotExistsException
 	 * @throws FacilityNotExistsException
-	 * @throws DestinationAlreadyAssignedException
 	 * @throws WrongPatternException
 	 */
-	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException;
+	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, WrongPatternException;
 
 	/**
 	 * Adds destination for all services defined on the facility.
@@ -790,10 +789,9 @@ public interface ServicesManager {
 	 * @return list of destinations
 	 *
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
 	 */
-	List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
+	List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException;
 
 	/**
 	 * Get count of all destinations.
@@ -801,9 +799,7 @@ public interface ServicesManager {
 	 * @param sess PerunSession
 	 *
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 *
 	 * @return count of all destinations
 	 */
-	int getDestinationsCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	int getDestinationsCount(PerunSession sess) throws InternalErrorException;
 }

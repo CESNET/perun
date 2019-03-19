@@ -33,7 +33,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilit
 	 * in allowed shells and also need to have correct format.
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String shell = (String) attribute.getValue();
 
 		if (shell == null) return;
@@ -57,7 +57,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilit
 	private List<String> allShellsAtSpecifiedFacility(PerunSessionImpl session, Facility facility, User user) throws InternalErrorException, WrongAttributeAssignmentException {
 		List<Resource> availableResources;
 		availableResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
-		List<String> allowedShells = new ArrayList<String>();
+		List<String> allowedShells = new ArrayList<>();
 
 		for (Resource r : availableResources) {
 			Attribute resourceAttr;
@@ -75,7 +75,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilit
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":shells");
 		return dependencies;
 	}

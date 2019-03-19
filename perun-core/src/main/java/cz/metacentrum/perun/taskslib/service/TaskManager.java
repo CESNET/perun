@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.taskslib.service;
 
-import java.util.Date;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Facility;
@@ -18,9 +17,9 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
  */
 public interface TaskManager {
 
-	int scheduleNewTask(Task task, int engineID) throws InternalErrorException;
+	int scheduleNewTask(Task task, int engineID);
 
-	void insertTask(Task task, int engineID) throws InternalErrorException;
+	void insertTask(Task task, int engineID);
 
 	Task getTask(Service service, Facility facility, int engineID);
 

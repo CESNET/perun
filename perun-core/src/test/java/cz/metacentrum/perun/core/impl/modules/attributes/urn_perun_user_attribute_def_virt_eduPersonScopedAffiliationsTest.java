@@ -64,8 +64,8 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 	private Member expiredMember;
 	private Member groupMember1;
 	private Member groupMember2;
-	private int gId1 = 1;
-	private int gId2 = 2;
+	private final int gId1 = 1;
+	private final int gId2 = 2;
 	private Group group1;
 	private Group group2;
 	private Attribute groupAtt1;

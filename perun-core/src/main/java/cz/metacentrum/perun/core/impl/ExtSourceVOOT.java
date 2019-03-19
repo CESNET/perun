@@ -47,13 +47,13 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public List<Map<String, String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException(
                 "For VOOT using this method is not optimized, use findSubjects instead.");
     }
 
     @Override
-    public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException(
                 "For VOOT using this method is not optimized, use findSubjects instead.");
     }
@@ -201,24 +201,22 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
             is = connection.getInputStream();
         }
         if (is != null) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-            String line;
 
-            try {
-                while ((line = bufferedReader.readLine()) != null) {
-                    JSONObject obj = new JSONObject(line);
-                    JSONArray groupsArray = obj.getJSONArray("entry");
+	        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is))) {
+		        String line;
+		        while ((line = bufferedReader.readLine()) != null) {
+			        JSONObject obj = new JSONObject(line);
+			        JSONArray groupsArray = obj.getJSONArray("entry");
 
-                    for (int i = 0; i < groupsArray.length(); i++) {
-                        groups.add(groupsArray.getJSONObject(i).getString("id"));
-                    }
+			        for (int i = 0; i < groupsArray.length(); i++) {
+				        groups.add(groupsArray.getJSONObject(i).getString("id"));
+			        }
 
-                    return groups;
-                }
-            } finally {
-                bufferedReader.close();
-                connection.disconnect();
-            }
+			        return groups;
+		        }
+	        } finally {
+		        connection.disconnect();
+	        }
         }
         return null;
     }
@@ -253,41 +251,39 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
             is = connection.getInputStream();
         }
         if (is != null) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-            String line;
 
-            try {
-                while ((line = bufferedReader.readLine()) != null) {
-                    JSONObject obj = new JSONObject(line);
-                    JSONArray usersArray = obj.getJSONArray("entry");
+	        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is))) {
+		        String line;
+		        while ((line = bufferedReader.readLine()) != null) {
+			        JSONObject obj = new JSONObject(line);
+			        JSONArray usersArray = obj.getJSONArray("entry");
 
-                    for (int i = 0; i < usersArray.length(); i++) {
-                        JSONObject user = usersArray.getJSONObject(i);
-                        if (query == null) {
-                            users.add(jsonParsing(user));
-                        } else {
-                            int index = query.indexOf("=");
-                            String queryType = query.substring(0, index);
-                            String value = query.substring(index + 1);
+			        for (int i = 0; i < usersArray.length(); i++) {
+				        JSONObject user = usersArray.getJSONObject(i);
+				        if (query == null) {
+					        users.add(jsonParsing(user));
+				        } else {
+					        int index = query.indexOf("=");
+					        String queryType = query.substring(0, index);
+					        String value = query.substring(index + 1);
 
-                            if (queryType.equals("email")
-                                    && value.equals(user.getJSONArray("emails").getJSONObject(0).getString("value"))) {
-                                Map parsedUser = jsonParsing(usersArray.getJSONObject(i));
-                                users.add(parsedUser);
-                            }
+					        if (queryType.equals("email")
+						        && value.equals(user.getJSONArray("emails").getJSONObject(0).getString("value"))) {
+						        Map parsedUser = jsonParsing(usersArray.getJSONObject(i));
+						        users.add(parsedUser);
+					        }
 
-                            if (queryType.equals("id")
-                                    && value.equals(user.getString("id"))) {
-                                users.add(jsonParsing(usersArray.getJSONObject(i)));
-                            }
-                        }
-                    }
-                    return users;
-                }
-            } finally {
-                bufferedReader.close();
-                connection.disconnect();
-            }
+					        if (queryType.equals("id")
+						        && value.equals(user.getString("id"))) {
+						        users.add(jsonParsing(usersArray.getJSONObject(i)));
+					        }
+				        }
+			        }
+			        return users;
+		        }
+	        } finally {
+		        connection.disconnect();
+	        }
         }
         return null;
     }
@@ -299,51 +295,51 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
         String mapping = getAttributes().get("vootMapping");
         String[] mappingArray = mapping.split(",\n");
 
-        for (int i = 0; i < mappingArray.length; i++) {
-            String attr = mappingArray[i].trim();
-            int mappingIndex = attr.indexOf("=");
+	    for (String s : mappingArray) {
+		    String attr = s.trim();
+		    int mappingIndex = attr.indexOf("=");
 
-            if (mappingIndex <= 0) {
-                throw new InternalErrorException("There is no text in vootMapping"
-                        + " attribute or there is no '=' character.");
-            }
+		    if (mappingIndex <= 0) {
+			    throw new InternalErrorException("There is no text in vootMapping"
+				    + " attribute or there is no '=' character.");
+		    }
 
-            String attrName = attr.substring(0, mappingIndex);
-            String attrValue = attr.substring(mappingIndex + 1);
+		    String attrName = attr.substring(0, mappingIndex);
+		    String attrValue = attr.substring(mappingIndex + 1);
 
-            if (attrValue.startsWith("{")) {
+		    if (attrValue.startsWith("{")) {
 
-                // exclude curly brackets from value
-                attrValue = attrValue.substring(1, attrValue.length() - 1);
+			    // exclude curly brackets from value
+			    attrValue = attrValue.substring(1, attrValue.length() - 1);
 
-                switch (attrValue) {
-                    case "login":
-                        String id = user.getString("id");
-                        attrValue = id.substring(0, id.indexOf("@"));
-                        resultMap.put(attrName.trim(), attrValue.trim());
-                        break;
-                    case "displayName":
-                        attrValue = user.getString("displayName");
-                        resultMap.put(attrName.trim(), attrValue.trim());
-                        break;
-                    case "firstName":
-                    case "lastName":
-                        resultMap.putAll(parseCommonName(user.getString("displayName")));
-                        break;
-                    case "eppn":
-                        attrValue = user.getString("eppn");
-                        resultMap.put(attrName.trim(), attrValue.trim());
-                        break;
-                    case "email":
-                        attrValue = user.getJSONArray("emails").getJSONObject(0).getString("value");
-                        resultMap.put(attrName.trim(), attrValue.trim());
-                        break;
-                }
-            } else {
-                resultMap.put(attrName.trim(), attrValue.trim());
-                break;
-            }
-        }
+			    switch (attrValue) {
+				    case "login":
+					    String id = user.getString("id");
+					    attrValue = id.substring(0, id.indexOf("@"));
+					    resultMap.put(attrName.trim(), attrValue.trim());
+					    break;
+				    case "displayName":
+					    attrValue = user.getString("displayName");
+					    resultMap.put(attrName.trim(), attrValue.trim());
+					    break;
+				    case "firstName":
+				    case "lastName":
+					    resultMap.putAll(parseCommonName(user.getString("displayName")));
+					    break;
+				    case "eppn":
+					    attrValue = user.getString("eppn");
+					    resultMap.put(attrName.trim(), attrValue.trim());
+					    break;
+				    case "email":
+					    attrValue = user.getJSONArray("emails").getJSONObject(0).getString("value");
+					    resultMap.put(attrName.trim(), attrValue.trim());
+					    break;
+			    }
+		    } else {
+			    resultMap.put(attrName.trim(), attrValue.trim());
+			    break;
+		    }
+	    }
         return resultMap;
     }
 
@@ -365,7 +361,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 }

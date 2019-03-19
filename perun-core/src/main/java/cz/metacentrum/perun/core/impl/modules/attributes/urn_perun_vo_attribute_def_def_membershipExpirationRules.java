@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -31,12 +30,12 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends Ab
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void changedAttributeHook(PerunSessionImpl session, Vo vo, Attribute attribute) {
 
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Vo vo, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

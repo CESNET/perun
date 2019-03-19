@@ -26,7 +26,7 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9']+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 		//prepare groupName value variable
 		String groupName = null;
 		if(attribute.getValue() != null) groupName = (String) attribute.getValue();
@@ -42,7 +42,7 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 		//sess.getPerunBl().getModulesUtilsBl().checkReservedGoogleGroupNames(attribute);
 
 		//prepare lists of groups with the same groupName value in the same namespace
-		List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<Group>();
+		List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<>();
 
 		//Fill lists of groups
 		groupsWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, attribute));

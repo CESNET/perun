@@ -2,9 +2,9 @@ package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -206,7 +206,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void isGroupAdmin() throws Exception {
+	public void isGroupAdmin() {
 		System.out.println(CLASS_NAME + "isGroupAdmin");
 
 		sess = mock(PerunSession.class, RETURNS_DEEP_STUBS);
@@ -284,8 +284,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		testGroupB = perun.getGroupsManagerBl().createGroup(sess, testGroupA, testGroupB);
 		testGroupC = perun.getGroupsManagerBl().createGroup(sess, testGroupB, testGroupC);
 
-		HashMap<String, Set<Integer>> mapWithRights = new HashMap<String, Set<Integer>>();
-		Set<Integer> listWithIds = new HashSet<Integer>();
+		HashMap<String, Set<Integer>> mapWithRights = new HashMap<>();
+		Set<Integer> listWithIds = new HashSet<>();
 		listWithIds.add(testGroupA.getId());
 		mapWithRights.put("Vo", listWithIds);
 		mapWithRights.put("Group", listWithIds);
@@ -300,9 +300,9 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue(authzRoles.get(Role.GROUPADMIN).get("Group").contains(testGroupA.getId()));
 		assertTrue(authzRoles.get(Role.GROUPADMIN).get("Group").contains(testGroupB.getId()));
 		assertTrue(authzRoles.get(Role.GROUPADMIN).get("Group").contains(testGroupC.getId()));
-		assertTrue(authzRoles.get(Role.GROUPADMIN).get("Group").size() == 3);
+		assertEquals(3, authzRoles.get(Role.GROUPADMIN).get("Group").size());
 		assertTrue(authzRoles.get(Role.GROUPADMIN).get("Vo").contains(testGroupA.getId()));
-		assertTrue(authzRoles.get(Role.GROUPADMIN).get("Vo").size() == 1);
+		assertEquals(1, authzRoles.get(Role.GROUPADMIN).get("Vo").size());
 	}
 
 	@Test
@@ -522,15 +522,14 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		candidate.setTitleAfter("");
 		final UserExtSource userExtSource = new UserExtSource(extSource, login);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}
 
 	private Member createSomeMember(final Vo createdVo) throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException {
 		final Candidate candidate = setUpCandidate("Login" + userLoginSequence++);
-		final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
-		return createdMember;
+		return perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
 	}
 
 	private PerunSession getHisSession(final Member createdMember) throws InternalErrorException {
@@ -548,9 +547,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		}
 
 		PerunPrincipal pp1 = new PerunPrincipal(ue.getLogin(), ue.getExtSource().getName(), ue.getExtSource().getType());
-		PerunSession sess1 = perun.getPerunSession(pp1, new PerunClient());
 
-		return sess1;
+		return perun.getPerunSession(pp1, new PerunClient());
 	}
 
 }

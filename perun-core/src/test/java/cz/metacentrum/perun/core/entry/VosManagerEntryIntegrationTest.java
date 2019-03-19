@@ -74,7 +74,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		newVo.setShortName(longerName);
 		newVo = vosManagerEntry.updateVo(sess, newVo);
-		assertTrue("newVo shortName has 32 characters length", newVo.getShortName().length() == 32);
+		assertEquals("newVo shortName has 32 characters length", 32, newVo.getShortName().length());
 	}
 
 	@Test(expected = VoExistsException.class)
@@ -287,7 +287,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource",
 				"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
 		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
@@ -295,7 +295,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		// test
 		List<User> admins = vosManagerEntry.getAdmins(sess, createdVo);
-		assertTrue("should have 2 admins",admins.size() == 2);
+		assertEquals("should have 2 admins", 2, admins.size());
 		assertTrue("our member as direct user should be admin",admins.contains(user));
 		assertTrue("our member as member of admin group should be admin",admins.contains(user2));
 	}
@@ -416,7 +416,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 		final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}

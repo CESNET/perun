@@ -26,7 +26,7 @@ import org.json.JSONObject;
 public class urn_perun_vo_attribute_def_def_aup extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 
 		String value = (String)attribute.getValue();
 

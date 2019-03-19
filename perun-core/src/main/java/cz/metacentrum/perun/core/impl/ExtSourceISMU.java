@@ -7,9 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.Authenticator;
 import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,17 +44,17 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException, ExtSourceUnsupportedOperationException {
+	public Map<String, String> getSubjectByLogin(String login) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
@@ -85,7 +83,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		// If there is a search string, replace all occurences of the * with the searchstring
 		if (searchString != null && searchString != "") {
 			url.replaceAll("\\*", searchString);
-		};
+		}
 
 		try {
 			URL u = new URL(url);
@@ -120,10 +118,10 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			String line = null;
 
-			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+			List<Map<String, String>> subjects = new ArrayList<>();
 
 			while ((line = reader.readLine()) != null) {
-				Map<String, String> map = new HashMap<String, String>();
+				Map<String, String> map = new HashMap<>();
 
 				// Each line looks like:
 				// UCO  ;;          ;"title before. title before. firstName lastName, title after
@@ -154,22 +152,18 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 			}
 
 			return subjects;
-		}
-		catch (IOException e) {
-			throw new InternalErrorException(e);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public void close() throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("Using this method is not supported for ISMU");
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 

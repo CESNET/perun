@@ -1,29 +1,17 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import javax.security.cert.CertificateException;
-import javax.security.cert.X509Certificate;
-
-import java.text.DateFormat;
 import java.util.HashMap;
-
-import org.apache.commons.codec.binary.Base64;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-import java.text.ParseException;
-import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,12 +25,12 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  */
 public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	Map<String, Pair<String, String>> mapOfExtSourcesNames = new HashMap<String, Pair<String, String>>();
+	final Map<String, Pair<String, String>> mapOfExtSourcesNames = new HashMap<>();
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		HashMap<String, String> organizationsWithLoa = new LinkedHashMap<String, String>();
+		HashMap<String, String> organizationsWithLoa = new LinkedHashMap<>();
 
 		List<UserExtSource> extSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 		if(extSources == null || extSources.isEmpty()) return attribute; //If no userExtSources, so no Loa for any of them.

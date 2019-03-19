@@ -28,7 +28,7 @@ public class urn_perun_resource_attribute_def_def_vomsRoles extends ResourceAttr
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue() == null) {
 			return;
 		}

@@ -29,7 +29,7 @@ public abstract class GroupResourceAttributesModuleAbstract extends AttributesMo
 		return new Attribute(attribute);
 	}
 
-	public void changedAttributeHook(PerunSessionImpl session, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Group group, Resource resource, Attribute attribute) {
 
 	}
 }

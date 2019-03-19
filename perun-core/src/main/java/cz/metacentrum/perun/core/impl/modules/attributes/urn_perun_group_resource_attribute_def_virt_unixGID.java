@@ -107,17 +107,15 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 			Attribute gidAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue()));
 			gidAttribute.setValue(attribute.getValue());
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, group, gidAttribute);
-		} catch (WrongAttributeValueException ex) {
+		} catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
-	public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attribute) {
 		return false;
 		/* This method remove attribute for Group not only GroupResource (we dont want it)
 			 Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
@@ -142,7 +140,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<String>();
+		List<String> dependecies = new ArrayList<>();
 		dependecies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace" + ":*");
 		dependecies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
 		return dependecies;

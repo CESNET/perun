@@ -28,14 +28,14 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 public class urn_perun_user_attribute_def_def_ucoVsup extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "UČO can't be null.");
 
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException {
 
 		Attribute attr = new Attribute(attribute);
 		int uco = Utils.getNewId(sess.getPerunBl().getDatabaseManagerBl().getJdbcPerunTemplate(), "vsup_uco_seq");
@@ -51,10 +51,9 @@ public class urn_perun_user_attribute_def_def_ucoVsup extends UserAttributesModu
 	 * @param user
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
 	 */
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException {
 
 		if (attribute.getValue() != null) {
 

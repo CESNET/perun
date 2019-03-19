@@ -110,15 +110,13 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends G
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, group, groupNameAttribute);
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch(WrongAttributeValueException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
+		} catch(WrongAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
-	public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attribute) {
 		return false;
 		/* This method remove attribute for Group not only GroupResource (we dont want it)
 			 Attribute unixGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
@@ -143,7 +141,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends G
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<String>();
+		List<String> dependecies = new ArrayList<>();
 		dependecies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:*");
 		dependecies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
 		return dependecies;

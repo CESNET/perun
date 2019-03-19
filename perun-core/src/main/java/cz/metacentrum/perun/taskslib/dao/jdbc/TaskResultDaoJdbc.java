@@ -33,41 +33,37 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		" tasks_results.destination_id as tasks_results_destination_id, tasks_results.status as tasks_results_status, tasks_results.err_message as tasks_results_err_message," +
 		" tasks_results.std_message as tasks_results_std_message, tasks_results.return_code as tasks_results_return_code, tasks_results.timestamp as tasks_results_timestamp ";
 
-	public static final RowMapper<TaskResult> TASKRESULT_ROWMAPPER = new RowMapper<TaskResult>() {
+	public static final RowMapper<TaskResult> TASKRESULT_ROWMAPPER = (rs, i) -> {
 
-		public TaskResult mapRow(ResultSet rs, int i) throws SQLException {
+		TaskResult taskResult = new TaskResult();
 
-			TaskResult taskResult = new TaskResult();
+		taskResult.setId(rs.getInt("tasks_results_id"));
+		taskResult.setDestinationId(rs.getInt("tasks_results_destination_id"));
+		taskResult.setErrorMessage(rs.getString("tasks_results_err_message"));
+		taskResult.setTaskId(rs.getInt("tasks_results_task_id"));
+		taskResult.setReturnCode(rs.getInt("tasks_results_return_code"));
+		taskResult.setStandardMessage(rs.getString("tasks_results_std_message"));
 
-			taskResult.setId(rs.getInt("tasks_results_id"));
-			taskResult.setDestinationId(rs.getInt("tasks_results_destination_id"));
-			taskResult.setErrorMessage(rs.getString("tasks_results_err_message"));
-			taskResult.setTaskId(rs.getInt("tasks_results_task_id"));
-			taskResult.setReturnCode(rs.getInt("tasks_results_return_code"));
-			taskResult.setStandardMessage(rs.getString("tasks_results_std_message"));
-
-			if (rs.getTimestamp("tasks_results_timestamp") != null) {
-				taskResult.setTimestamp(rs.getTimestamp("tasks_results_timestamp"));
-			}
-
-			if (rs.getString("tasks_results_status").equalsIgnoreCase(TaskResultStatus.DONE.toString())) {
-				taskResult.setStatus(TaskResultStatus.DONE);
-			} else if (rs.getString("tasks_results_status").equalsIgnoreCase(TaskResultStatus.ERROR.toString())) {
-				taskResult.setStatus(TaskResultStatus.ERROR);
-			} else if (rs.getString("tasks_results_status").equalsIgnoreCase(TaskResultStatus.FATAL_ERROR.toString())) {
-				taskResult.setStatus(TaskResultStatus.FATAL_ERROR);
-			} else if (rs.getString("tasks_results_status").equalsIgnoreCase(TaskResultStatus.DENIED.toString())) {
-				taskResult.setStatus(TaskResultStatus.DENIED);
-			} else {
-				throw new IllegalArgumentException("Unknown TaskResult state.");
-			}
-
-			taskResult.setDestination(ServicesManagerImpl.DESTINATION_MAPPER.mapRow(rs, i));
-			taskResult.setService(ServicesManagerImpl.SERVICE_MAPPER.mapRow(rs, i));
-
-			return taskResult;
+		if (rs.getTimestamp("tasks_results_timestamp") != null) {
+			taskResult.setTimestamp(rs.getTimestamp("tasks_results_timestamp"));
 		}
 
+		if (rs.getString("tasks_results_status").equalsIgnoreCase(TaskResultStatus.DONE.toString())) {
+			taskResult.setStatus(TaskResultStatus.DONE);
+		} else if (rs.getString("tasks_results_status").equalsIgnoreCase(TaskResultStatus.ERROR.toString())) {
+			taskResult.setStatus(TaskResultStatus.ERROR);
+		} else if (rs.getString("tasks_results_status").equalsIgnoreCase(TaskResultStatus.FATAL_ERROR.toString())) {
+			taskResult.setStatus(TaskResultStatus.FATAL_ERROR);
+		} else if (rs.getString("tasks_results_status").equalsIgnoreCase(TaskResultStatus.DENIED.toString())) {
+			taskResult.setStatus(TaskResultStatus.DENIED);
+		} else {
+			throw new IllegalArgumentException("Unknown TaskResult state.");
+		}
+
+		taskResult.setDestination(ServicesManagerImpl.DESTINATION_MAPPER.mapRow(rs, i));
+		taskResult.setService(ServicesManagerImpl.SERVICE_MAPPER.mapRow(rs, i));
+
+		return taskResult;
 	};
 
 	public synchronized NamedParameterJdbcTemplate getNamedParameterJdbcTemplate() {
@@ -131,7 +127,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (taskResults != null) {
 			return taskResults;
 		} else {
-			return new ArrayList<TaskResult>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -147,7 +143,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (taskResults != null) {
 			return taskResults;
 		} else {
-			return new ArrayList<TaskResult>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -195,7 +191,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 	}
 
 	@Override
-	public int clearOld(int engineID, int numDays) throws InternalErrorException {
+	public int clearOld(int engineID, int numDays) {
 
 		// create sql toDate() with numDay substracted from now
 		Calendar date = Calendar.getInstance();
@@ -228,7 +224,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (taskResults != null) {
 			return taskResults;
 		} else {
-			return new ArrayList<TaskResult>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -273,7 +269,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (taskResults != null) {
 			return taskResults;
 		} else {
-			return new ArrayList<TaskResult>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -291,7 +287,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (taskResults != null) {
 			return taskResults;
 		} else {
-			return new ArrayList<TaskResult>();
+			return new ArrayList<>();
 		}
 	}
 

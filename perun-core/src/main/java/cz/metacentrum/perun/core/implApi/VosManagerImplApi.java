@@ -102,7 +102,7 @@ public interface VosManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	public List<User> getAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
+	List<User> getAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
 
 	/**
 	 * Get list of direct user administrators of specific vo for specific role.
@@ -116,7 +116,7 @@ public interface VosManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
-	public List<User> getDirectAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
+	List<User> getDirectAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
 
 	/**
 	 * Get list of group administrators of the given VO for specific role.
@@ -126,7 +126,7 @@ public interface VosManagerImplApi {
 	 * @return List of groups, who are administrators of the Vo with specific role. Returns empty list if there is no such authorized group.
 	 * @throws InternalErrorException
 	 */
-	public List<Group> getAdminGroups(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
+	List<Group> getAdminGroups(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
 
 	/**
 	 * Get list of Vo administrators.
@@ -193,7 +193,7 @@ public interface VosManagerImplApi {
 	 * @return list of all vo applications ids
 	 * @throws InternalErrorException
 	 */
-	public List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) throws InternalErrorException;
+	List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Return list of all reserved logins for specific application
@@ -203,7 +203,7 @@ public interface VosManagerImplApi {
 	 * @return list of pairs namespace and login
 	 * @throws InternalErrorException
 	 */
-	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException;
+	List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException;
 
 	/**
 	 * Delete all VO login reservations
@@ -216,7 +216,7 @@ public interface VosManagerImplApi {
 	 * @param vo VO to delete all login reservations for
 	 * @throws InternalErrorException
 	 */
-	public void deleteVoReservedLogins(PerunSession sess, Vo vo) throws InternalErrorException;
+	void deleteVoReservedLogins(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Creates empty application form definition for VO when
@@ -226,7 +226,7 @@ public interface VosManagerImplApi {
 	 * @param vo
 	 * @throws InternalErrorException
 	 */
-	public void createApplicationForm(PerunSession sess, Vo vo) throws InternalErrorException;
+	void createApplicationForm(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Get count of all vos.

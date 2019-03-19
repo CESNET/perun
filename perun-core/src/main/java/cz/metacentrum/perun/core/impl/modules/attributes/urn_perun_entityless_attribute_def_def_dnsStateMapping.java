@@ -8,9 +8,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
 
-import java.util.LinkedHashMap;
-import java.util.Set;
-
 /**
  * Entityless attribute for mapping values of DNS address to specific state (or empty string). The DNS domain is in key, state is in String value.
  *
@@ -22,11 +19,10 @@ import java.util.Set;
  * @author Vladimir Mecko vladimir.mecko@gmail.com
  * @author Martin Kuba makub@ics.muni.cz
  */
-@SuppressWarnings("unchecked")
 public class urn_perun_entityless_attribute_def_def_dnsStateMapping extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
 		if(key==null) {
 			throw new WrongAttributeValueException(attribute, "null", "key for this entityless attribute must not be null");
 		}

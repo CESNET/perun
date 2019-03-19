@@ -112,7 +112,7 @@ public interface AuditMessagesManager {
 	 * @param perunSession perun session
 	 * @return map string to integer where string is name of consumer and int is last_processed_id of consumer
 	 */
-	Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
+	Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException;
 
 	/**
 	 * Get id of last message from auditer_log.
@@ -120,7 +120,7 @@ public interface AuditMessagesManager {
 	 * @param perunSession perun session
 	 * @return last message id
 	 */
-	int getLastMessageId(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
+	int getLastMessageId(PerunSession perunSession) throws InternalErrorException;
 
 	/**
 	 * Set last processed ID of message in consumer with consumerName.
@@ -135,5 +135,5 @@ public interface AuditMessagesManager {
 	 *
 	 * @return number of messages in auditer log
 	 */
-	int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
+	int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException;
 }

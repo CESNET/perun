@@ -29,7 +29,7 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 	private static final String A_GR_systemUnixGID = AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF + ":systemUnixGID";
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) {
 		return new Attribute(attributeDefinition);
 	}
 
@@ -76,7 +76,7 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(A_GR_systemUnixGroupName);
 		dependencies.add(A_GR_systemUnixGID);
 		return dependencies;

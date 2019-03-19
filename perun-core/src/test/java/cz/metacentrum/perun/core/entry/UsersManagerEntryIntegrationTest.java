@@ -43,7 +43,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	String userLastName = "";
 	String extLogin = "";        // his login in external source
 	String extLogin2 = "";
-	String extSourceName = "UserManagerEntryIntegrationTest";
+	final String extSourceName = "UserManagerEntryIntegrationTest";
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	final UserExtSource userExtSource = new UserExtSource();   // create new User Ext Source
 	private UsersManager usersManager;
@@ -158,7 +158,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		List<User> users = usersManager.getUsersBySpecificUser(sess, sponsoredUser);
 		assertTrue(users.contains(user));
-		assertTrue(users.size() == 1);
+		assertEquals(1, users.size());
 	}
 
 	@Test
@@ -167,7 +167,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		List<User> users = usersManager.getUsersBySpecificUser(sess, serviceUser1);
 		assertTrue(users.contains(user));
-		assertTrue(users.size() == 1);
+		assertEquals(1, users.size());
 	}
 
 	@Test
@@ -176,7 +176,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		List<User> users = usersManager.getUsersBySpecificUser(sess, serviceUser2);
 		assertTrue(users.contains(user));
-		assertTrue(users.size() == 1);
+		assertEquals(1, users.size());
 	}
 
 	@Test
@@ -187,7 +187,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue(users.contains(serviceUser1));
 		assertTrue(users.contains(serviceUser2));
 		assertTrue(users.contains(sponsoredUser));
-		assertTrue(users.size() == 3);
+		assertEquals(3, users.size());
 	}
 
 	@Test
@@ -199,7 +199,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		List<User> users = usersManager.getSpecificUsersByUser(sess, user);
 		assertTrue(users.contains(serviceUser2));
-		assertTrue(users.size() == 1);
+		assertEquals(1, users.size());
 
 		usersManager.removeSpecificUserOwner(sess, user, serviceUser2);
 		users = usersManager.getSpecificUsersByUser(sess, user);
@@ -208,20 +208,20 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		usersManager.addSpecificUserOwner(sess, user, serviceUser1);
 		users = usersManager.getSpecificUsersByUser(sess, user);
 		assertTrue(users.contains(serviceUser1));
-		assertTrue(users.size() == 1);
+		assertEquals(1, users.size());
 
 		usersManager.addSpecificUserOwner(sess, user, serviceUser2);
 		users = usersManager.getSpecificUsersByUser(sess, user);
 		assertTrue(users.contains(serviceUser1));
 		assertTrue(users.contains(serviceUser2));
-		assertTrue(users.size() == 2);
+		assertEquals(2, users.size());
 
 		usersManager.addSpecificUserOwner(sess, user, sponsoredUser);
 		users = usersManager.getSpecificUsersByUser(sess, user);
 		assertTrue(users.contains(serviceUser1));
 		assertTrue(users.contains(serviceUser2));
 		assertTrue(users.contains(sponsoredUser));
-		assertTrue(users.size() == 3);
+		assertEquals(3, users.size());
 	}
 
 	@Test (expected= RelationNotExistsException.class)
@@ -284,7 +284,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue(specificUsers.contains(serviceUser1));
 		assertTrue(specificUsers.contains(serviceUser2));
 		assertTrue(specificUsers.contains(sponsoredUser));
-		assertTrue(specificUsers.size() == 3);
+		assertEquals(3, specificUsers.size());
 
 		usersManager.removeSpecificUserOwner(sess, user, serviceUser1);
 		usersManager.removeSpecificUserOwner(sess, user, sponsoredUser);
@@ -293,7 +293,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue(perun.getUsersManagerBl().specificUserOwnershipExists(sess, user, sponsoredUser));
 		specificUsers = usersManager.getSpecificUsersByUser(sess, user);
 		assertTrue(specificUsers.contains(serviceUser2));
-		assertTrue(specificUsers.size() == 1);
+		assertEquals(1, specificUsers.size());
 
 		usersManager.removeSpecificUserOwner(sess, user, serviceUser2);
 		assertTrue(perun.getUsersManagerBl().specificUserOwnershipExists(sess, user, serviceUser1));
@@ -437,13 +437,13 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		usersManager.updateUserExtSource(sess, ues1);
 
 		UserExtSource retrievedUes = usersManager.getUserExtSourceById(sess, ues1.getId());
-		Assert.assertTrue("LoA was not updated", retrievedUes.getLoa() == ues1.getLoa());
+		assertEquals("LoA was not updated", retrievedUes.getLoa(), ues1.getLoa());
 
 		ues1.setLogin("changedTestExtLogin@test");
 		usersManager.updateUserExtSource(sess, ues1);
 
 		retrievedUes = usersManager.getUserExtSourceById(sess, ues1.getId());
-		Assert.assertTrue("Login was not updated", Objects.equals(retrievedUes.getLogin(),ues1.getLogin()));
+		assertEquals("Login was not updated", retrievedUes.getLogin(), ues1.getLogin());
 
 	}
 
@@ -554,7 +554,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		List<UserExtSource> userExtSources = usersManager.getUserExtSources(sess, user);
 		assertNotNull(userExtSources);
-		assertTrue(userExtSources.size() == 2);
+		assertEquals(2, userExtSources.size());
 		// our user should have only two ext source, one we we added and the default one
 
 	}
@@ -1063,7 +1063,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private void setUpSpecificUser1ForUser(Vo vo) throws Exception {
 		Candidate candidate = setUpCandidateForSpecificUser1();
 
-		List<User> owners = new ArrayList<User>();
+		List<User> owners = new ArrayList<>();
 		owners.add(user);
 
 		Member serviceMember = perun.getMembersManagerBl().createSpecificMemberSync(sess, vo, candidate, owners, SpecificUserType.SERVICE);
@@ -1076,7 +1076,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private void setUpSpecificUser2ForUser(Vo vo) throws Exception {
 		Candidate candidate = setUpCandidateForSpecificUser2();
 
-		List<User> owners = new ArrayList<User>();
+		List<User> owners = new ArrayList<>();
 		owners.add(user);
 
 		Member serviceMember = perun.getMembersManagerBl().createSpecificMemberSync(sess, vo, candidate, owners, SpecificUserType.SERVICE);
@@ -1169,7 +1169,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setTitleAfter("");
 		final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}
@@ -1185,7 +1185,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setServiceUser(true);
 		final UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 	}
 
@@ -1200,7 +1200,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setServiceUser(true);
 		final UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 	}
 
@@ -1216,7 +1216,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setSponsoredUser(true);
 		final UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 	}
 

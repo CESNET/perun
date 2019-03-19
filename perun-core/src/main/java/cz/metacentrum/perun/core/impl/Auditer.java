@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
-import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
@@ -89,7 +88,7 @@ public class Auditer {
 	private static final Object LOCK_DB_TABLE_AUDITER_LOG = new Object();
 	private static final Object LOCK_DB_TABLE_AUDITER_LOG_JSON = new Object();
 
-	private static Set<AttributesModuleImplApi> registeredAttributesModules = new HashSet<>();
+	private static final Set<AttributesModuleImplApi> registeredAttributesModules = new HashSet<>();
 
 	static {
 
@@ -144,54 +143,46 @@ public class Auditer {
 		}
 	};
 
-	protected static final RowMapper<AuditMessage> AUDITMESSAGE_MAPPER_FOR_PARSER = new RowMapper<AuditMessage>() {
-		public AuditMessage mapRow(ResultSet rs, int i) throws SQLException {
+	protected static final RowMapper<AuditMessage> AUDITMESSAGE_MAPPER_FOR_PARSER = (rs, i) -> {
 
-			String msg;
-			if (Compatibility.isOracle()) {
-				Clob clob = rs.getClob("msg");
-				char[] cbuf = null;
-				if (clob == null) {
-					msg = null;
-				} else {
-					try {
-						cbuf = new char[(int) clob.length()];
-						clob.getCharacterStream().read(cbuf);
-					} catch (IOException ex) {
-						throw new InternalErrorRuntimeException(ex);
-					}
-					msg = new String(cbuf);
-				}
+		String msg;
+		if (Compatibility.isOracle()) {
+			Clob clob = rs.getClob("msg");
+			char[] cbuf = null;
+			if (clob == null) {
+				msg = null;
 			} else {
-				msg = rs.getString("msg");
+				try {
+					cbuf = new char[(int) clob.length()];
+					clob.getCharacterStream().read(cbuf);
+				} catch (IOException ex) {
+					throw new InternalErrorRuntimeException(ex);
+				}
+				msg = new String(cbuf);
 			}
-			// Get principal User and his ID (null, if no user exist)
-			Integer principalUserId = null;
-			if (rs.getInt("created_by_uid") != 0) principalUserId = rs.getInt("created_by_uid");
-			AuditMessage auditMessage = new AuditMessage(rs.getInt("id"), msg, rs.getString("actor"), rs.getString("created_at"), principalUserId);
-			return auditMessage;
+		} else {
+			msg = rs.getString("msg");
 		}
+		// Get principal User and his ID (null, if no user exist)
+		Integer principalUserId = null;
+		if (rs.getInt("created_by_uid") != 0) principalUserId = rs.getInt("created_by_uid");
+		AuditMessage auditMessage = new AuditMessage(rs.getInt("id"), msg, rs.getString("actor"), rs.getString("created_at"), principalUserId);
+		return auditMessage;
 	};
 
-	protected static final RowMapper<String> AUDITER_FULL_LOG_MAPPER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(rs, i);
-			return auditMessage.getFullMessage();
-		}
+	protected static final RowMapper<String> AUDITER_FULL_LOG_MAPPER = (rs, i) -> {
+		AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(rs, i);
+		return auditMessage.getFullMessage();
 	};
 
-	protected static final RowMapper<String> AUDITER_LOG_MAPPER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(rs, i);
-			return auditMessage.getMsg();
-		}
+	protected static final RowMapper<String> AUDITER_LOG_MAPPER = (rs, i) -> {
+		AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(rs, i);
+		return auditMessage.getMsg();
 	};
 
-	protected static final RowMapper<String> AUDITER_LOG_MAPPER_FOR_PARSER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
-			return auditMessage.getMsg();
-		}
+	protected static final RowMapper<String> AUDITER_LOG_MAPPER_FOR_PARSER = (rs, i) -> {
+		AuditMessage auditMessage = AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
+		return auditMessage.getMsg();
 	};
 
 	protected static final AuditerConsumerExtractor AUDITER_CONSUMER_EXTRACTOR = new AuditerConsumerExtractor();
@@ -213,7 +204,7 @@ public class Auditer {
 	public Auditer() {
 	}
 
-	public void setPerunPool(DataSource perunPool) throws InternalErrorException {
+	public void setPerunPool(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
@@ -395,8 +386,7 @@ public class Auditer {
 		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
 		List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
 		if (transactionChain.isEmpty()) return new ArrayList<>();
-		List<AuditerMessage> messages = transactionChain.get(transactionChain.size() - 1);
-		return messages;
+		return transactionChain.get(transactionChain.size() - 1);
 	}
 
 	public List<AuditMessage> getMessages(int count) throws InternalErrorException {
@@ -404,7 +394,7 @@ public class Auditer {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
 					AUDITMESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<AuditMessage>();
+			return new ArrayList<>();
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -423,7 +413,7 @@ public class Auditer {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log_json ORDER BY id Desc limit ?) " + Compatibility.getAsAlias("temp"),
 					AUDITMESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<AuditMessage>();
+			return new ArrayList<>();
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -433,7 +423,7 @@ public class Auditer {
 		try {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ((select max(id) from auditer_log)-?) order by id desc", AUDITMESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<AuditMessage>();
+			return new ArrayList<>();
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -469,7 +459,7 @@ public class Auditer {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + ",row_number() over (ORDER BY id DESC) as rownumber from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
 					AUDITMESSAGE_MAPPER_FOR_PARSER, count);
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<AuditMessage>();
+			return new ArrayList<>();
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -658,7 +648,7 @@ public class Auditer {
 				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -682,7 +672,7 @@ public class Auditer {
 				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -706,7 +696,7 @@ public class Auditer {
 				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -729,7 +719,7 @@ public class Auditer {
 				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
-			return new ArrayList<AuditMessage>();
+			return new ArrayList<>();
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}

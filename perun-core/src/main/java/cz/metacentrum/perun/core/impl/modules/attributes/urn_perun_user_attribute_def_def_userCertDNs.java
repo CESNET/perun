@@ -27,7 +27,7 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 	private static final Pattern certPattern = Pattern.compile("^/");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "This attribute value can't be null");
 		Map<String, String> value = (Map) attribute.getValue();
 		if(value.isEmpty()) throw new WrongAttributeValueException(attribute, "This attribute value can't be empty");
@@ -43,7 +43,7 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
@@ -65,9 +65,7 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 		if(certDNs == null || certDNs.isEmpty()) {
 			try {
 				session.getPerunBl().getAttributesManagerBl().removeAttribute(session, user, userPreferredCertDN);
-			} catch (WrongAttributeAssignmentException ex) {
-				throw new InternalErrorException(ex);
-			} catch (WrongAttributeValueException ex) {
+			} catch (WrongAttributeAssignmentException | WrongAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			}
 		} else {
@@ -83,9 +81,7 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 				userPreferredCertDN.setValue(newPossibleCertDN);
 				try {
 					session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, userPreferredCertDN);
-				} catch (WrongAttributeAssignmentException ex) {
-					throw new InternalErrorException(ex);
-				} catch (WrongAttributeValueException ex) {
+				} catch (WrongAttributeAssignmentException | WrongAttributeValueException ex) {
 					throw new InternalErrorException(ex);
 				}
 			} else {
@@ -93,9 +89,7 @@ public class urn_perun_user_attribute_def_def_userCertDNs extends UserAttributes
 					userPreferredCertDN.setValue(newPossibleCertDN);
 					try {
 						session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, userPreferredCertDN);
-					} catch (WrongAttributeAssignmentException ex) {
-						throw new InternalErrorException(ex);
-					} catch (WrongAttributeValueException ex) {
+					} catch (WrongAttributeAssignmentException | WrongAttributeValueException ex) {
 						throw new InternalErrorException(ex);
 					}
 				}

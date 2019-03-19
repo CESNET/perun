@@ -134,7 +134,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			return getFacilitiesManagerBl().getRichFacilities(sess);
 		} else if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
 			// Cast complementary object to Facility
-			List<Facility> facilities = new ArrayList<Facility>();
+			List<Facility> facilities = new ArrayList<>();
 			for (PerunBean facility: AuthzResolver.getComplementaryObjectsForRole(sess, Role.FACILITYADMIN, Facility.class)) {
 				facilities.add((Facility) facility);
 			}
@@ -197,7 +197,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public int getFacilitiesCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public int getFacilitiesCount(PerunSession sess) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		return getFacilitiesManagerBl().getFacilitiesCount(sess);
@@ -212,7 +212,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			return getFacilitiesManagerBl().getFacilities(sess);
 		} else if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
 			// Cast complementary object to Facility
-			List<Facility> facilities = new ArrayList<Facility>();
+			List<Facility> facilities = new ArrayList<>();
 			for (PerunBean facility: AuthzResolver.getComplementaryObjectsForRole(sess, Role.FACILITYADMIN, Facility.class)) {
 				facilities.add((Facility) facility);
 			}
@@ -425,7 +425,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public void deleteFacility(PerunSession sess, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityNotExistsException, PrivilegeException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteFacility(PerunSession sess, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityNotExistsException, PrivilegeException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -558,7 +558,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public List<Host> getHosts(PerunSession sess, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException {
+	public List<Host> getHosts(PerunSession sess, Facility facility) throws FacilityNotExistsException, InternalErrorException {
 		Utils.checkPerunSession(sess);
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
@@ -825,7 +825,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException, FacilityNotExistsException, PrivilegeException {
+	public List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -1061,7 +1061,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException, PrivilegeException {
+	public List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		List<Facility> facilities = getFacilitiesManagerBl().getFacilitiesByHostName(sess, hostname);
@@ -1104,7 +1104,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	// FACILITY CONTACTS METHODS
 
 	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException {
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws InternalErrorException, OwnerNotExistsException {
 		Utils.checkPerunSession(sess);
 		perunBl.getOwnersManagerBl().checkOwnerExists(sess, owner);
 		List<ContactGroup> contactGroups = this.getFacilitiesManagerBl().getFacilityContactGroups(sess, owner);
@@ -1120,7 +1120,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
 		List<ContactGroup> contactGroups = this.getFacilitiesManagerBl().getFacilityContactGroups(sess, user);
@@ -1136,7 +1136,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
 		List<ContactGroup> contactGroups = this.getFacilitiesManagerBl().getFacilityContactGroups(sess, group);
@@ -1152,7 +1152,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException, FacilityContactNotExistsException, FacilityNotExistsException, PrivilegeException {
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		perunBl.getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
@@ -1183,7 +1183,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, UserNotExistsException, OwnerNotExistsException, GroupNotExistsException {
+	public void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, OwnerNotExistsException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		this.checkFacilityContactsEntitiesExist(sess, contactGroupsToAdd);
 
@@ -1218,15 +1218,12 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		this.checkFacilityContactsEntitiesExist(sess, contactGroupsToRemove);
 
-		Iterator<ContactGroup> iter = contactGroupsToRemove.iterator();
-		while(iter.hasNext()) {
-			ContactGroup contactGroupToRemove = iter.next();
-
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, contactGroupToRemove.getFacility())) {
+		for (ContactGroup contactGroupToRemove : contactGroupsToRemove) {
+			if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, contactGroupToRemove.getFacility())) {
 				throw new PrivilegeException(sess, "removeFacilityContacts");
 			}
 
- 		}
+		}
 
 		this.getFacilitiesManagerBl().removeFacilityContacts(sess, contactGroupsToRemove);
 	}

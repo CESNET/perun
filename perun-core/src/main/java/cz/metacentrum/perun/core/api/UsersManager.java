@@ -194,9 +194,8 @@ public interface UsersManager {
 	 * @return list of RichUsers
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Get All richUsers with or without specificUsers.
@@ -629,9 +628,8 @@ public interface UsersManager {
 	 * @param login to be checked
 	 * @return true if login available, false otherwise
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 */
-	boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InternalErrorException, PrivilegeException;
+	boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InternalErrorException;
 
 
 	/**
@@ -716,13 +714,12 @@ public interface UsersManager {
 	 * @param checkOldPassword
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws UserNotExistsException
 	 * @throws LoginNotExistsException
 	 * @throws PasswordDoesntMatchException
 	 * @throws PasswordChangeFailedException
 	 */
 	void changePassword(PerunSession sess, String login, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-			throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
+			throws InternalErrorException, PrivilegeException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
@@ -862,7 +859,7 @@ public interface UsersManager {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	public void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws InternalErrorException, PrivilegeException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void validatePasswordAndSetExtSources(PerunSession sess, User user, String userLogin, String loginNamespace) throws InternalErrorException, PrivilegeException, PasswordCreationFailedException, LoginNotExistsException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 
 	/**
@@ -980,11 +977,10 @@ public interface UsersManager {
 	 * @return list of RichUsers with selected attributes
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
-	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
 	 */
 	List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrNames)
-		throws InternalErrorException, VoNotExistsException, UserNotExistsException, PrivilegeException;
+		throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Return list of RichUsers who matches the searchString, searching name, email and logins
@@ -997,11 +993,10 @@ public interface UsersManager {
 	 * @return list of RichUsers
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
-	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
 	 */
 	List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName)
-		throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException;
+		throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Allow users to manually add login in supported namespace if same login is not reserved.
@@ -1086,11 +1081,9 @@ public interface UsersManager {
 	 * @param sess PerunSession
 	 *
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 *
 	 * @return count of all users
 	 */
-	int getUsersCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	int getUsersCount(PerunSession sess) throws InternalErrorException;
 
 	/**
 	 * Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.

@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.*;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -27,7 +24,7 @@ public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends Use
 	private static final Pattern pattern = Pattern.compile("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Attribute's value can't be null");
 		String value = (String) attribute.getValue();
 		Matcher matcher = pattern.matcher(value);
@@ -35,7 +32,7 @@ public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends Use
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

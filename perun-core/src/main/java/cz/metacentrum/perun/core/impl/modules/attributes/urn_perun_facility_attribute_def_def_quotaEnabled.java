@@ -20,7 +20,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 public class urn_perun_facility_attribute_def_def_quotaEnabled extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi  {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 		//Null means the same like 0 (not enabled)
 		if(attribute.getValue() == null) return;
 		
@@ -30,7 +30,7 @@ public class urn_perun_facility_attribute_def_def_quotaEnabled extends FacilityA
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {
 		//Default is 0, it means quota is not enabled (null means the same)
 		Attribute retAttr = new Attribute(attribute);
 		retAttr.setValue(0);

@@ -21,7 +21,7 @@ import java.util.Objects;
 public class urn_perun_user_attribute_def_def_k4Nav extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		if (attribute.getValue() != null) {
 			if (!Objects.equals(attribute.getValue(), "0") && !Objects.equals(attribute.getValue(), "1")) {

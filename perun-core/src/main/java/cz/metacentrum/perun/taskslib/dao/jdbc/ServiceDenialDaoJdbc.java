@@ -44,7 +44,7 @@ public class ServiceDenialDaoJdbc extends JdbcDaoSupport implements ServiceDenia
 		if (deniedServices != null) {
 			return deniedServices;
 		} else {
-			return new ArrayList<Service>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -57,37 +57,30 @@ public class ServiceDenialDaoJdbc extends JdbcDaoSupport implements ServiceDenia
 		if (deniedServices != null) {
 			return deniedServices;
 		} else {
-			return new ArrayList<Service>();
+			return new ArrayList<>();
 		}
 	}
 
 	@Override
 	public List<Service> getServicesFromDestination(int destinationId) {
-		List<Service> servicesFromDestination = getJdbcTemplate().query("select distinct " + ServicesManagerImpl.serviceMappingSelectQuery +
+		return getJdbcTemplate().query("select distinct " + ServicesManagerImpl.serviceMappingSelectQuery +
 								" from services join facility_service_destinations on facility_service_destinations.service_id = services.id" +
 								" where facility_service_destinations.destination_id = ?",
 						ServicesManagerImpl.SERVICE_MAPPER, destinationId);
-		return servicesFromDestination;
 	}
 
 	@Override
 	public boolean isServiceBlockedOnFacility(int serviceId, int facilityId) {
 		int denials = 0;
 		denials = this.queryForInt("select count(*) from service_denials where service_id = ? and facility_id = ?", serviceId, facilityId);
-		if (denials > 0) {
-			return true;
-		}
-		return false;
+		return denials > 0;
 	}
 
 	@Override
 	public boolean isServiceBlockedOnDestination(int serviceId, int destinationId) {
 		int denials = 0;
 		denials = this.queryForInt("select count(*) from service_denials where service_id = ? and destination_id = ?", serviceId, destinationId);
-		if (denials > 0) {
-			return true;
-		}
-		return false;
+		return denials > 0;
 	}
 
 	@Override

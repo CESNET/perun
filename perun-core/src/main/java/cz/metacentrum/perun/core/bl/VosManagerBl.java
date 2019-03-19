@@ -2,7 +2,6 @@ package cz.metacentrum.perun.core.bl;
 
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
@@ -46,9 +45,8 @@ public interface VosManagerBl {
 	 * @param perunSession
 	 * @param vo
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException
 	 */
-	void deleteVo(PerunSession perunSession, Vo vo) throws InternalErrorException, RelationExistsException;
+	void deleteVo(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Delete VO.
@@ -57,9 +55,8 @@ public interface VosManagerBl {
 	 * @param vo
 	 * @param forceDelete force the deletion of the VO, regardless there are any existing entities associated with the VO (they will be deleted)
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException exception is thrown when forceDelete is false and there are some entities associated with the VO
 	 */
-	void deleteVo(PerunSession perunSession, Vo vo, boolean forceDelete) throws InternalErrorException, RelationExistsException;
+	void deleteVo(PerunSession perunSession, Vo vo, boolean forceDelete) throws InternalErrorException;
 
 
 	/**
@@ -307,10 +304,9 @@ public interface VosManagerBl {
 	 * @param vo
 	 * @return List of users, who are administrators of the Vo. Returns empty list if there is no VO admin.
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Get list of Vo administrators directly assigned to VO like RichUsers without attributes.
@@ -319,10 +315,9 @@ public interface VosManagerBl {
 	 * @param vo
 	 * @return List of users, who are administrators of the Vo. Returns empty list if there is no VO admin.
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Get list of Vo administrators like RichUsers with attributes.
@@ -358,11 +353,10 @@ public interface VosManagerBl {
 	 * @param vo
 	 * @param specificAttributes
 	 * @return list of RichUsers with specific attributes.
-	 * @throws UserNotExistsException
 	 * @throws InternalErrorException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException;
 
 	/**
 	 * !!! Not Complete yet, need to implement all perunBeans !!!

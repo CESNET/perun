@@ -28,7 +28,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9]*$");
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attributeDefinition) {
 		return new Attribute(attributeDefinition);
 	}
 

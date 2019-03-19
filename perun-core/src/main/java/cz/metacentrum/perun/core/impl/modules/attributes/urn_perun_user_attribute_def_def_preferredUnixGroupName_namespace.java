@@ -1,8 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -24,7 +22,7 @@ public class urn_perun_user_attribute_def_def_preferredUnixGroupName_namespace e
 	private static final Pattern pattern = Pattern.compile("^[-_.a-zA-Z0-9]+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue()!= null) {
 			for(String groupName: (List<String>)attribute.getValue()) {
 				Matcher matcher = pattern.matcher(groupName);

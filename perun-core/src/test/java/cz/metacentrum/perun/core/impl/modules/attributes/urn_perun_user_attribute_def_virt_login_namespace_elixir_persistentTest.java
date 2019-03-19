@@ -31,7 +31,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_elixir_persistent
     private static User user;
 
     @Before
-    public void SetUp() throws AttributeNotExistsException, InternalErrorException, WrongAttributeAssignmentException {
+    public void SetUp() {
         classInstance = new urn_perun_user_attribute_def_virt_login_namespace_elixir_persistent();
         session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
         user = new User();

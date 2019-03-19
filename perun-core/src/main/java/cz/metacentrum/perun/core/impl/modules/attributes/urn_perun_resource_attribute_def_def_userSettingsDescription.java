@@ -15,7 +15,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  */
 public class urn_perun_resource_attribute_def_def_userSettingsDescription extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Resource resource, AttributeDefinition attribute) {
 		Attribute toReturn = new Attribute(attribute);
 		toReturn.setValue(resource.getDescription());
 		return toReturn;

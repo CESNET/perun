@@ -75,9 +75,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 	private Attribute getUnixGIDNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_unixGIDNamespace);
-		} catch(AttributeNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		} catch(WrongAttributeAssignmentException ex) {
+		} catch(AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -92,7 +90,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(A_FAC_unixGIDNamespace);
 		strongDependencies.add(A_E_namespaceGIDRanges);
 		return strongDependencies;

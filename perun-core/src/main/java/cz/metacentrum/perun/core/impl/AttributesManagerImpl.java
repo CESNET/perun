@@ -129,11 +129,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private JdbcPerunTemplate jdbc;
 	private LobHandler lobHandler;
-	private ClassLoader classLoader = this.getClass().getClassLoader();
+	private final ClassLoader classLoader = this.getClass().getClassLoader();
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	//Attributes modules.  name => module
-	private Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<>();
+	private final Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<>();
 
 	private AttributesManagerImplApi self;
 
@@ -183,7 +183,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 *
 	 * @param perunPool connection pool instance
 	 */
-	public AttributesManagerImpl(DataSource perunPool) throws InternalErrorException {
+	public AttributesManagerImpl(DataSource perunPool) {
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
@@ -718,7 +718,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @param attributeHolder2 secondary holder (Facility, Resource, Member...) for which you want the attribute value
 	 * @return attribute with set value
 	 */
-	private Attribute setValueOfAttribute(PerunSession sess, Attribute attribute, Object attributeHolder, Object attributeHolder2) throws InternalErrorException {
+	private Attribute setValueOfAttribute(PerunSession sess, Attribute attribute, Object attributeHolder, Object attributeHolder2) {
 
 		//core attribute
 		if (this.isCoreAttribute(sess, attribute) && attributeHolder != null) {
@@ -2651,7 +2651,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setVirtualAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException {
 		return getMemberVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, member, attribute);
 	}
 
@@ -2661,7 +2661,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setVirtualAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException {
 		return getGroupVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, group, attribute);
 	}
 
@@ -2676,17 +2676,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException {
 		return getMemberGroupVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, member, group, attribute);
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException {
 		return getUserVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, user, attribute);
 	}
 
 	@Override
-	public boolean setVirtualAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setVirtualAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException {
 		return getUserExtSourceVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, ues, attribute);
 	}
 
@@ -3634,11 +3634,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return attribute;
 		}
 
-		try {
-			return attributeModule.fillAttribute((PerunSessionImpl) sess, member, resource, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return attributeModule.fillAttribute((PerunSessionImpl) sess, member, resource, attribute);
 	}
 
 	@Override
@@ -3650,11 +3646,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return attribute;
 		}
 
-		try {
-			return attributeModule.fillAttribute((PerunSessionImpl) sess, member, group, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return attributeModule.fillAttribute((PerunSessionImpl) sess, member, group, attribute);
 	}
 
 	@Override
@@ -3722,11 +3714,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			log.debug("Attribute wasn't filled. There is no module for: {}.", attribute.getName());
 			return attribute;
 		}
-		try {
-			return attributeModule.fillAttribute((PerunSessionImpl) sess, host, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return attributeModule.fillAttribute((PerunSessionImpl) sess, host, attribute);
 	}
 
 	@Override
@@ -3750,167 +3738,111 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			log.debug("Attribute wasn't filled. There is no module for: {}.", attribute.getName());
 			return attribute;
 		}
-		try {
-			return attributeModule.fillAttribute((PerunSessionImpl) sess, ues, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		return attributeModule.fillAttribute((PerunSessionImpl) sess, ues, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException {
 		//Call attribute module
 		FacilityAttributesModuleImplApi facilityModule = getFacilityAttributeModule(sess, attribute);
 		if (facilityModule == null) return; //facility module doesn't exists
-		try {
-			facilityModule.changedAttributeHook((PerunSessionImpl) sess, facility, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		facilityModule.changedAttributeHook((PerunSessionImpl) sess, facility, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, String key, Attribute attribute) throws InternalErrorException {
 		//Call attribute module
 		EntitylessAttributesModuleImplApi entitylessModule = getEntitylessAttributeModule(sess, attribute);
 		if (entitylessModule == null) return; //facility module doesn't exists
-		try {
-			entitylessModule.changedAttributeHook((PerunSessionImpl) sess, key, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		entitylessModule.changedAttributeHook((PerunSessionImpl) sess, key, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException {
 		//Call attribute module
 		HostAttributesModuleImplApi hostModule = getHostAttributeModule(sess, attribute);
 		if (hostModule == null) return; //host module doesn't exists
-		try {
-			hostModule.changedAttributeHook((PerunSessionImpl) sess, host, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		hostModule.changedAttributeHook((PerunSessionImpl) sess, host, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException {
 		//Call attribute module
 		VoAttributesModuleImplApi voModule = getVoAttributeModule(sess, attribute);
 		if (voModule == null) return; //facility module doesn't exists
-		try {
-			voModule.changedAttributeHook((PerunSessionImpl) sess, vo, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		voModule.changedAttributeHook((PerunSessionImpl) sess, vo, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		GroupAttributesModuleImplApi groupModule = getGroupAttributeModule(sess, attribute);
 		if (groupModule == null) return; //facility module doesn't exists
-		try {
-			groupModule.changedAttributeHook((PerunSessionImpl) sess, group, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		groupModule.changedAttributeHook((PerunSessionImpl) sess, group, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		UserAttributesModuleImplApi userModule = getUserAttributeModule(sess, attribute);
 		if (userModule == null) return; //facility module doesn't exists
-		try {
-			userModule.changedAttributeHook((PerunSessionImpl) sess, user, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		userModule.changedAttributeHook((PerunSessionImpl) sess, user, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		MemberAttributesModuleImplApi memberModule = getMemberAttributeModule(sess, attribute);
 		if (memberModule == null) return; //facility module doesn't exists
-		try {
-			memberModule.changedAttributeHook((PerunSessionImpl) sess, member, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		memberModule.changedAttributeHook((PerunSessionImpl) sess, member, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException {
 		//Call attribute module
 		GroupResourceAttributesModuleImplApi resourceGroupModule = getResourceGroupAttributeModule(sess, attribute);
 		if (resourceGroupModule == null) return; //facility module doesn't exists
-		try {
-			resourceGroupModule.changedAttributeHook((PerunSessionImpl) sess, group, resource, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		resourceGroupModule.changedAttributeHook((PerunSessionImpl) sess, group, resource, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		ResourceAttributesModuleImplApi resourceModule = getResourceAttributeModule(sess, attribute);
 		if (resourceModule == null) return; //facility module doesn't exists
-		try {
-			resourceModule.changedAttributeHook((PerunSessionImpl) sess, resource, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		resourceModule.changedAttributeHook((PerunSessionImpl) sess, resource, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException {
 		//Call attribute module
 		MemberResourceAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
 		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
-		try {
-			resourceMemberGroupModule.changedAttributeHook((PerunSessionImpl) sess, member, resource, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		resourceMemberGroupModule.changedAttributeHook((PerunSessionImpl) sess, member, resource, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException {
 		//Call attribute module
 		MemberGroupAttributesModuleImplApi memberGroupAttributesModule = getMemberGroupAttributeModule(sess, attribute);
 		if (memberGroupAttributesModule == null) return; //memberGroupAttributesModule module doesn't exists
-		try {
-			memberGroupAttributesModule.changedAttributeHook((PerunSessionImpl) sess, member, group, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		memberGroupAttributesModule.changedAttributeHook((PerunSessionImpl) sess, member, group, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException {
 		//Call attribute module
 		UserFacilityAttributesModuleImplApi facilityUserModule = getFacilityUserAttributeModule(sess, attribute);
 		if (facilityUserModule == null) return; //facility module doesn't exists
-		try {
-			facilityUserModule.changedAttributeHook((PerunSessionImpl) sess, user, facility, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		facilityUserModule.changedAttributeHook((PerunSessionImpl) sess, user, facility, attribute);
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException {
 		//Call attribute module
 		UserExtSourceAttributesModuleImplApi uesModule = getUserExtSourceAttributeModule(sess, attribute);
 		if (uesModule == null) return;
-		try {
-			uesModule.changedAttributeHook((PerunSessionImpl) sess, ues, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		uesModule.changedAttributeHook((PerunSessionImpl) sess, ues, attribute);
 	}
 
 	@Override
@@ -3927,15 +3859,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		//Call attribute module
 		VoAttributesModuleImplApi voModule = getVoAttributeModule(sess, attribute);
 		if (voModule == null) return; //module doesn't exists
-		try {
-			voModule.checkAttributeValue((PerunSessionImpl) sess, vo, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		voModule.checkAttributeValue((PerunSessionImpl) sess, vo, attribute);
 	}
 
 	@Override
@@ -3962,7 +3890,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@SuppressWarnings("unused")
-	public void checkAttributesValue(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributesValue(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		for (Attribute attribute : attributes) {
 			checkAttributeValue(sess, resource, attribute);
 		}
@@ -3981,15 +3909,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		//Call attribute module
 		MemberGroupAttributesModuleImplApi memberGroupAttributeModule = getMemberGroupAttributeModule(sess, attribute);
 		if (memberGroupAttributeModule == null) return; //memberGroupAttributesModule module doesn't exists
-		try {
-			memberGroupAttributeModule.checkAttributeValue((PerunSessionImpl) sess, member, group, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		memberGroupAttributeModule.checkAttributeValue((PerunSessionImpl) sess, member, group, attribute);
 	}
 
 	@Override
@@ -4026,25 +3950,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+	public void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException {
 		UserExtSourceAttributesModuleImplApi attributeModule = getUserExtSourceAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
-		try {
-			attributeModule.checkAttributeValue((PerunSessionImpl) sess, ues, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		attributeModule.checkAttributeValue((PerunSessionImpl) sess, ues, attribute);
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException {
 		HostAttributesModuleImplApi attributeModule = getHostAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
-		try {
-			attributeModule.checkAttributeValue((PerunSessionImpl) sess, host, attribute);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		}
+		attributeModule.checkAttributeValue((PerunSessionImpl) sess, host, attribute);
 	}
 
 	@Override
@@ -4059,7 +3975,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+	public void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		EntitylessAttributesModuleImplApi attributeModule = getEntitylessAttributeModule(sess, attribute);
 		if (attributeModule == null) return;
 		try {
@@ -4367,7 +4283,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public boolean removeVirtualAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeVirtualAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException {
 		return getResourceGroupVirtualAttributeModule(sess, attribute).removeAttributeValue((PerunSessionImpl) sess, group, resource, attribute);
 	}
 
@@ -4597,12 +4513,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		if (attribute.getNamespace() == null)
 			throw new InternalErrorRuntimeException(new NullPointerException("String attribute.namespace is null"));
 		return attribute.getNamespace().startsWith(namespace + ":") || attribute.getNamespace().equals(namespace);
-	}
-
-	public boolean isLargeAttribute(PerunSession sess, AttributeDefinition attribute) {
-		return (attribute.getType().equals(LinkedHashMap.class.getName()) ||
-				attribute.getType().equals(BeansUtils.largeStringClassName) ||
-				attribute.getType().equals(BeansUtils.largeArrayListClassName));
 	}
 
 	@Override
@@ -5418,7 +5328,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 */
 	private class AttributeRightsExtractor implements ResultSetExtractor<List<AttributeRights>> {
 
-		private int attributeId;
+		private final int attributeId;
 
 		AttributeRightsExtractor(int attributeId) {
 			this.attributeId = attributeId;
@@ -5520,7 +5430,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 								+ "action_type_id=(SELECT id FROM action_types WHERE action_type=?)", rights.getAttributeId(),
 						rights.getRole().getRoleName(), actionType.getActionType())) {
 					throw new ConsistencyErrorException("Trying to delete non existing row : AttributeRight={ attributeId="
-							+ Integer.toString(rights.getAttributeId()) + " role=" + rights.getRole().getRoleName() + " actionType=" + actionType.getActionType());
+							+ rights.getAttributeId() + " role=" + rights.getRole().getRoleName() + " actionType=" + actionType.getActionType());
 				}
 			}
 		} catch (RuntimeException e) {
@@ -5528,7 +5438,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	private Attribute setAttributeCreatedAndModified(PerunSession sess, Attribute attribute) throws InternalErrorException {
+	private Attribute setAttributeCreatedAndModified(PerunSession sess, Attribute attribute) {
 		attribute.setValueCreatedBy(sess.getPerunPrincipal().getActor());
 		attribute.setValueModifiedBy(sess.getPerunPrincipal().getActor());
 		Timestamp time = new Timestamp(System.currentTimeMillis());
@@ -5537,14 +5447,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		return attribute;
 	}
 
-	private Attribute setAttributeModified(PerunSession sess, Attribute attribute) throws InternalErrorException {
+	private Attribute setAttributeModified(PerunSession sess, Attribute attribute) {
 		attribute.setValueModifiedBy(sess.getPerunPrincipal().getActor());
 		Timestamp time = new Timestamp(System.currentTimeMillis());
 		attribute.setValueModifiedAt(time.toString());
 		return attribute;
 	}
 
-	private AttributeDefinition setAttributeDefinitionCreatedAndModified(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private AttributeDefinition setAttributeDefinitionCreatedAndModified(PerunSession sess, AttributeDefinition attribute) {
 		attribute.setCreatedBy(sess.getPerunPrincipal().getActor());
 		attribute.setModifiedBy(sess.getPerunPrincipal().getActor());
 		attribute.setCreatedByUid(sess.getPerunPrincipal().getUserId());
@@ -5555,7 +5465,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		return attribute;
 	}
 
-	private AttributeDefinition setAttributeDefinitionModified(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+	private AttributeDefinition setAttributeDefinitionModified(PerunSession sess, AttributeDefinition attribute) {
 		attribute.setModifiedBy(sess.getPerunPrincipal().getActor());
 		attribute.setModifiedByUid(sess.getPerunPrincipal().getUserId());
 		Timestamp time = new Timestamp(System.currentTimeMillis());

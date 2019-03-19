@@ -42,22 +42,18 @@ public class urn_perun_facility_attribute_def_virt_maxGID extends FacilityVirtua
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) {
 		return new Attribute(attributeDefinition);
 	}
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		try {
-			Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
-			if(gidNamespaceAttribute.getValue() == null) return attribute;
-			Attribute namespaceMaxGidAttribute = getNamespaceMaxGidAttribute(sess, (String) gidNamespaceAttribute.getValue());
-			attribute = Utils.copyAttributeToVirtualAttributeWithValue(namespaceMaxGidAttribute, attribute);
-			return attribute;
-		} catch(WrongReferenceAttributeValueException ex) {
-			return attribute;
-		}
+		Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
+		if(gidNamespaceAttribute.getValue() == null) return attribute;
+		Attribute namespaceMaxGidAttribute = getNamespaceMaxGidAttribute(sess, (String) gidNamespaceAttribute.getValue());
+		attribute = Utils.copyAttributeToVirtualAttributeWithValue(namespaceMaxGidAttribute, attribute);
+		return attribute;
 	}
 
 	@Override
@@ -78,7 +74,7 @@ public class urn_perun_facility_attribute_def_virt_maxGID extends FacilityVirtua
 		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attributeDefinition);
 	}
 
-	private Attribute getNamespaceMaxGidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException, WrongReferenceAttributeValueException {
+	private Attribute getNamespaceMaxGidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, (String) uidNamespace, A_E_namespaceMaxGID);
 		} catch(AttributeNotExistsException ex) { throw new ConsistencyErrorException(ex);
@@ -89,8 +85,7 @@ public class urn_perun_facility_attribute_def_virt_maxGID extends FacilityVirtua
 	private Attribute getUnixGIDNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_unixGIDNamespace);
-		} catch(AttributeNotExistsException ex) { throw new InternalErrorException(ex);
-		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
+		} catch(AttributeNotExistsException | WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
 		}
 	}
 

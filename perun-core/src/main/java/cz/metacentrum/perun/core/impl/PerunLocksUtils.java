@@ -2,23 +2,16 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.Map;
 import java.util.List;
 import java.util.Collections;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.Random;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -35,11 +28,11 @@ public class PerunLocksUtils {
 	private final static Logger log = LoggerFactory.getLogger(PerunLocksUtils.class);
 
 	//This empty object is used just for purpose of saving and identifying all locks for separate transaction
-	public static ThreadLocal<Object> uniqueKey = ThreadLocal.withInitial(Object::new);
+	public static final ThreadLocal<Object> uniqueKey = ThreadLocal.withInitial(Object::new);
 
 	//Maps for saving and working with specific locks
-	private static ConcurrentHashMap<Group, ReadWriteLock> groupsLocks = new ConcurrentHashMap<>();
-	private static ConcurrentHashMap<Group, ConcurrentHashMap<Member, Lock>> groupsMembersLocks = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<Group, ReadWriteLock> groupsLocks = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<Group, ConcurrentHashMap<Member, Lock>> groupsMembersLocks = new ConcurrentHashMap<>();
 
 	/**
 	 * Create transaction locks for combination of group and member (from list of members)
@@ -73,7 +66,7 @@ public class PerunLocksUtils {
 					//Get members lock map by group if exists or create a new one
 					ConcurrentHashMap<Member, Lock> membersLocks = groupsMembersLocks.get(group);
 					if (membersLocks == null) {
-						groupsMembersLocks.putIfAbsent(group, new ConcurrentHashMap<Member, Lock>());
+						groupsMembersLocks.putIfAbsent(group, new ConcurrentHashMap<>());
 						membersLocks = groupsMembersLocks.get(group);
 					}
 

@@ -58,7 +58,7 @@ public interface MembersManagerImplApi {
 	 * @return VO id
 	 * @throws InternalErrorException
 	 */
-	public int getMemberVoId(PerunSession perunSession, Member member) throws InternalErrorException;
+	int getMemberVoId(PerunSession perunSession, Member member) throws InternalErrorException;
 
 	/**
 	 * Find member of this Vo by his login in external source

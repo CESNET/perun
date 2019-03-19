@@ -24,8 +24,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 
 import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.*;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.usedMailsKeyVsup;
-import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.vsupPreferredMailUrn;
 
 /**
  * Storage for all spare mail aliases of a person at VŠUP.
@@ -36,7 +34,7 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_a
 public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		List<String> mails = (attribute.getValue() != null) ? ((List<String>)attribute.getValue()) : (new ArrayList<>());
 

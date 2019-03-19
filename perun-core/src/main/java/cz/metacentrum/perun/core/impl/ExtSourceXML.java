@@ -63,25 +63,25 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	private HttpURLConnection con = null;
 
 	//Pattern for looking replacement in regex string
-	private Pattern pattern = Pattern.compile("([^\\\\]|^)(\\\\\\\\)*\\/([^\\\\]|$)");
+	private final Pattern pattern = Pattern.compile("([^\\\\]|^)(\\\\\\\\)*\\/([^\\\\]|$)");
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
 		return findSubjectsLogins(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("For XML is using this method not optimized, use findSubjects instead.");
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
 		//prepare string for xpath (use concat for chars ' and  ")
 		searchString = convertToXpathSearchString(searchString);
 
@@ -137,7 +137,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 		// Get the query for the group subjects
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
@@ -177,7 +177,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 */
 	protected List<Map<String,String>> xpathParsing(String query, int maxResults) throws InternalErrorException {
 		//Prepare result list
-		List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> subjects = new ArrayList<>();
 
 		//Create new document factory builder
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -257,26 +257,28 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @throws InternalErrorException
 	 */
 	protected Map<String, String> convertNodeToMap(Node node) throws InternalErrorException {
-		Map<String,String> nodeInMap = new HashMap<String,String>();
+		Map<String,String> nodeInMap = new HashMap<>();
 		//If node is empty, return null
 		if(node == null) return null;
 
 		String mapping = getAttributes().get("xmlMapping");
 		String[] mappingArray = mapping.split(",\n");
 
-		for(int i=0; i<mappingArray.length; i++) {
-			String attr = mappingArray[i].trim();
+		for (String s : mappingArray) {
+			String attr = s.trim();
 
 			int index = attr.indexOf("=");
 
-			if(index <= 0) throw new InternalErrorException("There is no text in xmlMapping attribute or there is no '=' character.");
+			if (index <= 0)
+				throw new InternalErrorException("There is no text in xmlMapping attribute or there is no '=' character.");
 			String name = attr.substring(0, index);
-			String value = attr.substring(index +1);
+			String value = attr.substring(index + 1);
 
-			if(value.startsWith("#")) {
+			if (value.startsWith("#")) {
 				value = value.substring(1);
 				String[] regexAndXpath = value.split("#");
-				if(regexAndXpath.length != 2) throw new InternalErrorException("There is not only 2 parts (regex and XpathExpression). There are " + regexAndXpath.length + " parts.");
+				if (regexAndXpath.length != 2)
+					throw new InternalErrorException("There is not only 2 parts (regex and XpathExpression). There are " + regexAndXpath.length + " parts.");
 				value = extractValueByRegex(getValueFromXpath(node, regexAndXpath[1]), regexAndXpath[0]);
 			} else {
 				value = getValueFromXpath(node, value);
@@ -411,8 +413,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 
 		int responseCode = con.getResponseCode();
 		if(responseCode == 200) {
-			InputStream is = con.getInputStream();
-			return is;
+			return con.getInputStream();
 		}
 
 		throw new InternalErrorException("Wrong response code while opening connection on uri '" + uri + "'. Response code: " + responseCode);
@@ -433,7 +434,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 			return new String();
 		}
 		//prepare array with parts of query for concating
-		List<String> parts = new ArrayList<String>();
+		List<String> parts = new ArrayList<>();
 
 		//prepare variables for behavior in for cycles through all characters in query
 		String part = "";
@@ -487,12 +488,12 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public void close() throws InternalErrorException {
+	public void close() {
 		if(con != null) con.disconnect();
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 

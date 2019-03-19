@@ -15,7 +15,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespaceTest {
 
 	@Test
 	@Ignore
-	public void testCheckAttributeValue() throws Exception {
+	public void testCheckAttributeValue() {
 
 	}
 }

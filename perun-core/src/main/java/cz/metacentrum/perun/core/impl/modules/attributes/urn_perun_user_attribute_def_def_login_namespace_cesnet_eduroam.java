@@ -25,10 +25,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_cesnet_eduroam ext
 	 * @param attribute Attribute to fill value to
 	 * @return Filled attribute
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
 
 		// Get attribute with login of user in namespace cesnet-eduroam
 		Attribute filledAttribute = new Attribute(attribute);
@@ -44,7 +43,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_cesnet_eduroam ext
 		Integer counterValue;
 		// Get value of counter to integer or set it to 1000, if counter is empty
 		if (idsCounter.getValue() == null) {
-			counterValue = new Integer(1000);
+			counterValue = 1000;
 		} else {
 			counterValue = (Integer) idsCounter.getValue();
 		}

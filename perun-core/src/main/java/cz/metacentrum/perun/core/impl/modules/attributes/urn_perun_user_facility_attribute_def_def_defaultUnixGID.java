@@ -75,12 +75,9 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Us
 			throw new ConsistencyErrorException("Namespace from value of " + namespaceAttribute + " doesn't exists. (Group-resource attribute " + AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + namespaceName + " doesn't exists", ex);
 		}
 
-		List<Group> groupWithSameGid = sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupGidAttribute);
+		sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupGidAttribute).retainAll(sess.getPerunBl().getFacilitiesManagerBl().getAllowedGroups(sess, facility, null, null));
 
-		List<Group> candidateGroups = groupWithSameGid;
-		candidateGroups.retainAll(sess.getPerunBl().getFacilitiesManagerBl().getAllowedGroups(sess, facility, null, null));
-
-		for(Group group : candidateGroups) {
+		for(Group group : sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupGidAttribute)) {
 			//check if group has unix group name in namespace required by facility
 			try {
 				Attribute unixGroupName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + unixGroupNameNamespaceName);
@@ -103,7 +100,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Us
 
 		@Override
 		public List<String> getDependencies() {
-			List<String> dependencies = new ArrayList<String>();
+			List<String> dependencies = new ArrayList<>();
 			dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
 			dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
 			//Disallowed because of crosschecks between modules and peformance reason

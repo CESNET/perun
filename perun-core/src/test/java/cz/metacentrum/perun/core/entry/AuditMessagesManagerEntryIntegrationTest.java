@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.audit.events.StringMessageEvent;
-import cz.metacentrum.perun.core.api.AuditMessage;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,17 +21,16 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	private final String textMismatch = "!@#$%^<<&*()_+<\\><:{[}][]{>} sd";
 	private final String CLASS_NAME = "AuditMessagesManager.";
-	private AuditMessage createdAuditMessage = new AuditMessage();
+	private final AuditMessage createdAuditMessage = new AuditMessage();
 
 	public AuditMessagesManagerEntryIntegrationTest(){
 		super();
 	}
 
 	/**
-	 * @throws java.lang.Exception
 	 */
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		createdAuditMessage.setMsg("Tested Message");
 	}
 

@@ -31,7 +31,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
     private static User user;
 
     @Before
-    public void SetUp() throws AttributeNotExistsException, InternalErrorException, WrongAttributeAssignmentException {
+    public void SetUp() {
         classInstance = new urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadow();
         session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
         user = new User();
@@ -81,7 +81,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 
     @Ignore
     @Test
-    public void testChangedAttributeHookElixirNamespace() throws Exception {
+    public void testChangedAttributeHookElixirNamespace() {
         System.out.println("testChangedAttributeHook()");
     }
 }

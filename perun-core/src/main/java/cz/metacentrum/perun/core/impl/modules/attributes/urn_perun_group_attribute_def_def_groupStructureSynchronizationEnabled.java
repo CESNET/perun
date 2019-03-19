@@ -35,7 +35,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 	private static final Logger log = LoggerFactory.getLogger(urn_perun_group_attribute_def_def_groupStructureSynchronizationEnabled.class);
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 
@@ -78,7 +78,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);
 		dependencies.add(GroupsManager.GROUPSQUERY_ATTRNAME);
 		dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -87,7 +87,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws InternalErrorException {
 		if (attribute.getValue() == null) {
 			try {
 				AttributesManagerBl attributesManager = session.getPerunBl().getAttributesManagerBl();

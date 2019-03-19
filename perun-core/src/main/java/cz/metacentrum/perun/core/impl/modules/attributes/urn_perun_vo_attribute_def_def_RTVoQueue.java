@@ -11,8 +11,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>
@@ -22,7 +20,7 @@ public class urn_perun_vo_attribute_def_def_RTVoQueue extends VoAttributesModule
 	//Pattern extensionDatePattern = Pattern.compile("^$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) {
 		//There is no special queue in RT for this VO (in specific method use default queue)
 		if(attribute.getValue() == null) return;
 
@@ -34,7 +32,7 @@ public class urn_perun_vo_attribute_def_def_RTVoQueue extends VoAttributesModule
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Vo vo, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

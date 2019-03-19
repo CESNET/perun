@@ -35,7 +35,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	public static final String PERSON_TYPE = "person";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private JdbcPerunTemplate jdbc;
+	private final JdbcPerunTemplate jdbc;
 
 	protected final static String voMappingSelectQuery = "vos.id as vos_id,vos.name as vos_name, vos.short_name as vos_short_name, " +
 		"vos.created_at as vos_created_at, vos.created_by as vos_created_by, vos.modified_by as vos_modified_by, vos.modified_at as vos_modified_at, " +
@@ -45,15 +45,10 @@ public class VosManagerImpl implements VosManagerImplApi {
 	/**
 	 * Converts s ResultSet's row to a Vo instance.
 	 */
-	protected static final RowMapper<Vo> VO_MAPPER = new RowMapper<Vo>() {
-		@Override
-		public Vo mapRow(ResultSet rs, int i) throws SQLException {
-			return new Vo(rs.getInt("vos_id"), rs.getString("vos_name"), rs.getString("vos_short_name"), rs.getString("vos_created_at"),
-					rs.getString("vos_created_by"), rs.getString("vos_modified_at"), rs.getString("vos_modified_by"),
-					rs.getInt("vos_created_by_uid") == 0 ? null : rs.getInt("vos_created_by_uid"),
-					rs.getInt("vos_modified_by_uid") == 0 ? null : rs.getInt("vos_modified_by_uid"));
-		}
-	};
+	protected static final RowMapper<Vo> VO_MAPPER = (rs, i) -> new Vo(rs.getInt("vos_id"), rs.getString("vos_name"), rs.getString("vos_short_name"), rs.getString("vos_created_at"),
+			rs.getString("vos_created_by"), rs.getString("vos_modified_at"), rs.getString("vos_modified_by"),
+			rs.getInt("vos_created_by_uid") == 0 ? null : rs.getInt("vos_created_by_uid"),
+			rs.getInt("vos_modified_by_uid") == 0 ? null : rs.getInt("vos_modified_by_uid"));
 
 	/**
 	 * Constructor.
@@ -68,7 +63,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	public List<Vo> getVos(PerunSession sess) throws InternalErrorException {
 		try {
 			List<Vo> list = jdbc.query("select " + voMappingSelectQuery + " from vos", VO_MAPPER);
-			if (list == null) return new ArrayList<Vo>();
+			if (list == null) return new ArrayList<>();
 
 			return list;
 		} catch (RuntimeException ex) {
@@ -160,7 +155,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	@Override
 	public List<User> getAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException {
 		try {
-			Set<User> setOfAdmins = new HashSet<User>();
+			Set<User> setOfAdmins = new HashSet<>();
 			// direct admins
 			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
 						"where authz.vo_id=? and authz.role_id=(select id from roles where name=?)", UsersManagerImpl.USER_MAPPER, vo.getId(), role.getRoleName()));
@@ -175,7 +170,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 			return new ArrayList(setOfAdmins);
 
 		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		}   catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -187,7 +182,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
 					"where authz.vo_id=? and authz.role_id=(select id from roles where name=?)", UsersManagerImpl.USER_MAPPER, vo.getId(), role.getRoleName());
 		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		}   catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -200,7 +195,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 					+ "authz.authorized_group_id=groups.id where authz.vo_id=? and authz.role_id=(select id from roles where name=?)",
 					GroupsManagerImpl.GROUP_MAPPER, vo.getId(), role.getRoleName());
 		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		}   catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -210,7 +205,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	@Override
 	public List<User> getAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
-			Set<User> setOfAdmins = new HashSet<User>();
+			Set<User> setOfAdmins = new HashSet<>();
 			// direct admins
 			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
 						"where authz.vo_id=? and authz.role_id=(select id from roles where name='voadmin')", UsersManagerImpl.USER_MAPPER, vo.getId()));
@@ -225,7 +220,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 			return new ArrayList(setOfAdmins);
 
 		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		}   catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -238,7 +233,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
 					"where authz.vo_id=? and authz.role_id=(select id from roles where name='voadmin')", UsersManagerImpl.USER_MAPPER, vo.getId());
 		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		}   catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -252,7 +247,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 					+ "authz.authorized_group_id=groups.id where authz.vo_id=? and authz.role_id=(select id from roles where name='voadmin')",
 					GroupsManagerImpl.GROUP_MAPPER, vo.getId());
 		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		}   catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -302,13 +297,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	public List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) throws InternalErrorException {
 		// get app ids for all applications
 		try {
-			return jdbc.query("select id from application where vo_id=?", new RowMapper<Integer>() {
-				@Override
-				public Integer mapRow(ResultSet rs, int arg1)
-				throws SQLException {
-				return rs.getInt("id");
-				}
-			},vo.getId());
+			return jdbc.query("select id from application where vo_id=?", (rs, arg1) -> rs.getInt("id"),vo.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -317,12 +306,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	@Override
 	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException {
 		try {
-			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
-				@Override
-				public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
-				}
-			}, appId);
+			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", (rs, arg1) -> new Pair<>(rs.getString("namespace"), rs.getString("login")), appId);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

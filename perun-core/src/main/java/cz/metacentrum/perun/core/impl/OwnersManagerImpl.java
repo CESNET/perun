@@ -30,7 +30,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 
 	final static Logger log = LoggerFactory.getLogger(OwnersManagerImpl.class);
 
-	private JdbcPerunTemplate jdbc;
+	private final JdbcPerunTemplate jdbc;
 
 	protected final static String ownerMappingSelectQuery = "owners.id as owners_id, owners.name as owners_name, owners.contact as owners_contact, owners.type as owners_type, " +
 		"owners.created_at as owners_created_at, owners.created_by as owners_created_by, owners.modified_by as owners_modified_by, owners.modified_at as owners_modified_at, " +
@@ -46,24 +46,21 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
-	protected static final RowMapper<Owner> OWNER_MAPPER = new RowMapper<Owner>() {
-		@Override
-		public Owner mapRow(ResultSet rs, int i) throws SQLException {
-			Owner owner = new Owner();
-			owner.setId(rs.getInt("owners_id"));
-			owner.setName(rs.getString("owners_name"));
-			owner.setContact(rs.getString("owners_contact"));
-			owner.setTypeByString(rs.getString("owners_type"));
-			owner.setCreatedAt(rs.getString("owners_created_at"));
-			owner.setCreatedBy(rs.getString("owners_created_by"));
-			owner.setModifiedAt(rs.getString("owners_modified_at"));
-			owner.setModifiedBy(rs.getString("owners_modified_by"));
-			if(rs.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
-			else owner.setModifiedByUid(rs.getInt("owners_modified_by_uid"));
-			if(rs.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
-			else owner.setCreatedByUid(rs.getInt("owners_created_by_uid"));
-			return owner;
-		}
+	protected static final RowMapper<Owner> OWNER_MAPPER = (rs, i) -> {
+		Owner owner = new Owner();
+		owner.setId(rs.getInt("owners_id"));
+		owner.setName(rs.getString("owners_name"));
+		owner.setContact(rs.getString("owners_contact"));
+		owner.setTypeByString(rs.getString("owners_type"));
+		owner.setCreatedAt(rs.getString("owners_created_at"));
+		owner.setCreatedBy(rs.getString("owners_created_by"));
+		owner.setModifiedAt(rs.getString("owners_modified_at"));
+		owner.setModifiedBy(rs.getString("owners_modified_by"));
+		if(rs.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
+		else owner.setModifiedByUid(rs.getInt("owners_modified_by_uid"));
+		if(rs.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
+		else owner.setCreatedByUid(rs.getInt("owners_created_by_uid"));
+		return owner;
 	};
 
 
@@ -135,7 +132,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 		try {
 			return jdbc.query("select " + ownerMappingSelectQuery + " from owners", OWNER_MAPPER);
 		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<Owner>();
+			return new ArrayList<>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

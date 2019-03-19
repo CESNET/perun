@@ -78,7 +78,7 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException, InternalErrorException {
+	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
 		securityTeam = getSecurityTeamsManagerImpl().createSecurityTeam(sess, securityTeam);
 		getPerunBl().getAuditer().log(sess, new SecurityTeamCreated(securityTeam));
 

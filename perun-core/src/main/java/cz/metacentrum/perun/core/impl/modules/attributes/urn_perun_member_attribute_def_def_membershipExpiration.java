@@ -1,13 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.text.SimpleDateFormat;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -17,7 +10,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleImplApi;
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -33,7 +25,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 	 * matches with regular expression yyyy-MM-dd
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
 
 		String membershipExpTime = (String) attribute.getValue();
 
@@ -62,7 +54,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 	 * if membership start from October, to December, time will be the last day of next year.
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Member member, AttributeDefinition attribute) {
 		/*Attribute ret = new Attribute(attribute);
 			Calendar now = Calendar.getInstance();
 			int currentMonth = now.get(Calendar.MONTH);
@@ -74,7 +66,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException {
 		String value = null;
 		if(attribute.getValue() != null) value = (String) attribute.getValue();
 		//If there is some value and member is in status expired or disabled

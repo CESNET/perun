@@ -168,12 +168,9 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 * @throws AlreadyMemberException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 *
 	 * @return Member with specific MembershipType
 	 */
-	Member addMember(PerunSession perunSession, Group group,  Member member, MembershipType type, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	Member addMember(PerunSession perunSession, Group group,  Member member, MembershipType type, int sourceGroupId) throws InternalErrorException, AlreadyMemberException;
 
 
 	/**
@@ -536,7 +533,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of all group applications ids
 	 * @throws InternalErrorException
 	 */
-	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) throws InternalErrorException;
+	List<Integer> getGroupApplicationIds(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * Return list of all reserved logins for specific application
@@ -546,7 +543,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of pairs namespace and login
 	 * @throws InternalErrorException
 	 */
-	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException;
+	List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException;
 
 	/**
 	 * Delete all Group login reservations
@@ -559,7 +556,7 @@ public interface GroupsManagerImplApi {
 	 * @param group Group to delete all login reservations for
 	 * @throws InternalErrorException
 	 */
-	public void deleteGroupReservedLogins(PerunSession sess, Group group) throws InternalErrorException;
+	void deleteGroupReservedLogins(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * Get all groups in specific vo with assigned extSource

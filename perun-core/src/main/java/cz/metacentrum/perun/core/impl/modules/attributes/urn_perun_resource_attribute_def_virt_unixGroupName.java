@@ -110,12 +110,10 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 			Attribute groupNameAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_R_unixGroupName_namespace + unixGroupNameNamespaceAttribute.getValue()));
 			groupNameAttribute.setValue(attribute.getValue());
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, resource, groupNameAttribute);
-		} catch(WrongAttributeValueException ex) {
+		} catch(WrongAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
 		}
 	}
 
@@ -125,9 +123,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 		try {
 			AttributeDefinition groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_R_unixGroupName_namespace + unixGroupNameNamespaceAttribute.getValue());
 			return sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, resource, groupNameAttribute);
-		} catch (AttributeNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -142,7 +138,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(A_R_unixGroupName_namespace + "*");
 		strongDependencies.add(A_F_unixGroupName_namespace);
 		return strongDependencies;

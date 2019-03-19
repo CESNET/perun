@@ -3,10 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import com.zaxxer.hikari.HikariDataSource;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
-import cz.metacentrum.perun.utils.graphs.Graph;
-import net.sf.cglib.core.Local;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +28,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.text.StringCharacterIterator;
@@ -78,7 +74,7 @@ public class Utils {
 	}
 
 	public static <T> boolean hasDuplicate(List<T> all) {
-		Set<T> set = new HashSet<T>(all.size());
+		Set<T> set = new HashSet<>(all.size());
 		// Set#add returns false if the set does not change, which
 		// indicates that a duplicate element has been added.
 		for (T each: all) if (!set.add(each)) return true;
@@ -123,20 +119,12 @@ public class Utils {
 	/**
 	 * Integer row mapper
 	 */
-	public static final RowMapper<Integer> ID_MAPPER = new RowMapper<Integer>() {
-		public Integer mapRow(ResultSet rs, int i) throws SQLException {
-			return rs.getInt("id");
-		}
-	};
+	public static final RowMapper<Integer> ID_MAPPER = (rs, i) -> rs.getInt("id");
 
 	/**
 	 * String row mapper
 	 */
-	public static final RowMapper<String> STRING_MAPPER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			return rs.getString("value");
-		}
-	};
+	public static final RowMapper<String> STRING_MAPPER = (rs, i) -> rs.getString("value");
 
 	// FIXME prijde odstranit
 	public static void checkPerunSession(PerunSession sess) throws InternalErrorException {
@@ -215,7 +203,7 @@ public class Utils {
 	 */
 	public static void checkWithoutDiacritic(String name) throws DiacriticNotAllowedException{
 
-		if(!Normalizer.isNormalized(name, Form.NFKD))throw new DiacriticNotAllowedException("Name of the entity is not in the normalized form NFKD (diacritic not allowed)!");;
+		if(!Normalizer.isNormalized(name, Form.NFKD))throw new DiacriticNotAllowedException("Name of the entity is not in the normalized form NFKD (diacritic not allowed)!");
 
 	}
 
@@ -369,12 +357,12 @@ public class Utils {
 		assert classLoader != null;
 		String path = packageName.replace('.', '/');
 		Enumeration<URL> resources = classLoader.getResources(path);
-		List<File> dirs = new ArrayList<File>();
+		List<File> dirs = new ArrayList<>();
 		while (resources.hasMoreElements()) {
 			URL resource = resources.nextElement();
 			dirs.add(new File(resource.getFile()));
 		}
-		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+		ArrayList<Class<?>> classes = new ArrayList<>();
 		for (File directory : dirs) {
 			classes.addAll(findClasses(directory, packageName));
 		}
@@ -433,7 +421,7 @@ public class Utils {
 	 */
 	public static Map<String, String> parseCommonName(String rawName) {
 		//prepare variables and map
-		Map<String, String> parsedName = new HashMap<String, String>();
+		Map<String, String> parsedName = new HashMap<>();
 		String titleBefore = "";
 		String firstName = "";
 		String lastName = "";
@@ -462,19 +450,19 @@ public class Utils {
 				boolean lastNameDone = false;
 
 				//for every part try to get which one it is
-				for(int i=0;i<nameParts.length;i++) {
-					String part = nameParts[i];
+				for (String namePart : nameParts) {
+					String part = namePart;
 					//trim this value (remove spaces before and after string)
 					part = part.trim();
 
 					//if titleBeforeDone is false, this string can be title before
-					if(!titleBeforeDone) {
+					if (!titleBeforeDone) {
 						Matcher titleBeforeMatcher = titleBeforePattern.matcher(part);
 						//if title before matches
-						if(titleBeforeMatcher.matches()) {
+						if (titleBeforeMatcher.matches()) {
 							//add space if this title is not first title before
-							if(titleBefore.isEmpty()) titleBefore+= part;
-							else titleBefore+= " " + part;
+							if (titleBefore.isEmpty()) titleBefore += part;
+							else titleBefore += " " + part;
 							//go on next part
 							continue;
 						} else {
@@ -484,10 +472,10 @@ public class Utils {
 					}
 
 					//if firstNameDone is false, this string can be first name
-					if(!firstNameDone) {
+					if (!firstNameDone) {
 						Matcher firstNameMatcher = firstNamePattern.matcher(part);
 						//if first name matches
-						if(firstNameMatcher.matches()) {
+						if (firstNameMatcher.matches()) {
 							//first name can be only one
 							firstName = part;
 							//go on next part
@@ -499,19 +487,19 @@ public class Utils {
 					}
 
 					//if lastNameDone is false, this string can be lastName
-					if(!lastNameDone) {
+					if (!lastNameDone) {
 						Matcher lastNameMatcher = lastNamePattern.matcher(part);
 						//if last name matches
-						if(lastNameMatcher.matches()) {
+						if (lastNameMatcher.matches()) {
 							//add space if this name is not first last name
-							if(lastName.isEmpty()) lastName+= part;
-							else lastName+= " " + part;
+							if (lastName.isEmpty()) lastName += part;
+							else lastName += " " + part;
 							//go on next part
 							continue;
 							//if last name not matches
 						} else {
 							//because last name can't be empty, save this part to lastName even if not matches
-							if(lastName.isEmpty()) {
+							if (lastName.isEmpty()) {
 								lastName = part;
 								lastNameDone = true;
 								//go on next part
@@ -524,10 +512,10 @@ public class Utils {
 					}
 
 					//rest of parts if lastName exists go to the title after
-					if(lastNameDone) {
+					if (lastNameDone) {
 						//add space if this is not first title after
-						if(titleAfter.isEmpty()) titleAfter+= part;
-						else titleAfter+= " " + part;
+						if (titleAfter.isEmpty()) titleAfter += part;
+						else titleAfter += " " + part;
 					}
 				}
 			}
@@ -555,7 +543,7 @@ public class Utils {
 	 * @throws ClassNotFoundException
 	 */
 	private static List<Class<?>> findClasses(File directory, String packageName) throws ClassNotFoundException {
-		List<Class<?>> classes = new ArrayList<Class<?>>();
+		List<Class<?>> classes = new ArrayList<>();
 		if (!directory.exists()) {
 			return classes;
 		}
@@ -598,8 +586,8 @@ public class Utils {
 	 */
 	public static String serializeMapToString(Map<String, String> map) {
 		if(map == null) return "\\0";
-		Map<String, String> attrNew = new HashMap<String, String>(map);
-		Set<String> keys = new HashSet<String>(attrNew.keySet());
+		Map<String, String> attrNew = new HashMap<>(map);
+		Set<String> keys = new HashSet<>(attrNew.keySet());
 		for(String s: keys) {
 			attrNew.put("<" + BeansUtils.createEscaping(s) + ">", "<" + BeansUtils.createEscaping(attrNew.get(s)) + ">");
 			attrNew.remove(s);
@@ -607,7 +595,7 @@ public class Utils {
 		return attrNew.toString();
 	}
 
-	public static Attribute copyAttributeToViAttributeWithoutValue(Attribute copyFrom, Attribute copyTo) throws InternalErrorException {
+	public static Attribute copyAttributeToViAttributeWithoutValue(Attribute copyFrom, Attribute copyTo) {
 		copyTo.setValueCreatedAt(copyFrom.getValueCreatedAt());
 		copyTo.setValueCreatedBy(copyFrom.getValueCreatedBy());
 		copyTo.setValueModifiedAt(copyFrom.getValueModifiedAt());
@@ -615,7 +603,7 @@ public class Utils {
 		return copyTo;
 	}
 
-	public static Attribute copyAttributeToVirtualAttributeWithValue(Attribute copyFrom, Attribute copyTo) throws InternalErrorException {
+	public static Attribute copyAttributeToVirtualAttributeWithValue(Attribute copyFrom, Attribute copyTo) {
 		copyTo.setValue(copyFrom.getValue());
 		copyTo.setValueCreatedAt(copyFrom.getValueCreatedAt());
 		copyTo.setValueCreatedBy(copyFrom.getValueCreatedBy());
@@ -634,12 +622,12 @@ public class Utils {
 	 * @return list of all generated strings
 	 */
 	public static List<String> generateStringsByPattern(String pattern) throws WrongPatternException {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 
 		// get chars between the brackets
-		List<String> values = new ArrayList<String>(Arrays.asList(pattern.split("\\[[^\\]]*\\]")));
+		List<String> values = new ArrayList<>(Arrays.asList(pattern.split("\\[[^\\]]*\\]")));
 		// get content of the brackets
-		List<String> generators = new ArrayList<String>();
+		List<String> generators = new ArrayList<>();
 		Pattern generatorPattern = Pattern.compile("\\[([^\\]]*)\\]");
 		Matcher m = generatorPattern.matcher(pattern);
 		while (m.find()) {
@@ -661,7 +649,7 @@ public class Utils {
 		}
 
 		// list, that contains list for each generator, with already generated numbers
-		List<List<String>> listOfGenerated = new ArrayList<List<String>>();
+		List<List<String>> listOfGenerated = new ArrayList<>();
 
 		Pattern rangePattern = Pattern.compile("^(\\d+)-(\\d+)$");
 		for (String range: generators) {
@@ -696,7 +684,7 @@ public class Utils {
 				int oldNumberOfDigits = String.valueOf(startNumber).length();
 
 				// list of already generated numbers
-				List<String> generated = new ArrayList<String>();
+				List<String> generated = new ArrayList<>();
 				while (endNumber >= startNumber) {
 					// keep right number of zeros before number
 					if (String.valueOf(startNumber).length() == oldNumberOfDigits +1) {
@@ -716,7 +704,7 @@ public class Utils {
 		}
 
 		// add values among the generated numbers as one item lists
-		List<List<String>> listOfGeneratorsAndValues = new ArrayList<List<String>>();
+		List<List<String>> listOfGeneratorsAndValues = new ArrayList<>();
 		int index = 0;
 
 		for (List<String> list : listOfGenerated) {
@@ -755,7 +743,7 @@ public class Utils {
 		if (lists.size() == 1) {
 			return lists.get(0);
 		}
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 
 		List<String> list = lists.remove(0);
 		// get recursively all posibilities without first list
@@ -1008,9 +996,8 @@ public class Utils {
 	 * @param namespace namespace the password was re-set
 	 * @param subject Subject from template or null
 	 * @param content Message from template or null
-	 * @throws InternalErrorException
 	 */
-	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String subject, String content) throws InternalErrorException {
+	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String subject, String content) {
 
 		// create mail sender
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
@@ -1287,7 +1274,7 @@ public class Utils {
 	 * @return converted string from ascii to something near utf
 	 */
 	public synchronized static String utftoasci(String s){
-		final StringBuffer sb = new StringBuffer( s.length() * 2 );
+		final StringBuilder sb = new StringBuilder( s.length() * 2 );
 
 		final StringCharacterIterator iterator = new StringCharacterIterator( s );
 
@@ -1418,14 +1405,18 @@ public class Utils {
 			amount = Integer.valueOf(countString);
 
 			String dmyString = m.group(2);
-			if (dmyString.equals("d")) {
-				field = Calendar.DAY_OF_YEAR;
-			} else if (dmyString.equals("m")) {
-				field = Calendar.MONTH;
-			} else if (dmyString.equals("y")) {
-				field = Calendar.YEAR;
-			} else {
-				throw new InternalErrorException("Wrong format of period. Period: " + period);
+			switch (dmyString) {
+				case "d":
+					field = Calendar.DAY_OF_YEAR;
+					break;
+				case "m":
+					field = Calendar.MONTH;
+					break;
+				case "y":
+					field = Calendar.YEAR;
+					break;
+				default:
+					throw new InternalErrorException("Wrong format of period. Period: " + period);
 			}
 		} else {
 			throw new InternalErrorException("Wrong format of period. Period: " + period);
@@ -1454,14 +1445,15 @@ public class Utils {
 			amount = Integer.valueOf(countString);
 
 			String dmyString = m.group(2);
-			if (dmyString.equals("d")) {
-				return localDate.plusDays(amount);
-			} else if (dmyString.equals("m")) {
-				return localDate.plusMonths(amount);
-			} else if (dmyString.equals("y")) {
-				return localDate.plusYears(amount);
-			} else {
-				throw new InternalErrorException("Wrong format of period. Period: " + period);
+			switch (dmyString) {
+				case "d":
+					return localDate.plusDays(amount);
+				case "m":
+					return localDate.plusMonths(amount);
+				case "y":
+					return localDate.plusYears(amount);
+				default:
+					throw new InternalErrorException("Wrong format of period. Period: " + period);
 			}
 		} else {
 			throw new InternalErrorException("Wrong format of period. Period: " + period);

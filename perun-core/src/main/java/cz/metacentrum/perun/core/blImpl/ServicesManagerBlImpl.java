@@ -77,7 +77,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	final static Logger log = LoggerFactory.getLogger(ServicesManagerBlImpl.class);
 
-	private ServicesManagerImplApi servicesManagerImpl;
+	private final ServicesManagerImplApi servicesManagerImpl;
 	private PerunBl perunBl;
 
 	public ServicesManagerBlImpl(ServicesManagerImplApi servicesManagerImpl) {
@@ -202,7 +202,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		}
 
 		ServiceAttributes membersAbstractSA = new ServiceAttributes();
-		Map<Member, ServiceAttributes> memberAttributes = new HashMap<Member, ServiceAttributes>();
+		Map<Member, ServiceAttributes> memberAttributes = new HashMap<>();
 		List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		HashMap<Member, List<Attribute>> attributes;
 
@@ -528,7 +528,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException {
+	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException {
 		if(!getServicesManagerImpl().destinationExists(perunSession, destination)) {
 			try {
 				//Try to get the destination without id
@@ -604,16 +604,14 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public List<Destination> getDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
-		List<Destination> destinations = getServicesManagerImpl().getDestinations(sess, service, facility);
 
-		return destinations;
+		return getServicesManagerImpl().getDestinations(sess, service, facility);
 	}
 
 	@Override
 	public List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException {
-		List<Destination> destinations = getServicesManagerImpl().getDestinations(perunSession);
 
-		return destinations;
+		return getServicesManagerImpl().getDestinations(perunSession);
 	}
 
 	@Override
@@ -705,7 +703,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	public List<Destination> addDestinationsForAllServicesOnFacility(PerunSession sess, Facility facility, Destination destination)
 	throws InternalErrorException, DestinationAlreadyAssignedException {
 	List<Service> services = this.getAssignedServices(sess, facility);
-	List<Destination> destinations = new ArrayList<Destination>();
+	List<Destination> destinations = new ArrayList<>();
 
 	for (Service service: services) {
 		destinations.add(this.addDestination(sess, service, facility, destination));
@@ -718,7 +716,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, DestinationAlreadyAssignedException {
 		// Get all hosts
 		List<Host> hosts = getPerunBl().getFacilitiesManagerBl().getHosts(perunSession, facility);
-		List<Destination> destinations = new ArrayList<Destination>();
+		List<Destination> destinations = new ArrayList<>();
 
 		for (Host host: hosts) {
 			if (host.getHostname() != null && !host.getHostname().isEmpty()) {
@@ -735,7 +733,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	@Override
 	public List<Destination> addDestinationsDefinedByHostsOnFacility(PerunSession perunSession, List<Service> services, Facility facility) throws InternalErrorException {
 		List<Host> hosts = getPerunBl().getFacilitiesManagerBl().getHosts(perunSession, facility);
-		List<Destination> destinations = new ArrayList<Destination>();
+		List<Destination> destinations = new ArrayList<>();
 
 		for (Service service: services) {
 			for (Host host: hosts) {
@@ -760,8 +758,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	@Override
 	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException {
-		List<Destination> destinations = getServicesManagerImpl().getFacilitiesDestinations(sess, vo);
-		return destinations;
+		return getServicesManagerImpl().getFacilitiesDestinations(sess, vo);
 	}
 
 	@Override

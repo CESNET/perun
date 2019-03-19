@@ -73,7 +73,7 @@ public class urn_perun_member_resource_attribute_def_def_dataQuotas extends Memb
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(A_R_maxUserDataQuotas);
 		return dependencies;
 	}

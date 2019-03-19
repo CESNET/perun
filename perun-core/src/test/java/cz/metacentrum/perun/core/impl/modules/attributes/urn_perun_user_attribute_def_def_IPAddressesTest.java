@@ -25,7 +25,7 @@ public class urn_perun_user_attribute_def_def_IPAddressesTest {
 	private static User user;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		classInstance = new urn_perun_user_attribute_def_def_IPAddresses();
 		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 		user = new User();

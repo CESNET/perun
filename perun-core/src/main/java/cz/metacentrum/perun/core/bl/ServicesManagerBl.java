@@ -189,7 +189,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	public List<ServicesPackage> getServicesPackages(PerunSession perunSession) throws InternalErrorException;
+	List<ServicesPackage> getServicesPackages(PerunSession perunSession) throws InternalErrorException;
 
 	/**
 	 * Get package by Id
@@ -260,7 +260,7 @@ public interface ServicesManagerBl {
 	 * @throws ServiceAlreadyAssignedException
 	 * @throws InternalErrorException
 	 */
-	public void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyAssignedException;
+	void addServiceToServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyAssignedException;
 	/**
 	 * Remove Service from Services Package
 	 *
@@ -271,7 +271,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws ServiceAlreadyRemovedFromServicePackageException there are 0 rows affected by removing service from servicePackage in DB
 	 */
-	public void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyRemovedFromServicePackageException;
+	void removeServiceFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage, Service service) throws InternalErrorException, ServiceAlreadyRemovedFromServicePackageException;
 
 	/**
 	 * List services stored in the packages
@@ -282,7 +282,7 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	public List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException;
+	List<Service> getServicesFromServicesPackage(PerunSession perunSession, ServicesPackage servicesPackage) throws InternalErrorException;
 
 	/*
 		 getRequiredAttributes(PerunSession perunSession, Service service);
@@ -359,9 +359,8 @@ public interface ServicesManagerBl {
 	 * @param destination (id of this destination doesn't need to be filled.)
 	 * @return destination with it's id set
 	 * @throws InternalErrorException
-	 * @throws DestinationAlreadyAssignedException
 	 */
-	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException;
+	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException;
 
 	/**
 	 * Adds destination for all services defined on the facility.

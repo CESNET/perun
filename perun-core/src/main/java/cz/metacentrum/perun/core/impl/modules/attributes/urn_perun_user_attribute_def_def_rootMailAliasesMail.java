@@ -21,7 +21,7 @@ import java.util.regex.Matcher;
 public class urn_perun_user_attribute_def_def_rootMailAliasesMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
     @Override
-    public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+    public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
         String attributeValue = (String) attribute.getValue();
 
         Matcher emailMatcher = Utils.emailPattern.matcher(attributeValue);

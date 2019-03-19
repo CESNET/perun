@@ -94,9 +94,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, user, userPreferredGroupName);
-		} catch (WrongAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongAttributeAssignmentException e) {
+		} catch (WrongAttributeValueException | WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -111,7 +109,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> StrongDependencies = new ArrayList<String>();
+		List<String> StrongDependencies = new ArrayList<>();
 		StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
 		StrongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace" + ":*");
 		return StrongDependencies;

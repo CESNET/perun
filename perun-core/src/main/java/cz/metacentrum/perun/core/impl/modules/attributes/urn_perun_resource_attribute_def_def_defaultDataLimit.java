@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,12 +32,12 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 	private static final Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
 
 	//Definition of K = KB, M = MB etc.
-	long K = 1024;
-	long M = K * 1024;
-	long G = M * 1024;
-	long T = G * 1024;
-	long P = T * 1024;
-	long E = P * 1024;
+	final long K = 1024;
+	final long M = K * 1024;
+	final long G = M * 1024;
+	final long T = G * 1024;
+	final long P = T * 1024;
+	final long E = P * 1024;
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
@@ -122,19 +121,47 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 			}
 		} else if ((quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0)) {
 
-			if(defaultDataLimitLetter.equals("K")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(K));
-			else if(defaultDataLimitLetter.equals("M")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(M));
-			else if(defaultDataLimitLetter.equals("T")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(T));
-			else if(defaultDataLimitLetter.equals("P")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(P));
-			else if(defaultDataLimitLetter.equals("E")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(E));
-			else limitNumber = limitNumber.multiply(BigDecimal.valueOf(G));
+			switch (defaultDataLimitLetter) {
+				case "K":
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(K));
+					break;
+				case "M":
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(M));
+					break;
+				case "T":
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(T));
+					break;
+				case "P":
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(P));
+					break;
+				case "E":
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(E));
+					break;
+				default:
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(G));
+					break;
+			}
 
-			if(defaultDataQuotaLetter.equals("K")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(K));
-			else if(defaultDataQuotaLetter.equals("M")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(M));
-			else if(defaultDataQuotaLetter.equals("T")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(T));
-			else if(defaultDataQuotaLetter.equals("P")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(P));
-			else if(defaultDataQuotaLetter.equals("E")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(E));
-			else quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(G));
+			switch (defaultDataQuotaLetter) {
+				case "K":
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(K));
+					break;
+				case "M":
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(M));
+					break;
+				case "T":
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(T));
+					break;
+				case "P":
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(P));
+					break;
+				case "E":
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(E));
+					break;
+				default:
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(G));
+					break;
+			}
 
 			if (limitNumber.compareTo(quotaNumber) < 0) {
 				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataQuota, resource, null, resource, null, attribute + " must be more than or equals to " + attrDefaultDataQuota);

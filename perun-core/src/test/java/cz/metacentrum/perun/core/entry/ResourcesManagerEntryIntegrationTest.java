@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
 
 /**
  * Integration tests of ResourcesManager.
@@ -41,7 +40,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	// setUp methods moved to every test method to save testing time !!
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		resourcesManager = perun.getResourcesManager();
 	}
 
@@ -371,7 +370,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 
 		List<Member> members = resourcesManager.getAllowedMembers(sess, resource);
-		assertTrue("our resource should have 1 allowed member",members.size() == 1);
+		assertEquals("our resource should have 1 allowed member", 1, members.size());
 		assertTrue("our member should be between allowed on resource",members.contains(member));
 
 	}
@@ -390,7 +389,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 
 		List<User> users = resourcesManager.getAllowedUsers(sess, resource);
-		assertTrue("our resource should have 1 allowed user",users.size() == 1);
+		assertEquals("our resource should have 1 allowed user", 1, users.size());
 		assertTrue("our user should be between allowed on resource",users.contains(user));
 
 	}
@@ -417,7 +416,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 
 		List<Group> assignedGroups = resourcesManager.getAssignedGroups(sess, resource);
-		assertTrue("one group should be assigned to our Resource",assignedGroups.size() == 1);
+		assertEquals("one group should be assigned to our Resource", 1, assignedGroups.size());
 		assertTrue("our group shoud be assigned to resource",assignedGroups.contains(group));
 
 	}
@@ -555,7 +554,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 
 		List<Group> groups = resourcesManager.getAssignedGroups(sess, resource);
-		assertTrue("only one group should be assigned",groups.size() == 1);
+		assertEquals("only one group should be assigned", 1, groups.size());
 		assertTrue("our group should be assigned",groups.contains(group));
 
 	}
@@ -573,7 +572,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 
 		List<Group> groups = resourcesManager.getAssignedGroups(sess, resource, member);
-		assertTrue("only one group should be assigned",groups.size() == 1);
+		assertEquals("only one group should be assigned", 1, groups.size());
 		assertTrue("our group should be assigned",groups.contains(group));
 
 	}
@@ -599,7 +598,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 
 		List<Resource> resources = resourcesManager.getAssignedResources(sess, group);
-		assertTrue("group should have be on 1 resource",resources.size() == 1);
+		assertEquals("group should have be on 1 resource", 1, resources.size());
 		assertTrue("our resource should be on our group",resources.contains(resource));
 
 	}
@@ -628,10 +627,10 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 
 		List<RichResource> resources = resourcesManager.getAssignedRichResources(sess, group);
-		assertTrue("group should have be on 1 rich resource",resources.size() == 1);
+		assertEquals("group should have be on 1 rich resource", 1, resources.size());
 		assertTrue("our rich resource should be on our group",resources.contains(rr));
 		for (RichResource rich : resources){
-			assertTrue("facility property must be filled!",rich.getFacility()!=null);
+			assertNotNull("facility property must be filled!", rich.getFacility());
 		}
 
 	}
@@ -664,7 +663,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignService(sess, resource, service);
 
 		List<Resource> resources = resourcesManager.getAssignedResources(sess, member, service);
-		assertTrue("there should have been only 1 assigned resource",resources.size() == 1);
+		assertEquals("there should have been only 1 assigned resource", 1, resources.size());
 		assertTrue("our resource should be in our resource list",resources.contains(resource));
 	}
 
@@ -689,7 +688,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignService(sess, resource, service);
 
 		List<RichResource> resources = resourcesManager.getAssignedRichResources(sess, member, service);
-		assertTrue("there should have been only 1 assigned rich resource",resources.size() == 1);
+		assertEquals("there should have been only 1 assigned rich resource", 1, resources.size());
 		assertTrue("our rich resource should be in our resource list",resources.contains(richResource));
 	}
 
@@ -704,7 +703,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		resourcesManager.assignService(sess, resource, service);
 		List<Service> services = resourcesManager.getAssignedServices(sess, resource);
-		assertTrue("resource should have 1 service",services.size() == 1);
+		assertEquals("resource should have 1 service", 1, services.size());
 		assertTrue("our service should be assigned to our resource",services.contains(service));
 
 	}
@@ -759,7 +758,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		resourcesManager.assignService(sess, resource, service);
 		List<Service> services = resourcesManager.getAssignedServices(sess, resource);
-		assertTrue("resource should have 1 service",services.size() == 1);
+		assertEquals("resource should have 1 service", 1, services.size());
 		assertTrue("our service should be assigned to our resource",services.contains(service));
 
 	}
@@ -786,7 +785,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignServicesPackage(sess, resource, servicesPackage);
 
 		List<Service> services = resourcesManager.getAssignedServices(sess, resource);
-		assertTrue("resource should have 1 service",services.size() == 1);
+		assertEquals("resource should have 1 service", 1, services.size());
 		assertTrue("our service should be assigned to our resource",services.contains(service));
 
 	}
@@ -923,7 +922,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 
 		List<Resource> resources = resourcesManager.getResources(sess, vo);
-		assertTrue("our VO should have one resource",resources.size() == 1);
+		assertEquals("our VO should have one resource", 1, resources.size());
 		assertTrue("our resource should be between VO resources",resources.contains(resource));
 
 	}
@@ -948,10 +947,10 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		RichResource rr = new RichResource(resource);
 		rr.setFacility(perun.getResourcesManager().getFacility(sess, resource));
 		List<RichResource> resources = resourcesManager.getRichResources(sess, vo);
-		assertTrue("our VO should have one rich resource",resources.size() == 1);
+		assertEquals("our VO should have one rich resource", 1, resources.size());
 		assertTrue("our rich resource should be between VO resources",resources.contains(rr));
 		for (RichResource rich : resources){
-			assertTrue("facility property must be filled!",rich.getFacility()!=null);
+			assertNotNull("facility property must be filled!", rich.getFacility());
 		}
 
 	}
@@ -1094,7 +1093,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		// tests
 		List<Attribute> destinationAttributes = perun.getAttributesManager().getAttributes(sess, secondResource);
 		assertNotNull(destinationAttributes);
-		assertTrue((destinationAttributes.size() - perun.getAttributesManager().getAttributes(sess, resource).size()) == 1);
+		assertEquals(1, (destinationAttributes.size() - perun.getAttributesManager().getAttributes(sess, resource).size()));
 		assertTrue(destinationAttributes.contains(firstAttribute));
 		assertTrue(destinationAttributes.contains(secondAttribute));
 		assertTrue(destinationAttributes.contains(thirdAttribute));
@@ -1304,7 +1303,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
-		assertTrue(bansOnResource.size() == 1);
+		assertEquals(1, bansOnResource.size());
 
 		perun.getResourcesManagerBl().removeBan(sess, banOnResource.getId());
 
@@ -1330,7 +1329,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
-		assertTrue(bansOnResource.size() == 1);
+		assertEquals(1, bansOnResource.size());
 
 		perun.getResourcesManagerBl().removeBan(sess, banOnResource.getMemberId(), banOnResource.getResourceId());
 
@@ -1358,7 +1357,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
-		assertTrue(bansOnResource.size() == 1);
+		assertEquals(1, bansOnResource.size());
 
 		perun.getResourcesManagerBl().removeAllExpiredBansOnResources(sess);
 
@@ -1386,12 +1385,12 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		banOnResource = resourcesManager.setBan(sess, banOnResource);
 
 		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
-		assertTrue(bansOnResource.size() == 1);
+		assertEquals(1, bansOnResource.size());
 
 		perun.getResourcesManagerBl().removeAllExpiredBansOnResources(sess);
 
 		bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
-		assertTrue(bansOnResource.size() == 1);
+		assertEquals(1, bansOnResource.size());
 	}
 
 	@Test
@@ -1454,7 +1453,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource",
 				"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
@@ -1462,13 +1461,13 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		// Test all admins
 		List<User> admins = resourcesManager.getAdmins(sess, resource, false);
-		assertTrue("list shoud have 2 admins", admins.size() == 2);
+		assertEquals("list shoud have 2 admins", 2, admins.size());
 		assertTrue("our member as direct user should be admin", admins.contains(user));
 		assertTrue("our member as member of admin group should be admin", admins.contains(user2));
 
 		// Test only direct admins (without groups of admins)
 		admins = resourcesManager.getAdmins(sess, resource, true);
-		assertTrue("list should have only 1 admin", admins.size() == 1);
+		assertEquals("list should have only 1 admin", 1, admins.size());
 		assertTrue("our member as direct user should be in list of admins", admins.contains(user));
 		assertTrue("our member as member of admin group shouldn't be in list of admins", !admins.contains(user2));
 	}
@@ -1774,7 +1773,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 		UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}

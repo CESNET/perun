@@ -13,8 +13,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**

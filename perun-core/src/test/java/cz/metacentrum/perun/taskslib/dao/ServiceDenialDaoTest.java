@@ -9,10 +9,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunClient;
-import cz.metacentrum.perun.core.impl.CacheManager;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,7 +63,7 @@ public class ServiceDenialDaoTest {
 	private int testFacilityId2;
 
 	@Before
-	public void setUp() throws InternalErrorException, OwnerNotExistsException, ServiceExistsException, PrivilegeException {
+	public void setUp() throws InternalErrorException, ServiceExistsException, PrivilegeException {
 		perunSession = perun.getPerunSession(
 				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 				new PerunClient());
@@ -118,7 +115,7 @@ public class ServiceDenialDaoTest {
 	}
 
 	@Test
-	public void testIsServiceDeniedOnFacility() throws Exception {
+	public void testIsServiceDeniedOnFacility() {
 		System.out.println("ServiceDenialDaoTest.isServiceBlockedOnFacility");
 
 		assertFalse(serviceDenialDao.isServiceBlockedOnFacility(testService1.getId(), testFacilityId1));
@@ -126,7 +123,7 @@ public class ServiceDenialDaoTest {
 	}
 
 	@Test
-	public void testIsServiceDeniedOnDestination() throws Exception {
+	public void testIsServiceDeniedOnDestination() {
 		System.out.println("ServiceDenialDaoTest.isServiceBlockedOnDestination");
 
 		assertFalse(serviceDenialDao.isServiceBlockedOnDestination(testService1.getId(), testDestinationId1));

@@ -35,10 +35,8 @@ public interface UserVirtualAttributesModuleImplApi extends UserAttributesModule
 	 * @param user user which is needed for computing the value
 	 * @param attribute attribute to operate on
 	 * @return true if attribute was really changed
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean setAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	boolean setAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute);
 
 	/**
 	 * Currently do nothing.
@@ -47,10 +45,8 @@ public interface UserVirtualAttributesModuleImplApi extends UserAttributesModule
 	 * @param user user which is needed for computing the value
 	 * @param attribute attribute to operate on
 	 * @return
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException;
+	void removeAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute);
 
 	/**
 	 * Method searches all users, who have attribute with the given value.

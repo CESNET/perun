@@ -1,9 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -27,7 +23,7 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 	private static final String A_M_mail = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
 		String attributeValue = null;
 
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Member mail can't be null.");

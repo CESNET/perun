@@ -41,7 +41,7 @@ public class urn_perun_facility_attribute_def_def_shellsTest {
 	public void testCheckAttributeValue() throws Exception {
 		System.out.println("testCheckAttributeValue()");
 
-		ArrayList<String> shells = new ArrayList<String>();
+		ArrayList<String> shells = new ArrayList<>();
 		shells.add("/bin/bash");
 		shells.add("/bin/csh");
 		attribute.setValue(shells);

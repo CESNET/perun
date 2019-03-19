@@ -32,7 +32,7 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException {
 		throw new InternalErrorException("Can't set value of this virtual attribute this way. " + attribute);
 	}
 
@@ -43,7 +43,7 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(AttributesManager.NS_VO_ATTR_CORE + ":shortName");
 		return strongDependencies;
 	}

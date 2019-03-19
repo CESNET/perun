@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -23,11 +24,11 @@ import org.junit.Test;
 public class UtilsIntegrationTest {
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 	}
 
 	@Test
-	public void parseCommonNameTest() throws Exception {
+	public void parseCommonNameTest() {
 		System.out.println("Utils.parseCommonName");
 
 		String titleBeforeString = "titleBefore";
@@ -71,7 +72,7 @@ public class UtilsIntegrationTest {
 		assertEquals("CSc. Ph.D.", parsedRawName.get(titleAfterString));
 
 		parsedRawName = Utils.parseCommonName(text4);
-		assertEquals(null, parsedRawName.get(titleBeforeString));
+		assertNull(parsedRawName.get(titleBeforeString));
 		assertEquals("David", parsedRawName.get(firstNameString));
 		assertEquals("Kurka", parsedRawName.get(lastNameString));
 		assertEquals("CSc. Ph.D.", parsedRawName.get(titleAfterString));
@@ -83,31 +84,31 @@ public class UtilsIntegrationTest {
 		assertEquals("Ph.D.", parsedRawName.get(titleAfterString));
 
 		parsedRawName = Utils.parseCommonName(text6);
-		assertEquals(null, parsedRawName.get(titleBeforeString));
+		assertNull(parsedRawName.get(titleBeforeString));
 		assertEquals("David", parsedRawName.get(firstNameString));
 		assertEquals("Kurka", parsedRawName.get(lastNameString));
 		assertEquals("CSc.", parsedRawName.get(titleAfterString));
 
 		parsedRawName = Utils.parseCommonName(text7);
-		assertEquals(null, parsedRawName.get(titleBeforeString));
+		assertNull(parsedRawName.get(titleBeforeString));
 		assertEquals("David", parsedRawName.get(firstNameString));
 		assertEquals("Kurka", parsedRawName.get(lastNameString));
-		assertEquals(null, parsedRawName.get(titleAfterString));
+		assertNull(parsedRawName.get(titleAfterString));
 
 		parsedRawName = Utils.parseCommonName(text8);
 		assertEquals("Dr.", parsedRawName.get(titleBeforeString));
 		assertEquals("David", parsedRawName.get(firstNameString));
 		assertEquals("Kurka", parsedRawName.get(lastNameString));
-		assertEquals(null, parsedRawName.get(titleAfterString));
+		assertNull(parsedRawName.get(titleAfterString));
 
 		parsedRawName = Utils.parseCommonName(text9);
-		assertEquals(null, parsedRawName.get(titleBeforeString));
+		assertNull(parsedRawName.get(titleBeforeString));
 		assertEquals("Ali", parsedRawName.get(firstNameString));
 		assertEquals("H. Reshak Al-jaary", parsedRawName.get(lastNameString));
-		assertEquals(null, parsedRawName.get(titleAfterString));
+		assertNull(parsedRawName.get(titleAfterString));
 
 		parsedRawName = Utils.parseCommonName(text10);
-		assertEquals(null, parsedRawName.get(titleBeforeString));
+		assertNull(parsedRawName.get(titleBeforeString));
 		assertEquals("Ali", parsedRawName.get(firstNameString));
 		assertEquals("H. Reshak Al-jaary", parsedRawName.get(lastNameString));
 		assertEquals("CSc.", parsedRawName.get(titleAfterString));
@@ -116,7 +117,7 @@ public class UtilsIntegrationTest {
 		assertEquals("prof.", parsedRawName.get(titleBeforeString));
 		assertEquals("Ali", parsedRawName.get(firstNameString));
 		assertEquals("H. Reshak Al-jaary", parsedRawName.get(lastNameString));
-		assertEquals(null, parsedRawName.get(titleAfterString));
+		assertNull(parsedRawName.get(titleAfterString));
 
 		parsedRawName = Utils.parseCommonName(text12);
 		assertEquals("RNDr.", parsedRawName.get(titleBeforeString));

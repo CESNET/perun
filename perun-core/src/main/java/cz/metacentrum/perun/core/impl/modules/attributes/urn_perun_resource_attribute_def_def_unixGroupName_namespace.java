@@ -1,16 +1,13 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -20,8 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  *
@@ -57,16 +52,15 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 		try {
 			//prepare attributes group and resource unixGroupName
 			Attribute groupUnixGroupName = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_G_unixGroupName_namespace + ":" + groupNameNamespace));
-			Attribute resourceUnixGroupName = attribute;
 			groupUnixGroupName.setValue(attribute.getValue());
 
 			//prepare lists of groups and resources with the same groupName value in the same namespace
-			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<Group>();
-			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<Resource>();
+			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<>();
+			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<>();
 
 			//Fill lists of groups and resources
 			groupsWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupUnixGroupName));
-			resourcesWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceUnixGroupName));
+			resourcesWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, attribute));
 			//Remove self from the list of resources with the same namespace
 			resourcesWithSameGroupNameInTheSameNamespace.remove(resource);
 
@@ -74,7 +68,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 			if(groupsWithSameGroupNameInTheSameNamespace.isEmpty() && resourcesWithSameGroupNameInTheSameNamespace.isEmpty()) return;
 
 			//First need to know that i have right to write any of duplicit groupName-namespace attribute
-			boolean haveRights = sess.getPerunBl().getModulesUtilsBl().haveRightToWriteAttributeInAnyGroupOrResource(sess, groupsWithSameGroupNameInTheSameNamespace, resourcesWithSameGroupNameInTheSameNamespace, groupUnixGroupName, resourceUnixGroupName);
+			boolean haveRights = sess.getPerunBl().getModulesUtilsBl().haveRightToWriteAttributeInAnyGroupOrResource(sess, groupsWithSameGroupNameInTheSameNamespace, resourcesWithSameGroupNameInTheSameNamespace, groupUnixGroupName, attribute);
 			if(!haveRights) throw new WrongReferenceAttributeValueException(attribute, "This groupName is already used for other group or resource and user has no rights to use it.");
 
 			//Now if rights are ok, prepare lists of UnixGIDs attributes of this group (also equivalent resource GID)
@@ -170,13 +164,12 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
 		//Disallowed because of crosschecks between modules and performance reason
 		//dependencies.add(A_G_unixGID_namespace + ":*");
 		//dependencies.add(A_R_unixGID_namespace + ":*");
 		//Disallowed because it does not affect value of dependent attribute
 		//dependencies.add(A_G_unixGroupName_namespace + ":*");
-		return dependencies;
+		return new ArrayList<>();
 	}
 
 	/*public AttributeDefinition getAttributeDefinition() {

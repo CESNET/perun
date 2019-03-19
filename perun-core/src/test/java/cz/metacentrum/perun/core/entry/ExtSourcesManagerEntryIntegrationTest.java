@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
@@ -261,13 +260,13 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 */
 	@Ignore
 	@Test
-	public void testGetInvalidUsers() throws Exception {
+	public void testGetInvalidUsers() {
 		fail("not implemented");
 	}
 
 	@Ignore
 	@Test
-	public void getCandidate() throws Exception {
+	public void getCandidate() {
 		System.out.println(CLASS_NAME + "getCandidate");
 
 		// TODO create searchable ext source (mock ?)
@@ -278,7 +277,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Ignore
 	@Test (expected=CandidateNotExistsException.class)
-	public void getCandidateWhenCandidateNotExist() throws Exception {
+	public void getCandidateWhenCandidateNotExist() {
 		System.out.println(CLASS_NAME + "getCandidateWhenCandidateNotExists");
 
 		// TODO create searchable ExtSource (mock ?)

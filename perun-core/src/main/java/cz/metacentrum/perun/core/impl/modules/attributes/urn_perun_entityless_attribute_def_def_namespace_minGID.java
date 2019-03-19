@@ -26,7 +26,7 @@ public class  urn_perun_entityless_attribute_def_def_namespace_minGID extends En
 	private static final String A_E_namespaceMaxGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 		Integer minGID = (Integer) attribute.getValue();
 		if(minGID != null) {
 			if(minGID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
