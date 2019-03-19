@@ -58,7 +58,7 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 
 							log.debug("Getting list of members for group {}", group.getId());
 							// List<Member> members = ldapcManager.getRpcCaller().call("groupsManager",  "getGroupMembers", params).readList(Member.class);
-							List<Member> members = perun.getGroupsManager().getGroupMembers(ldapcManager.getPerunSession(), group);
+							List<Member> members = perun.getGroupsManager().getActiveGroupMembers(ldapcManager.getPerunSession(), group);
 							log.debug("Synchronizing {} members of group {}", members.size(), group.getId());
 							perunGroup.synchronizeMembers(group, members);
 

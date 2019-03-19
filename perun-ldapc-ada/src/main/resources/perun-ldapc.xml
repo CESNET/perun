@@ -276,6 +276,36 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="beansCondition">
 						<list>
 							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value="  validated.$" />
+					<property name="handlerMethodName" value="processMemberAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value=" was removed from Group:\[(.*)\] totally" />
+					<property name="handlerMethodName" value="processMemberRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value="expired.$|disabled.$|invalidated.$|suspended #" />
+					<property name="handlerMethodName" value="processMemberRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
 						</list>
 					</property>
 					<property name="pattern" value=" created in Vo:\[(.|\s)*\] as subgroup of Group:\[(.|\s)*\]" />
