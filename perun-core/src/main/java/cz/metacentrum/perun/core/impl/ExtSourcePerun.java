@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -361,6 +362,11 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	@Override
 	public void close() throws InternalErrorException {
 		//not needed there
+	}
+
+	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	protected Map<String,String> getAttributes() throws InternalErrorException {

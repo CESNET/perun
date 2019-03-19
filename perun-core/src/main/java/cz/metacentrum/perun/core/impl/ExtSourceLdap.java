@@ -414,6 +414,11 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	@Override
 	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		return findSubjects(searchString, 0);
 	}

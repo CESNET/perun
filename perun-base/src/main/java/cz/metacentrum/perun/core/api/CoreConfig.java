@@ -34,6 +34,9 @@ public class CoreConfig {
 	private int groupSynchronizationInterval;
 	private int groupSynchronizationTimeout;
 	private int groupMaxConcurentGroupsToSynchronize;
+	private int groupStructureSynchronizationInterval;
+	private int groupStructureSynchronizationTimeout;
+	private int groupMaxConcurrentGroupsStructuresToSynchronize;
 	private int mailchangeValidationWindow;
 	private int pwdresetValidationWindow;
 	private List<String> admins;
@@ -76,6 +79,30 @@ public class CoreConfig {
 	private Map<String, List<AttributeDefinition>> attributesForUpdate = new HashMap<>();
 	private Map<String, String> oidcIssuersExtsourceNames = new HashMap<>();
 	private Map<String, String> oidcIssuersExtsourceTypes = new HashMap<>();
+
+	public int getGroupMaxConcurrentGroupsStructuresToSynchronize() {
+		return groupMaxConcurrentGroupsStructuresToSynchronize;
+	}
+
+	public void setGroupMaxConcurrentGroupsStructuresToSynchronize(int groupMaxConcurrentGroupsStructuresToSynchronize) {
+		this.groupMaxConcurrentGroupsStructuresToSynchronize = groupMaxConcurrentGroupsStructuresToSynchronize;
+	}
+
+	public int getGroupStructureSynchronizationInterval() {
+		return groupStructureSynchronizationInterval;
+	}
+
+	public void setGroupStructureSynchronizationInterval(int groupSynchronizationInterval) {
+		this.groupStructureSynchronizationInterval = groupSynchronizationInterval;
+	}
+
+	public int getGroupStructureSynchronizationTimeout() {
+		return groupStructureSynchronizationTimeout;
+	}
+
+	public void setGroupStructureSynchronizationTimeout(int groupStructureSynchronizationTimeout) {
+		this.groupStructureSynchronizationTimeout = groupStructureSynchronizationTimeout;
+	}
 
 	boolean isDbInitializatorEnabled() {
 		return dbInitializatorEnabled;

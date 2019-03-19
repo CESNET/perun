@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -277,6 +279,66 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 			} catch (SQLException e) {
 				throw new InternalErrorException(e);
 			}
+		}
+	}
+
+	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		String sqlQueryForGroup = attributes.get(GroupsManager.GROUPSQUERY_ATTRNAME);
+
+		return this.groupQuery(sqlQueryForGroup, null, 0);
+	}
+
+	/**
+	 * Get subject groups from an external source
+	 *
+	 * @param query to select subject groups
+	 * @param searchString by which will be ? in query replaced
+	 * @param maxResults maximum subjects to get
+	 * @return list of subjects
+	 * @throws InternalErrorException
+	 */
+	protected List<Map<String,String>> groupQuery(String query, String searchString, int maxResults) throws InternalErrorException {
+
+		this.checkAndSetPrerequisites();
+
+		try (PreparedStatement st = getPreparedStatement(query, searchString, maxResults)) {
+			try (ResultSet rs = st.executeQuery()) {
+
+				List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+
+				log.trace("Query {}", query);
+
+				while (rs.next()) {
+					Map<String, String> map = new HashMap<String, String>();
+
+					try {
+						map.put(GroupsManagerBlImpl.GROUP_NAME, rs.getString(GroupsManagerBlImpl.GROUP_NAME));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put(GroupsManagerBlImpl.GROUP_NAME, null);
+					}
+					try {
+						map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, rs.getString(GroupsManagerBlImpl.PARENT_GROUP_NAME));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put(GroupsManagerBlImpl.PARENT_GROUP_NAME, null);
+					}
+					try {
+						map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, rs.getString(GroupsManagerBlImpl.GROUP_DESCRIPTION));
+					} catch (SQLException e) {
+						// If the column doesn't exists, ignore it
+						map.put(GroupsManagerBlImpl.GROUP_DESCRIPTION, null);
+					}
+					subjects.add(map);
+				}
+
+				log.debug("Returning {} subjects from external source {} for searchString {}", subjects.size(), this, searchString);
+				return subjects;
+			}
+		} catch (SQLException e) {
+			log.error("SQL exception during searching for subject '{}'", query);
+			throw new InternalErrorRuntimeException(e);
 		}
 	}
 

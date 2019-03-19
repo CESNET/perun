@@ -37,6 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
 import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
+import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
@@ -948,11 +949,27 @@ public interface GroupsManagerBl {
 	void forceGroupSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupSynchronizationAlreadyRunningException;
 
 	/**
+	 * Synchronize the group structure with an external group structure. It checks if the synchronization of the same group is already in progress.
+	 *
+	 * @param group the group to be forced this way
+	 * @throws InternalErrorException
+	 * @throws GroupStructureSynchronizationAlreadyRunningException
+	 */
+	void forceGroupStructureSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupStructureSynchronizationAlreadyRunningException;
+
+	/**
 	 * Synchronize all groups which have enabled synchronization. This method is run by the scheduler every 5 minutes.
 	 *
 	 * @throws InternalErrorException
 	 */
 	void synchronizeGroups(PerunSession sess) throws InternalErrorException;
+
+	/**
+	 * Synchronize all groups structures which have enabled group structure synchronization. This method is run by the scheduler every 5 minutes.
+	 *
+	 * @throws InternalErrorException
+	 */
+	void synchronizeGroupsStructures(PerunSession sess) throws InternalErrorException;
 
 	/**
 	 * Returns all members groups. Except 'members' group.
@@ -1273,11 +1290,13 @@ public interface GroupsManagerBl {
 	 * Also log information about failed synchronization to auditer_log.
 	 *
 	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups)
+	 * This method is run in a new transaction to ensure successful saving of given information, in case of a rollback in previous transaction.
+	 * However, this method cannot be used in method running in the nested transaction, where the group was changed in the database.
 	 *
 	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastSynchronizationState"
 	 *
-	 * FailedDueToException is true means group synchronization failed at all.
+	 * FailedDueToException is true means group synchronization failed completely.
 	 * FailedDueToException is false means group synchronization is ok or finished with some errors (some members were not synchronized)
 	 *
 	 * @param sess perun session
@@ -1290,7 +1309,86 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 */
-	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupSynchronizationInNewTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
+	 * This method will set timestamp and exceptionMessage to group attributes for the group.
+	 * Also log information about failed synchronization to auditer_log.
+	 *
+	 * IMPORTANT: This method runs in nested transaction so it can be used in another transaction
+	 * With a nested transaction, this method can be used in method running in the nested transaction, where the group was changed in the database.
+	 * However, rollback on the outer transaction, where this method is used, will revert saving of given information.
+	 *
+	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
+	 * Set exception message to attribute "group_def_lastSynchronizationState"
+	 *
+	 * FailedDueToException is true means group synchronization failed completely.
+	 * FailedDueToException is false means group synchronization is ok or finished with some errors (some members were not synchronized)
+	 *
+	 * @param sess perun session
+	 * @param group the group for synchronization
+	 * @param failedDueToException if exception means fail of whole synchronization of this group or only problem with some data
+	 * @param exceptionMessage message of an exception, ok if everything is ok
+	 * @throws AttributeNotExistsException
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongAttributeValueException
+	 */
+	void saveInformationAboutGroupSynchronizationInNestedTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+
+	/**
+	 * This method will set timestamp, state and exceptionMessage to group attributes for the group structure.
+	 * Also log information about failed group structure synchronization to auditer_log.
+	 *
+	 * IMPORTANT: This method runs in new transaction (because of it being used in synchronization of groups structures)
+	 * This method is run in a new transaction to ensure successful saving of given information, in case of a rollback in previous transaction.
+	 * However, this method cannot be used in method running in the nested transaction, where the group was changed in the database.
+	 *
+	 * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
+	 * Set exception message to attribute "group_def_lastGroupStructureSynchronizationState"
+	 *
+	 * FailedDueToException is true means group structure synchronization failed completely.
+	 * FailedDueToException is false means group structure synchronization is ok or finished with some errors (some groups were not synchronized)
+	 *
+	 * @param sess perun session
+	 * @param group the group structure for synchronization
+	 * @param failedDueToException if exception means fail of whole synchronization of this group structure or only problem with some data
+	 * @param exceptionMessage message of an exception, ok if everything is ok
+	 * @throws AttributeNotExistsException
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongAttributeValueException
+	 */
+	void saveInformationAboutGroupStructureSynchronizationInNewTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
+	 * This method will set timestamp, state and exceptionMessage to group attributes for the group structure.
+	 * Also log information about failed group structure synchronization to auditer_log.
+	 *
+	 * IMPORTANT: This method runs in nested transaction.
+	 * With a nested transaction, this method can be used in method running in the nested transaction, where the group was changed in the database.
+	 * However, rollback on the outer transaction, where this method is used, will revert saving of given information.
+	 *
+	 * Set timestamp to attribute "group_def_lastGroupStructureSynchronizationTimestamp"
+	 * Set exception message to attribute "group_def_lastGroupStructureSynchronizationState"
+	 *
+	 * FailedDueToException is true means group structure synchronization failed completely.
+	 * FailedDueToException is false means group structure synchronization is ok or finished with some errors (some groups were not synchronized)
+	 *
+	 * @param sess perun session
+	 * @param group the group structure for synchronization
+	 * @param failedDueToException if exception means fail of whole synchronization of this group structure or only problem with some data
+	 * @param exceptionMessage message of an exception, ok if everything is ok
+	 * @throws AttributeNotExistsException
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongAttributeValueException
+	 */
+	void saveInformationAboutGroupStructureSynchronizationInNestedTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Get all groups in specific vo with assigned extSource
@@ -1491,4 +1589,49 @@ public interface GroupsManagerBl {
 	 */
 	boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group) throws InternalErrorException, ExtendMembershipException;
 
+	/**
+	 * Synchronize a group structure with an external source group structure under the group.
+	 *
+	 * @param sess
+	 * @param group base group under which will be synchronized structure of groups
+	 * @return List of strings with skipped groups with reasons why were skipped
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws ExtSourceNotExistsException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws GroupNotExistsException
+	 */
+	List<String> synchronizeGroupStructure(PerunSession sess, Group group) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException ;
+
+	/**
+	 * Check if the group or its subgroups are defined as synchronized from an external source at this moment.
+	 *
+	 * @param session
+	 * @param group
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	boolean isGroupInStructureSynchronizationTree(PerunSession session, Group group) throws InternalErrorException;
+
+	/**
+	 * Check if the group is defined as synchronized from an external source at this moment.
+	 *
+	 * @param session
+	 * @param group
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	boolean isGroupSynchronizedFromExternallSource(PerunSession session, Group group) throws InternalErrorException;
+
+	/**
+	 * Check if there is a subgroup of the group, which is defined as synchronized from an external source at this moment.
+	 *
+	 * @param session
+	 * @param group
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	boolean hasGroupSynchronizedChild(PerunSession session, Group group) throws InternalErrorException;
 }

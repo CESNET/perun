@@ -69,7 +69,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
             //Replace '?' by searchString
             query = query.replaceAll("\\?", searchString);
 
-            //Get csv file 
+            //Get csv file
             prepareEnvironment();
 
             return csvParsing(query, maxResults);
@@ -97,7 +97,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
             //Replace '?' by searchString
             query = query.replaceAll("\\?", login);
 
-            //Get csv file 
+            //Get csv file
             prepareEnvironment();
 
             List<Map<String, String>> subjects = this.csvParsing(query, 0);
@@ -145,6 +145,25 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         throw new ExtSourceUnsupportedOperationException("Using this method is not supported for CSV.");
     }
 
+	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		try {
+			String queryForGroup = attributes.get(GroupsManager.GROUPSQUERY_ATTRNAME);
+
+			if (queryForGroup == null) {
+				throw new InternalErrorException("Attribute " + GroupsManager.GROUPSQUERY_ATTRNAME + " can't be null.");
+			}
+
+			prepareEnvironment();
+
+			return csvParsing(queryForGroup, 0);
+
+		} catch (IOException ex) {
+			log.error("IOException in getSubjectGroups() method while parsing csv file", ex);
+		}
+		return null;
+	}
+
     private void prepareEnvironment() throws InternalErrorException {
         //Get csv files
         file = (String) getAttributes().get("file");
@@ -167,11 +186,9 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         if (header == null) {
             throw new RuntimeException("No header in csv file");
         }
-
         String[] row;
 
         while ((row = reader.readNext()) != null) {
-
             if (header.length != row.length) {
                 throw new RuntimeException("Csv file is not valid - some rows have different number of columns from the header row.");
             }
@@ -245,7 +262,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
     /**
      * Creates Map<String,String> from 1 row in csv file
-     * 
+     *
      * @param line 1 row from csv file
      * @return Map<String, String>, like <name,value>
      * @throws InternalErrorException
@@ -274,7 +291,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
                 String value = attr.substring(index + 1);
 
                 if (value.startsWith("{")) {
-                    
+
                     // exclude curly brackets from value
                     value = value.substring(1, value.length() - 1);
 
@@ -292,7 +309,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         return lineAsMap;
     }
 
-	protected Map<String,String> getAttributes() throws InternalErrorException {
-		return perunBl.getExtSourcesManagerBl().getAttributes(this);
-	}
+    protected Map<String,String> getAttributes() throws InternalErrorException {
+        return perunBl.getExtSourcesManagerBl().getAttributes(this);
+    }
 }

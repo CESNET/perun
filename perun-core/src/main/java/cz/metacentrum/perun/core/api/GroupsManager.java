@@ -21,6 +21,8 @@ import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException
 public interface GroupsManager {
 
 	// Attributes related to the external groups
+	// Contains query need to get the subject groups
+	public static final String GROUPSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupsQuery";
 	// Contains query need to get the group members
 	public static final String GROUPMEMBERSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersQuery";
 	// Contains optional filter for members in group
@@ -31,10 +33,16 @@ public interface GroupsManager {
 	public static final String GROUPMEMBERSEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersExtSource";
 	// If the synchronization is enabled/disabled, value is true/false
 	public static final String GROUPSYNCHROENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationEnabled";
+	// If the group structure synchronization is enabled/disabled, value is true/false
+	public static final String GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureSynchronizationEnabled";
 	// Defines the interval, when the group has to be synchronized. It is fold of 5 minutes
 	public static final String GROUPSYNCHROINTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationInterval";
+	// Defines the interval, when the group structure has to be synchronized. It is fold of 5 minutes
+	public static final String GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureSynchronizationInterval";
 	// Defines if we want to skip updating already existing members in group from extSource (updating attributes etc.)
 	public static final String GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":lightweightSynchronization";
+	// Defines if we want to synchronize group structure without group hierarchy
+	public static final String GROUP_FLAT_SYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":flatGroupStructureEnabled";
 
 	public static final String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
 	public static final String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";
@@ -75,7 +83,7 @@ public interface GroupsManager {
 	 * @throws GroupRelationNotAllowed
 	 * @throws GroupRelationAlreadyExists
 	 */
-	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InternalErrorException, GroupRelationNotAllowed, GroupRelationAlreadyExists;
+	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InternalErrorException, GroupRelationNotAllowed, GroupRelationAlreadyExists, ExternallyManagedException;
 
 	/**
 	 * If forceDelete is false, delete only group and if this group has members or subgroups, throw an exception.
@@ -94,7 +102,7 @@ public interface GroupsManager {
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, ExternallyManagedException;
 
 	/**
 	 * Deletes group only if has no subgroups and no members. Other way throw exception.
@@ -112,7 +120,7 @@ public interface GroupsManager {
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, ExternallyManagedException;
 
 	/**
 	 * Delete all groups in list from perun. (Except members group)
@@ -139,7 +147,7 @@ public interface GroupsManager {
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, ExternallyManagedException;
 
 	/**
 	 * Deletes all groups under the VO except built-in groups (members, admins groups).
@@ -823,6 +831,18 @@ public interface GroupsManager {
 	 */
 	void forceGroupSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupSynchronizationAlreadyRunningException;
 
+    /**
+     * Puts the group on the first place to the queue of groups waiting for group structure synchronization.
+     *
+     * @param sess
+     * @param group
+     * @throws InternalErrorException
+     * @throws GroupNotExistsException
+     * @throws PrivilegeException
+     * @throws GroupStructureSynchronizationAlreadyRunningException
+     */
+    void forceGroupStructureSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupStructureSynchronizationAlreadyRunningException;
+
 	/**
 	 * Synchronize all groups which have enabled synchronization. This method is run by the scheduler every 5 minutes.
 	 *
@@ -830,6 +850,14 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 */
 	void synchronizeGroups(PerunSession sess) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Synchronize all groups structures (with members) which have enabled group structure synchronization. This method is run by the scheduler every 5 minutes.
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	void synchronizeGroupsStructures(PerunSession sess) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Returns all member's groups. Except members groups.
@@ -991,7 +1019,7 @@ public interface GroupsManager {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupRelationNotAllowed, GroupRelationAlreadyExists, WrongAttributeValueException, WrongReferenceAttributeValueException, ExternallyManagedException;
 
 	/**
 	 * Removes a union relation between two groups. All indirect members that originate from operand group are removed from result group.
@@ -1006,7 +1034,7 @@ public interface GroupsManager {
 	 * @throws GroupRelationCannotBeRemoved
 	 * @throws PrivilegeException
 	 */
-	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved, ExternallyManagedException;
 
 	/**
 	 * Get list of group unions for specified group.
@@ -1035,7 +1063,7 @@ public interface GroupsManager {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException, ExternallyManagedException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Set Members Group status for specified DIRECT member and group.
@@ -1098,5 +1126,4 @@ public interface GroupsManager {
 	 * @return true if given member can extend membership in given group or throws exception with reason why not
 	 */
 	boolean canExtendMembershipInGroupWithReason(PerunSession sess, Member member, Group group) throws InternalErrorException, MemberNotExistsException, GroupNotExistsException, PrivilegeException, ExtendMembershipException;
-
 }
