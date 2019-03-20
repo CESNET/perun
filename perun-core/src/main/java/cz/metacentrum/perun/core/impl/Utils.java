@@ -1398,43 +1398,6 @@ public class Utils {
 	}
 
 	/**
-	 * Extends given calendar by given period.
-	 *
-	 * @param calendar calendar to be extended
-	 * @param period period used to extend calendar
-	 * @throws InternalErrorException when the period has wrong format,
-	 * allowed format is given by regex "\\+([0-9]+)([dmy]?)"
-	 */
-	public static void extendCalendarByPeriod(Calendar calendar, String period) throws InternalErrorException {
-		// By default do not add nothing
-		int amount = 0;
-		int field;
-
-		// We will add days/months/years
-		Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
-		Matcher m = p.matcher(period);
-		if (m.matches()) {
-			String countString = m.group(1);
-			amount = Integer.valueOf(countString);
-
-			String dmyString = m.group(2);
-			if (dmyString.equals("d")) {
-				field = Calendar.DAY_OF_YEAR;
-			} else if (dmyString.equals("m")) {
-				field = Calendar.MONTH;
-			} else if (dmyString.equals("y")) {
-				field = Calendar.YEAR;
-			} else {
-				throw new InternalErrorException("Wrong format of period. Period: " + period);
-			}
-		} else {
-			throw new InternalErrorException("Wrong format of period. Period: " + period);
-		}
-		// Add days/months/years
-		calendar.add(field, amount);
-	}
-
-	/**
 	 * Extends given date by given period.
 	 *
 	 * @param localDate date to be extended
@@ -1469,38 +1432,6 @@ public class Utils {
 	}
 
 	/**
-	 * Extends given calendar by values from given matcher.
-	 * @param calendar calendar to be extended
-	 * @param matcher matcher with day and month values
-	 * @return True if the extension is next year, false otherwise.
-	 */
-	public static boolean extendCalendarByStaticDate(Calendar calendar, Matcher matcher) {
-
-		int day = Integer.valueOf(matcher.group(1));
-		int month = Integer.valueOf(matcher.group(2));
-
-		// Get current year
-		int year = calendar.get(Calendar.YEAR);
-
-		// We must detect if the extension date is in current year or in a next year
-		boolean extensionInNextYear;
-		Calendar extensionCalendar = Calendar.getInstance();
-		extensionCalendar.set(year, month-1, day);
-		Calendar today = Calendar.getInstance();
-
-		// check if extension is next year
-		extensionInNextYear = extensionCalendar.before(today);
-
-		// Set the date to which the membership should be extended, can be changed if there was grace period, see next part of the code
-		calendar.set(year, month-1, day); // month is 0-based
-		if (extensionInNextYear) {
-			calendar.add(Calendar.YEAR, 1);
-		}
-
-		return extensionInNextYear;
-	}
-
-	/**
 	 * Extends given date by values from given matcher.
 	 * @param localDate date to be extended
 	 * @param matcher matcher with day and month values
@@ -1528,48 +1459,6 @@ public class Utils {
 		}
 
 		return localDate;
-	}
-
-	/**
-	 * Extends grace period calendar by values from given matcher.
-	 * @param gracePeriodCalendar grace period calendar
-	 * @param matcher matcher
-	 * @param extensionCalendar extension calendar
-	 * @return pair of field(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH) and amount
-	 * @throws InternalErrorException when given matcher contains invalid data
-	 */
-	public static Pair<Integer, Integer> extendGracePeriodCalendar(Calendar gracePeriodCalendar, Matcher matcher, Calendar extensionCalendar) throws InternalErrorException {
-		if (!matcher.matches()) {
-			return null;
-		}
-		String countString = matcher.group(1);
-		int amount = Integer.valueOf(countString);
-
-		// Set the gracePeriodCalendar to the extension date
-		int year = extensionCalendar.get(Calendar.YEAR);
-		int month = extensionCalendar.get(Calendar.MONTH);
-		int day = extensionCalendar.get(Calendar.DAY_OF_MONTH);
-		gracePeriodCalendar.set(year, month, day);
-
-		int field;
-		String dmyString = matcher.group(2);
-		switch (dmyString) {
-			case "d":
-				field = Calendar.DAY_OF_YEAR;
-				break;
-			case "m":
-				field = Calendar.MONTH;
-				break;
-			case "y":
-				field = Calendar.YEAR;
-				break;
-			default:
-				throw new InternalErrorException("Wrong format of gracePeriod.");
-		}
-		// subtracts period definition, e.g. 3m
-		gracePeriodCalendar.add(field, -amount);
-
-		return new Pair<>(field, amount);
 	}
 
 	/**
