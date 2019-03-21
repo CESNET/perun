@@ -99,7 +99,7 @@ public interface ResourcesManagerBl {
 	 * @throws ResourceAlreadyRemovedException if there is at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group not affected by deleting from DB
 	 */
-	void deleteAllResources(PerunSession perunSession, Vo vo) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupAlreadyRemovedFromResourceException;
+	void deleteAllResources(PerunSession perunSession, Vo vo) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Get facility which belongs to the concrete resource.

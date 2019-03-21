@@ -172,7 +172,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         }
     }
 
-    private List<Map<String, String>> csvParsing(String query, int maxResults) throws InternalErrorException, FileNotFoundException, IOException {
+    private List<Map<String, String>> csvParsing(String query, int maxResults) throws InternalErrorException, IOException {
         List<Map<String, String>> subjects = new ArrayList<>();
 
         FileReader fileReader = new FileReader(file);

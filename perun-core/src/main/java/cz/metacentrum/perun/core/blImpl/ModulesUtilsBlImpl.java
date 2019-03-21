@@ -656,7 +656,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public void checkIfQuotasIsInLimit(Map<String, Pair<BigDecimal, BigDecimal>> quotaToCheck, Map<String, Pair<BigDecimal, BigDecimal>> limitQuota) throws QuotaNotInAllowedLimitException, InternalErrorException {
+	public void checkIfQuotasIsInLimit(Map<String, Pair<BigDecimal, BigDecimal>> quotaToCheck, Map<String, Pair<BigDecimal, BigDecimal>> limitQuota) throws InternalErrorException {
 		if(quotaToCheck == null) throw new InternalErrorException("Quota to check can't be null.");
 		if(limitQuota == null) throw new InternalErrorException("Limit quota can't be null.");
 

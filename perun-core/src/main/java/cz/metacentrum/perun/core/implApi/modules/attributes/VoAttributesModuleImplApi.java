@@ -45,7 +45,7 @@ public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
 	 *         the parameter is to be compared is not available.
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeValue(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeValue(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that

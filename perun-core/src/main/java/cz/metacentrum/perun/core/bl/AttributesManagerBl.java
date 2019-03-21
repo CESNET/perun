@@ -1201,7 +1201,7 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the vo.
@@ -1214,7 +1214,7 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException;
+	Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
 	/**
 	 * Get particular attribute for the resource.
@@ -3024,7 +3024,7 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException if attribute isn't vo attribute or if it is core attribute
 	 */
-	void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
