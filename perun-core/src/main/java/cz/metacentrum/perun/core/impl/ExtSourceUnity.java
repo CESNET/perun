@@ -188,7 +188,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
     }
 
     private UnityEntity connectAndGetValidEntityByGroup(int entityId, String groupName) throws InternalErrorException, IOException {
-        HttpURLConnection connection = createConnection(checkUri(uriEntity) + Integer.toString(entityId) + "/groups/");
+        HttpURLConnection connection = createConnection(checkUri(uriEntity) + entityId + "/groups/");
         JSONArray groups = getJSONArrayFromRemote(connection);
 
         // if entity belongs to groupName
@@ -238,7 +238,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
      * @return entity obtained by API call
      */
     private JSONObject getEntityFromRemote(int id) throws InternalErrorException, IOException {
-        HttpURLConnection connection = createConnection(checkUri(uriEntity) + Integer.toString(id) + "/");
+        HttpURLConnection connection = createConnection(checkUri(uriEntity) + id + "/");
         InputStream is = null;
         if (connection != null) {
             is = connection.getInputStream();

@@ -5520,7 +5520,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 								+ "action_type_id=(SELECT id FROM action_types WHERE action_type=?)", rights.getAttributeId(),
 						rights.getRole().getRoleName(), actionType.getActionType())) {
 					throw new ConsistencyErrorException("Trying to delete non existing row : AttributeRight={ attributeId="
-							+ Integer.toString(rights.getAttributeId()) + " role=" + rights.getRole().getRoleName() + " actionType=" + actionType.getActionType());
+							+ rights.getAttributeId() + " role=" + rights.getRole().getRoleName() + " actionType=" + actionType.getActionType());
 				}
 			}
 		} catch (RuntimeException e) {
