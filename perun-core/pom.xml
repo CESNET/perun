@@ -166,11 +166,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>javax.mail</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>jdom</groupId>
 			<artifactId>jdom</artifactId>
 		</dependency>

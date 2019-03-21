@@ -21,11 +21,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<!-- Scans for @Repository, @Service and @Component -->
 	<context:component-scan base-package="cz.metacentrum.perun.registrar"/>
 
-	<!-- for sending emails -->
-	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-		<property name="javaMailProperties" ref="registrarProperties"/>
-	</bean>
-
 	<bean id="registrarManager" class="cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl" init-method="initialize">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="registrarManager" ref="registrarManager"/>
@@ -33,7 +28,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
 	<bean id="mailManager" class="cz.metacentrum.perun.registrar.impl.MailManagerImpl" init-method="initialize">
 		<property name="dataSource" ref="dataSource"/>
-		<property name="mailSender" ref="mailSender" />
 	</bean>
 
 	<bean id="consolidatorManager" class="cz.metacentrum.perun.registrar.impl.ConsolidatorManagerImpl" init-method="initialize">
@@ -68,15 +62,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 					<prop key="backupFrom">perun@localhost</prop>
 					<prop key="backupTo">perun@localhost</prop>
 					<prop key="fedAuthz">fed</prop>
-					<!-- MAIL SENDING PROPERTIES -->
-					<prop key="mail.smtp.host">localhost</prop>
-					<prop key="mail.smtp.port">25</prop>
-					<prop key="mail.smtp.auth">false</prop>
-					<prop key="mail.smtp.starttls.enable">false</prop>
-					<prop key="mail.debug">false</prop>
-					<!-- user / password if "mail.smtp.auth" is true -->
-					<prop key="registrar.smtp.user"></prop>
-					<prop key="registrar.smtp.pass"></prop>
 				</props>
 			</property>
 		</bean>

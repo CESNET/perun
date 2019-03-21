@@ -61,15 +61,9 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 			<property name="properties">
 				<props>
-					<prop key="notif.mailSmtpAuth">false</prop>
-					<prop key="notif.username"></prop>
-					<prop key="notif.password"></prop>
-					<prop key="notif.smtpHost">localhost</prop>
-					<prop key="notif.port">8086</prop>
 					<prop key="notif.emailFrom">perun@localhost</prop>
 					<prop key="notif.fromText">perun@localhost test message</prop>
 					<prop key="notif.sendMessages">true</prop>
-					<prop key="notif.starttls">false</prop>
 					<prop key="notif.jabber.jabberServer">jabber.org</prop>
 					<prop key="notif.jabber.port">5222</prop>
 					<prop key="notif.jabber.serviceName">jabber.org</prop>

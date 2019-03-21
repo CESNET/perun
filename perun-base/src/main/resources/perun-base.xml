@@ -51,6 +51,13 @@
 		<property name="allowedCorsDomains" value="#{'${perun.allowedCorsDomains}'.split('\s*,\s*')}" />
 		<property name="cacheEnabled" value="${perun.cacheEnabled}" />
 		<property name="pdfFontPath" value="${perun.pdfFontPath}" />
+		<property name="smtpHost" value="${mail.smtp.host}" />
+		<property name="smtpPort" value="${mail.smtp.port}" />
+		<property name="smtpAuth" value="${mail.smtp.auth}" />
+		<property name="smtpStartTls" value="${mail.smtp.starttls.enable}" />
+		<property name="mailDebug" value="${mail.debug}" />
+		<property name="smtpUser" value="${perun.smtp.user}" />
+		<property name="smtpPass" value="${perun.smtp.pass}" />
 	</bean>
 
 
@@ -127,6 +134,14 @@
 				<prop key="perun.oidc.i4.extsource.name">https://login.elixir-czech.org/idp/</prop>
 				<prop key="perun.oidc.i4.extsource.type">cz.metacentrum.perun.core.impl.ExtSourceIdp</prop>
 
+				<prop key="mail.smtp.host">localhost</prop>
+				<prop key="mail.smtp.port">25</prop>
+				<prop key="mail.smtp.auth">false</prop>
+				<prop key="mail.smtp.starttls.enable">false</prop>
+				<prop key="mail.debug">false</prop>
+				<prop key="perun.smtp.user"></prop>
+				<prop key="perun.smtp.pass"></prop>
+
 			</props>
 		</property>
 	</bean>
@@ -148,7 +163,10 @@
 	<!-- active in Spring profile "default", packs default properties and few others as a bean -->
 	<beans profile="default">
 		<bean id="coreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<property name="properties" ref="defaultCoreProperties"/>
+			<property name="properties" ref="defaultCoreProperties" />
+			<!-- Following file should be present only in test resources !! -->
+			<property name="location" value="classpath:perun-tests.properties" />
+			<property name="ignoreResourceNotFound" value="true" />
 		</bean>
 	</beans>
 
