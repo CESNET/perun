@@ -1218,15 +1218,12 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		this.checkFacilityContactsEntitiesExist(sess, contactGroupsToRemove);
 
-		Iterator<ContactGroup> iter = contactGroupsToRemove.iterator();
-		while(iter.hasNext()) {
-			ContactGroup contactGroupToRemove = iter.next();
-
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, contactGroupToRemove.getFacility())) {
+		for (ContactGroup contactGroupToRemove : contactGroupsToRemove) {
+			if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, contactGroupToRemove.getFacility())) {
 				throw new PrivilegeException(sess, "removeFacilityContacts");
 			}
 
- 		}
+		}
 
 		this.getFacilitiesManagerBl().removeFacilityContacts(sess, contactGroupsToRemove);
 	}
