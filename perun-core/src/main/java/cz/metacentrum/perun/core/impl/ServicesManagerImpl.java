@@ -329,7 +329,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	@Override
 	public ServicesPackage getServicesPackageById(PerunSession sess, int servicesPackageId) throws InternalErrorException, ServicesPackageNotExistsException {
 		try {
-			ServicesPackage servicesPackage = jdbc.queryForObject("select " + servicePackageMappingSelectQuery + " from service_packages where id = ?", SERVICESPACKAGE_MAPPER,  new Integer(servicesPackageId));
+			ServicesPackage servicesPackage = jdbc.queryForObject("select " + servicePackageMappingSelectQuery + " from service_packages where id = ?", SERVICESPACKAGE_MAPPER, servicesPackageId);
 
 			return servicesPackage;
 		} catch (EmptyResultDataAccessException ex) {
