@@ -22,7 +22,6 @@ import java.util.Set;
  * @author Vladimir Mecko vladimir.mecko@gmail.com
  * @author Martin Kuba makub@ics.muni.cz
  */
-@SuppressWarnings("unchecked")
 public class urn_perun_entityless_attribute_def_def_dnsStateMapping extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
 	@Override
