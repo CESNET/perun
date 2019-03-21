@@ -73,7 +73,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	private final GroupsManagerImplApi groupsManagerImpl;
 	private PerunBl perunBl;
-	private Integer maxConcurentGroupsToSynchronize;
+	private final Integer maxConcurentGroupsToSynchronize;
 	private final PerunBeanProcessingPool<Group> poolOfGroupsToBeSynchronized;
 	private final ArrayList<GroupSynchronizerThread> groupSynchronizerThreads;
 	private static final String A_G_D_AUTHORITATIVE_GROUP = AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup";
@@ -81,7 +81,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private static final String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
 	private static final String A_M_V_LOA = AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa";
 
-	private Integer maxConcurrentGroupsStructuresToSynchronize;
+	private final Integer maxConcurrentGroupsStructuresToSynchronize;
 	private final PerunBeanProcessingPool<Group> poolOfGroupsStructuresToBeSynchronized;
 	private final List<GroupStructureSynchronizerThread> groupStructureSynchronizerThreads;
 

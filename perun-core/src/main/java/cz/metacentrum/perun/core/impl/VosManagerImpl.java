@@ -35,7 +35,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	public static final String PERSON_TYPE = "person";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private JdbcPerunTemplate jdbc;
+	private final JdbcPerunTemplate jdbc;
 
 	protected final static String voMappingSelectQuery = "vos.id as vos_id,vos.name as vos_name, vos.short_name as vos_short_name, " +
 		"vos.created_at as vos_created_at, vos.created_by as vos_created_by, vos.modified_by as vos_modified_by, vos.modified_at as vos_modified_at, " +

@@ -50,7 +50,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	private final static Logger log = LoggerFactory.getLogger(UsersManagerBlImpl.class);
 
-	private UsersManagerImplApi usersManagerImpl;
+	private final UsersManagerImplApi usersManagerImpl;
 	private PerunBl perunBl;
 
 	private static final String A_USER_DEF_ALT_PASSWORD_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":altPasswords:";

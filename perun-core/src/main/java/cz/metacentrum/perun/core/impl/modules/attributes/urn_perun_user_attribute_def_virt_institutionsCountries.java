@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 class DnsMapCtx extends UserVirtualAttributeCollectedFromUserExtSource.ModifyValueContext {
-	private Map<String, String> dnsMap;
+	private final Map<String, String> dnsMap;
 
 	DnsMapCtx(PerunSessionImpl sess, User user, AttributeDefinition ad, Map<String, String> dnsMap) {
 		super(sess, user, ad);

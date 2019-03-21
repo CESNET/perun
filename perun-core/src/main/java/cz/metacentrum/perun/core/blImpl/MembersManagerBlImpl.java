@@ -62,7 +62,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	private static final String EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
 
-	private MembersManagerImplApi membersManagerImpl;
+	private final MembersManagerImplApi membersManagerImpl;
 	private PerunBl perunBl;
 
 	/**

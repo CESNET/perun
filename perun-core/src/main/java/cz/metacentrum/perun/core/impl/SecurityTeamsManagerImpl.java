@@ -43,7 +43,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			"security_teams.modified_by as security_teams_modified_by, security_teams.modified_at as security_teams_modified_at, " +
 			"security_teams.created_by_uid as security_teams_created_by_uid, security_teams.modified_by_uid as security_teams_modified_by_uid";
 
-	private JdbcPerunTemplate jdbc;
+	private final JdbcPerunTemplate jdbc;
 
 	/**
 	 * Create new instance of this class.

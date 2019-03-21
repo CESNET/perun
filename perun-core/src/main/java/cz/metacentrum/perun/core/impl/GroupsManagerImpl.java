@@ -68,8 +68,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private JdbcPerunTemplate jdbc;
-	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+	private final JdbcPerunTemplate jdbc;
+	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	// Group mapper
 	protected static final RowMapper<Group> GROUP_MAPPER = new RowMapper<Group>() {

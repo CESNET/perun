@@ -23,8 +23,8 @@ public class Synchronizer {
 	private PerunSession sess;
 
 	private PerunBl perunBl;
-	private AtomicBoolean synchronizeGroupsRunning = new AtomicBoolean(false);
-	private AtomicBoolean synchronizeGroupsStructuresRunning = new AtomicBoolean(false);
+	private final AtomicBoolean synchronizeGroupsRunning = new AtomicBoolean(false);
+	private final AtomicBoolean synchronizeGroupsStructuresRunning = new AtomicBoolean(false);
 
 	public Synchronizer() {
 	}

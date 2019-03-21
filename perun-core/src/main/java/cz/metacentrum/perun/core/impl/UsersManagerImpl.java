@@ -53,7 +53,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		"user_ext_sources.modified_by as user_ext_sources_modified_by, user_ext_sources.modified_at as user_ext_sources_modified_at, " +
 		"user_ext_sources.created_by_uid as ues_created_by_uid, user_ext_sources.modified_by_uid as ues_modified_by_uid";
 
-	private static Map<String, Pattern> userExtSourcePersistentPatterns;
+	private static final Map<String, Pattern> userExtSourcePersistentPatterns;
 
 	static {
 		// Prepare userExtSourcePersistentPatterns for matching regex from perun property file.

@@ -22,7 +22,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	private final String textMismatch = "!@#$%^<<&*()_+<\\><:{[}][]{>} sd";
 	private final String CLASS_NAME = "AuditMessagesManager.";
-	private AuditMessage createdAuditMessage = new AuditMessage();
+	private final AuditMessage createdAuditMessage = new AuditMessage();
 
 	public AuditMessagesManagerEntryIntegrationTest(){
 		super();

@@ -38,7 +38,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	final static Logger log = LoggerFactory.getLogger(ResourcesManagerBlImpl.class);
 
-	private ResourcesManagerImplApi resourcesManagerImpl;
+	private final ResourcesManagerImplApi resourcesManagerImpl;
 	private PerunBl perunBl;
 
 	public ResourcesManagerBlImpl(ResourcesManagerImplApi resourcesManagerImpl) {

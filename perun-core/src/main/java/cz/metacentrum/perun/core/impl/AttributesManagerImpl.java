@@ -129,11 +129,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private JdbcPerunTemplate jdbc;
 	private LobHandler lobHandler;
-	private ClassLoader classLoader = this.getClass().getClassLoader();
+	private final ClassLoader classLoader = this.getClass().getClassLoader();
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	//Attributes modules.  name => module
-	private Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<>();
+	private final Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<>();
 
 	private AttributesManagerImplApi self;
 
@@ -5418,7 +5418,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 */
 	private class AttributeRightsExtractor implements ResultSetExtractor<List<AttributeRights>> {
 
-		private int attributeId;
+		private final int attributeId;
 
 		AttributeRightsExtractor(int attributeId) {
 			this.attributeId = attributeId;

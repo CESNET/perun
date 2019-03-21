@@ -37,7 +37,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  */
 public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	Map<String, Pair<String, String>> mapOfExtSourcesNames = new HashMap<>();
+	final Map<String, Pair<String, String>> mapOfExtSourcesNames = new HashMap<>();
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {

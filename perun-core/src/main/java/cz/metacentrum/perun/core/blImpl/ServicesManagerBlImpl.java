@@ -77,7 +77,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	final static Logger log = LoggerFactory.getLogger(ServicesManagerBlImpl.class);
 
-	private ServicesManagerImplApi servicesManagerImpl;
+	private final ServicesManagerImplApi servicesManagerImpl;
 	private PerunBl perunBl;
 
 	public ServicesManagerBlImpl(ServicesManagerImplApi servicesManagerImpl) {

@@ -56,8 +56,8 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		"resources_bans.created_at as res_bans_created_at, resources_bans.created_by as res_bans_created_by, resources_bans.modified_at as res_bans_modified_at, " +
 		"resources_bans.modified_by as res_bans_modified_by, resources_bans.created_by_uid as res_bans_created_by_uid, resources_bans.modified_by_uid as res_bans_modified_by_uid";
 
-	private JdbcPerunTemplate jdbc;
-	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+	private final JdbcPerunTemplate jdbc;
+	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 
 	protected static final RowMapper<Resource> RESOURCE_MAPPER = new RowMapper<Resource>() {

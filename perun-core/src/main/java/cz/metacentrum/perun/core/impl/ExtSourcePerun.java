@@ -55,7 +55,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourcePerun.class);
 
-	private static String format = "json";
+	private static final String format = "json";
 	private String perunUrl;
 	private String username;
 	private String password;

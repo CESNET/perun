@@ -16,7 +16,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 
 public class AttributesManagerImplIntegrationTest {
 
-	private Map<Attribute, String> attrMap = new HashMap<>();
+	private final Map<Attribute, String> attrMap = new HashMap<>();
 
 	@Before
 	public void setUp() throws Exception {

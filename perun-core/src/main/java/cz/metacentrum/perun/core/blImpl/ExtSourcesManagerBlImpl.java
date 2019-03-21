@@ -53,7 +53,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 	private final ExtSourcesManagerImplApi extSourcesManagerImpl;
 	private PerunBl perunBl;
-	private AtomicBoolean initialized = new AtomicBoolean(false);
+	private final AtomicBoolean initialized = new AtomicBoolean(false);
 
 
 	public ExtSourcesManagerBlImpl(ExtSourcesManagerImplApi extSourcesManagerImpl) {

@@ -36,7 +36,7 @@ public class urn_perun_group_resource_attribute_def_def_isUnixGroupIntegrationte
 	String userLastName = "";
 	String extLogin = "";              // his login in external source
 	String extLogin2 = "";
-	String extSourceName = "LDAPMETA";        // real ext source with his login
+	final String extSourceName = "LDAPMETA";        // real ext source with his login
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	final UserExtSource userExtSource = new UserExtSource();   // create new User Ext Source
 	private UsersManager usersManager;

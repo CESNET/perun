@@ -30,7 +30,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 
 	final static Logger log = LoggerFactory.getLogger(OwnersManagerImpl.class);
 
-	private JdbcPerunTemplate jdbc;
+	private final JdbcPerunTemplate jdbc;
 
 	protected final static String ownerMappingSelectQuery = "owners.id as owners_id, owners.name as owners_name, owners.contact as owners_contact, owners.type as owners_type, " +
 		"owners.created_at as owners_created_at, owners.created_by as owners_created_by, owners.modified_by as owners_modified_by, owners.modified_at as owners_modified_at, " +

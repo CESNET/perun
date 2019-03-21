@@ -13,7 +13,7 @@ import org.junit.Test;
  */
 public class urn_perun_facility_attribute_def_def_ldapBaseDNTest {
 
-	FacilityAttributesModuleImplApi module = new urn_perun_facility_attribute_def_def_ldapBaseDN();
+	final FacilityAttributesModuleImplApi module = new urn_perun_facility_attribute_def_def_ldapBaseDN();
 
 	@Test
 	public void testCheckAttributeValue() throws Exception {

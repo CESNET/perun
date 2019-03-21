@@ -33,12 +33,12 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuota extends Resou
 	private static final Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
 
 	//Definition of K = KB, M = MB etc.
-	long K = 1024;
-	long M = K * 1024;
-	long G = M * 1024;
-	long T = G * 1024;
-	long P = T * 1024;
-	long E = P * 1024;
+	final long K = 1024;
+	final long M = K * 1024;
+	final long G = M * 1024;
+	final long T = G * 1024;
+	final long P = T * 1024;
+	final long E = P * 1024;
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {

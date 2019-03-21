@@ -34,9 +34,9 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 	private Candidate candidate1;
 	private Candidate candidate2;
 	private Vo vo;
-	String extLogin = "aaa";              // his login in external source
-	String extLogin2 = "bbb";
-	String extSourceName = "SearcherEntryIntegrationTest";
+	final String extLogin = "aaa";              // his login in external source
+	final String extLogin2 = "bbb";
+	final String extSourceName = "SearcherEntryIntegrationTest";
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	private SearcherBl searcherBl;
 	private Attribute integerAttr;

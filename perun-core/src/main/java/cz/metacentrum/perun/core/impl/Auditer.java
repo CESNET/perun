@@ -89,7 +89,7 @@ public class Auditer {
 	private static final Object LOCK_DB_TABLE_AUDITER_LOG = new Object();
 	private static final Object LOCK_DB_TABLE_AUDITER_LOG_JSON = new Object();
 
-	private static Set<AttributesModuleImplApi> registeredAttributesModules = new HashSet<>();
+	private static final Set<AttributesModuleImplApi> registeredAttributesModules = new HashSet<>();
 
 	static {
 

@@ -49,7 +49,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatusTest {
 	private Attribute publicationAttribute;
 	private Attribute elixirBonaFideStatusREMS;
 
-	private String ELIXIR_KEY = "ELIXIR";
+	private final String ELIXIR_KEY = "ELIXIR";
 
 	@Before
 	public void setUp() {

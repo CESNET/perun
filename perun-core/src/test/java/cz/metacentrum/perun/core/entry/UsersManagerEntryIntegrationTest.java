@@ -43,7 +43,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	String userLastName = "";
 	String extLogin = "";        // his login in external source
 	String extLogin2 = "";
-	String extSourceName = "UserManagerEntryIntegrationTest";
+	final String extSourceName = "UserManagerEntryIntegrationTest";
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	final UserExtSource userExtSource = new UserExtSource();   // create new User Ext Source
 	private UsersManager usersManager;

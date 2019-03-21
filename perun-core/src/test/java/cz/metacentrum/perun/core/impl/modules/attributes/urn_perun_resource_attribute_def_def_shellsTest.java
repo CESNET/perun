@@ -31,7 +31,7 @@ public class urn_perun_resource_attribute_def_def_shellsTest {
 
 	private static urn_perun_resource_attribute_def_def_shells classInstance;
 	private static PerunSessionImpl session;
-	private static Attribute listOfShells = new Attribute();
+	private static final Attribute listOfShells = new Attribute();
 
 	@Before
 	public void setUp() {

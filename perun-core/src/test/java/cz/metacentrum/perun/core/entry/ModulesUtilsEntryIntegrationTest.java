@@ -66,7 +66,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private List<Attribute> attributes; // always have just 1 attribute we setUp"AttrType"()
 	private Group group;
 
-	private String namespace = "someNamespace";
+	private final String namespace = "someNamespace";
 
 	@Before
 	public void setUp() throws Exception {
