@@ -298,14 +298,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		} else {
 			throw new InternalErrorException("If login for new account is provided, password must be provided also");
 		}
-		Iterator<String> iterator = params.keySet().iterator();
 		// remove non-valid entries from map for Candidate otherwise it would fail to create member
-		while (iterator.hasNext()) {
-			String next = iterator.next();
-			if (!next.startsWith("urn:perun:user") && !next.startsWith("urn:perun:member")) {
-				iterator.remove();
-			}
-		}
+		params.keySet().removeIf(next -> !next.startsWith("urn:perun:user") && !next.startsWith("urn:perun:member"));
 		String extSourceLogin = params.get(loginNamespaceUri) + extSourcePostfix;
 		UserExtSource userExtSource = new UserExtSource(extSource, loa, extSourceLogin);
 		Candidate candidate = new Candidate(userExtSource, params);
@@ -1558,11 +1552,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<Member> retainMembersWithStatus(PerunSession sess, List<Member> members, Status status) throws InternalErrorException {
-		Iterator<Member> iterator =  members.iterator();
-		while(iterator.hasNext()) {
-			Member member = iterator.next();
-			if(!haveStatus(sess, member, status)) iterator.remove();
-		}
+		members.removeIf(member -> !haveStatus(sess, member, status));
 		return members;
 	}
 

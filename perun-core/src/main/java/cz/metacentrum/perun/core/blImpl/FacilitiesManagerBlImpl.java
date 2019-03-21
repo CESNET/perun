@@ -837,12 +837,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		List<Attribute> destinationAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, destinationFacility);
 
 		// do not get virtual attributes from source facility, they can't be set to destination
-		Iterator<Attribute> it = sourceAttributes.iterator();
-		while (it.hasNext()) {
-			if (it.next().getNamespace().startsWith(AttributesManager.NS_FACILITY_ATTR_VIRT)) {
-				it.remove();
-			}
-		}
+		sourceAttributes.removeIf(attribute -> attribute.getNamespace().startsWith(AttributesManager.NS_FACILITY_ATTR_VIRT));
 
 		// create intersection of destination and source attributes
 		List<Attribute> intersection = new ArrayList<>();

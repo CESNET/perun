@@ -1405,11 +1405,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Group> groups = this.getAllMemberGroups(sess, member);
 		//Remove members group
 		if(!groups.isEmpty()) {
-			Iterator<Group> iterator = groups.iterator();
-			while(iterator.hasNext()) {
-				Group g = iterator.next();
-				if(g.getName().equals(VosManager.MEMBERS_GROUP)) iterator.remove();
-			}
+			groups.removeIf(g -> g.getName().equals(VosManager.MEMBERS_GROUP));
 		}
 		// Sort
 		Collections.sort(groups);

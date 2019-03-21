@@ -85,14 +85,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		//resource attributes
 		List<Attribute> templateResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess,templateResource);
 		//Remove all virt and core attributes before setting
-		Iterator<Attribute> resourceAttrIterator = templateResourceAttributes.iterator();
-		while(resourceAttrIterator.hasNext()) {
-			Attribute resourceAttribute = resourceAttrIterator.next();
-			if (resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT) ||
-				resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_CORE)) {
-				resourceAttrIterator.remove();
-			}
-		}
+		templateResourceAttributes.removeIf(resourceAttribute -> resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT) ||
+			resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_CORE));
 		try {
 			perunBl.getAttributesManagerBl().setAttributes(sess, newResource, templateResourceAttributes);
 		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
@@ -107,13 +101,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				for (Group group : templateResourceGroups) {
 					List<Attribute> templateGroupResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess, templateResource, group);
 					//Remove all virt attributes before setting
-					Iterator<Attribute> groupResourceAttrIterator = templateGroupResourceAttributes.iterator();
-					while(groupResourceAttrIterator.hasNext()) {
-						Attribute groupResourceAttribute = groupResourceAttrIterator.next();
-						if (groupResourceAttribute.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT)) {
-							groupResourceAttrIterator.remove();
-						}
-					}
+					templateGroupResourceAttributes.removeIf(groupResourceAttribute -> groupResourceAttribute.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT));
 					perunBl.getAttributesManagerBl().setAttributes(sess, newResource, group, templateGroupResourceAttributes);
 				}
 			} catch (GroupResourceMismatchException | WrongAttributeValueException | GroupAlreadyAssignedException |
@@ -126,13 +114,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				for (Member member : templateResourceMembers) {
 					List<Attribute> templateMemberResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess, member, templateResource);
 					//Remove all virt attributes before setting
-					Iterator<Attribute> memberResourceAttrIterator = templateMemberResourceAttributes.iterator();
-					while(memberResourceAttrIterator.hasNext()) {
-						Attribute memberResourceAttribute = memberResourceAttrIterator.next();
-						if (memberResourceAttribute.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT)) {
-							memberResourceAttrIterator.remove();
-						}
-					}
+					templateMemberResourceAttributes.removeIf(memberResourceAttribute -> memberResourceAttribute.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT));
 					perunBl.getAttributesManagerBl().setAttributes(sess, member, newResource, templateMemberResourceAttributes);
 				}
 			} catch (MemberResourceMismatchException | WrongAttributeValueException|
@@ -718,12 +700,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		List<Attribute> destinationAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, destinationResource);
 
 		// do not get virtual attributes from source resource, they can't be set to destination
-		Iterator<Attribute> it = sourceAttributes.iterator();
-		while (it.hasNext()) {
-			if (it.next().getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT)) {
-				it.remove();
-			}
-		}
+		sourceAttributes.removeIf(attribute -> attribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT));
 
 		// create intersection of destination and source attributes
 		List<Attribute> intersection = new ArrayList<>();

@@ -620,12 +620,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) throws InternalErrorException {
 		List<Attribute> userExtSourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, userExtSource);
-		Iterator<Attribute> iterator = userExtSourceAttributes.iterator();
 		//remove all virtual attributes (we don't need to take care about them)
-		while(iterator.hasNext()) {
-			Attribute attribute = iterator.next();
-			if(getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute)) iterator.remove();
-		}
+		userExtSourceAttributes.removeIf(attribute -> getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute));
 
 		//remove userExtSource
 		try {
@@ -1958,13 +1954,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		List<User> users = getUsers(sess);
 		// optionally exclude specific users
 		if (!includedSpecificUsers) {
-			Iterator<User> it = users.iterator();
-			while (it.hasNext()) {
-				User u = it.next();
-				if (u.isSpecificUser()) {
-					it.remove();
-				}
-			}
+			users.removeIf(User::isSpecificUser);
 		}
 
 		if(attrsName == null || attrsName.isEmpty()) {
