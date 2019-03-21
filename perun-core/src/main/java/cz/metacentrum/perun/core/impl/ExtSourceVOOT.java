@@ -299,51 +299,51 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
         String mapping = getAttributes().get("vootMapping");
         String[] mappingArray = mapping.split(",\n");
 
-        for (int i = 0; i < mappingArray.length; i++) {
-            String attr = mappingArray[i].trim();
-            int mappingIndex = attr.indexOf("=");
+	    for (String s : mappingArray) {
+		    String attr = s.trim();
+		    int mappingIndex = attr.indexOf("=");
 
-            if (mappingIndex <= 0) {
-                throw new InternalErrorException("There is no text in vootMapping"
-                        + " attribute or there is no '=' character.");
-            }
+		    if (mappingIndex <= 0) {
+			    throw new InternalErrorException("There is no text in vootMapping"
+				    + " attribute or there is no '=' character.");
+		    }
 
-            String attrName = attr.substring(0, mappingIndex);
-            String attrValue = attr.substring(mappingIndex + 1);
+		    String attrName = attr.substring(0, mappingIndex);
+		    String attrValue = attr.substring(mappingIndex + 1);
 
-            if (attrValue.startsWith("{")) {
+		    if (attrValue.startsWith("{")) {
 
-                // exclude curly brackets from value
-                attrValue = attrValue.substring(1, attrValue.length() - 1);
+			    // exclude curly brackets from value
+			    attrValue = attrValue.substring(1, attrValue.length() - 1);
 
-                switch (attrValue) {
-                    case "login":
-                        String id = user.getString("id");
-                        attrValue = id.substring(0, id.indexOf("@"));
-                        resultMap.put(attrName.trim(), attrValue.trim());
-                        break;
-                    case "displayName":
-                        attrValue = user.getString("displayName");
-                        resultMap.put(attrName.trim(), attrValue.trim());
-                        break;
-                    case "firstName":
-                    case "lastName":
-                        resultMap.putAll(parseCommonName(user.getString("displayName")));
-                        break;
-                    case "eppn":
-                        attrValue = user.getString("eppn");
-                        resultMap.put(attrName.trim(), attrValue.trim());
-                        break;
-                    case "email":
-                        attrValue = user.getJSONArray("emails").getJSONObject(0).getString("value");
-                        resultMap.put(attrName.trim(), attrValue.trim());
-                        break;
-                }
-            } else {
-                resultMap.put(attrName.trim(), attrValue.trim());
-                break;
-            }
-        }
+			    switch (attrValue) {
+				    case "login":
+					    String id = user.getString("id");
+					    attrValue = id.substring(0, id.indexOf("@"));
+					    resultMap.put(attrName.trim(), attrValue.trim());
+					    break;
+				    case "displayName":
+					    attrValue = user.getString("displayName");
+					    resultMap.put(attrName.trim(), attrValue.trim());
+					    break;
+				    case "firstName":
+				    case "lastName":
+					    resultMap.putAll(parseCommonName(user.getString("displayName")));
+					    break;
+				    case "eppn":
+					    attrValue = user.getString("eppn");
+					    resultMap.put(attrName.trim(), attrValue.trim());
+					    break;
+				    case "email":
+					    attrValue = user.getJSONArray("emails").getJSONObject(0).getString("value");
+					    resultMap.put(attrName.trim(), attrValue.trim());
+					    break;
+			    }
+		    } else {
+			    resultMap.put(attrName.trim(), attrValue.trim());
+			    break;
+		    }
+	    }
         return resultMap;
     }
 

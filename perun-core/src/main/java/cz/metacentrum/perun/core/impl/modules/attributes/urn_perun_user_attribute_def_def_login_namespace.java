@@ -119,8 +119,8 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 				log.error("Unable to get UTF-8 bytes from domainName and perun.instanceId", e);
 			}
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < result.length; i++) {
-				sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+			for (byte b : result) {
+				sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
 			}
 
 			return sb;

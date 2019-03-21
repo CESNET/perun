@@ -264,19 +264,21 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		String mapping = getAttributes().get("xmlMapping");
 		String[] mappingArray = mapping.split(",\n");
 
-		for(int i=0; i<mappingArray.length; i++) {
-			String attr = mappingArray[i].trim();
+		for (String s : mappingArray) {
+			String attr = s.trim();
 
 			int index = attr.indexOf("=");
 
-			if(index <= 0) throw new InternalErrorException("There is no text in xmlMapping attribute or there is no '=' character.");
+			if (index <= 0)
+				throw new InternalErrorException("There is no text in xmlMapping attribute or there is no '=' character.");
 			String name = attr.substring(0, index);
-			String value = attr.substring(index +1);
+			String value = attr.substring(index + 1);
 
-			if(value.startsWith("#")) {
+			if (value.startsWith("#")) {
 				value = value.substring(1);
 				String[] regexAndXpath = value.split("#");
-				if(regexAndXpath.length != 2) throw new InternalErrorException("There is not only 2 parts (regex and XpathExpression). There are " + regexAndXpath.length + " parts.");
+				if (regexAndXpath.length != 2)
+					throw new InternalErrorException("There is not only 2 parts (regex and XpathExpression). There are " + regexAndXpath.length + " parts.");
 				value = extractValueByRegex(getValueFromXpath(node, regexAndXpath[1]), regexAndXpath[0]);
 			} else {
 				value = getValueFromXpath(node, value);

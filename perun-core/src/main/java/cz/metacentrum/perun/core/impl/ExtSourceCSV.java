@@ -145,24 +145,24 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         throw new ExtSourceUnsupportedOperationException("Using this method is not supported for CSV.");
     }
 
-	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
-		try {
-			String queryForGroup = attributes.get(GroupsManager.GROUPSQUERY_ATTRNAME);
+    @Override
+    public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+        try {
+            String queryForGroup = attributes.get(GroupsManager.GROUPSQUERY_ATTRNAME);
 
-			if (queryForGroup == null) {
-				throw new InternalErrorException("Attribute " + GroupsManager.GROUPSQUERY_ATTRNAME + " can't be null.");
-			}
+            if (queryForGroup == null) {
+                throw new InternalErrorException("Attribute " + GroupsManager.GROUPSQUERY_ATTRNAME + " can't be null.");
+            }
 
-			prepareEnvironment();
+            prepareEnvironment();
 
-			return csvParsing(queryForGroup, 0);
+            return csvParsing(queryForGroup, 0);
 
-		} catch (IOException ex) {
-			log.error("IOException in getSubjectGroups() method while parsing csv file", ex);
-		}
-		return null;
-	}
+        } catch (IOException ex) {
+            log.error("IOException in getSubjectGroups() method while parsing csv file", ex);
+        }
+        return null;
+    }
 
     private void prepareEnvironment() throws InternalErrorException {
         //Get csv files
@@ -275,11 +275,11 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
         String[] mappingArray = mapping.split(",\n");
 
-        for (int i = 0; i < mappingArray.length; i++) {
+        for (String s : mappingArray) {
 
             for (int j = 0; j < line.length; j++) {
 
-                String attr = mappingArray[i].trim();
+                String attr = s.trim();
 
                 int index = attr.indexOf("=");
 

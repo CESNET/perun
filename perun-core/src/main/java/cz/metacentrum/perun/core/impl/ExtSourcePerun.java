@@ -149,25 +149,26 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		//Null login is not allowed there
 		if(login == null) throw new InternalErrorException("There is missing login for user " + richUser + " and extSource " + extSourceNameForLogin);
 
-		for(int i=0; i<mappingArray.length; i++) {
-			String attr = mappingArray[i].trim();
+		for (String s : mappingArray) {
+			String attr = s.trim();
 			int index = attr.indexOf("=");
 
-			if(index <= 0) throw new InternalErrorException("There is no text in xmlMapping attribute or there is no '=' character.");
+			if (index <= 0)
+				throw new InternalErrorException("There is no text in xmlMapping attribute or there is no '=' character.");
 			String name = attr.substring(0, index);
-			String value = attr.substring(index +1);
+			String value = attr.substring(index + 1);
 
 			Matcher attributeMatcher = attributePattern.matcher(value);
 			//Try to find perun attributes in value part
 			if (attributeMatcher.find()) {
-				if(attributeMatcher.group(1).equals("login")) {
+				if (attributeMatcher.group(1).equals("login")) {
 					value = attributeMatcher.replaceFirst(login);
 				} else {
 					String replacement = lookingForValueInRichUserAttributes(attributeMatcher.group(1), richUser);
-					if(replacement == null) replacement = "";
+					if (replacement == null) replacement = "";
 					value = attributeMatcher.replaceFirst(replacement);
 					//If whole value is empty because of replacement, it means null for us
-					if(value.isEmpty()) value = null;
+					if (value.isEmpty()) value = null;
 				}
 			} else if (value.startsWith("urn:perun:")) {
 				//DEPRECATED, but need to be first removed from all settings of PerunExtSource in perun-extSource.xml file

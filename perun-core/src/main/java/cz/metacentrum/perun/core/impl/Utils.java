@@ -462,19 +462,19 @@ public class Utils {
 				boolean lastNameDone = false;
 
 				//for every part try to get which one it is
-				for(int i=0;i<nameParts.length;i++) {
-					String part = nameParts[i];
+				for (String namePart : nameParts) {
+					String part = namePart;
 					//trim this value (remove spaces before and after string)
 					part = part.trim();
 
 					//if titleBeforeDone is false, this string can be title before
-					if(!titleBeforeDone) {
+					if (!titleBeforeDone) {
 						Matcher titleBeforeMatcher = titleBeforePattern.matcher(part);
 						//if title before matches
-						if(titleBeforeMatcher.matches()) {
+						if (titleBeforeMatcher.matches()) {
 							//add space if this title is not first title before
-							if(titleBefore.isEmpty()) titleBefore+= part;
-							else titleBefore+= " " + part;
+							if (titleBefore.isEmpty()) titleBefore += part;
+							else titleBefore += " " + part;
 							//go on next part
 							continue;
 						} else {
@@ -484,10 +484,10 @@ public class Utils {
 					}
 
 					//if firstNameDone is false, this string can be first name
-					if(!firstNameDone) {
+					if (!firstNameDone) {
 						Matcher firstNameMatcher = firstNamePattern.matcher(part);
 						//if first name matches
-						if(firstNameMatcher.matches()) {
+						if (firstNameMatcher.matches()) {
 							//first name can be only one
 							firstName = part;
 							//go on next part
@@ -499,19 +499,19 @@ public class Utils {
 					}
 
 					//if lastNameDone is false, this string can be lastName
-					if(!lastNameDone) {
+					if (!lastNameDone) {
 						Matcher lastNameMatcher = lastNamePattern.matcher(part);
 						//if last name matches
-						if(lastNameMatcher.matches()) {
+						if (lastNameMatcher.matches()) {
 							//add space if this name is not first last name
-							if(lastName.isEmpty()) lastName+= part;
-							else lastName+= " " + part;
+							if (lastName.isEmpty()) lastName += part;
+							else lastName += " " + part;
 							//go on next part
 							continue;
 							//if last name not matches
 						} else {
 							//because last name can't be empty, save this part to lastName even if not matches
-							if(lastName.isEmpty()) {
+							if (lastName.isEmpty()) {
 								lastName = part;
 								lastNameDone = true;
 								//go on next part
@@ -524,10 +524,10 @@ public class Utils {
 					}
 
 					//rest of parts if lastName exists go to the title after
-					if(lastNameDone) {
+					if (lastNameDone) {
 						//add space if this is not first title after
-						if(titleAfter.isEmpty()) titleAfter+= part;
-						else titleAfter+= " " + part;
+						if (titleAfter.isEmpty()) titleAfter += part;
+						else titleAfter += " " + part;
 					}
 				}
 			}
