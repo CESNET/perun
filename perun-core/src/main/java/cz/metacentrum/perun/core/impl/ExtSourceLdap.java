@@ -223,7 +223,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	protected Map<String,String> getSubjectAttributes(Attributes attributes) throws InternalErrorException {
-		Pattern pattern = Pattern.compile("\\{([^\\}])*\\}");
+		Pattern pattern = Pattern.compile("\\{([^}])*}");
 		Map<String, String> map = new HashMap<>();
 
 		for (String key: mapping.keySet()) {
@@ -235,7 +235,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			while (matcher.find()) {
 				// Get the matching string
 				String ldapAttributeNameRaw = matcher.group();
-				String ldapAttributeName = ldapAttributeNameRaw.replaceAll("\\{([^\\}]*)\\}", "$1"); // ldapAttributeNameRaw is encapsulate with {}, so remove it
+				String ldapAttributeName = ldapAttributeNameRaw.replaceAll("\\{([^}]*)}", "$1"); // ldapAttributeNameRaw is encapsulate with {}, so remove it
 				// Replace {ldapAttrName} with the value
 				value = value.replace(ldapAttributeNameRaw, getLdapAttributeValue(attributes, ldapAttributeName));
 				log.trace("ExtSourceLDAP: Retrieved value {} of attribute {} for {} and storing into the key {}.", value, ldapAttributeName, ldapAttributeNameRaw, key);
@@ -265,7 +265,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		// Check if the ldapAttrName contains specification of the value index
 		int attributeValueIndex = -1;
 		if (ldapAttrNameRaw.contains("[")) {
-			Pattern indexPattern = Pattern.compile("^(.*)\\[([0-9]+)\\]$");
+			Pattern indexPattern = Pattern.compile("^(.*)\\[([0-9]+)]$");
 			Matcher indexMatcher = indexPattern.matcher(ldapAttrNameRaw);
 			if (indexMatcher.find()) {
 				ldapAttrName = indexMatcher.group(1);

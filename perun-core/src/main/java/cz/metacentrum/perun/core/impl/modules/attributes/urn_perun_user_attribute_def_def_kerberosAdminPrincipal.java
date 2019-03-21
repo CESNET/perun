@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-	private static final Pattern pattern = Pattern.compile("^[-\\/_.a-zA-Z0-9]+@[-_.A-z0-9]+$");
+	private static final Pattern pattern = Pattern.compile("^[-/_.a-zA-Z0-9]+@[-_.A-z0-9]+$");
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {

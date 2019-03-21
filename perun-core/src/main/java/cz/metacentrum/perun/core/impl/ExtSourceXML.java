@@ -63,7 +63,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	private HttpURLConnection con = null;
 
 	//Pattern for looking replacement in regex string
-	private Pattern pattern = Pattern.compile("([^\\\\]|^)(\\\\\\\\)*\\/([^\\\\]|$)");
+	private Pattern pattern = Pattern.compile("([^\\\\]|^)(\\\\\\\\)*/([^\\\\]|$)");
 
 	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {

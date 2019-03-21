@@ -637,10 +637,10 @@ public class Utils {
 		List<String> result = new ArrayList<>();
 
 		// get chars between the brackets
-		List<String> values = new ArrayList<>(Arrays.asList(pattern.split("\\[[^\\]]*\\]")));
+		List<String> values = new ArrayList<>(Arrays.asList(pattern.split("\\[[^]]*]")));
 		// get content of the brackets
 		List<String> generators = new ArrayList<>();
-		Pattern generatorPattern = Pattern.compile("\\[([^\\]]*)\\]");
+		Pattern generatorPattern = Pattern.compile("\\[([^]]*)]");
 		Matcher m = generatorPattern.matcher(pattern);
 		while (m.find()) {
 			generators.add(m.group(1));
@@ -962,7 +962,7 @@ public class Utils {
 
 				// allow enforcing per-language links
 				if (messageTemplate.contains("{link-")) {
-					Pattern pattern = Pattern.compile("\\{link-[^\\}]+\\}");
+					Pattern pattern = Pattern.compile("\\{link-[^}]+}");
 					Matcher matcher = pattern.matcher(messageTemplate);
 					while (matcher.find()) {
 
@@ -970,7 +970,7 @@ public class Utils {
 						String toSubstitute = matcher.group(0);
 						String langLink = link.toString();
 
-						Pattern namespacePattern = Pattern.compile("\\-(.*?)\\}");
+						Pattern namespacePattern = Pattern.compile("-(.*?)}");
 						Matcher m2 = namespacePattern.matcher(toSubstitute);
 						if (m2.find()) {
 							// only language "cs", "en",...
