@@ -110,12 +110,10 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 			Attribute gidAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_R_unixGID_namespace + unixGIDNamespaceAttribute.getValue()));
 			gidAttribute.setValue(attribute.getValue());
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, resource, gidAttribute);
-		} catch(WrongAttributeValueException ex) {
+		} catch(WrongAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
 		}
 	}
 
@@ -126,9 +124,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 		try {
 			AttributeDefinition groupGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_R_unixGID_namespace + unixGIDNamespaceAttribute.getValue());
 			return sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, resource, groupGidAttribute);
-		} catch (AttributeNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}

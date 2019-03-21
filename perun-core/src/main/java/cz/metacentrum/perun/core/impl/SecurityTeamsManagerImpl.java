@@ -320,9 +320,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			}
 		} catch(EmptyResultDataAccessException ex) {
 			// is ok. No row with same name was founded
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -367,9 +365,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -398,9 +394,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -433,9 +427,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}

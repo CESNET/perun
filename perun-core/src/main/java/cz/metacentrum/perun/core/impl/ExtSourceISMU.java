@@ -154,11 +154,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 			}
 
 			return subjects;
-		}
-		catch (IOException e) {
-			throw new InternalErrorException(e);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new InternalErrorException(e);
 		}
 	}

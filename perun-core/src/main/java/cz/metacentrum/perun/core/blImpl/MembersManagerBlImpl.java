@@ -397,9 +397,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					user = getPerunBl().getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, ues.getExtSource().getName(), ues.getLogin());
 				} catch (UserExtSourceNotExistsException e) {
 					// This is OK, non-existent userExtSource will be assigned later
-				} catch (UserNotExistsException e) {
-					// Ignore, we are only checking if the user exists
-				} catch (ExtSourceNotExistsException e) {
+				} catch (UserNotExistsException | ExtSourceNotExistsException e) {
 					// Ignore, we are only checking if the user exists
 				}
 			}
@@ -1551,13 +1549,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 			Group g = getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
 			getPerunBl().getGroupsManagerBl().addMemberToMembersGroup(sess, g, member);
-		} catch (GroupNotExistsException e) {
+		} catch (GroupNotExistsException | VoNotExistsException e) {
 			throw new InternalErrorException(e);
-		} catch (VoNotExistsException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongAttributeValueException e) {
-			throw new ConsistencyErrorException(e); //Member is not valid, so he couldn't have truly required atributes, neither he couldn't have influence on user attributes
-		} catch (WrongReferenceAttributeValueException e) {
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 			throw new ConsistencyErrorException(e); //Member is not valid, so he couldn't have truly required atributes, neither he couldn't have influence on user attributes
 		}
 	}
@@ -2158,9 +2152,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					getPerunBl().getAttributesManagerBl().setAttribute(sess, member, membershipExpirationAttribute);
 				} catch (WrongAttributeValueException e) {
 					throw new InternalErrorException("Wrong value: " + membershipExpirationAttribute.getValue(),e);
-				} catch (WrongReferenceAttributeValueException e) {
-					throw new InternalErrorException(e);
-				} catch (WrongAttributeAssignmentException e) {
+				} catch (WrongReferenceAttributeValueException | WrongAttributeAssignmentException e) {
 					throw new InternalErrorException(e);
 				}
 			}

@@ -83,9 +83,7 @@ public class urn_perun_user_facility_attribute_def_virt_shell extends UserFacili
 			return  sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, facility, user, attributeToSet);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongAttributeValueException ex) {
+		} catch (AttributeNotExistsException | WrongAttributeValueException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}

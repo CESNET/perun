@@ -48,16 +48,10 @@ public class urn_perun_user_attribute_def_virt_login_namespace_bbmri_persistent 
 			bbmriPersistent.setValue(bbmriPersistentShadow.getValue());
 			return bbmriPersistent;
 
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		} catch (AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongAttributeValueException e) {
+		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
-	}
+        }
 
 	@Override
 	public List<String> getStrongDependencies() {

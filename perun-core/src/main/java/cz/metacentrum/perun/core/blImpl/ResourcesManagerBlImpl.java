@@ -194,13 +194,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		// Remove group-resource attr values for all group and resource
 		try {
 			this.perunBl.getAttributesManagerBl().removeAllGroupResourceAttributes(sess, resource);
-		} catch (WrongAttributeValueException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-			throw new InternalErrorException(ex);
-		} catch (GroupResourceMismatchException ex) {
+		} catch (WrongAttributeValueException | GroupResourceMismatchException | WrongReferenceAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 		//Remove all resources tags
@@ -351,9 +345,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			groupRequiredAttributes = getPerunBl().getAttributesManagerBl().fillAttributes(sess, group, groupRequiredAttributes);
 			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, groupRequiredAttributes);
 
-		} catch(WrongAttributeAssignmentException ex) {
-			throw new ConsistencyErrorException(ex);
-		} catch (GroupResourceMismatchException ex) {
+		} catch(WrongAttributeAssignmentException | GroupResourceMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 
@@ -365,11 +357,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			try {
 				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
-			} catch(WrongAttributeAssignmentException ex) {
-				throw new ConsistencyErrorException(ex);
-			} catch(AttributeNotExistsException ex) {
-				throw new ConsistencyErrorException(ex);
-			} catch (MemberResourceMismatchException ex) {
+			} catch(WrongAttributeAssignmentException | MemberResourceMismatchException | AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -412,9 +400,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		// Remove group-resource attributes
 		try {
 			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, group);
-		} catch (WrongAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
 		} catch (GroupResourceMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
@@ -439,15 +425,12 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 						getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, facility, user, attribute);
 					} catch(WrongAttributeAssignmentException ex) {
 						throw new ConsistencyErrorException(ex);
-					} catch(WrongAttributeValueException ex) {
+					} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 						attribute.setValue(null);
 						brokenUserFacilityAttributes.add(attribute);
-					} catch(WrongReferenceAttributeValueException ex) {
-						//TODO jeste o tom popremyslet
-						//TODO this may fix it
-						attribute.setValue(null);
-						brokenUserFacilityAttributes.add(attribute);
-					}
+					} //TODO jeste o tom popremyslet
+					//TODO this may fix it
+
 				}
 
 				//fix broken attributes
@@ -456,11 +439,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 					getPerunBl().getAttributesManagerBl().setAttributes(sess, facility, user, fixedUserFacilityAttributes);
 				} catch(WrongAttributeAssignmentException ex) {
 					throw new ConsistencyErrorException(ex);
-				} catch(WrongAttributeValueException ex) {
-					//TODO jeste o tom popremyslet
-					//That's unresolveable problem
-					throw new InternalErrorException("Can't set attributes for user-facility correctly. User=" + user + " Facility=" + facility + ".", ex);
-				} catch(WrongReferenceAttributeValueException ex) {
+				} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 					//TODO jeste o tom popremyslet
 					//That's unresolveable problem
 					throw new InternalErrorException("Can't set attributes for user-facility correctly. User=" + user + " Facility=" + facility + ".", ex);
@@ -531,13 +510,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				// use complex method for getting and setting member-resource, member, user-facility and user-facility required attributes for the service
 				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, service, facility, resource, user, member);
 			}
-		} catch(WrongAttributeAssignmentException ex) {
-			throw new ConsistencyErrorException(ex);
-		} catch(AttributeNotExistsException ex) {
-			throw new ConsistencyErrorException(ex);
-		} catch (MemberResourceMismatchException ex) {
-			throw new ConsistencyErrorException(ex);
-		} catch (GroupResourceMismatchException ex) {
+		} catch(WrongAttributeAssignmentException | GroupResourceMismatchException | MemberResourceMismatchException | AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
@@ -790,9 +763,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				assignGroupToResource(sess, group, destinationResource);
 			} catch (GroupAlreadyAssignedException ex) {
 				// we can ignore the exception in this particular case, group can exists in both of the resources
-			} catch (WrongAttributeValueException ex) {
-				throw new InternalErrorException("Copying of groups failed.", ex);
-			} catch (WrongReferenceAttributeValueException ex) {
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException("Copying of groups failed.", ex);
 			}
 		}

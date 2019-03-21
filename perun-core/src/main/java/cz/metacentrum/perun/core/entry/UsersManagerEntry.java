@@ -849,9 +849,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		try {
 			getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attributeName);
-		} catch (AttributeNotExistsException e) {
-			throw new LoginNotExistsException(e);
-		} catch (WrongAttributeAssignmentException e) {
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
 			throw new LoginNotExistsException(e);
 		}
 

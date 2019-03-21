@@ -66,9 +66,7 @@ public class urn_perun_member_resource_attribute_def_virt_fileQuotas extends Mem
 			memberQuotas = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, member, resource, A_MR_fileQuotas);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (MemberResourceMismatchException ex) {
+		} catch (WrongAttributeAssignmentException | MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -88,9 +86,7 @@ public class urn_perun_member_resource_attribute_def_virt_fileQuotas extends Mem
 			memberQuotasOverride = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, member, resource, A_MR_fileQuotasOverride);
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (MemberResourceMismatchException ex) {
+		} catch (WrongAttributeAssignmentException | MemberResourceMismatchException ex) {
 			throw new InternalErrorException(ex);
 		}
 

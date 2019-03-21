@@ -110,9 +110,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends G
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, group, groupNameAttribute);
 		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
-		} catch(WrongAttributeValueException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
+		} catch(WrongAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}

@@ -94,9 +94,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, user, userPreferredGroupName);
-		} catch (WrongAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongAttributeAssignmentException e) {
+		} catch (WrongAttributeValueException | WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
 		}
 	}

@@ -1248,13 +1248,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		try {
 			method.invoke(member, attribute.getValue());
-		} catch (IllegalAccessException ex) {
-			throw new InternalErrorException(ex);
 		} catch (InvocationTargetException ex) {
 			throw new WrongAttributeValueException(ex);
 		} catch (IllegalArgumentException ex) {
 			throw new WrongAttributeValueException(attribute, "Probably bad type of value", ex);
-		} catch (RuntimeException ex) {
+		} catch (IllegalAccessException | RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 

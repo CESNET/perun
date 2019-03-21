@@ -356,9 +356,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		// remove associated attributes
 		try {
 			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, facility);
-		} catch (WrongAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
 		}
 
@@ -569,9 +567,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			// Remove hosts attributes
 			try {
 				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, host);
-			} catch (WrongAttributeValueException e) {
-				throw new InternalErrorException(e);
-			} catch (WrongReferenceAttributeValueException e) {
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 				throw new InternalErrorException(e);
 			}
 

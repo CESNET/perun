@@ -2980,9 +2980,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 								perunBl.getMembersManagerBl().validateMember(sess, richMember);
 								log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), (String) membershipExpiration.getValue());
 								log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
-							} catch (WrongAttributeValueException e) {
-								log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
-							} catch (WrongReferenceAttributeValueException e) {
+							} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 								log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
 							}
 						}
@@ -2997,9 +2995,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				if (richMember.getStatus().equals(Status.INVALID)) {
 					getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
 				}
-			} catch (WrongAttributeValueException e) {
-				log.info("Member id {} will stay in INVALID state, because there was problem with attributes {}.", richMember.getId(), e);
-			} catch (WrongReferenceAttributeValueException e) {
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 				log.info("Member id {} will stay in INVALID state, because there was problem with attributes {}.", richMember.getId(), e);
 			}
 
@@ -3008,9 +3004,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				if (richMember.getStatus().equals(Status.DISABLED)) {
 					getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
 				}
-			} catch (WrongAttributeValueException e) {
-				log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
-			} catch (WrongReferenceAttributeValueException e) {
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 				log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
 			}
 		}
@@ -4029,9 +4023,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} else {
 				return isGroupSynchronizedFromExternallSource(session, group);
 			}
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		} catch (AttributeNotExistsException e) {
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
 	}

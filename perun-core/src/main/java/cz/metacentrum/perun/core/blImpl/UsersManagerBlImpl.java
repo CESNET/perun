@@ -496,10 +496,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, user);
 			// User-Facilities one
 			getPerunBl().getAttributesManagerBl().removeAllUserFacilityAttributes(sess, user);
-		} catch(WrongAttributeValueException ex) {
-			//All members are deleted => there are no required attribute => all atributes can be removed
-			throw new ConsistencyErrorException(ex);
-		} catch(WrongReferenceAttributeValueException ex) {
+		} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 			//All members are deleted => there are no required attribute => all atributes can be removed
 			throw new ConsistencyErrorException(ex);
 		}
@@ -773,9 +770,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			Attribute userAttribute;
 			try {
 				userAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, user, attributeDef.getName());
-			} catch (AttributeNotExistsException e) {
-				throw new InternalErrorException(e);
-			} catch (WrongAttributeAssignmentException e) {
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
 				throw new InternalErrorException(e);
 			}
 			if (userAttribute.valueContains((String) attributeValue)) {
@@ -894,11 +889,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, attribute);
 
 			return true;
-		} catch (AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
+		} catch (AttributeNotExistsException | WrongReferenceAttributeValueException | WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
 		} catch (WrongAttributeValueException e) {
 			return false;
@@ -1458,9 +1449,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				}
 
 			}
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -1594,9 +1583,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			this.validatePasswordAndSetExtSources(sess, user, (String) userLogin.getValue(), loginNamespace);
 		} catch(PasswordCreationFailedException ex) {
 			throw new PasswordChangeFailedException(ex);
-		} catch(ExtSourceNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		} catch(AttributeValueException ex) {
+		} catch(ExtSourceNotExistsException | AttributeValueException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -1828,14 +1815,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				//set new value for altPassword attribute for this user
 				userAlternativePassword.setValue(altPassValue);
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userAlternativePassword);
-			} catch (WrongAttributeAssignmentException ex) {
+			} catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
-			} catch (WrongAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			} catch (WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
 			}
 		} else {
 			throw new InternalErrorException("Not supported operation " + operation);
@@ -2015,11 +1998,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 			getPerunBl().getAttributesManagerBl().setAttributes(sess, user, checked);
 
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongAttributeValueException e) {
+		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
 		}
 
@@ -2150,9 +2129,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			if (a != null && a.getValue() != null) {
 				emails.add((String)a.getValue());
 			}
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -2164,9 +2141,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				if (a != null && a.getValue() != null) {
 					emails.add((String)a.getValue());
 				}
-			} catch (WrongAttributeAssignmentException ex) {
-				throw new InternalErrorException(ex);
-			} catch (AttributeNotExistsException ex) {
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
 				throw new InternalErrorException(ex);
 			}
 

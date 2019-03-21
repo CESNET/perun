@@ -88,8 +88,7 @@ public class urn_perun_facility_attribute_def_virt_maxUID extends FacilityVirtua
 	private Attribute getUidNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_uidNamespace);
-		} catch(AttributeNotExistsException ex) { throw new InternalErrorException(ex);
-		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
+		} catch(AttributeNotExistsException | WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
 		}
 	}
 

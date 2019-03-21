@@ -95,9 +95,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 			} else {
 				attr.setValue(null);
 			}
-		} catch (AttributeNotExistsException e) {
-			throw new ConsistencyErrorException(e);
-		} catch (WrongAttributeAssignmentException e) {
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
 			throw new ConsistencyErrorException(e);
 		}
 
