@@ -405,8 +405,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			user.setMiddleName(candidate.getMiddleName());
 			user.setTitleAfter(candidate.getTitleAfter());
 			user.setTitleBefore(candidate.getTitleBefore());
-			if(specificUserType.equals(specificUserType.SERVICE)) user.setServiceUser(true);
-			if(specificUserType.equals(specificUserType.SPONSORED)) user.setSponsoredUser(true);
+			if(specificUserType.equals(SpecificUserType.SERVICE)) user.setServiceUser(true);
+			if(specificUserType.equals(SpecificUserType.SPONSORED)) user.setSponsoredUser(true);
 			// Store the user, this must be done in separate transaction
 			user = getPerunBl().getUsersManagerBl().createUser(sess, user);
 
