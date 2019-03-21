@@ -1542,7 +1542,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//Get info about type of synchronization (with or without update)
 			boolean lightweightSynchronization = isThisLightweightSynchronization(sess, group);
 
-			log.debug("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", new Object[] {group, membersSource, membersSource.getName()});
+			log.debug("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", group, membersSource, membersSource.getName());
 
 			//Prepare containers for work with group members
 			List<Candidate> candidatesToAdd = new ArrayList<>();
@@ -2854,7 +2854,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), memberAttribute.getType());
 							if (subjectAttributeValue != null && !Objects.equals(memberAttribute.getValue(), subjectAttributeValue)) {
 								log.trace("Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new value {}.",
-										new Object[] {group, memberAttribute, richMember.getId(), memberAttribute.getValue(), subjectAttributeValue});
+									group, memberAttribute, richMember.getId(), memberAttribute.getValue(), subjectAttributeValue);
 								memberAttribute.setValue(subjectAttributeValue);
 								try {
 									if(mergeMemberAttributesList.contains(memberAttribute.getName())) {
@@ -2898,7 +2898,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), userAttribute.getType());
 							if (!Objects.equals(userAttribute.getValue(), subjectAttributeValue)) {
 								log.trace("Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new value {}.",
-										new Object[] {group, userAttribute, richMember.getId(), userAttribute.getValue(), subjectAttributeValue});
+									group, userAttribute, richMember.getId(), userAttribute.getValue(), subjectAttributeValue);
 								userAttribute.setValue(subjectAttributeValue);
 								try {
 									//Choose set or merge by extSource attribute overwriteUserAttributes (if contains this one)

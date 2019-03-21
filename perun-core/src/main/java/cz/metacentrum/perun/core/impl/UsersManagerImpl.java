@@ -521,10 +521,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 			log.trace("Adding new user ext source: ueaId {}, user.getId() {}, userExtSource.getLogin() {}, userExtSource.getLoa() {}, userExtSource.getExtSource().getId() {}, " +
 					"sess.getPerunPrincipal().getActor() {}, sess.getPerunPrincipal().getActor() {}, " +
-					"sess.getPerunPrincipal().getUser().getId() {}, sess.getPerunPrincipal().getUser().getId() {}", new Object[]{ueaId, user.getId(), userExtSource.getLogin(),
-						userExtSource.getLoa(), userExtSource.getExtSource().getId(),
+					"sess.getPerunPrincipal().getUser().getId() {}, sess.getPerunPrincipal().getUser().getId() {}", ueaId, user.getId(), userExtSource.getLogin(),
+				userExtSource.getLoa(), userExtSource.getExtSource().getId(),
 				sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-				sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId()});
+				sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			jdbc.update("insert into user_ext_sources (id, user_id, login_ext, loa, ext_sources_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
 					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
 					ueaId, user.getId(), userExtSource.getLogin(), userExtSource.getLoa(), userExtSource.getExtSource().getId(),

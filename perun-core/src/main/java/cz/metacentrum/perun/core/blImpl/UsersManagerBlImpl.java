@@ -460,7 +460,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				// OK - User hasn't assigned any password with this login
 			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
-					log.error("Error during deletion of an account at {} for user {} with login {}.", new Object[]{login.getLeft(), user, login.getRight()});
+					log.error("Error during deletion of an account at {} for user {} with login {}.", login.getLeft(), user, login.getRight());
 				} else {
 					throw new RelationExistsException("Error during deletion of an account at " + login.getLeft() +
 							" for user " + user + " with login " + login.getRight() + ".");
@@ -481,7 +481,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				// OK - User hasn't assigned any password with this login
 			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
-					log.error("Error during deletion of the account at {} for user {} with login {}.", new Object[]{loginAttribute.getFriendlyNameParameter(), user, (String) loginAttribute.getValue()});
+					log.error("Error during deletion of the account at {} for user {} with login {}.", loginAttribute.getFriendlyNameParameter(), user, (String) loginAttribute.getValue());
 				} else {
 					throw new RelationExistsException("Error during deletion of the account at " + loginAttribute.getFriendlyNameParameter() +
 							" for user " + user + " with login " + (String) loginAttribute.getValue() + ".");

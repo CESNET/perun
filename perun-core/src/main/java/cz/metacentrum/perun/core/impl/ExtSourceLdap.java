@@ -238,7 +238,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				String ldapAttributeName = ldapAttributeNameRaw.replaceAll("\\{([^\\}]*)\\}", "$1"); // ldapAttributeNameRaw is encapsulate with {}, so remove it
 				// Replace {ldapAttrName} with the value
 				value = value.replace(ldapAttributeNameRaw, getLdapAttributeValue(attributes, ldapAttributeName));
-				log.trace("ExtSourceLDAP: Retrieved value {} of attribute {} for {} and storing into the key {}.", new Object[]{value, ldapAttributeName, ldapAttributeNameRaw, key});
+				log.trace("ExtSourceLDAP: Retrieved value {} of attribute {} for {} and storing into the key {}.", value, ldapAttributeName, ldapAttributeNameRaw, key);
 			}
 
 			map.put(key, value);
