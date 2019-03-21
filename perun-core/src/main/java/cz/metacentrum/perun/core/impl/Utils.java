@@ -215,7 +215,7 @@ public class Utils {
 	 */
 	public static void checkWithoutDiacritic(String name) throws DiacriticNotAllowedException{
 
-		if(!Normalizer.isNormalized(name, Form.NFKD))throw new DiacriticNotAllowedException("Name of the entity is not in the normalized form NFKD (diacritic not allowed)!");;
+		if(!Normalizer.isNormalized(name, Form.NFKD))throw new DiacriticNotAllowedException("Name of the entity is not in the normalized form NFKD (diacritic not allowed)!");
 
 	}
 

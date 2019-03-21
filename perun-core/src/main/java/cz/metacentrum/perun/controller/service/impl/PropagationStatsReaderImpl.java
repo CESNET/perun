@@ -201,7 +201,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 			list.add(getFacilityState(session, facility));
 		}
 		return list;
-	};
+	}
 
 	@Override
 	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException, UserNotExistsException {
@@ -219,7 +219,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 		}
 		Collections.sort(list);
 		return list;
-	};
+	}
 
 	@Override
 	public TaskResult getTaskResultById(int taskResultId) {

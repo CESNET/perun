@@ -5232,15 +5232,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Prepare identifier and reverse identifier of namespace for handlers
 		if(handler1 != null && handler2 != null) {
 			firstIdentifier = handler1.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");
-			secondIdentifier = handler2.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");;
+			secondIdentifier = handler2.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");
 			identifier = firstIdentifier + "_" + secondIdentifier;
 			reverseIdentifier = secondIdentifier + "_" + firstIdentifier;
 		} else if(handler1 != null) {
-			firstIdentifier = handler1.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");;
+			firstIdentifier = handler1.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");
 			identifier = firstIdentifier;
 			reverseIdentifier = identifier;
 		} else if(handler2 != null) {
-			firstIdentifier = handler2.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");;
+			firstIdentifier = handler2.getClass().getSimpleName().toLowerCase().replaceFirst(richObjectRegex, "");
 			identifier = firstIdentifier;
 			reverseIdentifier = identifier;
 		} else {

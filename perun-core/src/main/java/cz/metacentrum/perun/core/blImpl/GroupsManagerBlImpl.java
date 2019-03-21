@@ -3993,7 +3993,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public List<Group> getGroupUnions(PerunSession session, Group group, boolean reverseDirection) throws InternalErrorException {
 		if (reverseDirection) {
-			List<Group> resultGroups = groupsManagerImpl.getResultGroups(session, group.getId());;
+			List<Group> resultGroups = groupsManagerImpl.getResultGroups(session, group.getId());
 			// Sort
 			Collections.sort(resultGroups);
 			return resultGroups;

@@ -447,7 +447,7 @@ public interface GroupsManager {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Map<Group, Object> getAllGroupsWithHierarchy(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;;
+	Map<Group, Object> getAllGroupsWithHierarchy(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
 	/**
 	 * Get parent group.

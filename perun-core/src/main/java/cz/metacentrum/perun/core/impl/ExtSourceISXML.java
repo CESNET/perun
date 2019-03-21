@@ -97,7 +97,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 
 		try (
 			OutputStream output = getCon().getOutputStream();
-			PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true);
+			PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true)
 		) {
 			// Send param about return
 			writer.append("--" + boundary).append(CRLF);

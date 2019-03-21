@@ -1131,7 +1131,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		Utils.checkPerunSession(sess);
 		this.getResourcesManagerBl().checkBanExists(sess, banOnResource.getId());
 		Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, banOnResource.getMemberId());
-		Resource resource = getPerunBl().getResourcesManagerBl().getResourceById(sess, banOnResource.getResourceId());;
+		Resource resource = getPerunBl().getResourcesManagerBl().getResourceById(sess, banOnResource.getResourceId());
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {

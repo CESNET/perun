@@ -251,7 +251,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		String ldapAttrName;
 		String rule = null;
 		Matcher matcher = null;
-		String attrValue = "";;
+		String attrValue = "";
 
 		// Check if the ldapAttrName contains regex
 		if (ldapAttrNameRaw.contains("|")) {

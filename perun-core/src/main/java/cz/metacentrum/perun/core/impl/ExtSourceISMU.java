@@ -85,7 +85,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		// If there is a search string, replace all occurences of the * with the searchstring
 		if (searchString != null && searchString != "") {
 			url.replaceAll("\\*", searchString);
-		};
+		}
 
 		try {
 			URL u = new URL(url);
