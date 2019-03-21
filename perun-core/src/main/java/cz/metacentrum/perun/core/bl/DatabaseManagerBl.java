@@ -112,7 +112,7 @@ public interface DatabaseManagerBl {
 				throw new InternalErrorRuntimeException("Can't access to method " + NAME_OF_ORACLE_ARRAY_METHOD, ex);
 			}
 		} else {
-			Integer[] arrayOfBeansIds = integers.stream().toArray(Integer[]::new);
+			Integer[] arrayOfBeansIds = integers.toArray(new Integer[0]);
 			return connection.createArrayOf(JDBCType.INTEGER.name(), arrayOfBeansIds);
 		}
 	}
@@ -127,7 +127,7 @@ public interface DatabaseManagerBl {
 	 * @throws InternalErrorRuntimeException if oracle method to work with an array can't be get or invoked
 	 */
 	static java.sql.Array prepareSQLArrayOfStrings(List<String> strings, PreparedStatement preparedStatement) throws SQLException, InternalErrorRuntimeException {
-		String[] arrayOfStrings = strings.stream().toArray(String[]::new);
+		String[] arrayOfStrings = strings.toArray(new String[0]);
 		Connection connection = preparedStatement.getConnection().unwrap(Connection.class);
 		if(Compatibility.isOracle()) {
 			try {
