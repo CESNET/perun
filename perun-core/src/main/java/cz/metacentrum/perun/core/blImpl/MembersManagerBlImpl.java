@@ -2185,14 +2185,18 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		TemporalUnit gracePeriodTimeUnit;
 		String dmyString = m.group(2);
-		if (dmyString.equals("d")) {
-			gracePeriodTimeUnit = ChronoUnit.DAYS;
-		} else if (dmyString.equals("m")) {
-			gracePeriodTimeUnit = ChronoUnit.MONTHS;
-		} else if (dmyString.equals("y")) {
-			gracePeriodTimeUnit = ChronoUnit.YEARS;
-		} else {
-			throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
+		switch (dmyString) {
+			case "d":
+				gracePeriodTimeUnit = ChronoUnit.DAYS;
+				break;
+			case "m":
+				gracePeriodTimeUnit = ChronoUnit.MONTHS;
+				break;
+			case "y":
+				gracePeriodTimeUnit = ChronoUnit.YEARS;
+				break;
+			default:
+				throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
 		}
 
 		LocalDate beginOfGracePeriod = LocalDate.parse(membershipExpiration, DateTimeFormatter.ISO_LOCAL_DATE);

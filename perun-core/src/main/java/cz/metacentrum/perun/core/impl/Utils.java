@@ -1417,14 +1417,15 @@ public class Utils {
 			amount = Integer.valueOf(countString);
 
 			String dmyString = m.group(2);
-			if (dmyString.equals("d")) {
-				return localDate.plusDays(amount);
-			} else if (dmyString.equals("m")) {
-				return localDate.plusMonths(amount);
-			} else if (dmyString.equals("y")) {
-				return localDate.plusYears(amount);
-			} else {
-				throw new InternalErrorException("Wrong format of period. Period: " + period);
+			switch (dmyString) {
+				case "d":
+					return localDate.plusDays(amount);
+				case "m":
+					return localDate.plusMonths(amount);
+				case "y":
+					return localDate.plusYears(amount);
+				default:
+					throw new InternalErrorException("Wrong format of period. Period: " + period);
 			}
 		} else {
 			throw new InternalErrorException("Wrong format of period. Period: " + period);

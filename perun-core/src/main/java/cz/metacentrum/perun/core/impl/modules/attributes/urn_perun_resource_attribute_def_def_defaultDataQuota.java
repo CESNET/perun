@@ -122,19 +122,47 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuota extends Resou
 			}
 		} else if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
 
-			if(defaultDataLimitLetter.equals("K")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(K));
-			else if(defaultDataLimitLetter.equals("M")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(M));
-			else if(defaultDataLimitLetter.equals("T")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(T));
-			else if(defaultDataLimitLetter.equals("P")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(P));
-			else if(defaultDataLimitLetter.equals("E")) limitNumber = limitNumber.multiply(BigDecimal.valueOf(E));
-			else limitNumber = limitNumber.multiply(BigDecimal.valueOf(G));
+			switch (defaultDataLimitLetter) {
+				case "K":
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(K));
+					break;
+				case "M":
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(M));
+					break;
+				case "T":
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(T));
+					break;
+				case "P":
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(P));
+					break;
+				case "E":
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(E));
+					break;
+				default:
+					limitNumber = limitNumber.multiply(BigDecimal.valueOf(G));
+					break;
+			}
 
-			if(defaultDataQuotaLetter.equals("K")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(K));
-			else if(defaultDataQuotaLetter.equals("M")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(M));
-			else if(defaultDataQuotaLetter.equals("T")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(T));
-			else if(defaultDataQuotaLetter.equals("P")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(P));
-			else if(defaultDataQuotaLetter.equals("E")) quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(E));
-			else quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(G));
+			switch (defaultDataQuotaLetter) {
+				case "K":
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(K));
+					break;
+				case "M":
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(M));
+					break;
+				case "T":
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(T));
+					break;
+				case "P":
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(P));
+					break;
+				case "E":
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(E));
+					break;
+				default:
+					quotaNumber = quotaNumber.multiply(BigDecimal.valueOf(G));
+					break;
+			}
 
 			if (limitNumber.compareTo(quotaNumber) < 0) {
 				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataLimit, resource, null, resource, null, attribute + " must be less than or equals to " + defaultDataLimit);
