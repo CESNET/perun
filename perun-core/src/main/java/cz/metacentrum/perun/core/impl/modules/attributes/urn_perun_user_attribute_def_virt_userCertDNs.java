@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -37,7 +38,7 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 		//Sort user ext sources by their ids (biggest id go last)
-		userExtSources.sort((ues1, ues2) -> ues1.getId() - ues2.getId());
+		userExtSources.sort(Comparator.comparingInt(PerunBean::getId));
 
 		//Prepare also prefix number
 		int i=1;
