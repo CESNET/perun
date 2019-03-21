@@ -84,7 +84,7 @@ public class SearcherImpl implements SearcherImplApi {
 			String query = "select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from members left join member_attr_values val on " +
 					"val.member_id=members.id and val.attr_id=? where TO_DATE(val.attr_value, 'YYYY-MM-DD')"+operator+compareDate;
 
-			return jdbcTemplate.query(query.toString(), MembersManagerImpl.MEMBER_MAPPER, def.getId());
+			return jdbcTemplate.query(query, MembersManagerImpl.MEMBER_MAPPER, def.getId());
 
 		} catch (Exception e) {
 			throw new InternalErrorException(e);

@@ -257,7 +257,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		if (ldapAttrNameRaw.contains("|")) {
 			int splitter = ldapAttrNameRaw.indexOf('|');
 			ldapAttrName = ldapAttrNameRaw.substring(0,splitter);
-			rule = ldapAttrNameRaw.substring(splitter+1, ldapAttrNameRaw.length());
+			rule = ldapAttrNameRaw.substring(splitter+1);
 		} else {
 			ldapAttrName = ldapAttrNameRaw;
 		}

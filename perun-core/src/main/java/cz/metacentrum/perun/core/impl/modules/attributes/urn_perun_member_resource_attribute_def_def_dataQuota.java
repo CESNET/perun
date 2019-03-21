@@ -85,7 +85,7 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Membe
 			}
 		}
 		BigDecimal quotaNumber;
-		if(dataQuotaNumber != null) quotaNumber = new BigDecimal(dataQuotaNumber.replace(',', '.').toString());
+		if(dataQuotaNumber != null) quotaNumber = new BigDecimal(dataQuotaNumber.replace(',', '.'));
 		else quotaNumber = new BigDecimal("0");
 
 		if (quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {

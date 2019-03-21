@@ -85,7 +85,7 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Membe
 			}
 		}
 		BigDecimal limitNumber;
-		if(dataLimitNumber != null) limitNumber = new BigDecimal(dataLimitNumber.replace(',', '.').toString());
+		if(dataLimitNumber != null) limitNumber = new BigDecimal(dataLimitNumber.replace(',', '.'));
 		else limitNumber = new BigDecimal("0");
 
 		if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {

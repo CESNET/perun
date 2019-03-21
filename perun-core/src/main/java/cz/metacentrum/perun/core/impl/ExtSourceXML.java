@@ -432,7 +432,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	protected String convertToXpathSearchString(String query) {
 		//if query is empty or null, return empty string
 		if(query == null || query.isEmpty()) {
-			return new String();
+			return "";
 		}
 		//prepare array with parts of query for concating
 		List<String> parts = new ArrayList<>();
