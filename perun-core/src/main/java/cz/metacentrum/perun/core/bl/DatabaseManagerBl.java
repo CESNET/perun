@@ -147,6 +147,6 @@ public interface DatabaseManagerBl {
 	 *
 	 * @return Peruns JDBC template
 	 */
-	public JdbcPerunTemplate getJdbcPerunTemplate();
+	JdbcPerunTemplate getJdbcPerunTemplate();
 
 }

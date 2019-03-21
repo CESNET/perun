@@ -20,8 +20,8 @@ import cz.metacentrum.perun.core.api.exceptions.*;
  */
 public interface VosManager {
 
-	static final String MEMBERS_GROUP = "members";
-	static final String MEMBERS_GROUP_DESCRIPTION = "Group containing VO members";
+	String MEMBERS_GROUP = "members";
+	String MEMBERS_GROUP_DESCRIPTION = "Group containing VO members";
 
 	/**
 	 * Get list of Vos by Access Righs:

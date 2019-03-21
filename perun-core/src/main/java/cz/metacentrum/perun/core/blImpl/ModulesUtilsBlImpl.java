@@ -985,7 +985,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			 * @param lastName
 			 * @return generated login
 			 */
-			public String generateLogin(String firstName, String lastName);
+			String generateLogin(String firstName, String lastName);
 
 		}
 

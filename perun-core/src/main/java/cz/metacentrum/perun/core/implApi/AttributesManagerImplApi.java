@@ -886,7 +886,7 @@ public interface AttributesManagerImplApi {
 	 *         false otherwise (value do not change)
 	 * @throws InternalErrorException
 	 */
-	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
+	boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
 
 	/**
 	 * Update attribute value in DB.
@@ -901,7 +901,7 @@ public interface AttributesManagerImplApi {
 	 *         false otherwise (value do not change)
 	 * @throws InternalErrorException
 	 */
-	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
+	boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
 
 	/**
 	 * Set entityless attribute with null value (for key and attribute). Shouldn't be called from upper layer !!!
@@ -2404,7 +2404,7 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongModuleTypeException
 	 * @throws ModuleNotExistsException
 	 */
-	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException;
+	UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException;
 
 	/**
 	 * Init attribute modules map in Impl layer.
@@ -2412,7 +2412,7 @@ public interface AttributesManagerImplApi {
 	 * @see AttributesManagerBlImpl#initialize()
 	 * @param modules List of attribute module class instances
 	 */
-	public void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
+	void initAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
 
 	/**
 	 * Register attribute modules in Auditer for message listening.
@@ -2420,7 +2420,7 @@ public interface AttributesManagerImplApi {
 	 * @see AttributesManagerBlImpl#initialize()
 	 * @param modules List of attribute module class instances
 	 */
-	public void registerAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
+	void registerAttributeModules(ServiceLoader<AttributesModuleImplApi> modules);
 
 	/**
 	 * Finds ids of PerunBeans that have the attribute's value for the attribute.

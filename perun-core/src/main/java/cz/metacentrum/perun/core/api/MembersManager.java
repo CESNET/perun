@@ -18,7 +18,7 @@ public interface MembersManager {
 	/**
 	 * Attribute which contains rules for membership expiration
 	 */
-	final static String membershipExpirationRulesAttributeName = AttributesManager.NS_VO_ATTR_DEF + ":" + "membershipExpirationRules";
+	String membershipExpirationRulesAttributeName = AttributesManager.NS_VO_ATTR_DEF + ":" + "membershipExpirationRules";
 
 	/**
 	 *  Deletes only member data  appropriated by member id.

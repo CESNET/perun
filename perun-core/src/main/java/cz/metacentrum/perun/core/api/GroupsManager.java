@@ -22,30 +22,30 @@ public interface GroupsManager {
 
 	// Attributes related to the external groups
 	// Contains query need to get the subject groups
-	public static final String GROUPSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupsQuery";
+	String GROUPSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupsQuery";
 	// Contains query need to get the group members
-	public static final String GROUPMEMBERSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersQuery";
+	String GROUPMEMBERSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersQuery";
 	// Contains optional filter for members in group
-	public static final String GROUPMEMBERSFILTER_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersFilter";
+	String GROUPMEMBERSFILTER_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersFilter";
 	// Define the external source used for accessing the data about external group
-	public static final String GROUPEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupExtSource";
+	String GROUPEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupExtSource";
 	// Define the external source used for accessing the data about the group members
-	public static final String GROUPMEMBERSEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersExtSource";
+	String GROUPMEMBERSEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersExtSource";
 	// If the synchronization is enabled/disabled, value is true/false
-	public static final String GROUPSYNCHROENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationEnabled";
+	String GROUPSYNCHROENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationEnabled";
 	// If the group structure synchronization is enabled/disabled, value is true/false
-	public static final String GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureSynchronizationEnabled";
+	String GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureSynchronizationEnabled";
 	// Defines the interval, when the group has to be synchronized. It is fold of 5 minutes
-	public static final String GROUPSYNCHROINTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationInterval";
+	String GROUPSYNCHROINTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationInterval";
 	// Defines the interval, when the group structure has to be synchronized. It is fold of 5 minutes
-	public static final String GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureSynchronizationInterval";
+	String GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureSynchronizationInterval";
 	// Defines if we want to skip updating already existing members in group from extSource (updating attributes etc.)
-	public static final String GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":lightweightSynchronization";
+	String GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":lightweightSynchronization";
 	// Defines if we want to synchronize group structure without group hierarchy
-	public static final String GROUP_FLAT_SYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":flatGroupStructureEnabled";
+	String GROUP_FLAT_SYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":flatGroupStructureEnabled";
 
-	public static final String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
-	public static final String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";
+	String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
+	String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";
 
 	/**
 	 * Creates a new top-level group and associates it with the VO from parameter.

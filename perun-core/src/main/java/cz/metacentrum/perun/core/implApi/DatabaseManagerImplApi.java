@@ -77,6 +77,6 @@ public interface DatabaseManagerImplApi {
 	 *
 	 * @return Peruns JDBC template
 	 */
-	public JdbcPerunTemplate getJdbcPerunTemplate();
+	JdbcPerunTemplate getJdbcPerunTemplate();
 
 }

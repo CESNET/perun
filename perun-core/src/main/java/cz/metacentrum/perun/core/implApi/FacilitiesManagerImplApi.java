@@ -435,9 +435,9 @@ public interface FacilitiesManagerImplApi {
 	 */
 	List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException;
 
-	public boolean hostExists(PerunSession sess, Host host) throws InternalErrorException;
+	boolean hostExists(PerunSession sess, Host host) throws InternalErrorException;
 
-	public void checkHostExists(PerunSession sess, Host host) throws InternalErrorException, HostNotExistsException;
+	void checkHostExists(PerunSession sess, Host host) throws InternalErrorException, HostNotExistsException;
 
 	/**
 	 * Return all users assigned to Facility.
