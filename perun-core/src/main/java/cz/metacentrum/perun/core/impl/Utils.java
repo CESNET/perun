@@ -1287,7 +1287,7 @@ public class Utils {
 	 * @return converted string from ascii to something near utf
 	 */
 	public synchronized static String utftoasci(String s){
-		final StringBuffer sb = new StringBuffer( s.length() * 2 );
+		final StringBuilder sb = new StringBuilder( s.length() * 2 );
 
 		final StringCharacterIterator iterator = new StringCharacterIterator( s );
 
