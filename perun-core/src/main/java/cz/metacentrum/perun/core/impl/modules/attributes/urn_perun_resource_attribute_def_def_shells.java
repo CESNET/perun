@@ -87,7 +87,7 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependecies = new ArrayList<String>();
+		List<String> dependecies = new ArrayList<>();
 		dependecies.add(A_F_shells);
 		return dependecies;
 	}

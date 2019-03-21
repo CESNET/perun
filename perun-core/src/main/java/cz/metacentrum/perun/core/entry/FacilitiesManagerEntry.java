@@ -134,7 +134,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			return getFacilitiesManagerBl().getRichFacilities(sess);
 		} else if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
 			// Cast complementary object to Facility
-			List<Facility> facilities = new ArrayList<Facility>();
+			List<Facility> facilities = new ArrayList<>();
 			for (PerunBean facility: AuthzResolver.getComplementaryObjectsForRole(sess, Role.FACILITYADMIN, Facility.class)) {
 				facilities.add((Facility) facility);
 			}
@@ -212,7 +212,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			return getFacilitiesManagerBl().getFacilities(sess);
 		} else if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
 			// Cast complementary object to Facility
-			List<Facility> facilities = new ArrayList<Facility>();
+			List<Facility> facilities = new ArrayList<>();
 			for (PerunBean facility: AuthzResolver.getComplementaryObjectsForRole(sess, Role.FACILITYADMIN, Facility.class)) {
 				facilities.add((Facility) facility);
 			}

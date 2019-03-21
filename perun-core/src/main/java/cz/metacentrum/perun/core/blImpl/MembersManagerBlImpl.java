@@ -86,7 +86,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		List<Facility> allowedFacilities = getPerunBl().getFacilitiesManagerBl().getAllowedFacilities(sess, user);
 
-		Map<Facility, List<Attribute>> requiredAttributesBeforeMemberRemove = new HashMap<Facility, List<Attribute>>();
+		Map<Facility, List<Attribute>> requiredAttributesBeforeMemberRemove = new HashMap<>();
 
 		for(Facility facility : allowedFacilities) {
 			// Get actually required attributes, they will be later compared with list of required attributes when the member will be removed from all resources in this VO
@@ -374,7 +374,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-			return this.createMember(sess, vo, specificUserType, candidate, null, new ArrayList<String>());
+			return this.createMember(sess, vo, specificUserType, candidate, null, new ArrayList<>());
 	}
 
 	//MAIN METHOD
@@ -452,7 +452,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Member member = getMembersManagerImpl().createMember(sess, vo, user);
 		getPerunBl().getAuditer().log(sess,  new MemberCreated(member));
 		// Create the member's attributes
-		List<Attribute> membersAttributes = new ArrayList<Attribute>();
+		List<Attribute> membersAttributes = new ArrayList<>();
 		List<Attribute> usersAttributesToMerge = new ArrayList<>();
 		List<Attribute> usersAttributesToModify = new ArrayList<>();
 		if (candidate.getAttributes() != null) {
@@ -703,14 +703,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public RichMember getRichMember(PerunSession sess, Member member) throws InternalErrorException {
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.add(member);
 		return this.convertMembersToRichMembers(sess, members).get(0);
 	}
 
 	@Override
 	public RichMember getRichMemberWithAttributes(PerunSession sess, Member member) throws InternalErrorException {
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.add(member);
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
 		List<RichMember> richMembersWithAttributes =  this.convertMembersToRichMembersWithAttributes(sess, richMembers);
@@ -719,7 +719,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef) throws InternalErrorException {
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.addAll(perunBl.getMembersManagerBl().getMembers(sess, vo));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
 		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef);
@@ -728,10 +728,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.addAll(perunBl.getMembersManagerBl().getMembers(sess, vo));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
-		List<AttributeDefinition> attrsDef = new ArrayList<AttributeDefinition>();
+		List<AttributeDefinition> attrsDef = new ArrayList<>();
 		for(String atrrName: attrsNames) {
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
 			attrsDef.add(attrDef);
@@ -818,12 +818,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	private List<RichMember> getOnlyRichMembersWithAllowedStatuses(PerunSession sess, List<RichMember> richMembers, List<String> allowedStatuses) throws InternalErrorException {
-		List<RichMember> allowedRichMembers = new ArrayList<RichMember>();
+		List<RichMember> allowedRichMembers = new ArrayList<>();
 		if(richMembers == null || richMembers.isEmpty()) return allowedRichMembers;
 		if(allowedStatuses == null || allowedStatuses.isEmpty()) return richMembers;
 
 		//Covert statuses to objects Status
-		List<Status> statuses = new ArrayList<Status>();
+		List<Status> statuses = new ArrayList<>();
 		for(String status: allowedStatuses) {
 			statuses.add(Status.valueOf(status));
 		}
@@ -838,10 +838,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, GroupResourceMismatchException {
 		getPerunBl().getAttributesManagerBl().checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
-		List<AttributeDefinition> attrsDef = new ArrayList<AttributeDefinition>();
+		List<AttributeDefinition> attrsDef = new ArrayList<>();
 		for(String atrrName: attrsNames) {
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
 			attrsDef.add(attrDef);
@@ -857,10 +857,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
-		List<AttributeDefinition> attrsDef = new ArrayList<AttributeDefinition>();
+		List<AttributeDefinition> attrsDef = new ArrayList<>();
 		for(String atrrName: attrsNames) {
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
 			attrsDef.add(attrDef);
@@ -871,7 +871,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException {
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
 		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
@@ -886,7 +886,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> getRichMembers(PerunSession sess, Group group) throws InternalErrorException {
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
 		return richMembers;
@@ -928,7 +928,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 */
 	@Override
 	public List<RichMember> convertMembersToRichMembers(PerunSession sess, List<Member> members) throws InternalErrorException {
-		List<RichMember> richMembers = new ArrayList<RichMember>();
+		List<RichMember> richMembers = new ArrayList<>();
 
 		for (Member member: members) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -985,8 +985,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		for (RichMember richMember: richMembers) {
-			List<Attribute> userAttributes = new ArrayList<Attribute>();
-			List<Attribute> memberAttributes = new ArrayList<Attribute>();
+			List<Attribute> userAttributes = new ArrayList<>();
+			List<Attribute> memberAttributes = new ArrayList<>();
 
 			List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, resource, attrNames, true);
 
@@ -1066,8 +1066,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 */
 	@Override
 	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {
-		List<AttributeDefinition> usersAttributesDef = new ArrayList<AttributeDefinition>();
-		List<AttributeDefinition> membersAttributesDef = new ArrayList<AttributeDefinition>();
+		List<AttributeDefinition> usersAttributesDef = new ArrayList<>();
+		List<AttributeDefinition> membersAttributesDef = new ArrayList<>();
 
 		for(AttributeDefinition attrd: attrsDef) {
 			if(attrd.getName().startsWith(AttributesManager.NS_USER_ATTR)) usersAttributesDef.add(attrd);
@@ -1075,16 +1075,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		for (RichMember richMember: richMembers) {
-			List<Attribute> userAttributes = new ArrayList<Attribute>();
-			List<Attribute> memberAttributes = new ArrayList<Attribute>();
+			List<Attribute> userAttributes = new ArrayList<>();
+			List<Attribute> memberAttributes = new ArrayList<>();
 
-			List<String> userAttrNames = new ArrayList<String>();
+			List<String> userAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: usersAttributesDef) {
 				userAttrNames.add(ad.getName());
 			}
 			userAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember.getUser(), userAttrNames));
 
-			List<String> memberAttrNames = new ArrayList<String>();
+			List<String> memberAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: membersAttributesDef) {
 				memberAttrNames.add(ad.getName());
 			}
@@ -1112,9 +1112,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {
-		List<AttributeDefinition> usersAttributesDef = new ArrayList<AttributeDefinition>();
-		List<AttributeDefinition> membersAttributesDef = new ArrayList<AttributeDefinition>();
-		List<AttributeDefinition> memberGroupAttributesDef = new ArrayList<AttributeDefinition>();
+		List<AttributeDefinition> usersAttributesDef = new ArrayList<>();
+		List<AttributeDefinition> membersAttributesDef = new ArrayList<>();
+		List<AttributeDefinition> memberGroupAttributesDef = new ArrayList<>();
 
 		for(AttributeDefinition attrd: attrsDef) {
 			if(attrd.getName().startsWith(AttributesManager.NS_USER_ATTR)) usersAttributesDef.add(attrd);
@@ -1123,23 +1123,23 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		for (RichMember richMember: richMembers) {
-			List<Attribute> userAttributes = new ArrayList<Attribute>();
-			List<Attribute> memberAttributes = new ArrayList<Attribute>();
+			List<Attribute> userAttributes = new ArrayList<>();
+			List<Attribute> memberAttributes = new ArrayList<>();
 
-			List<String> userAttrNames = new ArrayList<String>();
+			List<String> userAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: usersAttributesDef) {
 				userAttrNames.add(ad.getName());
 			}
 			userAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember.getUser(), userAttrNames));
 
-			List<String> memberAttrNames = new ArrayList<String>();
+			List<String> memberAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: membersAttributesDef) {
 				memberAttrNames.add(ad.getName());
 			}
 			memberAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, memberAttrNames));
 
 			//add group-member attributes
-			List<String> groupAttrNames = new ArrayList<String>();
+			List<String> groupAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: memberGroupAttributesDef) {
 				groupAttrNames.add(ad.getName());
 			}
@@ -1176,7 +1176,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		List<User> users = getPerunBl().getUsersManagerBl().findUsersByName(sess, searchString);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		for (User user: users) {
 			members.addAll(getMembersManagerImpl().getMembersByUser(sess, user));
 		}
@@ -1189,7 +1189,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		List<User> users = getPerunBl().getUsersManagerBl().findUsersByName(sess, searchString);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		for (User user: users) {
 			try {
 				members.add(getMembersManagerImpl().getMemberByUserId(sess, vo, user.getId()));
@@ -1206,7 +1206,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		for (User user: users) {
 			try {
 				members.add(getMembersManagerImpl().getMemberByUserId(sess, vo, user.getId()));
@@ -1223,7 +1223,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
 		List<Member> allGroupMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-		List<Member> allFoundMembers = new ArrayList<Member>();
+		List<Member> allFoundMembers = new ArrayList<>();
 		for(User user: users){
 			allFoundMembers.addAll(getMembersByUser(sess, user));
 		}
@@ -1235,7 +1235,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	public List<Member> findMembersInParentGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException, ParentGroupNotExistsException{
 
 		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
-		List<Member> allGroupMembers = new ArrayList<Member>();
+		List<Member> allGroupMembers = new ArrayList<>();
 		if(group.getParentGroupId() == null) {
 			Vo vo = null;
 			try {
@@ -1248,7 +1248,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			allGroupMembers = getPerunBl().getGroupsManagerBl().getParentGroupMembers(sess, group);
 		}
 
-		List<Member> allFoundMembers = new ArrayList<Member>();
+		List<Member> allFoundMembers = new ArrayList<>();
 		for(User user: users){
 			allFoundMembers.addAll(getMembersByUser(sess, user));
 		}
@@ -1290,7 +1290,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		for (User user: users) {
 			try {
 				members.add(getMembersManagerImpl().getMemberByUserId(sess, vo, user.getId()));
@@ -1307,7 +1307,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		for (User user: users) {
 			members.addAll(getMembersByUser(sess, user));
 		}
@@ -1753,7 +1753,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		//Filtering members attributes
 		if(richMember.getMemberAttributes() != null) {
 			List<Attribute> memberAttributes = richMember.getMemberAttributes();
-			List<Attribute> allowedMemberAttributes = new ArrayList<Attribute>();
+			List<Attribute> allowedMemberAttributes = new ArrayList<>();
 			for(Attribute membAttr: memberAttributes) {
 				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, richMember)) {
 					membAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, richMember));
@@ -1765,7 +1765,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		//Filtering users attributes
 		if(richMember.getUserAttributes() != null) {
 			List<Attribute> userAttributes = richMember.getUserAttributes();
-			List<Attribute> allowedUserAttributes = new ArrayList<Attribute>();
+			List<Attribute> allowedUserAttributes = new ArrayList<>();
 			for(Attribute userAttr: userAttributes) {
 				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, richMember.getUser())) {
 					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, richMember.getUser()));
@@ -1779,7 +1779,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers) throws InternalErrorException {
-		List<RichMember> filteredRichMembers = new ArrayList<RichMember>();
+		List<RichMember> filteredRichMembers = new ArrayList<>();
 		if(richMembers == null || richMembers.isEmpty()) return filteredRichMembers;
 
 		for(RichMember rm: richMembers) {
@@ -1795,7 +1795,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		if(!useContext) return filterOnlyAllowedAttributes(sess, richMembers);
 
 		//If context should be used - every attribute is unique in context of friendlyName (every attribute test only once per friendlyName)
-		List<RichMember> filteredRichMembers = new ArrayList<RichMember>();
+		List<RichMember> filteredRichMembers = new ArrayList<>();
 		if(richMembers == null || richMembers.isEmpty()) return filteredRichMembers;
 
 		// attr_name to boolean where null means - no rights at all, false means no write rights, true means read and write rights
@@ -1813,7 +1813,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			//Filtering members attributes
 			if(rm.getMemberAttributes() != null) {
 				List<Attribute> memberAttributes = rm.getMemberAttributes();
-				List<Attribute> allowedMemberAttributes = new ArrayList<Attribute>();
+				List<Attribute> allowedMemberAttributes = new ArrayList<>();
 				for(Attribute membAttr: memberAttributes) {
 					//if there is record in contextMap, use it
 					if(contextMap.containsKey(membAttr.getFriendlyName())) {
@@ -1850,7 +1850,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			//Filtering users attributes
 			if(rm.getUserAttributes() != null) {
 				List<Attribute> userAttributes = rm.getUserAttributes();
-				List<Attribute> allowedUserAttributes = new ArrayList<Attribute>();
+				List<Attribute> allowedUserAttributes = new ArrayList<>();
 				for(Attribute userAttr: userAttributes) {
 					//if there is record in contextMap, use it
 					if(contextMap.containsKey(userAttr.getFriendlyName())) {
@@ -1969,12 +1969,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			membershipExpirationRulesAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
 			membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
 			// If attribute was not filled, then silently exit
-			if (membershipExpirationRules == null) return new Pair<Boolean, Date>(true, null);
+			if (membershipExpirationRules == null) return new Pair<>(true, null);
 		} catch (VoNotExistsException e) {
 			throw new ConsistencyErrorException("Member " + member + " of non-existing VO id=" + member.getVoId());
 		} catch (AttributeNotExistsException e) {
 			// There is no attribute definition for membership expiration rules.
-			return new Pair<Boolean, Date>(true, null);
+			return new Pair<>(true, null);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException("Shouldn't happen.");
 		}
@@ -2023,7 +2023,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					throw new ExtendMembershipException(ExtendMembershipException.Reason.NOUSERLOA,
 							"Member " + member + " doesn't have LOA defined, but 'doNotExtendLoa' option is set for VO id " + member.getVoId() + ".");
 				} else {
-					return new Pair<Boolean, Date>(false, null);
+					return new Pair<>(false, null);
 				}
 			}
 
@@ -2036,7 +2036,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION,
 								"Member " + member + " doesn't have required LOA for VO id " + member.getVoId() + ".");
 					} else {
-						return new Pair<Boolean, Date>(false, null);
+						return new Pair<>(false, null);
 					}
 				}
 			}
@@ -2049,7 +2049,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			LocalDate currentMemberExpiration = LocalDate.parse((String) membershipExpirationAttribute.getValue(), DateTimeFormatter.ISO_LOCAL_DATE);
 
 			if (localDate.isAfter(currentMemberExpiration)) {
-				return new Pair<Boolean, Date>(true, null);
+				return new Pair<>(true, null);
 			}
 		}
 
@@ -2074,7 +2074,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 							throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION,
 									"Member " + member + " doesn't have required LOA for VO id " + member.getVoId() + ".");
 						} else {
-							return new Pair<Boolean, Date>(false, null);
+							return new Pair<>(false, null);
 						}
 					}
 					// remove dot from the end of the string
@@ -2093,7 +2093,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
 								"Member " + member + " cannot extend because we are outside grace period for VO id " + member.getVoId() + ".");
 					} else {
-						return new Pair<Boolean, Date>(false, null);
+						return new Pair<>(false, null);
 					}
 				}
 
@@ -2143,7 +2143,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 									throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
 											"Member " + member + " cannot extend because we are outside grace period for VO id " + member.getVoId() + ".");
 								} else {
-									return new Pair<Boolean, Date>(false, null);
+									return new Pair<>(false, null);
 								}
 							}
 						}
@@ -2165,7 +2165,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				}
 			}
 		}
-		return new Pair<Boolean, Date>(true, Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+		return new Pair<>(true, Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
 	}
 
 	/**
@@ -2465,7 +2465,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	private List<Member> setAllMembersSameType(List<Member> members, MembershipType type) throws InternalErrorException {
-		if(members == null) return new ArrayList<Member>();
+		if(members == null) return new ArrayList<>();
 		for(Member m: members) {
 			m.setMembershipType(type);
 		}

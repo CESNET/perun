@@ -47,7 +47,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 
 		//First check if generating is needed (if fill make a sense)
 		//Get All Facilities from group
-		Set<Facility> facilitiesOfGroup = new HashSet<Facility>();
+		Set<Facility> facilitiesOfGroup = new HashSet<>();
 		List<Resource> resourcesOfGroup = sess.getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
 		for(Resource r: resourcesOfGroup) {
 			facilitiesOfGroup.add(sess.getPerunBl().getResourcesManagerBl().getFacility(sess, r));
@@ -55,7 +55,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 		//Prepare list of gid namespaces of all facilities which have the same groupName namespace like this unixGroupName namespace
 		Set<String> groupNameNamespaces;
 		try {
-			groupNameNamespaces = sess.getPerunBl().getModulesUtilsBl().getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(sess, new ArrayList<Facility>(facilitiesOfGroup), attribute);
+			groupNameNamespaces = sess.getPerunBl().getModulesUtilsBl().getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(sess, new ArrayList<>(facilitiesOfGroup), attribute);
 		} catch(WrongReferenceAttributeValueException ex) {
 			//TODO: need to add WrongAttributeAssignmentException to header of modules methods
 			throw new InternalErrorException(ex);
@@ -73,8 +73,8 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 		//If there exist some groupName of this group
 		if(!groupNamesOfGroup.isEmpty()) {
 			//Get All Groups and Resources with some same GroupName in the same Namespace
-			Set<Group> groupsWithSameGroupNameInSameNamespace = new HashSet<Group>();
-			Set<Resource> resourcesWithSameGroupNameInSameNamespace = new HashSet<Resource>();
+			Set<Group> groupsWithSameGroupNameInSameNamespace = new HashSet<>();
+			Set<Resource> resourcesWithSameGroupNameInSameNamespace = new HashSet<>();
 			for(Attribute attr: groupNamesOfGroup) {
 				Attribute groupNameOfResource;
 				try {
@@ -129,7 +129,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 
 			//Special behaviour if gid is null
 			if(attribute.getValue() == null) {
-				List<Facility> groupFacilities = new ArrayList<Facility>();
+				List<Facility> groupFacilities = new ArrayList<>();
 				for(Resource r: sess.getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group)) {
 					groupFacilities.add(sess.getPerunBl().getResourcesManagerBl().getFacility(sess, r));
 				}
@@ -167,8 +167,8 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 			sess.getPerunBl().getModulesUtilsBl().checkIfGIDIsWithinRange(sess, attribute);
 
 			//Prepare lists for all groups and resources with same GID in the same namespace
-			List<Group> allGroupsWithSameGIDInSameNamespace = new ArrayList<Group>();
-			List<Resource> allResourcesWithSameGIDInSameNamespace = new ArrayList<Resource>();
+			List<Group> allGroupsWithSameGIDInSameNamespace = new ArrayList<>();
+			List<Resource> allResourcesWithSameGIDInSameNamespace = new ArrayList<>();
 
 			//Prepare attributes for searching through groups and resources
 			Attribute groupGIDAttribute = attribute;
@@ -278,7 +278,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
 		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID");
 		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");

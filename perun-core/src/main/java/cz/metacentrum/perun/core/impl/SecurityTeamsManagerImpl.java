@@ -200,7 +200,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 					"  where authz.security_team_id=? ",
 					UsersManagerImpl.USER_MAPPER, securityTeam.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -213,7 +213,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 					" where authz.security_team_id=?",
 					GroupsManagerImpl.GROUP_MAPPER, securityTeam.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

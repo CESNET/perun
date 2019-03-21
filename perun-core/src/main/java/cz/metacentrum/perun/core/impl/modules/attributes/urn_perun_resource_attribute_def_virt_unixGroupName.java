@@ -142,7 +142,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(A_R_unixGroupName_namespace + "*");
 		strongDependencies.add(A_F_unixGroupName_namespace);
 		return strongDependencies;

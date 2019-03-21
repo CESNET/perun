@@ -304,7 +304,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	@Override
 	public List<Service> getAssignedServices(PerunSession sess, Resource resource) throws InternalErrorException {
-		List<Service> services = new ArrayList<Service>();
+		List<Service> services = new ArrayList<>();
 		List<Integer> servicesIds = getResourcesManagerImpl().getAssignedServices(sess, resource);
 
 		try {
@@ -433,7 +433,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				List<Attribute> userFacilityAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, facility, user);
 
 				//find which of attributes are broken
-				List<Attribute> brokenUserFacilityAttributes = new ArrayList<Attribute>();
+				List<Attribute> brokenUserFacilityAttributes = new ArrayList<>();
 				for(Attribute attribute : userFacilityAttributes) {
 					try {
 						getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, facility, user, attribute);
@@ -609,7 +609,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
 			return getAssignedResources(sess, member);
 		} else {
-			return new ArrayList<Resource>();
+			return new ArrayList<>();
 		}
 	}
 

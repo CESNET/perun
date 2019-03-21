@@ -143,7 +143,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(A_R_unixGID_namespace + "*");
 		strongDependencies.add(A_F_unixGID_namespace);
 		return strongDependencies;

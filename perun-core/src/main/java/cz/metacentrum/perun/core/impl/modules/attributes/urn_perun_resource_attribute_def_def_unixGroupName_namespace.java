@@ -61,8 +61,8 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 			groupUnixGroupName.setValue(attribute.getValue());
 
 			//prepare lists of groups and resources with the same groupName value in the same namespace
-			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<Group>();
-			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<Resource>();
+			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<>();
+			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<>();
 
 			//Fill lists of groups and resources
 			groupsWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupUnixGroupName));
@@ -170,7 +170,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		//Disallowed because of crosschecks between modules and performance reason
 		//dependencies.add(A_G_unixGID_namespace + ":*");
 		//dependencies.add(A_R_unixGID_namespace + ":*");

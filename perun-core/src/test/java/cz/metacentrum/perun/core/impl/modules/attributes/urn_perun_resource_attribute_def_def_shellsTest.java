@@ -38,7 +38,7 @@ public class urn_perun_resource_attribute_def_def_shellsTest {
 		classInstance = new urn_perun_resource_attribute_def_def_shells();
 		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
-		ArrayList<String> shells = new ArrayList<String>();
+		ArrayList<String> shells = new ArrayList<>();
 		shells.add("/bin/bash");
 		shells.add("/bin/csh");
 		listOfShells.setValue(shells);

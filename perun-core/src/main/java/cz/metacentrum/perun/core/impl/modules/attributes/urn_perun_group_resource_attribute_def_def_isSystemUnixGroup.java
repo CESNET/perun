@@ -76,7 +76,7 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(A_GR_systemUnixGroupName);
 		dependencies.add(A_GR_systemUnixGID);
 		return dependencies;

@@ -92,7 +92,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(A_FAC_unixGIDNamespace);
 		strongDependencies.add(A_E_namespaceGIDRanges);
 		return strongDependencies;

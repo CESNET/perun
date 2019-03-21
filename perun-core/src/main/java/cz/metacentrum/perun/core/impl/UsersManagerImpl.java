@@ -124,7 +124,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
                 int row = 0;
                 while(rs.next()){
-                    result.add(new Pair<User, String>(USER_MAPPER.mapRow(rs, row), rs.getString("description")));
+                    result.add(new Pair<>(USER_MAPPER.mapRow(rs, row), rs.getString("description")));
                     row++;
                 }
 
@@ -173,7 +173,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" from users join user_ext_sources on users.id=user_ext_sources.user_id join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id"
 					+ " where ext_sources.type=? and user_ext_sources.login_ext=?", USER_MAPPER, extSourceType, login);
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -197,7 +197,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			return jdbc.query("select " + userMappingSelectQuery + " from users, members " +
 					"where members.user_id=users.id and members.vo_id=?", USER_MAPPER, vo.getId());
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -210,7 +210,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					"  from users", USER_MAPPER);
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -223,7 +223,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" from users, specific_user_users where users.id=specific_user_users.specific_user_id and specific_user_users.status='0' and specific_user_users.user_id=?", USER_MAPPER, user.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -237,7 +237,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" and specific_user_users.type=?", USER_MAPPER, specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -311,7 +311,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					"  from users where users.service_acc='1' or users.sponsored_acc='1'", USER_MAPPER);
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -580,7 +580,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 							" from user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id where" +
 							" ext_sources.type=? and user_ext_sources.login_ext=?", USEREXTSOURCE_MAPPER, extType, extLogin);
 		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<UserExtSource>();
+			return new ArrayList<>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -640,7 +640,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 							" and authz.role_id=(select id from roles where roles.name=?))) ",
 					GroupsManagerImpl.GROUP_MAPPER, user.getId(), user.getId(), Role.GROUPADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -656,7 +656,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 							" and authz.role_id=(select id from roles where roles.name=?))) and groups.vo_id=? ",
 					GroupsManagerImpl.GROUP_MAPPER, user.getId(), user.getId(), Role.GROUPADMIN.getRoleName(), vo.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -671,7 +671,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" where (authz.user_id=? or members.user_id=?) and authz.role_id=(select id from roles where name=?)",
 					VosManagerImpl.VO_MAPPER, user.getId(), user.getId(), Role.VOADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Vo>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -684,7 +684,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					"users.id=? and members.vo_id=vos.id", VosManagerImpl.VO_MAPPER, user.getId());
 		} catch (EmptyResultDataAccessException e) {
 			// If user is not member of any vo, just return empty list
-			return new ArrayList<Vo>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -698,7 +698,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" user_attr_values.attr_value=? and users.id=user_attr_values.user_id and user_attr_values.attr_id=?",
 					USER_MAPPER, BeansUtils.attributeValueToString(attribute), attribute.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -738,7 +738,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		try {
 			return namedParameterJdbcTemplate.query(query, namedParams, USER_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -746,7 +746,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	@Override
 	public List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException {
-		Set<User> users = new HashSet<User>();
+		Set<User> users = new HashSet<>();
 
 		log.debug("Searching for users using searchString '{}'", searchString);
 
@@ -786,12 +786,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		users.addAll(findUsersByName(sess, searchString));
 
-		return new ArrayList<User>(users);
+		return new ArrayList<>(users);
 	}
 
 	@Override
 	public List<User> findUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException {
-		Set<User> users = new HashSet<User>();
+		Set<User> users = new HashSet<>();
 
 		log.debug("Searching for users using searchString '{}'", searchString);
 
@@ -831,13 +831,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		users.addAll(findUsersByExactName(sess, searchString));
 
-		return new ArrayList<User>(users);
+		return new ArrayList<>(users);
 	}
 
 	@Override
 	public List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException {
 		if (searchString == null || searchString.isEmpty()) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		}
 
 		// Convert to lower case
@@ -872,7 +872,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				throw new InternalErrorException("Unsupported db type");
 			}
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -904,7 +904,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					"lower("+Compatibility.convertToAscii("users.last_name")+") like ? and coalesce(lower("+Compatibility.convertToAscii("users.title_after")+"), '%') like ?",
 					USER_MAPPER, titleBefore, firstName, middleName, lastName, titleAfter);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -913,7 +913,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException {
 		if (searchString == null || searchString.isEmpty()) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		}
 
 		// Convert to lower case
@@ -948,7 +948,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				throw new InternalErrorException("Unsupported db type");
 			}
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1074,7 +1074,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds) throws InternalErrorException {
 		// If usersIds is empty, we can immediately return empty results
 		if (usersIds.size() == 0) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		}
 		return jdbc.execute("select " + userMappingSelectQuery + "  from users where users.id " + Compatibility.getStructureForInClause(),
 			(PreparedStatementCallback<List<User>>) preparedStatement -> {
@@ -1095,7 +1095,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			return jdbc.query("select " + userMappingSelectQuery + " from users where " +
 					"users.id not in (select user_id from members) order by last_name, first_name", USER_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch(RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1115,7 +1115,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	@Override
 	public List<Pair<String, String>> getUsersReservedLogins(User user) throws InternalErrorException {
 
-		List<Pair<String, String>> result = new ArrayList<Pair<String,String>>();
+		List<Pair<String, String>> result = new ArrayList<>();
 
 		try {
 			List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
@@ -1130,7 +1130,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				result.addAll(jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
 					@Override
 					public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-						return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
+						return new Pair<>(rs.getString("namespace"), rs.getString("login"));
 					}
 				}, id));
 
@@ -1244,7 +1244,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 			}
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		}
 
 	}

@@ -177,7 +177,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 */
 	protected List<Map<String,String>> xpathParsing(String query, int maxResults) throws InternalErrorException {
 		//Prepare result list
-		List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> subjects = new ArrayList<>();
 
 		//Create new document factory builder
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -257,7 +257,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @throws InternalErrorException
 	 */
 	protected Map<String, String> convertNodeToMap(Node node) throws InternalErrorException {
-		Map<String,String> nodeInMap = new HashMap<String,String>();
+		Map<String,String> nodeInMap = new HashMap<>();
 		//If node is empty, return null
 		if(node == null) return null;
 
@@ -435,7 +435,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 			return new String();
 		}
 		//prepare array with parts of query for concating
-		List<String> parts = new ArrayList<String>();
+		List<String> parts = new ArrayList<>();
 
 		//prepare variables for behavior in for cycles through all characters in query
 		String part = "";

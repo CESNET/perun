@@ -31,7 +31,7 @@ public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttr
 		}
 
 		//TODO better method for searching Facility by querry in DB
-		List<Facility> allFacilities = new ArrayList<Facility>();
+		List<Facility> allFacilities = new ArrayList<>();
 		allFacilities = perunSession.getPerunBl().getFacilitiesManagerBl().getFacilities(perunSession);
 		boolean success = false;
 		for(Facility f: allFacilities) {

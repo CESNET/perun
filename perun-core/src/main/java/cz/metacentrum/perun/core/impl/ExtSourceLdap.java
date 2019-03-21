@@ -114,7 +114,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 		NamingEnumeration<SearchResult> results = null;
 
-		List<String> ldapGroupSubjects = new ArrayList<String>();
+		List<String> ldapGroupSubjects = new ArrayList<>();
 
 		// Get the LDAP group name
 		String ldapGroupName = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -131,7 +131,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				// Default value
 				attrName = "uniqueMember";
 			}
-			List<String> retAttrs = new ArrayList<String>();
+			List<String> retAttrs = new ArrayList<>();
 			retAttrs.add(attrName);
 
 			String[] retAttrsArray = retAttrs.toArray(new String[retAttrs.size()]);
@@ -153,7 +153,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				}
 			}
 
-			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+			List<Map<String, String>> subjects = new ArrayList<>();
 
 			// If attribute filter not exists, use optional default filter from extSource definition
 			if(filter == null) filter = filteredQuery;
@@ -180,7 +180,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 	protected void initContext() throws InternalErrorException {
 		// Load mapping between LDAP attributes and Perun attributes
-		Hashtable<String,String> env = new Hashtable<String,String>();
+		Hashtable<String,String> env = new Hashtable<>();
 
 		env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
@@ -209,7 +209,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				throw new InternalErrorException("ldapMapping attributes is required");
 			}
 			String ldapMapping[] = ((String) getAttributes().get("ldapMapping")).trim().split(",\n");
-			mapping = new HashMap<String, String>();
+			mapping = new HashMap<>();
 			for (String entry: ldapMapping) {
 				String values[] = entry.trim().split("=", 2);
 				mapping.put(values[0].trim(), values[1].trim());
@@ -224,7 +224,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 	protected Map<String,String> getSubjectAttributes(Attributes attributes) throws InternalErrorException {
 		Pattern pattern = Pattern.compile("\\{([^\\}])*\\}");
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		for (String key: mapping.keySet()) {
 			// Get attribute value and substitute all {} in the string
@@ -345,7 +345,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	protected List<Map<String,String>> querySource(String query, String base, int maxResults) throws InternalErrorException {
 
 		NamingEnumeration<SearchResult> results = null;
-		List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> subjects = new ArrayList<>();
 
 		try {
 			// If query is null, then we are finding object by the base

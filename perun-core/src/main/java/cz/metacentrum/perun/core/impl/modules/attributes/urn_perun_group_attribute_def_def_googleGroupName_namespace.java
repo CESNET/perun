@@ -42,7 +42,7 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 		//sess.getPerunBl().getModulesUtilsBl().checkReservedGoogleGroupNames(attribute);
 
 		//prepare lists of groups with the same groupName value in the same namespace
-		List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<Group>();
+		List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<>();
 
 		//Fill lists of groups
 		groupsWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, attribute));

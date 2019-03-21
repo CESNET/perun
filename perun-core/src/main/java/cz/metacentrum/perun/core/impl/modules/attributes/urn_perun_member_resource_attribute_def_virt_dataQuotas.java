@@ -115,7 +115,7 @@ public class urn_perun_member_resource_attribute_def_virt_dataQuotas extends Mem
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(A_R_defaultDataQuotas);
 		strongDependencies.add(A_MR_dataQuotas);
 		strongDependencies.add(A_MR_dataQuotasOverride);

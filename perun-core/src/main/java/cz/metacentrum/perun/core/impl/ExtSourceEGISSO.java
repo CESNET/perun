@@ -70,7 +70,7 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 
 	@Override
 	protected List<Map<String, String>> querySource(String query, String base, int maxResults) throws InternalErrorException {
-		List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> subjects = new ArrayList<>();
 		NamingEnumeration<SearchResult> results = null;
 		
 		if(base == null || base.isEmpty()) {

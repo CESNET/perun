@@ -32,7 +32,7 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
 		}
 
 		// check existing DN
-		Set<User> usersWithSameCN = new HashSet<User>(perunSession.getPerunBl().getUsersManagerBl().getUsersByAttribute(perunSession, attribute));
+		Set<User> usersWithSameCN = new HashSet<>(perunSession.getPerunBl().getUsersManagerBl().getUsersByAttribute(perunSession, attribute));
 		// check existing DN without accents
 		String normalizedValue = java.text.Normalizer.normalize((String)attribute.getValue(), java.text.Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+","");
 		if (!Objects.equals(normalizedValue, (String)attribute.getValue())) {

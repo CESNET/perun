@@ -142,7 +142,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace" + ":*");
 		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupsDomain");
 		return dependencies;

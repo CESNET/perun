@@ -73,7 +73,7 @@ public class PerunLocksUtils {
 					//Get members lock map by group if exists or create a new one
 					ConcurrentHashMap<Member, Lock> membersLocks = groupsMembersLocks.get(group);
 					if (membersLocks == null) {
-						groupsMembersLocks.putIfAbsent(group, new ConcurrentHashMap<Member, Lock>());
+						groupsMembersLocks.putIfAbsent(group, new ConcurrentHashMap<>());
 						membersLocks = groupsMembersLocks.get(group);
 					}
 

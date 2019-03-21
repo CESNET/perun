@@ -142,7 +142,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> dependecies = new ArrayList<String>();
+		List<String> dependecies = new ArrayList<>();
 		dependecies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace" + ":*");
 		dependecies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
 		return dependecies;

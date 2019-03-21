@@ -1145,7 +1145,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private void setUpSpecificUser1ForUser(Vo vo) throws Exception {
 		Candidate candidate = setUpCandidateForSpecificUser1();
 
-		List<User> owners = new ArrayList<User>();
+		List<User> owners = new ArrayList<>();
 		owners.add(user);
 
 		Member serviceMember = perun.getMembersManagerBl().createSpecificMemberSync(sess, vo, candidate, owners, SpecificUserType.SERVICE);
@@ -1158,7 +1158,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private void setUpSpecificUser2ForUser(Vo vo) throws Exception {
 		Candidate candidate = setUpCandidateForSpecificUser2();
 
-		List<User> owners = new ArrayList<User>();
+		List<User> owners = new ArrayList<>();
 		owners.add(user);
 
 		Member serviceMember = perun.getMembersManagerBl().createSpecificMemberSync(sess, vo, candidate, owners, SpecificUserType.SERVICE);
@@ -1251,7 +1251,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setTitleAfter("");
 		final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}
@@ -1267,7 +1267,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setServiceUser(true);
 		final UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 	}
 
@@ -1282,7 +1282,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setServiceUser(true);
 		final UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 	}
 
@@ -1298,7 +1298,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setSponsoredUser(true);
 		final UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 	}
 

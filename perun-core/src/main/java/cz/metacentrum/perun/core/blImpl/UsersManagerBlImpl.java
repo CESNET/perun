@@ -93,7 +93,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<User> getUsersByExtSourceTypeAndLogin(PerunSession perunSession, String extSourceType, String login) throws InternalErrorException {
-		if ((extSourceType == null) || (login == null)) return new ArrayList<User>();
+		if ((extSourceType == null) || (login == null)) return new ArrayList<>();
 
 		return getUsersManagerImpl().getUsersByExtSourceTypeAndLogin(perunSession, extSourceType, login);
 	}
@@ -268,7 +268,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public RichUser getRichUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 		users.add(user);
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		return richUsers.get(0);
@@ -276,7 +276,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public RichUser getRichUserWithAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 		users.add(user);
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		List<RichUser> richUsersWithAttributes =  this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
@@ -285,7 +285,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> convertUsersToRichUsers(PerunSession sess, List<User> users) throws InternalErrorException {
-		List<RichUser> richUsers = new ArrayList<RichUser>();
+		List<RichUser> richUsers = new ArrayList<>();
 
 		for (User user: users) {
 			List<UserExtSource> userExtSources = getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
@@ -309,7 +309,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 		users.addAll(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
@@ -318,7 +318,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 		users.addAll(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
@@ -342,7 +342,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> convertUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {
-		List<AttributeDefinition> usersAttributesDef = new ArrayList<AttributeDefinition>();
+		List<AttributeDefinition> usersAttributesDef = new ArrayList<>();
 
 		for(AttributeDefinition attrd: attrsDef) {
 			if(attrd.getName().startsWith(AttributesManager.NS_USER_ATTR)) usersAttributesDef.add(attrd);
@@ -350,8 +350,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		for (RichUser richUser: richUsers) {
-			List<Attribute> userAttributes = new ArrayList<Attribute>();
-			List<String> userAttrNames = new ArrayList<String>();
+			List<Attribute> userAttributes = new ArrayList<>();
+			List<String> userAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: usersAttributesDef) {
 				userAttrNames.add(ad.getName());
 			}
@@ -697,8 +697,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
-		List<User> allSearchingUsers = new ArrayList<User>();
-		List<User> allVoUsers = new ArrayList<User>();
+		List<User> allSearchingUsers = new ArrayList<>();
+		List<User> allVoUsers = new ArrayList<>();
 		allSearchingUsers = this.findUsers(sess, searchString);
 		allVoUsers = getUsersManagerImpl().getUsersByVo(sess, vo);
 		allSearchingUsers.removeAll(allVoUsers);
@@ -712,7 +712,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
-		List<Resource> allowedResources = new ArrayList<Resource>();
+		List<Resource> allowedResources = new ArrayList<>();
 
 		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		for(Resource resource : resources) {
@@ -726,36 +726,36 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException {
 		//TODO do this method in more efficient way
-		Set<Resource> resources = new HashSet<Resource>();
+		Set<Resource> resources = new HashSet<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		for(Member member : members) {
 			if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
 				resources.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member));
 			}
 		}
-		return new ArrayList<Resource>(resources);
+		return new ArrayList<>(resources);
 	}
 
 	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, User user) throws InternalErrorException {
-		Set<Resource> resources = new HashSet<Resource>();
+		Set<Resource> resources = new HashSet<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		for(Member member : members) {
 			resources.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member));
 		}
-		return new ArrayList<Resource>(resources);
+		return new ArrayList<>(resources);
 	}
 
 	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException {
-		Set<RichResource> resources = new HashSet<RichResource>();
+		Set<RichResource> resources = new HashSet<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		for(Member member : members) {
 			resources.addAll(getPerunBl().getResourcesManagerBl().getAssignedRichResources(sess, member));
 		}
-		return new ArrayList<RichResource>(resources);
+		return new ArrayList<>(resources);
 	}
 
 	private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef, String attributeValue) throws InternalErrorException {
@@ -768,7 +768,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		// iterate over all users
-		List<User> matchedUsers = new ArrayList<User>();
+		List<User> matchedUsers = new ArrayList<>();
 		for (User user: perunBl.getUsersManagerBl().getUsers(sess)) {
 			Attribute userAttribute;
 			try {
@@ -965,7 +965,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		//Filtering users attributes
 		if(richUser.getUserAttributes() != null) {
 			List<Attribute> userAttributes = richUser.getUserAttributes();
-			List<Attribute> allowedUserAttributes = new ArrayList<Attribute>();
+			List<Attribute> allowedUserAttributes = new ArrayList<>();
 			for(Attribute userAttr: userAttributes) {
 				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, richUser)) {
 					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, richUser));
@@ -979,7 +979,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> filterOnlyAllowedAttributes(PerunSession sess, List<RichUser> richUsers) throws InternalErrorException {
-		List<RichUser> filteredRichUsers = new ArrayList<RichUser>();
+		List<RichUser> filteredRichUsers = new ArrayList<>();
 		if(richUsers == null || richUsers.isEmpty()) return filteredRichUsers;
 
 		for(RichUser ru: richUsers) {
@@ -991,7 +991,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<User> getUsersByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException {
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 
 		//All possible useful objects
 		Vo vo = null;
@@ -1020,7 +1020,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		if(group != null) {
 			List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-			List<User> usersFromGroup = new ArrayList<User>();
+			List<User> usersFromGroup = new ArrayList<>();
 			for(Member memberElement: members) {
 				usersFromGroup.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
 			}
@@ -1048,7 +1048,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 		} else if(vo != null) {
 			List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
-			List<User> usersFromVo = new ArrayList<User>();
+			List<User> usersFromVo = new ArrayList<>();
 			for(Member memberElement: members) {
 				usersFromVo.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
 			}
@@ -1228,7 +1228,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		try {
 			if (loginNamespace.equals("einfra")) {
-				List<String> kerberosLogins = new ArrayList<String>();
+				List<String> kerberosLogins = new ArrayList<>();
 
 				// Set META and EINFRA userExtSources
 				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "META");
@@ -1284,7 +1284,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 			} else if (loginNamespace.equals("egi-ui")) {
 
-				List<String> kerberosLogins = new ArrayList<String>();
+				List<String> kerberosLogins = new ArrayList<>();
 
 				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EGI");
 				UserExtSource ues = new UserExtSource(extSource, userLogin + "@EGI");
@@ -1310,7 +1310,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 			} else if (loginNamespace.equals("sitola")) {
 
-				List<String> kerberosLogins = new ArrayList<String>();
+				List<String> kerberosLogins = new ArrayList<>();
 
 				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "SITOLA.FI.MUNI.CZ");
 				UserExtSource ues = new UserExtSource(extSource, userLogin + "@SITOLA.FI.MUNI.CZ");
@@ -1336,7 +1336,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 			} else if (loginNamespace.equals("ics-muni-cz")) {
 
-				List<String> kerberosLogins = new ArrayList<String>();
+				List<String> kerberosLogins = new ArrayList<>();
 
 				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "ICS.MUNI.CZ");
 				UserExtSource ues = new UserExtSource(extSource, userLogin + "@ICS.MUNI.CZ");
@@ -1396,7 +1396,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					//this is OK
 				}
 
-				List<String> kerberosLogins = new ArrayList<String>();
+				List<String> kerberosLogins = new ArrayList<>();
 
 				// Store also Kerberos logins
 				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
@@ -1422,7 +1422,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					//this is OK
 				}
 
-				List<String> kerberosLogins = new ArrayList<String>();
+				List<String> kerberosLogins = new ArrayList<>();
 
 				// Store also Kerberos logins
 				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
@@ -1906,7 +1906,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public List<RichUser> convertUsersToRichUsersWithAttributesByNames(PerunSession sess, List<User> users, List<String> attrNames) throws InternalErrorException {
 
 		// TODO - optimzization needed - at least there should be single select on RichUser object in impl !!
-		List<RichUser> result = new ArrayList<RichUser>();
+		List<RichUser> result = new ArrayList<>();
 		AttributesManagerBl attributesManagerBl = this.getPerunBl().getAttributesManagerBl();
 		for (User u : users) {
 			RichUser ru = new RichUser(u, getUserExtSources(sess, u));
@@ -1998,7 +1998,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		// should always pass, since isLoginAvailable() in ENTRY does the same
 		try {
 
-			List<String> names = new ArrayList<String>();
+			List<String> names = new ArrayList<>();
 			names.add(AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
 
 			// will always get attribute (empty, if not set)
@@ -2143,7 +2143,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		// was changed - send notification to all member's emails
-		Set<String> emails = new HashSet<String>();
+		Set<String> emails = new HashSet<>();
 
 		try {
 			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");

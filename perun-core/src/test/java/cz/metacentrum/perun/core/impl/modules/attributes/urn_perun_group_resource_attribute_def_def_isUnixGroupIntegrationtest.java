@@ -195,7 +195,7 @@ public class urn_perun_group_resource_attribute_def_def_isUnixGroupIntegrationte
 		candidate.setTitleAfter("");
 		final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}

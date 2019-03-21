@@ -284,8 +284,8 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		testGroupB = perun.getGroupsManagerBl().createGroup(sess, testGroupA, testGroupB);
 		testGroupC = perun.getGroupsManagerBl().createGroup(sess, testGroupB, testGroupC);
 
-		HashMap<String, Set<Integer>> mapWithRights = new HashMap<String, Set<Integer>>();
-		Set<Integer> listWithIds = new HashSet<Integer>();
+		HashMap<String, Set<Integer>> mapWithRights = new HashMap<>();
+		Set<Integer> listWithIds = new HashSet<>();
 		listWithIds.add(testGroupA.getId());
 		mapWithRights.put("Vo", listWithIds);
 		mapWithRights.put("Group", listWithIds);
@@ -522,7 +522,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		candidate.setTitleAfter("");
 		final UserExtSource userExtSource = new UserExtSource(extSource, login);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}

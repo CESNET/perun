@@ -99,7 +99,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	private static final RowMapper<Pair<Group, Resource>> GROUP_RESOURCE_MAPPER = new RowMapper<Pair<Group, Resource>>() {
 		@Override
 		public Pair<Group, Resource> mapRow(ResultSet rs, int i) throws SQLException {
-			Pair<Group, Resource> pair = new Pair<Group, Resource>();
+			Pair<Group, Resource> pair = new Pair<>();
 			pair.put(GROUP_MAPPER.mapRow(rs, i), ResourcesManagerImpl.RESOURCE_MAPPER.mapRow(rs, i));
 			return pair;
 		}
@@ -334,7 +334,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return jdbc.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_members join members on members.id=groups_members.member_id " +
 					"where groups_members.group_id=?", MembersManagerImpl.MEMBER_MAPPER, group.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Member>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -349,7 +349,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					" and groups_members.group_id=? " +
 					" and members.id=?", MembersManagerImpl.MEMBER_MAPPER, group.getId(), id);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Member>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -371,7 +371,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatus) throws InternalErrorException {
 		try {
 			MapSqlParameterSource parameters = new MapSqlParameterSource();
-			List<Integer> statusesCodes = new ArrayList<Integer>();
+			List<Integer> statusesCodes = new ArrayList<>();
 			for (Status status: statuses) {
 				statusesCodes.add(status.getCode());
 			}
@@ -390,7 +390,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 						"where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
 			}
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Member>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -416,7 +416,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					" where groups_resources.resource_id=?",
 					GROUP_MAPPER, resource.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -430,7 +430,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 							" join groups_members on groups_members.group_id=groups.id and groups_members.member_id=?",
 					GROUP_MAPPER, resource.getId(), member.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -445,7 +445,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 							"where resources.facility_id=?",
 					GROUP_MAPPER, facility.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -458,7 +458,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 							"order by " + Compatibility.orderByBinary("groups.name" + Compatibility.castToVarchar()),
 					GROUP_MAPPER, parentGroup.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -531,7 +531,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					" where groups_members.member_id=?",
 					GROUP_MAPPER, member.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -558,7 +558,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					"group_attr_values.attr_value=?",
 					GROUP_MAPPER, attribute.getId(), BeansUtils.attributeValueToString(attribute));
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -574,7 +574,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					"where group_resource_attr_values.attr_id=? and group_resource_attr_values.attr_value=?",
 					GROUP_RESOURCE_MAPPER, attribute.getId(), BeansUtils.attributeValueToString(attribute));
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Pair<Group, Resource>>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -624,7 +624,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	@Override
 	public List<User> getAdmins(PerunSession sess, Group group) throws InternalErrorException {
 		try {
-			Set<User> setOfAdmins = new HashSet<User>();
+			Set<User> setOfAdmins = new HashSet<>();
 			// direct admins
 			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
 						"where authz.group_id=? and authz.role_id=(select id from roles where name='groupadmin')", UsersManagerImpl.USER_MAPPER, group.getId()));
@@ -639,7 +639,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return new ArrayList(setOfAdmins);
 
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -651,7 +651,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
 					"where authz.group_id=? and authz.role_id=(select id from roles where name='groupadmin')", UsersManagerImpl.USER_MAPPER, group.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -664,7 +664,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					"where authz.group_id=? and authz.role_id=(select id from roles where name='groupadmin')",
 					GROUP_MAPPER, group.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -725,7 +725,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					"where attr_names.attr_name=? and attr_names.id=group_attr_values.attr_id and group_attr_values.attr_value='true' and " +
 					"group_attr_values.group_id=groups.id", GROUP_MAPPER, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -739,7 +739,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					"where attr_names.attr_name=? and attr_names.id=group_attr_values.attr_id and group_attr_values.attr_value='true' and " +
 					"group_attr_values.group_id=groups.id", GROUP_MAPPER, GroupsManager.GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -767,7 +767,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
 				@Override
 				public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
+					return new Pair<>(rs.getString("namespace"), rs.getString("login"));
 				}
 			}, appId);
 		} catch (RuntimeException e) {

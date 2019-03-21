@@ -96,7 +96,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(A_E_namespaceMinGID);
 		dependencies.add(A_FAC_unixGIDNamespace);
 		return dependencies;
@@ -104,7 +104,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(A_E_namespaceMinGID);
 		strongDependencies.add(A_FAC_unixGIDNamespace);
 		return strongDependencies;

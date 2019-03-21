@@ -61,8 +61,8 @@ public abstract class AbstractPerunIntegrationTest {
 
 	protected static PerunSession sess;
 
-	protected SortedSet<User> usersForDeletion = new TreeSet<User>();
-	protected Set<Host> hostsForDeletion = new HashSet<Host>();
+	protected SortedSet<User> usersForDeletion = new TreeSet<>();
+	protected Set<Host> hostsForDeletion = new HashSet<>();
 
 	public void setPerun(PerunBl p) {
 		this.perun = p;

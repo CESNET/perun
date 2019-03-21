@@ -133,7 +133,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	private Map<String, String> covertRichUserToSubject(RichUser richUser) throws InternalErrorException {
-		Map<String,String> richUserInMap = new HashMap<String,String>();
+		Map<String,String> richUserInMap = new HashMap<>();
 		String mapping = getAttributes().get("xmlMapping");
 		String[] mappingArray = mapping.split(",\n");
 
@@ -196,7 +196,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	private RichUser findRichUser(String login) throws InternalErrorException, SubjectNotExistsException {
-		Map<String, Object> params = new HashMap<String, Object>();
+		Map<String, Object> params = new HashMap<>();
 
 		List<RichUser> richUsers = this.findRichUsers(login);
 

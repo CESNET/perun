@@ -79,7 +79,7 @@ public class urn_perun_group_resource_attribute_def_def_adName extends GroupReso
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(A_R_D_AD_OU_NAME);
 		return dependencies;
 	}

@@ -16,7 +16,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 
 public class AttributesManagerImplIntegrationTest {
 
-	private Map<Attribute, String> attrMap = new HashMap<Attribute,String>();
+	private Map<Attribute, String> attrMap = new HashMap<>();
 
 	@Before
 	public void setUp() throws Exception {
@@ -55,7 +55,7 @@ public class AttributesManagerImplIntegrationTest {
 		attribute.setFriendlyName("test");
 		attribute.setNamespace("test");
 		attribute.setType(ArrayList.class.getName());
-		attribute.setValue(new ArrayList<String>(Arrays.asList(value)));
+		attribute.setValue(new ArrayList<>(Arrays.asList(value)));
 		return attribute;
 	}
 
@@ -66,7 +66,7 @@ public class AttributesManagerImplIntegrationTest {
 		attribute.setNamespace("test");
 		attribute.setType(LinkedHashMap.class.getName());
 
-		Map<String, String> attrValue = new LinkedHashMap<String, String>();
+		Map<String, String> attrValue = new LinkedHashMap<>();
 		for(int i = 0; i < value.length; i += 2) {
 			attrValue.put(value[i], value[i+1]);
 		}

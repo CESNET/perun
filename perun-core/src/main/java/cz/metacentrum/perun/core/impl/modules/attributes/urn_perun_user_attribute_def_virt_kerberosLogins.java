@@ -29,7 +29,7 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		List<String> krbPrincipalName = new ArrayList<String>();
+		List<String> krbPrincipalName = new ArrayList<>();
 		Attribute krbLogins;
 
 		try {
@@ -96,7 +96,7 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":kerberosLogins");
 		return strongDependencies;
 	}

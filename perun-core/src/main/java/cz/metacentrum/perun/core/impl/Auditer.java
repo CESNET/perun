@@ -404,7 +404,7 @@ public class Auditer {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
 					AUDITMESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<AuditMessage>();
+			return new ArrayList<>();
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -423,7 +423,7 @@ public class Auditer {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log_json ORDER BY id Desc limit ?) " + Compatibility.getAsAlias("temp"),
 					AUDITMESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<AuditMessage>();
+			return new ArrayList<>();
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -433,7 +433,7 @@ public class Auditer {
 		try {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ((select max(id) from auditer_log)-?) order by id desc", AUDITMESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<AuditMessage>();
+			return new ArrayList<>();
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -469,7 +469,7 @@ public class Auditer {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + ",row_number() over (ORDER BY id DESC) as rownumber from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
 					AUDITMESSAGE_MAPPER_FOR_PARSER, count);
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<AuditMessage>();
+			return new ArrayList<>();
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -658,7 +658,7 @@ public class Auditer {
 				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -682,7 +682,7 @@ public class Auditer {
 				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -706,7 +706,7 @@ public class Auditer {
 				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -729,7 +729,7 @@ public class Auditer {
 				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
 				return messages;
 			}
-			return new ArrayList<AuditMessage>();
+			return new ArrayList<>();
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}

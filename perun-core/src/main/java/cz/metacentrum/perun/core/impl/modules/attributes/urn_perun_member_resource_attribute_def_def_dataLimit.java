@@ -164,7 +164,7 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Membe
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependecies = new ArrayList<String>();
+		List<String> dependecies = new ArrayList<>();
 		dependecies.add(A_MR_dataQuota);
 		dependecies.add(A_R_defaultDataLimit);
 		dependecies.add(A_R_defaultDataQuota);

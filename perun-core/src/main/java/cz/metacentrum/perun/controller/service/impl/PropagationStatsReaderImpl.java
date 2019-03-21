@@ -143,7 +143,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 			if (task.getService() != null) {
 				List<TaskResult> results = taskResultDao.getTaskResultsByTask(task.getId());
 
-				Map<Service, Map<Destination, TaskResult>> latestResults = new HashMap<Service, Map<Destination, TaskResult>>();
+				Map<Service, Map<Destination, TaskResult>> latestResults = new HashMap<>();
 				for (TaskResult res : results) {
 
 					if (latestResults.get(res.getService()) == null) {
@@ -191,8 +191,8 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 
 	@Override
 	public List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, UserNotExistsException {
-		List<FacilityState> list = new ArrayList<FacilityState>();
-		List<Facility> facs = new ArrayList<Facility>();
+		List<FacilityState> list = new ArrayList<>();
+		List<Facility> facs = new ArrayList<>();
 
 		// return facilities where user is admin or all if perun admin
 		facs = perun.getFacilitiesManager().getFacilities(session);
@@ -206,11 +206,11 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	@Override
 	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException, UserNotExistsException {
 
-		List<FacilityState> list = new ArrayList<FacilityState>();
-		List<RichResource> facs = new ArrayList<RichResource>();
+		List<FacilityState> list = new ArrayList<>();
+		List<RichResource> facs = new ArrayList<>();
 		facs = perun.getResourcesManager().getRichResources(session, vo);
 
-		Set<Facility> facilities = new HashSet<Facility>();
+		Set<Facility> facilities = new HashSet<>();
 		for (RichResource res : facs) {
 			facilities.add(res.getFacility());
 		}
@@ -260,7 +260,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	public List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException {
 
 		List<Resource> resources = perun.getResourcesManager().getResources(session, vo);
-		List<ResourceState> resourceStateList = new ArrayList<ResourceState>();
+		List<ResourceState> resourceStateList = new ArrayList<>();
 
 		for (Resource resource : resources) {
 			List<Task> taskList = taskManager.listAllTasksForFacility(resource.getFacilityId());
@@ -284,7 +284,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 			throw new PrivilegeException("getFacilityServicesState");
 		}
 
-		Map<Service, ServiceState> serviceStates = new HashMap<Service, ServiceState>();
+		Map<Service, ServiceState> serviceStates = new HashMap<>();
 
 		// fill states for all services which are currently on facility
 		for (Service service : perun.getServicesManagerBl().getAssignedServices(sess, facility)) {
@@ -319,7 +319,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 
 		}
 
-		return new ArrayList<ServiceState>(serviceStates.values());
+		return new ArrayList<>(serviceStates.values());
 
 	}
 

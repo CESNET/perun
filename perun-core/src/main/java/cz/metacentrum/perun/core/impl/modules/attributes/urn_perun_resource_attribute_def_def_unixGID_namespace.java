@@ -50,8 +50,8 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 		//If there exist some groupName of this resource
 		if(!groupNamesOfResource.isEmpty()) {
 			//Get All Groups and Resources with some same GroupName in the same Namespace
-			List<Group> groupsWithSameGroupNameInSameNamespace = new ArrayList<Group>();
-			List<Resource> resourcesWithSameGroupNameInSameNamespace = new ArrayList<Resource>();
+			List<Group> groupsWithSameGroupNameInSameNamespace = new ArrayList<>();
+			List<Resource> resourcesWithSameGroupNameInSameNamespace = new ArrayList<>();
 			for(Attribute attr: groupNamesOfResource) {
 				Attribute groupNameOfGroup;
 				try {
@@ -127,8 +127,8 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 			}
 
 			//Prepare lists for all groups and resources with same GID in the same namespace
-			List<Group> allGroupsWithSameGIDInSameNamespace = new ArrayList<Group>();
-			List<Resource> allResourcesWithSameGIDInSameNamespace = new ArrayList<Resource>();
+			List<Group> allGroupsWithSameGIDInSameNamespace = new ArrayList<>();
+			List<Resource> allResourcesWithSameGIDInSameNamespace = new ArrayList<>();
 
 			//Prepare attributes for searching through groups and resources
 			Attribute resourceGIDAttribute = attribute;
@@ -240,7 +240,7 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID");
 		dependencies.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID");
 		//Disallowed because of crosschecks between modules and performance reason

@@ -90,7 +90,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependecies = new ArrayList<String>();
+		List<String> dependecies = new ArrayList<>();
 		dependecies.add(A_R_homeMountPoints);
 		return dependecies;
 	}

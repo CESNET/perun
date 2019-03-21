@@ -270,7 +270,7 @@ public class UsersManagerEntry implements UsersManager {
 	public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
-		if(users == null || users.isEmpty()) return new ArrayList<RichUser>();
+		if(users == null || users.isEmpty()) return new ArrayList<>();
 
 		for(User user: users) {
 			getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
@@ -288,7 +288,7 @@ public class UsersManagerEntry implements UsersManager {
 	public List<RichUser> getRichUsersWithAttributesFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
-		if(users == null || users.isEmpty()) return new ArrayList<RichUser>();
+		if(users == null || users.isEmpty()) return new ArrayList<>();
 
 		for(User user: users) {
 			getPerunBl().getUsersManagerBl().checkUserExists(sess, user);

@@ -48,7 +48,7 @@ public class urn_perun_user_facility_attribute_def_virt_shellTest {
 		defDefShell = new Attribute();
 		facilityShell = new Attribute();
 		resourceShell = new ArrayList();
-		listOfMntPts = new ArrayList<String>();
+		listOfMntPts = new ArrayList<>();
 		for(int i=0;i<5;i++) listOfMntPts.add("/mnt/bash" + i);
 		preffered.setValue(new ArrayList(listOfMntPts));
 		listOfMntPts.clear();
@@ -68,7 +68,7 @@ public class urn_perun_user_facility_attribute_def_virt_shellTest {
 		resource1.setName("myResource");
 		resource1.setDescription("desc");
 
-		resourceList = new ArrayList<Resource>();
+		resourceList = new ArrayList<>();
 		resourceList.add(resource1);
 	}
 

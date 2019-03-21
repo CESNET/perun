@@ -192,7 +192,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	public List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException {
 
 		// result list
-		List<ServiceForGUI> result = new ArrayList<ServiceForGUI>();
+		List<ServiceForGUI> result = new ArrayList<>();
 		// get assigned services
 		List<Service> services = getServicesManager().getAssignedServices(perunSession, facility);
 		for (Service service : services){

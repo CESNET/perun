@@ -78,7 +78,7 @@ public class Utils {
 	}
 
 	public static <T> boolean hasDuplicate(List<T> all) {
-		Set<T> set = new HashSet<T>(all.size());
+		Set<T> set = new HashSet<>(all.size());
 		// Set#add returns false if the set does not change, which
 		// indicates that a duplicate element has been added.
 		for (T each: all) if (!set.add(each)) return true;
@@ -369,12 +369,12 @@ public class Utils {
 		assert classLoader != null;
 		String path = packageName.replace('.', '/');
 		Enumeration<URL> resources = classLoader.getResources(path);
-		List<File> dirs = new ArrayList<File>();
+		List<File> dirs = new ArrayList<>();
 		while (resources.hasMoreElements()) {
 			URL resource = resources.nextElement();
 			dirs.add(new File(resource.getFile()));
 		}
-		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+		ArrayList<Class<?>> classes = new ArrayList<>();
 		for (File directory : dirs) {
 			classes.addAll(findClasses(directory, packageName));
 		}
@@ -433,7 +433,7 @@ public class Utils {
 	 */
 	public static Map<String, String> parseCommonName(String rawName) {
 		//prepare variables and map
-		Map<String, String> parsedName = new HashMap<String, String>();
+		Map<String, String> parsedName = new HashMap<>();
 		String titleBefore = "";
 		String firstName = "";
 		String lastName = "";
@@ -555,7 +555,7 @@ public class Utils {
 	 * @throws ClassNotFoundException
 	 */
 	private static List<Class<?>> findClasses(File directory, String packageName) throws ClassNotFoundException {
-		List<Class<?>> classes = new ArrayList<Class<?>>();
+		List<Class<?>> classes = new ArrayList<>();
 		if (!directory.exists()) {
 			return classes;
 		}
@@ -598,8 +598,8 @@ public class Utils {
 	 */
 	public static String serializeMapToString(Map<String, String> map) {
 		if(map == null) return "\\0";
-		Map<String, String> attrNew = new HashMap<String, String>(map);
-		Set<String> keys = new HashSet<String>(attrNew.keySet());
+		Map<String, String> attrNew = new HashMap<>(map);
+		Set<String> keys = new HashSet<>(attrNew.keySet());
 		for(String s: keys) {
 			attrNew.put("<" + BeansUtils.createEscaping(s) + ">", "<" + BeansUtils.createEscaping(attrNew.get(s)) + ">");
 			attrNew.remove(s);
@@ -634,12 +634,12 @@ public class Utils {
 	 * @return list of all generated strings
 	 */
 	public static List<String> generateStringsByPattern(String pattern) throws WrongPatternException {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 
 		// get chars between the brackets
-		List<String> values = new ArrayList<String>(Arrays.asList(pattern.split("\\[[^\\]]*\\]")));
+		List<String> values = new ArrayList<>(Arrays.asList(pattern.split("\\[[^\\]]*\\]")));
 		// get content of the brackets
-		List<String> generators = new ArrayList<String>();
+		List<String> generators = new ArrayList<>();
 		Pattern generatorPattern = Pattern.compile("\\[([^\\]]*)\\]");
 		Matcher m = generatorPattern.matcher(pattern);
 		while (m.find()) {
@@ -661,7 +661,7 @@ public class Utils {
 		}
 
 		// list, that contains list for each generator, with already generated numbers
-		List<List<String>> listOfGenerated = new ArrayList<List<String>>();
+		List<List<String>> listOfGenerated = new ArrayList<>();
 
 		Pattern rangePattern = Pattern.compile("^(\\d+)-(\\d+)$");
 		for (String range: generators) {
@@ -696,7 +696,7 @@ public class Utils {
 				int oldNumberOfDigits = String.valueOf(startNumber).length();
 
 				// list of already generated numbers
-				List<String> generated = new ArrayList<String>();
+				List<String> generated = new ArrayList<>();
 				while (endNumber >= startNumber) {
 					// keep right number of zeros before number
 					if (String.valueOf(startNumber).length() == oldNumberOfDigits +1) {
@@ -716,7 +716,7 @@ public class Utils {
 		}
 
 		// add values among the generated numbers as one item lists
-		List<List<String>> listOfGeneratorsAndValues = new ArrayList<List<String>>();
+		List<List<String>> listOfGeneratorsAndValues = new ArrayList<>();
 		int index = 0;
 
 		for (List<String> list : listOfGenerated) {
@@ -755,7 +755,7 @@ public class Utils {
 		if (lists.size() == 1) {
 			return lists.get(0);
 		}
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 
 		List<String> list = lists.remove(0);
 		// get recursively all posibilities without first list

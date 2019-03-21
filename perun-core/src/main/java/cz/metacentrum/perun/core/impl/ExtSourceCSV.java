@@ -173,7 +173,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
     private List<Map<String, String>> csvParsing(String query, int maxResults) throws InternalErrorException, FileNotFoundException, IOException {
-        List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> subjects = new ArrayList<>();
 
         FileReader fileReader = new FileReader(file);
         if (fileReader == null) {
@@ -269,7 +269,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
      */
     private Map<String, String> convertLineToMap(String[] line) throws InternalErrorException {
 
-        Map<String, String> lineAsMap = new HashMap<String, String>();
+        Map<String, String> lineAsMap = new HashMap<>();
 
         String mapping = getAttributes().get("csvMapping");
 

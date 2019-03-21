@@ -116,12 +116,12 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 
 		try (PreparedStatement st = getPreparedStatement(query, searchString, maxResults)) {
 			try (ResultSet rs = st.executeQuery()) {
-				List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+				List<Map<String, String>> subjects = new ArrayList<>();
 
 				log.trace("Query {}", query);
 
 				while (rs.next()) {
-					Map<String, String> map = new HashMap<String, String>();
+					Map<String, String> map = new HashMap<>();
 
 					try {
 						map.put("firstName", rs.getString("firstName"));
@@ -305,12 +305,12 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		try (PreparedStatement st = getPreparedStatement(query, searchString, maxResults)) {
 			try (ResultSet rs = st.executeQuery()) {
 
-				List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+				List<Map<String, String>> subjects = new ArrayList<>();
 
 				log.trace("Query {}", query);
 
 				while (rs.next()) {
-					Map<String, String> map = new HashMap<String, String>();
+					Map<String, String> map = new HashMap<>();
 
 					try {
 						map.put(GroupsManagerBlImpl.GROUP_NAME, rs.getString(GroupsManagerBlImpl.GROUP_NAME));

@@ -37,12 +37,12 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  */
 public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	Map<String, Pair<String, String>> mapOfExtSourcesNames = new HashMap<String, Pair<String, String>>();
+	Map<String, Pair<String, String>> mapOfExtSourcesNames = new HashMap<>();
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		HashMap<String, String> organizationsWithLoa = new LinkedHashMap<String, String>();
+		HashMap<String, String> organizationsWithLoa = new LinkedHashMap<>();
 
 		List<UserExtSource> extSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 		if(extSources == null || extSources.isEmpty()) return attribute; //If no userExtSources, so no Loa for any of them.

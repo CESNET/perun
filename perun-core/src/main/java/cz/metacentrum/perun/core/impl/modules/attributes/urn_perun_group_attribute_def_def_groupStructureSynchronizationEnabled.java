@@ -78,7 +78,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);
 		dependencies.add(GroupsManager.GROUPSQUERY_ATTRNAME);
 		dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);

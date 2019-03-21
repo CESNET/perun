@@ -49,8 +49,8 @@ public class SearcherBlImpl implements SearcherBl {
 			return perunBl.getUsersManagerBl().getUsers(sess);
 		}
 
-		Map<Attribute, String> mapOfAttrsWithValues = new HashMap<Attribute, String>();
-		Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<AttributeDefinition, String>();
+		Map<Attribute, String> mapOfAttrsWithValues = new HashMap<>();
+		Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<>();
 		for(String name: attributesWithSearchingValues.keySet()) {
 			if(name == null || name.equals("")) throw new AttributeNotExistsException("There is attribute with no specific name!");
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, name);
@@ -72,7 +72,7 @@ public class SearcherBlImpl implements SearcherBl {
 		List<User> users = getPerunBl().getUsersManagerBl().getUsers(sess);
 		if(coreAttributesWithSearchingValues == null || coreAttributesWithSearchingValues.isEmpty()) return users;
 
-		Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<AttributeDefinition, String>();
+		Map<AttributeDefinition, String> mapOfCoreAttributesWithValues = new HashMap<>();
 		Set<String> keys = coreAttributesWithSearchingValues.keySet();
 		for(String name: keys) {
 			if(name == null || name.equals("")) throw new AttributeNotExistsException("There is attribute with no specific name!");

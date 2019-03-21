@@ -111,7 +111,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> StrongDependencies = new ArrayList<String>();
+		List<String> StrongDependencies = new ArrayList<>();
 		StrongDependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
 		StrongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace" + ":*");
 		return StrongDependencies;

@@ -396,7 +396,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	@Override
 	public List<Attribute> getListOfResourceGIDsFromListOfGroupGIDs(PerunSessionImpl sess, List<Attribute> groupGIDs) throws InternalErrorException, AttributeNotExistsException {
-		List<Attribute> resourceGIDs = new ArrayList<Attribute>();
+		List<Attribute> resourceGIDs = new ArrayList<>();
 		if(groupGIDs == null || groupGIDs.isEmpty()) {
 			return resourceGIDs;
 		}
@@ -412,7 +412,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	@Override
 	public List<Attribute> getListOfGroupGIDsFromListOfResourceGIDs(PerunSessionImpl sess, List<Attribute> resourceGIDs) throws InternalErrorException, AttributeNotExistsException {
-		List<Attribute> groupGIDs = new ArrayList<Attribute>();
+		List<Attribute> groupGIDs = new ArrayList<>();
 		if(resourceGIDs == null || resourceGIDs.isEmpty()) {
 			return groupGIDs;
 		}
@@ -428,7 +428,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	@Override
 	public Set<String> getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(PerunSessionImpl sess, List<Facility> facilities, Attribute unixGroupNameNamespace) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		Set<String> gidNamespaces = new HashSet<String>();
+		Set<String> gidNamespaces = new HashSet<>();
 		if(facilities == null || facilities.isEmpty()) return gidNamespaces;
 		Utils.notNull(facilities, "facilities");
 
@@ -456,7 +456,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	@Override
 	public Set<String> getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(PerunSessionImpl sess, List<Facility> facilities, Attribute unixGIDNamespace) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		Set<String> groupNameNamespaces = new HashSet<String>();
+		Set<String> groupNameNamespaces = new HashSet<>();
 		if(facilities == null || facilities.isEmpty()) return groupNameNamespaces;
 		Utils.notNull(unixGIDNamespace, "unixGIDNamespace");
 
@@ -566,14 +566,14 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		Utils.notNull(groupUnixGIDNamespace, "groupUnixGIDNamespace");
 
 		//Get All Facilities from group
-		Set<Facility> facilitiesOfGroup = new HashSet<Facility>();
+		Set<Facility> facilitiesOfGroup = new HashSet<>();
 		List<Resource> resourcesOfGroup = sess.getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
 		for(Resource r: resourcesOfGroup) {
 			facilitiesOfGroup.add(sess.getPerunBl().getResourcesManagerBl().getFacility(sess, r));
 		}
 
 		//Prepare list of gid namespaces of all facilities which have the same groupName namespace like this unixGroupName namespace
-		Set<String> groupNameNamespaces = this.getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(sess, new ArrayList<Facility>(facilitiesOfGroup), groupUnixGIDNamespace);
+		Set<String> groupNameNamespaces = this.getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(sess, new ArrayList<>(facilitiesOfGroup), groupUnixGIDNamespace);
 
 		if(!groupNameNamespaces.isEmpty()) {
 			for(String s: groupNameNamespaces) {

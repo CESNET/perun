@@ -135,7 +135,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 		try {
 			return jdbc.query("select " + ownerMappingSelectQuery + " from owners", OWNER_MAPPER);
 		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<Owner>();
+			return new ArrayList<>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

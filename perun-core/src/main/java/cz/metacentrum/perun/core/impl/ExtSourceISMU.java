@@ -120,10 +120,10 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			String line = null;
 
-			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+			List<Map<String, String>> subjects = new ArrayList<>();
 
 			while ((line = reader.readLine()) != null) {
-				Map<String, String> map = new HashMap<String, String>();
+				Map<String, String> map = new HashMap<>();
 
 				// Each line looks like:
 				// UCO  ;;          ;"title before. title before. firstName lastName, title after

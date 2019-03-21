@@ -287,7 +287,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			return jdbc.query("select " + serviceMappingSelectQuery + " from services", SERVICE_MAPPER);
 		} catch (EmptyResultDataAccessException ex) {
 			log.info("ServicesManager.getAllServices: No service found.");
-			return new ArrayList<Service>();
+			return new ArrayList<>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -300,7 +300,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 					+ "where service_required_attrs.attr_id=?", SERVICE_MAPPER, attributeDefinition.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			log.info("ServicesManager.getServicesByAttributeDefinition: No service found.");
-			return new ArrayList<Service>();
+			return new ArrayList<>();
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -412,7 +412,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	@Override
 	public List<Service> getServicesFromServicesPackage(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException {
 		try {
-			List<Service> services = new ArrayList<Service>();
+			List<Service> services = new ArrayList<>();
 			List<Integer> servicesId = jdbc.query("select service_id as id from service_service_packages where package_id=?", Utils.ID_MAPPER, servicesPackage.getId());
 			for(Integer serviceId: servicesId) {
 				try {
