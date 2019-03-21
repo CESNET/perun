@@ -613,9 +613,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 		if(ret == 0) {
 			throw new NotGroupMemberException(group, member);
-		} else if(ret >= 1) {
-			return;
-		} else {
+		} else if (ret < 1) {
 			throw new ConsistencyErrorException(member + " and " + group + " have " + ret + " rows in groups_members table");
 		}
 

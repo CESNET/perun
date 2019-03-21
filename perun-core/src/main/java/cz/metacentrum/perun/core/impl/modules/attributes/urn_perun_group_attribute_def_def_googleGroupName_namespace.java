@@ -49,9 +49,8 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 
 		//If there is no group with same GroupNameInTheSameNamespace, its ok. Remove this group from the list first just to be sure.
 		groupsWithSameGroupNameInTheSameNamespace.remove(group);
-		if(groupsWithSameGroupNameInTheSameNamespace.isEmpty()) return;
 		//if any other group with same GroupName in this namespace exists, check if user has right to use this name at least in one of these groups
-		else {
+		if (!groupsWithSameGroupNameInTheSameNamespace.isEmpty()) {
 			boolean haveRights = false;
 			for(Group groupWithSameGroupName: groupsWithSameGroupNameInTheSameNamespace) {
 				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, groupWithSameGroupName)) {
