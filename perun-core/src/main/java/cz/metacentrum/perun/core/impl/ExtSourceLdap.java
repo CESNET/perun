@@ -208,10 +208,10 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			if (getAttributes().get("ldapMapping") == null) {
 				throw new InternalErrorException("ldapMapping attributes is required");
 			}
-			String ldapMapping[] = getAttributes().get("ldapMapping").trim().split(",\n");
+			String[] ldapMapping = getAttributes().get("ldapMapping").trim().split(",\n");
 			mapping = new HashMap<>();
 			for (String entry: ldapMapping) {
-				String values[] = entry.trim().split("=", 2);
+				String[] values = entry.trim().split("=", 2);
 				mapping.put(values[0].trim(), values[1].trim());
 			}
 
