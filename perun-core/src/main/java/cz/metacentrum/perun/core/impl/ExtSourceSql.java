@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -198,7 +199,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 											result.write(buffer, 0, length);
 										}
 										byte[] bytes = Base64.encodeBase64(result.toByteArray());
-										attributeValue = new String(bytes, "UTF-8");
+										attributeValue = new String(bytes, StandardCharsets.UTF_8);
 									}
 								} catch (IOException ex) {
 									log.error("Unable to read BLOB for column {}", columnName);
