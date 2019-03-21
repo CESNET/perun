@@ -37,7 +37,7 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 		//Sort user ext sources by their ids (biggest id go last)
-		Collections.sort(userExtSources, (ues1, ues2) -> ues1.getId() - ues2.getId());
+		userExtSources.sort((ues1, ues2) -> ues1.getId() - ues2.getId());
 
 		//Prepare also prefix number
 		int i=1;
