@@ -201,24 +201,22 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
             is = connection.getInputStream();
         }
         if (is != null) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-            String line;
 
-            try {
-                while ((line = bufferedReader.readLine()) != null) {
-                    JSONObject obj = new JSONObject(line);
-                    JSONArray groupsArray = obj.getJSONArray("entry");
+	        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is))) {
+		        String line;
+		        while ((line = bufferedReader.readLine()) != null) {
+			        JSONObject obj = new JSONObject(line);
+			        JSONArray groupsArray = obj.getJSONArray("entry");
 
-                    for (int i = 0; i < groupsArray.length(); i++) {
-                        groups.add(groupsArray.getJSONObject(i).getString("id"));
-                    }
+			        for (int i = 0; i < groupsArray.length(); i++) {
+				        groups.add(groupsArray.getJSONObject(i).getString("id"));
+			        }
 
-                    return groups;
-                }
-            } finally {
-                bufferedReader.close();
-                connection.disconnect();
-            }
+			        return groups;
+		        }
+	        } finally {
+		        connection.disconnect();
+	        }
         }
         return null;
     }
@@ -253,41 +251,39 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
             is = connection.getInputStream();
         }
         if (is != null) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-            String line;
 
-            try {
-                while ((line = bufferedReader.readLine()) != null) {
-                    JSONObject obj = new JSONObject(line);
-                    JSONArray usersArray = obj.getJSONArray("entry");
+	        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is))) {
+		        String line;
+		        while ((line = bufferedReader.readLine()) != null) {
+			        JSONObject obj = new JSONObject(line);
+			        JSONArray usersArray = obj.getJSONArray("entry");
 
-                    for (int i = 0; i < usersArray.length(); i++) {
-                        JSONObject user = usersArray.getJSONObject(i);
-                        if (query == null) {
-                            users.add(jsonParsing(user));
-                        } else {
-                            int index = query.indexOf("=");
-                            String queryType = query.substring(0, index);
-                            String value = query.substring(index + 1);
+			        for (int i = 0; i < usersArray.length(); i++) {
+				        JSONObject user = usersArray.getJSONObject(i);
+				        if (query == null) {
+					        users.add(jsonParsing(user));
+				        } else {
+					        int index = query.indexOf("=");
+					        String queryType = query.substring(0, index);
+					        String value = query.substring(index + 1);
 
-                            if (queryType.equals("email")
-                                    && value.equals(user.getJSONArray("emails").getJSONObject(0).getString("value"))) {
-                                Map parsedUser = jsonParsing(usersArray.getJSONObject(i));
-                                users.add(parsedUser);
-                            }
+					        if (queryType.equals("email")
+						        && value.equals(user.getJSONArray("emails").getJSONObject(0).getString("value"))) {
+						        Map parsedUser = jsonParsing(usersArray.getJSONObject(i));
+						        users.add(parsedUser);
+					        }
 
-                            if (queryType.equals("id")
-                                    && value.equals(user.getString("id"))) {
-                                users.add(jsonParsing(usersArray.getJSONObject(i)));
-                            }
-                        }
-                    }
-                    return users;
-                }
-            } finally {
-                bufferedReader.close();
-                connection.disconnect();
-            }
+					        if (queryType.equals("id")
+						        && value.equals(user.getString("id"))) {
+						        users.add(jsonParsing(usersArray.getJSONObject(i)));
+					        }
+				        }
+			        }
+			        return users;
+		        }
+	        } finally {
+		        connection.disconnect();
+	        }
         }
         return null;
     }
