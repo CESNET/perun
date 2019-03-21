@@ -166,7 +166,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
     private void prepareEnvironment() throws InternalErrorException {
         //Get csv files
-        file = (String) getAttributes().get("file");
+        file = getAttributes().get("file");
         if (file == null || file.isEmpty()) {
             throw new InternalErrorException("File cannot be empty!");
         }

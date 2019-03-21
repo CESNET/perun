@@ -344,8 +344,8 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     protected void prepareEnvironment() throws InternalErrorException {
-        uriMembership = (String) getAttributes().get("uriMembership");
-        uriMembers = (String) getAttributes().get("uriMembers");
+        uriMembership = getAttributes().get("uriMembership");
+        uriMembers = getAttributes().get("uriMembers");
 
         if (uriMembership == null || uriMembership.isEmpty()) {
             throw new InternalErrorException("uriMembership attribute is required");

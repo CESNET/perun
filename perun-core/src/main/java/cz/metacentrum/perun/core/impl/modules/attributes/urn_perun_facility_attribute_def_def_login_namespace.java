@@ -31,7 +31,7 @@ public class urn_perun_facility_attribute_def_def_login_namespace extends Facili
 	@Override
 	public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		String userFacilityLoginNamespaceAttributeName =
-			AttributesManager.NS_USER_ATTR_DEF + ":" + attribute.getFriendlyName() + ":" + (String) attribute.getValue();
+			AttributesManager.NS_USER_ATTR_DEF + ":" + attribute.getFriendlyName() + ":" + attribute.getValue();
 
 		try {
 			session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, userFacilityLoginNamespaceAttributeName);

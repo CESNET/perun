@@ -86,7 +86,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		searchString = convertToXpathSearchString(searchString);
 
 		//Get Query attribute from extSources.xml config file
-		query = (String) getAttributes().get("xpath");
+		query = getAttributes().get("xpath");
 		if (query == null || query.isEmpty()) {
 			throw new InternalErrorException("query attributes is required");
 		}
@@ -109,7 +109,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		login = convertToXpathSearchString(login);
 
 		//Get Query attribute from extSources.xml config file
-		query = (String) getAttributes().get("loginXpath");
+		query = getAttributes().get("loginXpath");
 		if (query == null || query.isEmpty()) {
 			throw new InternalErrorException("query attributes is required");
 		}
@@ -152,10 +152,10 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 
 	protected void prepareEnvironment() throws InternalErrorException {
 		//Get file or uri of xml
-		file = (String) getAttributes().get("file");
+		file = getAttributes().get("file");
 		if(file == null || file.isEmpty()) {
 			file = null;
-			uri = (String) getAttributes().get("uri");
+			uri = getAttributes().get("uri");
 			if(uri == null || uri.isEmpty()) {
 				throw new InternalErrorException("File and uri are both empty, one must exists!.");
 			}

@@ -300,7 +300,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 						commonGIDGroup = g;
 						commonGID = (Integer) attr.getValue();
 					} else {
-						if(!commonGID.equals((Integer) attr.getValue())) throw new ConsistencyErrorException("There are at least 1 groups/resources with same GroupName in same namespace but with different GID in same namespaces. Conflict found: "  + g + "(gid=" + attr.getValue()+ ") and " + commonGIDGroup + "(gid=" + commonGID + ")");
+						if(!commonGID.equals(attr.getValue())) throw new ConsistencyErrorException("There are at least 1 groups/resources with same GroupName in same namespace but with different GID in same namespaces. Conflict found: "  + g + "(gid=" + attr.getValue()+ ") and " + commonGIDGroup + "(gid=" + commonGID + ")");
 					}
 				}
 			} catch (AttributeNotExistsException ex) {
@@ -326,7 +326,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 						commonGIDResource = r;
 						commonGID = (Integer) attr.getValue();
 					} else {
-						if(!commonGID.equals((Integer) attr.getValue())) throw new ConsistencyErrorException("There are at least 1 groups/resources with same GroupName in same namespace but with different GID in same namespaces. Conflict found: " + r + "(gid=" + attr.getValue()+ ") and " + commonGIDResource + "(gid=" + commonGID + ")");
+						if(!commonGID.equals(attr.getValue())) throw new ConsistencyErrorException("There are at least 1 groups/resources with same GroupName in same namespace but with different GID in same namespaces. Conflict found: " + r + "(gid=" + attr.getValue()+ ") and " + commonGIDResource + "(gid=" + commonGID + ")");
 					}
 				}
 			} catch (AttributeNotExistsException ex) {
@@ -438,7 +438,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 				facilityGroupNameNamespace = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, f, A_F_unixGroupName_namespace);
 				if(facilityGroupNameNamespace.getValue() != null) {
 					//if they are same, save GID-namespace from this facility to hashSet
-					if(unixGroupNameNamespace.getFriendlyNameParameter().equals((String) facilityGroupNameNamespace.getValue())) {
+					if(unixGroupNameNamespace.getFriendlyNameParameter().equals(facilityGroupNameNamespace.getValue())) {
 						Attribute facilityGIDNamespace = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, f, A_F_unixGID_namespace);
 						//If facilityGIDNamespace exists and is not null, save to the hashSet of gidNamespaces
 						if(facilityGIDNamespace.getValue() != null) {
@@ -466,7 +466,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 				facilityGIDNamespace = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, f, A_F_unixGID_namespace);
 				if(facilityGIDNamespace.getValue() != null) {
 					//if they are same, save GroupName-namespace from this facility to hashSet
-					if(unixGIDNamespace.getFriendlyNameParameter().equals((String) facilityGIDNamespace.getValue())) {
+					if(unixGIDNamespace.getFriendlyNameParameter().equals(facilityGIDNamespace.getValue())) {
 						Attribute facilityGroupNameNamespace = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, f, A_F_unixGroupName_namespace);
 						//If facilityGroupNameNamespace exists and is not null, save to the hashSet of gidNamespaces
 						if(facilityGroupNameNamespace.getValue() != null) {

@@ -68,13 +68,13 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException {
 		// Prepare searchQuery
 		// attributes.get("query") contains query template, e.g. (uid=?), ? will be replaced by the searchString
-		String query = (String) getAttributes().get("query");
+		String query = getAttributes().get("query");
 		if (query == null) {
 			throw new InternalErrorException("query attributes is required");
 		}
 		query = query.replaceAll("\\?", searchString);
 
-		String base = (String) getAttributes().get("base");
+		String base = getAttributes().get("base");
 		if (base == null) {
 			throw new InternalErrorException("base attributes is required");
 		}
@@ -85,13 +85,13 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
 		// Prepare searchQuery
 		// attributes.get("loginQuery") contains query template, e.g. (uid=?), ? will be replaced by the login
-		String query = (String) getAttributes().get("loginQuery");
+		String query = getAttributes().get("loginQuery");
 		if (query == null) {
 			throw new InternalErrorException("loginQuery attributes is required");
 		}
 		query = query.replaceAll("\\?", login);
 
-		String base = (String) getAttributes().get("base");
+		String base = getAttributes().get("base");
 		if (base == null) {
 			throw new InternalErrorException("base attributes is required");
 		}
@@ -126,7 +126,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 			String attrName;
 			if (getAttributes().containsKey("memberAttribute")) {
-				attrName = (String) getAttributes().get("memberAttribute");
+				attrName = getAttributes().get("memberAttribute");
 			} else {
 				// Default value
 				attrName = "uniqueMember";
@@ -185,22 +185,22 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		if (getAttributes().containsKey("referral")) {
-			env.put(Context.REFERRAL, (String) getAttributes().get("referral"));
+			env.put(Context.REFERRAL, getAttributes().get("referral"));
 		}
 		if (getAttributes().containsKey("url")) {
-			env.put(Context.PROVIDER_URL, (String) getAttributes().get("url"));
+			env.put(Context.PROVIDER_URL, getAttributes().get("url"));
 		} else {
 			throw new InternalErrorException("url attributes is required");
 		}
 		if (getAttributes().containsKey("user")) {
-			env.put(Context.SECURITY_PRINCIPAL, (String) getAttributes().get("user"));
+			env.put(Context.SECURITY_PRINCIPAL, getAttributes().get("user"));
 		}
 		if (getAttributes().containsKey("password")) {
-			env.put(Context.SECURITY_CREDENTIALS, (String) getAttributes().get("password"));
+			env.put(Context.SECURITY_CREDENTIALS, getAttributes().get("password"));
 		}
 
 		if (getAttributes().containsKey("filteredQuery")) {
-			filteredQuery = (String) getAttributes().get("filteredQuery");
+			filteredQuery = getAttributes().get("filteredQuery");
 		}
 
 		try {
@@ -208,7 +208,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			if (getAttributes().get("ldapMapping") == null) {
 				throw new InternalErrorException("ldapMapping attributes is required");
 			}
-			String ldapMapping[] = ((String) getAttributes().get("ldapMapping")).trim().split(",\n");
+			String ldapMapping[] = getAttributes().get("ldapMapping").trim().split(",\n");
 			mapping = new HashMap<>();
 			for (String entry: ldapMapping) {
 				String values[] = entry.trim().split("=", 2);
@@ -376,7 +376,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 				while (results.hasMore()) {
 
-					SearchResult searchResult = (SearchResult) results.next();
+					SearchResult searchResult = results.next();
 					Attributes attributes = searchResult.getAttributes();
 					Map<String,String> subjectAttributes = this.getSubjectAttributes(attributes);
 					if (!subjectAttributes.isEmpty()) {

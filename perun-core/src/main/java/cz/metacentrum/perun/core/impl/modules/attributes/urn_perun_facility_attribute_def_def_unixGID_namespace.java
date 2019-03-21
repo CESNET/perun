@@ -32,8 +32,8 @@ public class urn_perun_facility_attribute_def_def_unixGID_namespace extends Faci
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Attribute value can't be null");
 
 		try {
-			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + (String) attribute.getValue());
-			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + (String) attribute.getValue());
+			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + attribute.getValue());
+			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + attribute.getValue());
 		} catch (AttributeNotExistsException e) {
 			throw new WrongAttributeValueException(attribute, e);
 		}

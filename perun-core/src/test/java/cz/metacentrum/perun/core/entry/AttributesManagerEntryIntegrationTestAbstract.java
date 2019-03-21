@@ -544,8 +544,8 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		Attribute groupGIDInAAA = perun.getAttributesManagerBl().getAttribute(sess, g1, g_gid_AAA_def.getName());
 		Attribute groupGIDInBBB = perun.getAttributesManagerBl().getAttribute(sess, g1, g_gid_BBB_def.getName());
 
-		assertEquals(new Integer(100), (Integer) groupGIDInAAA.getValue());
-		assertEquals(new Integer(100), (Integer) groupGIDInBBB.getValue());
+		assertEquals(new Integer(100), groupGIDInAAA.getValue());
+		assertEquals(new Integer(100), groupGIDInBBB.getValue());
 	}
 
 	@Test

@@ -80,7 +80,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 
 	private Attribute getNamespaceMinGidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException, WrongReferenceAttributeValueException {
 		try {
-			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, (String) uidNamespace, A_E_namespaceMinGID);
+			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespaceMinGID);
 		} catch(AttributeNotExistsException ex) { throw new ConsistencyErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
 		}

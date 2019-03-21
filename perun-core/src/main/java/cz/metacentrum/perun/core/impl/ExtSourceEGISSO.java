@@ -88,7 +88,7 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 			results = getContext().search(base, query, controls);
 
 			while (results.hasMore()) {
-				SearchResult searchResult = (SearchResult) results.next();
+				SearchResult searchResult = results.next();
 				subjects.add(processResultToSubject(searchResult));
 			}
 			

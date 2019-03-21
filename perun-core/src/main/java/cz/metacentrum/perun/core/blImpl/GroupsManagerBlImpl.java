@@ -2964,7 +2964,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							if (richMember.getStatus().equals(Status.DISABLED)) {
 								try {
 									perunBl.getMembersManagerBl().expireMember(sess, richMember);
-									log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), (String) membershipExpiration.getValue());
+									log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), membershipExpiration.getValue());
 									log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
 								} catch (MemberNotValidYetException e) {
 									log.error("Consistency error while trying to expire member id {}, exception {}", richMember.getId(), e);
@@ -2974,7 +2974,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							//disabled and expired members which are before expiration date will be validated
 							try {
 								perunBl.getMembersManagerBl().validateMember(sess, richMember);
-								log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), (String) membershipExpiration.getValue());
+								log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), membershipExpiration.getValue());
 								log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
 							} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 								log.error("Error during validating member id {}, exception {}", richMember.getId(), e);

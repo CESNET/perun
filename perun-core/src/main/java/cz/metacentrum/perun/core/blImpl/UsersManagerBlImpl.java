@@ -484,7 +484,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					log.error("Error during deletion of the account at {} for user {} with login {}.", loginAttribute.getFriendlyNameParameter(), user, (String) loginAttribute.getValue());
 				} else {
 					throw new RelationExistsException("Error during deletion of the account at " + loginAttribute.getFriendlyNameParameter() +
-							" for user " + user + " with login " + (String) loginAttribute.getValue() + ".");
+							" for user " + user + " with login " + loginAttribute.getValue() + ".");
 				}
 			}
 		}
@@ -769,7 +769,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
 				throw new InternalErrorException(e);
 			}
-			if (userAttribute.valueContains((String) attributeValue)) {
+			if (userAttribute.valueContains(attributeValue)) {
 				matchedUsers.add(user);
 			}
 		}
@@ -1099,7 +1099,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Reserve the password
 		try {
-			this.managePassword(sess, PASSWORD_RESERVE, (String) userLogin, loginNamespace, password);
+			this.managePassword(sess, PASSWORD_RESERVE, userLogin, loginNamespace, password);
 		} catch (PasswordCreationFailedRuntimeException e) {
 			throw new PasswordCreationFailedException(e);
 		} catch (PasswordOperationTimeoutRuntimeException e) {
@@ -1161,7 +1161,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Validate the password
 		try {
-			this.managePassword(sess, PASSWORD_VALIDATE, (String) userLogin, loginNamespace, null);
+			this.managePassword(sess, PASSWORD_VALIDATE, userLogin, loginNamespace, null);
 		} catch (PasswordCreationFailedRuntimeException e) {
 			throw new PasswordCreationFailedException(e);
 		}
@@ -1488,7 +1488,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Create the password
 		try {
-			this.managePassword(sess, PASSWORD_CREATE, (String) userLogin, loginNamespace, password);
+			this.managePassword(sess, PASSWORD_CREATE, userLogin, loginNamespace, password);
 		} catch (PasswordCreationFailedRuntimeException e) {
 			throw new PasswordCreationFailedException(e);
 		}
@@ -1543,7 +1543,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Delete the password
 		try {
-			this.managePassword(sess, PASSWORD_DELETE, (String) userLogin, loginNamespace, null);
+			this.managePassword(sess, PASSWORD_DELETE, userLogin, loginNamespace, null);
 		} catch (PasswordDeletionFailedRuntimeException e) {
 			throw new PasswordDeletionFailedException(e);
 		} catch (LoginNotExistsRuntimeException e) {

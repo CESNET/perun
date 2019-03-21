@@ -40,7 +40,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 			Attribute uidAttribute = null;
 			if (uidNamespaceAttribute.getValue() != null) {
 				// Get the u:uid-namespace[uidNamespaceAttribute]
-				uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
+				uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + uidNamespaceAttribute.getValue());
 				uidAttribute.setValue(attribute.getValue());
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, uidAttribute);
 			} else {
@@ -63,7 +63,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 			Attribute attr = new Attribute(attribute);
 			if (uidNamespaceAttribute.getValue() != null) {
 				// Get the u:uid-namespace[uidNamespaceAttribute]
-				Attribute uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
+				Attribute uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + uidNamespaceAttribute.getValue());
 				uidAttribute = sess.getPerunBl().getAttributesManagerBl().fillAttribute(sess, user, uidAttribute);
 				attr.setValue(uidAttribute.getValue());
 			} else {
@@ -90,7 +90,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 
 			if (uidNamespaceAttribute.getValue() != null) {
 				// Get the u:uid-namespace[uidNamespaceAttribute]
-				uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
+				uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + uidNamespaceAttribute.getValue());
 				attr = Utils.copyAttributeToVirtualAttributeWithValue(uidAttribute, attr);
 			} else {
 				attr.setValue(null);
@@ -112,7 +112,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 			if (uidNamespaceAttribute.getValue() == null) {
 				throw new WrongReferenceAttributeValueException(attribute, uidNamespaceAttribute);
 			}
-			userUidAttributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + (String) uidNamespaceAttribute.getValue());
+			userUidAttributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + uidNamespaceAttribute.getValue());
 		} catch (AttributeNotExistsException e) {
 			throw new InternalErrorException(e);
 		} catch (WrongAttributeAssignmentException e) {

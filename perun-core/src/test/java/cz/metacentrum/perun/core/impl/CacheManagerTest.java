@@ -296,7 +296,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		cacheManager.setAttribute(groupResourceAttr, groupHolder, resourceHolder);
 		cacheManager.setEntitylessAttribute(entitylessAttr, subject);
 
-		List<Attribute> attrs = cacheManager.getAttributesByAttributeDefinition((AttributeDefinition) groupResourceAttr);
+		List<Attribute> attrs = cacheManager.getAttributesByAttributeDefinition(groupResourceAttr);
 
 		assertTrue("it should return only 1 attribute", attrs.size() == 1);
 		assertTrue("result should contain group-resource attribute", attrs.contains(groupResourceAttr));
@@ -314,7 +314,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		cacheManager.setAttribute(groupResourceAttr, groupHolder, resourceHolder);
 		cacheManager.setEntitylessAttribute(entitylessAttr, subject);
 
-		List<Attribute> attrs = cacheManager.getAttributesByAttributeDefinition((AttributeDefinition) entitylessAttr);
+		List<Attribute> attrs = cacheManager.getAttributesByAttributeDefinition(entitylessAttr);
 
 		assertTrue("it should return only 1 attribute", attrs.size() == 1);
 		assertTrue("result should contain entityless attribute", attrs.contains(entitylessAttr));

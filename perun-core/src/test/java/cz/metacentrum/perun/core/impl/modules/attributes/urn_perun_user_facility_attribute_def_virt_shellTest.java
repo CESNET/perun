@@ -83,7 +83,7 @@ public class urn_perun_user_facility_attribute_def_virt_shellTest {
 		when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSessionImpl.class), any(Facility.class), any(User.class))).thenReturn(resourceList);
 
 		Attribute testAttr = classInstance.getAttributeValue(session, user, facility, session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, AttributesManager.NS_USER_FACILITY_ATTR_VIRT + "shell"));
-		assertEquals("/mnt/bash2", (String)testAttr.getValue());
+		assertEquals("/mnt/bash2", testAttr.getValue());
 
 	}
 }
