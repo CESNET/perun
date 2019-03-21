@@ -52,7 +52,6 @@ public class urn_perun_user_attribute_def_virt_mails_namespace_google extends Us
 						} catch (AttributeNotExistsException ex) {
 							//This should not happen, but if yes, skip this value
 							log.error("Attribute {} not exists in Perun so value {} google mails can't be get correctly.", A_UES_MAIL, user);
-							continue;
 						} catch (WrongAttributeAssignmentException ex) {
 							throw new InternalErrorException(ex);
 						}

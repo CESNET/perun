@@ -1192,7 +1192,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			ContactGroup contactGroupToAdd = iter.next();
 			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, contactGroupToAdd.getFacility())) {
 				iter.remove();
-				continue;
 			}
  		}
 

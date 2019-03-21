@@ -178,7 +178,6 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				invalidUsers.add(user);
 			} catch (ExtSourceUnsupportedOperationException e) {
 				log.warn("ExtSource {} doesn't support getSubjectByLogin", source.getName());
-				continue;
 			}
 		}
 

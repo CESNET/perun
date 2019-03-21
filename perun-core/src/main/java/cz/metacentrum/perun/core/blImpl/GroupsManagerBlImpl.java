@@ -2745,15 +2745,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (CandidateNotExistsException e) {
 				log.warn("getGroupSubjects subjects returned login {}, but it cannot be obtained using getCandidate()", login);
 				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because candidate can't be found by login:'" + login + "' in extSource " + membersSource);
-				continue;
 			} catch (ExtSourceUnsupportedOperationException e) {
 				log.warn("ExtSource {} doesn't support getCandidate operation.", membersSource);
 				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because extSource " + membersSource + " not support method getCandidate");
-				continue;
 			} catch (ParserException e) {
 				log.warn("Can't parse value {} from candidate with login {}", e.getParsedValue(), login);
 				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because of problem with parsing value '" + e.getParsedValue() + "'");
-				continue;
 			}
 		}
 
@@ -3201,7 +3198,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (MemberAlreadyRemovedException ex) {
 				//Member was probably removed before starting of synchronization removing process, log it and skip this member
 				log.debug("Member {} was removed from group {} before removing process. Skip this member.", member, group);
-				continue;
 			}
 		}
 	}
