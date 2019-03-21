@@ -28,7 +28,7 @@ import java.util.Set;
 public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup.class);
-	private final static Set<String> unpermittedLogins = new HashSet<String>(Arrays.asList("administrator", "admin", "guest", "host", "vsup", "umprum", "root"));
+	private final static Set<String> unpermittedLogins = new HashSet<>(Arrays.asList("administrator", "admin", "guest", "host", "vsup", "umprum", "root"));
 	private final static String VSUP_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:vsup";
 
 	/**
@@ -45,7 +45,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup exten
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 
-		if (attribute != null && unpermittedLogins.contains((String)attribute.getValue())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
+		if (attribute != null && unpermittedLogins.contains(attribute.getValue())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
 
 		// check is the same as VŠUP login
 		try {

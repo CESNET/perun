@@ -99,7 +99,7 @@ public interface ResourcesManagerBl {
 	 * @throws ResourceAlreadyRemovedException if there is at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group not affected by deleting from DB
 	 */
-	void deleteAllResources(PerunSession perunSession, Vo vo) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupAlreadyRemovedFromResourceException;
+	void deleteAllResources(PerunSession perunSession, Vo vo) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Get facility which belongs to the concrete resource.
@@ -654,7 +654,7 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongReferenceAttributeValueException;
+	void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Copy all services of the source resource to the destination resource.
@@ -667,7 +667,7 @@ public interface ResourcesManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 */
-	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Copy all groups of the source resource to the destination resource.
@@ -678,7 +678,7 @@ public interface ResourcesManagerBl {
 	 * @param destinationResource
 	 * @throws InternalErrorException
 	 */
-	public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException;
+	void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException;
 
 
 	void checkResourceExists(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException;

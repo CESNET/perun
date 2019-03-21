@@ -49,7 +49,7 @@ public class urn_perun_group_attribute_def_def_flatGroupStructureEnabled extends
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(MANDATORY_ATTRIBUTE_NAME);
 		return dependencies;
 	}

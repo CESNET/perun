@@ -50,7 +50,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	private final static Logger log = LoggerFactory.getLogger(UsersManagerBlImpl.class);
 
-	private UsersManagerImplApi usersManagerImpl;
+	private final UsersManagerImplApi usersManagerImpl;
 	private PerunBl perunBl;
 
 	private static final String A_USER_DEF_ALT_PASSWORD_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":altPasswords:";
@@ -93,7 +93,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<User> getUsersByExtSourceTypeAndLogin(PerunSession perunSession, String extSourceType, String login) throws InternalErrorException {
-		if ((extSourceType == null) || (login == null)) return new ArrayList<User>();
+		if ((extSourceType == null) || (login == null)) return new ArrayList<>();
 
 		return getUsersManagerImpl().getUsersByExtSourceTypeAndLogin(perunSession, extSourceType, login);
 	}
@@ -268,7 +268,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public RichUser getRichUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 		users.add(user);
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		return richUsers.get(0);
@@ -276,7 +276,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public RichUser getRichUserWithAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 		users.add(user);
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		List<RichUser> richUsersWithAttributes =  this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
@@ -285,7 +285,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> convertUsersToRichUsers(PerunSession sess, List<User> users) throws InternalErrorException {
-		List<RichUser> richUsers = new ArrayList<RichUser>();
+		List<RichUser> richUsers = new ArrayList<>();
 
 		for (User user: users) {
 			List<UserExtSource> userExtSources = getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
@@ -309,7 +309,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 		users.addAll(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
@@ -318,7 +318,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 		users.addAll(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
@@ -342,7 +342,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> convertUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {
-		List<AttributeDefinition> usersAttributesDef = new ArrayList<AttributeDefinition>();
+		List<AttributeDefinition> usersAttributesDef = new ArrayList<>();
 
 		for(AttributeDefinition attrd: attrsDef) {
 			if(attrd.getName().startsWith(AttributesManager.NS_USER_ATTR)) usersAttributesDef.add(attrd);
@@ -350,8 +350,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		for (RichUser richUser: richUsers) {
-			List<Attribute> userAttributes = new ArrayList<Attribute>();
-			List<String> userAttrNames = new ArrayList<String>();
+			List<Attribute> userAttributes = new ArrayList<>();
+			List<String> userAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: usersAttributesDef) {
 				userAttrNames.add(ad.getName());
 			}
@@ -460,7 +460,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				// OK - User hasn't assigned any password with this login
 			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
-					log.error("Error during deletion of an account at {} for user {} with login {}.", new Object[]{login.getLeft(), user, login.getRight()});
+					log.error("Error during deletion of an account at {} for user {} with login {}.", login.getLeft(), user, login.getRight());
 				} else {
 					throw new RelationExistsException("Error during deletion of an account at " + login.getLeft() +
 							" for user " + user + " with login " + login.getRight() + ".");
@@ -481,10 +481,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				// OK - User hasn't assigned any password with this login
 			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
-					log.error("Error during deletion of the account at {} for user {} with login {}.", new Object[]{loginAttribute.getFriendlyNameParameter(), user, (String) loginAttribute.getValue()});
+					log.error("Error during deletion of the account at {} for user {} with login {}.", loginAttribute.getFriendlyNameParameter(), user, (String) loginAttribute.getValue());
 				} else {
 					throw new RelationExistsException("Error during deletion of the account at " + loginAttribute.getFriendlyNameParameter() +
-							" for user " + user + " with login " + (String) loginAttribute.getValue() + ".");
+							" for user " + user + " with login " + loginAttribute.getValue() + ".");
 				}
 			}
 		}
@@ -496,10 +496,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, user);
 			// User-Facilities one
 			getPerunBl().getAttributesManagerBl().removeAllUserFacilityAttributes(sess, user);
-		} catch(WrongAttributeValueException ex) {
-			//All members are deleted => there are no required attribute => all atributes can be removed
-			throw new ConsistencyErrorException(ex);
-		} catch(WrongReferenceAttributeValueException ex) {
+		} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 			//All members are deleted => there are no required attribute => all atributes can be removed
 			throw new ConsistencyErrorException(ex);
 		}
@@ -623,12 +620,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) throws InternalErrorException {
 		List<Attribute> userExtSourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, userExtSource);
-		Iterator<Attribute> iterator = userExtSourceAttributes.iterator();
 		//remove all virtual attributes (we don't need to take care about them)
-		while(iterator.hasNext()) {
-			Attribute attribute = iterator.next();
-			if(getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute)) iterator.remove();
-		}
+		userExtSourceAttributes.removeIf(attribute -> getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute));
 
 		//remove userExtSource
 		try {
@@ -697,8 +690,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
-		List<User> allSearchingUsers = new ArrayList<User>();
-		List<User> allVoUsers = new ArrayList<User>();
+		List<User> allSearchingUsers = new ArrayList<>();
+		List<User> allVoUsers = new ArrayList<>();
 		allSearchingUsers = this.findUsers(sess, searchString);
 		allVoUsers = getUsersManagerImpl().getUsersByVo(sess, vo);
 		allSearchingUsers.removeAll(allVoUsers);
@@ -712,7 +705,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
-		List<Resource> allowedResources = new ArrayList<Resource>();
+		List<Resource> allowedResources = new ArrayList<>();
 
 		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		for(Resource resource : resources) {
@@ -726,36 +719,36 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, User user) throws InternalErrorException {
 		//TODO do this method in more efficient way
-		Set<Resource> resources = new HashSet<Resource>();
+		Set<Resource> resources = new HashSet<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 		for(Member member : members) {
 			if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
 				resources.addAll(getPerunBl().getResourcesManagerBl().getAllowedResources(sess, member));
 			}
 		}
-		return new ArrayList<Resource>(resources);
+		return new ArrayList<>(resources);
 	}
 
 	@Override
 	public List<Resource> getAssignedResources(PerunSession sess, User user) throws InternalErrorException {
-		Set<Resource> resources = new HashSet<Resource>();
+		Set<Resource> resources = new HashSet<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		for(Member member : members) {
 			resources.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member));
 		}
-		return new ArrayList<Resource>(resources);
+		return new ArrayList<>(resources);
 	}
 
 	@Override
 	public List<RichResource> getAssignedRichResources(PerunSession sess, User user) throws InternalErrorException {
-		Set<RichResource> resources = new HashSet<RichResource>();
+		Set<RichResource> resources = new HashSet<>();
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		for(Member member : members) {
 			resources.addAll(getPerunBl().getResourcesManagerBl().getAssignedRichResources(sess, member));
 		}
-		return new ArrayList<RichResource>(resources);
+		return new ArrayList<>(resources);
 	}
 
 	private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef, String attributeValue) throws InternalErrorException {
@@ -768,17 +761,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		// iterate over all users
-		List<User> matchedUsers = new ArrayList<User>();
+		List<User> matchedUsers = new ArrayList<>();
 		for (User user: perunBl.getUsersManagerBl().getUsers(sess)) {
 			Attribute userAttribute;
 			try {
 				userAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, user, attributeDef.getName());
-			} catch (AttributeNotExistsException e) {
-				throw new InternalErrorException(e);
-			} catch (WrongAttributeAssignmentException e) {
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
 				throw new InternalErrorException(e);
 			}
-			if (userAttribute.valueContains((String) attributeValue)) {
+			if (userAttribute.valueContains(attributeValue)) {
 				matchedUsers.add(user);
 			}
 		}
@@ -894,11 +885,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, attribute);
 
 			return true;
-		} catch (AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
+		} catch (AttributeNotExistsException | WrongReferenceAttributeValueException | WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
 		} catch (WrongAttributeValueException e) {
 			return false;
@@ -965,7 +952,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		//Filtering users attributes
 		if(richUser.getUserAttributes() != null) {
 			List<Attribute> userAttributes = richUser.getUserAttributes();
-			List<Attribute> allowedUserAttributes = new ArrayList<Attribute>();
+			List<Attribute> allowedUserAttributes = new ArrayList<>();
 			for(Attribute userAttr: userAttributes) {
 				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, richUser)) {
 					userAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, richUser));
@@ -979,7 +966,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> filterOnlyAllowedAttributes(PerunSession sess, List<RichUser> richUsers) throws InternalErrorException {
-		List<RichUser> filteredRichUsers = new ArrayList<RichUser>();
+		List<RichUser> filteredRichUsers = new ArrayList<>();
 		if(richUsers == null || richUsers.isEmpty()) return filteredRichUsers;
 
 		for(RichUser ru: richUsers) {
@@ -991,7 +978,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<User> getUsersByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException {
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 
 		//All possible useful objects
 		Vo vo = null;
@@ -1020,7 +1007,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		if(group != null) {
 			List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-			List<User> usersFromGroup = new ArrayList<User>();
+			List<User> usersFromGroup = new ArrayList<>();
 			for(Member memberElement: members) {
 				usersFromGroup.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
 			}
@@ -1048,7 +1035,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 		} else if(vo != null) {
 			List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
-			List<User> usersFromVo = new ArrayList<User>();
+			List<User> usersFromVo = new ArrayList<>();
 			for(Member memberElement: members) {
 				usersFromVo.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
 			}
@@ -1112,7 +1099,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Reserve the password
 		try {
-			this.managePassword(sess, PASSWORD_RESERVE, (String) userLogin, loginNamespace, password);
+			this.managePassword(sess, PASSWORD_RESERVE, userLogin, loginNamespace, password);
 		} catch (PasswordCreationFailedRuntimeException e) {
 			throw new PasswordCreationFailedException(e);
 		} catch (PasswordOperationTimeoutRuntimeException e) {
@@ -1174,7 +1161,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Validate the password
 		try {
-			this.managePassword(sess, PASSWORD_VALIDATE, (String) userLogin, loginNamespace, null);
+			this.managePassword(sess, PASSWORD_VALIDATE, userLogin, loginNamespace, null);
 		} catch (PasswordCreationFailedRuntimeException e) {
 			throw new PasswordCreationFailedException(e);
 		}
@@ -1227,240 +1214,257 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		 */
 
 		try {
-			if (loginNamespace.equals("einfra")) {
-				List<String> kerberosLogins = new ArrayList<String>();
+			switch (loginNamespace) {
+				case "einfra": {
+					List<String> kerberosLogins = new ArrayList<>();
 
-				// Set META and EINFRA userExtSources
-				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "META");
-				UserExtSource ues = new UserExtSource(extSource, userLogin + "@META");
-				ues.setLoa(0);
+					// Set META and EINFRA userExtSources
+					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "META");
+					UserExtSource ues = new UserExtSource(extSource, userLogin + "@META");
+					ues.setLoa(0);
 
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
-				extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EINFRA");
-				ues = new UserExtSource(extSource, userLogin + "@EINFRA");
-				ues.setLoa(0);
-
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
-				extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.ics.muni.cz/idp/shibboleth");
-				ues = new UserExtSource(extSource, userLogin + "@meta.cesnet.cz");
-				ues.setLoa(0);
-
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
-				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-				}
-
-				boolean someChange = false;
-				if (!kerberosLogins.contains(userLogin + "@EINFRA")) {
-					kerberosLogins.add(userLogin + "@EINFRA");
-					someChange = true;
-				}
-				if (!kerberosLogins.contains(userLogin + "@META")) {
-					kerberosLogins.add(userLogin + "@META");
-					someChange = true;
-				}
-
-				if (someChange) {
-					kerberosLoginsAttr.setValue(kerberosLogins);
-					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-				}
-
-			} else if (loginNamespace.equals("egi-ui")) {
-
-				List<String> kerberosLogins = new ArrayList<String>();
-
-				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EGI");
-				UserExtSource ues = new UserExtSource(extSource, userLogin + "@EGI");
-				ues.setLoa(0);
-
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
-				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-				}
-
-				if (!kerberosLogins.contains(userLogin + "@EGI")) {
-					kerberosLogins.add(userLogin + "@EGI");
-					kerberosLoginsAttr.setValue(kerberosLogins);
-					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-				}
-
-			} else if (loginNamespace.equals("sitola")) {
-
-				List<String> kerberosLogins = new ArrayList<String>();
-
-				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "SITOLA.FI.MUNI.CZ");
-				UserExtSource ues = new UserExtSource(extSource, userLogin + "@SITOLA.FI.MUNI.CZ");
-				ues.setLoa(0);
-
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
-				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-				}
-
-				if (!kerberosLogins.contains(userLogin + "@SITOLA.FI.MUNI.CZ")) {
-					kerberosLogins.add(userLogin + "@SITOLA.FI.MUNI.CZ");
-					kerberosLoginsAttr.setValue(kerberosLogins);
-					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-				}
-
-			} else if (loginNamespace.equals("ics-muni-cz")) {
-
-				List<String> kerberosLogins = new ArrayList<String>();
-
-				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "ICS.MUNI.CZ");
-				UserExtSource ues = new UserExtSource(extSource, userLogin + "@ICS.MUNI.CZ");
-				ues.setLoa(0);
-
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
-				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-				}
-
-				if (!kerberosLogins.contains(userLogin + "@ICS.MUNI.CZ")) {
-					kerberosLogins.add(userLogin + "@ICS.MUNI.CZ");
-					kerberosLoginsAttr.setValue(kerberosLogins);
-					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-				}
-
-			} else if (loginNamespace.equals("mu")) {
-
-				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp2.ics.muni.cz/idp/shibboleth");
-				UserExtSource ues = new UserExtSource(extSource, userLogin + "@muni.cz");
-				ues.setLoa(2);
-
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
-			} else if (loginNamespace.equals("vsup")) {
-
-				// Add UES in their ActiveDirectory to access Perun by it
-				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "AD");
-				UserExtSource ues = new UserExtSource(extSource, userLogin);
-				ues.setLoa(0);
-
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
-			} else if (loginNamespace.equals("elixir")) {
-
-				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "ELIXIR-EUROPE.ORG");
-				UserExtSource ues = new UserExtSource(extSource, userLogin + "@ELIXIR-EUROPE.ORG");
-				ues.setLoa(0);
-
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
-				List<String> kerberosLogins = new ArrayList<String>();
-
-				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-				}
-
-				if (!kerberosLogins.contains(userLogin + "@ELIXIR-EUROPE.ORG")) {
-					kerberosLogins.add(userLogin + "@ELIXIR-EUROPE.ORG");
-					kerberosLoginsAttr.setValue(kerberosLogins);
-					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-				}
-
-			} else if (loginNamespace.equals("einfra-services")) {
-
-				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EINFRA-SERVICES");
-				UserExtSource ues = new UserExtSource(extSource, userLogin + "@EINFRA-SERVICES");
-				ues.setLoa(0);
-
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
-
-				List<String> kerberosLogins = new ArrayList<String>();
-
-				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-				}
-
-				if (!kerberosLogins.contains(userLogin + "@EINFRA-SERVICES")) {
-					kerberosLogins.add(userLogin + "@EINFRA-SERVICES");
-					kerberosLoginsAttr.setValue(kerberosLogins);
-					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
-				}
-
-			} else if (loginNamespace.equals("dummy")) {
-				//dummy namespace for testing, it has accompanying DummyPasswordModule that just generates random numbers
-				ExtSource extSource;
-				try {
-					extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://dummy");
-				} catch (ExtSourceNotExistsException e) {
-					extSource =  new ExtSource("https://dummy",ExtSourcesManager.EXTSOURCE_IDP);
 					try {
-						extSource = getPerunBl().getExtSourcesManagerBl().createExtSource(sess, extSource, null);
-					} catch (ExtSourceExistsException e1) {
-						log.warn("impossible or race condition",e1);
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
 					}
-				}
-				UserExtSource ues = new UserExtSource(extSource, userLogin + "@dummy");
-				ues.setLoa(2);
-				try {
-					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-				} catch(UserExtSourceExistsException ex) {
-					//this is OK
-				}
 
+					extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EINFRA");
+					ues = new UserExtSource(extSource, userLogin + "@EINFRA");
+					ues.setLoa(0);
+
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
+					}
+
+					extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://login.ics.muni.cz/idp/shibboleth");
+					ues = new UserExtSource(extSource, userLogin + "@meta.cesnet.cz");
+					ues.setLoa(0);
+
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
+					}
+
+					// Store also Kerberos logins
+					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+					}
+
+					boolean someChange = false;
+					if (!kerberosLogins.contains(userLogin + "@EINFRA")) {
+						kerberosLogins.add(userLogin + "@EINFRA");
+						someChange = true;
+					}
+					if (!kerberosLogins.contains(userLogin + "@META")) {
+						kerberosLogins.add(userLogin + "@META");
+						someChange = true;
+					}
+
+					if (someChange) {
+						kerberosLoginsAttr.setValue(kerberosLogins);
+						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+					}
+
+					break;
+				}
+				case "egi-ui": {
+
+					List<String> kerberosLogins = new ArrayList<>();
+
+					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EGI");
+					UserExtSource ues = new UserExtSource(extSource, userLogin + "@EGI");
+					ues.setLoa(0);
+
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
+					}
+
+					// Store also Kerberos logins
+					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+					}
+
+					if (!kerberosLogins.contains(userLogin + "@EGI")) {
+						kerberosLogins.add(userLogin + "@EGI");
+						kerberosLoginsAttr.setValue(kerberosLogins);
+						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+					}
+
+					break;
+				}
+				case "sitola": {
+
+					List<String> kerberosLogins = new ArrayList<>();
+
+					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "SITOLA.FI.MUNI.CZ");
+					UserExtSource ues = new UserExtSource(extSource, userLogin + "@SITOLA.FI.MUNI.CZ");
+					ues.setLoa(0);
+
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
+					}
+
+					// Store also Kerberos logins
+					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+					}
+
+					if (!kerberosLogins.contains(userLogin + "@SITOLA.FI.MUNI.CZ")) {
+						kerberosLogins.add(userLogin + "@SITOLA.FI.MUNI.CZ");
+						kerberosLoginsAttr.setValue(kerberosLogins);
+						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+					}
+
+					break;
+				}
+				case "ics-muni-cz": {
+
+					List<String> kerberosLogins = new ArrayList<>();
+
+					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "ICS.MUNI.CZ");
+					UserExtSource ues = new UserExtSource(extSource, userLogin + "@ICS.MUNI.CZ");
+					ues.setLoa(0);
+
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
+					}
+
+					// Store also Kerberos logins
+					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+					}
+
+					if (!kerberosLogins.contains(userLogin + "@ICS.MUNI.CZ")) {
+						kerberosLogins.add(userLogin + "@ICS.MUNI.CZ");
+						kerberosLoginsAttr.setValue(kerberosLogins);
+						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+					}
+
+					break;
+				}
+				case "mu": {
+
+					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp2.ics.muni.cz/idp/shibboleth");
+					UserExtSource ues = new UserExtSource(extSource, userLogin + "@muni.cz");
+					ues.setLoa(2);
+
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
+					}
+
+					break;
+				}
+				case "vsup": {
+
+					// Add UES in their ActiveDirectory to access Perun by it
+					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "AD");
+					UserExtSource ues = new UserExtSource(extSource, userLogin);
+					ues.setLoa(0);
+
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
+					}
+					break;
+				}
+				case "elixir": {
+
+					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "ELIXIR-EUROPE.ORG");
+					UserExtSource ues = new UserExtSource(extSource, userLogin + "@ELIXIR-EUROPE.ORG");
+					ues.setLoa(0);
+
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
+					}
+
+					List<String> kerberosLogins = new ArrayList<>();
+
+					// Store also Kerberos logins
+					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+					}
+
+					if (!kerberosLogins.contains(userLogin + "@ELIXIR-EUROPE.ORG")) {
+						kerberosLogins.add(userLogin + "@ELIXIR-EUROPE.ORG");
+						kerberosLoginsAttr.setValue(kerberosLogins);
+						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+					}
+
+					break;
+				}
+				case "einfra-services": {
+
+					ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EINFRA-SERVICES");
+					UserExtSource ues = new UserExtSource(extSource, userLogin + "@EINFRA-SERVICES");
+					ues.setLoa(0);
+
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
+					}
+
+					List<String> kerberosLogins = new ArrayList<>();
+
+					// Store also Kerberos logins
+					Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+					}
+
+					if (!kerberosLogins.contains(userLogin + "@EINFRA-SERVICES")) {
+						kerberosLogins.add(userLogin + "@EINFRA-SERVICES");
+						kerberosLoginsAttr.setValue(kerberosLogins);
+						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+					}
+
+					break;
+				}
+				case "dummy": {
+					//dummy namespace for testing, it has accompanying DummyPasswordModule that just generates random numbers
+					ExtSource extSource;
+					try {
+						extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://dummy");
+					} catch (ExtSourceNotExistsException e) {
+						extSource = new ExtSource("https://dummy", ExtSourcesManager.EXTSOURCE_IDP);
+						try {
+							extSource = getPerunBl().getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+						} catch (ExtSourceExistsException e1) {
+							log.warn("impossible or race condition", e1);
+						}
+					}
+					UserExtSource ues = new UserExtSource(extSource, userLogin + "@dummy");
+					ues.setLoa(2);
+					try {
+						getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					} catch (UserExtSourceExistsException ex) {
+						//this is OK
+					}
+
+					break;
+				}
 			}
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -1484,7 +1488,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Create the password
 		try {
-			this.managePassword(sess, PASSWORD_CREATE, (String) userLogin, loginNamespace, password);
+			this.managePassword(sess, PASSWORD_CREATE, userLogin, loginNamespace, password);
 		} catch (PasswordCreationFailedRuntimeException e) {
 			throw new PasswordCreationFailedException(e);
 		}
@@ -1539,7 +1543,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Delete the password
 		try {
-			this.managePassword(sess, PASSWORD_DELETE, (String) userLogin, loginNamespace, null);
+			this.managePassword(sess, PASSWORD_DELETE, userLogin, loginNamespace, null);
 		} catch (PasswordDeletionFailedRuntimeException e) {
 			throw new PasswordDeletionFailedException(e);
 		} catch (LoginNotExistsRuntimeException e) {
@@ -1594,9 +1598,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			this.validatePasswordAndSetExtSources(sess, user, (String) userLogin.getValue(), loginNamespace);
 		} catch(PasswordCreationFailedException ex) {
 			throw new PasswordChangeFailedException(ex);
-		} catch(ExtSourceNotExistsException ex) {
-			throw new InternalErrorException(ex);
-		} catch(AttributeValueException ex) {
+		} catch(ExtSourceNotExistsException | AttributeValueException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -1722,7 +1724,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				} else {
 					// Some other error occured
 					BufferedReader inReader = new BufferedReader(new InputStreamReader(es));
-					StringBuffer errorMsg = new StringBuffer();
+					StringBuilder errorMsg = new StringBuilder();
 					String line;
 					try {
 						while ((line = inReader.readLine()) != null) {
@@ -1828,14 +1830,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				//set new value for altPassword attribute for this user
 				userAlternativePassword.setValue(altPassValue);
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userAlternativePassword);
-			} catch (WrongAttributeAssignmentException ex) {
+			} catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
-			} catch (WrongAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			} catch (WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
 			}
 		} else {
 			throw new InternalErrorException("Not supported operation " + operation);
@@ -1906,7 +1904,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public List<RichUser> convertUsersToRichUsersWithAttributesByNames(PerunSession sess, List<User> users, List<String> attrNames) throws InternalErrorException {
 
 		// TODO - optimzization needed - at least there should be single select on RichUser object in impl !!
-		List<RichUser> result = new ArrayList<RichUser>();
+		List<RichUser> result = new ArrayList<>();
 		AttributesManagerBl attributesManagerBl = this.getPerunBl().getAttributesManagerBl();
 		for (User u : users) {
 			RichUser ru = new RichUser(u, getUserExtSources(sess, u));
@@ -1975,13 +1973,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		List<User> users = getUsers(sess);
 		// optionally exclude specific users
 		if (!includedSpecificUsers) {
-			Iterator<User> it = users.iterator();
-			while (it.hasNext()) {
-				User u = it.next();
-				if (u.isSpecificUser()) {
-					it.remove();
-				}
-			}
+			users.removeIf(User::isSpecificUser);
 		}
 
 		if(attrsName == null || attrsName.isEmpty()) {
@@ -1998,7 +1990,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		// should always pass, since isLoginAvailable() in ENTRY does the same
 		try {
 
-			List<String> names = new ArrayList<String>();
+			List<String> names = new ArrayList<>();
 			names.add(AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
 
 			// will always get attribute (empty, if not set)
@@ -2015,11 +2007,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 			getPerunBl().getAttributesManagerBl().setAttributes(sess, user, checked);
 
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongAttributeValueException e) {
+		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
 		}
 
@@ -2143,16 +2131,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		// was changed - send notification to all member's emails
-		Set<String> emails = new HashSet<String>();
+		Set<String> emails = new HashSet<>();
 
 		try {
 			Attribute a = perunBl.getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF+":preferredMail");
 			if (a != null && a.getValue() != null) {
 				emails.add((String)a.getValue());
 			}
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (AttributeNotExistsException ex) {
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -2164,9 +2150,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				if (a != null && a.getValue() != null) {
 					emails.add((String)a.getValue());
 				}
-			} catch (WrongAttributeAssignmentException ex) {
-				throw new InternalErrorException(ex);
-			} catch (AttributeNotExistsException ex) {
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
 				throw new InternalErrorException(ex);
 			}
 

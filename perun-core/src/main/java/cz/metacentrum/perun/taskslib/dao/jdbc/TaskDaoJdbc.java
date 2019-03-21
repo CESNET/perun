@@ -115,7 +115,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 			if(rs.wasNull()) {
 				engineID = -1;
 			}
-			return new Pair<Task, Integer>(task, engineID);
+			return new Pair<>(task, engineID);
 		}
 
 	};
@@ -338,7 +338,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	public boolean isThereSuchTask(Service service, Facility facility, int engineID) {
 		this.getJdbcTemplate().update("select id from services where id = ?", service.getId());
 
-		List<Integer> tasks = new ArrayList<Integer>();
+		List<Integer> tasks = new ArrayList<>();
 		tasks = this.getJdbcTemplate().queryForList("select id from tasks where service_id = ? and facility_id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"),
 				engineID < 0 ? new Integer[] { service.getId(), facility.getId() }
 					: new Integer[] { service.getId(), facility.getId(),  engineID }, Integer.class);
@@ -354,7 +354,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	public boolean isThereSuchTask(Service service, Facility facility) {
 		//this.getJdbcTemplate().update("select id from services where id = ? for update", service.getId());
 
-		List<Integer> tasks = new ArrayList<Integer>();
+		List<Integer> tasks = new ArrayList<>();
 		tasks = this.getJdbcTemplate().queryForList("select id from tasks where service_id = ? and facility_id = ?",
 				new Integer[] { service.getId(), facility.getId() }, Integer.class);
 		if (tasks.size() == 0) {

@@ -603,7 +603,7 @@ public interface UsersManagerImplApi {
 	 * @return list of pairs namespace and login
 	 * @throws InternalErrorException
 	 */
-	public List<Pair<String, String>> getUsersReservedLogins(User user) throws InternalErrorException;
+	List<Pair<String, String>> getUsersReservedLogins(User user) throws InternalErrorException;
 
 	/**
 	 * Delete all reserved logins for specific user
@@ -612,7 +612,7 @@ public interface UsersManagerImplApi {
 	 * @param user for which get delete reserved logins
 	 * @throws InternalErrorException
 	 */
-	public void deleteUsersReservedLogins(User user) throws InternalErrorException;
+	void deleteUsersReservedLogins(User user) throws InternalErrorException;
 
 	/**
 	 * Store request of change of user's preferred email address.
@@ -728,7 +728,7 @@ public interface UsersManagerImplApi {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException;
+	PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException;
 
 	/**
 	 * Gets list of user that sponsored a member.

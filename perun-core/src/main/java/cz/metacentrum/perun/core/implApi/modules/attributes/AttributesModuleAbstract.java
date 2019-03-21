@@ -20,12 +20,12 @@ import java.util.List;
 public abstract class AttributesModuleAbstract implements AttributesModuleImplApi {
 
 	public List<String> getDependencies() {
-		List<String> dependecies = new ArrayList<String>();
+		List<String> dependecies = new ArrayList<>();
 		return dependecies;
 	}
 
 	public List<Role> getAuthorizedRoles() {
-		List<Role> roles = new ArrayList<Role>();
+		List<Role> roles = new ArrayList<>();
 		return roles;
 	}
 

@@ -103,7 +103,7 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 			return atr; //we couldnt determine necessary attributes for getting new uID
 		}
 
-		SortedSet<Integer> values = new TreeSet<Integer>();
+		SortedSet<Integer> values = new TreeSet<>();
 
 		// Get all attributes urn:perun:member:attribute-def:def:uid-namespace:[uid-namespace], then we can get the new UID
 		List<Attribute> uidAttributes = sess.getPerunBl().getAttributesManagerBl().getAttributesByAttributeDefinition(sess, attribute);
@@ -147,7 +147,7 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(A_E_namespace_maxUID);
 		dependencies.add(A_E_namespace_minUID);
 		return dependencies;

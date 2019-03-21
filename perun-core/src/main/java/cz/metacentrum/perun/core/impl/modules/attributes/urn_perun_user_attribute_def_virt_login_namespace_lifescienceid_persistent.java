@@ -44,13 +44,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_lifescienceid_per
 			lifescienceidPersistent.setValue(lifescienceidPersistentShadow.getValue());
 			return lifescienceidPersistent;
 
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		} catch (AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongAttributeValueException e) {
+		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
 	}

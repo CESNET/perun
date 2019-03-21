@@ -44,7 +44,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_cesnet_eduroam ext
 		Integer counterValue;
 		// Get value of counter to integer or set it to 1000, if counter is empty
 		if (idsCounter.getValue() == null) {
-			counterValue = new Integer(1000);
+			counterValue = 1000;
 		} else {
 			counterValue = (Integer) idsCounter.getValue();
 		}

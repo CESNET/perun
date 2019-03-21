@@ -38,7 +38,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	final static Logger log = LoggerFactory.getLogger(ResourcesManagerBlImpl.class);
 
-	private ResourcesManagerImplApi resourcesManagerImpl;
+	private final ResourcesManagerImplApi resourcesManagerImpl;
 	private PerunBl perunBl;
 
 	public ResourcesManagerBlImpl(ResourcesManagerImplApi resourcesManagerImpl) {
@@ -85,14 +85,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		//resource attributes
 		List<Attribute> templateResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess,templateResource);
 		//Remove all virt and core attributes before setting
-		Iterator<Attribute> resourceAttrIterator = templateResourceAttributes.iterator();
-		while(resourceAttrIterator.hasNext()) {
-			Attribute resourceAttribute = resourceAttrIterator.next();
-			if (resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT) ||
-				resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_CORE)) {
-				resourceAttrIterator.remove();
-			}
-		}
+		templateResourceAttributes.removeIf(resourceAttribute -> resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT) ||
+			resourceAttribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_CORE));
 		try {
 			perunBl.getAttributesManagerBl().setAttributes(sess, newResource, templateResourceAttributes);
 		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
@@ -107,13 +101,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				for (Group group : templateResourceGroups) {
 					List<Attribute> templateGroupResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess, templateResource, group);
 					//Remove all virt attributes before setting
-					Iterator<Attribute> groupResourceAttrIterator = templateGroupResourceAttributes.iterator();
-					while(groupResourceAttrIterator.hasNext()) {
-						Attribute groupResourceAttribute = groupResourceAttrIterator.next();
-						if (groupResourceAttribute.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT)) {
-							groupResourceAttrIterator.remove();
-						}
-					}
+					templateGroupResourceAttributes.removeIf(groupResourceAttribute -> groupResourceAttribute.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT));
 					perunBl.getAttributesManagerBl().setAttributes(sess, newResource, group, templateGroupResourceAttributes);
 				}
 			} catch (GroupResourceMismatchException | WrongAttributeValueException | GroupAlreadyAssignedException |
@@ -126,13 +114,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				for (Member member : templateResourceMembers) {
 					List<Attribute> templateMemberResourceAttributes = perunBl.getAttributesManagerBl().getAttributes(sess, member, templateResource);
 					//Remove all virt attributes before setting
-					Iterator<Attribute> memberResourceAttrIterator = templateMemberResourceAttributes.iterator();
-					while(memberResourceAttrIterator.hasNext()) {
-						Attribute memberResourceAttribute = memberResourceAttrIterator.next();
-						if (memberResourceAttribute.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT)) {
-							memberResourceAttrIterator.remove();
-						}
-					}
+					templateMemberResourceAttributes.removeIf(memberResourceAttribute -> memberResourceAttribute.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT));
 					perunBl.getAttributesManagerBl().setAttributes(sess, member, newResource, templateMemberResourceAttributes);
 				}
 			} catch (MemberResourceMismatchException | WrongAttributeValueException|
@@ -194,13 +176,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		// Remove group-resource attr values for all group and resource
 		try {
 			this.perunBl.getAttributesManagerBl().removeAllGroupResourceAttributes(sess, resource);
-		} catch (WrongAttributeValueException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-			throw new InternalErrorException(ex);
-		} catch (GroupResourceMismatchException ex) {
+		} catch (WrongAttributeValueException | GroupResourceMismatchException | WrongReferenceAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 		//Remove all resources tags
@@ -304,7 +280,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	@Override
 	public List<Service> getAssignedServices(PerunSession sess, Resource resource) throws InternalErrorException {
-		List<Service> services = new ArrayList<Service>();
+		List<Service> services = new ArrayList<>();
 		List<Integer> servicesIds = getResourcesManagerImpl().getAssignedServices(sess, resource);
 
 		try {
@@ -351,9 +327,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			groupRequiredAttributes = getPerunBl().getAttributesManagerBl().fillAttributes(sess, group, groupRequiredAttributes);
 			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, groupRequiredAttributes);
 
-		} catch(WrongAttributeAssignmentException ex) {
-			throw new ConsistencyErrorException(ex);
-		} catch (GroupResourceMismatchException ex) {
+		} catch(WrongAttributeAssignmentException | GroupResourceMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 
@@ -365,11 +339,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			try {
 				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
-			} catch(WrongAttributeAssignmentException ex) {
-				throw new ConsistencyErrorException(ex);
-			} catch(AttributeNotExistsException ex) {
-				throw new ConsistencyErrorException(ex);
-			} catch (MemberResourceMismatchException ex) {
+			} catch(WrongAttributeAssignmentException | MemberResourceMismatchException | AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
 			}
 		}
@@ -412,9 +382,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		// Remove group-resource attributes
 		try {
 			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, group);
-		} catch (WrongAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
+		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
 		} catch (GroupResourceMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
@@ -433,21 +401,18 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				List<Attribute> userFacilityAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, facility, user);
 
 				//find which of attributes are broken
-				List<Attribute> brokenUserFacilityAttributes = new ArrayList<Attribute>();
+				List<Attribute> brokenUserFacilityAttributes = new ArrayList<>();
 				for(Attribute attribute : userFacilityAttributes) {
 					try {
 						getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, facility, user, attribute);
 					} catch(WrongAttributeAssignmentException ex) {
 						throw new ConsistencyErrorException(ex);
-					} catch(WrongAttributeValueException ex) {
+					} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 						attribute.setValue(null);
 						brokenUserFacilityAttributes.add(attribute);
-					} catch(WrongReferenceAttributeValueException ex) {
-						//TODO jeste o tom popremyslet
-						//TODO this may fix it
-						attribute.setValue(null);
-						brokenUserFacilityAttributes.add(attribute);
-					}
+					} //TODO jeste o tom popremyslet
+					//TODO this may fix it
+
 				}
 
 				//fix broken attributes
@@ -456,11 +421,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 					getPerunBl().getAttributesManagerBl().setAttributes(sess, facility, user, fixedUserFacilityAttributes);
 				} catch(WrongAttributeAssignmentException ex) {
 					throw new ConsistencyErrorException(ex);
-				} catch(WrongAttributeValueException ex) {
-					//TODO jeste o tom popremyslet
-					//That's unresolveable problem
-					throw new InternalErrorException("Can't set attributes for user-facility correctly. User=" + user + " Facility=" + facility + ".", ex);
-				} catch(WrongReferenceAttributeValueException ex) {
+				} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 					//TODO jeste o tom popremyslet
 					//That's unresolveable problem
 					throw new InternalErrorException("Can't set attributes for user-facility correctly. User=" + user + " Facility=" + facility + ".", ex);
@@ -531,13 +492,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				// use complex method for getting and setting member-resource, member, user-facility and user-facility required attributes for the service
 				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, service, facility, resource, user, member);
 			}
-		} catch(WrongAttributeAssignmentException ex) {
-			throw new ConsistencyErrorException(ex);
-		} catch(AttributeNotExistsException ex) {
-			throw new ConsistencyErrorException(ex);
-		} catch (MemberResourceMismatchException ex) {
-			throw new ConsistencyErrorException(ex);
-		} catch (GroupResourceMismatchException ex) {
+		} catch(WrongAttributeAssignmentException | GroupResourceMismatchException | MemberResourceMismatchException | AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
@@ -609,7 +564,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		if(!getPerunBl().getMembersManagerBl().haveStatus(sess, member, Status.INVALID)) {
 			return getAssignedResources(sess, member);
 		} else {
-			return new ArrayList<Resource>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -745,12 +700,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		List<Attribute> destinationAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, destinationResource);
 
 		// do not get virtual attributes from source resource, they can't be set to destination
-		Iterator<Attribute> it = sourceAttributes.iterator();
-		while (it.hasNext()) {
-			if (it.next().getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT)) {
-				it.remove();
-			}
-		}
+		sourceAttributes.removeIf(attribute -> attribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT));
 
 		// create intersection of destination and source attributes
 		List<Attribute> intersection = new ArrayList<>();
@@ -790,9 +740,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				assignGroupToResource(sess, group, destinationResource);
 			} catch (GroupAlreadyAssignedException ex) {
 				// we can ignore the exception in this particular case, group can exists in both of the resources
-			} catch (WrongAttributeValueException ex) {
-				throw new InternalErrorException("Copying of groups failed.", ex);
-			} catch (WrongReferenceAttributeValueException ex) {
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException("Copying of groups failed.", ex);
 			}
 		}

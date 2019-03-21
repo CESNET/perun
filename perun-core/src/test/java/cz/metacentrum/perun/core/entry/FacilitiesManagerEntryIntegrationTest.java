@@ -99,7 +99,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// create list of hosts with 1 host
 		createdHost = new Host();
 		createdHost.setHostname("FacilitiesManagerTest");
-		hosts = new ArrayList<Host>();
+		hosts = new ArrayList<>();
 		hosts.add(createdHost);
 
 		//create empty facility
@@ -574,7 +574,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		List<RichResource> assignedResources = perun.getFacilitiesManager().getAssignedRichResources(sess, facility);
 
-		List<Vo> vos = new ArrayList<Vo>();
+		List<Vo> vos = new ArrayList<>();
 		for (RichResource rr : assignedResources){
 			assertTrue("RichResource must have VO value filled",rr.getVo() != null);
 			vos.add(rr.getVo());
@@ -720,7 +720,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsWithPattern");
 
 		String hostname = "name[00-01]surname[99-100]cz";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostname);
 		hostname = "local";
 		listOfHosts.add(hostname);
@@ -729,7 +729,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertNotNull("Unable to add hosts", hosts);
 		assertEquals("There should be 5 hosts in list", 5, hosts.size());
 
-		Set<String> hostNames = new HashSet<String>();
+		Set<String> hostNames = new HashSet<>();
 		for (Host h: hosts) {
 			hostNames.add(h.getHostname());
 		}
@@ -745,7 +745,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsWithWrongPattern");
 
 		String hostname = "name[00]-01]surname[99-100]cz";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostname);
 		hostname = "local";
 		listOfHosts.add(hostname);
@@ -757,7 +757,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsWithWrongPattern2");
 
 		String hostname = "name[00-a01]surname[99-100]cz";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostname);
 		hostname = "local";
 		listOfHosts.add(hostname);
@@ -769,7 +769,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsWithWrongPattern3");
 
 		String hostname = "name[01-00]surname[99-100]cz";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostname);
 		hostname = "local";
 		listOfHosts.add(hostname);
@@ -927,7 +927,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource",
 				"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
@@ -1754,7 +1754,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
 		facilitiesManagerEntry.addAdmin(sess, secondFacility, userOne);
 		// Sets userOne as actor in this test with role facility admin for facility
-		List<PerunBean> list = new ArrayList<PerunBean>();
+		List<PerunBean> list = new ArrayList<>();
 		list.add(facility);
 		list.add(secondFacility);
 		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, list);
@@ -1856,7 +1856,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsStringsSameHostsDifferentAdmin");
 		// Sets list of hostnames
 		String hostName = "testHostOne";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostName);
 		hostName = "testHostTwo";
 		listOfHosts.add(hostName);
@@ -1894,7 +1894,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	 	// Sets list of hostnames
 		String hostName = "testHostOne";
-		List<String> listOfHosts = new ArrayList<String>();
+		List<String> listOfHosts = new ArrayList<>();
 		listOfHosts.add(hostName);
 		hostName = "testHostTwo";
 		listOfHosts.add(hostName);
@@ -1937,7 +1937,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void addHostsSameHostsDifferentAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "addHostsSameHostsDifferentAdmin");
 		// Sets list of hosts
-		List<Host> listOfHosts = new ArrayList<Host>();
+		List<Host> listOfHosts = new ArrayList<>();
 		Host testHost = new Host(0, "testHostOne");
 		listOfHosts.add(testHost);
 		testHost = new Host(0, "testHostTwo");
@@ -1975,7 +1975,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsStringsSameDestinationDifferentAdmin");
 
 	 	// Sets list of hosts
-		List<Host> listOfHosts = new ArrayList<Host>();
+		List<Host> listOfHosts = new ArrayList<>();
 		Host testHost = new Host(0, "testHostOne");
 		listOfHosts.add(testHost);
 		String hostName = "testHostTwo";
@@ -2057,7 +2057,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		// test old way - iterate over resources
 		List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
-		List<Member> oldMembers = new ArrayList<Member>();
+		List<Member> oldMembers = new ArrayList<>();
 		for (Resource r : resources) {
 			oldMembers.addAll(perun.getResourcesManager().getAllowedMembers(sess, r));
 		}
@@ -2215,7 +2215,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 		UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String, String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}

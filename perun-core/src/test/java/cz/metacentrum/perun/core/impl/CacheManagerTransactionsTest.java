@@ -41,9 +41,9 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 
 	private Holder groupHolder;
 	private Holder groupHolder1;
-	private String subject = "Test subject";
-	private String timeCreated = "2016-04-24";
-	private String creator = "Admin";
+	private final String subject = "Test subject";
+	private final String timeCreated = "2016-04-24";
+	private final String creator = "Admin";
 
 	@Before
 	public void setUp() throws Exception {

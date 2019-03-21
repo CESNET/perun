@@ -35,11 +35,11 @@ public class PerunLocksUtils {
 	private final static Logger log = LoggerFactory.getLogger(PerunLocksUtils.class);
 
 	//This empty object is used just for purpose of saving and identifying all locks for separate transaction
-	public static ThreadLocal<Object> uniqueKey = ThreadLocal.withInitial(Object::new);
+	public static final ThreadLocal<Object> uniqueKey = ThreadLocal.withInitial(Object::new);
 
 	//Maps for saving and working with specific locks
-	private static ConcurrentHashMap<Group, ReadWriteLock> groupsLocks = new ConcurrentHashMap<>();
-	private static ConcurrentHashMap<Group, ConcurrentHashMap<Member, Lock>> groupsMembersLocks = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<Group, ReadWriteLock> groupsLocks = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<Group, ConcurrentHashMap<Member, Lock>> groupsMembersLocks = new ConcurrentHashMap<>();
 
 	/**
 	 * Create transaction locks for combination of group and member (from list of members)
@@ -73,7 +73,7 @@ public class PerunLocksUtils {
 					//Get members lock map by group if exists or create a new one
 					ConcurrentHashMap<Member, Lock> membersLocks = groupsMembersLocks.get(group);
 					if (membersLocks == null) {
-						groupsMembersLocks.putIfAbsent(group, new ConcurrentHashMap<Member, Lock>());
+						groupsMembersLocks.putIfAbsent(group, new ConcurrentHashMap<>());
 						membersLocks = groupsMembersLocks.get(group);
 					}
 

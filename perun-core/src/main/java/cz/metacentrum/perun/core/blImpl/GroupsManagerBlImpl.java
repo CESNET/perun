@@ -73,7 +73,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	private final GroupsManagerImplApi groupsManagerImpl;
 	private PerunBl perunBl;
-	private Integer maxConcurentGroupsToSynchronize;
+	private final Integer maxConcurentGroupsToSynchronize;
 	private final PerunBeanProcessingPool<Group> poolOfGroupsToBeSynchronized;
 	private final ArrayList<GroupSynchronizerThread> groupSynchronizerThreads;
 	private static final String A_G_D_AUTHORITATIVE_GROUP = AttributesManager.NS_GROUP_ATTR_DEF + ":authoritativeGroup";
@@ -81,7 +81,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private static final String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
 	private static final String A_M_V_LOA = AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa";
 
-	private Integer maxConcurrentGroupsStructuresToSynchronize;
+	private final Integer maxConcurrentGroupsStructuresToSynchronize;
 	private final PerunBeanProcessingPool<Group> poolOfGroupsStructuresToBeSynchronized;
 	private final List<GroupStructureSynchronizerThread> groupStructureSynchronizerThreads;
 
@@ -164,13 +164,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		//Use sorting by group names reverse order (first name A:B:c then A:B etc.)
-		Collections.sort(groups, Collections.reverseOrder(
-				new Comparator<Group>() {
-					@Override
-					public int compare(Group groupToCompare,Group groupToCompareWith) {
-						return groupToCompare.getName().compareTo(groupToCompareWith.getName());
-					}
-				}));
+		groups.sort(Collections.reverseOrder(
+			new Comparator<Group>() {
+				@Override
+				public int compare(Group groupToCompare, Group groupToCompareWith) {
+					return groupToCompare.getName().compareTo(groupToCompareWith.getName());
+				}
+			}));
 
 		for(Group group: groups) {
 			this.deleteGroup(perunSession, group, forceDelete);
@@ -216,13 +216,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			// Use sorting by group names reverse order (first A:B:c then A:B etc.)
 			// to make sure we delete from the bottom in a hierarchy
-			Collections.sort(subGroups, Collections.reverseOrder(
-					new Comparator<Group>() {
-						@Override
-						public int compare(Group groupToCompare,Group groupToCompareWith) {
-							return groupToCompare.getName().compareTo(groupToCompareWith.getName());
-						}
-					}));
+			subGroups.sort(Collections.reverseOrder(
+				new Comparator<Group>() {
+					@Override
+					public int compare(Group groupToCompare, Group groupToCompareWith) {
+						return groupToCompare.getName().compareTo(groupToCompareWith.getName());
+					}
+				}));
 
 			for (Group subGroup : subGroups) {
 				//For auditer
@@ -768,9 +768,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	private List<Group> getParentGroups(PerunSession sess, Group group)throws InternalErrorException {
-		if(group == null) return new ArrayList<Group>();
+		if(group == null) return new ArrayList<>();
 		try {
-			if (group.getParentGroupId() == null) return new ArrayList<Group>();
+			if (group.getParentGroupId() == null) return new ArrayList<>();
 			List<Group> groups = getParentGroups(sess,getGroupById(sess,group.getParentGroupId()));
 			groups.add(getGroupById(sess, group.getParentGroupId()));
 			return groups;
@@ -1049,7 +1049,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<User> getGroupUsers(PerunSession perunSession, Group group) throws InternalErrorException {
-		return new ArrayList<User>(new HashSet<User>(getGroupsManagerImpl().getGroupUsers(perunSession, group)));
+		return new ArrayList<>(new HashSet<>(getGroupsManagerImpl().getGroupUsers(perunSession, group)));
 	}
 
 	@Override
@@ -1253,9 +1253,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		if(!withSubGroups) return assignedGroups;
 
 		boolean done = assignedGroups.isEmpty();
-		List<Group> groupsToProcess = new ArrayList<Group>(assignedGroups);
+		List<Group> groupsToProcess = new ArrayList<>(assignedGroups);
 		while(!done) {
-			List<Group> groupsToAdd = new ArrayList<Group>();
+			List<Group> groupsToAdd = new ArrayList<>();
 			for(Group group : groupsToProcess) {
 				//FIXME Do not get subgroups of the members group
 				if (!group.getName().equals(VosManager.MEMBERS_GROUP)) {
@@ -1293,7 +1293,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public Map<Group, Object> getAllGroupsWithHierarchy(PerunSession sess, Vo vo) throws InternalErrorException {
-		Map<Group,Object> groupHierarchy = new TreeMap<Group, Object>();
+		Map<Group,Object> groupHierarchy = new TreeMap<>();
 
 		// Get the top level group = members
 		try {
@@ -1316,7 +1316,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		for (Group group: groups.keySet()) {
 			List<Group> subGroups = this.getSubGroups(sess, group);
 
-			Map<Group,Object> subGroupHierarchy = new TreeMap<Group, Object>();
+			Map<Group,Object> subGroupHierarchy = new TreeMap<>();
 			for (Group subGroup: subGroups) {
 				subGroupHierarchy.put(subGroup, null);
 			}
@@ -1339,9 +1339,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Group> getAllSubGroups(PerunSession sess, Group parentGroup) throws InternalErrorException {
-		Queue<Group> groupsInQueue = new ConcurrentLinkedQueue<Group>();
+		Queue<Group> groupsInQueue = new ConcurrentLinkedQueue<>();
 		groupsInQueue.addAll(getGroupsManagerImpl().getSubGroups(sess, parentGroup));
-		List<Group> allSubGroups = new ArrayList<Group>();
+		List<Group> allSubGroups = new ArrayList<>();
 		while(groupsInQueue.peek() != null) {
 			groupsInQueue.addAll(getGroupsManagerImpl().getSubGroups(sess, groupsInQueue.peek()));
 			allSubGroups.add(groupsInQueue.poll());
@@ -1405,11 +1405,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Group> groups = this.getAllMemberGroups(sess, member);
 		//Remove members group
 		if(!groups.isEmpty()) {
-			Iterator<Group> iterator = groups.iterator();
-			while(iterator.hasNext()) {
-				Group g = iterator.next();
-				if(g.getName().equals(VosManager.MEMBERS_GROUP)) iterator.remove();
-			}
+			groups.removeIf(g -> g.getName().equals(VosManager.MEMBERS_GROUP));
 		}
 		// Sort
 		Collections.sort(groups);
@@ -1546,7 +1542,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//Get info about type of synchronization (with or without update)
 			boolean lightweightSynchronization = isThisLightweightSynchronization(sess, group);
 
-			log.debug("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", new Object[] {group, membersSource, membersSource.getName()});
+			log.debug("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", group, membersSource, membersSource.getName());
 
 			//Prepare containers for work with group members
 			List<Candidate> candidatesToAdd = new ArrayList<>();
@@ -2027,7 +2023,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Group> getGroupsByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException {
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new ArrayList<>();
 
 		//All possible useful objects
 		Vo vo = null;
@@ -2081,7 +2077,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			groups.addAll(getPerunBl().getGroupsManagerBl().getAllGroups(sess, vo));
 		}
 
-		groups = new ArrayList<Group>(new HashSet<Group>(groups));
+		groups = new ArrayList<>(new HashSet<>(groups));
 		// Sort
 		Collections.sort(groups);
 		return groups;
@@ -2128,7 +2124,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//Filtering richGroup attributes
 		if(richGroup.getAttributes() != null) {
 			List<Attribute> groupAttributes = richGroup.getAttributes();
-			List<Attribute> allowedGroupAttributes = new ArrayList<Attribute>();
+			List<Attribute> allowedGroupAttributes = new ArrayList<>();
 			for(Attribute groupAttr : groupAttributes) {
 				if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, richGroup)) {
 					groupAttr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, richGroup));
@@ -2143,7 +2139,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups) throws InternalErrorException {
-		List<RichGroup> filteredRichGroups = new ArrayList<RichGroup>();
+		List<RichGroup> filteredRichGroups = new ArrayList<>();
 		if(richGroups == null || richGroups.isEmpty()) return filteredRichGroups;
 
 		for(RichGroup rg : richGroups) {
@@ -2161,7 +2157,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		//If context should be used - every attribute is unique in a context of users authz_roles for a group + attribute URN
 		// (every attribute test only once per authz+friendlyName)
-		List<RichGroup> filteredRichGroups = new ArrayList<RichGroup>();
+		List<RichGroup> filteredRichGroups = new ArrayList<>();
 		if(richGroups == null || richGroups.isEmpty()) return filteredRichGroups;
 
 		// context+attr_name to boolean where null means - no rights at all, false means no write rights, true means read and write rights
@@ -2178,7 +2174,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//Filtering group attributes
 			if(rg.getAttributes() != null) {
 				List<Attribute> groupAttributes = rg.getAttributes();
-				List<Attribute> allowedGroupAttributes = new ArrayList<Attribute>();
+				List<Attribute> allowedGroupAttributes = new ArrayList<>();
 				for(Attribute groupAttr: groupAttributes) {
 					//if there is record in contextMap, use it
 					if(contextMap.containsKey(key + groupAttr.getName())) {
@@ -2454,7 +2450,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				if(!idsOfUsersInGroup.containsKey(user.getId())) {
 					candidate = new Candidate(user, userExtSource);
 					//for lightweight synchronization we want to skip all update of attributes
-					candidate.setAttributes(new HashMap<String, String>());
+					candidate.setAttributes(new HashMap<>());
 				}
 			} catch (UserExtSourceNotExistsException | UserNotExistsException ex) {
 				//If not find, get more information about him from member extSource
@@ -2680,7 +2676,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private List<Map<String, String>> getSubjectsFromExtSource(PerunSession sess, ExtSource source, Group group) throws InternalErrorException {
 		//Get all group attributes and store tham to map (info like query, time interval etc.)
 		List<Attribute> groupAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, group);
-		Map<String, String> groupAttributesMap = new HashMap<String, String>();
+		Map<String, String> groupAttributesMap = new HashMap<>();
 		for (Attribute attr: groupAttributes) {
 			String value = BeansUtils.attributeValueToString(attr);
 			String name = attr.getName();
@@ -2749,15 +2745,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (CandidateNotExistsException e) {
 				log.warn("getGroupSubjects subjects returned login {}, but it cannot be obtained using getCandidate()", login);
 				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because candidate can't be found by login:'" + login + "' in extSource " + membersSource);
-				continue;
 			} catch (ExtSourceUnsupportedOperationException e) {
 				log.warn("ExtSource {} doesn't support getCandidate operation.", membersSource);
 				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because extSource " + membersSource + " not support method getCandidate");
-				continue;
 			} catch (ParserException e) {
 				log.warn("Can't parse value {} from candidate with login {}", e.getParsedValue(), login);
 				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because of problem with parsing value '" + e.getParsedValue() + "'");
-				continue;
 			}
 		}
 
@@ -2858,7 +2851,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), memberAttribute.getType());
 							if (subjectAttributeValue != null && !Objects.equals(memberAttribute.getValue(), subjectAttributeValue)) {
 								log.trace("Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new value {}.",
-										new Object[] {group, memberAttribute, richMember.getId(), memberAttribute.getValue(), subjectAttributeValue});
+									group, memberAttribute, richMember.getId(), memberAttribute.getValue(), subjectAttributeValue);
 								memberAttribute.setValue(subjectAttributeValue);
 								try {
 									if(mergeMemberAttributesList.contains(memberAttribute.getName())) {
@@ -2902,7 +2895,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), userAttribute.getType());
 							if (!Objects.equals(userAttribute.getValue(), subjectAttributeValue)) {
 								log.trace("Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new value {}.",
-										new Object[] {group, userAttribute, richMember.getId(), userAttribute.getValue(), subjectAttributeValue});
+									group, userAttribute, richMember.getId(), userAttribute.getValue(), subjectAttributeValue);
 								userAttribute.setValue(subjectAttributeValue);
 								try {
 									//Choose set or merge by extSource attribute overwriteUserAttributes (if contains this one)
@@ -2968,7 +2961,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							if (richMember.getStatus().equals(Status.DISABLED)) {
 								try {
 									perunBl.getMembersManagerBl().expireMember(sess, richMember);
-									log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), (String) membershipExpiration.getValue());
+									log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), membershipExpiration.getValue());
 									log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
 								} catch (MemberNotValidYetException e) {
 									log.error("Consistency error while trying to expire member id {}, exception {}", richMember.getId(), e);
@@ -2978,11 +2971,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							//disabled and expired members which are before expiration date will be validated
 							try {
 								perunBl.getMembersManagerBl().validateMember(sess, richMember);
-								log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), (String) membershipExpiration.getValue());
+								log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), membershipExpiration.getValue());
 								log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
-							} catch (WrongAttributeValueException e) {
-								log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
-							} catch (WrongReferenceAttributeValueException e) {
+							} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 								log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
 							}
 						}
@@ -2997,9 +2988,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				if (richMember.getStatus().equals(Status.INVALID)) {
 					getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
 				}
-			} catch (WrongAttributeValueException e) {
-				log.info("Member id {} will stay in INVALID state, because there was problem with attributes {}.", richMember.getId(), e);
-			} catch (WrongReferenceAttributeValueException e) {
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 				log.info("Member id {} will stay in INVALID state, because there was problem with attributes {}.", richMember.getId(), e);
 			}
 
@@ -3008,9 +2997,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				if (richMember.getStatus().equals(Status.DISABLED)) {
 					getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
 				}
-			} catch (WrongAttributeValueException e) {
-				log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
-			} catch (WrongReferenceAttributeValueException e) {
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 				log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
 			}
 		}
@@ -3211,7 +3198,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (MemberAlreadyRemovedException ex) {
 				//Member was probably removed before starting of synchronization removing process, log it and skip this member
 				log.debug("Member {} was removed from group {} before removing process. Skip this member.", member, group);
-				continue;
 			}
 		}
 	}
@@ -3618,7 +3604,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 */
 	private List<Map<String, String>> getSubjectGroupsFromExtSource(PerunSession sess, ExtSource source, Group group) throws InternalErrorException {
 		List<Attribute> groupAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, group);
-		Map<String, String> groupAttributesMap = new HashMap<String, String>();
+		Map<String, String> groupAttributesMap = new HashMap<>();
 
 		for (Attribute attr: groupAttributes) {
 			String value = BeansUtils.attributeValueToString(attr);
@@ -4007,7 +3993,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public List<Group> getGroupUnions(PerunSession session, Group group, boolean reverseDirection) throws InternalErrorException {
 		if (reverseDirection) {
-			List<Group> resultGroups = groupsManagerImpl.getResultGroups(session, group.getId());;
+			List<Group> resultGroups = groupsManagerImpl.getResultGroups(session, group.getId());
 			// Sort
 			Collections.sort(resultGroups);
 			return resultGroups;
@@ -4029,9 +4015,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} else {
 				return isGroupSynchronizedFromExternallSource(session, group);
 			}
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		} catch (AttributeNotExistsException e) {
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -4658,14 +4642,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		TemporalUnit gracePeriodTimeUnit;
 		String dmyString = m.group(2);
-		if (dmyString.equals("d")) {
-			gracePeriodTimeUnit = ChronoUnit.DAYS;
-		} else if (dmyString.equals("m")) {
-			gracePeriodTimeUnit = ChronoUnit.MONTHS;
-		} else if (dmyString.equals("y")) {
-			gracePeriodTimeUnit = ChronoUnit.YEARS;
-		} else {
-			throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
+		switch (dmyString) {
+			case "d":
+				gracePeriodTimeUnit = ChronoUnit.DAYS;
+				break;
+			case "m":
+				gracePeriodTimeUnit = ChronoUnit.MONTHS;
+				break;
+			case "y":
+				gracePeriodTimeUnit = ChronoUnit.YEARS;
+				break;
+			default:
+				throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
 		}
 
 		LocalDate beginOfGracePeriod = LocalDate.parse(membershipExpiration).minus(amount, gracePeriodTimeUnit);

@@ -129,11 +129,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private JdbcPerunTemplate jdbc;
 	private LobHandler lobHandler;
-	private ClassLoader classLoader = this.getClass().getClassLoader();
+	private final ClassLoader classLoader = this.getClass().getClassLoader();
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	//Attributes modules.  name => module
-	private Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<>();
+	private final Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<>();
 
 	private AttributesManagerImplApi self;
 
@@ -5418,7 +5418,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 */
 	private class AttributeRightsExtractor implements ResultSetExtractor<List<AttributeRights>> {
 
-		private int attributeId;
+		private final int attributeId;
 
 		AttributeRightsExtractor(int attributeId) {
 			this.attributeId = attributeId;
@@ -5520,7 +5520,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 								+ "action_type_id=(SELECT id FROM action_types WHERE action_type=?)", rights.getAttributeId(),
 						rights.getRole().getRoleName(), actionType.getActionType())) {
 					throw new ConsistencyErrorException("Trying to delete non existing row : AttributeRight={ attributeId="
-							+ Integer.toString(rights.getAttributeId()) + " role=" + rights.getRole().getRoleName() + " actionType=" + actionType.getActionType());
+							+ rights.getAttributeId() + " role=" + rights.getRole().getRoleName() + " actionType=" + actionType.getActionType());
 				}
 			}
 		} catch (RuntimeException e) {

@@ -43,7 +43,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			"security_teams.modified_by as security_teams_modified_by, security_teams.modified_at as security_teams_modified_at, " +
 			"security_teams.created_by_uid as security_teams_created_by_uid, security_teams.modified_by_uid as security_teams_modified_by_uid";
 
-	private JdbcPerunTemplate jdbc;
+	private final JdbcPerunTemplate jdbc;
 
 	/**
 	 * Create new instance of this class.
@@ -200,7 +200,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 					"  where authz.security_team_id=? ",
 					UsersManagerImpl.USER_MAPPER, securityTeam.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -213,7 +213,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 					" where authz.security_team_id=?",
 					GroupsManagerImpl.GROUP_MAPPER, securityTeam.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -320,9 +320,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			}
 		} catch(EmptyResultDataAccessException ex) {
 			// is ok. No row with same name was founded
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -367,9 +365,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -398,9 +394,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -433,9 +427,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}

@@ -33,7 +33,7 @@ import java.util.Set;
 public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_vsup.class);
-	private final static Set<String> unpermittedLogins = new HashSet<String>(Arrays.asList("administrator", "admin", "guest", "host", "vsup", "umprum", "root", "MSOL_73ffbb4bd40d"));
+	private final static Set<String> unpermittedLogins = new HashSet<>(Arrays.asList("administrator", "admin", "guest", "host", "vsup", "umprum", "root", "MSOL_73ffbb4bd40d"));
 	private final static String EDUROAM_VSUP_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:eduroam-vsup";
 	private final static String VSUP_MAIL_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":vsupMail";
 
@@ -51,7 +51,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 
-		if (attribute != null && unpermittedLogins.contains((String)attribute.getValue())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
+		if (attribute != null && unpermittedLogins.contains(attribute.getValue())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
 
 		// check uniqueness
 		super.checkAttributeValue(sess, user, attribute);

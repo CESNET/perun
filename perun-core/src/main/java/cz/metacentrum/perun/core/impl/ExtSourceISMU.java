@@ -85,7 +85,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		// If there is a search string, replace all occurences of the * with the searchstring
 		if (searchString != null && searchString != "") {
 			url.replaceAll("\\*", searchString);
-		};
+		}
 
 		try {
 			URL u = new URL(url);
@@ -120,10 +120,10 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			String line = null;
 
-			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+			List<Map<String, String>> subjects = new ArrayList<>();
 
 			while ((line = reader.readLine()) != null) {
-				Map<String, String> map = new HashMap<String, String>();
+				Map<String, String> map = new HashMap<>();
 
 				// Each line looks like:
 				// UCO  ;;          ;"title before. title before. firstName lastName, title after
@@ -154,11 +154,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 			}
 
 			return subjects;
-		}
-		catch (IOException e) {
-			throw new InternalErrorException(e);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new InternalErrorException(e);
 		}
 	}

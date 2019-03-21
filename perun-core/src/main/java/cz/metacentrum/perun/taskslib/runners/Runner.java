@@ -14,11 +14,11 @@ public interface Runner extends Runnable {
 	 *
 	 * @return TRUE if should stop / FALSE otherwise
 	 */
-	public boolean shouldStop();
+	boolean shouldStop();
 
 	/**
 	 * Stop Runner thread (it's not interrupt - thread stops by own implementation in run() method).
 	 */
-	public void stop();
+	void stop();
 
 }

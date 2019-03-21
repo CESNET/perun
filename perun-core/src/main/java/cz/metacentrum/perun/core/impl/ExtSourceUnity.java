@@ -160,17 +160,15 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
             is = connection.getInputStream();
         }
         if (is != null) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-            String line;
 
-            try {
-                while ((line = bufferedReader.readLine()) != null) {
-                    return parseEntitiesIdFromRemote(line);
-                }
-            } finally {
-                bufferedReader.close();
-                connection.disconnect();
-            }
+	        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is))) {
+		        String line;
+		        while ((line = bufferedReader.readLine()) != null) {
+			        return parseEntitiesIdFromRemote(line);
+		        }
+	        } finally {
+		        connection.disconnect();
+	        }
         }
         return null;
     }
@@ -190,7 +188,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
     }
 
     private UnityEntity connectAndGetValidEntityByGroup(int entityId, String groupName) throws InternalErrorException, IOException {
-        HttpURLConnection connection = createConnection(checkUri(uriEntity) + Integer.toString(entityId) + "/groups/");
+        HttpURLConnection connection = createConnection(checkUri(uriEntity) + entityId + "/groups/");
         JSONArray groups = getJSONArrayFromRemote(connection);
 
         // if entity belongs to groupName
@@ -240,23 +238,21 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
      * @return entity obtained by API call
      */
     private JSONObject getEntityFromRemote(int id) throws InternalErrorException, IOException {
-        HttpURLConnection connection = createConnection(checkUri(uriEntity) + Integer.toString(id) + "/");
+        HttpURLConnection connection = createConnection(checkUri(uriEntity) + id + "/");
         InputStream is = null;
         if (connection != null) {
             is = connection.getInputStream();
         }
         if (is != null) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-            String line;
 
-            try {
-                while ((line = bufferedReader.readLine()) != null) {
-                    return new JSONObject(line);
-                }
-            } finally {
-                bufferedReader.close();
-                connection.disconnect();
-            }
+	        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is))) {
+		        String line;
+		        while ((line = bufferedReader.readLine()) != null) {
+			        return new JSONObject(line);
+		        }
+	        } finally {
+		        connection.disconnect();
+	        }
         }
         return null;
     }
@@ -355,17 +351,15 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
             return null;
         }
         if (is != null) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-            String line;
 
-            try {
-                while ((line = bufferedReader.readLine()) != null) {
-                    return new JSONArray(line);
-                }
-            } finally {
-                bufferedReader.close();
-                connection.disconnect();
-            }
+	        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is))) {
+		        String line;
+		        while ((line = bufferedReader.readLine()) != null) {
+			        return new JSONArray(line);
+		        }
+	        } finally {
+		        connection.disconnect();
+	        }
         }
 
         return null;

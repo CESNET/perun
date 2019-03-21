@@ -24,7 +24,7 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 
 	final static Logger log = LoggerFactory.getLogger(OwnersManagerBlImpl.class);
 
-	private OwnersManagerImplApi ownersManagerImpl;
+	private final OwnersManagerImplApi ownersManagerImpl;
 	private PerunBl perunBl;
 
 	/**

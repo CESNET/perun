@@ -1454,7 +1454,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource",
 				"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
@@ -1774,7 +1774,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 		UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}

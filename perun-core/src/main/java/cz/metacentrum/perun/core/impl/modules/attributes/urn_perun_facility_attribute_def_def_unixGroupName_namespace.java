@@ -32,8 +32,8 @@ public class urn_perun_facility_attribute_def_def_unixGroupName_namespace extend
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Attribute value can't be null");
 
 		try {
-			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + (String) attribute.getValue());
-			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + (String) attribute.getValue());
+			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + attribute.getValue());
+			sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + attribute.getValue());
 		} catch (AttributeNotExistsException e) {
 			throw new WrongAttributeValueException(attribute, e);
 		}

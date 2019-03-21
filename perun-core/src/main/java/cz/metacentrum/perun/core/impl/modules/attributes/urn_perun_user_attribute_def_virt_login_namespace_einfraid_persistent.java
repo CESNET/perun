@@ -45,13 +45,7 @@ public class urn_perun_user_attribute_def_virt_login_namespace_einfraid_persiste
 			elixirPersistent.setValue(elixirPersistentShadow.getValue());
 			return elixirPersistent;
 
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
-		} catch (AttributeNotExistsException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
-			throw new InternalErrorException(e);
-		} catch (WrongAttributeValueException e) {
+		} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
 	}

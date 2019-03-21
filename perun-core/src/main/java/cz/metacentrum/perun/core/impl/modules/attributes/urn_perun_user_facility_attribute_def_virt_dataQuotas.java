@@ -96,7 +96,7 @@ public class urn_perun_user_facility_attribute_def_virt_dataQuotas extends UserF
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(A_MR_V_dataQuotas);
 		return strongDependencies;
 	}

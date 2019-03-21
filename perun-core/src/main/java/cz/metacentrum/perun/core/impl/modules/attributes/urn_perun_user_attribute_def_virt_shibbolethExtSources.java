@@ -24,7 +24,7 @@ public class urn_perun_user_attribute_def_virt_shibbolethExtSources extends User
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
-		Map<String, String> idpLogins = new LinkedHashMap<String,String>();
+		Map<String, String> idpLogins = new LinkedHashMap<>();
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
 		for(UserExtSource uES: userExtSources) {

@@ -460,7 +460,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							" where resources.facility_id=? and members.status!=? and members.status!=?", MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, facility.getId(),
 					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Member>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -538,7 +538,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					"where facility_attr_values.attr_id=? and facility_attr_values.attr_value=?",
 					FACILITY_MAPPER, attribute.getId(), BeansUtils.attributeValueToString(attribute));
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Facility>();
+			return new ArrayList<>();
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -573,7 +573,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<User> getAdmins(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
-			Set<User> setOfAdmins = new HashSet<User>();
+			Set<User> setOfAdmins = new HashSet<>();
 			// direct admins
 			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
 						"  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
@@ -589,7 +589,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return new ArrayList(setOfAdmins);
 
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -602,7 +602,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					"  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
 					UsersManagerImpl.USER_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -615,7 +615,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					" where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
 					GroupsManagerImpl.GROUP_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -667,7 +667,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		try {
 			return jdbc.query("select " + hostMappingSelectQuery + " from hosts where hosts.hostname=? order by id", HOST_MAPPER, hostname);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Host>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -691,7 +691,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities join hosts on hosts.facility_id=facilities.id " +
 					"where hosts.hostname=?", FACILITY_MAPPER, hostname);
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Facility>();
+			return new ArrayList<>();
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -702,7 +702,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		try {
 			return jdbc.query("select " + hostMappingSelectQuery + " from hosts where hosts.facility_id=? order by id", HOST_MAPPER, facility.getId());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Host>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -799,7 +799,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			RichUser ru = new RichUser(user, null);
 			List<RichUser> rulist = new ArrayList<>();
 			rulist.add(ru);
-			contactGroup = new ContactGroup(name, facility, new ArrayList<Group>(), new ArrayList<Owner>(), rulist);
+			contactGroup = new ContactGroup(name, facility, new ArrayList<>(), new ArrayList<>(), rulist);
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -823,7 +823,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					"values (?,?,?)", facility.getId(), name, owner.getId());
 			List<Owner> ownlist = new ArrayList<>();
 			ownlist.add(owner);
-			contactGroup = new ContactGroup(name, facility, new ArrayList<Group>(), ownlist, new ArrayList<RichUser>());
+			contactGroup = new ContactGroup(name, facility, new ArrayList<>(), ownlist, new ArrayList<>());
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -847,7 +847,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					"values (?,?,?)", facility.getId(), name, group.getId());
 			List<Group> grplist = new ArrayList<>();
 			grplist.add(group);
-			contactGroup = new ContactGroup(name, facility, grplist, new ArrayList<Owner>(), new ArrayList<RichUser>());
+			contactGroup = new ContactGroup(name, facility, grplist, new ArrayList<>(), new ArrayList<>());
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -1292,9 +1292,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return false;
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
-		} catch(RuntimeException e) {
-			throw new InternalErrorException(e);
-		} catch (ConsistencyErrorException e) {
+		} catch(RuntimeException | ConsistencyErrorException e) {
 			throw new InternalErrorException(e);
 		}
 	}
@@ -1318,9 +1316,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			while(contactGroupIter.hasNext()) {
 				if(first) {
 					contactGroup = contactGroupIter.next();
-					if(contactGroup.getGroups() == null) contactGroup.setGroups(new ArrayList<Group>());
-					if(contactGroup.getOwners() == null) contactGroup.setOwners(new ArrayList<Owner>());
-					if(contactGroup.getUsers() == null) contactGroup.setUsers(new ArrayList<RichUser>());
+					if(contactGroup.getGroups() == null) contactGroup.setGroups(new ArrayList<>());
+					if(contactGroup.getOwners() == null) contactGroup.setOwners(new ArrayList<>());
+					if(contactGroup.getUsers() == null) contactGroup.setUsers(new ArrayList<>());
 					first = false;
 				} else {
 					ContactGroup cp = contactGroupIter.next();

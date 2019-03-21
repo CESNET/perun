@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -116,12 +117,12 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 
 		try (PreparedStatement st = getPreparedStatement(query, searchString, maxResults)) {
 			try (ResultSet rs = st.executeQuery()) {
-				List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+				List<Map<String, String>> subjects = new ArrayList<>();
 
 				log.trace("Query {}", query);
 
 				while (rs.next()) {
-					Map<String, String> map = new HashMap<String, String>();
+					Map<String, String> map = new HashMap<>();
 
 					try {
 						map.put("firstName", rs.getString("firstName"));
@@ -198,7 +199,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 											result.write(buffer, 0, length);
 										}
 										byte[] bytes = Base64.encodeBase64(result.toByteArray());
-										attributeValue = new String(bytes, "UTF-8");
+										attributeValue = new String(bytes, StandardCharsets.UTF_8);
 									}
 								} catch (IOException ex) {
 									log.error("Unable to read BLOB for column {}", columnName);
@@ -305,12 +306,12 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		try (PreparedStatement st = getPreparedStatement(query, searchString, maxResults)) {
 			try (ResultSet rs = st.executeQuery()) {
 
-				List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+				List<Map<String, String>> subjects = new ArrayList<>();
 
 				log.trace("Query {}", query);
 
 				while (rs.next()) {
-					Map<String, String> map = new HashMap<String, String>();
+					Map<String, String> map = new HashMap<>();
 
 					try {
 						map.put(GroupsManagerBlImpl.GROUP_NAME, rs.getString(GroupsManagerBlImpl.GROUP_NAME));

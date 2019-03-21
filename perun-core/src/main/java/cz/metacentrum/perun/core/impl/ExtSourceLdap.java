@@ -68,13 +68,13 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException {
 		// Prepare searchQuery
 		// attributes.get("query") contains query template, e.g. (uid=?), ? will be replaced by the searchString
-		String query = (String) getAttributes().get("query");
+		String query = getAttributes().get("query");
 		if (query == null) {
 			throw new InternalErrorException("query attributes is required");
 		}
 		query = query.replaceAll("\\?", searchString);
 
-		String base = (String) getAttributes().get("base");
+		String base = getAttributes().get("base");
 		if (base == null) {
 			throw new InternalErrorException("base attributes is required");
 		}
@@ -85,13 +85,13 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
 		// Prepare searchQuery
 		// attributes.get("loginQuery") contains query template, e.g. (uid=?), ? will be replaced by the login
-		String query = (String) getAttributes().get("loginQuery");
+		String query = getAttributes().get("loginQuery");
 		if (query == null) {
 			throw new InternalErrorException("loginQuery attributes is required");
 		}
 		query = query.replaceAll("\\?", login);
 
-		String base = (String) getAttributes().get("base");
+		String base = getAttributes().get("base");
 		if (base == null) {
 			throw new InternalErrorException("base attributes is required");
 		}
@@ -114,7 +114,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 		NamingEnumeration<SearchResult> results = null;
 
-		List<String> ldapGroupSubjects = new ArrayList<String>();
+		List<String> ldapGroupSubjects = new ArrayList<>();
 
 		// Get the LDAP group name
 		String ldapGroupName = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -126,12 +126,12 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 			String attrName;
 			if (getAttributes().containsKey("memberAttribute")) {
-				attrName = (String) getAttributes().get("memberAttribute");
+				attrName = getAttributes().get("memberAttribute");
 			} else {
 				// Default value
 				attrName = "uniqueMember";
 			}
-			List<String> retAttrs = new ArrayList<String>();
+			List<String> retAttrs = new ArrayList<>();
 			retAttrs.add(attrName);
 
 			String[] retAttrsArray = retAttrs.toArray(new String[retAttrs.size()]);
@@ -153,7 +153,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				}
 			}
 
-			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+			List<Map<String, String>> subjects = new ArrayList<>();
 
 			// If attribute filter not exists, use optional default filter from extSource definition
 			if(filter == null) filter = filteredQuery;
@@ -180,27 +180,27 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 	protected void initContext() throws InternalErrorException {
 		// Load mapping between LDAP attributes and Perun attributes
-		Hashtable<String,String> env = new Hashtable<String,String>();
+		Hashtable<String,String> env = new Hashtable<>();
 
 		env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		if (getAttributes().containsKey("referral")) {
-			env.put(Context.REFERRAL, (String) getAttributes().get("referral"));
+			env.put(Context.REFERRAL, getAttributes().get("referral"));
 		}
 		if (getAttributes().containsKey("url")) {
-			env.put(Context.PROVIDER_URL, (String) getAttributes().get("url"));
+			env.put(Context.PROVIDER_URL, getAttributes().get("url"));
 		} else {
 			throw new InternalErrorException("url attributes is required");
 		}
 		if (getAttributes().containsKey("user")) {
-			env.put(Context.SECURITY_PRINCIPAL, (String) getAttributes().get("user"));
+			env.put(Context.SECURITY_PRINCIPAL, getAttributes().get("user"));
 		}
 		if (getAttributes().containsKey("password")) {
-			env.put(Context.SECURITY_CREDENTIALS, (String) getAttributes().get("password"));
+			env.put(Context.SECURITY_CREDENTIALS, getAttributes().get("password"));
 		}
 
 		if (getAttributes().containsKey("filteredQuery")) {
-			filteredQuery = (String) getAttributes().get("filteredQuery");
+			filteredQuery = getAttributes().get("filteredQuery");
 		}
 
 		try {
@@ -208,10 +208,10 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			if (getAttributes().get("ldapMapping") == null) {
 				throw new InternalErrorException("ldapMapping attributes is required");
 			}
-			String ldapMapping[] = ((String) getAttributes().get("ldapMapping")).trim().split(",\n");
-			mapping = new HashMap<String, String>();
+			String[] ldapMapping = getAttributes().get("ldapMapping").trim().split(",\n");
+			mapping = new HashMap<>();
 			for (String entry: ldapMapping) {
-				String values[] = entry.trim().split("=", 2);
+				String[] values = entry.trim().split("=", 2);
 				mapping.put(values[0].trim(), values[1].trim());
 			}
 
@@ -223,8 +223,8 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	protected Map<String,String> getSubjectAttributes(Attributes attributes) throws InternalErrorException {
-		Pattern pattern = Pattern.compile("\\{([^\\}])*\\}");
-		Map<String, String> map = new HashMap<String, String>();
+		Pattern pattern = Pattern.compile("\\{([^}])*}");
+		Map<String, String> map = new HashMap<>();
 
 		for (String key: mapping.keySet()) {
 			// Get attribute value and substitute all {} in the string
@@ -235,10 +235,10 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			while (matcher.find()) {
 				// Get the matching string
 				String ldapAttributeNameRaw = matcher.group();
-				String ldapAttributeName = ldapAttributeNameRaw.replaceAll("\\{([^\\}]*)\\}", "$1"); // ldapAttributeNameRaw is encapsulate with {}, so remove it
+				String ldapAttributeName = ldapAttributeNameRaw.replaceAll("\\{([^}]*)}", "$1"); // ldapAttributeNameRaw is encapsulate with {}, so remove it
 				// Replace {ldapAttrName} with the value
 				value = value.replace(ldapAttributeNameRaw, getLdapAttributeValue(attributes, ldapAttributeName));
-				log.trace("ExtSourceLDAP: Retrieved value {} of attribute {} for {} and storing into the key {}.", new Object[]{value, ldapAttributeName, ldapAttributeNameRaw, key});
+				log.trace("ExtSourceLDAP: Retrieved value {} of attribute {} for {} and storing into the key {}.", value, ldapAttributeName, ldapAttributeNameRaw, key);
 			}
 
 			map.put(key, value);
@@ -251,13 +251,13 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		String ldapAttrName;
 		String rule = null;
 		Matcher matcher = null;
-		String attrValue = "";;
+		String attrValue = "";
 
 		// Check if the ldapAttrName contains regex
 		if (ldapAttrNameRaw.contains("|")) {
 			int splitter = ldapAttrNameRaw.indexOf('|');
 			ldapAttrName = ldapAttrNameRaw.substring(0,splitter);
-			rule = ldapAttrNameRaw.substring(splitter+1, ldapAttrNameRaw.length());
+			rule = ldapAttrNameRaw.substring(splitter+1);
 		} else {
 			ldapAttrName = ldapAttrNameRaw;
 		}
@@ -265,7 +265,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		// Check if the ldapAttrName contains specification of the value index
 		int attributeValueIndex = -1;
 		if (ldapAttrNameRaw.contains("[")) {
-			Pattern indexPattern = Pattern.compile("^(.*)\\[([0-9]+)\\]$");
+			Pattern indexPattern = Pattern.compile("^(.*)\\[([0-9]+)]$");
 			Matcher indexMatcher = indexPattern.matcher(ldapAttrNameRaw);
 			if (indexMatcher.find()) {
 				ldapAttrName = indexMatcher.group(1);
@@ -345,7 +345,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	protected List<Map<String,String>> querySource(String query, String base, int maxResults) throws InternalErrorException {
 
 		NamingEnumeration<SearchResult> results = null;
-		List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> subjects = new ArrayList<>();
 
 		try {
 			// If query is null, then we are finding object by the base
@@ -376,7 +376,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 				while (results.hasMore()) {
 
-					SearchResult searchResult = (SearchResult) results.next();
+					SearchResult searchResult = results.next();
 					Attributes attributes = searchResult.getAttributes();
 					Map<String,String> subjectAttributes = this.getSubjectAttributes(attributes);
 					if (!subjectAttributes.isEmpty()) {

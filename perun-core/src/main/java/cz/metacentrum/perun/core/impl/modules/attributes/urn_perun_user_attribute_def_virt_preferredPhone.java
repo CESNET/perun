@@ -60,10 +60,8 @@ public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtua
 
 			return attribute;
 
-		} catch (AttributeNotExistsException ex) {
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
-		} catch (WrongAttributeAssignmentException e) {
-			throw new InternalErrorException(e);
 		}
 	}
 

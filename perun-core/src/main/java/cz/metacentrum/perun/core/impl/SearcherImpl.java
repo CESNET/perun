@@ -84,7 +84,7 @@ public class SearcherImpl implements SearcherImplApi {
 			String query = "select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from members left join member_attr_values val on " +
 					"val.member_id=members.id and val.attr_id=? where TO_DATE(val.attr_value, 'YYYY-MM-DD')"+operator+compareDate;
 
-			return jdbcTemplate.query(query.toString(), MembersManagerImpl.MEMBER_MAPPER, def.getId());
+			return jdbcTemplate.query(query, MembersManagerImpl.MEMBER_MAPPER, def.getId());
 
 		} catch (Exception e) {
 			throw new InternalErrorException(e);
@@ -102,7 +102,7 @@ public class SearcherImpl implements SearcherImplApi {
 							"where rav.attr_id=? and grav.attr_id=? and rav.attr_value=? and grav.attr_value=?)", GroupsManagerImpl.GROUP_MAPPER,
 					resourceAttribute.getId(), groupResourceAttribute.getId(), resourceAttribute.getValue(), groupResourceAttribute.getValue());
 		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Group>();
+			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 
@@ -200,7 +200,7 @@ public class SearcherImpl implements SearcherImplApi {
 					parameters.addValue("n" + counter, Boolean.class.getName());
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
 				} else if (key.getType().equals(ArrayList.class.getName())) {
-					List<String> list = new ArrayList<String>();
+					List<String> list = new ArrayList<>();
 					list.add(value);
 					key.setValue(list);
 					whereClauses.add("val" + counter + ".attr_value LIKE :v" + counter + " ");
@@ -208,7 +208,7 @@ public class SearcherImpl implements SearcherImplApi {
 					parameters.addValue("n" + counter, ArrayList.class.getName());
 					parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(key).substring(0, BeansUtils.attributeValueToString(key).length() - 1) + '%');
 				} else if (key.getType().equals(BeansUtils.largeArrayListClassName)) {
-					List<String> list = new ArrayList<String>();
+					List<String> list = new ArrayList<>();
 					list.add(value);
 					key.setValue(list);
 					whereClauses.add("val" + counter + ".attr_value_text LIKE :v" + counter + " ");
@@ -226,7 +226,7 @@ public class SearcherImpl implements SearcherImplApi {
 							splitValue.append(splitMapItem[i]);
 						}
 					}
-					Map<String, String> map = new LinkedHashMap<String, String>();
+					Map<String, String> map = new LinkedHashMap<>();
 					map.put(splitKey, splitValue.length() == 0 ? null : splitValue.toString());
 					key.setValue(map);
 					whereClauses.add("val" + counter + ".attr_value_text LIKE :v" + counter + " or val" + counter + ".attr_value_text LIKE :vv" + counter + " ");

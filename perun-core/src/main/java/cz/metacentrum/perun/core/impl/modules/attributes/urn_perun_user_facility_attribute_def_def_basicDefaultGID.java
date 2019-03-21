@@ -53,9 +53,8 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends U
 
 		resourcesWithSameGid.retainAll(allowedResources);
 
-		if (!resourcesWithSameGid.isEmpty()) {
-			return; //We found at least one allowed resource with same gid as the user have => attribute is OK
-		} else {
+		//We did not find at least one allowed resource with same gid as the user have => attribute is NOK
+		if (resourcesWithSameGid.isEmpty()) {
 			throw new WrongAttributeValueException(attribute, user, "User has not access to resource with required group id");
 		}
 	}
@@ -89,7 +88,7 @@ public class urn_perun_user_facility_attribute_def_def_basicDefaultGID extends U
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
 		dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace" + ":*");
 		return dependencies;

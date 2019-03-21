@@ -53,11 +53,7 @@ public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends Grou
 
 				jsonMembers.put(jsonUser);
 
-			} catch (JSONException e){
-				throw new InternalErrorException(e);
-			} catch (WrongAttributeAssignmentException e){
-				throw new InternalErrorException(e);
-			} catch (AttributeNotExistsException e){
+			} catch (JSONException | AttributeNotExistsException | WrongAttributeAssignmentException e){
 				throw new InternalErrorException(e);
 			}
 		}

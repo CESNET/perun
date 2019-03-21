@@ -20,7 +20,7 @@ public class PerunAuthenticatorImpl extends Authenticator {
 	private final static Logger log = LoggerFactory.getLogger(PerunAuthenticatorImpl.class);
 
 	@GuardedBy("itself")
-	private ConcurrentMap<String, PasswordAuthentication> passwordAuthenticationsForURL = new ConcurrentHashMap<String, PasswordAuthentication>();
+	private final ConcurrentMap<String, PasswordAuthentication> passwordAuthenticationsForURL = new ConcurrentHashMap<>();
 
 	@GuardedBy("PerunAuthenticatorImpl.class")
 	private static PerunAuthenticatorImpl instance;

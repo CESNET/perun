@@ -53,7 +53,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 	private final ExtSourcesManagerImplApi extSourcesManagerImpl;
 	private PerunBl perunBl;
-	private AtomicBoolean initialized = new AtomicBoolean(false);
+	private final AtomicBoolean initialized = new AtomicBoolean(false);
 
 
 	public ExtSourcesManagerBlImpl(ExtSourcesManagerImplApi extSourcesManagerImpl) {
@@ -152,7 +152,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	@Override
 	public List<User> getInvalidUsers(PerunSession sess, ExtSource source) throws InternalErrorException {
 		List<Integer> usersIds;
-		List<User> invalidUsers = new ArrayList<User>();
+		List<User> invalidUsers = new ArrayList<>();
 
 		// Get all users, who are associated with this extSource
 		usersIds = getExtSourcesManagerImpl().getAssociatedUsersIdsWithExtSource(sess, source);
@@ -178,7 +178,6 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				invalidUsers.add(user);
 			} catch (ExtSourceUnsupportedOperationException e) {
 				log.warn("ExtSource {} doesn't support getSubjectByLogin", source.getName());
-				continue;
 			}
 		}
 
@@ -273,10 +272,10 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		}
 
 		// Additional userExtSources
-		List<UserExtSource> additionalUserExtSources = new ArrayList<UserExtSource>();
+		List<UserExtSource> additionalUserExtSources = new ArrayList<>();
 
 		// Filter attributes
-		Map<String, String> attributes = new HashMap<String, String>();
+		Map<String, String> attributes = new HashMap<>();
 		for (String attrName: subject.keySet()) {
 			// Allow only users and members attributes
 			// FIXME volat metody z attributesManagera nez kontrolovat na zacatek jmena
@@ -394,10 +393,10 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		}
 
 		// Additional userExtSources
-		List<UserExtSource> additionalUserExtSources = new ArrayList<UserExtSource>();
+		List<UserExtSource> additionalUserExtSources = new ArrayList<>();
 
 		// Filter attributes
-		Map<String, String> attributes = new HashMap<String, String>();
+		Map<String, String> attributes = new HashMap<>();
 		for (String attrName: subjectData.keySet()) {
 			// Allow only users and members attributes
 			// FIXME volat metody z attributesManagera nez kontrolovat na zacatek jmena

@@ -42,13 +42,13 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	private Holder facilityHolder;
 	private Holder memberHolder;
 
-	private String subject = "Test subject";
-	private String subject1 = "Test subject1";
+	private final String subject = "Test subject";
+	private final String subject1 = "Test subject1";
 
-	private String timeCreated = "2016-04-24";
-	private String timeModified = "2016-04-25";
-	private String creator = "Admin";
-	private String modifier = "Test";
+	private final String timeCreated = "2016-04-24";
+	private final String timeModified = "2016-04-25";
+	private final String creator = "Admin";
+	private final String modifier = "Test";
 
 	@Before
 	public void setUp() throws Exception {
@@ -296,7 +296,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		cacheManager.setAttribute(groupResourceAttr, groupHolder, resourceHolder);
 		cacheManager.setEntitylessAttribute(entitylessAttr, subject);
 
-		List<Attribute> attrs = cacheManager.getAttributesByAttributeDefinition((AttributeDefinition) groupResourceAttr);
+		List<Attribute> attrs = cacheManager.getAttributesByAttributeDefinition(groupResourceAttr);
 
 		assertTrue("it should return only 1 attribute", attrs.size() == 1);
 		assertTrue("result should contain group-resource attribute", attrs.contains(groupResourceAttr));
@@ -314,7 +314,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		cacheManager.setAttribute(groupResourceAttr, groupHolder, resourceHolder);
 		cacheManager.setEntitylessAttribute(entitylessAttr, subject);
 
-		List<Attribute> attrs = cacheManager.getAttributesByAttributeDefinition((AttributeDefinition) entitylessAttr);
+		List<Attribute> attrs = cacheManager.getAttributesByAttributeDefinition(entitylessAttr);
 
 		assertTrue("it should return only 1 attribute", attrs.size() == 1);
 		assertTrue("result should contain entityless attribute", attrs.contains(entitylessAttr));

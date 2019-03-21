@@ -63,7 +63,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	private HttpURLConnection con = null;
 
 	//Pattern for looking replacement in regex string
-	private Pattern pattern = Pattern.compile("([^\\\\]|^)(\\\\\\\\)*\\/([^\\\\]|$)");
+	private final Pattern pattern = Pattern.compile("([^\\\\]|^)(\\\\\\\\)*/([^\\\\]|$)");
 
 	@Override
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
@@ -86,7 +86,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		searchString = convertToXpathSearchString(searchString);
 
 		//Get Query attribute from extSources.xml config file
-		query = (String) getAttributes().get("xpath");
+		query = getAttributes().get("xpath");
 		if (query == null || query.isEmpty()) {
 			throw new InternalErrorException("query attributes is required");
 		}
@@ -109,7 +109,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		login = convertToXpathSearchString(login);
 
 		//Get Query attribute from extSources.xml config file
-		query = (String) getAttributes().get("loginXpath");
+		query = getAttributes().get("loginXpath");
 		if (query == null || query.isEmpty()) {
 			throw new InternalErrorException("query attributes is required");
 		}
@@ -152,10 +152,10 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 
 	protected void prepareEnvironment() throws InternalErrorException {
 		//Get file or uri of xml
-		file = (String) getAttributes().get("file");
+		file = getAttributes().get("file");
 		if(file == null || file.isEmpty()) {
 			file = null;
-			uri = (String) getAttributes().get("uri");
+			uri = getAttributes().get("uri");
 			if(uri == null || uri.isEmpty()) {
 				throw new InternalErrorException("File and uri are both empty, one must exists!.");
 			}
@@ -177,7 +177,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 */
 	protected List<Map<String,String>> xpathParsing(String query, int maxResults) throws InternalErrorException {
 		//Prepare result list
-		List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> subjects = new ArrayList<>();
 
 		//Create new document factory builder
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -257,26 +257,28 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @throws InternalErrorException
 	 */
 	protected Map<String, String> convertNodeToMap(Node node) throws InternalErrorException {
-		Map<String,String> nodeInMap = new HashMap<String,String>();
+		Map<String,String> nodeInMap = new HashMap<>();
 		//If node is empty, return null
 		if(node == null) return null;
 
 		String mapping = getAttributes().get("xmlMapping");
 		String[] mappingArray = mapping.split(",\n");
 
-		for(int i=0; i<mappingArray.length; i++) {
-			String attr = mappingArray[i].trim();
+		for (String s : mappingArray) {
+			String attr = s.trim();
 
 			int index = attr.indexOf("=");
 
-			if(index <= 0) throw new InternalErrorException("There is no text in xmlMapping attribute or there is no '=' character.");
+			if (index <= 0)
+				throw new InternalErrorException("There is no text in xmlMapping attribute or there is no '=' character.");
 			String name = attr.substring(0, index);
-			String value = attr.substring(index +1);
+			String value = attr.substring(index + 1);
 
-			if(value.startsWith("#")) {
+			if (value.startsWith("#")) {
 				value = value.substring(1);
 				String[] regexAndXpath = value.split("#");
-				if(regexAndXpath.length != 2) throw new InternalErrorException("There is not only 2 parts (regex and XpathExpression). There are " + regexAndXpath.length + " parts.");
+				if (regexAndXpath.length != 2)
+					throw new InternalErrorException("There is not only 2 parts (regex and XpathExpression). There are " + regexAndXpath.length + " parts.");
 				value = extractValueByRegex(getValueFromXpath(node, regexAndXpath[1]), regexAndXpath[0]);
 			} else {
 				value = getValueFromXpath(node, value);
@@ -430,10 +432,10 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	protected String convertToXpathSearchString(String query) {
 		//if query is empty or null, return empty string
 		if(query == null || query.isEmpty()) {
-			return new String();
+			return "";
 		}
 		//prepare array with parts of query for concating
-		List<String> parts = new ArrayList<String>();
+		List<String> parts = new ArrayList<>();
 
 		//prepare variables for behavior in for cycles through all characters in query
 		String part = "";

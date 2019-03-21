@@ -46,7 +46,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 		classInstance = new urn_perun_user_facility_attribute_def_def_shell();
 		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 
-		ArrayList<String> shells = new ArrayList<String>();
+		ArrayList<String> shells = new ArrayList<>();
 		shells.add("/bin/bash");
 		shells.add("/bin/csh");
 		listOfShells.setValue(shells);
@@ -90,7 +90,7 @@ public class urn_perun_user_facility_attribute_def_def_shellTest {
 	public void testCheckAttributeValueOfUnknownUser() throws Exception{
 		System.out.println("testCheckAttributeValueOfUnknownUser()");
 
-		when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(new ArrayList<Resource>());
+		when(session.getPerunBl().getUsersManagerBl().getAllowedResources(any(PerunSession.class), any(Facility.class), any(User.class))).thenReturn(new ArrayList<>());
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(listOfShells);
 
 		Attribute atr = new Attribute();

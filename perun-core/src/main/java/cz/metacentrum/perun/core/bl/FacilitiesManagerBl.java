@@ -195,7 +195,7 @@ public interface FacilitiesManagerBl {
 	 * @param destinationFacility
 	 * @throws InternalErrorException
 	 */
-	public void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException;
+	void copyOwners(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException;
 
 
 	/**
@@ -811,7 +811,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 
-	public List<User> getAssignedUsers(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<User> getAssignedUsers(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Returns list of Users assigned with chosen Facility containing resources where service is assigned.
@@ -823,7 +823,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 
-	public List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service) throws InternalErrorException;
+	List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service) throws InternalErrorException;
 
 	/**
 	 * Copy all managers(admins) of the source facility to the destination facility.
@@ -850,7 +850,7 @@ public interface FacilitiesManagerBl {
 	 * @throws WrongAttributeValueException if the attribute value is illegal
 	 * @throws WrongReferenceAttributeValueException if the attribute value is illegal
 	 */
-	public void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void copyAttributes(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	// FACILITY CONTACTS METHODS
 

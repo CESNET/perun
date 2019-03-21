@@ -97,7 +97,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
@@ -122,7 +122,7 @@ public interface MembersManagerBl {
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 */
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
@@ -861,7 +861,7 @@ public interface MembersManagerBl {
 	 * @return list of richMembers
 	 * @throws InternalErrorException
 	 */
-	public List<RichMember> convertMembersToRichMembers(PerunSession sess, List<Member> members)  throws InternalErrorException;
+	List<RichMember> convertMembersToRichMembers(PerunSession sess, List<Member> members)  throws InternalErrorException;
 
 	/**
 	 * Fill the RichMember object with data from Member and corresponding User and user/member attributes.
@@ -871,7 +871,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers)  throws InternalErrorException;
+	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers)  throws InternalErrorException;
 
 	/**
 	 * Fill the RichMember object with data from Member and corresponding User and user/member attributes defined by list of attribute definition.
@@ -882,7 +882,7 @@ public interface MembersManagerBl {
 	 * @return
 	 * @throws InternalErrorException
 	 */
-	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException;
+	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException;
 
 	/**
 	 * Fill the RichMember object with data from Member and corresponding User, user/member, user-facility and member-resource attributes defined by list of attribute definition.
@@ -895,7 +895,7 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws MemberResourceMismatchException
 	 */
-	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef) throws InternalErrorException, MemberResourceMismatchException;
+	List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef) throws InternalErrorException, MemberResourceMismatchException;
 
 	/**
 	 * Get the VO members count.

@@ -40,9 +40,9 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_muTest {
 	private urn_perun_member_attribute_def_def_o365EmailAddresses_mu classInstance;
 	private PerunSessionImpl session;
 	private Attribute attributeToCheck;
-	private String uco = "123456";
-	private User user = new User(10, "Joe", "Doe", "W.", "", "");
-	private Member member = new Member(1, user.getId());
+	private final String uco = "123456";
+	private final User user = new User(10, "Joe", "Doe", "W.", "", "");
+	private final Member member = new Member(1, user.getId());
 	private AttributesManagerBl am;
 
 	@Before

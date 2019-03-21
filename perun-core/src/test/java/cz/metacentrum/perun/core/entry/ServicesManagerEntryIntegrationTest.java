@@ -1108,7 +1108,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get data for facility and service
 		// = should be one node (facility)
-		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
+		List<ServiceAttributes> facilities = new ArrayList<>();
 		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility));
 		assertNotNull("Unable to get hierarchical data",facilities);
 		assertTrue("Only 1 facility shoud be returned",facilities.size()==1);
@@ -1116,7 +1116,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all required facility attributes
 		// = should be 1 required attribute for 1 facility
-		List<Attribute> facAttr = new ArrayList<Attribute>();
+		List<Attribute> facAttr = new ArrayList<>();
 		facAttr = facilities.get(0).getAttributes();
 		assertNotNull("Unable to get facility attrbutes required by service",facAttr);
 		assertTrue("Only 1 facility attribute should be returned",facAttr.size()==1);
@@ -1124,7 +1124,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all facility resources
 		// = should be 2 resources for 1 facility (3rd resource is without proper service)
-		List<ServiceAttributes> resources = new ArrayList<ServiceAttributes>();
+		List<ServiceAttributes> resources = new ArrayList<>();
 		resources = facilities.get(0).getChildElements();
 		assertNotNull("Unable to get facility resources",resources);
 		assertTrue("Two resource should be returned",resources.size()==2);
@@ -1133,7 +1133,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all required attributes for all resources on facility
 		// should be 1 attribute per resource = total 2 for 2 resource
-		List<Attribute> resAttr = new ArrayList<Attribute>();
+		List<Attribute> resAttr = new ArrayList<>();
 		for (int i = 0; i<resources.size(); i++ ) {
 
 			resAttr.addAll(resources.get(i).getAttributes());
@@ -1147,7 +1147,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all members from all resources on facility
 		// = we will get same attribute twice because member is on both resources
-		List<ServiceAttributes> members = new ArrayList<ServiceAttributes>();
+		List<ServiceAttributes> members = new ArrayList<>();
 		for (int i = 0; i<resources.size(); i++ ) {
 
 			members.addAll(resources.get(i).getChildElements());
@@ -1160,7 +1160,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all required attributes for all members at all resources on facility
 		// = there should be two same attributes, from same member on 2 resources
-		List<Attribute> memAttr = new ArrayList<Attribute>();
+		List<Attribute> memAttr = new ArrayList<>();
 		for (int i = 0; i<members.size(); i++ ) {
 
 			memAttr.addAll(members.get(i).getAttributes());
@@ -1246,7 +1246,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		 *
 		 */
 
-		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
+		List<ServiceAttributes> facilities = new ArrayList<>();
 		facilities.add(perun.getServicesManager().getDataWithGroups(sess, service, facility));
 		assertNotNull("Unable to get hierarchical data with groups",facilities);
 		assertTrue("Only 1 facility shoud be returned",facilities.size()==1);
@@ -1254,7 +1254,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all required facility attributes
 		// = should be 1 required attribute for 1 facility
-		List<Attribute> facAttr = new ArrayList<Attribute>();
+		List<Attribute> facAttr = new ArrayList<>();
 		facAttr = facilities.get(0).getAttributes();
 		assertNotNull("Unable to get facility attrbutes required by service",facAttr);
 		assertTrue("Only 1 facility attribute should be returned",facAttr.size()==1);
@@ -1262,7 +1262,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all facility resources
 		// = should be 2 resources for 1 facility (3rd resource is without proper service)
-		List<ServiceAttributes> resources = new ArrayList<ServiceAttributes>();
+		List<ServiceAttributes> resources = new ArrayList<>();
 		resources = facilities.get(0).getChildElements();
 		assertNotNull("Unable to get facility resources",resources);
 		assertTrue("Two resource should be returned",resources.size()==2);
@@ -1270,7 +1270,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertNotNull("Our 2nd resource shouldn't be null",resources.get(1));
 
 		//get all attributes from all resources
-		List<Attribute> resAttr = new ArrayList<Attribute>();
+		List<Attribute> resAttr = new ArrayList<>();
 		for (int i = 0; i<resources.size(); i++ ) {
 
 			resAttr.addAll(resources.get(i).getAttributes());
@@ -1286,20 +1286,20 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		// 1st are GROUPS / 2nd are MEMBERS
 		for (int i = 0; i<resources.size(); i++ ) {
 
-			List<ServiceAttributes> resElem = new ArrayList<ServiceAttributes>();
+			List<ServiceAttributes> resElem = new ArrayList<>();
 			resElem = resources.get(i).getChildElements();
 			assertNotNull("Unable to get resource elements from resource", resElem);
 			assertTrue("There should be only 2 virtual nodes - groups/members",resElem.size() == 2);
 
 			//get members from resource
-			List<ServiceAttributes> members = new ArrayList<ServiceAttributes>();
+			List<ServiceAttributes> members = new ArrayList<>();
 			members.addAll(resElem.get(1).getChildElements());
 			assertNotNull("Unable to get members from resource",members);
 			assertTrue("There should be 1 member from each resource",members.size() == 1);
 			assertNotNull("1st member shouldn't be null",members.get(0));
 
 			//get member attributes for all members on resource
-			List<Attribute> memAttr = new ArrayList<Attribute>();
+			List<Attribute> memAttr = new ArrayList<>();
 			for (int n = 0; n<members.size(); n++ ) {
 
 				memAttr.addAll(members.get(n).getAttributes());
@@ -1310,13 +1310,13 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 			assertTrue("Should return our required member attribute",memAttr.contains(reqMemAttr));
 
 			//get groups from resource
-			List<ServiceAttributes> groups = new ArrayList<ServiceAttributes>();
+			List<ServiceAttributes> groups = new ArrayList<>();
 			groups.addAll(resElem.get(0).getChildElements());
 			assertNotNull("Unable to get groups from resource", groups);
 			assertTrue("There should be only 1 group on each resource", groups.size() == 1);
 
 			//get group attributes for all 1st level groups on resource
-			List<Attribute> grpAttr = new ArrayList<Attribute>();
+			List<Attribute> grpAttr = new ArrayList<>();
 			for (int n = 0; n<groups.size(); n++ ) {
 
 				grpAttr.addAll(groups.get(n).getAttributes());
@@ -1333,13 +1333,13 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 			// 1st are SUBGROUPS - 2nd are GROUP-MEMBERS
 			for (int x = 0; x<groups.size(); x++ ) {
 
-				List<ServiceAttributes> grpElem = new ArrayList<ServiceAttributes>();
+				List<ServiceAttributes> grpElem = new ArrayList<>();
 				grpElem = groups.get(x).getChildElements();
 				assertNotNull("Unable to get group child elements", grpElem);
 				assertTrue("There should be 2 group child elements", grpElem.size() == 2);
 
 				//get members from group/subgroup
-				List<ServiceAttributes> grpMembers = new ArrayList<ServiceAttributes>();
+				List<ServiceAttributes> grpMembers = new ArrayList<>();
 				grpMembers.addAll(grpElem.get(1).getChildElements());
 				assertNotNull("Unable to get members from group/subgroup",grpMembers);
 				assertTrue("There should be only one member", grpMembers.size() == 1);
@@ -1347,7 +1347,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 				// unable to test that, objects are uncomparable
 
 				//get member attributes from group/subgroup
-				List<Attribute> grpMemAttr = new ArrayList<Attribute>();
+				List<Attribute> grpMemAttr = new ArrayList<>();
 				for (int n = 0; n<grpMembers.size(); n++ ) {
 
 					grpMemAttr.addAll(grpMembers.get(n).getAttributes());
@@ -1358,7 +1358,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 				assertNotNull("1st member attribute shouldn't be null",grpMemAttr.get(0));
 
 				//get all subgroups from group on resource
-				List<ServiceAttributes> grpGroups = new ArrayList<ServiceAttributes>();
+				List<ServiceAttributes> grpGroups = new ArrayList<>();
 				grpGroups.addAll(grpElem.get(0).getChildElements());
 				assertNotNull("Unable to get subgroups from group/subgroup",grpGroups);
 				assertTrue("There shouldn't be any subgroups", grpGroups.size() == 0);
@@ -1465,7 +1465,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		service2 = perun.getServicesManager().createService(sess, service2);
 		assertNotNull("unable to create service",service2);
 
-		List<Service> services = new ArrayList<Service>();
+		List<Service> services = new ArrayList<>();
 		services.add(service1);
 		services.add(service2);
 
@@ -1519,7 +1519,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Host host = new Host();
 		host.setHostname("test.test");
 
-		List<Host> hosts = new ArrayList<Host>();
+		List<Host> hosts = new ArrayList<>();
 		hosts.add(host);
 
 		perun.getFacilitiesManager().addHosts(sess, hosts, facility);
@@ -1541,7 +1541,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Host host2 = new Host();
 		host2.setHostname("testing_host_2");
 
-		List<Host> hosts = new ArrayList<Host>();
+		List<Host> hosts = new ArrayList<>();
 		hosts.add(host1);
 		hosts.add(host2);
 		perun.getFacilitiesManager().addHosts(sess, hosts, facility);
@@ -1574,7 +1574,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	private List<AttributeDefinition> setUpRequiredAttribute() throws Exception {
 
-		List<AttributeDefinition> attrList = new ArrayList<AttributeDefinition>();
+		List<AttributeDefinition> attrList = new ArrayList<>();
 		attrList.add(setUpAttribute());
 
 		return attrList;
@@ -1619,7 +1619,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		candidate.setTitleAfter("");
 		UserExtSource ues = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
 		candidate.setUserExtSource(ues);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		assertNotNull("No member created", createdMember);

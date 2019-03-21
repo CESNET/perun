@@ -53,7 +53,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	private final static String CLASS_NAME = "GroupsManager.";
 	private static final String EXT_SOURCE_NAME = "GroupSyncExtSource";
 
-	private Group baseGroup = new Group("baseGroup", "I am base group");
+	private final Group baseGroup = new Group("baseGroup", "I am base group");
 	private Vo vo;
 	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_LDAP);
 
@@ -71,7 +71,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 	@Spy
 	private ExtSourcesManagerBl extSourceManagerBl;
 	//Mocked extSource, so we can simulate obtaining real extSource data
-	private ExtSourceSimpleApi essa = mock(ExtSourceLdap.class);
+	private final ExtSourceSimpleApi essa = mock(ExtSourceLdap.class);
 
 
 	@Before

@@ -45,7 +45,7 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 			throw new InternalErrorException("Attribute with list of shells from facility " + facility.getId() +" could not obtained.",ex);
 		}
 
-		atr.setValue((List<String>) allShellsPerFacility.getValue());
+		atr.setValue(allShellsPerFacility.getValue());
 
 		return atr;
 	}
@@ -87,7 +87,7 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependecies = new ArrayList<String>();
+		List<String> dependecies = new ArrayList<>();
 		dependecies.add(A_F_shells);
 		return dependecies;
 	}

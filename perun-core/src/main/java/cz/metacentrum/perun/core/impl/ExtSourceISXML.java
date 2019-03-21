@@ -46,7 +46,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 		if(!queryForGroup.contains(":")) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " has to contain separator ':' between workplaceId and groupName.");
 
 		//Parse workplace and groupName from queryForGroup
-		String parsedQuery[] = queryForGroup.split(":");
+		String[] parsedQuery = queryForGroup.split(":");
 		if(parsedQuery.length != 2) throw new InternalErrorException("Expected 2 values workplace and groupName but get " + parsedQuery.length);
 		workplace = parsedQuery[0];
 		groupName = parsedQuery[1];
@@ -97,7 +97,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 
 		try (
 			OutputStream output = getCon().getOutputStream();
-			PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true);
+			PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), true)
 		) {
 			// Send param about return
 			writer.append("--" + boundary).append(CRLF);

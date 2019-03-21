@@ -542,14 +542,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 
 		Attribute withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
-		assertTrue("Wrong member_group status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertTrue("Wrong member_group status for valid member", "VALID".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, m, g, withValue);
 
 		// expire him
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
-		assertTrue("Wrong member_group status for expired member", "EXPIRED".equals((String)withValue.getValue()));
+		assertTrue("Wrong member_group status for expired member", "EXPIRED".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, m, g, withValue);
 
 		// remove him (will lost assignment)
@@ -595,21 +595,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 
 		Attribute withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
-		assertTrue("Wrong member_resource status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertTrue("Wrong member_resource status for valid member", "VALID".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
 
 		// expire him in first group
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 		// should be still valid from second
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
-		assertTrue("Wrong member_resource status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertTrue("Wrong member_resource status for valid member", "VALID".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
 
 		// expire him in second group
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g2);
 		// should be expired
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
-		assertTrue("Wrong member_resource status for expired member", "EXPIRED".equals((String)withValue.getValue()));
+		assertTrue("Wrong member_resource status for expired member", "EXPIRED".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
 
 		// validate him in first group
@@ -618,7 +618,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		perun.getGroupsManager().removeMember(sess, g2, m);
 		// should be valid from first group
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
-		assertTrue("Wrong member_resource status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertTrue("Wrong member_resource status for valid member", "VALID".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
 
 		// remove him (will lost assignment)
@@ -665,14 +665,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 
 		Attribute withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertTrue("Wrong user_facility status for valid member", "VALID".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// expire him
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals((String)withValue.getValue()));
+		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// remove him (will lost assignment)
@@ -691,28 +691,28 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		perun.getGroupsManager().addMember(sess, g2, m2);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertTrue("Wrong user_facility status for valid member", "VALID".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// expire him in first
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 		// is still valid
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for valid member", "VALID".equals((String)withValue.getValue()));
+		assertTrue("Wrong user_facility status for valid member", "VALID".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// expire him in second
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m2, g2);
 		// should be expired
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals((String)withValue.getValue()));
+		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// remove from first group
 		perun.getGroupsManager().removeMember(sess, g, m);
 		// should be expired
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
-		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals((String)withValue.getValue()));
+		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals(withValue.getValue()));
 		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
 
 		// remove him from second (will lost assignment)
@@ -801,7 +801,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+10d");
 
 		Attribute extendMembershipRulesAttribute = new Attribute(attributesManager.getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF+":groupMembershipExpirationRules"));
@@ -842,7 +842,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		LocalDate date = LocalDate.now().plusDays(1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		// Set perid to day after today
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, date.getDayOfMonth() + "." + date.getMonthValue() + ".");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
@@ -885,7 +885,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		LocalDate date = LocalDate.now().plusMonths(3);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		// Set perid to day after today
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, date.getDayOfMonth() + "." + date.getMonthValue() + ".");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "1m");
@@ -927,7 +927,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0,1");
 
@@ -976,7 +976,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0,1");
 
@@ -1026,7 +1026,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m");
@@ -1083,7 +1083,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m.");
@@ -1128,7 +1128,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipDoNotExtendLoaKeyName, "0");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodLoaKeyName, "1|+1m.");
@@ -1171,7 +1171,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+6m");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 
@@ -1209,7 +1209,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "+6m");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 
@@ -1247,7 +1247,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 
@@ -1285,7 +1285,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group, member1);
 
 		// Set membershipExpirationRules attribute
-		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<>();
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipPeriodKeyName, "1.1.");
 		extendMembershipRules.put(AbstractMembershipExpirationRulesModule.membershipGracePeriodKeyName, "2d");
 
@@ -1645,7 +1645,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		vo = setUpVo();
 		List<Group> groups = setUpGroupsWithSubgroups(vo);
 
-		List<Group> topLevels = new ArrayList<Group>();
+		List<Group> topLevels = new ArrayList<>();
 		for (Group group : groups) {
 			// get only top-level groups
 			if (!group.getName().contains(":")) topLevels.add(group);
@@ -2894,7 +2894,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		candidate.setTitleAfter("");
 		UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
@@ -3041,7 +3041,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group firstLayerSubGroup = this.groupsManager.createGroup(sess, group, group2);
 		Group secondLayerSubGroup = this.groupsManager.createGroup(sess, group2, group3);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.add(setUpMemberWithDifferentParam(vo, 1));
 
 		this.groupsManager.addMember(sess, group2, members.get(0));
@@ -3067,7 +3067,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group topGroup = this.groupsManager.createGroup(sess, vo, group);
 		Group subGroup = this.groupsManager.createGroup(sess, group, group2);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.add(setUpMemberWithDifferentParam(vo, 1));
 
 		this.groupsManager.addMember(sess, group, members.get(0));
@@ -3091,7 +3091,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group subGroup = this.groupsManager.createGroup(sess, group, group2);
 		Group subSubGroup = this.groupsManager.createGroup(sess, group2, group3);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		members.add(setUpMemberWithDifferentParam(vo, 1));
 
 		this.groupsManager.addMember(sess, group3, members.get(0));
@@ -3122,7 +3122,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		this.groupsManager.createGroup(sess, group, group21);
 		this.groupsManager.createGroup(sess, group2, group3);
 
-		List<Member> members = new ArrayList<Member>();
+		List<Member> members = new ArrayList<>();
 		for(int i=0;i<4;i++)
 			members.add(setUpMemberWithDifferentParam(vo, i));
 
@@ -3518,7 +3518,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// test old way - iterate over resources
 		List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
-		List<Group> oldGroups = new ArrayList<Group>();
+		List<Group> oldGroups = new ArrayList<>();
 		for (Resource r : resources) {
 			oldGroups.addAll(perun.getResourcesManager().getAssignedGroups(sess, r));
 		}
@@ -4320,7 +4320,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		candidate.setTitleAfter("");
 		final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 		return candidate;
 
 	}
@@ -4401,7 +4401,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	private List<Attribute> setUpGroupAttributes() throws Exception {
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 
 		// attribute1
 		Attribute attr = new Attribute();
@@ -4436,7 +4436,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertNotNull("unable to create Group_Resource attribute",attributesManager.createAttribute(sess, attr));
 		// create new group resource attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 

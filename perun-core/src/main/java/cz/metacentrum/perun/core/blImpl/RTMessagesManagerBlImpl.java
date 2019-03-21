@@ -51,7 +51,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 	private final String rtURL;
 	private final String rtDefaultQueue;
 
-	private Pattern ticketNumberPattern = Pattern.compile("^# Ticket ([0-9]+) created.");
+	private final Pattern ticketNumberPattern = Pattern.compile("^# Ticket ([0-9]+) created.");
 
 	public RTMessagesManagerBlImpl(PerunBl perunBl, String rtURL, String rtDefaultQueue) {
 		this.perunBl = perunBl;

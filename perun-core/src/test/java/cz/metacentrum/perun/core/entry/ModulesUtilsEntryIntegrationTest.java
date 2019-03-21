@@ -66,7 +66,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private List<Attribute> attributes; // always have just 1 attribute we setUp"AttrType"()
 	private Group group;
 
-	private String namespace = "someNamespace";
+	private final String namespace = "someNamespace";
 
 	@Before
 	public void setUp() throws Exception {
@@ -81,7 +81,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		List<Resource> resources = new ArrayList<Resource>();
+		List<Resource> resources = new ArrayList<>();
 		resources.add(resource);
 
 		List<Attribute> attrs = setUpResourceAttribute();
@@ -98,7 +98,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		List<Resource> resources = new ArrayList<Resource>();
+		List<Resource> resources = new ArrayList<>();
 		resources.add(resource);
 
 		List<Attribute> attrs = setUpResourceAttribute();
@@ -117,7 +117,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		List<Resource> resources = new ArrayList<Resource>();
+		List<Resource> resources = new ArrayList<>();
 		resources.add(resource);
 
 		List<Attribute> attrs = setUpResourceAttribute();
@@ -134,7 +134,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource = setUpResource();
 		group = setUpGroup();
 
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new ArrayList<>();
 		groups.add(group);
 
 		List<Attribute> attrs = setUpGroupAttribute();
@@ -152,7 +152,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource = setUpResource();
 		group = setUpGroup();
 
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new ArrayList<>();
 		groups.add(group);
 
 		List<Attribute> attrs = setUpGroupAttribute();
@@ -172,7 +172,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource = setUpResource();
 		group = setUpGroup();
 
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new ArrayList<>();
 		groups.add(group);
 
 		List<Attribute> attrs = setUpGroupAttribute();
@@ -188,7 +188,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		List<Resource> resources = new ArrayList<Resource>();
+		List<Resource> resources = new ArrayList<>();
 		resources.add(resource);
 
 		Attribute gidRanges = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
@@ -221,7 +221,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource = setUpResource();
 		group = setUpGroup();
 
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new ArrayList<>();
 		groups.add(group);
 
 		Attribute gidRanges = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-GIDRanges"));
@@ -323,8 +323,8 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource = setUpResource();
 		group = setUpGroup();
 
-		List<Group> groups = new ArrayList<Group>();
-		List<Resource> resources = new ArrayList<Resource>();
+		List<Group> groups = new ArrayList<>();
+		List<Resource> resources = new ArrayList<>();
 		groups.add(group);
 		resources.add(resource);
 
@@ -338,7 +338,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void getListOfResourceGIDsFromListOfGroupGIDs() throws Exception {
 		System.out.println(CLASS_NAME + "getListOfResourceGIDsFromListOfGroupGIDs");
 
-		List<Attribute> groupAttr = new ArrayList<Attribute>();
+		List<Attribute> groupAttr = new ArrayList<>();
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
 
 		for(Attribute a: attributes) {
@@ -358,7 +358,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	public void getListOfGroupGIDsFromListOfResourceGIDs() throws Exception {
 		System.out.println(CLASS_NAME + "getListOfGroupGIDsFromListOfResourceGIDs");
 
-		List<Attribute> resourceAttr = new ArrayList<Attribute>();
+		List<Attribute> resourceAttr = new ArrayList<>();
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
 
 		for(Attribute a: attributes) {
@@ -383,7 +383,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource = setUpResource();
 		group = setUpGroup();
 
-		List<Facility> facilities = new ArrayList<Facility>();
+		List<Facility> facilities = new ArrayList<>();
 		facilities.add(facility);
 
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
@@ -410,7 +410,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		resource = setUpResource();
 		group = setUpGroup();
 
-		List<Facility> facilities = new ArrayList<Facility>();
+		List<Facility> facilities = new ArrayList<>();
 		facilities.add(facility);
 
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
@@ -952,7 +952,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setTitleAfter("");
 		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		assertNotNull("No member created", member);
@@ -1003,7 +1003,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	private List<Attribute> setUpRequiredAttributes() throws Exception {
 
-		List<Attribute> attrList = new ArrayList<Attribute>();
+		List<Attribute> attrList = new ArrayList<>();
 
 		attrList.add(setUpFacilityAttribute().get(0));
 		attrList.add(setUpVoAttribute().get(0));
@@ -1033,7 +1033,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create user_facility attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new facility-user attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -1052,7 +1052,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create host attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new host attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -1070,7 +1070,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create facility attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new facility attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -1088,7 +1088,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create facility attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		//create new entityless attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 		return attributes;
@@ -1104,7 +1104,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create vo attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new vo attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -1122,7 +1122,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create resource attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new resource attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -1134,7 +1134,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Attribute facilityGroupNameNamespace = new Attribute();
 		Attribute facilityGIDNamespace = new Attribute();
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 
 		try {
 			facilityGIDNamespace = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace"));
@@ -1169,7 +1169,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Attribute groupGID = new Attribute();
 		Attribute resourceGID = new Attribute();
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 
 		groupUnixGroupName.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		groupUnixGroupName.setFriendlyName("unixGroupName-namespace:" + namespace);
@@ -1211,7 +1211,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		attr.setValue("111");
 		assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 
 		return attributes;
@@ -1227,7 +1227,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create member-resource attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new resource member attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -1245,7 +1245,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create user attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new resource member attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -1259,13 +1259,13 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
 		attr.setFriendlyName("user-large-test-attribute");
 		attr.setType(LinkedHashMap.class.getName());
-		Map<String, String> value = new LinkedHashMap<String, String>();
+		Map<String, String> value = new LinkedHashMap<>();
 		value.put("UserLargeAttribute", "test value");
 		attr.setValue(value);
 		assertNotNull("unable to create user attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new resource member attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -1279,14 +1279,14 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		attr.setNamespace("urn:perun:resource:attribute-def:opt");
 		attr.setFriendlyName("resource_large_test_attribute");
 		attr.setType(LinkedHashMap.class.getName());
-		Map<String, String> value = new LinkedHashMap<String, String>();
+		Map<String, String> value = new LinkedHashMap<>();
 		value.put("ResourceLargeAttribute", "test value");
 		value.put("ResourceTestLargeAttr", "test value 2");
 		attr.setValue(value);
 		assertNotNull("unable to create user attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new resource member attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 		return attributes;
@@ -1304,7 +1304,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create member attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new resource member attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -1324,7 +1324,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create group attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new group attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 
@@ -1341,7 +1341,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		attr.setType(String.class.getName());
 		attr.setValue("GroupAttribute");
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		assertNotNull("unable to create group attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
 		attributes.add(attr);
 
@@ -1372,7 +1372,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		attr.setType(String.class.getName());
 		attr.setValue("ResourceAttribute");
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr));
 		attributes.add(attr);
 
@@ -1405,7 +1405,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create Group_Resource attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		// create new group resource attribute
 
-		List<Attribute> attributes = new ArrayList<Attribute>();
+		List<Attribute> attributes = new ArrayList<>();
 		attributes.add(attr);
 		// put attribute into list because setAttributes requires it
 

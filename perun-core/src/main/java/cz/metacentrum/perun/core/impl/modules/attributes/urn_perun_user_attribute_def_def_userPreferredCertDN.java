@@ -74,7 +74,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":userCertDNs");
 		return dependencies;
 	}

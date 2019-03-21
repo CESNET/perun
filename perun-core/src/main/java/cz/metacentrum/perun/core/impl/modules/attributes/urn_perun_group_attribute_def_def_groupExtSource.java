@@ -30,10 +30,8 @@ public class urn_perun_group_attribute_def_def_groupExtSource extends GroupAttri
 		String extSourceName = null;
 		if(attribute.getValue() != null) extSourceName = (String) attribute.getValue();
 
-		if(extSourceName == null) {
-			//attribute can be removed
-			return;
-		} else {
+		//if extSourceName is null, attribute can be removed
+		if (extSourceName != null) {
 			try {
 				Vo groupVo = sess.getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId());
 				List<ExtSource> allowedExtSources = sess.getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, groupVo);
@@ -45,7 +43,6 @@ public class urn_perun_group_attribute_def_def_groupExtSource extends GroupAttri
 				throw new ConsistencyErrorException("Vo of this group " + group + " not exists!");
 			}
 		}
-
 	}
 
 	@Override

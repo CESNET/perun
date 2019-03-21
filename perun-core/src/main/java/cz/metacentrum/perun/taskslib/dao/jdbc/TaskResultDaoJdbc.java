@@ -131,7 +131,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (taskResults != null) {
 			return taskResults;
 		} else {
-			return new ArrayList<TaskResult>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -147,7 +147,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (taskResults != null) {
 			return taskResults;
 		} else {
-			return new ArrayList<TaskResult>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -228,7 +228,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (taskResults != null) {
 			return taskResults;
 		} else {
-			return new ArrayList<TaskResult>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -273,7 +273,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (taskResults != null) {
 			return taskResults;
 		} else {
-			return new ArrayList<TaskResult>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -291,7 +291,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (taskResults != null) {
 			return taskResults;
 		} else {
-			return new ArrayList<TaskResult>();
+			return new ArrayList<>();
 		}
 	}
 

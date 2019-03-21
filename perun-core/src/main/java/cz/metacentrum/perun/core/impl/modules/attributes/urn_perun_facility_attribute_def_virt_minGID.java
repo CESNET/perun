@@ -80,7 +80,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 
 	private Attribute getNamespaceMinGidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException, WrongReferenceAttributeValueException {
 		try {
-			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, (String) uidNamespace, A_E_namespaceMinGID);
+			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespaceMinGID);
 		} catch(AttributeNotExistsException ex) { throw new ConsistencyErrorException(ex);
 		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
 		}
@@ -89,14 +89,13 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 	private Attribute getUnixGIDNamespaceAttribute(PerunSessionImpl sess, Facility facility) throws InternalErrorException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FAC_unixGIDNamespace);
-		} catch(AttributeNotExistsException ex) { throw new InternalErrorException(ex);
-		} catch(WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
+		} catch(AttributeNotExistsException | WrongAttributeAssignmentException ex) { throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(A_E_namespaceMinGID);
 		dependencies.add(A_FAC_unixGIDNamespace);
 		return dependencies;
@@ -104,7 +103,7 @@ public class urn_perun_facility_attribute_def_virt_minGID extends FacilityVirtua
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(A_E_namespaceMinGID);
 		strongDependencies.add(A_FAC_unixGIDNamespace);
 		return strongDependencies;

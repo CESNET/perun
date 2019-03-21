@@ -43,7 +43,7 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
 
 	@Override
 	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
+		List<String> strongDependencies = new ArrayList<>();
 		strongDependencies.add(AttributesManager.NS_VO_ATTR_CORE + ":shortName");
 		return strongDependencies;
 	}

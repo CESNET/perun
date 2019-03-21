@@ -39,7 +39,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 		List<Resource> usersResources = null;
 		usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
 
-		List<String> homeMntPointsOnAllResources = new ArrayList<String>();
+		List<String> homeMntPointsOnAllResources = new ArrayList<>();
 		for (Resource res : usersResources) {
 			Attribute resAttribute;
 			try {
@@ -55,7 +55,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 		if (homeMntPointsOnAllResources.isEmpty()) {
 			throw new WrongReferenceAttributeValueException("No homeMountPoints set on associated resources.");
 		}
-		if (!homeMntPointsOnAllResources.contains((String) attribute.getValue())) {
+		if (!homeMntPointsOnAllResources.contains(attribute.getValue())) {
 			throw new WrongAttributeValueException(attribute, user, facility, "User's home mount point is invalid. Valid mount points: " + homeMntPointsOnAllResources);
 		}
 
@@ -87,7 +87,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 
 	@Override
 	public List<String> getDependencies() {
-		List<String> dependencies = new ArrayList<String>();
+		List<String> dependencies = new ArrayList<>();
 		dependencies.add(AttributesManager.NS_RESOURCE_ATTR_DEF + ":homeMountPoints");
 		return dependencies;
 	}

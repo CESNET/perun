@@ -30,8 +30,8 @@ import java.util.concurrent.Executor;
  */
 public class PerunConnection implements Connection {
 
-	private Auditer auditer;
-	private CacheManager cacheManager;
+	private final Auditer auditer;
+	private final CacheManager cacheManager;
 	private final Connection connectionImpl;
 
 	// Constructor

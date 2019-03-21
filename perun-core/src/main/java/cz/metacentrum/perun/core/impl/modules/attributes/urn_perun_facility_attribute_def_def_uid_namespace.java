@@ -33,7 +33,7 @@ public class urn_perun_facility_attribute_def_def_uid_namespace extends Facility
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, facility, "Missing uid namespace for facility.");
 
 		String userFacilityUidNamespaceAttributeName =
-			AttributesManager.NS_USER_ATTR_DEF + ":" + attribute.getFriendlyName() + ":" + (String) attribute.getValue();
+			AttributesManager.NS_USER_ATTR_DEF + ":" + attribute.getFriendlyName() + ":" + attribute.getValue();
 
 		try {
 			session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(session, userFacilityUidNamespaceAttributeName);

@@ -44,7 +44,7 @@ public class ServiceDenialDaoJdbc extends JdbcDaoSupport implements ServiceDenia
 		if (deniedServices != null) {
 			return deniedServices;
 		} else {
-			return new ArrayList<Service>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -57,7 +57,7 @@ public class ServiceDenialDaoJdbc extends JdbcDaoSupport implements ServiceDenia
 		if (deniedServices != null) {
 			return deniedServices;
 		} else {
-			return new ArrayList<Service>();
+			return new ArrayList<>();
 		}
 	}
 

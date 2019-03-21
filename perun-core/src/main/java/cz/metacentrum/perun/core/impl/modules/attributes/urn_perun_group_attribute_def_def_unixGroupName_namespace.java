@@ -56,8 +56,8 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 			resourceUnixGroupName.setValue(attribute.getValue());
 
 			//prepare lists of groups and resources with the same groupName value in the same namespace
-			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<Group>();
-			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<Resource>();
+			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<>();
+			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<>();
 
 			//Fill lists of groups and resources
 			groupsWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupUnixGroupName));
@@ -119,7 +119,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 				//This is ok, for now no changes for removing some GroupName of this Group
 			} else {
 				//First need to find all facilities for the group
-				Set<Facility> facilitiesOfGroup = new HashSet<Facility>();
+				Set<Facility> facilitiesOfGroup = new HashSet<>();
 				List<Resource> resourcesOfGroup = session.getPerunBl().getResourcesManagerBl().getAssignedResources(session, group);
 				for(Resource r: resourcesOfGroup) {
 					facilitiesOfGroup.add(session.getPerunBl().getResourcesManagerBl().getFacility(session, r));
@@ -127,7 +127,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 
 				//Prepare list of gid namespaces of all facilities which have the same groupName namespace like this unixGroupName namespace
 				Set<String> gidNamespaces;
-				gidNamespaces = session.getPerunBl().getModulesUtilsBl().getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(session, new ArrayList<Facility>(facilitiesOfGroup), attribute);
+				gidNamespaces = session.getPerunBl().getModulesUtilsBl().getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(session, new ArrayList<>(facilitiesOfGroup), attribute);
 
 				//If there is any gidNamespace which is need to be set, do it there
 				if(!gidNamespaces.isEmpty()) {

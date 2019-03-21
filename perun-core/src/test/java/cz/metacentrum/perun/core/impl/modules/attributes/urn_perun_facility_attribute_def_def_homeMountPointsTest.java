@@ -41,7 +41,7 @@ public class urn_perun_facility_attribute_def_def_homeMountPointsTest {
 	public void testCheckAttributeValue() throws Exception {
 		System.out.println("testCheckAttributeValue()");
 
-		ArrayList<String> homeMountPts= new ArrayList<String>();
+		ArrayList<String> homeMountPts= new ArrayList<>();
 		homeMountPts.add("/mnt/mymountpoint1");
 		homeMountPts.add("/mnt/mymountpoint2");
 		attribute.setValue(homeMountPts);
@@ -60,7 +60,7 @@ public class urn_perun_facility_attribute_def_def_homeMountPointsTest {
 	@Test(expected=WrongAttributeValueException.class)
 	public void testCheckAttributeValueBadFormat() throws Exception {
 		System.out.println("testCheckAttributeValueBadFormat");
-		ArrayList<String> homeMountPts= new ArrayList<String>();
+		ArrayList<String> homeMountPts= new ArrayList<>();
 		homeMountPts.add("/mnt/mymountpoint/");
 		homeMountPts.add("/mnt/mymountpoin@@t2\n");
 		attribute.setValue(homeMountPts);

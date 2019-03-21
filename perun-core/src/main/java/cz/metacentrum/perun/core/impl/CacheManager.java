@@ -39,13 +39,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CacheManager implements CacheManagerApi {
 
-	private EmbeddedCacheManager localCacheManager;
+	private final EmbeddedCacheManager localCacheManager;
 	private JdbcPerunTemplate jdbc;
 
 	private static boolean cacheDisabled = true;
 
-	private AtomicInteger counter = new AtomicInteger(0);
-	private Object nestedCacheNamesKey;
+	private final AtomicInteger counter = new AtomicInteger(0);
+	private final Object nestedCacheNamesKey;
 
 	private static final String CACHE_NAME = "transactionalCache";
 	private static final String SIMPLE_CACHE_NAME = "simpleCache";

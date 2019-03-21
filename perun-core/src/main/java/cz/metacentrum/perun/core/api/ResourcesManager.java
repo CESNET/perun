@@ -344,7 +344,7 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	public List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException;
+	List<Member> getAssignedMembers(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException;
 	/**
 	 * Returns all members assigned to the resource as RichMembers.
 	 *
@@ -354,7 +354,7 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	public List<RichMember> getAssignedRichMembers(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException;
+	List<RichMember> getAssignedRichMembers(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Assign service to resource.
@@ -694,7 +694,7 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, WrongReferenceAttributeValueException;
+	void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Copy all services of the source resource to the destination resource.
@@ -709,7 +709,7 @@ public interface ResourcesManager {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Copy all groups of the source resource to the destination resource.
@@ -722,7 +722,7 @@ public interface ResourcesManager {
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 */
-	public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
+	void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
 
 	/**
 	 * Get list of all user administrators for supported role and given resource.

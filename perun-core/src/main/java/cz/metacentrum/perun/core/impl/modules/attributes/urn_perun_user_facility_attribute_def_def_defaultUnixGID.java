@@ -103,7 +103,7 @@ public class urn_perun_user_facility_attribute_def_def_defaultUnixGID extends Us
 
 		@Override
 		public List<String> getDependencies() {
-			List<String> dependencies = new ArrayList<String>();
+			List<String> dependencies = new ArrayList<>();
 			dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace");
 			dependencies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace");
 			//Disallowed because of crosschecks between modules and peformance reason
