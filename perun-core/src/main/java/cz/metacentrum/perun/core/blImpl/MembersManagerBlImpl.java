@@ -1476,24 +1476,21 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public Member validateMemberAsync(final PerunSession sess, final Member member) throws InternalErrorException {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				Status oldStatus = Status.getStatus(member.getStatus().getCode());
+		new Thread(() -> {
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Status oldStatus = Status.getStatus(member.getStatus().getCode());
 
-				try {
-					((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
-				} catch(Exception ex) {
-					log.info("validateMemberAsync failed. Cause: {}", ex);
-					getPerunBl().getAuditer().log(sess, new MemberValidatedFailed(member, oldStatus));
-					log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
-				}
+			try {
+				((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
+			} catch(Exception ex) {
+				log.info("validateMemberAsync failed. Cause: {}", ex);
+				getPerunBl().getAuditer().log(sess, new MemberValidatedFailed(member, oldStatus));
+				log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
 			}
 		}, "validateMemberAsync").start();
 		return member;

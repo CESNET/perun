@@ -55,17 +55,12 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	/**
 	 * Converts s ResultSet's row to a SecurityTeam instance.
 	 */
-	protected static final RowMapper<SecurityTeam> SECURITY_TEAM_MAPPER = new RowMapper<SecurityTeam>() {
-
-		@Override
-		public SecurityTeam mapRow(ResultSet rs, int i) throws SQLException {
-			return new SecurityTeam(rs.getInt("security_teams_id"), rs.getString("security_teams_name"), rs.getString("security_teams_description"),
-					rs.getString("security_teams_created_at"),
-					rs.getString("security_teams_created_by"), rs.getString("security_teams_modified_at"), rs.getString("security_teams_modified_by"),
-					rs.getInt("security_teams_created_by_uid") == 0 ? null : rs.getInt("security_teams_created_by_uid"),
-					rs.getInt("security_teams_modified_by_uid") == 0 ? null : rs.getInt("security_teams_modified_by_uid"));
-		}
-	};
+	protected static final RowMapper<SecurityTeam> SECURITY_TEAM_MAPPER = (resultSet, i) ->
+		new SecurityTeam(resultSet.getInt("security_teams_id"), resultSet.getString("security_teams_name"), resultSet.getString("security_teams_description"),
+			resultSet.getString("security_teams_created_at"),
+			resultSet.getString("security_teams_created_by"), resultSet.getString("security_teams_modified_at"), resultSet.getString("security_teams_modified_by"),
+			resultSet.getInt("security_teams_created_by_uid") == 0 ? null : resultSet.getInt("security_teams_created_by_uid"),
+			resultSet.getInt("security_teams_modified_by_uid") == 0 ? null : resultSet.getInt("security_teams_modified_by_uid"));
 
 	@Override
 	public List<SecurityTeam> getAllSecurityTeams(PerunSession sess) throws InternalErrorException {

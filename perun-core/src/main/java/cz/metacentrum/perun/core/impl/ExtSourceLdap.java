@@ -123,12 +123,8 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			log.trace("LDAP External Source: searching for group subjects [{}]", ldapGroupName);
 
 			String attrName;
-			if (getAttributes().containsKey("memberAttribute")) {
-				attrName = getAttributes().get("memberAttribute");
-			} else {
-				// Default value
-				attrName = "uniqueMember";
-			}
+			// Default value
+			attrName = getAttributes().getOrDefault("memberAttribute", "uniqueMember");
 			List<String> retAttrs = new ArrayList<>();
 			retAttrs.add(attrName);
 

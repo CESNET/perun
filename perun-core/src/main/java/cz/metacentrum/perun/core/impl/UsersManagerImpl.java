@@ -100,16 +100,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
 
-	protected static final RowMapper<User> USER_MAPPER = new RowMapper<User>() {
-		@Override
-		public User mapRow(ResultSet rs, int i) throws SQLException {
-			return new User(rs.getInt("users_id"), rs.getString("users_first_name"), rs.getString("users_last_name"),
-					rs.getString("users_middle_name"), rs.getString("users_title_before"), rs.getString("users_title_after"),
-					rs.getString("users_created_at"), rs.getString("users_created_by"), rs.getString("users_modified_at"), rs.getString("users_modified_by"), rs.getBoolean("users_service_acc"),
-					rs.getBoolean("users_sponsored_acc"),
-					rs.getInt("users_created_by_uid") == 0 ? null : rs.getInt("users_created_by_uid"), rs.getInt("users_modified_by_uid") == 0 ? null : rs.getInt("users_modified_by_uid"));
-		}
-	};
+	protected static final RowMapper<User> USER_MAPPER = (resultSet, i) ->
+		new User(resultSet.getInt("users_id"), resultSet.getString("users_first_name"), resultSet.getString("users_last_name"),
+			resultSet.getString("users_middle_name"), resultSet.getString("users_title_before"), resultSet.getString("users_title_after"),
+			resultSet.getString("users_created_at"), resultSet.getString("users_created_by"), resultSet.getString("users_modified_at"), resultSet.getString("users_modified_by"), resultSet.getBoolean("users_service_acc"),
+			resultSet.getBoolean("users_sponsored_acc"),
+			resultSet.getInt("users_created_by_uid") == 0 ? null : resultSet.getInt("users_created_by_uid"), resultSet.getInt("users_modified_by_uid") == 0 ? null : resultSet.getInt("users_modified_by_uid"));
 
 	private static final RowMapper<UserExtSource> USEREXTSOURCE_MAPPER = new RowMapper<UserExtSource>() {
 		@Override
@@ -144,19 +140,16 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	};
 
-        protected static final ResultSetExtractor<List<Pair<User,String>>> USERBLACKLIST_EXTRACTOR = new ResultSetExtractor<List<Pair<User,String>>>(){
-            @Override
-            public List<Pair<User,String>> extractData(ResultSet rs) throws SQLException{
-                List<Pair<User, String>> result = new ArrayList<>();
+        protected static final ResultSetExtractor<List<Pair<User,String>>> USERBLACKLIST_EXTRACTOR = resultSet -> {
+            List<Pair<User, String>> result = new ArrayList<>();
 
-                int row = 0;
-                while(rs.next()){
-                    result.add(new Pair<>(USER_MAPPER.mapRow(rs, row), rs.getString("description")));
-                    row++;
-                }
-
-                return result;
+            int row = 0;
+            while(resultSet.next()){
+                result.add(new Pair<>(USER_MAPPER.mapRow(resultSet, row), resultSet.getString("description")));
+                row++;
             }
+
+            return result;
         };
 
 	/**
@@ -1145,21 +1138,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		List<Pair<String, String>> result = new ArrayList<>();
 
 		try {
-			List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
-				@Override
-				public Integer mapRow(ResultSet rs, int arg1) throws SQLException {
-					return rs.getInt("id");
-				}
-			},user.getId());
+			List<Integer> ids = jdbc.query("select id from application where user_id=?", (resultSet, i) -> resultSet.getInt("id"),user.getId());
 
 			for (Integer id : ids) {
 
-				result.addAll(jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
-					@Override
-					public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-						return new Pair<>(rs.getString("namespace"), rs.getString("login"));
-					}
-				}, id));
+				result.addAll(jdbc.query("select namespace,login from application_reserved_logins where app_id=?",
+					(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), id));
 
 			}
 		} catch (RuntimeException e) {
@@ -1174,13 +1158,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public void deleteUsersReservedLogins(User user) throws InternalErrorException {
 
 		try {
-			List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
-				@Override
-				public Integer mapRow(ResultSet rs, int arg1)
-				throws SQLException {
-				return rs.getInt("id");
-				}
-			},user.getId());
+			List<Integer> ids = jdbc.query("select id from application where user_id=?", (resultSet, i) -> resultSet.getInt("id"),user.getId());
 
 			for (Integer id : ids) {
 
@@ -1253,21 +1231,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		try {
 			if (Compatibility.isPostgreSql()) {
 
-				return jdbc.query("select value from mailchange where user_id=? and (created_at > (now() - interval '" + validWindow + " hours'))", new RowMapper<String>() {
-					@Override
-					public String mapRow(ResultSet resultSet, int i) throws SQLException {
-						return resultSet.getString("value");
-					}
-				}, user.getId());
+				return jdbc.query("select value from mailchange where user_id=? and (created_at > (now() - interval '" + validWindow + " hours'))",
+					(resultSet, i) -> resultSet.getString("value"), user.getId());
 
 			} else {
 
-				return jdbc.query("select value from mailchange where user_id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))", new RowMapper<String>() {
-					@Override
-					public String mapRow(ResultSet resultSet, int i) throws SQLException {
-						return resultSet.getString("value");
-					}
-				}, user.getId());
+				return jdbc.query("select value from mailchange where user_id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))",
+					(resultSet, i) -> resultSet.getString("value"), user.getId());
 
 			}
 		} catch (EmptyResultDataAccessException ex) {
@@ -1285,22 +1255,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		try {
 			if (Compatibility.isPostgreSql()) {
 
-				result = jdbc.queryForObject("select namespace from pwdreset where user_id=? and id=? and (created_at > (now() - interval '" + validWindow + " hours'))", new RowMapper<String>() {
-					@Override
-					public String mapRow(ResultSet resultSet, int i) throws SQLException {
-						return resultSet.getString("namespace");
-					}
-				}, user.getId(), requestId);
+				result = jdbc.queryForObject("select namespace from pwdreset where user_id=? and id=? and (created_at > (now() - interval '" + validWindow + " hours'))",
+					(resultSet, i) -> resultSet.getString("namespace"), user.getId(), requestId);
 
 			} else {
 
-				result =  jdbc.queryForObject("select namespace from pwdreset where user_id=? and id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))", new RowMapper<String>() {
-					@Override
-					public String mapRow(ResultSet resultSet, int i) throws SQLException {
-						return resultSet.getString("namespace");
-					}
-				}, user.getId(), requestId);
-
+				result =  jdbc.queryForObject("select namespace from pwdreset where user_id=? and id=? and (created_at > (SYSTIMESTAMP - INTERVAL '"+validWindow+"' HOUR))",
+					(resultSet, i) -> resultSet.getString("namespace"), user.getId(), requestId);
 			}
 
 			jdbc.update("delete from pwdreset where user_id=? and id=?", user.getId(), requestId);

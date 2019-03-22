@@ -239,13 +239,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		//Use sorting by group names reverse order (first name A:B:c then A:B etc.)
-		groups.sort(Collections.reverseOrder(
-			new Comparator<Group>() {
-				@Override
-				public int compare(Group groupToCompare, Group groupToCompareWith) {
-					return groupToCompare.getName().compareTo(groupToCompareWith.getName());
-				}
-			}));
+		groups.sort(Collections.reverseOrder(Comparator.comparing(Group::getName)));
 
 		for(Group group: groups) {
 			this.deleteGroup(perunSession, group, forceDelete);
@@ -291,13 +285,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			// Use sorting by group names reverse order (first A:B:c then A:B etc.)
 			// to make sure we delete from the bottom in a hierarchy
-			subGroups.sort(Collections.reverseOrder(
-				new Comparator<Group>() {
-					@Override
-					public int compare(Group groupToCompare, Group groupToCompareWith) {
-						return groupToCompare.getName().compareTo(groupToCompareWith.getName());
-					}
-				}));
+			subGroups.sort(Collections.reverseOrder(Comparator.comparing(Group::getName)));
 
 			for (Group subGroup : subGroups) {
 				//For auditer
