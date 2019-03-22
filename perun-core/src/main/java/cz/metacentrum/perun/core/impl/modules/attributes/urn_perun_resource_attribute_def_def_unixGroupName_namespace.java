@@ -61,12 +61,10 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 			groupUnixGroupName.setValue(attribute.getValue());
 
 			//prepare lists of groups and resources with the same groupName value in the same namespace
-			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<>();
-			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<>();
 
 			//Fill lists of groups and resources
-			groupsWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupUnixGroupName));
-			resourcesWithSameGroupNameInTheSameNamespace.addAll(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceUnixGroupName));
+			List<Group> groupsWithSameGroupNameInTheSameNamespace = new ArrayList<>(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupUnixGroupName));
+			List<Resource> resourcesWithSameGroupNameInTheSameNamespace = new ArrayList<>(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceUnixGroupName));
 			//Remove self from the list of resources with the same namespace
 			resourcesWithSameGroupNameInTheSameNamespace.remove(resource);
 

@@ -1339,8 +1339,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Group> getAllSubGroups(PerunSession sess, Group parentGroup) throws InternalErrorException {
-		Queue<Group> groupsInQueue = new ConcurrentLinkedQueue<>();
-		groupsInQueue.addAll(getGroupsManagerImpl().getSubGroups(sess, parentGroup));
+		Queue<Group> groupsInQueue = new ConcurrentLinkedQueue<>(getGroupsManagerImpl().getSubGroups(sess, parentGroup));
 		List<Group> allSubGroups = new ArrayList<>();
 		while(groupsInQueue.peek() != null) {
 			groupsInQueue.addAll(getGroupsManagerImpl().getSubGroups(sess, groupsInQueue.peek()));

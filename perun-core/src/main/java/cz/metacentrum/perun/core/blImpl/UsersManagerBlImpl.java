@@ -309,8 +309,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<>();
-		users.addAll(this.getUsers(sess));
+		List<User> users = new ArrayList<>(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		return richUsers;
@@ -318,8 +317,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<>();
-		users.addAll(this.getUsers(sess));
+		List<User> users = new ArrayList<>(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		List<RichUser> richUsersWithAttributes = this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
@@ -350,12 +348,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		for (RichUser richUser: richUsers) {
-			List<Attribute> userAttributes = new ArrayList<>();
 			List<String> userAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: usersAttributesDef) {
 				userAttrNames.add(ad.getName());
 			}
-			userAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richUser, userAttrNames));
+			List<Attribute> userAttributes = new ArrayList<>(getPerunBl().getAttributesManagerBl().getAttributes(sess, richUser, userAttrNames));
 
 			richUser.setUserAttributes(userAttributes);
 		}

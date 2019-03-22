@@ -712,8 +712,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef) throws InternalErrorException {
-		List<Member> members = new ArrayList<>();
-		members.addAll(perunBl.getMembersManagerBl().getMembers(sess, vo));
+		List<Member> members = new ArrayList<>(perunBl.getMembersManagerBl().getMembers(sess, vo));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
 		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef);
 		return richMembersWithAttributes;
@@ -721,8 +720,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
-		List<Member> members = new ArrayList<>();
-		members.addAll(perunBl.getMembersManagerBl().getMembers(sess, vo));
+		List<Member> members = new ArrayList<>(perunBl.getMembersManagerBl().getMembers(sess, vo));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
 		List<AttributeDefinition> attrsDef = new ArrayList<>();
 		for(String atrrName: attrsNames) {
@@ -831,8 +829,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, GroupResourceMismatchException {
 		getPerunBl().getAttributesManagerBl().checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
-		List<Member> members = new ArrayList<>();
-		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
+		List<Member> members = new ArrayList<>(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
 		List<AttributeDefinition> attrsDef = new ArrayList<>();
 		for(String atrrName: attrsNames) {
@@ -850,8 +847,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
-		List<Member> members = new ArrayList<>();
-		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
+		List<Member> members = new ArrayList<>(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
 		List<AttributeDefinition> attrsDef = new ArrayList<>();
 		for(String atrrName: attrsNames) {
@@ -864,8 +860,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException {
-		List<Member> members = new ArrayList<>();
-		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
+		List<Member> members = new ArrayList<>(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
 		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
 		return richMembersWithAttributes;
@@ -879,8 +874,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public List<RichMember> getRichMembers(PerunSession sess, Group group) throws InternalErrorException {
-		List<Member> members = new ArrayList<>();
-		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
+		List<Member> members = new ArrayList<>(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
 		return richMembers;
 	}
@@ -1068,20 +1062,18 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		for (RichMember richMember: richMembers) {
-			List<Attribute> userAttributes = new ArrayList<>();
-			List<Attribute> memberAttributes = new ArrayList<>();
 
 			List<String> userAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: usersAttributesDef) {
 				userAttrNames.add(ad.getName());
 			}
-			userAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember.getUser(), userAttrNames));
+			List<Attribute> userAttributes = new ArrayList<>(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember.getUser(), userAttrNames));
 
 			List<String> memberAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: membersAttributesDef) {
 				memberAttrNames.add(ad.getName());
 			}
-			memberAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, memberAttrNames));
+			List<Attribute> memberAttributes = new ArrayList<>(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, memberAttrNames));
 
 			richMember.setUserAttributes(userAttributes);
 			richMember.setMemberAttributes(memberAttributes);
@@ -1116,20 +1108,18 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		for (RichMember richMember: richMembers) {
-			List<Attribute> userAttributes = new ArrayList<>();
-			List<Attribute> memberAttributes = new ArrayList<>();
 
 			List<String> userAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: usersAttributesDef) {
 				userAttrNames.add(ad.getName());
 			}
-			userAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember.getUser(), userAttrNames));
+			List<Attribute> userAttributes = new ArrayList<>(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember.getUser(), userAttrNames));
 
 			List<String> memberAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: membersAttributesDef) {
 				memberAttrNames.add(ad.getName());
 			}
-			memberAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, memberAttrNames));
+			List<Attribute> memberAttributes = new ArrayList<>(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, memberAttrNames));
 
 			//add group-member attributes
 			List<String> groupAttrNames = new ArrayList<>();

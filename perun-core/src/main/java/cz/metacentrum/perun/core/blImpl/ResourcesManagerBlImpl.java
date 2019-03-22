@@ -703,8 +703,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		sourceAttributes.removeIf(attribute -> attribute.getNamespace().startsWith(AttributesManager.NS_RESOURCE_ATTR_VIRT));
 
 		// create intersection of destination and source attributes
-		List<Attribute> intersection = new ArrayList<>();
-		intersection.addAll(destinationAttributes);
+		List<Attribute> intersection = new ArrayList<>(destinationAttributes);
 		intersection.retainAll(sourceAttributes);
 
 		try {

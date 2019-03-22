@@ -840,8 +840,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		sourceAttributes.removeIf(attribute -> attribute.getNamespace().startsWith(AttributesManager.NS_FACILITY_ATTR_VIRT));
 
 		// create intersection of destination and source attributes
-		List<Attribute> intersection = new ArrayList<>();
-		intersection.addAll(destinationAttributes);
+		List<Attribute> intersection = new ArrayList<>(destinationAttributes);
 		intersection.retainAll(sourceAttributes);
 
 		// delete all common attributes from destination facility

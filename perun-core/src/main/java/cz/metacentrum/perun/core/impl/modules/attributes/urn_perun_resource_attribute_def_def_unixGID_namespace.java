@@ -127,8 +127,6 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 			}
 
 			//Prepare lists for all groups and resources with same GID in the same namespace
-			List<Group> allGroupsWithSameGIDInSameNamespace = new ArrayList<>();
-			List<Resource> allResourcesWithSameGIDInSameNamespace = new ArrayList<>();
 
 			//Prepare attributes for searching through groups and resources
 			Attribute resourceGIDAttribute = attribute;
@@ -136,8 +134,8 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 			groupGIDAttribute.setValue(resourceGIDAttribute.getValue());
 
 			//Fill lists of Groups and Resources by data
-			allGroupsWithSameGIDInSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupGIDAttribute));
-			allResourcesWithSameGIDInSameNamespace.addAll(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceGIDAttribute));
+			List<Group> allGroupsWithSameGIDInSameNamespace = new ArrayList<>(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupGIDAttribute));
+			List<Resource> allResourcesWithSameGIDInSameNamespace = new ArrayList<>(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceGIDAttribute));
 			//remove this resource
 			allResourcesWithSameGIDInSameNamespace.remove(resource);
 

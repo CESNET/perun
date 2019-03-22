@@ -160,10 +160,9 @@ public class VosManagerImpl implements VosManagerImplApi {
 	@Override
 	public List<User> getAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException {
 		try {
-			Set<User> setOfAdmins = new HashSet<>();
 			// direct admins
-			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
-						"where authz.vo_id=? and authz.role_id=(select id from roles where name=?)", UsersManagerImpl.USER_MAPPER, vo.getId(), role.getRoleName()));
+			Set<User> setOfAdmins = new HashSet<>(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
+				"where authz.vo_id=? and authz.role_id=(select id from roles where name=?)", UsersManagerImpl.USER_MAPPER, vo.getId(), role.getRoleName()));
 
 			// admins through a group
 			List<Group> listOfGroupAdmins = getAdminGroups(sess, vo, role);
@@ -210,10 +209,9 @@ public class VosManagerImpl implements VosManagerImplApi {
 	@Override
 	public List<User> getAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
-			Set<User> setOfAdmins = new HashSet<>();
 			// direct admins
-			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
-						"where authz.vo_id=? and authz.role_id=(select id from roles where name='voadmin')", UsersManagerImpl.USER_MAPPER, vo.getId()));
+			Set<User> setOfAdmins = new HashSet<>(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
+				"where authz.vo_id=? and authz.role_id=(select id from roles where name='voadmin')", UsersManagerImpl.USER_MAPPER, vo.getId()));
 
 			// admins through a group
 			List<Group> listOfGroupAdmins = getAdminGroups(sess, vo);

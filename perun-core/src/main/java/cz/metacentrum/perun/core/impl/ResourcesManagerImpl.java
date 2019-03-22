@@ -773,11 +773,10 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public List<User> getAdmins(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
-			Set<User> setOfAdmins = new HashSet<>();
 			// Direct admins
-			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
-							"  where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
-					UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.getRoleName()));
+			Set<User> setOfAdmins = new HashSet<>(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
+					"  where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
+				UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.getRoleName()));
 
 			// Admins through a group
 			List<Group> listOfGroupAdmins = getAdminGroups(sess, resource);

@@ -808,8 +808,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		String nullString = null;
 		expected.add(new Pair<>(u2, nullString));
 
-		List<Pair<User, String>> actual = new ArrayList<>();
-		actual.addAll(securityTeamsManagerEntry.getBlacklistWithDescription(sess, st0));
+		List<Pair<User, String>> actual = new ArrayList<>(securityTeamsManagerEntry.getBlacklistWithDescription(sess, st0));
 
 		for (Pair<User,String> pair : actual) {
 			assertTrue("Blacklisted user with reason is not present ", expected.contains(pair));
@@ -867,8 +866,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		String nullString = null;
 		expected.add(new Pair<>(u2, nullString));
 
-		List<Pair<User, String>> actual = new ArrayList<>();
-		actual.addAll(securityTeamsManagerEntry.getBlacklistWithDescription(sess, f1));
+		List<Pair<User, String>> actual = new ArrayList<>(securityTeamsManagerEntry.getBlacklistWithDescription(sess, f1));
 
 		for (Pair<User,String> pair : actual) {
 			assertTrue("Blacklisted user with reason is not present ", expected.contains(pair));

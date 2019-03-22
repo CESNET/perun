@@ -1292,8 +1292,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 			assertTrue("There should be only 2 virtual nodes - groups/members",resElem.size() == 2);
 
 			//get members from resource
-			List<ServiceAttributes> members = new ArrayList<>();
-			members.addAll(resElem.get(1).getChildElements());
+			List<ServiceAttributes> members = new ArrayList<>(resElem.get(1).getChildElements());
 			assertNotNull("Unable to get members from resource",members);
 			assertTrue("There should be 1 member from each resource",members.size() == 1);
 			assertNotNull("1st member shouldn't be null",members.get(0));
@@ -1310,8 +1309,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 			assertTrue("Should return our required member attribute",memAttr.contains(reqMemAttr));
 
 			//get groups from resource
-			List<ServiceAttributes> groups = new ArrayList<>();
-			groups.addAll(resElem.get(0).getChildElements());
+			List<ServiceAttributes> groups = new ArrayList<>(resElem.get(0).getChildElements());
 			assertNotNull("Unable to get groups from resource", groups);
 			assertTrue("There should be only 1 group on each resource", groups.size() == 1);
 
@@ -1339,8 +1337,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 				assertTrue("There should be 2 group child elements", grpElem.size() == 2);
 
 				//get members from group/subgroup
-				List<ServiceAttributes> grpMembers = new ArrayList<>();
-				grpMembers.addAll(grpElem.get(1).getChildElements());
+				List<ServiceAttributes> grpMembers = new ArrayList<>(grpElem.get(1).getChildElements());
 				assertNotNull("Unable to get members from group/subgroup",grpMembers);
 				assertTrue("There should be only one member", grpMembers.size() == 1);
 				//assertTrue("Member in group should be also on resource",members.contains(grpMembers.get(0)));
@@ -1358,8 +1355,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 				assertNotNull("1st member attribute shouldn't be null",grpMemAttr.get(0));
 
 				//get all subgroups from group on resource
-				List<ServiceAttributes> grpGroups = new ArrayList<>();
-				grpGroups.addAll(grpElem.get(0).getChildElements());
+				List<ServiceAttributes> grpGroups = new ArrayList<>(grpElem.get(0).getChildElements());
 				assertNotNull("Unable to get subgroups from group/subgroup",grpGroups);
 				assertTrue("There shouldn't be any subgroups", grpGroups.size() == 0);
 

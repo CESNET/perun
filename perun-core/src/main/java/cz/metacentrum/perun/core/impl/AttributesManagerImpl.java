@@ -5503,8 +5503,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					(rs, rowNum) -> ActionType.valueOf(rs.getString("action_type").toUpperCase()), rights.getAttributeId(), rights.getRole().getRoleName());
 
 			// inserting
-			List<ActionType> actionTypesToInsert = new ArrayList<>();
-			actionTypesToInsert.addAll(rights.getRights());
+			List<ActionType> actionTypesToInsert = new ArrayList<>(rights.getRights());
 			actionTypesToInsert.removeAll(dbActionTypes);
 			for (ActionType actionType : actionTypesToInsert) {
 				jdbc.update("INSERT INTO attributes_authz (attr_id, role_id, action_type_id) VALUES "
@@ -5512,8 +5511,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 						rights.getAttributeId(), rights.getRole().getRoleName(), actionType.getActionType());
 			}
 			// deleting
-			List<ActionType> actionTypesToDelete = new ArrayList<>();
-			actionTypesToDelete.addAll(dbActionTypes);
+			List<ActionType> actionTypesToDelete = new ArrayList<>(dbActionTypes);
 			actionTypesToDelete.removeAll(rights.getRights());
 			for (ActionType actionType : actionTypesToDelete) {
 				if (0 == jdbc.update("DELETE FROM attributes_authz WHERE attr_id=? AND role_id=(SELECT id FROM roles WHERE name=?) AND "
