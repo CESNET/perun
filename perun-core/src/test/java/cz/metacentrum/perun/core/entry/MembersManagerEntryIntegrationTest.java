@@ -38,6 +38,7 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -169,7 +170,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		//Create vo and groups
 
 		//g3in1 - direct, g1 indirect
-		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
+		List<Group> groups = new ArrayList<>(Collections.singletonList(g3ing1));
 
 		//Create new locale member for puprose of this method
 		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
@@ -216,19 +217,19 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		Attribute userAttribute2 = setUpAttribute(String.class.getName(), "testUserAttribute2", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
 		perun.getAttributesManagerBl().setAttributes(sess, user, new ArrayList<>(Arrays.asList(userAttribute1, userAttribute1)));
 		Attribute memberAttribute1 = setUpAttribute(Integer.class.getName(), "testMemberAttribute1", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
-		perun.getAttributesManagerBl().setAttributes(sess, createdMember, new ArrayList<>(Arrays.asList(memberAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, new ArrayList<>(Collections.singletonList(memberAttribute1)));
 		Attribute userFacilityAttribute1 = setUpAttribute(ArrayList.class.getName(), "testUserFacilityAttribute1", AttributesManager.NS_USER_FACILITY_ATTR_DEF, new ArrayList<>(Arrays.asList("A", "B")));
-		perun.getAttributesManagerBl().setAttributes(sess, facility, user, new ArrayList<>(Arrays.asList(userFacilityAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, facility, user, new ArrayList<>(Collections.singletonList(userFacilityAttribute1)));
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("A", "B");
 		map.put("C", "D");
 		Attribute memberResourceAttribute1 = setUpAttribute(LinkedHashMap.class.getName(), "testMemberResourceAttribute1", AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, map);
-		perun.getAttributesManagerBl().setAttributes(sess, createdMember, resource, new ArrayList<>(Arrays.asList(memberResourceAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, resource, new ArrayList<>(Collections.singletonList(memberResourceAttribute1)));
 
 		List<String> attrNames = new ArrayList<>(Arrays.asList(userAttribute1.getName(), memberAttribute1.getName(), userFacilityAttribute1.getName(), memberResourceAttribute1.getName()));
 		List<RichMember> richMembers = membersManagerEntry.getCompleteRichMembers(sess, createdGroup, resource, attrNames, Arrays.asList("INVALID", "DISABLED", "SUSPENDED", "EXPIRED"));
 		assertTrue(richMembers.isEmpty());
-		richMembers = membersManagerEntry.getCompleteRichMembers(sess, createdGroup, resource, attrNames, Arrays.asList("VALID"));
+		richMembers = membersManagerEntry.getCompleteRichMembers(sess, createdGroup, resource, attrNames, Collections.singletonList("VALID"));
 
 		List<Attribute> userAttributes = richMembers.get(0).getUserAttributes();
 		List<Attribute> memberAttributes = richMembers.get(0).getMemberAttributes();
@@ -257,20 +258,20 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		Attribute userAttribute2 = setUpAttribute(String.class.getName(), "testUserAttribute2", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
 		perun.getAttributesManagerBl().setAttributes(sess, user, new ArrayList<>(Arrays.asList(userAttribute1, userAttribute1)));
 		Attribute memberAttribute1 = setUpAttribute(Integer.class.getName(), "testMemberAttribute1", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
-		perun.getAttributesManagerBl().setAttributes(sess, createdMember, new ArrayList<>(Arrays.asList(memberAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, new ArrayList<>(Collections.singletonList(memberAttribute1)));
 		Attribute userFacilityAttribute1 = setUpAttribute(ArrayList.class.getName(), "testUserFacilityAttribute1", AttributesManager.NS_USER_FACILITY_ATTR_DEF, new ArrayList<>(Arrays.asList("A", "B")));
-		perun.getAttributesManagerBl().setAttributes(sess, facility, user, new ArrayList<>(Arrays.asList(userFacilityAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, facility, user, new ArrayList<>(Collections.singletonList(userFacilityAttribute1)));
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("A", "B");
 		map.put("C", "D");
 		Attribute memberResourceAttribute1 = setUpAttribute(LinkedHashMap.class.getName(), "testMemberResourceAttribute1", AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, map);
 		//test of member-group attributes
-		perun.getAttributesManagerBl().setAttributes(sess, createdMember, resource, new ArrayList<>(Arrays.asList(memberResourceAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, resource, new ArrayList<>(Collections.singletonList(memberResourceAttribute1)));
 		Map<String, String> groupMap = new LinkedHashMap<>();
 		groupMap.put("E", "F");
 		groupMap.put("G", "H");
 		Attribute memberGroupAttribute1 = setUpAttribute(LinkedHashMap.class.getName(), "testMemberGroupAttribute1", AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, groupMap);
-		perun.getAttributesManagerBl().setAttributes(sess, createdMember, createdGroup, new ArrayList<>(Arrays.asList(memberGroupAttribute1)));
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, createdGroup, new ArrayList<>(Collections.singletonList(memberGroupAttribute1)));
 
 		List<String> attrNames = new ArrayList<>(Arrays.asList(userAttribute1.getName(), memberAttribute1.getName(), userFacilityAttribute1.getName(), memberResourceAttribute1.getName(), memberGroupAttribute1.getName()));
 		List<RichMember> richMembers = perun.getMembersManagerBl().getRichMembersWithAttributesByNames(sess, createdGroup, resource, attrNames);
@@ -312,7 +313,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
 		perun.getMembersManager().deleteMember(sess, createdMember);
 
-		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
+		List<Group> groups = new ArrayList<>(Collections.singletonList(g3ing1));
 
 		Member member = perun.getMembersManager().createMember(sess, createdVo, user, groups);
 
@@ -329,7 +330,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	public void createMemberFromCandidateWithExtSourceInGroup() throws Exception {
 		System.out.println(CLASS_NAME + "createMember");
 
-		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
+		List<Group> groups = new ArrayList<>(Collections.singletonList(g3ing1));
 
 		//Create new locale member for puprose of this method
 		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
@@ -364,7 +365,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		System.out.println(CLASS_NAME + "createMember");
 
 		//g3in1 - direct, g1 indirect
-		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
+		List<Group> groups = new ArrayList<>(Collections.singletonList(g3ing1));
 
 		//Create new locale member for puprose of this method
 		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
@@ -399,7 +400,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		System.out.println(CLASS_NAME + "createServiceMember");
 
 		//g3in1 - direct, g1 indirect
-		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
+		List<Group> groups = new ArrayList<>(Collections.singletonList(g3ing1));
 
 		//Create new locale member for puprose of this method
 		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
@@ -996,7 +997,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		serviceCandidate.setUserExtSource(uesService);
 		serviceCandidate.setAttributes(new HashMap<>());
 
-		Member serviceMember = perun.getMembersManager().createSpecificMember(sess, createdVo, serviceCandidate, Arrays.asList(user), SpecificUserType.SERVICE);
+		Member serviceMember = perun.getMembersManager().createSpecificMember(sess, createdVo, serviceCandidate, Collections.singletonList(user), SpecificUserType.SERVICE);
 
 		// Try to extend membership
 		membersManagerEntry.extendMembership(sess, serviceMember);
@@ -1222,7 +1223,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		serviceCandidate.setUserExtSource(uesService);
 		serviceCandidate.setAttributes(new HashMap<>());
 
-		Member serviceMember = perun.getMembersManager().createSpecificMember(sess, createdVo, serviceCandidate, Arrays.asList(user), SpecificUserType.SERVICE);
+		Member serviceMember = perun.getMembersManager().createSpecificMember(sess, createdVo, serviceCandidate, Collections.singletonList(user), SpecificUserType.SERVICE);
 		User serviceUser = usersManagerEntry.getUserByMember(sess, serviceMember);
 
 		// Must return true even if loa is not allowed

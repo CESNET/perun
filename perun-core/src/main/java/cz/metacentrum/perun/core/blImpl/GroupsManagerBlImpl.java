@@ -1044,7 +1044,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		if (status == null) {
 			return this.getGroupMembers(sess, group);
 		}
-		return this.filterMembersByMembershipTypeInGroup(getGroupsManagerImpl().getGroupMembers(sess, group, Arrays.asList(status), false));
+		return this.filterMembersByMembershipTypeInGroup(getGroupsManagerImpl().getGroupMembers(sess, group, Collections.singletonList(status), false));
 	}
 
 	@Override
@@ -1054,7 +1054,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<Member> getGroupMembersExceptInvalid(PerunSession sess, Group group) throws InternalErrorException {
-		return getGroupsManagerImpl().getGroupMembers(sess, group, Arrays.asList(Status.INVALID), true);
+		return getGroupsManagerImpl().getGroupMembers(sess, group, Collections.singletonList(Status.INVALID), true);
 	}
 
 	@Override
@@ -2454,7 +2454,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			} catch (UserExtSourceNotExistsException | UserNotExistsException ex) {
 				//If not find, get more information about him from member extSource
-				List<Map<String, String>> subjectToConvert = Arrays.asList(subjectFromLoginSource);
+				List<Map<String, String>> subjectToConvert = Collections.singletonList(subjectFromLoginSource);
 				List<Candidate> converetedCandidatesList = convertSubjectsToCandidates(sess, subjectToConvert, memberSource, loginSource, skippedMembers);
 				//Empty means not found (skipped)
 				if(!converetedCandidatesList.isEmpty()) {
@@ -2808,7 +2808,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			//get RichMember with attributes
-			richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, Arrays.asList(richMember), attrDefs).get(0);
+			richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, Collections.singletonList(richMember), attrDefs).get(0);
 
 			// try to find user core attributes and update user -> update name and titles
 			if (overwriteUserAttributesList != null) {

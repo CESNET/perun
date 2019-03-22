@@ -26,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -303,7 +304,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		String extSourceLogin = params.get(loginNamespaceUri) + extSourcePostfix;
 		UserExtSource userExtSource = new UserExtSource(extSource, loa, extSourceLogin);
 		Candidate candidate = new Candidate(userExtSource, params);
-		Member member = this.createSpecificMember(sess, vo, candidate, Arrays.asList(owner), SpecificUserType.SPONSORED);
+		Member member = this.createSpecificMember(sess, vo, candidate, Collections.singletonList(owner), SpecificUserType.SPONSORED);
 		this.validateMemberAsync(sess, member);
 		if (passwordPresent) {
 			User user = getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());

@@ -110,7 +110,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		// setup
 		final TestGroup testGroup = new TestGroup("createdGroup", baseGroup.getShortName(), "group is child of base group");
-		List<Map<String, String>> subjects = Arrays.asList(testGroup.toMap());
+		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
@@ -133,7 +133,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		System.out.println(CLASS_NAME + "addGroupNoParentGroupTest");
 
 		final TestGroup testGroup = new TestGroup("createdGroup", null, "group without parent");
-		List<Map<String, String>> subjects = Arrays.asList(testGroup.toMap());
+		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
@@ -154,7 +154,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		System.out.println(CLASS_NAME + "addGroupParentDoesNotExist");
 
 		final TestGroup testGroup = new TestGroup("createdGroup", "nonExistingParent", "group's parent does not exist");
-		List<Map<String, String>> subjects = Arrays.asList(testGroup.toMap());
+		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
@@ -306,7 +306,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		groupsManagerBl.createGroup(sess, subBaseGroup, subGroup);
 
 		final TestGroup subBaseTestGroup = new TestGroup("subGroup", baseGroup.getShortName(), "child of base group");
-		List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap());
+		List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
@@ -368,7 +368,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
 
 		final TestGroup modifiedSubBaseTestGroup = new TestGroup("modified", baseGroup.getShortName(), "child of base group");
-		List<Map<String, String>> subjects = Arrays.asList(modifiedSubBaseTestGroup.toMap());
+		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
@@ -390,7 +390,7 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		groupsManagerBl.createGroup(sess, baseGroup, subBaseGroup);
 
 		final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", baseGroup.getShortName(), "modified");
-		List<Map<String, String>> subjects = Arrays.asList(modifiedSubBaseTestGroup.toMap());
+		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
 		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
