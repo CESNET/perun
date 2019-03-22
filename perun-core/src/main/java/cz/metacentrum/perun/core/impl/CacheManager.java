@@ -174,9 +174,7 @@ public class CacheManager implements CacheManagerApi {
 		List<String> cacheNamesToReturn = new ArrayList<>();
 
 		if(cacheNames != null) {
-			for(String name: cacheNames) {
-				cacheNamesToReturn.add(name);
-			}
+			cacheNamesToReturn.addAll(cacheNames);
 			//remove the normal cache name, we want only those that are nested
 			cacheNamesToReturn.remove(0);
 			Collections.reverse(cacheNamesToReturn);
