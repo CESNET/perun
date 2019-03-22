@@ -1,12 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import javax.security.cert.CertificateException;
-import javax.security.cert.X509Certificate;
-
-import java.text.DateFormat;
-
-import org.apache.commons.codec.binary.Base64;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -18,6 +11,11 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
+import org.apache.commons.codec.binary.Base64;
+
+import javax.security.cert.CertificateException;
+import javax.security.cert.X509Certificate;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;

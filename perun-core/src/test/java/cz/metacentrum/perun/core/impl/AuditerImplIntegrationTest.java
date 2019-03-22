@@ -1,19 +1,18 @@
 package cz.metacentrum.perun.core.impl;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-
-import java.util.List;
-
 import cz.metacentrum.perun.audit.events.FacilityManagerEvents.FacilityCreated;
+import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.Facility;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 

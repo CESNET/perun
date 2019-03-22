@@ -1,11 +1,11 @@
 package cz.metacentrum.perun.core.implApi;
 
-import java.util.List;
-import java.util.Map;
-
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Definition of simple extSource api.

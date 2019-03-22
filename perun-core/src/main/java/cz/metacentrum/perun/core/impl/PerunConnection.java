@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.bl.PerunBl;
+
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;

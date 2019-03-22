@@ -8,8 +8,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
 /**
  * Namespace_uid_policy attribute specifies how IDs are generated in the namespace. Possible value is "recycle" or "increment". <br />
  * <b>Recycle</b> - Always use first free id within allowed range.

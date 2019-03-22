@@ -1,16 +1,14 @@
 package cz.metacentrum.perun.taskslib.service.impl;
 
-import java.util.List;
-
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.dao.TaskResultDao;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.service.ResultManager;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.util.List;
 
 /**
  *

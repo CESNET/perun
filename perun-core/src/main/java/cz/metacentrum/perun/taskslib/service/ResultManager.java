@@ -1,9 +1,9 @@
 package cz.metacentrum.perun.taskslib.service;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
+
+import java.util.List;
 
 /**
  *

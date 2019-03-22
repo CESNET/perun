@@ -11,8 +11,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>

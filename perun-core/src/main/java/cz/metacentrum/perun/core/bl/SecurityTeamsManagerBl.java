@@ -7,7 +7,15 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
+import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 
 import java.util.List;
 

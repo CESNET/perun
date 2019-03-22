@@ -1,14 +1,13 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.PerunClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Session - you need it for almost all operation. It holds your priviledges. You get get managers from it.

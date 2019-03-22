@@ -1,27 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_def_dataQuotasOverride;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_def_fileQuotasOverride;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_defaultDataQuotas;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_defaultFileQuotas;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_maxUserDataQuotas;
-import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_maxUserFileQuotas;
-import org.junit.Before;
-import org.junit.Test;
-
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -32,19 +10,39 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.QuotaNotInAllowedLimitException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_entityless_attribute_def_def_namespace_GIDRanges;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_def_dataQuotasOverride;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_resource_attribute_def_def_fileQuotasOverride;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_defaultDataQuotas;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_defaultFileQuotas;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_maxUserDataQuotas;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_resource_attribute_def_def_maxUserFileQuotas;
+import org.junit.Before;
+import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Integration tests of ModulesUtils

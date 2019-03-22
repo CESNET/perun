@@ -9,14 +9,13 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
-import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
+import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.ExtSourceLdap;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

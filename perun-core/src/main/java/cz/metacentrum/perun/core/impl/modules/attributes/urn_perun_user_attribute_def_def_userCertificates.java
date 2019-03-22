@@ -1,13 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-
-import javax.security.cert.CertificateException;
-import javax.security.cert.X509Certificate;
-
-import org.apache.commons.codec.binary.Base64;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -19,6 +11,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
+import org.apache.commons.codec.binary.Base64;
+
+import javax.security.cert.CertificateException;
+import javax.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * @author Michal Stava <stavamichal@gmail.com>

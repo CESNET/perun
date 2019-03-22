@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -21,6 +19,8 @@ import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+
+import java.util.List;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>

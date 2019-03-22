@@ -11,9 +11,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
-import java.util.HashMap;
+
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Attribute for setting maximum of file quotas for any volume on defined resource.

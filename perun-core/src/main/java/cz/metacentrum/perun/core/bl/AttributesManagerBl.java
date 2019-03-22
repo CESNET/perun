@@ -1,10 +1,6 @@
 package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.ActionType;
-
-import java.util.HashMap;
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributeRights;
@@ -41,6 +37,8 @@ import cz.metacentrum.perun.utils.graphs.Graph;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
 import guru.nidi.graphviz.engine.Graphviz;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

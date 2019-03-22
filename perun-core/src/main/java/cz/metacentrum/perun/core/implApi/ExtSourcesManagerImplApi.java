@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.implApi;
 
-import java.util.List;
-import java.util.Map;
-
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -13,6 +10,9 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
