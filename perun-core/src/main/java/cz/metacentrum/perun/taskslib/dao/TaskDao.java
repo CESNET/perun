@@ -1,13 +1,13 @@
 package cz.metacentrum.perun.taskslib.dao;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
+
+import java.util.List;
 
 /**
  *

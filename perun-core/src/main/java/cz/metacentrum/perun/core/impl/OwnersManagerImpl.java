@@ -1,25 +1,23 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.sql.DataSource;
-
+import cz.metacentrum.perun.core.api.Owner;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
+import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
-import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * OwnersManager implementation.

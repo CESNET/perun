@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.controller.service;
 
-import java.util.List;
-
 import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.controller.model.ServiceState;
@@ -9,10 +7,18 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
+
+import java.util.List;
 
 /**
  *

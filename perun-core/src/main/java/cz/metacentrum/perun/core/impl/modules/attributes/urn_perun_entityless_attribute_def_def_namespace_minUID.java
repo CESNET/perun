@@ -13,7 +13,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

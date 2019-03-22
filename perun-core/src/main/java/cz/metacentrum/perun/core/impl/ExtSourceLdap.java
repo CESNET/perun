@@ -1,12 +1,14 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
+import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -17,17 +19,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Ext source implementation for LDAP.

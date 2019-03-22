@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForKey;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForKey;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;

@@ -1,18 +1,17 @@
 package cz.metacentrum.perun.core.impl;
 
-import static org.junit.Assert.assertEquals;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import cz.metacentrum.perun.core.api.BeansUtils;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import cz.metacentrum.perun.core.api.Attribute;
+import static org.junit.Assert.assertEquals;
 
 public class AttributesManagerImplIntegrationTest {
 

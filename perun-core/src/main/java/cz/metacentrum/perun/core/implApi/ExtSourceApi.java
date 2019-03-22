@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+
 import java.util.List;
 import java.util.Map;
 

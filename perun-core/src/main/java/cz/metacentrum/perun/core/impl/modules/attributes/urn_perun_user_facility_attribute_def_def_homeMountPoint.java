@@ -4,11 +4,6 @@
  */
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -23,6 +18,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *

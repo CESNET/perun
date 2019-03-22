@@ -3,8 +3,6 @@
  */
 package cz.metacentrum.perun.core.bl;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.CandidateGroup;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -21,6 +19,8 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+
+import java.util.List;
 import java.util.Map;
 
 /**

@@ -1,17 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -56,12 +44,26 @@ import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Integration tests of FacilitiesManager

@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.implApi;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -24,6 +22,8 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+
+import java.util.List;
 
 /**
  * Manages resources.

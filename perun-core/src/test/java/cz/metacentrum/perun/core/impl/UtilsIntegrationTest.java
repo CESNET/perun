@@ -1,6 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
-import static org.junit.Assert.assertEquals;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -10,10 +13,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests of methods from Utils class.

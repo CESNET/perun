@@ -1,11 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -19,6 +13,12 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Checks and fills at specified facility users UID.

@@ -1,23 +1,25 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.io.UnsupportedEncodingException;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.exceptions.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
-import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
 /**
  * Class for checking login uniqueness in the namespace and filling login value in namespace

@@ -9,14 +9,16 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

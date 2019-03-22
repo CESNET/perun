@@ -1,10 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Destination;
@@ -40,7 +35,11 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Slavek Licehammer <glory@ics.muni.cz>

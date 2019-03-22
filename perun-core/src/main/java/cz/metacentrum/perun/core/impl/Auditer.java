@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
-import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;

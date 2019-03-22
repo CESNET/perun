@@ -8,8 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 
 import java.time.LocalDate;
 import java.util.List;
-
-
 import java.util.Map;
 
 /**

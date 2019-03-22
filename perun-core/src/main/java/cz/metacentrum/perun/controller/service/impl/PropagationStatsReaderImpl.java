@@ -1,24 +1,45 @@
 package cz.metacentrum.perun.controller.service.impl;
 
-import java.util.*;
-
-import cz.metacentrum.perun.controller.model.ResourceState;
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.FacilityState.FacilityPropagationState;
+import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.controller.service.PropagationStatsReader;
+import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichDestination;
+import cz.metacentrum.perun.core.api.RichResource;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.taskslib.dao.TaskDao;
 import cz.metacentrum.perun.taskslib.dao.TaskResultDao;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
+import cz.metacentrum.perun.taskslib.service.TaskManager;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Michal Karm Babacek

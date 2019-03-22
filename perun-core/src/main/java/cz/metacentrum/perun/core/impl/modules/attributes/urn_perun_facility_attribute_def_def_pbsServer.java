@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -14,6 +11,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *

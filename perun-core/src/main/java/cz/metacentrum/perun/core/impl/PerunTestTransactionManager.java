@@ -4,11 +4,8 @@ package cz.metacentrum.perun.core.impl;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.ResourceTransactionManager;
-
-import javax.transaction.*;
 
 public class PerunTestTransactionManager extends DataSourceTransactionManager implements ResourceTransactionManager, InitializingBean {
 

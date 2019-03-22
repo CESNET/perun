@@ -4,9 +4,8 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.taskslib.exceptions.TaskStoreException;
-import cz.metacentrum.perun.taskslib.service.TaskStore;
-
 import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.service.TaskStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

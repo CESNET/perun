@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

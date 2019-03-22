@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.implApi;
 
-import java.util.List;
-import java.util.Map;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -25,6 +22,9 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * UsersManager can find users.

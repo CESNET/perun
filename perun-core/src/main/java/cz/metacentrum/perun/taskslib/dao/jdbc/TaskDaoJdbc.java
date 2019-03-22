@@ -1,12 +1,16 @@
 package cz.metacentrum.perun.taskslib.dao.jdbc;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.impl.Compatibility;
+import cz.metacentrum.perun.core.impl.FacilitiesManagerImpl;
+import cz.metacentrum.perun.core.impl.ServicesManagerImpl;
+import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.taskslib.dao.TaskDao;
+import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -15,16 +19,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.impl.FacilitiesManagerImpl;
-import cz.metacentrum.perun.core.impl.ServicesManagerImpl;
-import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.impl.Compatibility;
-import cz.metacentrum.perun.taskslib.dao.TaskDao;
-import cz.metacentrum.perun.taskslib.model.Task;
-import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *

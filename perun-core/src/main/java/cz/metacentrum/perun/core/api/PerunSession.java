@@ -1,11 +1,10 @@
 package cz.metacentrum.perun.core.api;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Encapsulates context of user's interaction with the Perun system.

@@ -4,8 +4,13 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import static cz.metacentrum.perun.core.impl.ExtSourceLdap.log;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,11 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 /**
  * This extSource is just for use loading users from LDAP of EGI SSO

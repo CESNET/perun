@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

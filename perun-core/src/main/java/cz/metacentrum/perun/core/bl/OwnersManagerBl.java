@@ -1,13 +1,13 @@
 package cz.metacentrum.perun.core.bl;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+
+import java.util.List;
 
 /**
  * OwnersManager

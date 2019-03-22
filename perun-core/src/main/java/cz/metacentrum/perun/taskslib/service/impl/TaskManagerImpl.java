@@ -1,12 +1,5 @@
 package cz.metacentrum.perun.taskslib.service.impl;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Service;
@@ -15,6 +8,12 @@ import cz.metacentrum.perun.taskslib.dao.TaskDao;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.service.TaskManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  *

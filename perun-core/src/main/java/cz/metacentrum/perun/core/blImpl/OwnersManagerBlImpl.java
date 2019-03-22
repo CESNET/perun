@@ -3,11 +3,6 @@ package cz.metacentrum.perun.core.blImpl;
 import cz.metacentrum.perun.audit.events.OwnersManagerEvents.OwnerCreated;
 import cz.metacentrum.perun.audit.events.OwnersManagerEvents.OwnerDeleted;
 import cz.metacentrum.perun.core.api.ContactGroup;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -18,6 +13,10 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.bl.OwnersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 
 public class OwnersManagerBlImpl implements OwnersManagerBl {

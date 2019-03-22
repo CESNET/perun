@@ -1,27 +1,29 @@
 package cz.metacentrum.perun.core.api;
 
+import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-
-import cz.metacentrum.perun.core.api.exceptions.*;
-import org.junit.Test;
-
-import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
-import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Integration tests of AuthzResolver

@@ -1,5 +1,18 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
+import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
+import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,20 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
-import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 
 /**
  * @author Michal Prochazka michalp@ics.muni.cz

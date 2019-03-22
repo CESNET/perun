@@ -1,19 +1,35 @@
 package cz.metacentrum.perun.core.entry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.time.LocalDate;
-import java.util.*;
-
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.bl.SearcherBl;
 import org.junit.Before;
 import org.junit.Test;
 
-import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.bl.SearcherBl;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Integration tests of Searcher

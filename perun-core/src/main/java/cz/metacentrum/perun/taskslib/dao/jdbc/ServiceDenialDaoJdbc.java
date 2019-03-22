@@ -1,18 +1,16 @@
 package cz.metacentrum.perun.taskslib.dao.jdbc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Service;
-
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
-import org.springframework.transaction.annotation.Transactional;
-
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.ServicesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.taskslib.dao.ServiceDenialDao;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation on Services blocking on Facility and Destinations.

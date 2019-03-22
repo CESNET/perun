@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.implApi;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
@@ -17,6 +15,8 @@ import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+
+import java.util.List;
 
 /**
  * MembersManager can find members.

@@ -1,7 +1,28 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
@@ -21,7 +42,13 @@ import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**

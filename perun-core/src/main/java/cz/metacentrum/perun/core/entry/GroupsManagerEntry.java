@@ -1,19 +1,65 @@
 package cz.metacentrum.perun.core.entry;
 
-import cz.metacentrum.perun.core.api.*;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichGroup;
+import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
+import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupMoveNotAllowedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
+import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
+import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MembershipMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
-import java.util.Objects;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * GroupsManager entry logic

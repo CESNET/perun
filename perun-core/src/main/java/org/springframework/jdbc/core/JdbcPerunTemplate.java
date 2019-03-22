@@ -1,11 +1,12 @@
 package org.springframework.jdbc.core;
 
-import java.util.List;
-import javax.sql.DataSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
+
+import javax.sql.DataSource;
+import java.util.List;
 
 /**
  * Class JdbcPerunTemplate extends JdbcTemplate from spring. - it has 1

@@ -4,7 +4,6 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.StringMessageEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.PerunSession;
-
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;

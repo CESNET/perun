@@ -1,17 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.HashMap;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -26,6 +14,17 @@ import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Integration tests of VosManager.

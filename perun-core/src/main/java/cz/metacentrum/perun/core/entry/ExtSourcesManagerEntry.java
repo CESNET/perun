@@ -1,10 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -30,6 +25,10 @@ import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 import java.util.Map;
 
 /**

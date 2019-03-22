@@ -1,15 +1,15 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.bl.PerunBl;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Synchronizer, general tool for synchronization tasks.

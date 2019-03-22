@@ -2,23 +2,15 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.Map;
-import java.util.List;
-import java.util.Collections;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.Random;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;

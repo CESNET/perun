@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.controller.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.BanServiceOnDestination;
 import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.BanServiceOnFacility;
 import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.ForcePropagationOnFacilityAndService;
@@ -13,8 +10,20 @@ import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeDenialS
 import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.FreeDenialServiceOnFacility;
 import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.PropagationPlannedOnFacilityAndService;
 import cz.metacentrum.perun.audit.events.GeneralServiceManagerEvents.PropagationPlannedOnService;
+import cz.metacentrum.perun.controller.model.ServiceForGUI;
+import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.taskslib.dao.ServiceDenialDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +31,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import cz.metacentrum.perun.controller.model.ServiceForGUI;
-import cz.metacentrum.perun.controller.service.GeneralServiceManager;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesManager;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.taskslib.dao.ServiceDenialDao;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Propagation manager allows to plan/force propagation, block/unblock Services on Facilities and Destinations.

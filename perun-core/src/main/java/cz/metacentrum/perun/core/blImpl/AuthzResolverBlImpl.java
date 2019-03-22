@@ -1,8 +1,39 @@
 package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserPromotedToPerunAdmin;
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Host;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.SecurityTeam;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.AuthzResolverBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
@@ -13,7 +44,11 @@ import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Authorization resolver. It decides if the perunPrincipal has rights to do the provided operation.

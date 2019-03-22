@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import java.util.List;
-
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
@@ -14,6 +12,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
+
+import java.util.List;
 import java.util.Map;
 
 /**

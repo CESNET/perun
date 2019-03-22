@@ -1,9 +1,6 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.ActionType;
-
-import java.util.*;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributeRights;
@@ -21,13 +18,41 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyMarkedUniqueException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberGroupMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
 import guru.nidi.graphviz.engine.Graphviz;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * AttributesManager entry logic.

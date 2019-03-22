@@ -1,22 +1,20 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
-import javax.sql.DataSource;
-
-import cz.metacentrum.perun.core.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.ResourceTag;
+import cz.metacentrum.perun.core.api.RichResource;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
@@ -30,6 +28,24 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *

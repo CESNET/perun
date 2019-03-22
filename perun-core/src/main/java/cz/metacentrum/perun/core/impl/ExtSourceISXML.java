@@ -3,6 +3,12 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,15 +16,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.codec.binary.Base64;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * XML extSource for groups in IS MU

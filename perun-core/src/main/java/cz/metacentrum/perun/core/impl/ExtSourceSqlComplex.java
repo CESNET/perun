@@ -1,11 +1,11 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.util.List;
-import java.util.Map;
-
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Complex SQL extSource is extended SQL extSource with ability to get all

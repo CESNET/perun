@@ -1,19 +1,15 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl;
-
-import net.jcip.annotations.GuardedBy;
-import net.jcip.annotations.ThreadSafe;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+import java.net.URL;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @ThreadSafe
 public class PerunAuthenticatorImpl extends Authenticator {

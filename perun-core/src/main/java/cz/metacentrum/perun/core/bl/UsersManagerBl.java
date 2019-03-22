@@ -1,11 +1,50 @@
 package cz.metacentrum.perun.core.bl;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichResource;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordChangeFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordDeletionFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordDoesntMatchException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SpecificUserMustHaveOwnerException;
+import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+
 import java.util.List;
 import java.util.Map;
-
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
  * UsersManager manages users.

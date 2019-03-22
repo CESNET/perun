@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>

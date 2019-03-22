@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.implApi;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
@@ -28,6 +26,8 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
+
+import java.util.List;
 
 /**
  * Facility manager can create a new facility or find an existing facility.

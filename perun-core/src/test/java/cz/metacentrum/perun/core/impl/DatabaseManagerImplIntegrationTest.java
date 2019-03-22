@@ -1,16 +1,15 @@
 package cz.metacentrum.perun.core.impl;
 
-import static org.junit.Assert.assertEquals;
-
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Simona Kruppova 410315

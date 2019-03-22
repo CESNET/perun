@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

@@ -1,18 +1,25 @@
 package cz.metacentrum.perun.core.entry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import cz.metacentrum.perun.core.api.*;
-import org.junit.Test;
-
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Host;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichDestination;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.ServiceAttributes;
+import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -27,6 +34,14 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 

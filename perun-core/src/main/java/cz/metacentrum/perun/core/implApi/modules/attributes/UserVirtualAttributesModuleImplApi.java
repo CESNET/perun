@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+
 import java.util.List;
 
 /**

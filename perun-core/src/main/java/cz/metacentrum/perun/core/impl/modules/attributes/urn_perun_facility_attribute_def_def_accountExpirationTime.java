@@ -5,9 +5,6 @@
 
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;

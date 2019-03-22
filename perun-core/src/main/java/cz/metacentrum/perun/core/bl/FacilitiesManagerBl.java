@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.bl;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
@@ -46,8 +44,10 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+
+import java.util.List;
 
 /**
  * Facility manager can create a new facility or find an existing facility.
