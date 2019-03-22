@@ -1938,7 +1938,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				} else {
 					// Some other error occured
 					BufferedReader inReader = new BufferedReader(new InputStreamReader(es));
-					StringBuffer errorMsg = new StringBuffer();
+					StringBuilder errorMsg = new StringBuilder();
 					String line;
 					try {
 						while ((line = inReader.readLine()) != null) {
