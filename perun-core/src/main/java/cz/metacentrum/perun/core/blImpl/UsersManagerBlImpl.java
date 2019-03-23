@@ -378,8 +378,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<>();
-		users.addAll(this.getUsers(sess));
+		List<User> users = new ArrayList<>(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		return richUsers;
@@ -387,8 +386,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
-		List<User> users = new ArrayList<>();
-		users.addAll(this.getUsers(sess));
+		List<User> users = new ArrayList<>(this.getUsers(sess));
 		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		List<RichUser> richUsersWithAttributes = this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
@@ -419,12 +417,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		for (RichUser richUser: richUsers) {
-			List<Attribute> userAttributes = new ArrayList<>();
 			List<String> userAttrNames = new ArrayList<>();
 			for(AttributeDefinition ad: usersAttributesDef) {
 				userAttrNames.add(ad.getName());
 			}
-			userAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richUser, userAttrNames));
+			List<Attribute> userAttributes = new ArrayList<>(getPerunBl().getAttributesManagerBl().getAttributes(sess, richUser, userAttrNames));
 
 			richUser.setUserAttributes(userAttributes);
 		}
@@ -1080,9 +1077,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			for(Member memberElement: members) {
 				usersFromGroup.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
 			}
-			for(User userElement: usersFromGroup) {
-				users.add(userElement);
-			}
+			users.addAll(usersFromGroup);
 		} else if(member != null) {
 			user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			users.add(user);
@@ -1094,23 +1089,17 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		} else if(host != null) {
 			facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
 			List<User> usersFromHost = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-			for(User userElement: usersFromHost) {
-				users.add(userElement);
-			}
+			users.addAll(usersFromHost);
 		} else if(facility != null) {
 			List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-			for(User userElement: usersFromFacility) {
-				users.add(userElement);
-			}
+			users.addAll(usersFromFacility);
 		} else if(vo != null) {
 			List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 			List<User> usersFromVo = new ArrayList<>();
 			for(Member memberElement: members) {
 				usersFromVo.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
 			}
-			for(User userElement: usersFromVo) {
-				users.add(userElement);
-			}
+			users.addAll(usersFromVo);
 		}
 
 		return users;

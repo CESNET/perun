@@ -133,7 +133,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		// Prepare the basic auth, if the username and password was specified
 		if (login != null && password != null) {
-			String val = (new StringBuffer(login).append(":").append(password)).toString();
+			String val = login + ":" + password;
 			Base64 encoder = new Base64();
 			String base64Encoded = new String(encoder.encode(val.getBytes()));
 			base64Encoded = base64Encoded.trim();

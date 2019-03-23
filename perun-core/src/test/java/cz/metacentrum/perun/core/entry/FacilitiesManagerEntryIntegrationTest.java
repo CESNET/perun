@@ -1131,7 +1131,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
 		RichUser richUser = new RichUser(user, null);
 
-		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Arrays.asList(richUser), getMandatoryAttrs());
+		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Collections.singletonList(richUser), getMandatoryAttrs());
 		cg.setUsers(new ArrayList<>(users));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, user);
@@ -1150,7 +1150,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		String contactGroupName = "testContactGroup01";
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
-		cg.setGroups(new ArrayList<>(Arrays.asList(group)));
+		cg.setGroups(new ArrayList<>(Collections.singletonList(group)));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, group);
 
@@ -1167,7 +1167,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		String contactGroupName = "testContactGroup01";
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
-		cg.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		cg.setOwners(new ArrayList<>(Collections.singletonList(owner)));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
 
@@ -1186,11 +1186,11 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		String contactGroupName = "testContactGroup01";
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
-		cg.setOwners(new ArrayList<>(Arrays.asList(owner)));
-		cg.setGroups(new ArrayList<>(Arrays.asList(group)));
+		cg.setOwners(new ArrayList<>(Collections.singletonList(owner)));
+		cg.setGroups(new ArrayList<>(Collections.singletonList(group)));
 		RichUser richUser = new RichUser(user, null);
 
-		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Arrays.asList(richUser), getMandatoryAttrs());
+		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Collections.singletonList(richUser), getMandatoryAttrs());
 		cg.setUsers(new ArrayList<>(users));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 
@@ -1213,11 +1213,11 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		String contactGroupName = "testContactGroup01";
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
-		cg.setOwners(new ArrayList<>(Arrays.asList(owner)));
-		cg.setGroups(new ArrayList<>(Arrays.asList(group)));
+		cg.setOwners(new ArrayList<>(Collections.singletonList(owner)));
+		cg.setGroups(new ArrayList<>(Collections.singletonList(group)));
 		RichUser richUser = new RichUser(user, null);
 
-		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Arrays.asList(richUser), getMandatoryAttrs());
+		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Collections.singletonList(richUser), getMandatoryAttrs());
 		cg.setUsers(new ArrayList<>(users));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 
@@ -1240,9 +1240,9 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		ContactGroup cg1 = new ContactGroup(contactGroupName1, facility);
 		ContactGroup cg2 = new ContactGroup(contactGroupName2, facility);
 		ContactGroup cg3 = new ContactGroup(contactGroupName3, facility);
-		cg1.setOwners(new ArrayList<>(Arrays.asList(owner)));
-		cg2.setOwners(new ArrayList<>(Arrays.asList(owner)));
-		cg3.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		cg1.setOwners(new ArrayList<>(Collections.singletonList(owner)));
+		cg2.setOwners(new ArrayList<>(Collections.singletonList(owner)));
+		cg3.setOwners(new ArrayList<>(Collections.singletonList(owner)));
 		List<ContactGroup> cgs = new ArrayList<>(Arrays.asList(cg1, cg2, cg3));
 
 		facilitiesManagerEntry.addFacilityContacts(sess, cgs);
@@ -1264,7 +1264,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
 		RichUser richUser = new RichUser(user, null);
 
-		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Arrays.asList(richUser), getMandatoryAttrs());
+		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Collections.singletonList(richUser), getMandatoryAttrs());
 		cg.setUsers(new ArrayList<>(users));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, user);
@@ -1287,7 +1287,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		String contactGroupName = "testContactGroup01";
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
-		cg.setGroups(new ArrayList<>(Arrays.asList(group)));
+		cg.setGroups(new ArrayList<>(Collections.singletonList(group)));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, group);
 
@@ -1308,7 +1308,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		String contactGroupName = "testContactGroup01";
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
-		cg.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		cg.setOwners(new ArrayList<>(Collections.singletonList(owner)));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
 
@@ -1331,9 +1331,9 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		ContactGroup cg1 = new ContactGroup(contactGroupName1, facility);
 		ContactGroup cg2 = new ContactGroup(contactGroupName2, facility);
 		ContactGroup cg3 = new ContactGroup(contactGroupName3, facility);
-		cg1.setOwners(new ArrayList<>(Arrays.asList(owner)));
-		cg2.setOwners(new ArrayList<>(Arrays.asList(owner)));
-		cg3.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		cg1.setOwners(new ArrayList<>(Collections.singletonList(owner)));
+		cg2.setOwners(new ArrayList<>(Collections.singletonList(owner)));
+		cg3.setOwners(new ArrayList<>(Collections.singletonList(owner)));
 		List<ContactGroup> cgs = new ArrayList<>(Arrays.asList(cg1, cg2, cg3));
 
 		facilitiesManagerEntry.addFacilityContacts(sess, cgs);

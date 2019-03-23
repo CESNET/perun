@@ -132,7 +132,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			List<String> retAttrs = new ArrayList<>();
 			retAttrs.add(attrName);
 
-			String[] retAttrsArray = retAttrs.toArray(new String[retAttrs.size()]);
+			String[] retAttrsArray = retAttrs.toArray(new String[0]);
 			Attributes attrs = getContext().getAttributes(ldapGroupName, retAttrsArray);
 
 			Attribute ldapAttribute = null;

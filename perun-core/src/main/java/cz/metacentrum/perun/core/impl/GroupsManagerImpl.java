@@ -619,10 +619,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	@Override
 	public List<User> getAdmins(PerunSession sess, Group group) throws InternalErrorException {
 		try {
-			Set<User> setOfAdmins = new HashSet<>();
 			// direct admins
-			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
-						"where authz.group_id=? and authz.role_id=(select id from roles where name='groupadmin')", UsersManagerImpl.USER_MAPPER, group.getId()));
+			Set<User> setOfAdmins = new HashSet<>(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id " +
+				"where authz.group_id=? and authz.role_id=(select id from roles where name='groupadmin')", UsersManagerImpl.USER_MAPPER, group.getId()));
 
 			// admins through a group
 			List<Group> listOfGroupAdmins = getGroupAdmins(sess, group);

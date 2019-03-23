@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -106,7 +107,7 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam, boolean forceDelete) throws SecurityTeamNotExistsException, InternalErrorException, RelationExistsException {
 
 		// remove all users from blacklist, which were blacklisted by this security team.
-		List<User> blacklist = getSecurityTeamsManagerImpl().getBlacklist(sess, Arrays.asList(securityTeam));
+		List<User> blacklist = getSecurityTeamsManagerImpl().getBlacklist(sess, Collections.singletonList(securityTeam));
 		if (blacklist != null && !blacklist.isEmpty() && !forceDelete) {
 			throw new RelationExistsException("SecurityTeam has blacklisted users.");
 		}

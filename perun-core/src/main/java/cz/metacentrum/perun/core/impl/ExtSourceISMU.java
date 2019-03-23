@@ -97,7 +97,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 
 			// Prepare the basic auth, if the username and password was specified
 			if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
-				String val = (new StringBuffer(getAttributes().get("user")).append(":").append(getAttributes().get("password"))).toString();
+				String val = getAttributes().get("user") + ":" + getAttributes().get("password");
 
 				Base64 encoder = new Base64();
 				String base64Encoded = new String(encoder.encode(val.getBytes()));
