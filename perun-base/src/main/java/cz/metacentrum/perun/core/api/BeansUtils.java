@@ -21,6 +21,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 /**
  * Beans Utilities.
@@ -40,6 +42,9 @@ public class BeansUtils {
 	public final static String largeArrayListClassName = "java.util.LargeArrayList";
 
 	private static CoreConfig coreConfig;
+
+	private final static JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+	private static boolean mailSenderInitialized = false;
 
 	/**
 	 * Method create formatter with default settings for perun timestamps and set lenient on false
@@ -787,4 +792,42 @@ public class BeansUtils {
 
 		return s;
 	}
+
+	/**
+	 * Return instance of JavaMailSender with shared Perun configuration
+	 * used to send mail notifications by.
+	 *
+	 * @return single instance of JavaMailSender
+	 */
+	public static JavaMailSender getDefaultMailSender() {
+
+		if (mailSenderInitialized) {
+
+			return mailSender;
+
+		} else {
+
+			// reconstruct props to prevent any future property name collision with perun.properties
+			Properties mailProps = new Properties();
+			mailProps.setProperty("mail.smtp.host", BeansUtils.getCoreConfig().getSmtpHost());
+			mailProps.setProperty("mail.smtp.port", String.valueOf(BeansUtils.getCoreConfig().getSmtpPort()));
+			mailProps.setProperty("mail.smtp.auth", String.valueOf(BeansUtils.getCoreConfig().isSmtpAuth()));
+			mailProps.setProperty("mail.smtp.starttls.enable", String.valueOf(BeansUtils.getCoreConfig().isSmtpStartTls()));
+			mailProps.setProperty("mail.debug", String.valueOf(BeansUtils.getCoreConfig().isMailDebug()));
+
+			mailSender.setJavaMailProperties(mailProps);
+
+			if (BeansUtils.getCoreConfig().isSmtpAuth()) {
+				mailSender.setUsername(BeansUtils.getCoreConfig().getSmtpUser());
+				mailSender.setPassword(BeansUtils.getCoreConfig().getSmtpPass());
+			}
+
+			mailSenderInitialized = true;
+
+			return mailSender;
+
+		}
+
+	}
+
 }
