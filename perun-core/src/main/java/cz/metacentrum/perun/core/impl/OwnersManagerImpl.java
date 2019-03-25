@@ -44,24 +44,21 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
-	protected static final RowMapper<Owner> OWNER_MAPPER = new RowMapper<Owner>() {
-		@Override
-		public Owner mapRow(ResultSet rs, int i) throws SQLException {
-			Owner owner = new Owner();
-			owner.setId(rs.getInt("owners_id"));
-			owner.setName(rs.getString("owners_name"));
-			owner.setContact(rs.getString("owners_contact"));
-			owner.setTypeByString(rs.getString("owners_type"));
-			owner.setCreatedAt(rs.getString("owners_created_at"));
-			owner.setCreatedBy(rs.getString("owners_created_by"));
-			owner.setModifiedAt(rs.getString("owners_modified_at"));
-			owner.setModifiedBy(rs.getString("owners_modified_by"));
-			if(rs.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
-			else owner.setModifiedByUid(rs.getInt("owners_modified_by_uid"));
-			if(rs.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
-			else owner.setCreatedByUid(rs.getInt("owners_created_by_uid"));
-			return owner;
-		}
+	protected static final RowMapper<Owner> OWNER_MAPPER = (resultSet, i) -> {
+		Owner owner = new Owner();
+		owner.setId(resultSet.getInt("owners_id"));
+		owner.setName(resultSet.getString("owners_name"));
+		owner.setContact(resultSet.getString("owners_contact"));
+		owner.setTypeByString(resultSet.getString("owners_type"));
+		owner.setCreatedAt(resultSet.getString("owners_created_at"));
+		owner.setCreatedBy(resultSet.getString("owners_created_by"));
+		owner.setModifiedAt(resultSet.getString("owners_modified_at"));
+		owner.setModifiedBy(resultSet.getString("owners_modified_by"));
+		if(resultSet.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
+		else owner.setModifiedByUid(resultSet.getInt("owners_modified_by_uid"));
+		if(resultSet.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
+		else owner.setCreatedByUid(resultSet.getInt("owners_created_by_uid"));
+		return owner;
 	};
 
 

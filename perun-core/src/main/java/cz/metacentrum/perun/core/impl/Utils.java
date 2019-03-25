@@ -154,20 +154,12 @@ public class Utils {
 	/**
 	 * Integer row mapper
 	 */
-	public static final RowMapper<Integer> ID_MAPPER = new RowMapper<Integer>() {
-		public Integer mapRow(ResultSet rs, int i) throws SQLException {
-			return rs.getInt("id");
-		}
-	};
+	public static final RowMapper<Integer> ID_MAPPER = (resultSet, i) -> resultSet.getInt("id");
 
 	/**
 	 * String row mapper
 	 */
-	public static final RowMapper<String> STRING_MAPPER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			return rs.getString("value");
-		}
-	};
+	public static final RowMapper<String> STRING_MAPPER = (resultSet, i) -> resultSet.getString("value");
 
 	// FIXME prijde odstranit
 	public static void checkPerunSession(PerunSession sess) throws InternalErrorException {

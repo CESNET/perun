@@ -80,168 +80,150 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		"facilities_bans.created_at as fac_bans_created_at, facilities_bans.created_by as fac_bans_created_by, facilities_bans.modified_at as fac_bans_modified_at, " +
 		"facilities_bans.modified_by as fac_bans_modified_by, facilities_bans.created_by_uid as fac_bans_created_by_uid, facilities_bans.modified_by_uid as fac_bans_modified_by_uid";
 
-	public static final RowMapper<Facility> FACILITY_MAPPER = new RowMapper<Facility>() {
-		@Override
-		public Facility mapRow(ResultSet rs, int i) throws SQLException {
-			Facility facility = new Facility();
+	public static final RowMapper<Facility> FACILITY_MAPPER = (resultSet, i) -> {
+		Facility facility = new Facility();
 
-			facility.setId(rs.getInt("facilities_id"));
-			facility.setName(rs.getString("facilities_name"));
-			facility.setDescription(rs.getString("facilities_dsc"));
-			facility.setCreatedAt(rs.getString("facilities_created_at"));
-			facility.setCreatedBy(rs.getString("facilities_created_by"));
-			facility.setModifiedAt(rs.getString("facilities_modified_at"));
-			facility.setModifiedBy(rs.getString("facilities_modified_by"));
-			if(rs.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
-			else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
-			if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
-			else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
-			return facility;
-		}
+		facility.setId(resultSet.getInt("facilities_id"));
+		facility.setName(resultSet.getString("facilities_name"));
+		facility.setDescription(resultSet.getString("facilities_dsc"));
+		facility.setCreatedAt(resultSet.getString("facilities_created_at"));
+		facility.setCreatedBy(resultSet.getString("facilities_created_by"));
+		facility.setModifiedAt(resultSet.getString("facilities_modified_at"));
+		facility.setModifiedBy(resultSet.getString("facilities_modified_by"));
+		if(resultSet.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
+		else facility.setModifiedByUid(resultSet.getInt("facilities_modified_by_uid"));
+		if(resultSet.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
+		else facility.setCreatedByUid(resultSet.getInt("facilities_created_by_uid"));
+		return facility;
 	};
 
 	//Host mapper
-	private static final RowMapper<Host> HOST_MAPPER = new RowMapper<Host>() {
-		@Override
-		public Host mapRow(ResultSet rs, int i) throws SQLException {
-			Host h = new Host();
-			h.setId(rs.getInt("hosts_id"));
-			h.setHostname(rs.getString("hosts_hostname"));
-			h.setCreatedAt(rs.getString("hosts_created_at"));
-			h.setCreatedBy(rs.getString("hosts_created_by"));
-			h.setModifiedAt(rs.getString("hosts_modified_at"));
-			h.setModifiedBy(rs.getString("hosts_modified_by"));
-			if(rs.getInt("hosts_modified_by_uid") == 0) h.setModifiedByUid(null);
-			else h.setModifiedByUid(rs.getInt("hosts_modified_by_uid"));
-			if(rs.getInt("hosts_created_by_uid") == 0) h.setCreatedByUid(null);
-			else h.setCreatedByUid(rs.getInt("hosts_created_by_uid"));
-			return h;
-		}
+	private static final RowMapper<Host> HOST_MAPPER = (resultSet, i) -> {
+		Host h = new Host();
+		h.setId(resultSet.getInt("hosts_id"));
+		h.setHostname(resultSet.getString("hosts_hostname"));
+		h.setCreatedAt(resultSet.getString("hosts_created_at"));
+		h.setCreatedBy(resultSet.getString("hosts_created_by"));
+		h.setModifiedAt(resultSet.getString("hosts_modified_at"));
+		h.setModifiedBy(resultSet.getString("hosts_modified_by"));
+		if(resultSet.getInt("hosts_modified_by_uid") == 0) h.setModifiedByUid(null);
+		else h.setModifiedByUid(resultSet.getInt("hosts_modified_by_uid"));
+		if(resultSet.getInt("hosts_created_by_uid") == 0) h.setCreatedByUid(null);
+		else h.setCreatedByUid(resultSet.getInt("hosts_created_by_uid"));
+		return h;
 	};
 
 	//Facility Contact Mapper
-	private static final RowMapper<ContactGroup> FACILITY_CONTACT_MAPPER = new RowMapper<ContactGroup>() {
-		@Override
-		public ContactGroup mapRow(ResultSet rs, int i) throws SQLException {
-			ContactGroup contactGroup = new ContactGroup();
+	private static final RowMapper<ContactGroup> FACILITY_CONTACT_MAPPER = (resultSet, i) -> {
+		ContactGroup contactGroup = new ContactGroup();
 
-			//set Facility
-			Facility facility = new Facility();
-			facility.setId(rs.getInt("facilities_id"));
-			facility.setName(rs.getString("facilities_name"));
-			facility.setDescription(rs.getString("facilities_dsc"));
-			facility.setCreatedAt(rs.getString("facilities_created_at"));
-			facility.setCreatedBy(rs.getString("facilities_created_by"));
-			facility.setModifiedAt(rs.getString("facilities_modified_at"));
-			facility.setModifiedBy(rs.getString("facilities_modified_by"));
-			if(rs.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
-			else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
-			if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
-			else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
-			contactGroup.setFacility(facility);
+		//set Facility
+		Facility facility = new Facility();
+		facility.setId(resultSet.getInt("facilities_id"));
+		facility.setName(resultSet.getString("facilities_name"));
+		facility.setDescription(resultSet.getString("facilities_dsc"));
+		facility.setCreatedAt(resultSet.getString("facilities_created_at"));
+		facility.setCreatedBy(resultSet.getString("facilities_created_by"));
+		facility.setModifiedAt(resultSet.getString("facilities_modified_at"));
+		facility.setModifiedBy(resultSet.getString("facilities_modified_by"));
+		if(resultSet.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
+		else facility.setModifiedByUid(resultSet.getInt("facilities_modified_by_uid"));
+		if(resultSet.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
+		else facility.setCreatedByUid(resultSet.getInt("facilities_created_by_uid"));
+		contactGroup.setFacility(facility);
 
-			//set Name
-			String name = rs.getString("fc_name");
-			contactGroup.setName(name);
+		//set Name
+		String name = resultSet.getString("fc_name");
+		contactGroup.setName(name);
 
-			//if exists set owner
-			List<Owner> owners = new ArrayList<>();
-			if(rs.getInt("owners_id") != 0) {
-				Owner owner = new Owner();
-				owner.setId(rs.getInt("owners_id"));
-				owner.setName(rs.getString("owners_name"));
-				owner.setContact(rs.getString("owners_contact"));
-				owner.setTypeByString(rs.getString("owners_type"));
-				owner.setCreatedAt(rs.getString("owners_created_at"));
-				owner.setCreatedBy(rs.getString("owners_created_by"));
-				owner.setModifiedAt(rs.getString("owners_modified_at"));
-				owner.setModifiedBy(rs.getString("owners_modified_by"));
-				if(rs.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
-				else owner.setModifiedByUid(rs.getInt("owners_modified_by_uid"));
-				if(rs.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
-				else owner.setCreatedByUid(rs.getInt("owners_created_by_uid"));
-				owners.add(owner);
-			}
-			contactGroup.setOwners(owners);
-
-			//if exists set user
-			List<RichUser> users = new ArrayList<>();
-			if(rs.getInt("users_id") != 0) {
-				RichUser user = new RichUser();
-				user.setId(rs.getInt("users_id"));
-				user.setFirstName(rs.getString("users_first_name"));
-				user.setLastName(rs.getString("users_last_name"));
-				user.setMiddleName(rs.getString("users_middle_name"));
-				user.setTitleBefore(rs.getString("users_title_before"));
-				user.setTitleAfter(rs.getString("users_title_after"));
-				user.setCreatedAt(rs.getString("users_created_at"));
-				user.setCreatedBy(rs.getString("users_created_by"));
-				user.setModifiedAt(rs.getString("users_modified_at"));
-				user.setModifiedBy(rs.getString("users_modified_by"));
-				user.setServiceUser(rs.getBoolean("users_service_acc"));
-				if(rs.getInt("users_created_by_uid") == 0) user.setCreatedByUid(null);
-				else user.setCreatedByUid(rs.getInt("users_created_by_uid"));
-				if(rs.getInt("users_modified_by_uid") == 0) user.setModifiedByUid(null);
-				else user.setModifiedByUid(rs.getInt("users_modified_by_uid"));
-				users.add(user);
-			}
-			contactGroup.setUsers(users);
-
-			//if exists set group
-			List<Group> groups = new ArrayList<>();
-			if(rs.getInt("groups_id") != 0) {
-				Group group = new Group();
-				group.setId(rs.getInt("groups_id"));
-			//ParentGroup with ID=0 is not supported
-			if(rs.getInt("groups_parent_group_id") != 0) group.setParentGroupId(rs.getInt("groups_parent_group_id"));
-			else group.setParentGroupId(null);
-			group.setName(rs.getString("groups_name"));
-			group.setShortName(group.getName().substring(group.getName().lastIndexOf(":") + 1));
-			group.setDescription(rs.getString("groups_dsc"));
-			group.setVoId(rs.getInt("groups_vo_id"));
-			group.setCreatedAt(rs.getString("groups_created_at"));
-			group.setCreatedBy(rs.getString("groups_created_by"));
-			group.setModifiedAt(rs.getString("groups_modified_at"));
-			group.setModifiedBy(rs.getString("groups_modified_by"));
-			if(rs.getInt("groups_modified_by_uid") == 0) group.setModifiedByUid(null);
-			else group.setModifiedByUid(rs.getInt("groups_modified_by_uid"));
-			if(rs.getInt("groups_created_by_uid") == 0) group.setCreatedByUid(null);
-			else group.setCreatedByUid(rs.getInt("groups_created_by_uid"));
-				groups.add(group);
-			}
-			contactGroup.setGroups(groups);
-
-			return contactGroup;
+		//if exists set owner
+		List<Owner> owners = new ArrayList<>();
+		if(resultSet.getInt("owners_id") != 0) {
+			Owner owner = new Owner();
+			owner.setId(resultSet.getInt("owners_id"));
+			owner.setName(resultSet.getString("owners_name"));
+			owner.setContact(resultSet.getString("owners_contact"));
+			owner.setTypeByString(resultSet.getString("owners_type"));
+			owner.setCreatedAt(resultSet.getString("owners_created_at"));
+			owner.setCreatedBy(resultSet.getString("owners_created_by"));
+			owner.setModifiedAt(resultSet.getString("owners_modified_at"));
+			owner.setModifiedBy(resultSet.getString("owners_modified_by"));
+			if(resultSet.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
+			else owner.setModifiedByUid(resultSet.getInt("owners_modified_by_uid"));
+			if(resultSet.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
+			else owner.setCreatedByUid(resultSet.getInt("owners_created_by_uid"));
+			owners.add(owner);
 		}
+		contactGroup.setOwners(owners);
+
+		//if exists set user
+		List<RichUser> users = new ArrayList<>();
+		if(resultSet.getInt("users_id") != 0) {
+			RichUser user = new RichUser();
+			user.setId(resultSet.getInt("users_id"));
+			user.setFirstName(resultSet.getString("users_first_name"));
+			user.setLastName(resultSet.getString("users_last_name"));
+			user.setMiddleName(resultSet.getString("users_middle_name"));
+			user.setTitleBefore(resultSet.getString("users_title_before"));
+			user.setTitleAfter(resultSet.getString("users_title_after"));
+			user.setCreatedAt(resultSet.getString("users_created_at"));
+			user.setCreatedBy(resultSet.getString("users_created_by"));
+			user.setModifiedAt(resultSet.getString("users_modified_at"));
+			user.setModifiedBy(resultSet.getString("users_modified_by"));
+			user.setServiceUser(resultSet.getBoolean("users_service_acc"));
+			if(resultSet.getInt("users_created_by_uid") == 0) user.setCreatedByUid(null);
+			else user.setCreatedByUid(resultSet.getInt("users_created_by_uid"));
+			if(resultSet.getInt("users_modified_by_uid") == 0) user.setModifiedByUid(null);
+			else user.setModifiedByUid(resultSet.getInt("users_modified_by_uid"));
+			users.add(user);
+		}
+		contactGroup.setUsers(users);
+
+		//if exists set group
+		List<Group> groups = new ArrayList<>();
+		if(resultSet.getInt("groups_id") != 0) {
+			Group group = new Group();
+			group.setId(resultSet.getInt("groups_id"));
+		//ParentGroup with ID=0 is not supported
+		if(resultSet.getInt("groups_parent_group_id") != 0) group.setParentGroupId(resultSet.getInt("groups_parent_group_id"));
+		else group.setParentGroupId(null);
+		group.setName(resultSet.getString("groups_name"));
+		group.setShortName(group.getName().substring(group.getName().lastIndexOf(":") + 1));
+		group.setDescription(resultSet.getString("groups_dsc"));
+		group.setVoId(resultSet.getInt("groups_vo_id"));
+		group.setCreatedAt(resultSet.getString("groups_created_at"));
+		group.setCreatedBy(resultSet.getString("groups_created_by"));
+		group.setModifiedAt(resultSet.getString("groups_modified_at"));
+		group.setModifiedBy(resultSet.getString("groups_modified_by"));
+		if(resultSet.getInt("groups_modified_by_uid") == 0) group.setModifiedByUid(null);
+		else group.setModifiedByUid(resultSet.getInt("groups_modified_by_uid"));
+		if(resultSet.getInt("groups_created_by_uid") == 0) group.setCreatedByUid(null);
+		else group.setCreatedByUid(resultSet.getInt("groups_created_by_uid"));
+			groups.add(group);
+		}
+		contactGroup.setGroups(groups);
+
+		return contactGroup;
 	};
 
-	private static final RowMapper<String> FACILITY_CONTACT_NAMES_MAPPER = new RowMapper<String>() {
-		@Override
-		public String mapRow(ResultSet rs, int i) throws SQLException {
+	private static final RowMapper<String> FACILITY_CONTACT_NAMES_MAPPER = (resultSet, i) -> resultSet.getString("name");
 
-			return rs.getString("name");
-		}
-	};
-
-	protected static final RowMapper<BanOnFacility> BAN_ON_FACILITY_MAPPER = new RowMapper<BanOnFacility>() {
-		@Override
-		public BanOnFacility mapRow(ResultSet rs, int i) throws SQLException {
-			BanOnFacility banOnFacility = new BanOnFacility();
-			banOnFacility.setId(rs.getInt("fac_bans_id"));
-			banOnFacility.setUserId(rs.getInt("fac_bans_user_id"));
-			banOnFacility.setFacilityId(rs.getInt("fac_bans_facility_id"));
-			banOnFacility.setDescription(rs.getString("fac_bans_description"));
-			banOnFacility.setValidityTo(rs.getTimestamp("fac_bans_validity_to"));
-			banOnFacility.setCreatedAt(rs.getString("fac_bans_created_at"));
-			banOnFacility.setCreatedBy(rs.getString("fac_bans_created_by"));
-			banOnFacility.setModifiedAt(rs.getString("fac_bans_modified_at"));
-			banOnFacility.setModifiedBy(rs.getString("fac_bans_modified_by"));
-			if(rs.getInt("fac_bans_modified_by_uid") == 0) banOnFacility.setModifiedByUid(null);
-			else banOnFacility.setModifiedByUid(rs.getInt("fac_bans_modified_by_uid"));
-			if(rs.getInt("fac_bans_created_by_uid") == 0) banOnFacility.setCreatedByUid(null);
-			else banOnFacility.setCreatedByUid(rs.getInt("fac_bans_created_by_uid"));
-			return banOnFacility;
-		}
+	protected static final RowMapper<BanOnFacility> BAN_ON_FACILITY_MAPPER = (resultSet, i) -> {
+		BanOnFacility banOnFacility = new BanOnFacility();
+		banOnFacility.setId(resultSet.getInt("fac_bans_id"));
+		banOnFacility.setUserId(resultSet.getInt("fac_bans_user_id"));
+		banOnFacility.setFacilityId(resultSet.getInt("fac_bans_facility_id"));
+		banOnFacility.setDescription(resultSet.getString("fac_bans_description"));
+		banOnFacility.setValidityTo(resultSet.getTimestamp("fac_bans_validity_to"));
+		banOnFacility.setCreatedAt(resultSet.getString("fac_bans_created_at"));
+		banOnFacility.setCreatedBy(resultSet.getString("fac_bans_created_by"));
+		banOnFacility.setModifiedAt(resultSet.getString("fac_bans_modified_at"));
+		banOnFacility.setModifiedBy(resultSet.getString("fac_bans_modified_by"));
+		if(resultSet.getInt("fac_bans_modified_by_uid") == 0) banOnFacility.setModifiedByUid(null);
+		else banOnFacility.setModifiedByUid(resultSet.getInt("fac_bans_modified_by_uid"));
+		if(resultSet.getInt("fac_bans_created_by_uid") == 0) banOnFacility.setCreatedByUid(null);
+		else banOnFacility.setCreatedByUid(resultSet.getInt("fac_bans_created_by_uid"));
+		return banOnFacility;
 	};
 
 	public FacilitiesManagerImpl(DataSource perunPool) {

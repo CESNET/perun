@@ -68,21 +68,18 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_nickname ext
 		if (generatedNamespaces.contains(attribute.getFriendlyNameParameter())) {
 
 			ModulesUtilsBlImpl.LoginGenerator generator = new ModulesUtilsBlImpl.LoginGenerator();
-			String login = generator.generateLogin(user, new ModulesUtilsBlImpl.LoginGenerator.LoginGeneratorFunction() {
-				@Override
-				public String generateLogin(String firstName, String lastName) {
+			String login = generator.generateLogin(user, (firstName, lastName) -> {
 
-					// unable to fill login for users without name or with partial name
-					if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
-						return "fenix-user";
-					}
-
-					String login = firstName+ "." + lastName;
-					if (login.length()>20) {
-						login = login.substring(0, 20);
-					}
-					return login;
+				// unable to fill login for users without name or with partial name
+				if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
+					return "fenix-user";
 				}
+
+				String login1 = firstName+ "." + lastName;
+				if (login1.length()>20) {
+					login1 = login1.substring(0, 20);
+				}
+				return login1;
 			});
 
 			if (login == null) return filledAttribute;

@@ -54,15 +54,11 @@ public class VosManagerImpl implements VosManagerImplApi {
 	/**
 	 * Converts s ResultSet's row to a Vo instance.
 	 */
-	protected static final RowMapper<Vo> VO_MAPPER = new RowMapper<Vo>() {
-		@Override
-		public Vo mapRow(ResultSet rs, int i) throws SQLException {
-			return new Vo(rs.getInt("vos_id"), rs.getString("vos_name"), rs.getString("vos_short_name"), rs.getString("vos_created_at"),
-					rs.getString("vos_created_by"), rs.getString("vos_modified_at"), rs.getString("vos_modified_by"),
-					rs.getInt("vos_created_by_uid") == 0 ? null : rs.getInt("vos_created_by_uid"),
-					rs.getInt("vos_modified_by_uid") == 0 ? null : rs.getInt("vos_modified_by_uid"));
-		}
-	};
+	protected static final RowMapper<Vo> VO_MAPPER = (resultSet, i) ->
+		new Vo(resultSet.getInt("vos_id"), resultSet.getString("vos_name"), resultSet.getString("vos_short_name"), resultSet.getString("vos_created_at"),
+			resultSet.getString("vos_created_by"), resultSet.getString("vos_modified_at"), resultSet.getString("vos_modified_by"),
+			resultSet.getInt("vos_created_by_uid") == 0 ? null : resultSet.getInt("vos_created_by_uid"),
+			resultSet.getInt("vos_modified_by_uid") == 0 ? null : resultSet.getInt("vos_modified_by_uid"));
 
 	/**
 	 * Constructor.
@@ -309,13 +305,8 @@ public class VosManagerImpl implements VosManagerImplApi {
 	public List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) throws InternalErrorException {
 		// get app ids for all applications
 		try {
-			return jdbc.query("select id from application where vo_id=?", new RowMapper<Integer>() {
-				@Override
-				public Integer mapRow(ResultSet rs, int arg1)
-				throws SQLException {
-				return rs.getInt("id");
-				}
-			},vo.getId());
+			return jdbc.query("select id from application where vo_id=?",
+				(resultSet, arg1) -> resultSet.getInt("id"),vo.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -324,12 +315,8 @@ public class VosManagerImpl implements VosManagerImplApi {
 	@Override
 	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException {
 		try {
-			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
-				@Override
-				public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new Pair<>(rs.getString("namespace"), rs.getString("login"));
-				}
-			}, appId);
+			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?",
+				(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), appId);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

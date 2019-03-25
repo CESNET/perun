@@ -143,71 +143,58 @@ public class Auditer {
 		}
 	};
 
-	protected static final RowMapper<AuditMessage> AUDITMESSAGE_MAPPER_FOR_PARSER = new RowMapper<AuditMessage>() {
-		public AuditMessage mapRow(ResultSet rs, int i) throws SQLException {
+	protected static final RowMapper<AuditMessage> AUDITMESSAGE_MAPPER_FOR_PARSER = (resultSet, i) -> {
 
-			String msg;
-			if (Compatibility.isOracle()) {
-				Clob clob = rs.getClob("msg");
-				char[] cbuf = null;
-				if (clob == null) {
-					msg = null;
-				} else {
-					try {
-						cbuf = new char[(int) clob.length()];
-						clob.getCharacterStream().read(cbuf);
-					} catch (IOException ex) {
-						throw new InternalErrorRuntimeException(ex);
-					}
-					msg = new String(cbuf);
-				}
+		String msg;
+		if (Compatibility.isOracle()) {
+			Clob clob = resultSet.getClob("msg");
+			char[] cbuf = null;
+			if (clob == null) {
+				msg = null;
 			} else {
-				msg = rs.getString("msg");
+				try {
+					cbuf = new char[(int) clob.length()];
+					clob.getCharacterStream().read(cbuf);
+				} catch (IOException ex) {
+					throw new InternalErrorRuntimeException(ex);
+				}
+				msg = new String(cbuf);
 			}
-			// Get principal User and his ID (null, if no user exist)
-			Integer principalUserId = null;
-			if (rs.getInt("created_by_uid") != 0) principalUserId = rs.getInt("created_by_uid");
-			AuditMessage auditMessage = new AuditMessage(rs.getInt("id"), msg, rs.getString("actor"), rs.getString("created_at"), principalUserId);
-			return auditMessage;
+		} else {
+			msg = resultSet.getString("msg");
 		}
+		// Get principal User and his ID (null, if no user exist)
+		Integer principalUserId = null;
+		if (resultSet.getInt("created_by_uid") != 0) principalUserId = resultSet.getInt("created_by_uid");
+		AuditMessage auditMessage = new AuditMessage(resultSet.getInt("id"), msg, resultSet.getString("actor"), resultSet.getString("created_at"), principalUserId);
+		return auditMessage;
 	};
 
-	protected static final RowMapper<String> AUDITER_FULL_LOG_MAPPER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(rs, i);
-			return auditMessage.getFullMessage();
-		}
+	protected static final RowMapper<String> AUDITER_FULL_LOG_MAPPER = (resultSet, i) -> {
+		AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(resultSet, i);
+		return auditMessage.getFullMessage();
 	};
 
-	protected static final RowMapper<String> AUDITER_LOG_MAPPER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(rs, i);
-			return auditMessage.getMsg();
-		}
+	protected static final RowMapper<String> AUDITER_LOG_MAPPER = (resultSet, i) -> {
+		AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(resultSet, i);
+		return auditMessage.getMsg();
 	};
 
-	protected static final RowMapper<String> AUDITER_LOG_MAPPER_FOR_PARSER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			AuditMessage auditMessage = AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
-			return auditMessage.getMsg();
-		}
+	protected static final RowMapper<String> AUDITER_LOG_MAPPER_FOR_PARSER = (rs, i) -> {
+		AuditMessage auditMessage = AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
+		return auditMessage.getMsg();
 	};
 
-	protected static final AuditerConsumerExtractor AUDITER_CONSUMER_EXTRACTOR = new AuditerConsumerExtractor();
-
-	private static class AuditerConsumerExtractor implements ResultSetExtractor<Map<String, Integer>> {
-
-		public Map<String, Integer> extractData(ResultSet rs) throws SQLException, DataAccessException {
-			Map<String, Integer> auditerConsumers = new HashMap<>();
-			while (rs.next()) {
-				// fetch from map by ID
-				String name = rs.getString("name");
-				Integer lastProcessedId = rs.getInt("last_processed_id");
-				auditerConsumers.put(name, lastProcessedId);
-			}
-			return auditerConsumers;
+	protected static final ResultSetExtractor<Map<String, Integer>> AUDITER_CONSUMER_EXTRACTOR = resultSet -> {
+		Map<String, Integer> auditerConsumers = new HashMap<>();
+		while (resultSet.next()) {
+			// fetch from map by ID
+			String name = resultSet.getString("name");
+			Integer lastProcessedId = resultSet.getInt("last_processed_id");
+			auditerConsumers.put(name, lastProcessedId);
 		}
-	}
+		return auditerConsumers;
+	};
 
 	public Auditer() {
 	}

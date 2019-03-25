@@ -76,75 +76,63 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 
-	protected static final RowMapper<Resource> RESOURCE_MAPPER = new RowMapper<Resource>() {
-		@Override
-		public Resource mapRow(ResultSet rs, int i) throws SQLException {
-			Resource resource = new Resource();
-			resource.setId(rs.getInt("resources_id"));
-			resource.setName(rs.getString("resources_name"));
-			resource.setDescription(rs.getString("resources_dsc"));
-			resource.setFacilityId(rs.getInt("resources_facility_id"));
-			resource.setVoId(rs.getInt("resources_vo_id"));
-			resource.setCreatedAt(rs.getString("resources_created_at"));
-			resource.setCreatedBy(rs.getString("resources_created_by"));
-			resource.setModifiedAt(rs.getString("resources_modified_at"));
-			resource.setModifiedBy(rs.getString("resources_modified_by"));
-			if(rs.getInt("resources_modified_by_uid") == 0) resource.setModifiedByUid(null);
-			else resource.setModifiedByUid(rs.getInt("resources_modified_by_uid"));
-			if(rs.getInt("resources_created_by_uid") == 0) resource.setCreatedByUid(null);
-			else resource.setCreatedByUid(rs.getInt("resources_created_by_uid"));
-			return resource;
-		}
+	protected static final RowMapper<Resource> RESOURCE_MAPPER = (resultSet, i) -> {
+		Resource resource = new Resource();
+		resource.setId(resultSet.getInt("resources_id"));
+		resource.setName(resultSet.getString("resources_name"));
+		resource.setDescription(resultSet.getString("resources_dsc"));
+		resource.setFacilityId(resultSet.getInt("resources_facility_id"));
+		resource.setVoId(resultSet.getInt("resources_vo_id"));
+		resource.setCreatedAt(resultSet.getString("resources_created_at"));
+		resource.setCreatedBy(resultSet.getString("resources_created_by"));
+		resource.setModifiedAt(resultSet.getString("resources_modified_at"));
+		resource.setModifiedBy(resultSet.getString("resources_modified_by"));
+		if(resultSet.getInt("resources_modified_by_uid") == 0) resource.setModifiedByUid(null);
+		else resource.setModifiedByUid(resultSet.getInt("resources_modified_by_uid"));
+		if(resultSet.getInt("resources_created_by_uid") == 0) resource.setCreatedByUid(null);
+		else resource.setCreatedByUid(resultSet.getInt("resources_created_by_uid"));
+		return resource;
 	};
 
-	protected static final RowMapper<ResourceTag> RESOURCE_TAG_MAPPER = new RowMapper<ResourceTag>() {
-		@Override
-		public ResourceTag mapRow(ResultSet rs, int i) throws SQLException {
-			ResourceTag resourceTag = new ResourceTag();
-			resourceTag.setId(rs.getInt("res_tags_id"));
-			resourceTag.setVoId(rs.getInt("res_tags_vo_id"));
-			resourceTag.setTagName(rs.getString("res_tags_tag_name"));
-			resourceTag.setCreatedAt(rs.getString("res_tags_created_at"));
-			resourceTag.setCreatedBy(rs.getString("res_tags_created_by"));
-			resourceTag.setModifiedAt(rs.getString("res_tags_modified_at"));
-			resourceTag.setModifiedBy(rs.getString("res_tags_modified_by"));
-			if(rs.getInt("res_tags_modified_by_uid") == 0) resourceTag.setModifiedByUid(null);
-			else resourceTag.setModifiedByUid(rs.getInt("res_tags_modified_by_uid"));
-			if(rs.getInt("res_tags_created_by_uid") == 0) resourceTag.setCreatedByUid(null);
-			else resourceTag.setCreatedByUid(rs.getInt("res_tags_created_by_uid"));
-			return resourceTag;
-		}
+	protected static final RowMapper<ResourceTag> RESOURCE_TAG_MAPPER = (resultSet, i) -> {
+		ResourceTag resourceTag = new ResourceTag();
+		resourceTag.setId(resultSet.getInt("res_tags_id"));
+		resourceTag.setVoId(resultSet.getInt("res_tags_vo_id"));
+		resourceTag.setTagName(resultSet.getString("res_tags_tag_name"));
+		resourceTag.setCreatedAt(resultSet.getString("res_tags_created_at"));
+		resourceTag.setCreatedBy(resultSet.getString("res_tags_created_by"));
+		resourceTag.setModifiedAt(resultSet.getString("res_tags_modified_at"));
+		resourceTag.setModifiedBy(resultSet.getString("res_tags_modified_by"));
+		if(resultSet.getInt("res_tags_modified_by_uid") == 0) resourceTag.setModifiedByUid(null);
+		else resourceTag.setModifiedByUid(resultSet.getInt("res_tags_modified_by_uid"));
+		if(resultSet.getInt("res_tags_created_by_uid") == 0) resourceTag.setCreatedByUid(null);
+		else resourceTag.setCreatedByUid(resultSet.getInt("res_tags_created_by_uid"));
+		return resourceTag;
 	};
 
-	protected static final RowMapper<RichResource> RICH_RESOURCE_MAPPER = new RowMapper<RichResource>() {
-		@Override
-		public RichResource mapRow(ResultSet rs, int i) throws SQLException {
-			RichResource richResource = new RichResource(RESOURCE_MAPPER.mapRow(rs, i));
-			richResource.setVo(VosManagerImpl.VO_MAPPER.mapRow(rs, i));
-			richResource.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(rs, i));
-			return richResource;
-		}
+	protected static final RowMapper<RichResource> RICH_RESOURCE_MAPPER = (resultSet, i) -> {
+		RichResource richResource = new RichResource(RESOURCE_MAPPER.mapRow(resultSet, i));
+		richResource.setVo(VosManagerImpl.VO_MAPPER.mapRow(resultSet, i));
+		richResource.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i));
+		return richResource;
 	};
 
-	protected static final RowMapper<BanOnResource> BAN_ON_RESOURCE_MAPPER = new RowMapper<BanOnResource>() {
-		@Override
-		public BanOnResource mapRow(ResultSet rs, int i) throws SQLException {
-			BanOnResource banOnResource = new BanOnResource();
-			banOnResource.setId(rs.getInt("res_bans_id"));
-			banOnResource.setMemberId(rs.getInt("res_bans_member_id"));
-			banOnResource.setResourceId(rs.getInt("res_bans_resource_id"));
-			banOnResource.setDescription(rs.getString("res_bans_description"));
-			banOnResource.setValidityTo(rs.getTimestamp("res_bans_validity_to"));
-			banOnResource.setCreatedAt(rs.getString("res_bans_created_at"));
-			banOnResource.setCreatedBy(rs.getString("res_bans_created_by"));
-			banOnResource.setModifiedAt(rs.getString("res_bans_modified_at"));
-			banOnResource.setModifiedBy(rs.getString("res_bans_modified_by"));
-			if(rs.getInt("res_bans_modified_by_uid") == 0) banOnResource.setModifiedByUid(null);
-			else banOnResource.setModifiedByUid(rs.getInt("res_bans_modified_by_uid"));
-			if(rs.getInt("res_bans_created_by_uid") == 0) banOnResource.setCreatedByUid(null);
-			else banOnResource.setCreatedByUid(rs.getInt("res_bans_created_by_uid"));
-			return banOnResource;
-		}
+	protected static final RowMapper<BanOnResource> BAN_ON_RESOURCE_MAPPER = (resultSet, i) -> {
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setId(resultSet.getInt("res_bans_id"));
+		banOnResource.setMemberId(resultSet.getInt("res_bans_member_id"));
+		banOnResource.setResourceId(resultSet.getInt("res_bans_resource_id"));
+		banOnResource.setDescription(resultSet.getString("res_bans_description"));
+		banOnResource.setValidityTo(resultSet.getTimestamp("res_bans_validity_to"));
+		banOnResource.setCreatedAt(resultSet.getString("res_bans_created_at"));
+		banOnResource.setCreatedBy(resultSet.getString("res_bans_created_by"));
+		banOnResource.setModifiedAt(resultSet.getString("res_bans_modified_at"));
+		banOnResource.setModifiedBy(resultSet.getString("res_bans_modified_by"));
+		if(resultSet.getInt("res_bans_modified_by_uid") == 0) banOnResource.setModifiedByUid(null);
+		else banOnResource.setModifiedByUid(resultSet.getInt("res_bans_modified_by_uid"));
+		if(resultSet.getInt("res_bans_created_by_uid") == 0) banOnResource.setCreatedByUid(null);
+		else banOnResource.setCreatedByUid(resultSet.getInt("res_bans_created_by_uid"));
+		return banOnResource;
 	};
 
 	protected static final RichResourceExtractor RICH_RESOURCE_WITH_TAGS_EXTRACTOR = new RichResourceExtractor();

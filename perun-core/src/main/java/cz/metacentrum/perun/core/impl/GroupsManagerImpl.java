@@ -69,37 +69,31 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	// Group mapper
-	protected static final RowMapper<Group> GROUP_MAPPER = new RowMapper<Group>() {
-		@Override
-		public Group mapRow(ResultSet rs, int i) throws SQLException {
-			Group g = new Group();
-			g.setId(rs.getInt("groups_id"));
-			//ParentGroup with ID=0 is not supported
-			if(rs.getInt("groups_parent_group_id") != 0) g.setParentGroupId(rs.getInt("groups_parent_group_id"));
-			else g.setParentGroupId(null);
-			g.setName(rs.getString("groups_name"));
-			g.setShortName(g.getName().substring(g.getName().lastIndexOf(":") + 1));
-			g.setDescription(rs.getString("groups_dsc"));
-			g.setVoId(rs.getInt("groups_vo_id"));
-			g.setCreatedAt(rs.getString("groups_created_at"));
-			g.setCreatedBy(rs.getString("groups_created_by"));
-			g.setModifiedAt(rs.getString("groups_modified_at"));
-			g.setModifiedBy(rs.getString("groups_modified_by"));
-			if(rs.getInt("groups_modified_by_uid") == 0) g.setModifiedByUid(null);
-			else g.setModifiedByUid(rs.getInt("groups_modified_by_uid"));
-			if(rs.getInt("groups_created_by_uid") == 0) g.setCreatedByUid(null);
-			else g.setCreatedByUid(rs.getInt("groups_created_by_uid"));
-			return g;
-		}
+	protected static final RowMapper<Group> GROUP_MAPPER = (resultSet, i) -> {
+		Group g = new Group();
+		g.setId(resultSet.getInt("groups_id"));
+		//ParentGroup with ID=0 is not supported
+		if(resultSet.getInt("groups_parent_group_id") != 0) g.setParentGroupId(resultSet.getInt("groups_parent_group_id"));
+		else g.setParentGroupId(null);
+		g.setName(resultSet.getString("groups_name"));
+		g.setShortName(g.getName().substring(g.getName().lastIndexOf(":") + 1));
+		g.setDescription(resultSet.getString("groups_dsc"));
+		g.setVoId(resultSet.getInt("groups_vo_id"));
+		g.setCreatedAt(resultSet.getString("groups_created_at"));
+		g.setCreatedBy(resultSet.getString("groups_created_by"));
+		g.setModifiedAt(resultSet.getString("groups_modified_at"));
+		g.setModifiedBy(resultSet.getString("groups_modified_by"));
+		if(resultSet.getInt("groups_modified_by_uid") == 0) g.setModifiedByUid(null);
+		else g.setModifiedByUid(resultSet.getInt("groups_modified_by_uid"));
+		if(resultSet.getInt("groups_created_by_uid") == 0) g.setCreatedByUid(null);
+		else g.setCreatedByUid(resultSet.getInt("groups_created_by_uid"));
+		return g;
 	};
 
-	private static final RowMapper<Pair<Group, Resource>> GROUP_RESOURCE_MAPPER = new RowMapper<Pair<Group, Resource>>() {
-		@Override
-		public Pair<Group, Resource> mapRow(ResultSet rs, int i) throws SQLException {
-			Pair<Group, Resource> pair = new Pair<>();
-			pair.put(GROUP_MAPPER.mapRow(rs, i), ResourcesManagerImpl.RESOURCE_MAPPER.mapRow(rs, i));
-			return pair;
-		}
+	private static final RowMapper<Pair<Group, Resource>> GROUP_RESOURCE_MAPPER = (resultSet, i) -> {
+		Pair<Group, Resource> pair = new Pair<>();
+		pair.put(GROUP_MAPPER.mapRow(resultSet, i), ResourcesManagerImpl.RESOURCE_MAPPER.mapRow(resultSet, i));
+		return pair;
 	};
 
 	/**
@@ -158,12 +152,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		try {
 			name = jdbc.query("group.name as (with temp (name, id, parent_group_id) as ((select name, id, parent_group_id from GROUPS where parent_group_id is null) union all (select cast((temp.name + ':' + groups.name) as varchar(128)), " +
 					"groups.id, groups.parent_group_id from groups inner join temp on temp.id = groups.parent_group_id )) select name from temp where group.id = ?"
-					,new RowMapper() {
-						@Override
-						public Object mapRow(ResultSet resultSet, int i) throws SQLException {
-							return resultSet.getString(1);
-						}
-					},id);
+					, (RowMapper) (resultSet, i) -> resultSet.getString(1),id);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -743,13 +732,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) throws InternalErrorException {
 		// get app ids for all applications
 		try {
-			return jdbc.query("select id from application where group_id=?", new RowMapper<Integer>() {
-				@Override
-				public Integer mapRow(ResultSet rs, int arg1)
-				throws SQLException {
-				return rs.getInt("id");
-				}
-			},group.getId());
+			return jdbc.query("select id from application where group_id=?", (resultSet, i) -> resultSet.getInt("id"),group.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -758,12 +741,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	@Override
 	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException {
 		try {
-			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
-				@Override
-				public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new Pair<>(rs.getString("namespace"), rs.getString("login"));
-				}
-			}, appId);
+			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?",
+				(resultSet, arg1) -> new Pair<>(resultSet.getString("namespace"), resultSet.getString("login")), appId);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

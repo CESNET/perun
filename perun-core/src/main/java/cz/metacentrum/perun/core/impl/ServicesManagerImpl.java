@@ -77,132 +77,118 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		serviceMappingSelectQuery + ", " +
 		"facility_service_destinations.propagation_type as f_s_des_propagation_type ";
 
-	public static final RowMapper<Service> SERVICE_MAPPER = new RowMapper<Service>() {
-		@Override
-		public Service mapRow(ResultSet rs, int i) throws SQLException {
-			Service service = new Service();
-			service.setId(rs.getInt("services_id"));
-			service.setName(rs.getString("services_name"));
-			service.setDescription(rs.getString("services_description"));
-			service.setDelay(rs.getInt("services_delay"));
-			service.setRecurrence(rs.getInt("services_recurrence"));
-			char enabled = rs.getString("services_enabled").charAt(0);
-			if (enabled == '0') {
-				service.setEnabled(false);
+	public static final RowMapper<Service> SERVICE_MAPPER = (resultSet, i) -> {
+		Service service = new Service();
+		service.setId(resultSet.getInt("services_id"));
+		service.setName(resultSet.getString("services_name"));
+		service.setDescription(resultSet.getString("services_description"));
+		service.setDelay(resultSet.getInt("services_delay"));
+		service.setRecurrence(resultSet.getInt("services_recurrence"));
+		char enabled = resultSet.getString("services_enabled").charAt(0);
+		if (enabled == '0') {
+			service.setEnabled(false);
+		} else {
+			service.setEnabled(true);
+		}
+		service.setScript(resultSet.getString("services_script"));
+		service.setCreatedAt(resultSet.getString("services_created_at"));
+		service.setCreatedBy(resultSet.getString("services_created_by"));
+		service.setModifiedAt(resultSet.getString("services_modified_at"));
+		service.setModifiedBy(resultSet.getString("services_modified_by"));
+		if(resultSet.getInt("services_modified_by_uid") == 0) service.setModifiedByUid(null);
+		else service.setModifiedByUid(resultSet.getInt("services_modified_by_uid"));
+		if(resultSet.getInt("services_created_by_uid") == 0) service.setCreatedByUid(null);
+		else service.setCreatedByUid(resultSet.getInt("services_created_by_uid"));
+		return service;
+
+	};
+
+	public static final RowMapper<ServicesPackage> SERVICESPACKAGE_MAPPER = (resultSet, i) -> {
+
+		ServicesPackage sPackage = new ServicesPackage();
+		sPackage.setId(resultSet.getInt("service_packages_id"));
+		sPackage.setDescription(resultSet.getString("service_packages_description"));
+		sPackage.setName(resultSet.getString("service_packages_name"));
+		sPackage.setCreatedAt(resultSet.getString("service_packages_created_at"));
+		sPackage.setCreatedBy(resultSet.getString("service_packages_created_by"));
+		sPackage.setModifiedAt(resultSet.getString("service_packages_modified_at"));
+		sPackage.setModifiedBy(resultSet.getString("service_packages_modified_by"));
+		if(resultSet.getInt("s_packages_modified_by_uid") == 0) sPackage.setModifiedByUid(null);
+		else sPackage.setModifiedByUid(resultSet.getInt("s_packages_modified_by_uid"));
+		if(resultSet.getInt("s_packages_created_by_uid") == 0) sPackage.setCreatedByUid(null);
+		else sPackage.setCreatedByUid(resultSet.getInt("s_packages_created_by_uid"));
+		return sPackage;
+	};
+
+	public static final RowMapper<Destination> DESTINATION_MAPPER = (resultSet, i) -> {
+		Destination destination = new Destination();
+		destination.setId(resultSet.getInt("destinations_id"));
+		destination.setDestination(resultSet.getString("destinations_destination"));
+		destination.setType(resultSet.getString("destinations_type"));
+		destination.setCreatedAt(resultSet.getString("destinations_created_at"));
+		destination.setCreatedBy(resultSet.getString("destinations_created_by"));
+		destination.setModifiedAt(resultSet.getString("destinations_modified_at"));
+		destination.setModifiedBy(resultSet.getString("destinations_modified_by"));
+		try { // do not mind if the column is not in the results
+			String ptype = resultSet.getString("f_s_des_propagation_type");
+			if(ptype.equals(Destination.PROPAGATIONTYPE_SERIAL) ||
+			   ptype.equals(Destination.PROPAGATIONTYPE_PARALLEL) ||
+			   ptype.equals(Destination.PROPAGATIONTYPE_DUMMY)) {
+				destination.setPropagationType(ptype);
 			} else {
-				service.setEnabled(true);
-			}
-			service.setScript(rs.getString("services_script"));
-			service.setCreatedAt(rs.getString("services_created_at"));
-			service.setCreatedBy(rs.getString("services_created_by"));
-			service.setModifiedAt(rs.getString("services_modified_at"));
-			service.setModifiedBy(rs.getString("services_modified_by"));
-			if(rs.getInt("services_modified_by_uid") == 0) service.setModifiedByUid(null);
-			else service.setModifiedByUid(rs.getInt("services_modified_by_uid"));
-			if(rs.getInt("services_created_by_uid") == 0) service.setCreatedByUid(null);
-			else service.setCreatedByUid(rs.getInt("services_created_by_uid"));
-			return service;
-
-		}
-	};
-
-	public static final RowMapper<ServicesPackage> SERVICESPACKAGE_MAPPER = new RowMapper<ServicesPackage>() {
-
-		@Override
-		public ServicesPackage mapRow(ResultSet rs, int i) throws SQLException {
-
-			ServicesPackage sPackage = new ServicesPackage();
-			sPackage.setId(rs.getInt("service_packages_id"));
-			sPackage.setDescription(rs.getString("service_packages_description"));
-			sPackage.setName(rs.getString("service_packages_name"));
-			sPackage.setCreatedAt(rs.getString("service_packages_created_at"));
-			sPackage.setCreatedBy(rs.getString("service_packages_created_by"));
-			sPackage.setModifiedAt(rs.getString("service_packages_modified_at"));
-			sPackage.setModifiedBy(rs.getString("service_packages_modified_by"));
-			if(rs.getInt("s_packages_modified_by_uid") == 0) sPackage.setModifiedByUid(null);
-			else sPackage.setModifiedByUid(rs.getInt("s_packages_modified_by_uid"));
-			if(rs.getInt("s_packages_created_by_uid") == 0) sPackage.setCreatedByUid(null);
-			else sPackage.setCreatedByUid(rs.getInt("s_packages_created_by_uid"));
-			return sPackage;
-		}
-
-	};
-
-	public static final RowMapper<Destination> DESTINATION_MAPPER = new RowMapper<Destination>() {
-		@Override
-		public Destination mapRow(ResultSet rs, int i) throws SQLException {
-			Destination destination = new Destination();
-			destination.setId(rs.getInt("destinations_id"));
-			destination.setDestination(rs.getString("destinations_destination"));
-			destination.setType(rs.getString("destinations_type"));
-			destination.setCreatedAt(rs.getString("destinations_created_at"));
-			destination.setCreatedBy(rs.getString("destinations_created_by"));
-			destination.setModifiedAt(rs.getString("destinations_modified_at"));
-			destination.setModifiedBy(rs.getString("destinations_modified_by"));
-			try { // do not mind if the column is not in the results
-				String ptype = rs.getString("f_s_des_propagation_type");
-				if(ptype.equals(Destination.PROPAGATIONTYPE_SERIAL) ||
-				   ptype.equals(Destination.PROPAGATIONTYPE_PARALLEL) ||
-				   ptype.equals(Destination.PROPAGATIONTYPE_DUMMY)) {
-					destination.setPropagationType(ptype);
-				} else {
-					destination.setPropagationType(Destination.PROPAGATIONTYPE_PARALLEL);
-				}
-			} catch (SQLException e) {
 				destination.setPropagationType(Destination.PROPAGATIONTYPE_PARALLEL);
 			}
-			if(rs.getInt("destinations_modified_by_uid") == 0) destination.setModifiedByUid(null);
-			else destination.setModifiedByUid(rs.getInt("destinations_modified_by_uid"));
-			if(rs.getInt("destinations_created_by_uid") == 0) destination.setCreatedByUid(null);
-			else destination.setCreatedByUid(rs.getInt("destinations_created_by_uid"));
-			return destination;
+		} catch (SQLException e) {
+			destination.setPropagationType(Destination.PROPAGATIONTYPE_PARALLEL);
 		}
+		if(resultSet.getInt("destinations_modified_by_uid") == 0) destination.setModifiedByUid(null);
+		else destination.setModifiedByUid(resultSet.getInt("destinations_modified_by_uid"));
+		if(resultSet.getInt("destinations_created_by_uid") == 0) destination.setCreatedByUid(null);
+		else destination.setCreatedByUid(resultSet.getInt("destinations_created_by_uid"));
+		return destination;
 	};
 
-	public static final RowMapper<RichDestination> RICH_DESTINATION_MAPPER = new RowMapper<RichDestination>() {
-		@Override
-		public RichDestination mapRow(ResultSet rs, int i) throws SQLException {
-			Destination destination = new Destination();
-			destination.setId(rs.getInt("destinations_id"));
-			destination.setDestination(rs.getString("destinations_destination"));
-			destination.setType(rs.getString("destinations_type"));
-			destination.setCreatedAt(rs.getString("destinations_created_at"));
-			destination.setCreatedBy(rs.getString("destinations_created_by"));
-			destination.setModifiedAt(rs.getString("destinations_modified_at"));
-			destination.setModifiedBy(rs.getString("destinations_modified_by"));
-			try { // do not mind if the column is not in the results
-				String ptype = rs.getString("f_s_des_propagation_type");
-				if(ptype.equals(Destination.PROPAGATIONTYPE_SERIAL) ||
-				   ptype.equals(Destination.PROPAGATIONTYPE_PARALLEL) ||
-				   ptype.equals(Destination.PROPAGATIONTYPE_DUMMY)) {
-					destination.setPropagationType(ptype);
-				} else {
-					destination.setPropagationType(Destination.PROPAGATIONTYPE_PARALLEL);
-				}
-			} catch (SQLException e) {
+	public static final RowMapper<RichDestination> RICH_DESTINATION_MAPPER = (resultSet, i) -> {
+		Destination destination = new Destination();
+		destination.setId(resultSet.getInt("destinations_id"));
+		destination.setDestination(resultSet.getString("destinations_destination"));
+		destination.setType(resultSet.getString("destinations_type"));
+		destination.setCreatedAt(resultSet.getString("destinations_created_at"));
+		destination.setCreatedBy(resultSet.getString("destinations_created_by"));
+		destination.setModifiedAt(resultSet.getString("destinations_modified_at"));
+		destination.setModifiedBy(resultSet.getString("destinations_modified_by"));
+		try { // do not mind if the column is not in the results
+			String ptype = resultSet.getString("f_s_des_propagation_type");
+			if(ptype.equals(Destination.PROPAGATIONTYPE_SERIAL) ||
+			   ptype.equals(Destination.PROPAGATIONTYPE_PARALLEL) ||
+			   ptype.equals(Destination.PROPAGATIONTYPE_DUMMY)) {
+				destination.setPropagationType(ptype);
+			} else {
 				destination.setPropagationType(Destination.PROPAGATIONTYPE_PARALLEL);
 			}
-			if(rs.getInt("destinations_modified_by_uid") == 0) destination.setModifiedByUid(null);
-			else destination.setModifiedByUid(rs.getInt("destinations_modified_by_uid"));
-			if(rs.getInt("destinations_created_by_uid") == 0) destination.setCreatedByUid(null);
-			else destination.setCreatedByUid(rs.getInt("destinations_created_by_uid"));
-
-			Facility facility = new Facility();
-			facility.setId(rs.getInt("facilities_id"));
-			facility.setName(rs.getString("facilities_name"));
-			facility.setCreatedAt(rs.getString("facilities_created_at"));
-			facility.setCreatedBy(rs.getString("facilities_created_by"));
-			facility.setModifiedAt(rs.getString("facilities_modified_at"));
-			facility.setModifiedBy(rs.getString("facilities_modified_by"));
-			if(rs.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
-			else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
-			if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
-			else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
-
-			Service service = SERVICE_MAPPER.mapRow(rs, i);
-
-			return new RichDestination(destination, facility, service);
+		} catch (SQLException e) {
+			destination.setPropagationType(Destination.PROPAGATIONTYPE_PARALLEL);
 		}
+		if(resultSet.getInt("destinations_modified_by_uid") == 0) destination.setModifiedByUid(null);
+		else destination.setModifiedByUid(resultSet.getInt("destinations_modified_by_uid"));
+		if(resultSet.getInt("destinations_created_by_uid") == 0) destination.setCreatedByUid(null);
+		else destination.setCreatedByUid(resultSet.getInt("destinations_created_by_uid"));
+
+		Facility facility = new Facility();
+		facility.setId(resultSet.getInt("facilities_id"));
+		facility.setName(resultSet.getString("facilities_name"));
+		facility.setCreatedAt(resultSet.getString("facilities_created_at"));
+		facility.setCreatedBy(resultSet.getString("facilities_created_by"));
+		facility.setModifiedAt(resultSet.getString("facilities_modified_at"));
+		facility.setModifiedBy(resultSet.getString("facilities_modified_by"));
+		if(resultSet.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
+		else facility.setModifiedByUid(resultSet.getInt("facilities_modified_by_uid"));
+		if(resultSet.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
+		else facility.setCreatedByUid(resultSet.getInt("facilities_created_by_uid"));
+
+		Service service = SERVICE_MAPPER.mapRow(resultSet, i);
+
+		return new RichDestination(destination, facility, service);
 	};
 
 	@Override

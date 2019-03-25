@@ -39,6 +39,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1148,12 +1149,11 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all required attributes for all resources on facility
 		// should be 1 attribute per resource = total 2 for 2 resource
-		List<Attribute> resAttr = new ArrayList<>();
-		for (int i = 0; i<resources.size(); i++ ) {
+		List<Attribute> resAttr = resources.stream()
+			.map(ServiceAttributes::getAttributes)
+			.flatMap(List::stream)
+			.collect(Collectors.toList());
 
-			resAttr.addAll(resources.get(i).getAttributes());
-
-		}
 		assertNotNull("Unable to get required resource attrbutes",resAttr);
 		assertTrue("Two required resource attributes should be returned for 2 resources",resAttr.size()==2);
 		assertTrue("Our 1st resource required attribute not returned",resAttr.contains(reqResAttr));
@@ -1162,12 +1162,11 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all members from all resources on facility
 		// = we will get same attribute twice because member is on both resources
-		List<ServiceAttributes> members = new ArrayList<>();
-		for (int i = 0; i<resources.size(); i++ ) {
+		List<ServiceAttributes> members = resources.stream()
+			.map(ServiceAttributes::getChildElements)
+			.flatMap(List::stream)
+			.collect(Collectors.toList());
 
-			members.addAll(resources.get(i).getChildElements());
-
-		}
 		assertNotNull("Unable to get members from resource",members);
 		assertTrue("There should be 1 member from each resource (all same)",members.size()==resources.size());
 		assertNotNull("1st member shouldn't be null",members.get(0));
@@ -1175,12 +1174,11 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all required attributes for all members at all resources on facility
 		// = there should be two same attributes, from same member on 2 resources
-		List<Attribute> memAttr = new ArrayList<>();
-		for (int i = 0; i<members.size(); i++ ) {
+		List<Attribute> memAttr = members.stream()
+			.map(ServiceAttributes::getAttributes)
+			.flatMap(List::stream)
+			.collect(Collectors.toList());
 
-			memAttr.addAll(members.get(i).getAttributes());
-
-		}
 		assertNotNull("Unable to get member attrbutes required for service",memAttr);
 		assertTrue("Only one member attribute should be returned for each member",memAttr.size()==members.size());
 		assertEquals("Wrong attribute returned for 1st member",memAttr.get(0),reqMemAttr);
@@ -1285,12 +1283,11 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		assertNotNull("Our 2nd resource shouldn't be null",resources.get(1));
 
 		//get all attributes from all resources
-		List<Attribute> resAttr = new ArrayList<>();
-		for (int i = 0; i<resources.size(); i++ ) {
+		List<Attribute> resAttr = resources.stream()
+			.map(ServiceAttributes::getAttributes)
+			.flatMap(List::stream)
+			.collect(Collectors.toList());
 
-			resAttr.addAll(resources.get(i).getAttributes());
-
-		}
 		assertNotNull("Unable to get required resource attrbutes",resAttr);
 		assertTrue("Two required resource attributes should be returned for 2 resources",resAttr.size()==2);
 		assertTrue("Our 1st resource required attribute not returned",resAttr.contains(reqResAttr));
@@ -1299,29 +1296,28 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		//get resource child elements (virtual nodes) for all resources
 		// 1st are GROUPS / 2nd are MEMBERS
-		for (int i = 0; i<resources.size(); i++ ) {
+		for (ServiceAttributes resourceData : resources) {
 
 			List<ServiceAttributes> resElem = new ArrayList<>();
-			resElem = resources.get(i).getChildElements();
+			resElem = resourceData.getChildElements();
 			assertNotNull("Unable to get resource elements from resource", resElem);
-			assertTrue("There should be only 2 virtual nodes - groups/members",resElem.size() == 2);
+			assertTrue("There should be only 2 virtual nodes - groups/members", resElem.size() == 2);
 
 			//get members from resource
 			List<ServiceAttributes> members = new ArrayList<>(resElem.get(1).getChildElements());
-			assertNotNull("Unable to get members from resource",members);
-			assertTrue("There should be 1 member from each resource",members.size() == 1);
-			assertNotNull("1st member shouldn't be null",members.get(0));
+			assertNotNull("Unable to get members from resource", members);
+			assertTrue("There should be 1 member from each resource", members.size() == 1);
+			assertNotNull("1st member shouldn't be null", members.get(0));
 
 			//get member attributes for all members on resource
-			List<Attribute> memAttr = new ArrayList<>();
-			for (int n = 0; n<members.size(); n++ ) {
+			List<Attribute> memAttr = members.stream()
+				.map(ServiceAttributes::getAttributes)
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
 
-				memAttr.addAll(members.get(n).getAttributes());
-
-			}
-			assertNotNull("Unable to get attributes from member",memAttr);
-			assertTrue("There should be only 1 attribute for each member on resource",memAttr.size() == 1);
-			assertTrue("Should return our required member attribute",memAttr.contains(reqMemAttr));
+			assertNotNull("Unable to get attributes from member", memAttr);
+			assertTrue("There should be only 1 attribute for each member on resource", memAttr.size() == 1);
+			assertTrue("Should return our required member attribute", memAttr.contains(reqMemAttr));
 
 			//get groups from resource
 			List<ServiceAttributes> groups = new ArrayList<>(resElem.get(0).getChildElements());
@@ -1329,49 +1325,47 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 			assertTrue("There should be only 1 group on each resource", groups.size() == 1);
 
 			//get group attributes for all 1st level groups on resource
-			List<Attribute> grpAttr = new ArrayList<>();
-			for (int n = 0; n<groups.size(); n++ ) {
+			List<Attribute> grpAttr = groups.stream()
+				.map(ServiceAttributes::getAttributes)
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
 
-				grpAttr.addAll(groups.get(n).getAttributes());
-
-			}
-			assertNotNull("Unable to get group attributes from resource",grpAttr);
-			assertTrue("There should be 1 group on each resource",grpAttr.size() == 1);
-			assertNotNull("Group attribute shouldn't be null",grpAttr.get(0));
-			assertTrue("Group should contain our required attribute",grpAttr.contains(reqGrpAttr));
+			assertNotNull("Unable to get group attributes from resource", grpAttr);
+			assertTrue("There should be 1 group on each resource", grpAttr.size() == 1);
+			assertNotNull("Group attribute shouldn't be null", grpAttr.get(0));
+			assertTrue("Group should contain our required attribute", grpAttr.contains(reqGrpAttr));
 
 			//check all of this again in sub-group structure
 
 			//get group child elements (virtual nodes) for all groups on resource
 			// 1st are SUBGROUPS - 2nd are GROUP-MEMBERS
-			for (int x = 0; x<groups.size(); x++ ) {
+			for (ServiceAttributes groupData : groups) {
 
 				List<ServiceAttributes> grpElem = new ArrayList<>();
-				grpElem = groups.get(x).getChildElements();
+				grpElem = groupData.getChildElements();
 				assertNotNull("Unable to get group child elements", grpElem);
 				assertTrue("There should be 2 group child elements", grpElem.size() == 2);
 
 				//get members from group/subgroup
 				List<ServiceAttributes> grpMembers = new ArrayList<>(grpElem.get(1).getChildElements());
-				assertNotNull("Unable to get members from group/subgroup",grpMembers);
+				assertNotNull("Unable to get members from group/subgroup", grpMembers);
 				assertTrue("There should be only one member", grpMembers.size() == 1);
 				//assertTrue("Member in group should be also on resource",members.contains(grpMembers.get(0)));
 				// unable to test that, objects are uncomparable
 
 				//get member attributes from group/subgroup
-				List<Attribute> grpMemAttr = new ArrayList<>();
-				for (int n = 0; n<grpMembers.size(); n++ ) {
+				List<Attribute> grpMemAttr = grpMembers.stream()
+					.map(ServiceAttributes::getAttributes)
+					.flatMap(List::stream)
+					.collect(Collectors.toList());
 
-					grpMemAttr.addAll(grpMembers.get(n).getAttributes());
-
-				}
-				assertNotNull("Unable to get members attributes from group",grpMemAttr);
-				assertTrue("There should be 1 member from each group",grpMemAttr.size() == 1);
-				assertNotNull("1st member attribute shouldn't be null",grpMemAttr.get(0));
+				assertNotNull("Unable to get members attributes from group", grpMemAttr);
+				assertTrue("There should be 1 member from each group", grpMemAttr.size() == 1);
+				assertNotNull("1st member attribute shouldn't be null", grpMemAttr.get(0));
 
 				//get all subgroups from group on resource
 				List<ServiceAttributes> grpGroups = new ArrayList<>(grpElem.get(0).getChildElements());
-				assertNotNull("Unable to get subgroups from group/subgroup",grpGroups);
+				assertNotNull("Unable to get subgroups from group/subgroup", grpGroups);
 				assertTrue("There shouldn't be any subgroups", grpGroups.size() == 0);
 
 				// no subgroup => no reason to get their attributes, members and subgroups

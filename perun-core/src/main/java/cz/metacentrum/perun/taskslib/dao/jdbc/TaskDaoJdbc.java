@@ -53,70 +53,62 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	public final static String taskMappingSelectQuery = " tasks.id as tasks_id, tasks.schedule as tasks_schedule, tasks.recurrence as tasks_recurrence, " +
 		"tasks.delay as tasks_delay, tasks.status as tasks_status, tasks.start_time as tasks_start_time, tasks.end_time as tasks_end_time, tasks.engine_id as tasks_engine_id ";
 
-	public static final RowMapper<Task> TASK_ROWMAPPER = new RowMapper<Task>() {
+	public static final RowMapper<Task> TASK_ROWMAPPER = (resultSet, i) -> {
 
-		public Task mapRow(ResultSet rs, int i) throws SQLException {
+		Task task = new Task();
 
-			Task task = new Task();
+		task.setDelay(resultSet.getInt("tasks_delay"));
+		task.setId(resultSet.getInt("tasks_id"));
+		task.setRecurrence(resultSet.getInt("tasks_recurrence"));
 
-			task.setDelay(rs.getInt("tasks_delay"));
-			task.setId(rs.getInt("tasks_id"));
-			task.setRecurrence(rs.getInt("tasks_recurrence"));
-
-			if (rs.getTimestamp("tasks_start_time") != null) {
-				task.setStartTime(rs.getTimestamp("tasks_start_time"));
-			}
-			if (rs.getTimestamp("tasks_schedule") != null) {
-				task.setSchedule(rs.getTimestamp("tasks_schedule"));
-			}
-			if (rs.getTimestamp("tasks_end_time") != null) {
-				task.setEndTime(rs.getTimestamp("tasks_end_time"));
-			}
-
-			if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.WAITING.toString())) {
-				task.setStatus(TaskStatus.WAITING);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.PLANNED.toString())) {
-				task.setStatus(TaskStatus.PLANNED);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.SENDERROR.toString())) {
-				task.setStatus(TaskStatus.SENDERROR);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERROR.toString())) {
-				task.setStatus(TaskStatus.GENERROR);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERATING.toString())) {
-				task.setStatus(TaskStatus.GENERATING);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERATED.toString())) {
-				task.setStatus(TaskStatus.GENERATED);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.SENDING.toString())) {
-				task.setStatus(TaskStatus.SENDING);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.DONE.toString())) {
-				task.setStatus(TaskStatus.DONE);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.ERROR.toString())) {
-				task.setStatus(TaskStatus.ERROR);
-			} else {
-				throw new IllegalArgumentException("Task status [" + rs.getString("tasks_status") + "] unknown");
-			}
-
-			task.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(rs, i));
-
-			task.setService(ServicesManagerImpl.SERVICE_MAPPER.mapRow(rs, i));
-
-			return task;
+		if (resultSet.getTimestamp("tasks_start_time") != null) {
+			task.setStartTime(resultSet.getTimestamp("tasks_start_time"));
+		}
+		if (resultSet.getTimestamp("tasks_schedule") != null) {
+			task.setSchedule(resultSet.getTimestamp("tasks_schedule"));
+		}
+		if (resultSet.getTimestamp("tasks_end_time") != null) {
+			task.setEndTime(resultSet.getTimestamp("tasks_end_time"));
 		}
 
+		if (resultSet.getString("tasks_status").equalsIgnoreCase(TaskStatus.WAITING.toString())) {
+			task.setStatus(TaskStatus.WAITING);
+		} else if (resultSet.getString("tasks_status").equalsIgnoreCase(TaskStatus.PLANNED.toString())) {
+			task.setStatus(TaskStatus.PLANNED);
+		} else if (resultSet.getString("tasks_status").equalsIgnoreCase(TaskStatus.SENDERROR.toString())) {
+			task.setStatus(TaskStatus.SENDERROR);
+		} else if (resultSet.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERROR.toString())) {
+			task.setStatus(TaskStatus.GENERROR);
+		} else if (resultSet.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERATING.toString())) {
+			task.setStatus(TaskStatus.GENERATING);
+		} else if (resultSet.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERATED.toString())) {
+			task.setStatus(TaskStatus.GENERATED);
+		} else if (resultSet.getString("tasks_status").equalsIgnoreCase(TaskStatus.SENDING.toString())) {
+			task.setStatus(TaskStatus.SENDING);
+		} else if (resultSet.getString("tasks_status").equalsIgnoreCase(TaskStatus.DONE.toString())) {
+			task.setStatus(TaskStatus.DONE);
+		} else if (resultSet.getString("tasks_status").equalsIgnoreCase(TaskStatus.ERROR.toString())) {
+			task.setStatus(TaskStatus.ERROR);
+		} else {
+			throw new IllegalArgumentException("Task status [" + resultSet.getString("tasks_status") + "] unknown");
+		}
+
+		task.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i));
+
+		task.setService(ServicesManagerImpl.SERVICE_MAPPER.mapRow(resultSet, i));
+
+		return task;
 	};
 
-	public static final RowMapper<Pair<Task, Integer>> TASK_CLIENT_ROWMAPPER = new RowMapper<Pair<Task, Integer>>() {
+	public static final RowMapper<Pair<Task, Integer>> TASK_CLIENT_ROWMAPPER = (resultSet, i) -> {
 
-		public Pair<Task, Integer> mapRow(ResultSet rs, int i) throws SQLException {
+		Task task = TASK_ROWMAPPER.mapRow(resultSet, i);
 
-			Task task = TASK_ROWMAPPER.mapRow(rs, i);
-
-			int engineID = rs.getInt("tasks_engine_id");
-			if(rs.wasNull()) {
-				engineID = -1;
-			}
-			return new Pair<>(task, engineID);
+		int engineID = resultSet.getInt("tasks_engine_id");
+		if(resultSet.wasNull()) {
+			engineID = -1;
 		}
-
+		return new Pair<>(task, engineID);
 	};
 
 	@Override
