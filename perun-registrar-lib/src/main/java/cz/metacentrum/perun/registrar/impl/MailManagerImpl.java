@@ -34,7 +34,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -92,15 +91,6 @@ public class MailManagerImpl implements MailManager {
 		this.jdbc =  new JdbcPerunTemplate(dataSource);
 	}
 
-	public void setMailSender(MailSender mailSender) {
-		this.mailSender = mailSender;
-		boolean auth = Boolean.parseBoolean(registrarProperties.getProperty("mail.smtp.auth", "false"));
-		if (auth) {
-			((JavaMailSenderImpl)mailSender).setUsername(registrarProperties.getProperty("registrar.smtp.user"));
-			((JavaMailSenderImpl)mailSender).setPassword(registrarProperties.getProperty("registrar.smtp.pass"));
-		}
-	}
-
 	/**
 	 * Init method, instantiate PerunSession
 	 *
@@ -118,6 +108,7 @@ public class MailManagerImpl implements MailManager {
 		this.membersManager = perun.getMembersManager();
 		this.usersManager = perun.getUsersManager();
 		this.groupsManager = perun.getGroupsManager();
+		this.mailSender = BeansUtils.getDefaultMailSender();
 
 	}
 

@@ -64,6 +64,13 @@ public class CoreConfig {
 	private String userExtSourcesPersistent;
 	private List<String> allowedCorsDomains;
 	private String pdfFontPath;
+	private String smtpHost;
+	private int smtpPort;
+	private boolean smtpAuth;
+	private boolean smtpStartTls;
+	private boolean mailDebug;
+	private String smtpUser;
+	private String smtpPass;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -496,4 +503,61 @@ public class CoreConfig {
 	public void setPdfFontPath(String pdfFontPath) {
 		this.pdfFontPath = pdfFontPath;
 	}
+
+	public String getSmtpHost() {
+		return smtpHost;
+	}
+
+	public void setSmtpHost(String smtpHost) {
+		this.smtpHost = smtpHost;
+	}
+
+	public int getSmtpPort() {
+		return smtpPort;
+	}
+
+	public void setSmtpPort(int smtpPort) {
+		this.smtpPort = smtpPort;
+	}
+
+	public boolean isSmtpAuth() {
+		return smtpAuth;
+	}
+
+	public void setSmtpAuth(boolean smtpAuth) {
+		this.smtpAuth = smtpAuth;
+	}
+
+	public boolean isSmtpStartTls() {
+		return smtpStartTls;
+	}
+
+	public void setSmtpStartTls(boolean smtpStartTls) {
+		this.smtpStartTls = smtpStartTls;
+	}
+
+	public boolean isMailDebug() {
+		return mailDebug;
+	}
+
+	public void setMailDebug(boolean mailDebug) {
+		this.mailDebug = mailDebug;
+	}
+
+	public String getSmtpUser() {
+		return smtpUser;
+	}
+
+	public void setSmtpUser(String smtpUser) {
+		this.smtpUser = smtpUser;
+	}
+
+	public String getSmtpPass() {
+		return smtpPass;
+	}
+
+	public void setSmtpPass(String smtpPass) {
+		this.smtpPass = smtpPass;
+	}
+
 }

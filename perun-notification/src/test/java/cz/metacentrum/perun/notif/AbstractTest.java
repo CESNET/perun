@@ -37,15 +37,15 @@ public class AbstractTest {
 	protected PerunBl perun;
 
 	protected PerunSession sess;
-	
+
 	protected static SimpleSmtpServer smtpServer;
-	
+
 	@Autowired
 	protected PerunNotifNotificationManager manager;
-	
+
 	@Autowired
 	protected SchedulingManagerImpl schedulingManager;
-	
+
 	@Autowired
 	private ApplicationContext appContext;
 
@@ -77,7 +77,7 @@ public class AbstractTest {
 		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		sess = perun.getPerunSession(pp, new PerunClient());
 	}
-	
+
 	@After
 	public void stopSmtpServer() {
 		if (smtpServer != null) {
@@ -90,7 +90,7 @@ public class AbstractTest {
 	public void dummyTest() {
 		System.out.println("Dummy test to prevent: NoRunnableMethodsException");
 	}
-	
+
 	public Connection getConnection() throws SQLException {
 		// classic Autowire dataSource does not work
 		return ((SimpleDriverDataSource) appContext.getBean("dataSource")).getConnection();

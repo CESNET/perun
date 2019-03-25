@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import javax.crypto.Cipher;
@@ -900,8 +901,7 @@ public class Utils {
 	public static void sendPasswordResetEmail(User user, String email, String namespace, String url, int id, String messageTemplate, String subject) throws InternalErrorException {
 
 		// create mail sender
-		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-		mailSender.setHost("localhost");
+		JavaMailSender mailSender = BeansUtils.getDefaultMailSender();
 
 		// create message
 		SimpleMailMessage message = new SimpleMailMessage();
@@ -1013,8 +1013,7 @@ public class Utils {
 	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String subject, String content) throws InternalErrorException {
 
 		// create mail sender
-		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-		mailSender.setHost("localhost");
+		JavaMailSender mailSender = BeansUtils.getDefaultMailSender();
 
 		// create message
 		SimpleMailMessage message = new SimpleMailMessage();

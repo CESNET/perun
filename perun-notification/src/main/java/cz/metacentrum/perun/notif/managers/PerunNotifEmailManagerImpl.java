@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.notif.managers;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.notif.dto.PerunNotifEmailMessageToSendDto;
 import cz.metacentrum.perun.notif.mail.Authenticator;
 import cz.metacentrum.perun.notif.mail.EmailPreparationException;
@@ -32,7 +33,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 	private String protocol = DEFAULT_PROTOCOL;
 
 	private Session session;
-	private String mailSmtpAuth;
+	private boolean mailSmtpAuth;
 	private String username;
 	private String password;
 	private String smtpHost;
@@ -56,30 +57,28 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		System.setProperty("client.encoding", "utf-8");
 
 		// Load properties file notif.properties
-		this.mailSmtpAuth = (String) propertiesBean.get("notif.mailSmtpAuth");
-		this.username = (String) propertiesBean.get("notif.username");
-		this.password = (String) propertiesBean.get("notif.password");
-		this.smtpHost = (String) propertiesBean.get("notif.smtpHost");
-		try {
-			this.port = Integer.parseInt((String) propertiesBean.get("notif.port"));
-		} catch (NumberFormatException e) {
+		this.mailSmtpAuth = BeansUtils.getCoreConfig().isSmtpAuth();
+		this.username = BeansUtils.getCoreConfig().getSmtpUser();
+		this.password = BeansUtils.getCoreConfig().getSmtpPass();
+		this.smtpHost = BeansUtils.getCoreConfig().getSmtpHost();
+		this.port = BeansUtils.getCoreConfig().getSmtpPort();
+		if (this.port <= 0) {
+			// sane default
 			this.port = 25;
 		}
+		this.mailDebug = BeansUtils.getCoreConfig().isMailDebug();
+		this.startTls = BeansUtils.getCoreConfig().isSmtpStartTls();
 		this.emailFrom = (String) propertiesBean.get("notif.emailFrom");
 		this.fromText = (String) propertiesBean.get("notif.fromText");
-		this.emailFrom = (String) propertiesBean.get("notif.emailFrom");
 		String sendMessages_s = (String) propertiesBean.get("notif.sendMessages");
 		this.sendMessages = sendMessages_s == null ? false : (sendMessages_s.equals("true") ? true : false);
-		String startTls_s = (String) propertiesBean.get("notif.starttls");
-		this.startTls = startTls_s == null ? false : (startTls_s.equals("true") ? true : false);
-		this.mailDebug = Boolean.valueOf((String) propertiesBean.get("mail.debug"));
 
 		createSession();
 	}
 
 	private void createSession() {
 		Authenticator authenticator = null;
-		if (mailSmtpAuth != null && mailSmtpAuth.equals("true")) {
+		if (mailSmtpAuth) {
 			authenticator = new Authenticator(username, password);
 		} else {
 			username = null;
@@ -91,7 +90,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		properties.setProperty("mail.smtp.submitter", "");
 		properties.setProperty("mail.smtp.host", smtpHost);
 		properties.setProperty("mail.smtp.port", String.valueOf(port));
-		properties.setProperty("mail.smtp.auth", mailSmtpAuth);
+		properties.setProperty("mail.smtp.auth", String.valueOf(mailSmtpAuth));
 		properties.setProperty("mail.smtp.starttls.enable", String.valueOf(startTls));
 		properties.setProperty("mail.debug", String.valueOf(mailDebug));
 
@@ -110,7 +109,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		}
 
 		sendEmailsInBatch(emailList);
-		logger.info("Message successfully sended.");
+		logger.info("Messages successfully sent.");
 	}
 
 	private void sendEmailsInBatch(List<PerunNotifPlainMessage> messageList) {
@@ -153,7 +152,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 						String str = new String(charData, Charset.forName("UTF-8"));
 						failedEmailLogger.error(str);
 					} catch (Exception e) {
-						logger.error("Failed to write log about unsended email.", ex);
+						logger.error("Failed to write log about not sent email.", ex);
 					}
 				}
 			}
@@ -256,11 +255,11 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		return session;
 	}
 
-	public String getMailSmtpAuth() {
+	public boolean getMailSmtpAuth() {
 		return mailSmtpAuth;
 	}
 
-	public void setMailSmtpAuth(String mailSmtpAuth) {
+	public void setMailSmtpAuth(boolean mailSmtpAuth) {
 		this.mailSmtpAuth = mailSmtpAuth;
 	}
 
