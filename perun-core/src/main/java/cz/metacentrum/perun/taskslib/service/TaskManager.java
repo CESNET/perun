@@ -17,9 +17,9 @@ import java.util.List;
  */
 public interface TaskManager {
 
-	int scheduleNewTask(Task task, int engineID) throws InternalErrorException;
+	int scheduleNewTask(Task task, int engineID);
 
-	void insertTask(Task task, int engineID) throws InternalErrorException;
+	void insertTask(Task task, int engineID);
 
 	Task getTask(Service service, Facility facility, int engineID);
 

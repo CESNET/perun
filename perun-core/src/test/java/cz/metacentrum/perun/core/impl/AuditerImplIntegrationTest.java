@@ -20,7 +20,7 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
 
 	@Before
-	public void checkAuditerExists() throws Exception {
+	public void checkAuditerExists() {
 
 		assertNotNull("unable to get auditer",perun.getAuditer());
 	}

@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -61,7 +60,7 @@ public class ServiceDenialDaoTest {
 	private int testFacilityId2;
 
 	@Before
-	public void setUp() throws InternalErrorException, OwnerNotExistsException, ServiceExistsException, PrivilegeException {
+	public void setUp() throws InternalErrorException, ServiceExistsException, PrivilegeException {
 		perunSession = perun.getPerunSession(
 				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 				new PerunClient());
@@ -113,7 +112,7 @@ public class ServiceDenialDaoTest {
 	}
 
 	@Test
-	public void testIsServiceDeniedOnFacility() throws Exception {
+	public void testIsServiceDeniedOnFacility() {
 		System.out.println("ServiceDenialDaoTest.isServiceBlockedOnFacility");
 
 		assertFalse(serviceDenialDao.isServiceBlockedOnFacility(testService1.getId(), testFacilityId1));
@@ -121,7 +120,7 @@ public class ServiceDenialDaoTest {
 	}
 
 	@Test
-	public void testIsServiceDeniedOnDestination() throws Exception {
+	public void testIsServiceDeniedOnDestination() {
 		System.out.println("ServiceDenialDaoTest.isServiceBlockedOnDestination");
 
 		assertFalse(serviceDenialDao.isServiceBlockedOnDestination(testService1.getId(), testDestinationId1));

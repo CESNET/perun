@@ -18,7 +18,7 @@ public class AttributesManagerImplIntegrationTest {
 	private final Map<Attribute, String> attrMap = new HashMap<>();
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		attrMap.put(getArrayAttribute("a", "b"), "a,b,");
 		attrMap.put(getArrayAttribute("a,b", "c"), "a\\,b,c,");
 		attrMap.put(getArrayAttribute("a,,b", "c"), "a\\,\\,b,c,");

@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Holder;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -49,7 +48,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	private final String modifier = "Test";
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		cacheManager = perun.getCacheManager();
 		CacheManager.setCacheDisabled(false);
 
@@ -215,7 +214,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAttributesByNamesAndPrimaryHolderEmpty() throws Exception {
+	public void getAttributesByNamesAndPrimaryHolderEmpty() {
 		System.out.println(CLASS_NAME + "getAttributesByNamesAndPrimaryHolderEmpty");
 
 		List<String> attributeNames = new ArrayList<>();
@@ -248,7 +247,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAttributesByNamesAndHoldersEmpty() throws Exception {
+	public void getAttributesByNamesAndHoldersEmpty() {
 		System.out.println(CLASS_NAME + "getAttributesByNamesAndHoldersEmpty");
 
 		List<String> attributeNames = new ArrayList<>();
@@ -498,7 +497,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAllSimilarAttributeNames() throws Exception {
+	public void getAllSimilarAttributeNames() {
 		System.out.println(CLASS_NAME + "getAllSimilarAttributeNamesEmpty");
 
 		List<AttributeDefinition> attrs = setUpAttributesDefinitions();
@@ -510,7 +509,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAllSimilarAttributeNamesEmpty() throws Exception {
+	public void getAllSimilarAttributeNamesEmpty() {
 		System.out.println(CLASS_NAME + "getAllSimilarAttributeNamesEmpty");
 
 		AttributeDefinition attrDef = setUpGroupAttributeDefinition();
@@ -519,7 +518,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAttributesDefinitions() throws Exception {
+	public void getAttributesDefinitions() {
 		System.out.println(CLASS_NAME + "getAttributesDefinitions");
 
 		List<AttributeDefinition> attributeDefinitions = setUpAttributesDefinitions();
@@ -529,7 +528,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAttributesDefinitionsEmpty() throws Exception {
+	public void getAttributesDefinitionsEmpty() {
 		System.out.println(CLASS_NAME + "getAttributesDefinitionsEmpty");
 
 		List<AttributeDefinition> returnedAttrDefinitions = cacheManager.getAttributesDefinitions();
@@ -538,7 +537,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAttributesDefinitionsByNamespace() throws Exception {
+	public void getAttributesDefinitionsByNamespace() {
 		System.out.println(CLASS_NAME + "getAttributesDefinitionsByNamespace");
 
 		List<AttributeDefinition> attributeDefinitions = setUpAttributesDefinitions();
@@ -551,7 +550,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAttributesDefinitionsByNamespaceNotExists() throws Exception {
+	public void getAttributesDefinitionsByNamespaceNotExists() {
 		System.out.println(CLASS_NAME + "getAttributesDefinitionsByNamespaceNotExists");
 
 		setUpAttributesDefinitions();
@@ -561,7 +560,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAttributesDefinitionsByIds() throws Exception {
+	public void getAttributesDefinitionsByIds() {
 		System.out.println(CLASS_NAME + "getAttributesDefinitionsByIds");
 
 		List<AttributeDefinition> attributeDefinitions = setUpAttributesDefinitions();
@@ -581,7 +580,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAttributesDefinitionsByIdsEmpty() throws Exception {
+	public void getAttributesDefinitionsByIdsEmpty() {
 		System.out.println(CLASS_NAME + "getAttributesDefinitionsByIdsEmpty");
 
 		setUpAttributesDefinitions();
@@ -758,7 +757,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getEntitylessAttrKeysEmpty() throws Exception {
+	public void getEntitylessAttrKeysEmpty() {
 		System.out.println(CLASS_NAME + "getEntitylessAttrKeysEmpty");
 
 		AttributeDefinition attrDef = setUpEntitylessAttributeDefinition();
@@ -791,7 +790,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAllValuesByPrimaryHolderTypeEmpty() throws Exception {
+	public void getAllValuesByPrimaryHolderTypeEmpty() {
 		System.out.println(CLASS_NAME + "getAllValuesByPrimaryHolderTypeEmpty");
 
 		AttributeDefinition attrDef = setUpUserAttributeDefinition();
@@ -824,7 +823,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAllValuesByPrimaryAndSecondaryHolderTypeEmpty() throws Exception {
+	public void getAllValuesByPrimaryAndSecondaryHolderTypeEmpty() {
 		System.out.println(CLASS_NAME + "getAllValuesByPrimaryAndSecondaryHolderTypeEmpty");
 
 		AttributeDefinition attrDef = setUpGroupResourceAttributeDefinition();
@@ -902,7 +901,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void checkAttributeExists() throws Exception {
+	public void checkAttributeExists() {
 		System.out.println(CLASS_NAME + "checkAttributeExists");
 
 		AttributeDefinition attrDef = setUpEntitylessAttributeDefinition();
@@ -1268,7 +1267,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 // PRIVATE METHODS ----------------------------------------------
 
 
-	private List<AttributeDefinition> setUpAttributesDefinitions() throws InternalErrorException {
+	private List<AttributeDefinition> setUpAttributesDefinitions() {
 
 		List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
 		attributeDefinitions.add(setUpGroupAttributeDefinition());
@@ -1278,79 +1277,79 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		return attributeDefinitions;
 	}
 
-	private AttributeDefinition setUpGroupAttributeDefinition() throws InternalErrorException {
+	private AttributeDefinition setUpGroupAttributeDefinition() {
 		return setUpAttributeDefinition(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute-definition");
 	}
 
-	private AttributeDefinition setUpGroupAttributeDefinition1() throws InternalErrorException {
+	private AttributeDefinition setUpGroupAttributeDefinition1() {
 		return setUpAttributeDefinition(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute-definition1");
 	}
 
-	private AttributeDefinition setUpUserAttributeDefinition() throws InternalErrorException {
+	private AttributeDefinition setUpUserAttributeDefinition() {
 		return setUpAttributeDefinition(AttributesManager.NS_USER_ATTR_OPT, "user-test-attribute-definition");
 	}
 
-	private AttributeDefinition setUpResourceAttributeDefinition() throws InternalErrorException {
+	private AttributeDefinition setUpResourceAttributeDefinition() {
 		return setUpAttributeDefinition(AttributesManager.NS_RESOURCE_ATTR_OPT, "resource-test-attribute-definition");
 	}
 
-	private AttributeDefinition setUpGroupResourceAttributeDefinition() throws Exception {
+	private AttributeDefinition setUpGroupResourceAttributeDefinition() {
 		return setUpAttributeDefinition(AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT, "group-resource-test-attribute-definition");
 	}
 
-	private AttributeDefinition setUpMemberGroupAttributeDefinition() throws Exception {
+	private AttributeDefinition setUpMemberGroupAttributeDefinition() {
 		return setUpAttributeDefinition(AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, "member-group-test-attribute-definition");
 	}
 
-	private AttributeDefinition setUpEntitylessAttributeDefinition() throws Exception {
+	private AttributeDefinition setUpEntitylessAttributeDefinition() {
 		return setUpAttributeDefinition(AttributesManager.NS_ENTITYLESS_ATTR_DEF, "entityless-test-attribute-definition");
 	}
 
-	private AttributeDefinition setUpVirtualMemberAttribute() throws Exception {
+	private AttributeDefinition setUpVirtualMemberAttribute() {
 		return setUpAttributeDefinition(AttributesManager.NS_MEMBER_ATTR_VIRT, "member-test-virtual-attribute");
 	}
 
-	private AttributeDefinition setUpVirtualGroupAttribute() throws Exception {
+	private AttributeDefinition setUpVirtualGroupAttribute() {
 		return setUpAttributeDefinition(AttributesManager.NS_GROUP_ATTR_VIRT, "group-test-virtual-attribute");
 	}
 
-	private AttributeDefinition setUpVirtualMemberResourceAttribute() throws Exception {
+	private AttributeDefinition setUpVirtualMemberResourceAttribute() {
 		return setUpAttributeDefinition(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT,"member-resource-test-virtual-attribute");
 	}
 
-	private AttributeDefinition setUpVirtualGroupResourceAttribute() throws Exception {
+	private AttributeDefinition setUpVirtualGroupResourceAttribute() {
 		return setUpAttributeDefinition(AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT, "group-resource-test-virtual-attribute");
 	}
 
-	private AttributeDefinition setUpVirtualUserFacilityAttribute() throws Exception {
+	private AttributeDefinition setUpVirtualUserFacilityAttribute() {
 		return setUpAttributeDefinition(AttributesManager.NS_USER_FACILITY_ATTR_VIRT, "user-facility-test-virtual-attribute");
 	}
 
-	private Attribute setUpGroupAttribute() throws InternalErrorException {
+	private Attribute setUpGroupAttribute() {
 		return setUpAttribute(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute", "GroupAttribute");
 	}
 
-	private Attribute setUpUserAttribute() throws InternalErrorException {
+	private Attribute setUpUserAttribute() {
 		return setUpAttribute(AttributesManager.NS_USER_ATTR_OPT, "user-test-attribute", "UserAttribute");
 	}
 
-	private Attribute setUpGroupResourceAttribute() throws Exception {
+	private Attribute setUpGroupResourceAttribute() {
 		return setUpAttribute(AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT, "group-resource-test-attribute", "GroupResourceAttribute");
 	}
 
-	private Attribute setUpMemberGroupAttribute() throws Exception {
+	private Attribute setUpMemberGroupAttribute() {
 		return setUpAttribute(AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, "member-group-test-attribute", "MemberGroupAttribute");
 	}
 
-	private Attribute setUpUserFacilityAttribute() throws Exception {
+	private Attribute setUpUserFacilityAttribute() {
 		return setUpAttribute(AttributesManager.NS_USER_FACILITY_ATTR_OPT, "user-facility-test-attribute", "UserFacilityAttribute");
 	}
 
-	private Attribute setUpEntitylessAttribute() throws Exception {
+	private Attribute setUpEntitylessAttribute() {
 		return setUpAttribute(AttributesManager.NS_ENTITYLESS_ATTR_DEF, "entityless-test-attribute", "EntitylessAttribute");
 	}
 
-	private AttributeDefinition setUpAttributeDefinition(String namespace, String friendlyName) throws InternalErrorException {
+	private AttributeDefinition setUpAttributeDefinition(String namespace, String friendlyName) {
 
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(namespace);
@@ -1369,7 +1368,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		return attr;
 	}
 
-	private Attribute setUpAttribute(String namespace, String friendlyName, String value) throws InternalErrorException {
+	private Attribute setUpAttribute(String namespace, String friendlyName, String value) {
 
 		AttributeDefinition attributeDefinition = setUpAttributeDefinition(namespace, friendlyName);
 		Attribute attr = new Attribute(attributeDefinition);

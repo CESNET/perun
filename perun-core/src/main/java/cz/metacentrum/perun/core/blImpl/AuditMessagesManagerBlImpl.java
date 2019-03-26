@@ -87,7 +87,7 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	}
 
 	@Override
-	public void log(PerunSession perunSession, String message) throws InternalErrorException {
+	public void log(PerunSession perunSession, String message) {
 
 		perunBl.getAuditer().log(perunSession, new StringMessageEvent(message));
 	}

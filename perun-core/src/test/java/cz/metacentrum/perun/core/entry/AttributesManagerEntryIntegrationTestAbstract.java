@@ -9182,7 +9182,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 
 	@Test
-	public void isCoreAttribute() throws Exception {
+	public void isCoreAttribute() {
 		System.out.println(CLASS_NAME + "isCoreAttribute");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
@@ -9199,7 +9199,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 
 	@Test
-	public void isOptAttribute() throws Exception {
+	public void isOptAttribute() {
 		System.out.println(CLASS_NAME + "isOptAttribute");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
@@ -9216,7 +9216,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 	@Ignore
 	@Test
-	public void isCoreManagedAttribute() throws Exception {
+	public void isCoreManagedAttribute() {
 		System.out.println(CLASS_NAME + "isCoreManagedAttribute");
 		// TODO co je míněno core managed attributem ??
 	/*
@@ -9234,7 +9234,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 
 	@Test
-	public void isFromNamespace() throws Exception {
+	public void isFromNamespace() {
 		System.out.println(CLASS_NAME + "isFromNamespace");
 
 		AttributeDefinition attrDef = new AttributeDefinition();

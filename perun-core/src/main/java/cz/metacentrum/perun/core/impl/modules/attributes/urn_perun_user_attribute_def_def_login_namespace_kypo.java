@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +28,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_kypo extends urn_p
 	 * @param attribute Attribute to fill value to
 	 * @return Filled attribute
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 		if (filledAttribute.getValue() == null) {

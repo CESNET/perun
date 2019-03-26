@@ -5,9 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
@@ -24,7 +22,7 @@ import java.util.LinkedHashMap;
 public class urn_perun_resource_attribute_def_def_maxUserFileQuotas extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		//attribute can be null, it means there are no max user settings on resource
 		if(attribute.getValue() == null) {
 			return;

@@ -17,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -191,7 +189,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 	}
 
 	@Override
-	public int clearOld(int engineID, int numDays) throws InternalErrorException {
+	public int clearOld(int engineID, int numDays) {
 
 		// create sql toDate() with numDay substracted from now
 		Calendar date = Calendar.getInstance();

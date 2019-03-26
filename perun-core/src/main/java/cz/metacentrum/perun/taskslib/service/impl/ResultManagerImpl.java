@@ -76,7 +76,7 @@ public class ResultManagerImpl implements ResultManager {
 	}
 
 	@Override
-	public int clearOld(int engineID, int numDays) throws InternalErrorException {
+	public int clearOld(int engineID, int numDays) {
 		return taskResultDao.clearOld(engineID, numDays);
 	}
 

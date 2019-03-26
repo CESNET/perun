@@ -17,9 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -114,7 +112,7 @@ public class VosManagerEntry implements VosManager {
 	}
 
 	@Override
-	public void deleteVo(PerunSession sess, Vo vo, boolean forceDelete) throws VoNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException {
+	public void deleteVo(PerunSession sess, Vo vo, boolean forceDelete) throws VoNotExistsException, InternalErrorException, PrivilegeException {
 		Utils.notNull(sess, "sess");
 
 		// Authorization - only Perun admin can delete the VO
@@ -128,7 +126,7 @@ public class VosManagerEntry implements VosManager {
 	}
 
 	@Override
-	public void deleteVo(PerunSession sess, Vo vo) throws VoNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException {
+	public void deleteVo(PerunSession sess, Vo vo) throws VoNotExistsException, InternalErrorException, PrivilegeException {
 		Utils.notNull(sess, "sess");
 
 		// Authorization - only Perun admin can delete the VO
@@ -483,7 +481,7 @@ public class VosManagerEntry implements VosManager {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getRichAdmins(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException {
+	public List<RichUser> getRichAdmins(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
 
@@ -513,7 +511,7 @@ public class VosManagerEntry implements VosManager {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession sess, Vo vo, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException {
+	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession sess, Vo vo, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
 
@@ -528,7 +526,7 @@ public class VosManagerEntry implements VosManager {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession sess, Vo vo, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException {
+	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession sess, Vo vo, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
 
@@ -542,7 +540,7 @@ public class VosManagerEntry implements VosManager {
 	}
 
 	@Override
-	public int getVosCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public int getVosCount(PerunSession sess) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		return vosManagerBl.getVosCount(sess);
@@ -581,7 +579,7 @@ public class VosManagerEntry implements VosManager {
 	 * Removes role SPONSOR from user in a VO.
 	 */
 	@Override
-	public void removeSponsorRole(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException, MemberNotValidYetException, VoNotExistsException, UserNotExistsException, PrivilegeException {
+	public void removeSponsorRole(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		vosManagerBl.checkVoExists(sess, vo);
 		perunBl.getUsersManagerBl().checkUserExists(sess, user);
@@ -595,7 +593,7 @@ public class VosManagerEntry implements VosManager {
 	 * Removes role SPONSOR from group in a VO.
 	 */
 	@Override
-	public void removeSponsorRole(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException, MemberNotValidYetException, VoNotExistsException, GroupNotExistsException, PrivilegeException {
+	public void removeSponsorRole(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		vosManagerBl.checkVoExists(sess, vo);
 		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);

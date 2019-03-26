@@ -207,7 +207,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
-	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
+	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws InternalErrorException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
 		// New Candidate
 		Candidate candidate = new Candidate();
 
@@ -337,7 +337,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
-	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
+	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source, String login) throws InternalErrorException {
 		if(login == null || login.isEmpty()) throw new InternalErrorException("Login can't be empty or null.");
 		if(subjectData == null || subjectData.isEmpty()) throw new InternalErrorException("Subject data can't be null or empty, at least login there must exists.");
 

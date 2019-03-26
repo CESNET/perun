@@ -5,9 +5,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
@@ -33,12 +31,12 @@ public abstract class UserFacilityVirtualAttributesModuleAbstract extends UserFa
 		return false;
 	}
 
-	public boolean removeAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute) {
 		return false;
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) {
 		return new ArrayList<>();
 	}
 

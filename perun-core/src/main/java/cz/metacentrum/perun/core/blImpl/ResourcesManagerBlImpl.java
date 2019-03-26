@@ -51,7 +51,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -61,7 +60,6 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -109,7 +107,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, FacilityNotExistsException, ResourceExistsException {
+	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, ResourceExistsException {
 		try{
 			Resource existingResource = getResourcesManagerImpl().getResourceByName(sess, vo, facility, resource.getName());
 			throw new ResourceExistsException(existingResource);
@@ -122,7 +120,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public Resource copyResource(PerunSession sess, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException, FacilityNotExistsException {
+	public Resource copyResource(PerunSession sess, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException {
 		Resource newResource = new Resource();
 		Vo destinationVo = this.getVo(sess, destinationResource);
 		Facility destinationFacility = this.getFacility(sess, destinationResource);
@@ -191,7 +189,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 		//Get facility for audit messages
 		Facility facility = this.getFacility(sess, resource);
 
@@ -224,7 +222,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		// Remove group-resource attr values for all group and resource
 		try {
 			this.perunBl.getAttributesManagerBl().removeAllGroupResourceAttributes(sess, resource);
-		} catch (WrongAttributeValueException | GroupResourceMismatchException | WrongReferenceAttributeValueException | WrongAttributeAssignmentException ex) {
+		} catch (WrongAttributeValueException | GroupResourceMismatchException | WrongReferenceAttributeValueException ex) {
 			throw new InternalErrorException(ex);
 		}
 		//Remove all resources tags
@@ -241,11 +239,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		}
 
 		//Because resource will be tottaly deleted, we can also delete all member-resource attributes
-		try {
-			this.perunBl.getAttributesManagerBl().removeAllMemberResourceAttributes(sess, resource);
-		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
-			throw new InternalErrorException(ex);
-		}
+		this.perunBl.getAttributesManagerBl().removeAllMemberResourceAttributes(sess, resource);
 
 		// Get the resource VO
 		Vo vo = this.getVo(sess, resource);
@@ -254,7 +248,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void deleteAllResources(PerunSession sess, Vo vo) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteAllResources(PerunSession sess, Vo vo) throws InternalErrorException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 		for(Resource r: this.getResources(sess, vo)) {
 			deleteResource(sess, r);
 		}
@@ -514,7 +508,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void assignService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void assignService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getResourcesManagerImpl().assignService(sess, resource, service);
 		getPerunBl().getAuditer().log(sess, new ServiceAssignedToResource(service, resource));
 
@@ -546,12 +540,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		for(Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
 			try {
 				this.assignService(sess, resource, service);
-			} catch (ServiceNotExistsException e) {
-				throw new ConsistencyErrorException("Service from the package doesn't exist", e);
 			} catch (ServiceAlreadyAssignedException e) {
 				// FIXME a co delat tady? Pravdepodobne muzeme tise ignorovat
 			}
@@ -560,19 +552,17 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
-	public void removeService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceNotAssignedException {
+	public void removeService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceNotAssignedException {
 		getResourcesManagerImpl().removeService(sess, resource, service);
 		getPerunBl().getAuditer().log(sess, new ServiceRemovedFromResource(service, resource));
 	}
 
 	@Override
-	public void removeServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException {
+	public void removeServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException {
 		for(Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
 			try {
 				//FIXME odstranit pouze v pripade ze tato service neni v jinem servicesPackage prirazenem na resource
 				this.removeService(sess, resource, service);
-			} catch (ServiceNotExistsException e) {
-				throw new ConsistencyErrorException("Service from the package doesn't exist", e);
 			} catch (ServiceNotAssignedException e) {
 				// FIXME a co delat tady? Pravdepodobne muzeme tise ignorovat
 			}
@@ -774,8 +764,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				assignService(sess, destinationResource, owner);
 			} catch (ServiceAlreadyAssignedException ex) {
 				// we can ignore the exception in this particular case, service can exists in both of the resources
-			} catch (ServiceNotExistsException ex) {
-				throw new InternalErrorException("Service from source Resource does not exists when copying services.", ex);
 			}
 		}
 	}

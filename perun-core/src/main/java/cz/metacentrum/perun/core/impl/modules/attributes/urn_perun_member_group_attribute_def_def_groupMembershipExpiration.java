@@ -8,9 +8,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupAttributesModuleImplApi;
@@ -23,7 +21,7 @@ import java.util.Date;
  */
 public class urn_perun_member_group_attribute_def_def_groupMembershipExpiration extends MemberGroupAttributesModuleAbstract implements MemberGroupAttributesModuleImplApi {
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
 		String membershipExpTime = (String) attribute.getValue();
 
 		if(membershipExpTime == null) return; // NULL is ok
@@ -45,7 +43,7 @@ public class urn_perun_member_group_attribute_def_def_groupMembershipExpiration 
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Group group, Attribute attribute) throws InternalErrorException {
 		String value = null;
 		if(attribute.getValue() != null) value = (String) attribute.getValue();
 		//If there is some value and member is in status expired or disabled

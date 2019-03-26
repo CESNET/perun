@@ -9,10 +9,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
@@ -25,7 +22,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 public class urn_perun_facility_attribute_def_def_accountExpirationTime extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 		Integer accountExpTime = (Integer) attribute.getValue();
 		if(accountExpTime == null) {
 			throw new WrongAttributeValueException("account expiration time shouldn't be null");
@@ -33,7 +30,7 @@ public class urn_perun_facility_attribute_def_def_accountExpirationTime extends 
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

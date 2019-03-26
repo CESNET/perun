@@ -58,7 +58,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
 	}
 
 	@Before
-	public void setUp() throws Exception{
+	public void setUp() {
 		classInstance = new urn_perun_member_resource_attribute_def_virt_isBanned();
 		session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
 		facility = new Facility(1, "testFacility");

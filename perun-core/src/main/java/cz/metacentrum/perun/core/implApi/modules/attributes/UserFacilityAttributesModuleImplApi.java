@@ -55,5 +55,5 @@ public interface UserFacilityAttributesModuleImplApi extends AttributesModuleImp
 	 * @param facility the facility
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, User user, Facility facility, Attribute attribute);
 }

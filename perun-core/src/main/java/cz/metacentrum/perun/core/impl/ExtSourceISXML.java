@@ -38,7 +38,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 	private String groupName = null;
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 		// Get the query for the group
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 		//If there is no query for group, throw exception
@@ -64,7 +64,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
@@ -133,7 +133,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 	 *
 	 * @return request with specific settings for group (by XML setting in perun-extSource.xml file)
 	 */
-	private String getQueryForGroup() throws InternalErrorException {
+	private String getQueryForGroup() {
 		log.debug("RequestID for ISXML ExtSource group " + workplace + ":" + groupName + " = " + requestID);
 
 		return	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +

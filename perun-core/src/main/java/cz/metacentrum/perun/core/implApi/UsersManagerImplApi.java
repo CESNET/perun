@@ -662,11 +662,9 @@ public interface UsersManagerImplApi {
 	 * @param sess PerunSession
 	 * @param user User to check pending request for
 	 *
-	 * @throws InternalErrorException
-	 *
 	 * @return List<String> user's email addresses pending validation
 	 */
-	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException;
+	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user);
 
 	/**
 	 * Return only valid password reset requests for selected user and request ID.
@@ -677,9 +675,8 @@ public interface UsersManagerImplApi {
 	 * @param user user to get requests for
 	 * @param request request ID to get
 	 * @return namespace where user wants to reset password in or empty string
-	 * @throws InternalErrorException
 	 */
-	String loadPasswordResetRequest(User user, int request) throws InternalErrorException;
+	String loadPasswordResetRequest(User user, int request);
 
 	/**
 	 * Removes all password reset requests associated with user.

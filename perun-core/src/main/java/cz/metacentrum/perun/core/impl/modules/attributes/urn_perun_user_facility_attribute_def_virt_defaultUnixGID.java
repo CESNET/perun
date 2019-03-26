@@ -125,7 +125,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends U
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws InternalErrorException {
 		try {
 			Attribute attributeToSet = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_DEF + ":defaultUnixGID");
 			attributeToSet.setValue(attribute.getValue());

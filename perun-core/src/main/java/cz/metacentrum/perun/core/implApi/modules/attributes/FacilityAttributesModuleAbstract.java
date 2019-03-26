@@ -24,11 +24,11 @@ public abstract class FacilityAttributesModuleAbstract extends AttributesModuleA
 
 	}
 
-	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
-	public void changedAttributeHook(PerunSessionImpl session, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Facility facility, Attribute attribute) {
 
 	}
 }

@@ -8,9 +8,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttributesModuleImplApi;
@@ -24,12 +22,12 @@ import java.util.List;
 public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttributesModuleAbstract implements MemberVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		if(!attribute.equals(getAttributeValue(sess, member, attribute))) throw new WrongAttributeValueException(attribute, member, "Attribute value is not the highest value from member's UserExtSources Loas.");
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) {
 		return new Attribute(attributeDefinition);
 	}
 
@@ -52,7 +50,7 @@ public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttrib
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, Member member, Attribute attribute) {
 		//No need to set, its same like check for this module, and check is used after every set
 		return false;
 	}

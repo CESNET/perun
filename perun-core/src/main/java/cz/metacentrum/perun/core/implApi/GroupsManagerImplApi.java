@@ -23,8 +23,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
 import java.util.List;
 
@@ -168,12 +166,9 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 * @throws AlreadyMemberException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 *
 	 * @return Member with specific MembershipType
 	 */
-	Member addMember(PerunSession perunSession, Group group,  Member member, MembershipType type, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	Member addMember(PerunSession perunSession, Group group,  Member member, MembershipType type, int sourceGroupId) throws InternalErrorException, AlreadyMemberException;
 
 
 	/**

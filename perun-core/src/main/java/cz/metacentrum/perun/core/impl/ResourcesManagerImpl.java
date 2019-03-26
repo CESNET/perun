@@ -25,7 +25,6 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
 import org.slf4j.Logger;
@@ -627,7 +626,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
-	public List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + resourceMappingSelectQuery + " from resources join " +
 					"resource_attr_values on resources.id=resource_attr_values.resource_id " +

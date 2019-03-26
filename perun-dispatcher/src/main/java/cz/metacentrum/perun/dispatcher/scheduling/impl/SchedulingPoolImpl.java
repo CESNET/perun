@@ -372,36 +372,26 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	 * @param task            Task which will be added and persisted.
 	 * @param engineMessageProducer dispatcherQueue associated with the Task which will be added and persisted.
 	 * @return Number of Tasks in the pool.
-	 * @throws InternalErrorException Thrown if the Task could not be persisted.
 	 * @throws TaskStoreException
 	 */
 	@Override
-	public int addToPool(Task task, EngineMessageProducer engineMessageProducer) throws InternalErrorException, TaskStoreException {
+	public int addToPool(Task task, EngineMessageProducer engineMessageProducer) throws TaskStoreException {
 
 		int engineId = (engineMessageProducer == null) ? -1 : engineMessageProducer.getClientID();
 		if (task.getId() == 0) {
 			if (getTask(task.getFacility(), task.getService()) == null) {
-				try {
-					int id = taskManager.scheduleNewTask(task, engineId);
-					task.setId(id);
-				} catch (InternalErrorException e) {
-					log.error("Error storing task {} into database: {}", task, e.getMessage());
-					throw new InternalErrorException("Could not assign id to newly created task {}", e);
-				}
+				int id = taskManager.scheduleNewTask(task, engineId);
+				task.setId(id);
 				log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
 			} else {
-				try {
-					Task existingTask = taskManager.getTaskById(task.getId());
-					if (existingTask == null) {
-						int id = taskManager.scheduleNewTask(task, engineId);
-						task.setId(id);
-						log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
-					} else {
-						taskManager.updateTask(task);
-						log.debug("[{}] Task updated in the pool: {}", task.getId(), task);
-					}
-				} catch (InternalErrorException e) {
-					log.error("Error storing task {} into database: {}", task, e.getMessage());
+				Task existingTask = taskManager.getTaskById(task.getId());
+				if (existingTask == null) {
+					int id = taskManager.scheduleNewTask(task, engineId);
+					task.setId(id);
+					log.debug("[{}] New Task stored in DB: {}", task.getId(), task);
+				} else {
+					taskManager.updateTask(task);
+					log.debug("[{}] Task updated in the pool: {}", task.getId(), task);
 				}
 			}
 		}
@@ -486,7 +476,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			try {
 				// just add DB Task to in-memory structure
 				addToPool(task, queue);
-			} catch (InternalErrorException | TaskStoreException e) {
+			} catch (TaskStoreException e) {
 				log.error("Adding Task {} and Queue {} into SchedulingPool failed, so the Task will be lost.", task, queue);
 			}
 

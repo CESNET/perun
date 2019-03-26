@@ -117,13 +117,13 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	}
 
 	@Override
-	public Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
+	public Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException {
 		// anybody can call this method
 		return getAuditMessagesManagerBl().getAllAuditerConsumers(perunSession);
 	}
 
 	@Override
-	public int getLastMessageId(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
+	public int getLastMessageId(PerunSession perunSession) throws InternalErrorException {
 		// anybody can call this method
 		return getAuditMessagesManagerBl().getLastMessageId();
 	}
@@ -139,7 +139,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	}
 
 	@Override
-	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
+	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException {
 		Utils.checkPerunSession(perunSession);
 		return getAuditMessagesManagerBl().getAuditerMessagesCount(perunSession);
 	}

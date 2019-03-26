@@ -21,7 +21,6 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 
 import java.util.List;
 
@@ -344,9 +343,8 @@ public interface ResourcesManagerImplApi {
 	 * @param attribute
 	 * @return
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * Returns all users who are allowed on the defined resource.

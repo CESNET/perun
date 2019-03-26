@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
@@ -33,7 +32,7 @@ public class urn_perun_resource_attribute_def_def_fairshareGroupName extends Res
 	private static final Pattern pattern = Pattern.compile("^[a-zA-Z]{1,12}$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 		//Null is ok, it means this resource is not fairshare group
 		if (attribute.getValue() == null) {
 			return;

@@ -9,8 +9,6 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +34,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 	 * @param attribute Attribute to fill value to
 	 * @return Filled attribute
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 
@@ -62,10 +59,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_fenix_persistent_s
 	 * @param user User to set UserExtSource for
 	 * @param attribute Attribute containing fenixID
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
-	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException
 	 */
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException {
 		try {
 			String userNamespace = attribute.getFriendlyNameParameter();
 

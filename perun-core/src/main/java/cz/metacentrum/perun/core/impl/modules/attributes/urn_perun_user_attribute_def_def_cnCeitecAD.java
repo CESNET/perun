@@ -6,9 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -29,7 +27,7 @@ import java.util.Set;
 public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 
 		if (attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute, user, "Value can't be null");
@@ -53,7 +51,7 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws InternalErrorException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 		String firstName = user.getFirstName();
@@ -80,9 +78,6 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
 			} catch (WrongAttributeValueException ex) {
 				// continue in a WHILE cycle
 				iterator++;
-			} catch (WrongReferenceAttributeValueException ex) {
-				// isn't thrown by this particular implementation
-				throw new InternalErrorException(ex);
 			}
 		}
 

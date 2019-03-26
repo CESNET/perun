@@ -30,12 +30,12 @@ public class TaskManagerImpl implements TaskManager {
 	private TaskDao taskDao;
 
 	@Override
-	public int scheduleNewTask(Task task, int engineID) throws InternalErrorException {
+	public int scheduleNewTask(Task task, int engineID) {
 		return taskDao.scheduleNewTask(task, engineID);
 	}
 
 	@Override
-	public void insertTask(Task task, int engineID) throws InternalErrorException {
+	public void insertTask(Task task, int engineID) {
 		taskDao.insertTask(task, engineID);
 	}
 

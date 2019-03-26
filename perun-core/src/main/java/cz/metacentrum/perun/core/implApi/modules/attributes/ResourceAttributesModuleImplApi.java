@@ -54,5 +54,5 @@ public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi
 	 * @param resource resource
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 }

@@ -127,7 +127,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	void addExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException;
+	void addExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
 
 	/**
 	 * Associate external source definition with the GROUP.
@@ -201,11 +201,10 @@ public interface ExtSourcesManagerBl {
 	 * @param login Login of the candidate
 	 * @return a Candidate object
 	 * @throws InternalErrorException
-	 * @throws ExtSourceNotExistsException
 	 * @throws CandidateNotExistsException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
+	Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws InternalErrorException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Get the candidate from subjectData where at least login must exists.
@@ -219,11 +218,8 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @return a Candidate object
 	 * @throws InternalErrorException
-	 * @throws ExtSourceNotExistsException
-	 * @throws CandidateNotExistsException
-	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData ,ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
+	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData ,ExtSource source, String login) throws InternalErrorException;
 
 	void checkExtSourceExists(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException;
 

@@ -8,8 +8,6 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 import java.util.ArrayList;
@@ -29,16 +27,16 @@ public abstract class MemberResourceVirtualAttributesModuleAbstract extends Memb
 		return new Attribute(attribute);
 	}
 
-	public boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) {
 		return false;
 	}
 
-	public boolean removeAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, AttributeDefinition attribute) {
 		return false;
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		return new ArrayList<>();
 	}
 

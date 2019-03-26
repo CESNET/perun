@@ -25,8 +25,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import org.slf4j.Logger;
@@ -39,8 +37,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -494,7 +490,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public Member addMember(PerunSession sess, Group group, Member member, MembershipType type, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public Member addMember(PerunSession sess, Group group, Member member, MembershipType type, int sourceGroupId) throws InternalErrorException, AlreadyMemberException {
 		member.setMembershipType(type);
 		member.setSourceGroupId(sourceGroupId);
 		try {

@@ -229,7 +229,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
+	public void checkIfGIDIsWithinRange(PerunSessionImpl sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException {
 		Utils.notNull(attribute, "attribute");
 		Integer gid = null;
 		if(attribute.getValue() != null) gid = (Integer) attribute.getValue();
@@ -454,7 +454,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public Set<String> getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(PerunSessionImpl sess, List<Facility> facilities, Attribute unixGroupNameNamespace) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public Set<String> getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace(PerunSessionImpl sess, List<Facility> facilities, Attribute unixGroupNameNamespace) throws InternalErrorException, WrongAttributeAssignmentException {
 		Set<String> gidNamespaces = new HashSet<>();
 		if(facilities == null || facilities.isEmpty()) return gidNamespaces;
 		Utils.notNull(facilities, "facilities");
@@ -512,7 +512,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws WrongAttributeValueException {
 		if(groupNameAttribute == null) return;
 		checkPerunNamespacesMap();
 
@@ -529,7 +529,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	@Override
-	public void checkUnpermittedUserLogins(Attribute loginAttribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkUnpermittedUserLogins(Attribute loginAttribute) throws WrongAttributeValueException {
 		if(loginAttribute == null) return;
 		checkPerunNamespacesMap();
 

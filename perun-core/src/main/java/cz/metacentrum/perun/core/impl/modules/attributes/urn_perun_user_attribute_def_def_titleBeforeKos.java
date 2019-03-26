@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -30,10 +29,9 @@ public class urn_perun_user_attribute_def_def_titleBeforeKos extends UserAttribu
 	 * @param user
 	 * @param attribute
 	 * @throws InternalErrorException
-	 * @throws WrongReferenceAttributeValueException
 	 */
 	@Override
-	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException {
 
 		if (attribute.getValue() != null) {
 			Attribute titleBeforeVema = null;

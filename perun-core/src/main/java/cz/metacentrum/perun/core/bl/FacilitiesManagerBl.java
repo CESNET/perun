@@ -25,7 +25,6 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
@@ -34,7 +33,6 @@ import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
@@ -160,7 +158,7 @@ public interface FacilitiesManagerBl {
 	 * @deprecated Use addOwner and removeOwner instead
 	 */
 	@Deprecated
-	void setOwners(PerunSession perunSession, Facility facility, List<Owner> owners) throws InternalErrorException, OwnerNotExistsException;
+	void setOwners(PerunSession perunSession, Facility facility, List<Owner> owners) throws InternalErrorException;
 
 	/**
 	 * Add owner of the facility
@@ -172,7 +170,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws OwnerAlreadyAssignedException
 	 */
-	void addOwner(PerunSession perunSession, Facility facility, Owner owner) throws InternalErrorException, FacilityNotExistsException, OwnerAlreadyAssignedException;
+	void addOwner(PerunSession perunSession, Facility facility, Owner owner) throws InternalErrorException, OwnerAlreadyAssignedException;
 
 	/**
 	 * Remove owner of the facility
@@ -335,11 +333,10 @@ public interface FacilitiesManagerBl {
 	 * @throws RelationExistsException there are still some resources assigned to this facility
 	 * @throws FacilityAlreadyRemovedException there are 0 rows affected by delete from DB
 	 * @throws HostAlreadyRemovedException if there is at least 1 host who was not affected by deleting from DB
-	 * @throws GroupAlreadyRemovedException if there is at least 1 group not affected by deleting from DB
 	 * @throws ResourceAlreadyRemovedException if there are at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException there are at least 1 group on resource not affected by deleting from DB
 	 */
-	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Updates facility.
@@ -656,7 +653,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+	List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins) throws InternalErrorException;
 
 	/**
 	 * Get list of all richUser administrators for the facility and supported role with specific attributes.
@@ -721,10 +718,9 @@ public interface FacilitiesManagerBl {
 	 * @param facility
 	 * @return return list of RichUsers without attributes.
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Get all Facility admins, which are assigned directly (not by group membership) without attributes.
@@ -733,10 +729,9 @@ public interface FacilitiesManagerBl {
 	 * @param facility
 	 * @return return list of RichUsers without attributes.
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getDirectRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Get all Facility admins with attributes.
@@ -835,7 +830,7 @@ public interface FacilitiesManagerBl {
 	 * @param destinationFacility
 	 * @throws InternalErrorException
 	 */
-	void copyManagers(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+	void copyManagers(PerunSession sess, Facility sourceFacility, Facility destinationFacility) throws InternalErrorException;
 
 	/**
 	 * Copy all attributes of the source facility to the destination facility.

@@ -67,22 +67,22 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
 		return findSubjectsLogins(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("For Perun ExtSource is not supported to use this method. Use findSubjects instead.");
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
 		setEnviroment();
 		List<RichUser> richUsers = findRichUsers(searchString);
 		if(maxResults != 0) {
@@ -103,7 +103,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 		setEnviroment();
 		// Get the query for the group subjects
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -269,7 +269,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		BeansUtils.notNull(extSourceNameForLogin, "extSourceNameForLogin");
 	}
 
-	private List<RichUser> convertListOfRichMembersToListOfRichUsers(List<RichMember> richMembers) throws InternalErrorException {
+	private List<RichUser> convertListOfRichMembersToListOfRichUsers(List<RichMember> richMembers) {
 		List<RichUser> richUsers = new ArrayList<>();
 		if(richMembers == null || richMembers.isEmpty()) return richUsers;
 
@@ -355,12 +355,12 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public void close() throws InternalErrorException {
+	public void close() {
 		//not needed there
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 

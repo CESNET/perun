@@ -9,9 +9,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
@@ -26,7 +24,7 @@ import java.util.List;
 public class urn_perun_group_attribute_def_def_groupExtSource extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		//prepare groupName value variable
 		String extSourceName = null;
 		if(attribute.getValue() != null) extSourceName = (String) attribute.getValue();

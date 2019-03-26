@@ -48,12 +48,12 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public List<Map<String, String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException("For Unity using this method is not optimized, use findSubjects instead.");
     }
 
     @Override
-    public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException("For Unity using this method is not optimized, use findSubjects instead.");
     }
 
@@ -133,7 +133,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException();
     }
 

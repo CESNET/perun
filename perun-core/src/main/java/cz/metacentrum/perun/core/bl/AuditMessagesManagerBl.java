@@ -96,9 +96,8 @@ public interface AuditMessagesManagerBl {
 	 *
 	 * @param perunSession perunSession
 	 * @param message message to be logged
-	 * @throws InternalErrorException
 	 */
-	void log(PerunSession perunSession, String message) throws InternalErrorException;
+	void log(PerunSession perunSession, String message);
 
 	/**
 	 * Get all auditer consumers from database. In map is String = name and Integer = lastProcessedId.

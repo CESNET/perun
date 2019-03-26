@@ -7,8 +7,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleImplApi;
@@ -42,12 +40,12 @@ public class urn_perun_member_group_attribute_def_virt_isGroupAdmin extends Memb
     }
 
     @Override
-    public boolean setAttributeValue(PerunSessionImpl sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException{
+    public boolean setAttributeValue(PerunSessionImpl sess, Member member, Group group, Attribute attribute) {
         return false;
     }
 
     @Override
-    public boolean removeAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException{
+    public boolean removeAttributeValue(PerunSessionImpl sess, Member member, Group group, AttributeDefinition attribute) {
         return false;
     }
 

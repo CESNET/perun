@@ -51,7 +51,7 @@ public class urn_perun_user_attribute_def_def_elixirBonaFideStatus extends UserA
 
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 
 		//try to get value from 'elixirBonaFideStatusREMS': if not empty, we have bona_fide

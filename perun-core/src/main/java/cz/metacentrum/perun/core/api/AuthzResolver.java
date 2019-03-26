@@ -254,7 +254,7 @@ public class AuthzResolver {
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) throws InternalErrorException {
 		try {
 			return AuthzResolverBlImpl.isAuthorizedForAttribute(sess, actionType, attrDef, key);
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -396,7 +396,7 @@ public class AuthzResolver {
 	 * @param sess perun session
 	 * @return currently logged user
 	 */
-	public static User getLoggedUser(PerunSession sess) throws UserNotExistsException, InternalErrorException {
+	public static User getLoggedUser(PerunSession sess) throws InternalErrorException {
 		return AuthzResolverBlImpl.getLoggedUser(sess);
 	}
 

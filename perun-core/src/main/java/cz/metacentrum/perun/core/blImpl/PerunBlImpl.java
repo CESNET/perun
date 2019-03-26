@@ -198,7 +198,7 @@ public class PerunBlImpl implements PerunBl {
 	/**
 	 * This method is used only internally.
 	 */
-	private PerunSession getPerunSession() throws InternalErrorException {
+	private PerunSession getPerunSession() {
 		PerunPrincipal principal = new PerunPrincipal(INTERNALPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		PerunClient client = new PerunClient();
 		return new PerunSessionImpl(this, principal, client);

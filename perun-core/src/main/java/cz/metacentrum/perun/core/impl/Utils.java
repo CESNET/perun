@@ -51,8 +51,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.text.StringCharacterIterator;
@@ -630,7 +628,7 @@ public class Utils {
 		return attrNew.toString();
 	}
 
-	public static Attribute copyAttributeToViAttributeWithoutValue(Attribute copyFrom, Attribute copyTo) throws InternalErrorException {
+	public static Attribute copyAttributeToViAttributeWithoutValue(Attribute copyFrom, Attribute copyTo) {
 		copyTo.setValueCreatedAt(copyFrom.getValueCreatedAt());
 		copyTo.setValueCreatedBy(copyFrom.getValueCreatedBy());
 		copyTo.setValueModifiedAt(copyFrom.getValueModifiedAt());
@@ -638,7 +636,7 @@ public class Utils {
 		return copyTo;
 	}
 
-	public static Attribute copyAttributeToVirtualAttributeWithValue(Attribute copyFrom, Attribute copyTo) throws InternalErrorException {
+	public static Attribute copyAttributeToVirtualAttributeWithValue(Attribute copyFrom, Attribute copyTo) {
 		copyTo.setValue(copyFrom.getValue());
 		copyTo.setValueCreatedAt(copyFrom.getValueCreatedAt());
 		copyTo.setValueCreatedBy(copyFrom.getValueCreatedBy());
@@ -1030,9 +1028,8 @@ public class Utils {
 	 * @param namespace namespace the password was re-set
 	 * @param subject Subject from template or null
 	 * @param content Message from template or null
-	 * @throws InternalErrorException
 	 */
-	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String subject, String content) throws InternalErrorException {
+	public static void sendPasswordResetConfirmationEmail(User user, String email, String namespace, String subject, String content) {
 
 		// create mail sender
 		JavaMailSender mailSender = BeansUtils.getDefaultMailSender();

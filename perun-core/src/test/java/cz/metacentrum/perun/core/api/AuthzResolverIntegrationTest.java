@@ -208,7 +208,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void isGroupAdmin() throws Exception {
+	public void isGroupAdmin() {
 		System.out.println(CLASS_NAME + "isGroupAdmin");
 
 		sess = mock(PerunSession.class, RETURNS_DEEP_STUBS);

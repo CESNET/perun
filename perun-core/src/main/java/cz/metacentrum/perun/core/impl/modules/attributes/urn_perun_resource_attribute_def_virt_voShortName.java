@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleImplApi;
@@ -32,7 +31,7 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException {
 		throw new InternalErrorException("Can't set value of this virtual attribute this way. " + attribute);
 	}
 

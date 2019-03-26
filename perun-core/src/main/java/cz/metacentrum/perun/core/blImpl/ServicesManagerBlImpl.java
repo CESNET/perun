@@ -527,7 +527,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException {
+	public Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException {
 		if(!getServicesManagerImpl().destinationExists(perunSession, destination)) {
 			try {
 				//Try to get the destination without id

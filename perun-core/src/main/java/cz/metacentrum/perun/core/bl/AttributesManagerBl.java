@@ -25,7 +25,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -111,12 +110,11 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param resource
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws GroupResourceMismatchException
 	 */
-	void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * Remove all non-virtual member-resource attributes assigned to resource
@@ -124,11 +122,8 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param resource
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Get all virtual attributes associated with the member-resource attributes.
@@ -474,9 +469,8 @@ public interface AttributesManagerBl {
 	 * @param group
 	 * @return list of attributes
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws GroupResourceMismatchException
 	 */
-	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupResourceMismatchException;
+	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException;
 
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, GroupResourceMismatchException;
 
@@ -597,7 +591,7 @@ public interface AttributesManagerBl {
 	 *
 	 * @return true, if attribute was set in DB
 	 */
-	boolean setAttributeWithoutCheck(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	boolean setAttributeWithoutCheck(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Just store the particular attribute associated with the vo, doesn't preform any value check. Core attributes can't be set this way.
@@ -609,9 +603,8 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setAttributeWithoutCheck(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	boolean setAttributeWithoutCheck(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Just store the particular attribute associated with the user-facility, doesn't preform any value check. Core attributes can't be set this way.
@@ -624,9 +617,8 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setAttributeWithoutCheck(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	boolean setAttributeWithoutCheck(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Just store the particular attribute associated with the member-resource, doesn't preform any value check. Core attributes can't be set this way.
@@ -685,9 +677,8 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setAttributeWithoutCheck(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	boolean setAttributeWithoutCheck(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Just store the particular attribute associated with the entityless, doesn't preform any value check. Core attributes can't be set this way.
@@ -699,9 +690,8 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	boolean setAttributeWithoutCheck(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	boolean setAttributeWithoutCheck(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Store the attributes associated with the vo. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
@@ -795,7 +785,7 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException if attribute is not member-resource attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserNotExistsException;
+	void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Store the attributes associated with the resource and member combination. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
@@ -812,7 +802,7 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException if attribute is not member-resource attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserNotExistsException;
+	void setAttributes(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Store the member, user, member-resource and user-facility attributes. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
@@ -1153,9 +1143,8 @@ public interface AttributesManagerBl {
 	 *
 	 * @return list of AttributeDefinitions with rights (writable will be filled correctly by user in session)
 	 * @throws InternalErrorException
-	 * @throws AttributeNotExistsException
 	 */
-	List<AttributeDefinition> getAttributesDefinitionWithRights(PerunSession sess, List<PerunBean> entities) throws InternalErrorException, AttributeNotExistsException;
+	List<AttributeDefinition> getAttributesDefinitionWithRights(PerunSession sess, List<PerunBean> entities) throws InternalErrorException;
 
 	/**
 	 * From listOfAttributesNames get list of attributeDefinitions
@@ -1537,12 +1526,11 @@ public interface AttributesManagerBl {
 	 * @param attribute attribute to set
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
 	 * @throws WrongAttributeValueException if the attribute value is illegal
 	 * @throws WrongAttributeAssignmentException if attribute is not member-resource attribute or if it is core attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Store the particular attribute associated with the member.  Core attributes can't be set this way.
@@ -1723,9 +1711,8 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param attributeDefinition
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws RelationExistsException
 	 */
-	void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, RelationExistsException;
+	void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
 
 	/**
 	 * Delete all authz for the attribute.
@@ -1743,9 +1730,8 @@ public interface AttributesManagerBl {
 	 * @param attributeDefinition attribute to delete
 	 * @param force delete also all existing relation. If this parameter is true the RelationExistsException is never thrown.
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException
 	 */
-	void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition, boolean force) throws InternalErrorException, RelationExistsException;
+	void deleteAttribute(PerunSession sess, AttributeDefinition attributeDefinition, boolean force) throws InternalErrorException;
 
 	/**
 	 * Get attributes definions required by all services assigned on the resource.
@@ -1824,9 +1810,8 @@ public interface AttributesManagerBl {
 	 * @return list of member-group's attributes which are required by services defined on specified resource
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException;
 
 	/**
 	 * Get member-group attributes which are required by services if workWithUserAttributes is true also user and member attributes.
@@ -1840,9 +1825,8 @@ public interface AttributesManagerBl {
 	 * @return list of member-group's attributes which are required by services defined on specified resource
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Attribute> getResourceRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException;
 
 	/**
 	 * Get member, user, member-resource and user-facility attributes which are required by services which are defined on "resourceToGetServicesFrom" resource.
@@ -2034,7 +2018,7 @@ public interface AttributesManagerBl {
 	 * @return list of attributes which are required by services which are related to this member and group
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException;
 
 	/**
 	 * Get all attributes which are required by service.
@@ -2114,9 +2098,8 @@ public interface AttributesManagerBl {
 	 * @return list of attributes which are required by the service.
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, MemberResourceMismatchException, GroupResourceMismatchException;
+	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Group group, Member member, boolean workWithUserAttributes) throws InternalErrorException, MemberResourceMismatchException, GroupResourceMismatchException;
 
 	/**
 	 * Get member-resource, member, user-facility and user attributes which are required by service for each member in list of members.
@@ -2412,16 +2395,15 @@ public interface AttributesManagerBl {
 	 * @return attribute which MAY have filled value
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	Attribute fillAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 *  Batch version of fillAttribute. This method skips all attributes with not-null value.
 	 *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
 	 *  @see cz.metacentrum.perun.core.api.AttributesManager#fillAttribute(PerunSession, Member, Resource, Attribute)
 	 */
-	List<Attribute> fillAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Attribute> fillAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException;
 
 	/**
 	 * This method try to fill value of the user-facility attribute. This value is automatically generated, but not all attributes can be filled this way.
@@ -2554,16 +2536,15 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException if attribute isn't vo attribute
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 *  Batch version of checkAttributeValue
 	 *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
 	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Vo,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesValue(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * Check if value of this group attribute is valid.
@@ -2650,9 +2631,8 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 *  Batch version of fillAttribute
@@ -2795,16 +2775,15 @@ public interface AttributesManagerBl {
 	 * @param host host which attribute validity is checked
 	 * @param attribute attribute to check
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException if the attribute isn't host attribute
 	 */
-	void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Batch version of checkAttributeValue
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Host,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Check if the value of this entityless attribute is valid
@@ -2814,9 +2793,8 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException if the attribute isn't entityless attribute
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException,WrongAttributeValueException,WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException,WrongAttributeValueException,WrongAttributeAssignmentException;
 
 	/**
 	 * Check if value of this user ext source attribute is valid.
@@ -2825,17 +2803,15 @@ public interface AttributesManagerBl {
 	 * @param attribute attribute to check
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException if attribute isn't user external source attribute
-	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Batch version of checkAttributeValue
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,UserExtSource,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesValue(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Check if value of this group attribute is valid no matter if attribute is required or not.
@@ -2906,13 +2882,12 @@ public interface AttributesManagerBl {
 	 * @param workWithGroupAttributes if true, remove also group attributes, if false, remove only group_resource attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
 	 * @throws WrongAttributeAssignmentException if attribute is not group-resource or group attribute
 	 * @throws WrongAttributeValueException if the attribute value is illegal
 	 * @throws WrongReferenceAttributeValueException if some reference attribute has illegal value
 	 * @throws GroupResourceMismatchException
 	 */
-	void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
 	 * Unset all attributes for the group and resource.
@@ -3175,9 +3150,8 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	void removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Unset particular attribute for the member. Core attributes can't be removed this way.
@@ -3283,13 +3257,13 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException if attribute is not host attribute
 	 */
-	void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException,WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
 	 * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute)
 	 */
-	void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Unset all attributes for the host.
@@ -3299,7 +3273,7 @@ public interface AttributesManagerBl {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void removeAllAttributes(PerunSession sess, Host host) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
 	 * Unset particular group-resource attribute
@@ -3733,7 +3707,7 @@ public interface AttributesManagerBl {
 	/**
 	 * Same as doTheMagic(sess, member, false);
 	 */
-	void doTheMagic(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void doTheMagic(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * This function takes all member-related attributes (member, user, member-resource, user-facility) and tries to fill them and set them.
@@ -3746,9 +3720,8 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void doTheMagic(PerunSession sess, Member member, boolean trueMagic) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Converts string into the Object defined by type.
@@ -3915,12 +3888,10 @@ public interface AttributesManagerBl {
 	 * @throws VoNotExistsException
 	 * @throws UserNotExistsException
 	 * @throws WrongAttributeAssignmentException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
 	 * @throws MemberResourceMismatchException
 	 * @throws GroupResourceMismatchException
 	 */
-	List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, VoNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException;
+	List<RichAttribute> getRichAttributesWithHoldersForAttributeDefinition(PerunSession sess, AttributeDefinition attrDef, RichAttribute aidingAttr) throws InternalErrorException, AttributeNotExistsException, VoNotExistsException, UserNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException, MemberResourceMismatchException;
 
 	/**
 	 * Get All user_facility attributes for any existing user
@@ -3958,9 +3929,8 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param attributes
 	 * @return list of attributes
-	 * @throws InternalErrorException
 	 */
-	List<Attribute> setWritableTrue(PerunSession sess, List<Attribute> attributes) throws InternalErrorException;
+	List<Attribute> setWritableTrue(PerunSession sess, List<Attribute> attributes);
 
 	/**
 	 * Gets attribute rights of an attribute with id given as a parameter.
@@ -4060,9 +4030,8 @@ public interface AttributesManagerBl {
 	 * @param session session
 	 * @param format text output format
 	 * @return body of text file containing description of modules dependencies.
-	 * @throws InternalErrorException internal error
 	 */
-	String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format) throws InternalErrorException;
+	String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format);
 
 	/**
 	 * Generates graph describing dependencies for given AttributeDefinition.
@@ -4072,9 +4041,8 @@ public interface AttributesManagerBl {
 	 * @param format text output format
 	 * @param attributeDefinition attribute definition which dependencies will be used
 	 * @return body of text file containing description of modules dependencies.
-	 * @throws InternalErrorException internal error
 	 */
-	String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format, AttributeDefinition attributeDefinition) throws InternalErrorException;
+	String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format, AttributeDefinition attributeDefinition);
 
 	/**
 	 * Generates Graphviz representation of a graph describing dependencies
@@ -4102,9 +4070,8 @@ public interface AttributesManagerBl {
 	 *
 	 * @param session session
 	 * @return graph of dependencies
-	 * @throws InternalErrorException internal error
 	 */
-	Graph getAttributeModulesDependenciesGraph(PerunSession session) throws InternalErrorException;
+	Graph getAttributeModulesDependenciesGraph(PerunSession session);
 
 	/**
 	 * Check if attribute is from the same namespace as it's handler

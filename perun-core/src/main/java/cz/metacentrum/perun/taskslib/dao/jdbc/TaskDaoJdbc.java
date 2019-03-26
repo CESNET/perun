@@ -19,8 +19,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,7 +110,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	};
 
 	@Override
-	public int scheduleNewTask(Task task, int engineID) throws InternalErrorException {
+	public int scheduleNewTask(Task task, int engineID) {
 		int newTaskId = 0;
 		try {
 			newTaskId = Utils.getNewId(this.getJdbcTemplate(), "tasks_id_seq");
@@ -131,7 +129,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	}
 
 	@Override
-	public int insertTask(Task task, int engineID) throws InternalErrorException {
+	public int insertTask(Task task, int engineID) {
 		int newTaskId = 0;
 		try {
 			newTaskId = task.getId();

@@ -193,7 +193,7 @@ public interface GroupsManager {
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
 	 */
-	void deleteAllGroups(PerunSession perunSession, Vo vo) throws VoNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
+	void deleteAllGroups(PerunSession perunSession, Vo vo) throws VoNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved;
 
 	/**
 	 * Updates group by ID.
@@ -695,11 +695,10 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws UserNotExistsException
 	 * @throws InternalErrorRuntimeException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
+	List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
 	 * Gets list of all administrators of this group like RichUsers with attributes.
@@ -727,10 +726,9 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
-	 * @throws UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
+	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
 	 * Get list of Group administrators, which are directly assigned (not by group membership) with specific attributes.
@@ -743,10 +741,9 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
-	 * @throws UserNotExistsException
 	 */
 	@Deprecated
-	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
+	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 
 	/**
@@ -783,11 +780,9 @@ public interface GroupsManager {
 	 * @param sess
 	 *
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 *
 	 * @return count of all groups
 	 */
-	int getGroupsCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	int getGroupsCount(PerunSession sess) throws InternalErrorException;
 
 	/**
 	 * Returns number of immediate subgroups of the parent group.
@@ -910,11 +905,10 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws WrongAttributeAssignmentException
-	 * @throws VoNotExistsException
 	 * @throws MemberNotExistsException
 	 * @throws AttributeNotExistsException
 	 */
-	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, VoNotExistsException, WrongAttributeAssignmentException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException;
+	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, WrongAttributeAssignmentException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException;
 
 	/**
 	 * Return all member's groups. Included members groups.
@@ -1006,7 +1000,7 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException;
+	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 
 	/**
 	 * Return all RichSubGroups in parentGroup (all levels sub groups) containing selected attributes
@@ -1018,7 +1012,7 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException;
+	List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 
 	/**
 	 * Return RichGroup selected by id containing selected attributes
@@ -1030,7 +1024,7 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
-	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException;
+	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 
 	/**
 	 * Performs union operation on two groups. Members from operand group are added to result group as indirect.
@@ -1092,7 +1086,7 @@ public interface GroupsManager {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException, ExternallyManagedException, AttributeNotExistsException, WrongAttributeAssignmentException;
+	void moveGroup(PerunSession sess, Group destinationGroup, Group movingGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupMoveNotAllowedException, WrongAttributeValueException, WrongReferenceAttributeValueException, ExternallyManagedException;
 
 	/**
 	 * Set Members Group status for specified DIRECT member and group.

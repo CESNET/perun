@@ -89,9 +89,8 @@ public interface CacheManagerApi {
 	 * @param primaryHolder primary holder
 	 * @param secondaryHolder secondary holder
 	 * @return list of attributes
-	 * @throws InternalErrorException
 	 */
-	List<Attribute> getAttributesByNames(List<String> attrNames, Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException;
+	List<Attribute> getAttributesByNames(List<String> attrNames, Holder primaryHolder, Holder secondaryHolder);
 
 	/**
 	 * Returns all attributes with not-null value which fit the attributeDefinition.
@@ -328,9 +327,8 @@ public interface CacheManagerApi {
 	 * If there is transaction, it sets cache as updated in transaction.
 	 *
 	 * @param attribute attribute definition to set
-	 * @throws InternalErrorException
 	 */
-	void setAttributeDefinition(AttributeDefinition attribute) throws InternalErrorException;
+	void setAttributeDefinition(AttributeDefinition attribute);
 
 	/**
 	 * Stores the entityless attribute.
@@ -358,9 +356,8 @@ public interface CacheManagerApi {
 	 * If there is transaction, it sets cache as updated in transaction.
 	 *
 	 * @param attributeDefinition attribute definition to update
-	 * @throws InternalErrorException
 	 */
-	void updateAttributeDefinition(AttributeDefinition attributeDefinition) throws InternalErrorException;
+	void updateAttributeDefinition(AttributeDefinition attributeDefinition);
 
 	/**
 	 * Deletes attribute by id - definition and all values. It will not behave correctly in nested transaction.

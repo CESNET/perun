@@ -4,11 +4,6 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 import java.util.ArrayList;
@@ -25,22 +20,22 @@ import java.util.List;
 public abstract class UserExtSourceVirtualAttributesModuleAbstract extends UserExtSourceAttributesModuleAbstract implements UserExtSourceVirtualAttributesModuleImplApi {
 
 	@Override
-	public Attribute getAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException {
+	public Attribute getAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
 	@Override
-	public boolean setAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) {
 		return false;
 	}
 
 	@Override
-	public boolean removeAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, AttributeDefinition attribute) {
 		return false;
 	}
 
 	@Override
-	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) throws InternalErrorException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public List<AuditEvent> resolveVirtualAttributeValueChange(PerunSessionImpl perunSession, AuditEvent message) {
 		return new ArrayList<>();
 	}
 

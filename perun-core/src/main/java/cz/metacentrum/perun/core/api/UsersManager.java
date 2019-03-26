@@ -20,7 +20,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
-import cz.metacentrum.perun.core.api.exceptions.SpecificUserMustHaveOwnerException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
@@ -109,10 +108,9 @@ public interface UsersManager {
 	 * @throws SpecificUserExpectedException when the specific user is not really specific user (is it normal user)
 	 * @throws NotSpecificUserExpectedException when the user is specific User
 	 * @throws RelationNotExistsException if there is no such user (the user) to remove
-	 * @throws SpecificUserMustHaveOwnerException if there is the last user to remove
 	 * @throws cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by removing from DB
 	 */
-	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException, SpecificUserExpectedException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException;
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException, SpecificUserExpectedException, RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException;
 
 	/**
 	 * Add specificUser owner (the user)
@@ -224,9 +222,8 @@ public interface UsersManager {
 	 * @return list of RichUsers
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Get All richUsers with or without specificUsers.
@@ -659,9 +656,8 @@ public interface UsersManager {
 	 * @param login to be checked
 	 * @return true if login available, false otherwise
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 */
-	boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InternalErrorException, PrivilegeException;
+	boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InternalErrorException;
 
 
 	/**
@@ -746,13 +742,12 @@ public interface UsersManager {
 	 * @param checkOldPassword
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws UserNotExistsException
 	 * @throws LoginNotExistsException
 	 * @throws PasswordDoesntMatchException
 	 * @throws PasswordChangeFailedException
 	 */
 	void changePassword(PerunSession sess, String login, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-			throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
+			throws InternalErrorException, PrivilegeException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
@@ -1010,11 +1005,10 @@ public interface UsersManager {
 	 * @return list of RichUsers with selected attributes
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
-	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
 	 */
 	List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrNames)
-		throws InternalErrorException, VoNotExistsException, UserNotExistsException, PrivilegeException;
+		throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Return list of RichUsers who matches the searchString, searching name, email and logins
@@ -1027,11 +1021,10 @@ public interface UsersManager {
 	 * @return list of RichUsers
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
-	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
 	 */
 	List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName)
-		throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException;
+		throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
 	/**
 	 * Allow users to manually add login in supported namespace if same login is not reserved.
@@ -1116,11 +1109,9 @@ public interface UsersManager {
 	 * @param sess PerunSession
 	 *
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 *
 	 * @return count of all users
 	 */
-	int getUsersCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	int getUsersCount(PerunSession sess) throws InternalErrorException;
 
 	/**
 	 * Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
@@ -1201,7 +1192,7 @@ public interface UsersManager {
 	 * @param attrNames Names (URNs) of group attributes to get with each returned group
 	 * @return List of groups where user is active (is a VALID vo and group member) on specified resource
 	 */
-	List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException, MemberNotExistsException;
+	List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException;
 
 	/**
 	 * Return all groups where user is active (has VALID status in VO and Group together)

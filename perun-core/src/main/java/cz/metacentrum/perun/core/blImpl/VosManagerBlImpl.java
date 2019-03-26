@@ -28,7 +28,6 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
@@ -84,7 +83,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public void deleteVo(PerunSession sess, Vo vo, boolean forceDelete) throws InternalErrorException, RelationExistsException {
+	public void deleteVo(PerunSession sess, Vo vo, boolean forceDelete) throws InternalErrorException {
 		log.debug("Deleting vo {}", vo);
 
 		try {
@@ -174,7 +173,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public void deleteVo(PerunSession sess, Vo vo) throws InternalErrorException, RelationExistsException {
+	public void deleteVo(PerunSession sess, Vo vo) throws InternalErrorException {
 		// delete VO only if it is completely empty
 		this.deleteVo(sess, vo, false);
 	}
@@ -301,8 +300,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 								// retrieve data about subjects from subjects we already have locally
 								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
 							}
-						} catch (ExtSourceNotExistsException e) {
-							throw new ConsistencyErrorException("Getting candidate from non-existing extSource " + source, e);
 						} catch (CandidateNotExistsException e) {
 							throw new ConsistencyErrorException("findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);
 						} catch (ExtSourceUnsupportedOperationException e) {
@@ -422,8 +419,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 								// retrieve data about subjects from subjects we already have locally
 								candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
 							}
-						} catch (ExtSourceNotExistsException e) {
-							throw new ConsistencyErrorException("Getting candidate from non-existing extSource " + source, e);
 						} catch (CandidateNotExistsException e) {
 							throw new ConsistencyErrorException("findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);
 						} catch (ExtSourceUnsupportedOperationException e) {
@@ -612,7 +607,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Deprecated
 	@Override
-	public List<RichUser> getDirectRichAdmins(PerunSession sess, Vo vo) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getDirectRichAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
 		return perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(sess, getVosManagerImpl().getDirectAdmins(sess, vo));
 	}
 
@@ -624,7 +619,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException {
 		List<User> users = this.getAdmins(perunSession, vo);
 		return perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
 	}
@@ -638,7 +633,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
 		} catch (AttributeNotExistsException ex) {
@@ -648,7 +643,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 	@Override
 	@Deprecated
-	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getDirectRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
 		} catch (AttributeNotExistsException ex) {

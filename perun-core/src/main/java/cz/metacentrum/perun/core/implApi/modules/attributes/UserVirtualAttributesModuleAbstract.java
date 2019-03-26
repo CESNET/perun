@@ -28,11 +28,11 @@ public abstract class UserVirtualAttributesModuleAbstract extends UserAttributes
 		return new Attribute(attribute);
 	}
 
-	public boolean setAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public boolean setAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) {
 		return false;
 	}
 
-	public void removeAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException {
+	public void removeAttributeValue(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) {
 
 	}
 

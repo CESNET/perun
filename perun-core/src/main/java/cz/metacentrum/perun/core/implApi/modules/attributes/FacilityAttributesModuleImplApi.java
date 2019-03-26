@@ -39,11 +39,8 @@ public interface FacilityAttributesModuleImplApi extends AttributesModuleImplApi
 	 * @param facility facility for which you want to check validity of attribute
 	 * @param attribute attribute to fill in
 	 * @return
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute) throws InternalErrorException,WrongAttributeAssignmentException;
+	Attribute fillAttribute(PerunSessionImpl perunSession, Facility facility, AttributeDefinition attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -52,5 +49,5 @@ public interface FacilityAttributesModuleImplApi extends AttributesModuleImplApi
 	 * @param facility the facility
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, Facility facility, Attribute attribute);
 }

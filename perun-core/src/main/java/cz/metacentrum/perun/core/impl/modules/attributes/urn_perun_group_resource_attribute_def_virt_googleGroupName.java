@@ -125,7 +125,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 	}
 
 	@Override
-	public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attribute) {
 		return false;
 	}
 

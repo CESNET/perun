@@ -795,7 +795,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
-	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, String key) throws InternalErrorException, AttributeNotExistsException {
 		log.trace("Entering isAuthorizedForAttribute: sess='{}', actionType='{}', attrDef='{}', primaryHolder='{}', " +
 			"secondaryHolder='{}'", sess, actionType, attrDef, key, null);
 
@@ -1413,7 +1413,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param sess perun session
 	 * @return currently logged user
 	 */
-	public static User getLoggedUser(PerunSession sess) throws UserNotExistsException, InternalErrorException {
+	public static User getLoggedUser(PerunSession sess) throws InternalErrorException {
 		// We need to load additional information about the principal
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
 			refreshAuthz(sess);
@@ -1775,7 +1775,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess use session to add roles
 	 */
-	private static void prepareServiceRoles(PerunSession sess) throws InternalErrorException {
+	private static void prepareServiceRoles(PerunSession sess) {
 		// Load list of perunAdmins from the configuration, split the list by the comma
 		List<String> perunAdmins = BeansUtils.getCoreConfig().getAdmins();
 

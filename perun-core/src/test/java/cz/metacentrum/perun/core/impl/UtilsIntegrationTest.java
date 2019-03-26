@@ -23,11 +23,11 @@ import static org.junit.Assert.assertEquals;
 public class UtilsIntegrationTest {
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 	}
 
 	@Test
-	public void parseCommonNameTest() throws Exception {
+	public void parseCommonNameTest() {
 		System.out.println("Utils.parseCommonName");
 
 		String titleBeforeString = "titleBefore";

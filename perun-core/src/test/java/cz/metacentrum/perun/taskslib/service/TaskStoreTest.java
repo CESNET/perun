@@ -25,7 +25,7 @@ public class TaskStoreTest {
 	public final ExpectedException exception = ExpectedException.none();
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		taskStore = new TaskStoreImpl();
 		Facility facility = new Facility();
 		facility.setName("Test");

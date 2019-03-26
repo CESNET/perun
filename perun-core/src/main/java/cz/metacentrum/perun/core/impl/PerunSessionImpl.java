@@ -19,7 +19,7 @@ public class PerunSessionImpl extends PerunSession {
 
 	final static Logger log = LoggerFactory.getLogger(PerunSessionImpl.class);
 
-	public PerunSessionImpl(Perun perun, PerunPrincipal principal, PerunClient client) throws InternalErrorException {
+	public PerunSessionImpl(Perun perun, PerunPrincipal principal, PerunClient client) {
 		super(perun, principal, client);
 	}
 

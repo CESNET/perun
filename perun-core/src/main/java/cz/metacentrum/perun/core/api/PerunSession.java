@@ -51,7 +51,7 @@ public abstract class PerunSession {
 		principal = null;
 	}
 
-	public void validate() throws InternalErrorException {
+	public void validate() {
 	}
 
 	@Override

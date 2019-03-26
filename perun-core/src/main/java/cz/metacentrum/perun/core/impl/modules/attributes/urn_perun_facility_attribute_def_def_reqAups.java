@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
@@ -27,7 +26,7 @@ public class urn_perun_facility_attribute_def_def_reqAups extends FacilityAttrib
 	private final static String availableAups = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":orgAups";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 
 		List<String> aups = (List<String>) attribute.getValue();
 

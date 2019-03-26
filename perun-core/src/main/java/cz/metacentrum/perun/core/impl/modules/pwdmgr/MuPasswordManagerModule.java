@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.codec.binary.Base64;
@@ -77,12 +76,12 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void checkPassword(PerunSession sess, String userLogin, String password) throws InternalErrorException, LoginNotExistsException {
+	public void checkPassword(PerunSession sess, String userLogin, String password) {
 		// silently skip, since MU doesn't check old before change.
 	}
 
 	@Override
-	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException, LoginNotExistsException {
+	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException {
 
 		try {
 			int requestID = (new Random()).nextInt(1000000) + 1;
@@ -96,7 +95,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void validatePassword(PerunSession sess, String userLogin) throws InternalErrorException {
+	public void validatePassword(PerunSession sess, String userLogin) {
 		// silently skip, since generic code calls this but MU doesn't validate it.
 	}
 

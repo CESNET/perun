@@ -54,5 +54,5 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 	 * @param user the user
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 }

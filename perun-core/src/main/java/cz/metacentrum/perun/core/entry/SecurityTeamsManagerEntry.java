@@ -357,7 +357,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 	}
 
 	@Override
-	public List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, FacilityNotExistsException {
+	public List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 

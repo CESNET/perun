@@ -4,10 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -31,7 +28,7 @@ public class urn_perun_user_attribute_def_def_IPAddresses extends UserAttributes
 	private static final Pattern IPv6_PATTERN_SHORT = Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 		List<String> value = attribute.valueAsList();
 		if (value != null) {
 			for (String address : value) {

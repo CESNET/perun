@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityAttributesModuleImplApi;
@@ -32,7 +31,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 	private static final String A_F_D_accountExpirationTime = AttributesManager.NS_FACILITY_ATTR_DEF + ":accountExpirationTime";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 		Integer accExpTime = (Integer) attribute.getValue();
 
 		if (accExpTime == null) {

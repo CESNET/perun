@@ -5,7 +5,6 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
@@ -20,7 +19,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 public class urn_perun_resource_attribute_def_def_redmineRole extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		String role = (String)attribute.getValue();
 
 		if (role == null) {

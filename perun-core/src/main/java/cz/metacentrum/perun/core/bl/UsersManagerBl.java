@@ -30,14 +30,12 @@ import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.SpecificUserMustHaveOwnerException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -137,10 +135,9 @@ public interface UsersManagerBl {
 	 * @param specificUser the specificUser
 	 * @throws InternalErrorException
 	 * @throws RelationNotExistsException if there is no such user (the user) to remove
-	 * @throws SpecificUserMustHaveOwnerException if there is the last user to remove
 	 * @throws SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException;
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException;
 
 	/**
 	 * Remove specificUser owner (the user).
@@ -153,10 +150,9 @@ public interface UsersManagerBl {
 	 * @param forceDelete if true, remove from database, if false, only disable this ownership
 	 * @throws InternalErrorException
 	 * @throws RelationNotExistsException if there is no such user (the user) to remove
-	 * @throws SpecificUserMustHaveOwnerException if there is the last user to remove
 	 * @throws SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser, boolean forceDelete) throws InternalErrorException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException;
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser, boolean forceDelete) throws InternalErrorException, RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException;
 
 	/**
 	 * Add specificUser owner (the user)
@@ -224,9 +220,8 @@ public interface UsersManagerBl {
 	 * @param user
 	 * @return
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 */
-	RichUser getRichUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException;
+	RichUser getRichUser(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
 	 * Get User to RichUser with attributes.
@@ -248,9 +243,8 @@ public interface UsersManagerBl {
 	 * @param includedSpecificUsers true or false if you want or dont want get specificUsers too
 	 * @return list of RichUsers
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException;
 
 	/**
 	 * Get All richUsers with or without specificUsers.
@@ -274,9 +268,8 @@ public interface UsersManagerBl {
 	 * @param users users to convert
 	 * @return list of richUsers
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, UserNotExistsException;
+	List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException;
 
 	/**
 	 * From Users makes RichUsers with attributes.
@@ -1041,9 +1034,8 @@ public interface UsersManagerBl {
 	 * @return list of RichUser
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
-	 * @throws VoNotExistsException
 	 */
-	List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException, VoNotExistsException;
+	List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 * Return list of RichUsers which are not members of any VO and contain selected attributes.
@@ -1052,10 +1044,9 @@ public interface UsersManagerBl {
 	 * @param attrsName
 	 * @return list of RichUsers
 	 * @throws InternalErrorException
-	 * @throws VoNotExistsException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws InternalErrorException, VoNotExistsException, UserNotExistsException;
+	List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 * Returns list of RichUsers with selected attributes who matches the searchString, searching name, email, logins.
@@ -1117,9 +1108,8 @@ public interface UsersManagerBl {
 	 * @param email new email address
 	 * @param lang language to get confirmation mail in (optional)
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 */
-	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang) throws InternalErrorException, UserNotExistsException;
+	void requestPreferredEmailChange(PerunSession sess, String url, User user, String email, String lang) throws InternalErrorException;
 
 	/**
 	 * * Validate change of user's preferred email address.
@@ -1132,13 +1122,12 @@ public interface UsersManagerBl {
 	 * @param m    encrypted parameter
 	 * @return String return new preferred email
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException                When user from session is null
 	 * @throws WrongAttributeValueException          If new email address is in wrong format
 	 * @throws WrongAttributeAssignmentException
 	 * @throws AttributeNotExistsException           If user:preferredEmail attribute doesn't exists.
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
+	String validatePreferredEmailChange(PerunSession sess, User user, String i, String m) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Return list of email addresses of user, which are
@@ -1184,12 +1173,11 @@ public interface UsersManagerBl {
 	 * @param password password to set
 	 * @param lang Language to get notification in
 	 * @throws InternalErrorException
-	 * @throws UserNotExistsException
 	 * @throws LoginNotExistsException
 	 * @throws PasswordChangeFailedException
 	 */
 	void changeNonAuthzPassword(PerunSession sess, User user, String m, String password, String lang)
-			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
+			throws InternalErrorException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Get count of all users.

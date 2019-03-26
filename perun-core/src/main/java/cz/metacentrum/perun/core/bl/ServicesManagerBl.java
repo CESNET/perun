@@ -359,9 +359,8 @@ public interface ServicesManagerBl {
 	 * @param destination (id of this destination doesn't need to be filled.)
 	 * @return destination with it's id set
 	 * @throws InternalErrorException
-	 * @throws DestinationAlreadyAssignedException
 	 */
-	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException, DestinationAlreadyAssignedException;
+	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws InternalErrorException;
 
 	/**
 	 * Adds destination for all services defined on the facility.

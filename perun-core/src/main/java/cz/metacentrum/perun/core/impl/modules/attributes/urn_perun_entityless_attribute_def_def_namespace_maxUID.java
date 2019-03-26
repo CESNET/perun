@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
@@ -25,7 +24,7 @@ public class urn_perun_entityless_attribute_def_def_namespace_maxUID extends Ent
 	private static final String A_E_namespaceMinUID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 		Integer maxUID = (Integer) attribute.getValue();
 		if(maxUID != null) {
 			if(maxUID<1) throw new WrongAttributeValueException(attribute, "Attribute value must be min 1.");
