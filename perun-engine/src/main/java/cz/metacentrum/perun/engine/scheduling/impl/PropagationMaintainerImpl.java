@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -85,10 +87,10 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			Task task = generatingTask.getValue();
 			Future<Task> future = generatingTask.getKey();
 
-			Date startTime = task.getGenStartTime();
-			int howManyMinutesAgo = 0;
+			LocalDateTime startTime = task.getGenStartTime();
+			long howManyMinutesAgo = 0;
 			if(startTime != null) {
-				howManyMinutesAgo = (int) (System.currentTimeMillis() - startTime.getTime()) / 1000 / 60;
+				howManyMinutesAgo = ChronoUnit.MINUTES.between(startTime, LocalDateTime.now());
 			}
 			if (startTime == null) {
 
@@ -148,7 +150,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					sendingSendTasks.removeStuckTask(future); // to release semaphore
 
 					// make sure Task is switched to SENDERROR
-					task.setSendEndTime(new Date(System.currentTimeMillis()));
+					task.setSendEndTime(LocalDateTime.now());
 					task.setStatus(TaskStatus.SENDERROR);
 
 					// report result
@@ -227,10 +229,10 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					!! We can't abort GENERATING Tasks with startTime=NULL here,
 					because they are waiting to be started at genCompletionService#blockingSubmit() !!
 					*/
-					Date startTime = task.getGenStartTime();
-					int howManyMinutesAgo = 0;
+					LocalDateTime startTime = task.getGenStartTime();
+					long howManyMinutesAgo = 0;
 					if(startTime != null) {
-						howManyMinutesAgo = (int) (System.currentTimeMillis() - startTime.getTime()) / 1000 / 60;
+						howManyMinutesAgo = ChronoUnit.MINUTES.between(startTime, LocalDateTime.now());
 					}
 					// If task started too long ago and is not in generating structure anymore
 					// somebody probably wrongly manipulated the structure
@@ -247,10 +249,10 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					Task must have endTime set by GenWorker, otherwise it failed completely and should be reported as error.
 					If either of GenCollector and SendPlanner fails to process generated tasks, it's missing in generatedTasksQueue.
 					*/
-					Date genEndTime = task.getGenEndTime();
+					LocalDateTime genEndTime = task.getGenEndTime();
 					howManyMinutesAgo = 0;
 					if(genEndTime != null) {
-						howManyMinutesAgo = (int) (System.currentTimeMillis() - genEndTime.getTime()) / 1000 / 60;
+						howManyMinutesAgo = ChronoUnit.MINUTES.between(genEndTime, LocalDateTime.now());
 					}
 					// If too much time has passed for Task and its not present in generatedTasksQueue, something is broken
 					if((genEndTime == null || howManyMinutesAgo >= rescheduleTime) && !schedulingPool.getGeneratedTasksQueue().contains(task)) {
@@ -265,10 +267,10 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 				case SENDERROR:
 
-					Date endTime = task.getSendEndTime();
+					LocalDateTime endTime = task.getSendEndTime();
 					howManyMinutesAgo = 0;
 					if(endTime != null) {
-						howManyMinutesAgo = (int) (System.currentTimeMillis() - endTime.getTime()) / 1000 / 60;
+						howManyMinutesAgo = ChronoUnit.MINUTES.between(endTime, LocalDateTime.now());
 					}
 					// If too much time has passed something is broken
 					if(endTime == null || howManyMinutesAgo >= rescheduleTime) {

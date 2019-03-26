@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -131,7 +132,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				task.setStatus(DONE);
 			}
 			if(task.getSendEndTime() == null) {
-				task.setSendEndTime(new Date(System.currentTimeMillis()));
+				task.setSendEndTime(LocalDateTime.now());
 			}
 			try {
 				jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), System.currentTimeMillis());

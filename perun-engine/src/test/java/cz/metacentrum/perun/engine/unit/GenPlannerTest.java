@@ -8,6 +8,7 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.Future;
@@ -31,7 +32,7 @@ public class GenPlannerTest extends AbstractEngineTest{
 		GenPlanner genPlanner = new GenPlanner(schedulingPoolMock, genCompletionServiceMock, jmsQueueManagerMock);
 		spy = spy(genPlanner);
 		genStartTime = new Date(System.currentTimeMillis());
-		task1.setGenStartTime(genStartTime);
+		task1.setGenStartTime(genStartTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 	}
 
 	@Test
@@ -48,7 +49,7 @@ public class GenPlannerTest extends AbstractEngineTest{
 
 		verify(genCompletionServiceMock, times(1)).blockingSubmit(any(GenWorker.class));
 		verify(jmsQueueManagerMock, times(1)).reportTaskStatus(
-				eq(task1.getId()), eq(task1.getStatus()), eq(task1.getGenStartTime().getTime()));
+				eq(task1.getId()), eq(task1.getStatus()), eq(task1.getGenStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 
 		assertEquals(GENERATING, task1.getStatus());
 	}

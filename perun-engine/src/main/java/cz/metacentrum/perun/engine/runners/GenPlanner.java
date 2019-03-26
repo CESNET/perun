@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
 import java.io.File;
-import java.util.Date;
+import java.time.ZoneId;
 import java.util.Properties;
 import java.util.concurrent.BlockingDeque;
 
@@ -69,7 +69,7 @@ public class GenPlanner extends AbstractRunner {
 				GenWorker worker = new GenWorkerImpl(task, directory);
 				genCompletionService.blockingSubmit(worker);
 				try {
-					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), task.getGenStartTime().getTime());
+					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), task.getGenStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 				} catch (JMSException e) {
 					log.warn("[{}] Could not send Tasks {} GEN status update: {}", task.getId(), task, e);
 				}

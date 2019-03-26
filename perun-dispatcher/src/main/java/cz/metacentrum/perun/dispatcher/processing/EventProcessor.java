@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -245,7 +245,7 @@ public class EventProcessor extends AbstractRunner {
 					task.setStatus(TaskStatus.WAITING);
 					task.setRecurrence(0);
 					task.setDelay(service.getDelay());
-					task.setSchedule(new Date(System.currentTimeMillis()));
+					task.setSchedule(LocalDateTime.now());
 					task.setSourceUpdated(false);
 					task.setPropagationForced(isForced);
 					try {

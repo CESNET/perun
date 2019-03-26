@@ -8,6 +8,7 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -37,7 +38,7 @@ public class GenCollectorTest extends AbstractEngineTest {
 	@Test
 	public void testGenCollector() throws Exception {
 		task1.setStatus(GENERATING);
-		task1.setGenEndTime(genEndTime);
+		task1.setGenEndTime(genEndTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
 		when(schedulingPoolMock.getGeneratedTasksQueue()).thenReturn(generatedTasksQueue);
 		when(genCompletionServiceMock.blockingTake()).thenReturn(task1);
@@ -46,7 +47,7 @@ public class GenCollectorTest extends AbstractEngineTest {
 		spy.run();
 
 		verify(jmsQueueManagerMock, times(1)).reportTaskStatus(
-				eq(task1.getId()), eq(task1.getStatus()), eq(task1.getGenEndTime().getTime()));
+				eq(task1.getId()), eq(task1.getStatus()), eq(task1.getGenEndTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 		assertTrue(generatedTasksQueue.contains(task1));
 		assertEquals("There should be only one generated Task", 1, generatedTasksQueue.size());
 	}

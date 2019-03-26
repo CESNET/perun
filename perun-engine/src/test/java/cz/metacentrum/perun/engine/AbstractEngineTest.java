@@ -16,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -115,7 +116,7 @@ public abstract class AbstractEngineTest {
 		task1.setDestinations(destinations);
 		task1.setFacility(facility);
 		task1.setService(service);
-		task1.setSchedule(new Date());
+		task1.setSchedule(LocalDateTime.now());
 		task1.setStatus(Task.TaskStatus.PLANNED);
 		task1.setId(taskDaoCore.scheduleNewTask(task1, engineId));
 
@@ -123,7 +124,7 @@ public abstract class AbstractEngineTest {
 		task2.setDestinations(destinations);
 		task2.setFacility(facility);
 		task2.setService(service2);
-		task2.setSchedule(new Date());
+		task2.setSchedule(LocalDateTime.now());
 		task2.setStatus(Task.TaskStatus.PLANNED);
 		task2.setId(taskDaoCore.scheduleNewTask(task2, engineId));
 

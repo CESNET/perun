@@ -15,7 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Properties;
 
@@ -150,12 +151,12 @@ public class PropagationMaintainer extends AbstractRunner {
 
 		for (Task task : schedulingPool.getTasksWithStatus(TaskStatus.DONE)) {
 
-			Date twoDaysAgo = new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 2);
+			LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
 
 			if (task.isSourceUpdated()) {
 				log.info("[{}] Task in {} state will be rescheduled, source data changed.", task.getId(), task.getStatus());
 				schedulingPool.scheduleTask(task, -1);
-			} else if (task.getEndTime() == null || task.getEndTime().before(twoDaysAgo)) {
+			} else if (task.getEndTime() == null || task.getEndTime().isBefore(twoDaysAgo)) {
 				log.info("[{}] Task in {} state will be rescheduled, hasn't run for 2 days.", task.getId(), task.getStatus());
 				schedulingPool.scheduleTask(task, -1);
 			} else {
@@ -180,16 +181,16 @@ public class PropagationMaintainer extends AbstractRunner {
 			if (task.getEndTime() == null) {
 				log.error("[{}] RECOVERY FROM INCONSISTENT STATE: ERROR task does not have end_time! " +
 						"Setting end_time to task.getDelay + 1.", task.getId());
-				// getDelay is in minutes, therefore we multiply it with 60*1000
-				Date endTime = new Date(System.currentTimeMillis() - ((task.getDelay() + 1) * 60000));
+				// getDelay is in minutes
+				LocalDateTime endTime = LocalDateTime.now().minusMinutes(task.getDelay() + 1);
 				task.setEndTime(endTime);
 			}
 
-			int howManyMinutesAgo = (int) (System.currentTimeMillis() - task.getEndTime().getTime()) / 1000 / 60;
+			long howManyMinutesAgo = ChronoUnit.MINUTES.between(task.getEndTime(), LocalDateTime.now());
 
 			if (howManyMinutesAgo < 0) {
 				log.error("[{}] RECOVERY FROM INCONSISTENT STATE: ERROR task appears to have ended in future.", task.getId());
-				Date endTime = new Date(System.currentTimeMillis() - ((task.getDelay() + 1) * 60000));
+				LocalDateTime endTime = LocalDateTime.now().minusMinutes(task.getDelay() + 1);
 				task.setEndTime(endTime);
 				howManyMinutesAgo = task.getDelay() + 1;
 			}
@@ -198,7 +199,7 @@ public class PropagationMaintainer extends AbstractRunner {
 
 			// If DELAY time has passed, we reschedule...
 			int recurrence = task.getRecurrence() + 1;
-			Date twoDaysAgo = new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 2);
+			LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
 
 			if (task.isSourceUpdated()) {
 
@@ -216,7 +217,7 @@ public class PropagationMaintainer extends AbstractRunner {
 				log.info("[{}] Task in {} state will be rescheduled, attempt #{}.", task.getId(), task.getStatus(), recurrence);
 				schedulingPool.scheduleTask(task, -1);
 
-			} else if (task.getEndTime().before(twoDaysAgo)) {
+			} else if (task.getEndTime().isBefore(twoDaysAgo)) {
 
 				log.info("[{}] Task in {} state will be rescheduled, hasn't run for 2 days.", task.getId(), task.getStatus());
 				// reset recurrence since we must have exceeded it
@@ -241,8 +242,8 @@ public class PropagationMaintainer extends AbstractRunner {
 
 		for (Task task : suspiciousTasks) {
 
-			Date soonerTimestamp;
-			Date laterTimestamp;
+			LocalDateTime soonerTimestamp;
+			LocalDateTime laterTimestamp;
 
 			// fill expected timestamps per state
 			if (task.getStatus().equals(TaskStatus.WAITING) || task.getStatus().equals(TaskStatus.PLANNED)) {
@@ -256,7 +257,7 @@ public class PropagationMaintainer extends AbstractRunner {
 			if (soonerTimestamp == null && laterTimestamp == null) {
 				log.error("[{}] Task presumably in {} state, but does not have a valid timestamps. Switching to ERROR: {}.",
 						new Object[]{task.getId(), task.getStatus(), task});
-				task.setEndTime(new Date(System.currentTimeMillis()));
+				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
 				taskManager.updateTask(task);
 				continue;
@@ -264,13 +265,13 @@ public class PropagationMaintainer extends AbstractRunner {
 
 			// count how many minutes the task stays in one state
 
-			int howManyMinutesAgo = (int) (System.currentTimeMillis() - (laterTimestamp == null ? soonerTimestamp : laterTimestamp).getTime()) / 1000 / 60;
+			long howManyMinutesAgo = ChronoUnit.MINUTES.between((laterTimestamp == null ? soonerTimestamp : laterTimestamp), LocalDateTime.now());
 
 			// If too much time has passed something is broken
 			if (howManyMinutesAgo >= rescheduleTime) {
 				log.error("[{}] Task is stuck in {} state for more than {} minutes. Switching it to ERROR: {}.",
 						new Object[]{task.getId(), task.getStatus(), rescheduleTime, task});
-				task.setEndTime(new Date(System.currentTimeMillis()));
+				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
 				taskManager.updateTask(task);
 			}

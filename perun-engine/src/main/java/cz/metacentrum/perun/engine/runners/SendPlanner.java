@@ -16,7 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
 import java.io.File;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 
@@ -90,11 +91,11 @@ public class SendPlanner extends AbstractRunner {
 				task.setStatus(Task.TaskStatus.SENDING);
 				// TODO - would be probably better to have this as one time call after first SendWorker is submitted
 				// TODO   but then processing stuck tasks must reflect, that SENDING task might have sendStartTime=NULL
-				task.setSendStartTime(new Date(System.currentTimeMillis()));
+				task.setSendStartTime(LocalDateTime.now());
 
 				schedulingPool.addSendTaskCount(task, task.getDestinations().size());
 				try {
-					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), task.getSendStartTime().getTime());
+					jmsQueueManager.reportTaskStatus(task.getId(), task.getStatus(), task.getSendStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 				} catch (JMSException e) {
 					jmsLogError(task);
 				}

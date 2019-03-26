@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.taskslib.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Destination;
@@ -23,14 +23,14 @@ public class Task implements Serializable {
 	private int id;
 	private int delay;
 	private int recurrence;
-	private Date startTime;
-	private Date sentToEngine;
-	private Date sendStartTime;
-	private Date schedule;
-	private Date genStartTime;
-	private Date genEndTime;
-	private Date sendEndTime;
-	private Date endTime;
+	private LocalDateTime startTime;
+	private LocalDateTime sentToEngine;
+	private LocalDateTime sendStartTime;
+	private LocalDateTime schedule;
+	private LocalDateTime genStartTime;
+	private LocalDateTime genEndTime;
+	private LocalDateTime sendEndTime;
+	private LocalDateTime endTime;
 	private Service service;
 	private Facility facility;
 	private List<Destination> destinations;
@@ -88,19 +88,19 @@ public class Task implements Serializable {
 		this.recurrence = recurrence;
 	}
 
-	public Date getStartTime() {
+	public LocalDateTime getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(Date startTime) {
+	public void setStartTime(LocalDateTime startTime) {
 		this.startTime = startTime;
 	}
 
-	public Date getSchedule() {
+	public LocalDateTime getSchedule() {
 		return schedule;
 	}
 
-	public void setSchedule(Date schedule) {
+	public void setSchedule(LocalDateTime schedule) {
 		this.schedule = schedule;
 	}
 
@@ -129,51 +129,51 @@ public class Task implements Serializable {
 		}
 	}
 
-	public Date getGenEndTime() {
+	public LocalDateTime getGenEndTime() {
 		return genEndTime;
 	}
 
-	public void setGenEndTime(Date genEndTime) {
+	public void setGenEndTime(LocalDateTime genEndTime) {
 		this.genEndTime = genEndTime;
 	}
 
-	public Date getSendEndTime() {
+	public LocalDateTime getSendEndTime() {
 		return sendEndTime;
 	}
 
-	public void setSendEndTime(Date sendEndTime) {
+	public void setSendEndTime(LocalDateTime sendEndTime) {
 		this.sendEndTime = sendEndTime;
 	}
 
-	public Date getSendStartTime() {
+	public LocalDateTime getSendStartTime() {
 		return sendStartTime;
 	}
 
-	public Date getGenStartTime() {
+	public LocalDateTime getGenStartTime() {
 		return genStartTime;
 	}
 
-	public void setGenStartTime(Date genStartTime) {
+	public void setGenStartTime(LocalDateTime genStartTime) {
 		this.genStartTime = genStartTime;
 	}
 
-	public Date getSentToEngine() {
+	public LocalDateTime getSentToEngine() {
 		return sentToEngine;
 	}
 
-	public void setSentToEngine(Date sentToEngine) {
+	public void setSentToEngine(LocalDateTime sentToEngine) {
 		this.sentToEngine = sentToEngine;
 	}
 
-	public void setSendStartTime(Date sendStartTime) {
+	public void setSendStartTime(LocalDateTime sendStartTime) {
 		this.sendStartTime = sendStartTime;
 	}
 
-	public Date getEndTime() {
+	public LocalDateTime getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(Date endTime) {
+	public void setEndTime(LocalDateTime endTime) {
 		this.endTime = endTime;
 	}
 

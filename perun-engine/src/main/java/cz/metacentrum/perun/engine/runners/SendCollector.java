@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -82,7 +82,7 @@ public class SendCollector extends AbstractRunner {
 				 Like this we can maximally propagate for "rescheduleTime" for each Destination and not
 				 all Destinations (whole Task). Default rescheduleTime is 3 hours * no.of destinations.
 				 */
-				task.setSendEndTime(new Date(System.currentTimeMillis()));
+				task.setSendEndTime(LocalDateTime.now());
 				if (!Objects.equals(task.getStatus(), Task.TaskStatus.SENDERROR)) {
 					// keep SENDING status only if if task previously doesn't failed
 					task.setStatus(Task.TaskStatus.SENDING);
@@ -108,7 +108,7 @@ public class SendCollector extends AbstractRunner {
 				 Like this we can maximally propagate for "rescheduleTime" for each Destination and not
 				 all Destinations (whole Task). Default rescheduleTime is 3 hours * no.of destinations.
 				 */
-				task.setSendEndTime(new Date(System.currentTimeMillis()));
+				task.setSendEndTime(LocalDateTime.now());
 				// set SENDERROR status immediately as first SendTask (Destination) fails
 				task.setStatus(Task.TaskStatus.SENDERROR);
 				destination = e.getDestination();
