@@ -71,7 +71,7 @@ public class UserSynchronizer extends AbstractSynchronizer {
 					for(Member member: members) {
 						if(member.getStatus().equals(Status.VALID)) {
 							voIds.add(member.getVoId());
-							groups.addAll(perun.getGroupsManager().getAllMemberGroups(ldapcManager.getPerunSession(), member));
+							groups.addAll(perun.getGroupsManager().getAllGroupsWhereMemberIsActive(ldapcManager.getPerunSession(), member));
 						}
 					}
 

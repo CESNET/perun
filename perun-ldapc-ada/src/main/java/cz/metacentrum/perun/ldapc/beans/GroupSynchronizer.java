@@ -13,13 +13,14 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.ldapc.model.PerunGroup;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
-import cz.metacentrum.perun.rpclib.Rpc;
+import cz.metacentrum.perun.core.bl.PerunBl;
 
 @Component
 public class GroupSynchronizer extends AbstractSynchronizer {
@@ -58,7 +59,7 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 
 							log.debug("Getting list of members for group {}", group.getId());
 							// List<Member> members = ldapcManager.getRpcCaller().call("groupsManager",  "getGroupMembers", params).readList(Member.class);
-							List<Member> members = perun.getGroupsManager().getGroupMembers(ldapcManager.getPerunSession(), group);
+							List<Member> members = ((PerunBl)perun).getGroupsManagerBl().getActiveGroupMembers(ldapcManager.getPerunSession(), group, Status.VALID);
 							log.debug("Synchronizing {} members of group {}", members.size(), group.getId());
 							perunGroup.synchronizeMembers(group, members);
 
