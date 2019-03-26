@@ -131,6 +131,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl {
 		final FindCompleteRichMembers findMembers = new FindCompleteRichMembers(PerunEntity.GROUP, groupId, "", null);
 		members.excludeDisabled(!wasDisabled);
 		members.setIndirectCheckable(false);
+		findMembers.setHideGroupStatusColumn("members".equals(group.getName()));
 		findMembers.setIndirectCheckable(false);
 
 		final CustomButton searchButton = TabMenu.getPredefinedButton(ButtonType.SEARCH, ButtonTranslation.INSTANCE.searchMemberInGroup());
