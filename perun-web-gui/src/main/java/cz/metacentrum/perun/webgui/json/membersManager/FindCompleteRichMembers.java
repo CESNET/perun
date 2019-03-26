@@ -66,6 +66,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage(true, WidgetTranslation.INSTANCE.emptySearchForMembers());
 
 	private ArrayList<PerunStatus> allowedStatuses = new ArrayList<PerunStatus>();
+	private boolean hideGroupStatusColumn = true;
 
 	/**
 	 * Creates a new instance of the method
@@ -86,6 +87,9 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 			this.attributes = attributes;
 		}
 		allowedStatuses.addAll(Arrays.asList(PerunStatus.values()));
+		if (entity.equals(PerunEntity.GROUP)) {
+			hideGroupStatusColumn = false;
+		}
 	}
 
 	/**
@@ -261,7 +265,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 		columnProvider.addIdColumn(authz, 110);
 		columnProvider.addUserIdColumn(authz, 110);
 		columnProvider.addStatusColumn(authz, 20);
-		if (entity.equals(PerunEntity.GROUP)) {
+		if (!hideGroupStatusColumn) {
 			columnProvider.addGroupStatusColumn(authz, entityId,120);
 		}
 		columnProvider.addNameColumn(authz);
@@ -440,6 +444,10 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 
 	public void setIndirectCheckable(boolean checkable) {
 		this.indirectCheckable = checkable;
+	}
+
+	public void setHideGroupStatusColumn(boolean hideGroupStatusColumn) {
+		this.hideGroupStatusColumn = hideGroupStatusColumn;
 	}
 
 }
