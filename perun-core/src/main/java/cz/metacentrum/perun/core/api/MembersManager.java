@@ -1183,6 +1183,23 @@ public interface MembersManager {
 	RichMember sponsorMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, MemberNotSponsoredException, AlreadySponsorException, UserNotInRoleException;
 
 	/**
+	 * Get all sponsored RichMembers with attributes by list of attribute names for specific User and Vo.
+	 *
+	 * @param sess
+	 * @param vo to specify Member for User
+	 * @param user to specify Member for User
+	 * @param attrNames list of attrNames - if empty, return richMembers without attributes
+	 * @return list of sponsored rich members with attributes from the list
+	 *
+	 * @throws InternalErrorException if any internal error has occurred
+	 * @throws AttributeNotExistsException if any attributeDefinition can't be found by one of attribute names
+	 * @throws VoNotExistsException if Vo not exists in Perun
+	 * @throws UserNotExistsException if User not exists in Perun
+	 * @throws PrivilegeException if user in session is not allowed to call this method
+	 */
+	List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user, List<String> attrNames) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException;
+
+	/**
 	 * Gets list of members of a VO sponsored by the given user.
 	 * @param sess actor
 	 * @param vo virtual organization from which are the sponsored members chosen
