@@ -261,7 +261,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
 			memberLoa = (String) loa.getValue();
 		} catch (AttributeNotExistsException e) {
-			// user has no loa defined - if required by VO, it will be stopped in checking method later
+			// User has no loa defined - if required by VO, it will be stopped in checking method later
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
 		}
@@ -269,7 +269,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// check if user can be member - service members are not checked for LoA
 		this.canBeMemberInternal(sess, vo, user, memberLoa, true);
 
-		// set initial membership expiration
+		// Set initial membership expiration
 		this.extendMembership(sess, member);
 
 		insertToMemberGroup(sess, member, vo);
@@ -429,10 +429,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		log.debug("Creating member for VO {} from candidate {}", vo, candidate);
-
 		// Get the user
 		User user = null;
-
 		if (candidate.getUserExtSources() != null) {
 			for (UserExtSource ues: candidate.getUserExtSources()) {
 				// Check if the extSource exists
@@ -528,7 +526,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		// Store the attributes
 		try {
-			//if empty, skip setting or merging empty arrays of attributes at all
+			// If empty, skip setting or merging empty arrays of attributes at all
 			if(!membersAttributes.isEmpty()) getPerunBl().getAttributesManagerBl().setAttributes(sess, member, membersAttributes);
 			if(!usersAttributesToMerge.isEmpty()) getPerunBl().getAttributesManagerBl().mergeAttributesValues(sess, user, usersAttributesToMerge);
 			if(!usersAttributesToModify.isEmpty()) getPerunBl().getAttributesManagerBl().setAttributes(sess, user, usersAttributesToModify);
@@ -549,7 +547,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException(e);
 		}
 
-		// check if user can be member
+		// Check if user can be member
 		this.canBeMemberInternal(sess, vo, user, memberLoa, true);
 
 		// set initial membership expiration
@@ -557,7 +555,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		insertToMemberGroup(sess, member, vo);
 
-		// add member also to all groups in list
+		// Add member also to all groups in list
 		if(groups != null && !groups.isEmpty()) {
 			for(Group group: groups) {
 				try {

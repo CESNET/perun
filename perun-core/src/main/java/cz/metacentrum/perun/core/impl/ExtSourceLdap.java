@@ -367,9 +367,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				if (base == null) base = "";
 
 				results = getContext().search(base, query, controls);
-
 				while (results.hasMore()) {
-
 					SearchResult searchResult = results.next();
 					Attributes attributes = searchResult.getAttributes();
 					Map<String,String> subjectAttributes = this.getSubjectAttributes(attributes);

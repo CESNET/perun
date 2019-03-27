@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
@@ -207,7 +208,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 	@Override
 	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
-		// New Canddate
+		// New Candidate
 		Candidate candidate = new Candidate();
 
 		// Prepare userExtSource object
@@ -219,7 +220,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		candidate.setUserExtSource(userExtSource);
 
 		// Get the subject from the extSource
-		Map<String, String> subject = null;
+		Map<String, String> subject;
 		try {
 			subject = ((ExtSourceSimpleApi) source).getSubjectByLogin(login);
 		} catch (SubjectNotExistsException e) {
@@ -236,7 +237,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			Matcher name = namePattern.matcher(candidate.getFirstName());
 			if(!name.matches()) candidate.setFirstName(null);
 		}
-		//If last name of candidate is not in format of name, set null instead
+		// If last name of candidate is not in format of name, set null instead
 		candidate.setLastName(subject.get("lastName"));
 		if(candidate.getLastName()!= null) {
 			Matcher name = namePattern.matcher(candidate.getLastName());
@@ -258,7 +259,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			}
 		}
 
-		//Set sponsored user
+		// Set sponsored user
 		if(subject.get("isSponsoredUser") == null) {
 			candidate.setSponsoredUser(false);
 		} else {
@@ -286,7 +287,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				String[] userExtSourceRaw =  subject.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
 				log.debug("Processing additionalUserExtSource {}",  subject.get(attrName));
 
-				//Check if the array has at least 3 parts, this is protection against outOfBoundException
+				// Check if the array has at least 3 parts, this is protection against outOfBoundException
 				if(userExtSourceRaw.length < 3) {
 					throw new InternalErrorException("There is missing some mandatory part of additional user extSource value when processing it - '" + attrName + "'");
 				}
@@ -367,7 +368,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		candidate.setTitleAfter(subjectData.get("titleAfter"));
 		candidate.setTitleBefore(subjectData.get("titleBefore"));
 
-		//Set service user
+		// Set service user
 		if(subjectData.get("isServiceUser") == null) {
 			candidate.setServiceUser(false);
 		} else {
@@ -416,7 +417,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				String additionalExtSourceType = userExtSourceRaw[1];
 				String additionalExtLogin = userExtSourceRaw[2];
 				int additionalExtLoa = 0;
-				//Loa is not mandatory argument
+				// Loa is not mandatory argument
 				if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
 					try {
 						additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
@@ -444,7 +445,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 							throw new ConsistencyErrorException("Creating existin extSource: " + additionalExtSourceName);
 						}
 					}
-					//add additional user extSource
+					// Add additional user extSource
 					additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
 				}
 			}
