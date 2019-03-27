@@ -517,9 +517,9 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	private List<Map<String, String>> querySource(String query, int maxResults) throws InternalErrorException, IOException {
 		List<Map<String, String>> subjects = new ArrayList<>();
 
-		// symbol '=' indicates getSubjectByLogin() or getGroupSubjects method
+		// Symbol '=' indicates getSubjectByLogin() or getGroupSubjects method
 		int index = query.indexOf("=");
-		// word 'contains' indicates findSubjects() method
+		// Word 'contains' indicates findSubjects() method
 		int indexContains = query.indexOf("contains");
 
 		if (index != -1) {

@@ -193,11 +193,12 @@ public interface ExtSourcesManagerBl {
 	List<User> getInvalidUsers(PerunSession perunSession, ExtSource source) throws InternalErrorException;
 
 	/**
-	 * Get the candidate from the ExtSource defined by the extsource login.
+	 * Get the candidate from the ExtSource.
+	 * Login of the candidate will be used to gain data from the ExtSource.
 	 *
-	 * @param perunSession
-	 * @param source
-	 * @param login
+	 * @param perunSession Perun session
+	 * @param source External source which will be used to get data about the candidate
+	 * @param login Login of the candidate
 	 * @return a Candidate object
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotExistsException
@@ -211,10 +212,10 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * IMPORTANT: expected, that these subjectData was get from the ExtSource before using.
 	 *
-	 * @param perunSession
+	 * @param perunSession Perun session
 	 * @param subjectData
-	 * @param source
-	 * @param login
+	 * @param source External source which will be used to get data about the candidate
+	 * @param login Login of the candidate
 	 *
 	 * @return a Candidate object
 	 * @throws InternalErrorException
