@@ -37,28 +37,28 @@ public class ServiceState extends JavaScriptObject {
 	}-*/;
 
 	public final String getStartTime() {
-		if (getStartTimeNative() != 0) {
-			return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)getStartTimeNative()));
+		if (getStartTimeNative() != null) {
+			return getStartTimeNative().printValue();
 		} else {
 			return "Not yet";
 		}
 	}
 
-	public final native double getStartTimeNative() /*-{
-		if (!(this.startTime)) { return 0; }
+	public final native LocalDateTime getStartTimeNative() /*-{
+		if (!(this.startTime)) { return null; }
 		return this.startTime;
 	}-*/;
 
 	public final String getEndTime() {
-		if (getEndTimeNative() != 0) {
-			return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)getEndTimeNative()));
+		if (getEndTimeNative() != null) {
+			return getEndTimeNative().printValue();
 		} else {
 			return "Not yet";
 		}
 	}
 
-	public final native double getEndTimeNative() /*-{
-		if (!(this.endTime)) { return 0; }
+	public final native LocalDateTime getEndTimeNative() /*-{
+		if (!(this.endTime)) { return null; }
 		return this.endTime;
 	}-*/;
 
@@ -67,16 +67,16 @@ public class ServiceState extends JavaScriptObject {
 	}-*/;
 
 	public final String getSchedule() {
-		if (getScheduleNative() != 0) {
-			return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)getScheduleNative()));
+		if (getScheduleNative() != null) {
+			return getScheduleNative().printValue();
 		} else {
 			return "Not yet";
 		}
 	}
 
-	public final native double getScheduleNative() /*-{
-		if (!(this.scheduled)) { return 0; }
-		return this.scheduled;
+	public final native LocalDateTime getScheduleNative() /*-{
+		if (!(this.schedule)) { return null; }
+		return this.schedule;
 	}-*/;
 
 	/**
@@ -95,7 +95,7 @@ public class ServiceState extends JavaScriptObject {
 	}-*/;
 
 	public final native String getHasDestinations() /*-{
-		return (this.hasDestinations == true) ? "" : "Service has no destinations defined.";
+		return (this.hasDestinations === true) ? "" : "Service has no destinations defined.";
 	}-*/;
 
 	/**

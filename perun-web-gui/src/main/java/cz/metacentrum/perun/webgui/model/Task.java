@@ -1,9 +1,6 @@
 package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.i18n.client.DateTimeFormat;
-
-import java.sql.Date;
 
 /**
  * Overlay type for Task object from Perun
@@ -24,28 +21,28 @@ public class Task extends JavaScriptObject {
 	}-*/;
 
 	public final String getStartTime() {
-		if (getStartTimeNative() != 0) {
-			return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)getStartTimeNative()));
+		if (getStartTimeNative() != null) {
+			return getStartTimeNative().printValue();
 		} else {
 			return "Not yet";
 		}
 	}
 
-	public final native double getStartTimeNative() /*-{
-		if (!(this.startTime)) { return 0; }
+	public final native LocalDateTime getStartTimeNative() /*-{
+		if (!(this.startTime)) { return null; }
 		return this.startTime;
 	}-*/;
 
 	public final String getEndTime() {
-		if (getEndTimeNative() != 0) {
-			return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)getEndTimeNative()));
+		if (getEndTimeNative() != null) {
+			return getEndTimeNative().printValue();
 		} else {
 			return "Not yet";
 		}
 	}
 
-	public final native double getEndTimeNative() /*-{
-		if (!(this.endTime)) { return 0; }
+	public final native LocalDateTime getEndTimeNative() /*-{
+		if (!(this.endTime)) { return null; }
 		return this.endTime;
 	}-*/;
 
@@ -58,15 +55,15 @@ public class Task extends JavaScriptObject {
 	}-*/;
 
 	public final String getSchedule() {
-		if (getScheduleNative() != 0) {
-			return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)getScheduleNative()));
+		if (getScheduleNative() != null) {
+			return getScheduleNative().printValue();
 		} else {
 			return "Not yet";
 		}
 	}
 
-	public final native double getScheduleNative() /*-{
-		if (!(this.schedule)) { return 0; }
+	public final native LocalDateTime getScheduleNative() /*-{
+		if (!(this.schedule)) { return null; }
 		return this.schedule;
 	}-*/;
 
