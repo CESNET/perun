@@ -6793,7 +6793,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setType(String.class.getName());
-		attr.setFriendlyName("lastSuccessGroupStructuresSynchronizationTimestamp");
+		attr.setFriendlyName("lastSuccessGroupStructureSynchronizationTimestamp");
 		attr.setDisplayName("Last successful group structure synchronization timestamp");
 		attr.setDescription("If group structure is synchronized, there will be timestamp of last successful synchronization.");
 		//set attribute rights (with dummy id of attribute - not known yet)
