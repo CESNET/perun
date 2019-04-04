@@ -55,7 +55,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 		if (homeMntPointsOnAllResources.isEmpty()) {
 			throw new WrongReferenceAttributeValueException("No homeMountPoints set on associated resources.");
 		}
-		if (!homeMntPointsOnAllResources.contains(attribute.getValue())) {
+		if (!homeMntPointsOnAllResources.contains(attribute.valueAsString())) {
 			throw new WrongAttributeValueException(attribute, user, facility, "User's home mount point is invalid. Valid mount points: " + homeMntPointsOnAllResources);
 		}
 

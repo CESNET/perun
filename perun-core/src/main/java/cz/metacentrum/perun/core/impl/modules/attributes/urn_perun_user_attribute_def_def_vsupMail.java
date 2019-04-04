@@ -137,7 +137,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 
 		// if SET action and mail is already reserved by other user
 		if (attribute.getValue() != null) {
-			String ownersUserId = reservedMailsAttributeValue.get(attribute.getValue());
+			String ownersUserId = reservedMailsAttributeValue.get(attribute.valueAsString());
 			if (ownersUserId != null && !Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
 				// TODO - maybe get actual owners attribute and throw WrongReferenceAttributeException to be nice in a GUI ?
 				throw new InternalErrorException("VŠUP mail: '"+attribute.getValue()+"' is already in use by User ID: " + ownersUserId + ".");

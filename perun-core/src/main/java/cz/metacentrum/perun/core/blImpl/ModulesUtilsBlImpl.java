@@ -519,11 +519,11 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		String reservedNames = perunNamespaces.get(groupNameAttribute.getFriendlyName() + ":reservedNames");
 		if (reservedNames != null) {
 			List<String> reservedNamesList = Arrays.asList(reservedNames.split("\\s*,\\s*"));
-			if (reservedNamesList.contains(groupNameAttribute.getValue()))
+			if (reservedNamesList.contains(groupNameAttribute.valueAsString()))
 				throw new WrongAttributeValueException(groupNameAttribute, "This groupName is reserved.");
 		} else {
 			//Property not found in our attribute map, so we will use the default hardcoded values instead
-			if (reservedNamesForUnixGroups.contains(groupNameAttribute.getValue()))
+			if (reservedNamesForUnixGroups.contains(groupNameAttribute.valueAsString()))
 				throw new WrongAttributeValueException(groupNameAttribute, "This groupName is reserved.");
 		}
 	}
@@ -536,11 +536,11 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		String unpermittedNames = perunNamespaces.get(loginAttribute.getFriendlyName() + ":reservedNames");
 		if (unpermittedNames != null) {
 			List<String> unpermittedNamesList = Arrays.asList(unpermittedNames.split("\\s*,\\s*"));
-			if (unpermittedNamesList.contains(loginAttribute.getValue()))
+			if (unpermittedNamesList.contains(loginAttribute.valueAsString()))
 				throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
 		} else {
 			//Property not found in our attribute map, so we will use the default hardcoded values instead
-			if (unpermittedNamesForUserLogins.contains(loginAttribute.getValue()))
+			if (unpermittedNamesForUserLogins.contains(loginAttribute.valueAsString()))
 				throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
 		}
 	}
