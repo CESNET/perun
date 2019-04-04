@@ -52,8 +52,9 @@ public class urn_perun_facility_attribute_def_virt_maxGID extends FacilityVirtua
 		Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
 		if(gidNamespaceAttribute.getValue() == null) return attribute;
 		Attribute namespaceMaxGidAttribute = getNamespaceMaxGidAttribute(sess, (String) gidNamespaceAttribute.getValue());
-		attribute = Utils.copyAttributeToVirtualAttributeWithValue(namespaceMaxGidAttribute, attribute);
+		Utils.copyAttributeToVirtualAttributeWithValue(namespaceMaxGidAttribute, attribute);
 		return attribute;
+
 	}
 
 	@Override

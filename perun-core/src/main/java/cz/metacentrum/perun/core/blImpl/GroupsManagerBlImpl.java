@@ -1809,7 +1809,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				boolean failedDueToException = false;
 
 				//Take another group from the pool to synchronize it
-				Group group = null;
+				Group group;
 				try {
 					group = poolOfGroupsToBeSynchronized.takeJob();
 				} catch (InterruptedException ex) {
@@ -2590,7 +2590,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private ExtSource getGroupMembersExtSourceForSynchronization(PerunSession sess, Group group, ExtSource defaultSource) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, ExtSourceNotExistsException {
 		//Prepare the groupMembersExtSource if it is set
 		Attribute membersExtSourceNameAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME);
-		ExtSource membersSource = null;
+		ExtSource membersSource;
 		// If the different extSource name for the members was set use it
 		if (membersExtSourceNameAttr != null && membersExtSourceNameAttr.getValue() != null) {
 			String membersExtSourceName = (String) membersExtSourceNameAttr.getValue();
@@ -3064,7 +3064,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private void addMissingMembersWhileSynchronization(PerunSession sess, Group group, List<Candidate> candidatesToAdd, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<String> skippedMembers) throws InternalErrorException {
 		// Now add missing members
 		for (Candidate candidate: candidatesToAdd) {
-			Member member = null;
+			Member member;
 			try {
 				// Check if the member is already in the VO (just not in the group)
 				member = getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate.getUserExtSources());

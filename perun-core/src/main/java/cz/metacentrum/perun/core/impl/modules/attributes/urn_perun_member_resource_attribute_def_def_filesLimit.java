@@ -31,7 +31,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Memb
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrFilesQuota = null;
+		Attribute attrFilesQuota;
 		Integer filesQuota = null;
 		Integer filesLimit = null;
 

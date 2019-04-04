@@ -51,7 +51,7 @@ public class urn_perun_user_attribute_def_virt_userCertExpirations extends UserV
 					DateFormat dateFormat = DateFormat.getDateInstance();
 					certsExpirations.put(certDN, dateFormat.format(x509.getNotAfter()));
 				}
-				attribute = Utils.copyAttributeToViAttributeWithoutValue(userCertsAttribute, attribute);
+				Utils.copyAttributeToViAttributeWithoutValue(userCertsAttribute, attribute);
 			}
 		} catch (AttributeNotExistsException ex) {
 			// FIXME throw new WrongReferenceAttributeValueException("User " + user + " doesn't have assigned urn:perun:user:attribute-def:def:userCertificates attribute", ex);

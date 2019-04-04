@@ -911,7 +911,7 @@ public class UsersManagerEntry implements UsersManager {
 
 		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
 
-		List<User> users = null;
+		List<User> users;
 		try {
 			users = getUsersManagerBl().getUsersByAttributeValue(sess, attributeName , login);
 		} catch (ConsistencyErrorException e) {

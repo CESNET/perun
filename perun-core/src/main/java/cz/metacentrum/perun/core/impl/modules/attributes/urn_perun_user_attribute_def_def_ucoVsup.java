@@ -56,7 +56,7 @@ public class urn_perun_user_attribute_def_def_ucoVsup extends UserAttributesModu
 		if (attribute.getValue() != null) {
 
 			// add UES
-			ExtSource es = null;
+			ExtSource es;
 
 			try {
 				es = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, "UCO");

@@ -244,7 +244,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	protected String getLdapAttributeValue(Attributes attributes, String ldapAttrNameRaw)  throws InternalErrorException {
 		String ldapAttrName;
 		String rule = null;
-		Matcher matcher = null;
+		Matcher matcher;
 		String attrValue = "";
 
 		// Check if the ldapAttrName contains regex
@@ -279,7 +279,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 					continue;
 				}
 
-				String tmpAttrValue = "";
+				String tmpAttrValue;
 				try {
 					if(attr.get() instanceof byte[]) {
 						// It can be byte array with cert or binary file

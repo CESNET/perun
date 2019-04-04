@@ -35,28 +35,18 @@ public class ServiceDenialDaoJdbc extends JdbcDaoSupport implements ServiceDenia
 
 	@Override
 	public List<Service> getServicesBlockedOnFacility(int facilityId) {
-		List<Service> deniedServices = getJdbcTemplate()
+		return getJdbcTemplate()
 			.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
 					" from services left join service_denials on service_denials.service_id = services.id where service_denials.facility_id = ?",
 					ServicesManagerImpl.SERVICE_MAPPER, facilityId);
-		if (deniedServices != null) {
-			return deniedServices;
-		} else {
-			return new ArrayList<>();
-		}
 	}
 
 	@Override
 	public List<Service> getServicesBlockedOnDestination(int destinationId) {
-		List<Service> deniedServices = getJdbcTemplate()
+		return getJdbcTemplate()
 			.query("select " + ServicesManagerImpl.serviceMappingSelectQuery +
 					" from services left join service_denials on service_denials.service_id = services.id where service_denials.destination_id = ?",
 					ServicesManagerImpl.SERVICE_MAPPER, destinationId);
-		if (deniedServices != null) {
-			return deniedServices;
-		} else {
-			return new ArrayList<>();
-		}
 	}
 
 	@Override
@@ -70,8 +60,7 @@ public class ServiceDenialDaoJdbc extends JdbcDaoSupport implements ServiceDenia
 
 	@Override
 	public boolean isServiceBlockedOnFacility(int serviceId, int facilityId) {
-		int denials = 0;
-		denials = this.queryForInt("select count(*) from service_denials where service_id = ? and facility_id = ?", serviceId, facilityId);
+		int denials = this.queryForInt("select count(*) from service_denials where service_id = ? and facility_id = ?", serviceId, facilityId);
 		if (denials > 0) {
 			return true;
 		}
@@ -80,8 +69,7 @@ public class ServiceDenialDaoJdbc extends JdbcDaoSupport implements ServiceDenia
 
 	@Override
 	public boolean isServiceBlockedOnDestination(int serviceId, int destinationId) {
-		int denials = 0;
-		denials = this.queryForInt("select count(*) from service_denials where service_id = ? and destination_id = ?", serviceId, destinationId);
+		int denials = this.queryForInt("select count(*) from service_denials where service_id = ? and destination_id = ?", serviceId, destinationId);
 		if (denials > 0) {
 			return true;
 		}

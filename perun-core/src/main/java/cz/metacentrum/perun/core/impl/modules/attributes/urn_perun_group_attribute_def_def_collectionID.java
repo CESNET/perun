@@ -18,15 +18,13 @@ public class urn_perun_group_attribute_def_def_collectionID extends GroupAttribu
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
-		String collectionID = null;
-
 		// null attribute
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Attribute collectionID cannot be null.");
 
 		// wrong type of the attribute
 		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
 
-		collectionID = (String) attribute.getValue();
+		String collectionID = (String) attribute.getValue();
 
 		if (collectionID.isEmpty()) {
 			throw new WrongAttributeValueException(attribute, "Attribute collectionID cannot be empty.");

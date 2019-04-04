@@ -1424,15 +1424,12 @@ public class Utils {
 	 * allowed format is given by regex "\\+([0-9]+)([dmy]?)"
 	 */
 	public static LocalDate extendDateByPeriod(LocalDate localDate, String period) throws InternalErrorException {
-		// By default do not add nothing
-		int amount = 0;
-
 		// We will add days/months/years
 		Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
 		Matcher m = p.matcher(period);
 		if (m.matches()) {
 			String countString = m.group(1);
-			amount = Integer.valueOf(countString);
+			int amount = Integer.valueOf(countString);
 
 			String dmyString = m.group(2);
 			switch (dmyString) {

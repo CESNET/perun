@@ -88,11 +88,8 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 				resourcesWithSameGroupNameInSameNamespace.addAll(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, groupNameOfResource));
 			}
 
-			//Prepare variable for commonGID
-			Integer commonGID = null;
-
 			//Test if exists common GID for this group and other groups and resources
-			commonGID = sess.getPerunBl().getModulesUtilsBl().getCommonGIDOfGroupsWithSameNameInSameNamespace(sess, new ArrayList(groupsWithSameGroupNameInSameNamespace), gidNamespace, commonGID);
+			Integer commonGID = sess.getPerunBl().getModulesUtilsBl().getCommonGIDOfGroupsWithSameNameInSameNamespace(sess, new ArrayList(groupsWithSameGroupNameInSameNamespace), gidNamespace, null);
 			commonGID = sess.getPerunBl().getModulesUtilsBl().getCommonGIDOfResourcesWithSameNameInSameNamespace(sess, new ArrayList(resourcesWithSameGroupNameInSameNamespace), gidNamespace, commonGID);
 
 			//If commonGID exists, set it
@@ -144,7 +141,7 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 			}
 
 			//Special behaviour if gid is null
-			Integer attrValue = null;
+			Integer attrValue;
 			if(attribute.getValue() == null) {
 				throw new WrongAttributeValueException(attribute, group, "Unix GID must be set");
 			} else {

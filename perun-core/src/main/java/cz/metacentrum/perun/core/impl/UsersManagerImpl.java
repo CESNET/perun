@@ -1195,7 +1195,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		int validWindow = BeansUtils.getCoreConfig().getMailchangeValidationWindow();
 
 		// get new email if possible
-		String newEmail = "";
+		String newEmail;
 		try {
 			if (Compatibility.isPostgreSql()) {
 				// postgres

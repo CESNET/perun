@@ -93,7 +93,7 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 
 		try {
 			Attribute groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_unixGroupName_namespace + unixGroupNameNamespaceAttribute.getValue());
-			attribute = Utils.copyAttributeToVirtualAttributeWithValue(groupNameAttribute, attribute);
+			Utils.copyAttributeToVirtualAttributeWithValue(groupNameAttribute, attribute);
 			return attribute;
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);

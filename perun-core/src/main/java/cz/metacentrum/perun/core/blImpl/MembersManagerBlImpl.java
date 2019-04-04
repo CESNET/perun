@@ -883,7 +883,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
 			attrsDef.add(attrDef);
 		}
-		List<RichMember> richMembersWithAttributes = null;
+		List<RichMember> richMembersWithAttributes;
 		try {
 			richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, resource, richMembers, attrsDef);
 		} catch (MemberResourceMismatchException ex) {
@@ -1265,13 +1265,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	public List<Member> findMembersInParentGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException {
 
 		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
-		List<Member> allGroupMembers = new ArrayList<>();
+		List<Member> allGroupMembers;
 		if(group.getParentGroupId() == null) {
-			Vo vo = null;
+			Vo vo;
 			try {
 				vo = getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId());
 			} catch (VoNotExistsException ex) {
-				throw new ConsistencyErrorException(group + " is not in " + vo);
+				throw new ConsistencyErrorException("Vo does not exist.");
 			}
 			allGroupMembers = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 		} else {
@@ -1628,7 +1628,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	  // Check if the VO has set membershipExpirationRules attribute
     LinkedHashMap<String, String> membershipExpirationRules;
 
-    Attribute membershipExpirationRulesAttribute = null;
+    Attribute membershipExpirationRulesAttribute;
     try {
       membershipExpirationRulesAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
       membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
@@ -1915,7 +1915,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// Check if the VO has set membershipExpirationRules attribute
 		LinkedHashMap<String, String> membershipExpirationRules;
 
-		Attribute membershipExpirationRulesAttribute = null;
+		Attribute membershipExpirationRulesAttribute;
 		try {
 			membershipExpirationRulesAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
 			membershipExpirationRules = (LinkedHashMap<String, String>) membershipExpirationRulesAttribute.getValue();
@@ -1978,7 +1978,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		LinkedHashMap<String, String> membershipExpirationRules;
 
 		Vo vo;
-		Attribute membershipExpirationRulesAttribute = null;
+		Attribute membershipExpirationRulesAttribute;
 		try {
 			vo = getPerunBl().getVosManagerBl().getVoById(sess, member.getVoId());
 			membershipExpirationRulesAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, vo, MembersManager.membershipExpirationRulesAttributeName);
@@ -2006,7 +2006,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		// Get current membershipExpiration date
-		Attribute membershipExpirationAttribute = null;
+		Attribute membershipExpirationAttribute;
 		try {
 			membershipExpirationAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member,
 					EXPIRATION);
@@ -2017,7 +2017,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException(e);
 		}
 
-		boolean isServiceUser = false;
+		boolean isServiceUser;
 		try {
 			User user = getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
 			isServiceUser = user.isServiceUser();

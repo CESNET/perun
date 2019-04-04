@@ -41,9 +41,9 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrDefaultDataQuota = null;
-		String defaultDataQuota = null;
-		String defaultDataLimit = null;
+		Attribute attrDefaultDataQuota;
+		String defaultDataQuota;
+		String defaultDataLimit;
 
 		String defaultDataQuotaNumber = null;
 		String defaultDataQuotaLetter = null;

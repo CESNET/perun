@@ -25,7 +25,7 @@ public class urn_perun_user_facility_attribute_def_def_o365AccountExtension exte
 		String o365AccExtTime = (String) attribute.getValue();
 
 		if(o365AccExtTime == null) return; //null is allowed value
-		Date testDate = null;
+		Date testDate;
 		try {
 			testDate = BeansUtils.getDateFormatterWithoutTime().parse(o365AccExtTime);
 		} catch (ParseException ex) {

@@ -37,7 +37,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 		if (accExpTime == null) {
 			throw new WrongAttributeValueException("account expiration time shouldn't be null");
 		}
-		Integer facilityAccExpTime = null;
+		Integer facilityAccExpTime;
 		try {
 			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_D_accountExpirationTime).getValue();
 		} catch (AttributeNotExistsException ex) {
@@ -57,7 +57,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute ret = new Attribute(attribute);
 		List<Integer> resourcesExpTimes = new ArrayList<>();
-		Integer resourceExpTime = null;
+		Integer resourceExpTime;
 		for (Resource r : perunSession.getPerunBl().getUsersManagerBl().getAllowedResources(perunSession, facility, user)) {
 			try { //getting all resources at which user has access
 				resourceExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, r, attribute.getName()).getValue();
@@ -68,7 +68,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTime ext
 				throw new InternalErrorException(ex);
 			}
 		}
-		Integer facilityAccExpTime = null;
+		Integer facilityAccExpTime;
 		try {
 			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, attribute.getName()).getValue();
 		} catch (AttributeNotExistsException ex) {

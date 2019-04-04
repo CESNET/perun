@@ -44,9 +44,9 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrProjectDataQuota = null;
-		String projectDataQuota = null;
-		String projectDataLimit = null;
+		Attribute attrProjectDataQuota;
+		String projectDataQuota;
+		String projectDataLimit;
 
 		String projectDataQuotaNumber = null;
 		String projectDataQuotaLetter = null;

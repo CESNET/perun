@@ -33,7 +33,7 @@ public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttrib
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Member member, AttributeDefinition attributeDefinition) throws InternalErrorException {
-		User user = null;
+		User user;
 		try {
 			user = sess.getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
 		} catch(UserNotExistsException ex) {

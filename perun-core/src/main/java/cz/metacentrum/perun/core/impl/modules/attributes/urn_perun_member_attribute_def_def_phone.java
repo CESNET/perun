@@ -31,7 +31,6 @@ public class urn_perun_member_attribute_def_def_phone extends MemberAttributesMo
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
-		String phone = null;
 
 		// null attribute
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "User attribute phone cannot be null.");
@@ -39,7 +38,7 @@ public class urn_perun_member_attribute_def_def_phone extends MemberAttributesMo
 		// wrong type of the attribute
 		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
 
-		phone = (String) attribute.getValue();
+		String phone = (String) attribute.getValue();
 
 		Matcher matcher = pattern.matcher(phone);
 		if (!matcher.matches()) {

@@ -65,7 +65,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) throws InternalErrorException {
 
 		// Get the URL, if query was provided it has precedence over url attribute defined in extSource
-		String url = null;
+		String url;
 		if (query != null && !query.isEmpty()) {
 			url = query;
 		} else if (getAttributes().get("url") != null) {
@@ -77,15 +77,15 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		log.debug("Searching in external source url:'{}'", url);
 
 		// If there is a search string, replace all occurences of the * with the searchstring
-		if (searchString != null && searchString != "") {
-			url.replaceAll("\\*", searchString);
+		if (searchString != null && !searchString.equals("")) {
+			url = url.replaceAll("\\*", searchString);
 		}
 
 		try {
 			URL u = new URL(url);
 
 			// Check supported protocols
-			HttpURLConnection http = null;
+			HttpURLConnection http;
 			if (u.getProtocol().equals("https")) {
 				http = (HttpsURLConnection)u.openConnection();
 			} else if (u.getProtocol().equals("http")) {
@@ -112,7 +112,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 
 			InputStream is = http.getInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			String line = null;
+			String line;
 
 			List<Map<String, String>> subjects = new ArrayList<>();
 
@@ -136,7 +136,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 
 				String name = entries[2];
 				// Remove "" from name
-				name.replaceAll("^\"|\"$", "");
+				name = name.replaceAll("^\"|\"$", "");
 				// entries[3] contains name of the user, so parse it to get titleBefore, firstName, lastName and titleAfter in separate fields
 				map.putAll(Utils.parseCommonName(name));
 

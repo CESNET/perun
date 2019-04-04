@@ -42,7 +42,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 
 		String groupName = (String) attribute.getValue();
-		Attribute isSystemGroup = new Attribute();
+		Attribute isSystemGroup;
 
 		if(groupName==null) {
 
@@ -73,8 +73,8 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 			if(!p.getLeft().equals(group) || !p.getRight().equals(resource)) {
 				Facility facilityForTest = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, p.getRight());
 
-				Attribute group1GID = new Attribute();
-				Attribute group2GID = new Attribute();
+				Attribute group1GID;
+				Attribute group2GID;
 
 				try {
 					group1GID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemUnixGID);

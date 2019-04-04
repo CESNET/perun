@@ -40,10 +40,9 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 	 */
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-		Facility facility = null;
-		facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
+		Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
 
-		Attribute facilityAttr = null;
+		Attribute facilityAttr;
 		try {
 			facilityAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_homeMountPoints);
 		} catch (AttributeNotExistsException ex) {
@@ -70,7 +69,7 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 		}
 		Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
 
-		Attribute facilityAttr = null;
+		Attribute facilityAttr;
 		try {
 			facilityAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, A_F_homeMountPoints);
 		} catch (AttributeNotExistsException ex) {

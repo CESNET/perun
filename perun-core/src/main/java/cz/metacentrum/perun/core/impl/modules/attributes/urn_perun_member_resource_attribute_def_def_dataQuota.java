@@ -42,9 +42,9 @@ public class urn_perun_member_resource_attribute_def_def_dataQuota extends Membe
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrDataLimit = null;
-		String dataQuota = null;
-		String dataLimit = null;
+		Attribute attrDataLimit;
+		String dataQuota;
+		String dataLimit;
 
 		String dataQuotaNumber = null;
 		String dataQuotaLetter = null;

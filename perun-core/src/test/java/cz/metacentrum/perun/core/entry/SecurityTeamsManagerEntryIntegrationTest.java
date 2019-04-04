@@ -408,7 +408,6 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue("SecurityTeam should have no admins.", admins.isEmpty());
-		assertTrue("User 0 shouldn't be admin of security team.", !admins.contains(u0));
 
 		securityTeamsManagerEntry.addAdmin(sess, st0, u0);
 

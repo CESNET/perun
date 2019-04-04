@@ -46,7 +46,7 @@ public class urn_perun_facility_attribute_def_virt_GIDRanges extends FacilityVir
 		Attribute gidNamespaceAttribute = getUnixGIDNamespaceAttribute(sess, facility);
 		if(gidNamespaceAttribute.getValue() == null) return attribute;
 		Attribute namespaceGIDRangesAttribute = getNamespaceGIDRangesAttribute(sess, (String) gidNamespaceAttribute.getValue());
-		attribute = Utils.copyAttributeToVirtualAttributeWithValue(namespaceGIDRangesAttribute, attribute);
+		Utils.copyAttributeToVirtualAttributeWithValue(namespaceGIDRangesAttribute, attribute);
 		return attribute;
 	}
 

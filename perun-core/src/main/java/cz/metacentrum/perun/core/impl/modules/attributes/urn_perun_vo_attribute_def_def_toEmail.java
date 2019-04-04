@@ -19,15 +19,13 @@ public class urn_perun_vo_attribute_def_def_toEmail extends VoAttributesModuleAb
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
-		List<String> toEmails = null;
-
 		// null attribute
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Vo toEmail list cannot be null.");
 
 		// wrong type of the attribute
 		if (!(attribute.getValue() instanceof List)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: List");
 
-		toEmails = (List) attribute.getValue();
+		List<String> toEmails = (List) attribute.getValue();
 
 		// the List is empty
 		if (toEmails.isEmpty()) throw new WrongAttributeValueException(attribute, "Attribute List of toEmails is empty.");

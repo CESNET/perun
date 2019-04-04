@@ -436,8 +436,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 				List<Member> membersInGroup = result.getMembers();
 
 				for (Member member : membersInGroup) {
-					Map<String, String> map = new HashMap<>();
-					map = processGoogleMappingAttribute(member.getId());
+					Map<String, String> map = processGoogleMappingAttribute(member.getId());
 
 					if (!map.isEmpty()) {
 						subjects.add(map);
@@ -515,7 +514,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * @throws InternalErrorException
 	 */
 	private List<Map<String, String>> querySource(String query, int maxResults) throws InternalErrorException {
-		List<Map<String, String>> subjects = new ArrayList<>();
+		List<Map<String, String>> subjects;
 
 		// Symbol '=' indicates getSubjectByLogin() or getGroupSubjects method
 		int index = query.indexOf("=");

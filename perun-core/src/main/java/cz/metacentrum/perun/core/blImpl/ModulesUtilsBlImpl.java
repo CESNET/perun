@@ -769,23 +769,21 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			BigDecimal hardQuotaAfterTransfer;
 			//special behavior with metrics
 			if(withMetrics) {
-				String softQuotaNumber = null;
 				Matcher numberMatcher = numberPattern.matcher(softQuota);
 				if(!numberMatcher.find()) throw new ConsistencyErrorException("Matcher can't find number in softQuota '" + softQuota + "' in attribute " + quotasAttribute);
-				softQuotaNumber = numberMatcher.group();
+				String softQuotaNumber = numberMatcher.group();
 
 				//SoftQuotaLetter
-				String softQuotaLetter = null;
+				String softQuotaLetter;
 				Matcher letterMatcher = letterPattern.matcher(softQuota);
 				//in this case no letter means default and default is G
 				if(!letterMatcher.find()) softQuotaLetter = "G";
 				else softQuotaLetter = letterMatcher.group();
 
 				//HardQuotaNumber
-				String hardQuotaNumber = null;
 				numberMatcher = numberPattern.matcher(hardQuota);
 				if(!numberMatcher.find()) throw new ConsistencyErrorException("Matcher can't find number in hardQuota '" + hardQuota + "' in attribute " + quotasAttribute);
-				hardQuotaNumber = numberMatcher.group();
+				String hardQuotaNumber = numberMatcher.group();
 
 				//HardQuotaLetter
 				String hardQuotaLetter;

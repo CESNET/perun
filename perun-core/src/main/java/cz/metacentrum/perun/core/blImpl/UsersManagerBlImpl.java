@@ -754,10 +754,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
-		List<User> allSearchingUsers = new ArrayList<>();
-		List<User> allVoUsers = new ArrayList<>();
-		allSearchingUsers = this.findUsers(sess, searchString);
-		allVoUsers = getUsersManagerImpl().getUsersByVo(sess, vo);
+		List<User> allSearchingUsers = this.findUsers(sess, searchString);
+		List<User> allVoUsers = getUsersManagerImpl().getUsersByVo(sess, vo);
 		allSearchingUsers.removeAll(allVoUsers);
 		return allSearchingUsers;
 	}
@@ -2374,7 +2372,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public List<Group> getGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user) throws InternalErrorException {
 
 		Vo vo = getPerunBl().getResourcesManagerBl().getVo(sess, resource);
-		Member voMember = null;
+		Member voMember;
 		try {
 			voMember = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, user);
 		} catch (MemberNotExistsException e) {

@@ -51,7 +51,7 @@ public class urn_perun_facility_attribute_def_virt_minUID extends FacilityVirtua
 		Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
 		if(uidNamespaceAttribute.getValue() == null) return attribute;
 		Attribute namespaceMinUidAttribute = getNamespaceMinUidAttribute(sess, (String) uidNamespaceAttribute.getValue());
-		attribute = Utils.copyAttributeToVirtualAttributeWithValue(namespaceMinUidAttribute, attribute);
+		Utils.copyAttributeToVirtualAttributeWithValue(namespaceMinUidAttribute, attribute);
 		return attribute;
 	}
 

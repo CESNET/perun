@@ -41,8 +41,8 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 
 		if(isSystemUnixGroup != 0 && isSystemUnixGroup != 1) throw new WrongAttributeValueException(attribute, "Attribute isSystemUnixGroup should not other number than 0 or 1.");
 
-		Attribute sysUnixGroupName = new Attribute();
-		Attribute sysUnixGID = new Attribute();
+		Attribute sysUnixGroupName;
+		Attribute sysUnixGID;
 
 		if(isSystemUnixGroup == 1) {
 

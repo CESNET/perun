@@ -155,7 +155,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 		if(attribute.getValue() != null) {
 
 			// add UES
-			ExtSource es = null;
+			ExtSource es;
 
 			try {
 				es = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, "AD");

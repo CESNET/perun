@@ -20,15 +20,13 @@ public class urn_perun_vo_attribute_def_def_contactEmail extends VoAttributesMod
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
-		List<String> contactEmails = null;
-
 		// null attribute
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Vo contact email list cannot be null.");
 
 		// wrong type of the attribute
 		if (!(attribute.getValue() instanceof List)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: List");
 
-		contactEmails = (List) attribute.getValue();
+		List<String> contactEmails = (List) attribute.getValue();
 
 		// the List is empty
 		if (contactEmails.isEmpty()) throw new WrongAttributeValueException(attribute, "Attribute List of contact emails is empty.");

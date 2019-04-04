@@ -30,7 +30,7 @@ public class urn_perun_user_attribute_def_virt_vomsDiracNickname extends UserVir
 
 		try {
 			Attribute loginInEgiui = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_loginNamespace_egiUi);
-			attribute = Utils.copyAttributeToVirtualAttributeWithValue(loginInEgiui, attribute);
+			Utils.copyAttributeToVirtualAttributeWithValue(loginInEgiui, attribute);
 		} catch (AttributeNotExistsException ex) {
 			//That means that egi-ui attribute not exists at all, return empty attribute
 			return attribute;

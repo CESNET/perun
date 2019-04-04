@@ -113,7 +113,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public List<TaskResult> getTaskResults(int engineID) {
-		List<TaskResult> taskResults = this.getJdbcTemplate().query(
+		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
@@ -122,27 +122,17 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				" where tasks_results.engine_id = ?",
 				TASKRESULT_ROWMAPPER,
 				engineID);
-		if (taskResults != null) {
-			return taskResults;
-		} else {
-			return new ArrayList<>();
-		}
 	}
 
 	@Override
 	public List<TaskResult> getTaskResults() {
-		List<TaskResult> taskResults = this.getJdbcTemplate().query(
+		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
 				" left join tasks on tasks.id = tasks_results.task_id " +
 				" left join services on services.id = tasks.service_id",
 				TASKRESULT_ROWMAPPER);
-		if (taskResults != null) {
-			return taskResults;
-		} else {
-			return new ArrayList<>();
-		}
 	}
 
 	@Override
@@ -211,7 +201,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public List<TaskResult> getTaskResultsByTask(int taskId, int engineID) {
-		List<TaskResult> taskResults = this.getJdbcTemplate().query(
+		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
@@ -219,11 +209,6 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				" left join services on services.id = tasks.service_id" +
 				" where tasks_results.task_id = ? and tasks_results.engine_id = ?",
 				TASKRESULT_ROWMAPPER, taskId, engineID);
-		if (taskResults != null) {
-			return taskResults;
-		} else {
-			return new ArrayList<>();
-		}
 	}
 
 
@@ -256,7 +241,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public List<TaskResult> getTaskResultsByTask(int taskId) {
-		List<TaskResult> taskResults = this.getJdbcTemplate().query(
+		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
@@ -264,16 +249,11 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				" left join services on services.id = tasks.service_id" +
 				" where tasks_results.task_id = ?",
 				TASKRESULT_ROWMAPPER, taskId);
-		if (taskResults != null) {
-			return taskResults;
-		} else {
-			return new ArrayList<>();
-		}
 	}
 
 	@Override
 	public List<TaskResult> getTaskResultsByTaskAndDestination(int taskId, int destinationId) {
-		List<TaskResult> taskResults = this.getJdbcTemplate().query(
+		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 						ServicesManagerImpl.serviceMappingSelectQuery +
 						" from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
@@ -282,11 +262,6 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 						" where tasks_results.task_id = ? AND" +
 						" tasks_results.destination_id=?",
 				TASKRESULT_ROWMAPPER, taskId, destinationId);
-		if (taskResults != null) {
-			return taskResults;
-		} else {
-			return new ArrayList<>();
-		}
 	}
 
 	public List<TaskResult> getTaskResultsForDestinations(List<String> destinationsNames) throws InternalErrorException {

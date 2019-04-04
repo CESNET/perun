@@ -27,7 +27,7 @@ public class urn_perun_resource_attribute_def_def_defaultFilesLimit extends Reso
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrDefaultFilesQuota = null;
+		Attribute attrDefaultFilesQuota;
 		Integer defaultFilesQuota = null;
 		Integer defaultFilesLimit = null;
 

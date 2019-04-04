@@ -90,7 +90,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 
 		try {
 			Attribute gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
-			attribute = Utils.copyAttributeToVirtualAttributeWithValue(gidAttribute, attribute);
+			Utils.copyAttributeToVirtualAttributeWithValue(gidAttribute, attribute);
 			return attribute;
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);

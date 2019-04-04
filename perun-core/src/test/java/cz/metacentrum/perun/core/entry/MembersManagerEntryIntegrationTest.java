@@ -1299,7 +1299,6 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		Member member = setUpMember(createdVo);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 
-		String extSourceName = "MembersManagerEntryIntegrationTest";
 		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		UserExtSource userExtSource = new UserExtSource();
 		ExtSource externalSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
@@ -1311,7 +1310,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		// set users login in his ext source
 		userExtSource = perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
 
-		extSourceName = userExtSource.getExtSource().getName();
+		String extSourceName = userExtSource.getExtSource().getName();
 		extLogin = userExtSource.getLogin();
 		Member returnedMember = membersManagerEntry.getMemberByExtSourceNameAndExtLogin(sess, createdVo, extSourceName, extLogin);
 		assertEquals("members should be the same",member, returnedMember);

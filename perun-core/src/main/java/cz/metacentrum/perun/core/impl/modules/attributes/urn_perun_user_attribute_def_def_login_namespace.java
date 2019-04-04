@@ -114,9 +114,8 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 			String salt = BeansUtils.getCoreConfig().getInstanceId();
 			MessageDigest mDigest = MessageDigest.getInstance("SHA1");
 			// counts sha1hash and converts output to hex
-			byte[] result = new byte[0];
 			int length = 4+salt.getBytes(StandardCharsets.UTF_8).length+domain.getBytes(StandardCharsets.UTF_8).length;
-			result = mDigest.digest(ByteBuffer.allocate(length).putInt(user.getId()).put(domain.getBytes(StandardCharsets.UTF_8)).put(salt.getBytes(StandardCharsets.UTF_8)).array());
+			byte[] result = mDigest.digest(ByteBuffer.allocate(length).putInt(user.getId()).put(domain.getBytes(StandardCharsets.UTF_8)).put(salt.getBytes(StandardCharsets.UTF_8)).array());
 			StringBuilder sb = new StringBuilder();
 			for (byte b : result) {
 				sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
