@@ -985,8 +985,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		destination = setUpDestination();
 		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
 		List<RichDestination> richDestinations = perun.getServicesManager().getAllRichDestinations(sess, facility);
-		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there shoudl be one detination",!richDestinations.isEmpty());
+		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there is the right facility in the richDestination",richDestination.getFacility().equals(facility));
 		assertTrue("there is the right service in the richDestination",richDestination.getService().equals(service));
 		assertTrue("there is the right destination in the richDestination",richDestination.getDestination().equals(destination.getDestination()));
@@ -1000,8 +1000,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		destination = setUpDestination();
 		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
 		List<RichDestination> richDestinations = perun.getServicesManager().getAllRichDestinations(sess, service);
-		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there shoudl be one detination",!richDestinations.isEmpty());
+		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there is the right facility in the richDestination",richDestination.getFacility().equals(facility));
 		assertTrue("there is the right service in the richDestination",richDestination.getService().equals(service));
 		assertTrue("there is the right destination in the richDestination",richDestination.getDestination().equals(destination.getDestination()));
@@ -1015,8 +1015,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		destination = setUpDestination();
 		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
 		List<RichDestination> richDestinations = perun.getServicesManager().getRichDestinations(sess, facility, service);
-		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there shoudl be one detination",!richDestinations.isEmpty());
+		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there is the right facility in the richDestination",richDestination.getFacility().equals(facility));
 		assertTrue("there is the right service in the richDestination",richDestination.getService().equals(service));
 		assertTrue("there is the right destination in the richDestination",richDestination.getDestination().equals(destination.getDestination()));

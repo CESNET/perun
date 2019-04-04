@@ -65,7 +65,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 	};
 
 	public synchronized NamedParameterJdbcTemplate getNamedParameterJdbcTemplate() {
-		if (this.namedParameterJdbcTemplate == null) {
+		if (this.namedParameterJdbcTemplate == null && this.getDataSource() != null) {
 			this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.getDataSource());
 		}
 		return this.namedParameterJdbcTemplate;

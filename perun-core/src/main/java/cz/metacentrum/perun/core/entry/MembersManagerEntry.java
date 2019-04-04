@@ -1167,9 +1167,11 @@ public class MembersManagerEntry implements MembersManager {
 			throw new InternalErrorException(ex);
 		}
 
-		String mailAddress = (String) mailAttribute.getValue();
+		if (mailAttribute != null) {
+			String mailAddress = mailAttribute.valueAsString();
 
-		getMembersManagerBl().sendPasswordResetLinkEmail(sess, member, namespace, url, mailAddress, language);
+			getMembersManagerBl().sendPasswordResetLinkEmail(sess, member, namespace, url, mailAddress, language);
+		}
 
 	}
 

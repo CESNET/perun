@@ -153,7 +153,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 				}
 				// fetch each resource tag and add it to rich resource
 				ResourceTag tag = RESOURCE_TAG_MAPPER.mapRow(rs, rs.getRow());
-				if (tag.getId() != 0) {
+				if (tag != null && tag.getId() != 0) {
 					// add only if exists
 					myObject.addResourceTag(tag);
 				}

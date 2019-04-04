@@ -110,9 +110,11 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 		if (blacklist != null && !blacklist.isEmpty() && !forceDelete) {
 			throw new RelationExistsException("SecurityTeam has blacklisted users.");
 		}
-		for (User blacklistedUser : blacklist) {
-			// calling BL will make auditer message about user to appear.
-			getPerunBl().getSecurityTeamsManagerBl().removeUserFromBlacklist(sess, securityTeam, blacklistedUser);
+		if (blacklist != null) {
+			for (User blacklistedUser : blacklist) {
+				// calling BL will make auditer message about user to appear.
+				getPerunBl().getSecurityTeamsManagerBl().removeUserFromBlacklist(sess, securityTeam, blacklistedUser);
+			}
 		}
 
 		// remove security team from all facilities
@@ -120,9 +122,11 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 		if (facilities != null && !facilities.isEmpty() && !forceDelete) {
 			throw new RelationExistsException("SecurityTeam is assigned to some facilities.");
 		}
-		for (Facility facility : facilities) {
-			// calling BL will make auditer message about facility to appear.
-			getPerunBl().getFacilitiesManagerBl().removeSecurityTeam(sess, facility, securityTeam);
+		if (facilities != null) {
+			for (Facility facility : facilities) {
+				// calling BL will make auditer message about facility to appear.
+				getPerunBl().getFacilitiesManagerBl().removeSecurityTeam(sess, facility, securityTeam);
+			}
 		}
 
 		getSecurityTeamsManagerImpl().deleteSecurityTeam(sess, securityTeam);

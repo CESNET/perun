@@ -1319,7 +1319,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						someChange = true;
 					}
 
-					if (someChange) {
+					if (someChange && kerberosLoginsAttr != null) {
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
 					}
@@ -1346,7 +1346,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 					}
 
-					if (!kerberosLogins.contains(userLogin + "@EGI")) {
+					if (!kerberosLogins.contains(userLogin + "@EGI") && kerberosLoginsAttr != null) {
 						kerberosLogins.add(userLogin + "@EGI");
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
@@ -1374,7 +1374,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 					}
 
-					if (!kerberosLogins.contains(userLogin + "@SITOLA.FI.MUNI.CZ")) {
+					if (!kerberosLogins.contains(userLogin + "@SITOLA.FI.MUNI.CZ") && kerberosLoginsAttr != null) {
 						kerberosLogins.add(userLogin + "@SITOLA.FI.MUNI.CZ");
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
@@ -1402,7 +1402,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 					}
 
-					if (!kerberosLogins.contains(userLogin + "@ICS.MUNI.CZ")) {
+					if (!kerberosLogins.contains(userLogin + "@ICS.MUNI.CZ") && kerberosLoginsAttr != null) {
 						kerberosLogins.add(userLogin + "@ICS.MUNI.CZ");
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
@@ -1458,7 +1458,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 					}
 
-					if (!kerberosLogins.contains(userLogin + "@ELIXIR-EUROPE.ORG")) {
+					if (!kerberosLogins.contains(userLogin + "@ELIXIR-EUROPE.ORG") && kerberosLoginsAttr != null) {
 						kerberosLogins.add(userLogin + "@ELIXIR-EUROPE.ORG");
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
@@ -1486,7 +1486,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 					}
 
-					if (!kerberosLogins.contains(userLogin + "@EINFRA-SERVICES")) {
+					if (!kerberosLogins.contains(userLogin + "@EINFRA-SERVICES") && kerberosLoginsAttr != null) {
 						kerberosLogins.add(userLogin + "@EINFRA-SERVICES");
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);

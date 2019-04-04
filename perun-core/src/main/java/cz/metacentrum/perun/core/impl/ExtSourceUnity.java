@@ -102,7 +102,7 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
 
         List<Map<String, String>> subjects = jsonParsing(query, 0);
 
-        if (subjects.isEmpty()) {
+        if (subjects == null || subjects.isEmpty()) {
             throw new SubjectNotExistsException("Login: " + login);
         }
         if (subjects.size() > 1) {

@@ -59,8 +59,11 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 			}
 		}
 
-		Matcher matcher = pattern.matcher(groupName);
-		if(!matcher.matches()) throw new WrongAttributeValueException(attribute,"String with other chars than numbers, letters or symbols _ and - is not allowed value.");
+		if (groupName != null) {
+			Matcher matcher = pattern.matcher(groupName);
+			if (!matcher.matches())
+				throw new WrongAttributeValueException(attribute, "String with other chars than numbers, letters or symbols _ and - is not allowed value.");
+		}
 
 		//Get facility for the resource
 		Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);

@@ -216,7 +216,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	 */
 	private boolean isGIDWithinRanges(Map<Integer,Integer> gidRanges, Integer gid) {
 		if(gid == null) return false;
-		if(gidRanges == null | gidRanges.isEmpty()) return false;
+		if(gidRanges == null || gidRanges.isEmpty()) return false;
 
 		//Test all valid ranges
 		for(Integer minimum: gidRanges.keySet()) {
