@@ -1089,7 +1089,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		} else if(facility != null) {
 			List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 			users.addAll(usersFromFacility);
-		} else if(vo != null) {
+		} else {
 			List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 			List<User> usersFromVo = new ArrayList<>();
 			for(Member memberElement: members) {

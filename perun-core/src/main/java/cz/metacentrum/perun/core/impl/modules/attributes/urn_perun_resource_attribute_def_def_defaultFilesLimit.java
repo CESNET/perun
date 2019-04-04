@@ -53,7 +53,7 @@ public class urn_perun_resource_attribute_def_def_defaultFilesLimit extends Reso
 		//Compare defaultFilesLimit with defaultFilesQuota
 		if(defaultFilesQuota == null || defaultFilesQuota == 0) {
 			if(defaultFilesLimit != null && defaultFilesLimit != 0) throw new WrongReferenceAttributeValueException(attribute, attrDefaultFilesQuota, resource, null, resource, null, "Try to set limited limit, but there is still set unlimited Quota.");
-		} else if((defaultFilesQuota != null && defaultFilesQuota != 0) && (defaultFilesLimit != null && defaultFilesLimit != 0)) {
+		} else if(defaultFilesLimit != null && defaultFilesLimit != 0) {
 			if(defaultFilesLimit < defaultFilesQuota) throw new WrongReferenceAttributeValueException(attribute, attrDefaultFilesQuota, resource, null, resource, null, attribute + " must be more than or equals to " + attrDefaultFilesQuota);
 		}
 	}

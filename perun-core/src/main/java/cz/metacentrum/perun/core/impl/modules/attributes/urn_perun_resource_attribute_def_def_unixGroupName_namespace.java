@@ -113,9 +113,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 		String groupNameNamespace = attribute.getFriendlyNameParameter();
 
 		try {
-			if(attribute.getValue() == null) {
-				//This is ok, for now no changes for removing some GroupName of this Resource
-			} else {
+			if(attribute.getValue() != null) {
 				//First need to find facility for the group
 				Facility facilityOfResource = session.getPerunBl().getResourcesManagerBl().getFacility(session, resource);
 				String gidNamespace = null;

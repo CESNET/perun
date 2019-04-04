@@ -1081,72 +1081,56 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if (user != null) makeUserPerunAdmin(sess, user);
 					else throw new InternalErrorException("Not supported perunRole on authorizedGroup.");
 				} else if (role.equals(Role.VOOBSERVER)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't set VoObserver rights without Vo.");
-					} else if (complementaryObject instanceof Vo) {
+					if (complementaryObject instanceof Vo) {
 						if (user != null) authzResolverImpl.addVoRole(sess, Role.VOOBSERVER, (Vo) complementaryObject, user);
 						else authzResolverImpl.addVoRole(sess, Role.VOOBSERVER, (Vo) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for VoObserver role: " + complementaryObject);
 					}
 				} else if (role.equals(Role.VOADMIN)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't set VoAdmin rights without Vo.");
-					} else if (complementaryObject instanceof Vo) {
+					if (complementaryObject instanceof Vo) {
 						if (user != null) authzResolverImpl.addVoRole(sess, Role.VOADMIN,(Vo) complementaryObject, user);
 						else authzResolverImpl.addVoRole(sess, Role.VOADMIN, (Vo) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for VoAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.TOPGROUPCREATOR)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't set TopGroupCreator rights without Vo.");
-					} else if (complementaryObject instanceof Vo) {
+					if (complementaryObject instanceof Vo) {
 						if (user != null) authzResolverImpl.addVoRole(sess, Role.TOPGROUPCREATOR, (Vo) complementaryObject, user);
 						else authzResolverImpl.addVoRole(sess, Role.TOPGROUPCREATOR, (Vo) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for VoObserver role: " + complementaryObject);
 					}
 				} else if (role.equals(Role.GROUPADMIN)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't set GroupAdmin rights without Group.");
-					} else if (complementaryObject instanceof Group) {
+					if (complementaryObject instanceof Group) {
 						if (user != null) authzResolverImpl.addAdmin(sess, (Group) complementaryObject, user);
 						else authzResolverImpl.addAdmin(sess, (Group) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for GroupAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.FACILITYADMIN)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't set FacilityAdmin rights without Facility.");
-					} else if (complementaryObject instanceof Facility) {
+					if (complementaryObject instanceof Facility) {
 						if (user != null) authzResolverImpl.addAdmin(sess, (Facility) complementaryObject, user);
 						else authzResolverImpl.addAdmin(sess, (Facility) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.RESOURCEADMIN)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't set ResourceAdmin rights without Resource.");
-					} else if (complementaryObject instanceof Resource) {
+					if (complementaryObject instanceof Resource) {
 						if (user != null) authzResolverImpl.addAdmin(sess, (Resource) complementaryObject, user);
 						else authzResolverImpl.addAdmin(sess, (Resource) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for ResourceAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.SECURITYADMIN)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't set SecurityAdmin rights without SecurityTeam.");
-					} else if (complementaryObject instanceof SecurityTeam) {
+					if (complementaryObject instanceof SecurityTeam) {
 						if (user != null) addAdmin(sess, (SecurityTeam) complementaryObject, user);
 						else addAdmin(sess, (SecurityTeam) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.SPONSOR)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't set SponsoredUser rights without user.");
-					} else if (complementaryObject instanceof User) {
+					if (complementaryObject instanceof User) {
 						if (user != null) authzResolverImpl.addAdmin(sess, (User) complementaryObject, user);
 						else authzResolverImpl.addAdmin(sess, (User) complementaryObject, authorizedGroup);
 					} else if (complementaryObject instanceof Vo) {
@@ -1156,9 +1140,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 						throw new InternalErrorException("Not supported complementary object for SponsoredUser: " + complementaryObject);
 					}
 				} else if (role.equals(Role.RESOURCESELFSERVICE)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't set ResourceSelfService rights without resource.");
-					} else if (complementaryObject instanceof Resource) {
+					if (complementaryObject instanceof Resource) {
 						if (user != null) authzResolverImpl.addResourceRole(sess, user, role, (Resource) complementaryObject);
 						else authzResolverImpl.addResourceRole(sess, authorizedGroup, role, (Resource) complementaryObject);
 					}
@@ -1174,72 +1156,56 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if (user != null) authzResolverImpl.removePerunAdmin(sess, user);
 					else throw new InternalErrorException("Not supported perunRole on authorizedGroup.");
 				} else if (role.equals(Role.VOOBSERVER)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't unset VoObserver rights without Vo this way.");
-					} else if (complementaryObject instanceof Vo) {
+					if (complementaryObject instanceof Vo) {
 						if (user != null) authzResolverImpl.removeVoRole(sess, Role.VOOBSERVER, (Vo) complementaryObject, user);
 						else authzResolverImpl.removeVoRole(sess, Role.VOOBSERVER, (Vo) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for VoObserver: " + complementaryObject);
 					}
 				} else if (role.equals(Role.VOADMIN)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't unset VoAdmin rights without Vo this way.");
-					} else if (complementaryObject instanceof Vo) {
+					if (complementaryObject instanceof Vo) {
 						if (user != null) authzResolverImpl.removeVoRole(sess, Role.VOADMIN,(Vo) complementaryObject, user);
 						else authzResolverImpl.removeVoRole(sess, Role.VOADMIN,(Vo) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for VoAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.TOPGROUPCREATOR)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't set TopGroupCreator rights without Vo.");
-					} else if (complementaryObject instanceof Vo) {
+					if (complementaryObject instanceof Vo) {
 						if (user != null) authzResolverImpl.removeVoRole(sess, Role.TOPGROUPCREATOR, (Vo) complementaryObject, user);
 						else authzResolverImpl.removeVoRole(sess, Role.TOPGROUPCREATOR, (Vo) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for VoObserver role: " + complementaryObject);
 					}
 				} else if (role.equals(Role.GROUPADMIN)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't unset GroupAdmin rights without Group this way.");
-					} else if (complementaryObject instanceof Group) {
+					if (complementaryObject instanceof Group) {
 						if (user != null) authzResolverImpl.removeAdmin(sess, (Group) complementaryObject, user);
 						else authzResolverImpl.removeAdmin(sess, (Group) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for GroupAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.FACILITYADMIN)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't unset FacilityAdmin rights without Facility this way.");
-					} else if (complementaryObject instanceof Facility) {
+					if (complementaryObject instanceof Facility) {
 						if (user != null) authzResolverImpl.removeAdmin(sess, (Facility) complementaryObject, user);
 						else authzResolverImpl.removeAdmin(sess, (Facility) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.RESOURCEADMIN)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't unset ResourceAdmin rights without Resource this way.");
-					} else if (complementaryObject instanceof Resource) {
+					if (complementaryObject instanceof Resource) {
 						if (user != null) authzResolverImpl.removeAdmin(sess, (Resource) complementaryObject, user);
 						else authzResolverImpl.removeAdmin(sess, (Resource) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for ResourceAdmin: " + complementaryObject);
 					}
 				} else if (role.equals(Role.SECURITYADMIN)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't unset SecurityAdmin rights without Security this way.");
-					} else if (complementaryObject instanceof SecurityTeam) {
+					if (complementaryObject instanceof SecurityTeam) {
 						if (user != null) removeAdmin(sess, (SecurityTeam) complementaryObject, user);
 						else removeAdmin(sess, (SecurityTeam) complementaryObject, authorizedGroup);
 					} else {
 						throw new InternalErrorException("Not supported complementary object for VoObserver: " + complementaryObject);
 					}
 				} else if (role.equals(Role.SPONSOR)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't unset Sponsor rights without User this way.");
-					} else if (complementaryObject instanceof User) {
+					if (complementaryObject instanceof User) {
 						if (user != null) authzResolverImpl.removeAdmin(sess, (User) complementaryObject, user);
 						else authzResolverImpl.removeAdmin(sess, (User) complementaryObject, authorizedGroup);
 					} else if (complementaryObject instanceof Vo) {
@@ -1254,9 +1220,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 						throw new InternalErrorException("Not supported complementary object for Sponsor: " + complementaryObject);
 					}
 				} else if (role.equals(Role.RESOURCESELFSERVICE)) {
-					if (complementaryObject == null) {
-						throw new InternalErrorException("Not supported operation, can't unset ResourceSelfService rights without resource this way.");
-					} else if (complementaryObject instanceof Resource) {
+					if (complementaryObject instanceof Resource) {
 						if (user != null) authzResolverImpl.removeResourceRole(sess, role, (Resource) complementaryObject, user);
 						else authzResolverImpl.removeResourceRole(sess, role, (Resource) complementaryObject, authorizedGroup);
 					} else {

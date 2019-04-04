@@ -915,7 +915,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		List<String> similarAttrNames = new ArrayList<>();
 		String name = "urn:perun:user:attribute-def:def:login-namespace";
 		similarAttrNames = perun.getAttributesManagerBl().getAllSimilarAttributeNames(sess, name);
-		assertTrue("returned less than 0 names",similarAttrNames.size() >= 0);
+		//FIXME add assertion that tests the method
 	}
 
 	@Test

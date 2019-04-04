@@ -62,13 +62,13 @@ public class urn_perun_member_resource_attribute_def_def_filesQuota extends Memb
 		//Get FilesLimit value
 		if(attrFilesLimit != null &&  attrFilesLimit.getValue() != null) {
 			filesLimit = (Integer) attrFilesLimit.getValue();
-		} else if(attrFilesLimit == null || attrFilesLimit.getValue() == null) {
+		} else {
 			try {
 				attrFilesLimit = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultFilesLimit);
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute with defaultFilesLimit from resource " + resource.getId() + " could not obtained.", ex);
 			}
-			if(attrFilesLimit != null || attrFilesLimit.getValue() != null) {
+			if(attrFilesLimit != null && attrFilesLimit.getValue() != null) {
 				filesLimit = (Integer) attrFilesLimit.getValue();
 			}
 		}

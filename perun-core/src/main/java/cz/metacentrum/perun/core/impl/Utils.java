@@ -545,11 +545,9 @@ public class Utils {
 					}
 
 					//rest of parts if lastName exists go to the title after
-					if (lastNameDone) {
-						//add space if this is not first title after
-						if (titleAfter.isEmpty()) titleAfter += part;
-						else titleAfter += " " + part;
-					}
+					//add space if this is not first title after
+					if (titleAfter.isEmpty()) titleAfter += part;
+					else titleAfter += " " + part;
 				}
 			}
 		}
