@@ -365,7 +365,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpSecurityTeams();
 		setUpUsers();
 
-		List<User> expected = Collections.emptyList();
+		List<User> expected = new ArrayList<>();
 		List<User> actual = securityTeamsManagerEntry.getAdmins(sess, st0,false);
 		Collections.sort(expected);
 		Collections.sort(actual);

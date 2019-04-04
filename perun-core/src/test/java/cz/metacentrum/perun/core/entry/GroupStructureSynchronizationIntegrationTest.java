@@ -93,7 +93,6 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		MockitoAnnotations.initMocks(this);
 
 		doReturn(essa).when(extSourceManagerBl).getExtSourceByName(any(PerunSession.class), any(String.class));
-		doReturn(EXT_SOURCE_NAME).when((ExtSourceLdap)essa).getName();
 		doNothing().when(extSourceManagerBl).addExtSource(any(PerunSession.class), any(Group.class), any(ExtSource.class));
 	}
 
