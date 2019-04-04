@@ -2148,7 +2148,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public User convertUserEmptyStringsInObjectAttributesIntoNull(User user) {
 		//if user is null, return it back without change
-		if(user == null) return user;
+		if(user == null) return null;
 
 		//convert all empty strings to null
 		if(user.getFirstName() != null && user.getFirstName().isEmpty()) user.setFirstName(null);

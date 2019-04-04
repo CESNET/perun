@@ -810,8 +810,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 		List<Pair<User, String>> expected = new ArrayList<>();
 		expected.add(new Pair<>(u1, "reason"));
-		String nullString = null;
-		expected.add(new Pair<>(u2, nullString));
+		expected.add(new Pair<>(u2, null));
 
 		List<Pair<User, String>> actual = new ArrayList<>(securityTeamsManagerEntry.getBlacklistWithDescription(sess, st0));
 
@@ -868,8 +867,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 		List<Pair<User, String>> expected = new ArrayList<>();
 		expected.add(new Pair<>(u1, "reason"));
-		String nullString = null;
-		expected.add(new Pair<>(u2, nullString));
+		expected.add(new Pair<>(u2, null));
 
 		List<Pair<User, String>> actual = new ArrayList<>(securityTeamsManagerEntry.getBlacklistWithDescription(sess, f1));
 

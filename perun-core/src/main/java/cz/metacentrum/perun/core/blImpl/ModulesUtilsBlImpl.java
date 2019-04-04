@@ -984,7 +984,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		toBeNormalized = toBeNormalized.replaceAll("[^a-zA-Z]+", "");
 
 		// unable to fill login for users without name or with partial name
-		if (toBeNormalized == null || toBeNormalized.isEmpty()) {
+		if (toBeNormalized.isEmpty()) {
 			return null;
 		}
 

@@ -667,7 +667,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		// check if moving group is null
 		if (movingGroup == null) {
-			throw new GroupMoveNotAllowedException("Moving group: " + movingGroup + " cannot be null.", movingGroup, destinationGroup);
+			throw new GroupMoveNotAllowedException("Moving group: cannot be null.", null, destinationGroup);
 		}
 
 		// check if moving group is members group
@@ -742,7 +742,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			// check if moving group is already top level group
 			if (movingGroup.getParentGroupId() == null) {
-				throw new GroupMoveNotAllowedException("Moving group: " + movingGroup + " is already top level group.", movingGroup, destinationGroup);
+				throw new GroupMoveNotAllowedException("Moving group: " + movingGroup + " is already top level group.", movingGroup, null);
 			}
 
 			List<Group> destinationGroupSubGroups = getGroups(sess, getVo(sess, movingGroup));
@@ -750,11 +750,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			// check if there is top level group with same short name as Moving group short name
 			for (Group group: destinationGroupSubGroups) {
 				if(movingGroup.getShortName().equals(group.getName())){
-					throw new GroupMoveNotAllowedException("There is already top level group with the same name as moving group: " + movingGroup + ".", movingGroup, destinationGroup);
+					throw new GroupMoveNotAllowedException("There is already top level group with the same name as moving group: " + movingGroup + ".", movingGroup, null);
 				}
 			}
 
-			processRelationsWhileMovingGroup(sess, destinationGroup, movingGroup);
+			processRelationsWhileMovingGroup(sess, null, movingGroup);
 
 			// We have to set group attributes so we can update it in database
 			movingGroup.setParentGroupId(null);

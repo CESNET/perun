@@ -31,7 +31,7 @@ public class urn_perun_vo_attribute_def_def_toEmail extends VoAttributesModuleAb
 		if (toEmails.isEmpty()) throw new WrongAttributeValueException(attribute, "Attribute List of toEmails is empty.");
 
 		for (String email : toEmails) {
-			if (email == null) throw new WrongAttributeValueException(attribute, "Email " + email + " is null.");
+			if (email == null) throw new WrongAttributeValueException(attribute, "Email is null.");
 			if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, email))) throw new WrongAttributeValueException(attribute, "Vo : " + vo.getName() +" has toEmail " + email +" which is not valid.");
 		}
 	}

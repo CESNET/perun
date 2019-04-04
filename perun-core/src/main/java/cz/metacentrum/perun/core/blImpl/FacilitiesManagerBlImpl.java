@@ -780,7 +780,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 			List<Resource> resourcesFromMembers = new ArrayList<>();
 			for(Member memberElement: membersFromUser) {
-				resourcesFromMembers.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, member));
+				resourcesFromMembers.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
 			}
 			for(Resource resourceElement: resourcesFromMembers) {
 				facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
@@ -1138,7 +1138,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	private ContactGroup setAttributesForRichUsersInContactGroup(PerunSession sess, ContactGroup contactGroup, List<AttributeDefinition> attributesToSet) throws InternalErrorException {
-		if(contactGroup == null) return contactGroup;
+		if(contactGroup == null) return null;
 		if(contactGroup.getUsers() == null || contactGroup.getUsers().isEmpty()) return contactGroup;
 		if(attributesToSet == null || attributesToSet.isEmpty()) return contactGroup;
 

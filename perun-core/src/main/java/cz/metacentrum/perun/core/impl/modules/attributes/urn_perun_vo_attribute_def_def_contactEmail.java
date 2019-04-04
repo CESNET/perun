@@ -32,7 +32,7 @@ public class urn_perun_vo_attribute_def_def_contactEmail extends VoAttributesMod
 		if (contactEmails.isEmpty()) throw new WrongAttributeValueException(attribute, "Attribute List of contact emails is empty.");
 
 		for (String email : contactEmails) {
-			if (email == null) throw new WrongAttributeValueException(attribute, "Email " + email + " is null.");
+			if (email == null) throw new WrongAttributeValueException(attribute, "Email is null.");
 			if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, email))) throw new WrongAttributeValueException(attribute, "Vo : " + vo.getName() +" has contact email " + email +" which is not valid.");
 		}
 	}
