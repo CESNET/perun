@@ -94,8 +94,12 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	public void modifyEntry(T bean, AttributeDefinition attr) throws InternalErrorException {
 		DirContextOperations entry = findByDN(buildDN(bean));
 		List<PerunAttribute<T>> attrDefs = findAttributeDescriptionsByPerunAttr(getAttributeDescriptions(), attr);
-		if(attrDefs.isEmpty())
-			throw new InternalErrorException("Attribute description for attribute " + attr.getName() + " not found");
+		if(attrDefs.isEmpty()) {
+			// this is not exceptional situation
+			// throw new InternalErrorException("Attribute description for attribute " + attr.getName() + " not found");
+			log.info("Attribute description for attribute {} not found, not modifying entry.", attr.getName());
+			return;
+		}
 		for(PerunAttribute<T> attrDef : attrDefs) {
 			mapToContext(bean, entry, attrDef, attr);
 		}
