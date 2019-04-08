@@ -454,7 +454,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (isAuthorized(sess, Role.GROUPADMIN, voElement)) return true;
 			}
 		}
-//			if (roles.containsKey(Role.FACILITYADMIN)) ; //Not allowed
+		if (roles.containsKey(Role.FACILITYADMIN)) {
+			List<Facility> facilities = perunBl.getFacilitiesManagerBl().getAssignedFacilities(sess, user);
+			for (Facility facility : facilities) {
+				if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
+			}
+		}
 
 		return false;
 	}
