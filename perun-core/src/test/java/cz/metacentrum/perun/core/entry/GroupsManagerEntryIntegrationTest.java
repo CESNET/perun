@@ -95,7 +95,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	private UsersManagerBl usersManagerBl;
 
 	@Before
-	public void setUpBeforeEveryMethod() throws Exception {
+	public void setUpBeforeEveryMethod() {
 
 		groupsManager = perun.getGroupsManager();
 		groupsManagerBl = perun.getGroupsManagerBl();

@@ -5,8 +5,6 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,32 +22,32 @@ public class ExtSourceKerberos extends ExtSource implements ExtSourceSimpleApi {
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceKerberos.class);
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
 		return findSubjectsLogins(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException, ExtSourceUnsupportedOperationException {
+	public Map<String, String> getSubjectByLogin(String login) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override
-	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public void close() throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 }

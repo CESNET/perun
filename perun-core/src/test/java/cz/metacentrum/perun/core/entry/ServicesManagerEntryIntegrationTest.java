@@ -1586,7 +1586,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
-	private Destination setUpDestination() throws Exception {
+	private Destination setUpDestination() {
 
 		Destination destination = new Destination();
 		destination.setDestination("testDestination");
@@ -1597,7 +1597,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
-	private Destination setUpHostDestination() throws Exception {
+	private Destination setUpHostDestination() {
 
 		Destination destination = new Destination();
 		destination.setDestination("test.test");

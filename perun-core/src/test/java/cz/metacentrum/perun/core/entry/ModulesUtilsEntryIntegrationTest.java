@@ -67,7 +67,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private final String namespace = "someNamespace";
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		modulesUtilsBl = perun.getModulesUtilsBl();
 	}
 
@@ -507,7 +507,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
-	public void isNameOfEmailValid() throws Exception {
+	public void isNameOfEmailValid() {
 		System.out.println(CLASS_NAME + "isNameOfEmailValid");
 
 		assertTrue(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "user@domain.com"));

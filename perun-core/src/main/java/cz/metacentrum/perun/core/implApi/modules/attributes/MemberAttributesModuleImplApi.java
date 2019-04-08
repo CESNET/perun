@@ -54,5 +54,5 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 	 * @param member the member
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 }

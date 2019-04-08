@@ -184,7 +184,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) throws InternalErrorException, PrivilegeException {
+	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		//TODO Authorization
@@ -299,7 +299,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 	}
 
 	@Override
-	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException, CandidateNotExistsException,ExtSourceUnsupportedOperationException {
+	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(subjectData, "subjectData");
 		Utils.notNull(subjectData.get("login"), "subjectLogin");

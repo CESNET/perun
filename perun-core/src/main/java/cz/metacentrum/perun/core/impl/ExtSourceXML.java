@@ -65,22 +65,22 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	private final Pattern pattern = Pattern.compile("([^\\\\]|^)(\\\\\\\\)*/([^\\\\]|$)");
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
 		return findSubjectsLogins(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("For XML is using this method not optimized, use findSubjects instead.");
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
 		//prepare string for xpath (use concat for chars ' and  ")
 		searchString = convertToXpathSearchString(searchString);
 
@@ -136,7 +136,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 		// Get the query for the group subjects
 		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
@@ -488,12 +488,12 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public void close() throws InternalErrorException {
+	public void close() {
 		if(con != null) con.disconnect();
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 

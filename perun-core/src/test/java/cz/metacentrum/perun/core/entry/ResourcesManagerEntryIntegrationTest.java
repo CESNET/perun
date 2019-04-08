@@ -73,7 +73,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	// setUp methods moved to every test method to save testing time !!
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		resourcesManager = perun.getResourcesManager();
 	}
 

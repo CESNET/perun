@@ -50,5 +50,5 @@ public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi{
 	 * @param group the group
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 }

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -92,7 +91,7 @@ public interface FacilitiesManager {
 	 *
 	 * @return count of all facilities
 	 */
-	int getFacilitiesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
+	int getFacilitiesCount(PerunSession perunSession) throws InternalErrorException;
 
 	/**
 	 * List facilities by ACCESS RIGHTS:
@@ -220,11 +219,10 @@ public interface FacilitiesManager {
 	 *
 	 * @throws FacilityAlreadyRemovedException          if 0 rows affected by delete from DB
 	 * @throws HostAlreadyRemovedException              if there is at least 1 hosts not affected by deleting from DB
-	 * @throws GroupAlreadyRemovedException             if there is at least 1 group not affected by deleting from DB
 	 * @throws ResourceAlreadyRemovedException          if there is at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group on any resource affected by removing from DB
 	 */
-	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityNotExistsException, PrivilegeException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteFacility(PerunSession perunSession, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityNotExistsException, PrivilegeException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Updates facility.
@@ -271,7 +269,7 @@ public interface FacilitiesManager {
 	 *
 	 * @return hosts
 	 */
-	List<Host> getHosts(PerunSession sess, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException;
+	List<Host> getHosts(PerunSession sess, Facility facility) throws FacilityNotExistsException, InternalErrorException;
 
 	/**
 	 * Count hosts of Facility.
@@ -356,7 +354,7 @@ public interface FacilitiesManager {
 	 *
 	 * @param hostname specific hostname
 	 */
-	List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException, PrivilegeException;
+	List<Facility> getFacilitiesByHostName(PerunSession sess, String hostname) throws InternalErrorException;
 
 	/**
 	 * Adds user administrator to the Facility.
@@ -438,7 +436,7 @@ public interface FacilitiesManager {
 	 * @return return list of RichUsers without attributes.
 	 */
 	@Deprecated
-	List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException, FacilityNotExistsException, PrivilegeException;
+	List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
 
 	/**
 	 * Get all Facility admins with attributes.
@@ -512,28 +510,28 @@ public interface FacilitiesManager {
 	 *
 	 * @return list of ContactGroups for the owner
 	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException;
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws InternalErrorException, OwnerNotExistsException;
 
 	/**
 	 * Get list of contact groups for the user.
 	 *
 	 * @return list of ContactGroups for the user
 	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 * Get list of contact groups for the group.
 	 *
 	 * @return list of ContactGroups for the group
 	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException;
 
 	/**
 	 * Get list of contact groups for the facility
 	 *
 	 * @return list of ContactGroups for the facility
 	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException, FacilityContactNotExistsException, PrivilegeException, FacilityNotExistsException;
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * Get contact group for the facility and the contact group name
@@ -547,12 +545,12 @@ public interface FacilitiesManager {
 	 *
 	 * @return list of all contact group names
 	 */
-	List<String> getAllContactGroupNames(PerunSession sess) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+	List<String> getAllContactGroupNames(PerunSession sess) throws InternalErrorException;
 
 	/**
 	 * Create all contacts from list of contact groups
 	 */
-	void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, OwnerNotExistsException, UserNotExistsException, GroupNotExistsException;
+	void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd) throws InternalErrorException, FacilityNotExistsException, OwnerNotExistsException, UserNotExistsException, GroupNotExistsException;
 
 	/**
 	 * Create all contacts from contact group

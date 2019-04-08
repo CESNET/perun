@@ -406,17 +406,17 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
 		// We can call original implementation, since LDAP always return whole entry and not just login
 		return findSubjectsLogins(searchString, maxResults);
 	}

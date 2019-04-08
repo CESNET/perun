@@ -4,10 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
@@ -21,7 +18,7 @@ import java.util.List;
 public class urn_perun_vo_attribute_def_def_toEmail extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 		List<String> toEmails = null;
 
 		// null attribute

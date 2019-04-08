@@ -5,10 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupResourceAttributesModuleImplApi;
@@ -25,7 +22,7 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 	private final static org.slf4j.Logger log = LoggerFactory.getLogger(urn_perun_group_resource_attribute_def_def_drupalGroupType.class);
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		String attributeValue = null;
 
 		if(attribute.getValue() == null) {
@@ -41,7 +38,7 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Group group, Resource resource, AttributeDefinition attribute) {
 		Attribute filledAttribute = new Attribute(attribute);
 
 		String attributeValue = (String) filledAttribute.getValue();
@@ -52,8 +49,6 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 				checkAttributeValue(session, group, resource, filledAttribute);
 			} catch (WrongAttributeValueException ex) {
 				log.error("Type of drupal group can be either 'public' or 'private'.", ex);
-			} catch (WrongReferenceAttributeValueException ex) {
-				log.error("Reference attribute for drupal group type can be either 'public' or 'private'.", ex);
 			}
 		}
 		return filledAttribute;

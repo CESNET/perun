@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import org.apache.commons.codec.binary.Base64;
@@ -41,17 +40,17 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
 	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException, ExtSourceUnsupportedOperationException {
+	public Map<String, String> getSubjectByLogin(String login) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
@@ -155,12 +154,12 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
-	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public void close() throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("Using this method is not supported for ISMU");
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 

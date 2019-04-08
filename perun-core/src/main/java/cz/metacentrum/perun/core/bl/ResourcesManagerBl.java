@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
@@ -26,7 +25,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceExcepti
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -35,8 +33,6 @@ import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -95,7 +91,7 @@ public interface ResourcesManagerBl {
 	 * @param resource resource to create
 	 * @throws InternalErrorException
 	 */
-	Resource createResource(PerunSession perunSession, Resource resource, Vo vo, Facility facility) throws InternalErrorException, FacilityNotExistsException, ResourceExistsException;
+	Resource createResource(PerunSession perunSession, Resource resource, Vo vo, Facility facility) throws InternalErrorException, ResourceExistsException;
 
 	/**
 	 * Copy "template" settings from user's another existing resource and create new resource with this template.
@@ -111,9 +107,8 @@ public interface ResourcesManagerBl {
 	 *                   if set to false we will NOT copy groups and group related attributes.
 	 * @throws ResourceExistsException
 	 * @throws InternalErrorException
-	 * @throws FacilityNotExistsException
 	 */
-	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException, FacilityNotExistsException;
+	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws ResourceExistsException, InternalErrorException;
 
 	/**
 	 *  Deletes resource by id.
@@ -122,11 +117,10 @@ public interface ResourcesManagerBl {
 	 * @param resource
 	 *
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException
 	 * @throws ResourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group not affected by deleting from DB
 	 */
-	void deleteResource(PerunSession perunSession, Resource resource) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 *  Deletes all resources for the VO.
@@ -135,11 +129,10 @@ public interface ResourcesManagerBl {
 	 * @param vo
 	 *
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException
 	 * @throws ResourceAlreadyRemovedException if there is at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group not affected by deleting from DB
 	 */
-	void deleteAllResources(PerunSession perunSession, Vo vo) throws InternalErrorException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteAllResources(PerunSession perunSession, Vo vo) throws InternalErrorException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Get facility which belongs to the concrete resource.
@@ -390,10 +383,9 @@ public interface ResourcesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
-	 * @throws ServiceNotExistsException
 	 * @throws ServiceAlreadyAssignedException
 	 */
-	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Assign all services from services package to resource.
@@ -403,10 +395,9 @@ public interface ResourcesManagerBl {
 	 * @param servicesPackage
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
-	 * @throws ServicesPackageNotExistsException
 	 * @throws InternalErrorException
 	 */
-	void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Remove service from resource.
@@ -419,7 +410,7 @@ public interface ResourcesManagerBl {
 	 * @throws ServiceNotAssignedException
 	 */
 	void removeService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException,
-			 ServiceNotExistsException, ServiceNotAssignedException;
+		ServiceNotAssignedException;
 
 	/**
 	 * Remove from resource all services from services package.
@@ -430,7 +421,7 @@ public interface ResourcesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	void removeServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException;
+	void removeServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException;
 
 	/**
 	 * Get all VO resources.

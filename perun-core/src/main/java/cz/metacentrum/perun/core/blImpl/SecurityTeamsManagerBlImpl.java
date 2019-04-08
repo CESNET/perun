@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -79,7 +78,7 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException, InternalErrorException {
+	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
 		securityTeam = getSecurityTeamsManagerImpl().createSecurityTeam(sess, securityTeam);
 		getPerunBl().getAuditer().log(sess, new SecurityTeamCreated(securityTeam));
 

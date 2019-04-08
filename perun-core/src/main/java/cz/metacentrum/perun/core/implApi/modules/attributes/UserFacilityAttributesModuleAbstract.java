@@ -28,7 +28,7 @@ public abstract class UserFacilityAttributesModuleAbstract extends AttributesMod
 		return new Attribute(attribute);
 	}
 
-	public void changedAttributeHook(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, User user, Facility facility, Attribute attribute) {
 
 	}
 }

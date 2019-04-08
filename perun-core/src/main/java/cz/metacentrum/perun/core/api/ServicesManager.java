@@ -585,10 +585,9 @@ public interface ServicesManager {
 	 * @throws InternalErrorException
 	 * @throws ServiceNotExistsException
 	 * @throws FacilityNotExistsException
-	 * @throws DestinationAlreadyAssignedException
 	 * @throws WrongPatternException
 	 */
-	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException;
+	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, WrongPatternException;
 
 	/**
 	 * Adds destination for all services defined on the facility.
@@ -790,10 +789,9 @@ public interface ServicesManager {
 	 * @return list of destinations
 	 *
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
 	 */
-	List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
+	List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException;
 
 	/**
 	 * Get count of all destinations.
@@ -801,9 +799,7 @@ public interface ServicesManager {
 	 * @param sess PerunSession
 	 *
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 *
 	 * @return count of all destinations
 	 */
-	int getDestinationsCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	int getDestinationsCount(PerunSession sess) throws InternalErrorException;
 }

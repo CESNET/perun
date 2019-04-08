@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.taskslib.dao.ServiceDenialDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,12 +103,12 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public List<Service> getServicesBlockedOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException {
+	public List<Service> getServicesBlockedOnFacility(PerunSession perunSession, Facility facility) {
 		return serviceDenialDao.getServicesBlockedOnFacility(facility.getId());
 	}
 
 	@Override
-	public List<Service> getServicesBlockedOnDestination(PerunSession perunSession, int destinationId) throws InternalErrorException {
+	public List<Service> getServicesBlockedOnDestination(PerunSession perunSession, int destinationId) {
 		return serviceDenialDao.getServicesBlockedOnDestination(destinationId);
 	}
 
@@ -124,31 +123,31 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public void unblockAllServicesOnFacility(PerunSession sess, Facility facility) throws InternalErrorException{
+	public void unblockAllServicesOnFacility(PerunSession sess, Facility facility) {
 		serviceDenialDao.unblockAllServicesOnFacility(facility.getId());
 		sess.getPerun().getAuditer().log(sess, new FreeAllDenialsOnFacility(facility));
 	}
 
 	@Override
-	public void unblockAllServicesOnDestination(PerunSession sess, int destinationId) throws InternalErrorException {
+	public void unblockAllServicesOnDestination(PerunSession sess, int destinationId) {
 		serviceDenialDao.unblockAllServicesOnDestination(destinationId);
 		sess.getPerun().getAuditer().log(sess, new FreeAllDenialsOnDestination(destinationId));
 	}
 
 	@Override
-	public void unblockServiceOnFacility(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public void unblockServiceOnFacility(PerunSession sess, Service service, Facility facility) {
 		serviceDenialDao.unblockServiceOnFacility(service.getId(), facility.getId());
 		sess.getPerun().getAuditer().log(sess, new FreeDenialServiceOnFacility(service, facility));
 	}
 
 	@Override
-	public void unblockServiceOnDestination(PerunSession sess, Service service, int destinationId) throws InternalErrorException {
+	public void unblockServiceOnDestination(PerunSession sess, Service service, int destinationId) {
 		serviceDenialDao.unblockServiceOnDestination(service.getId(), destinationId);
 		sess.getPerun().getAuditer().log(sess, new FreeDenialServiceOnDestination(service, destinationId));
 	}
 
 	@Override
-	public boolean forceServicePropagation(PerunSession sess, Facility facility, Service service) throws ServiceNotExistsException, FacilityNotExistsException, InternalErrorException, PrivilegeException {
+	public boolean forceServicePropagation(PerunSession sess, Facility facility, Service service) {
 		//Global
 		if(!service.isEnabled()) return false;
 		//Local
@@ -159,7 +158,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public boolean forceServicePropagation(PerunSession sess, Service service) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+	public boolean forceServicePropagation(PerunSession sess, Service service) {
 		//Global
 		if(!service.isEnabled()) return false;
 		//Call log method out of transaction
@@ -168,7 +167,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public boolean planServicePropagation(PerunSession perunSession, Facility facility, Service service) throws ServiceNotExistsException, FacilityNotExistsException, InternalErrorException, PrivilegeException {
+	public boolean planServicePropagation(PerunSession perunSession, Facility facility, Service service) {
 		//Global
 		if(!service.isEnabled()) return false;
 		//Local
@@ -179,7 +178,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public boolean planServicePropagation(PerunSession perunSession, Service service) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+	public boolean planServicePropagation(PerunSession perunSession, Service service) {
 		//Global
 		if(!service.isEnabled()) return false;
 		//Call log method out of transaction

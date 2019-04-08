@@ -4,8 +4,6 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
@@ -15,7 +13,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
  */
 public class urn_perun_resource_attribute_def_def_userSettingsName extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Resource resource, AttributeDefinition attribute) {
 		Attribute toReturn = new Attribute(attribute);
 		toReturn.setValue(resource.getName());
 		return toReturn;

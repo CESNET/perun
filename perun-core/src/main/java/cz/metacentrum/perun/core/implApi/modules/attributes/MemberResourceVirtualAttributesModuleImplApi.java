@@ -5,8 +5,6 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
@@ -37,10 +35,8 @@ public interface MemberResourceVirtualAttributesModuleImplApi extends MemberReso
 	 * @param resource resource which is needed for computing the value
 	 * @param attribute attribute to operate on
 	 * @return true if attribute was really changed
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean setAttributeValue(PerunSessionImpl sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
+	boolean setAttributeValue(PerunSessionImpl sess, Member member, Resource resource, Attribute attribute);
 
 	/**
 	 * Currently do nothing.
@@ -50,8 +46,6 @@ public interface MemberResourceVirtualAttributesModuleImplApi extends MemberReso
 	 * @param resource resource which is needed for computing the value
 	 * @param attribute attribute to operate on
 	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean removeAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	boolean removeAttributeValue(PerunSessionImpl sess, Member member, Resource resource, AttributeDefinition attribute);
 }

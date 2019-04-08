@@ -40,7 +40,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -199,7 +198,7 @@ public class Auditer {
 	public Auditer() {
 	}
 
-	public void setPerunPool(DataSource perunPool) throws InternalErrorException {
+	public void setPerunPool(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 

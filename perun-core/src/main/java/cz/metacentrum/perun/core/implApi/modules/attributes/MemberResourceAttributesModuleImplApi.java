@@ -45,11 +45,8 @@ public interface MemberResourceAttributesModuleImplApi extends AttributesModuleI
 	 *
 	 * @return Attribute which MAY be filled in.
 	 *
-	 * @throws InternalErrorException if an exception is raised in particular
-	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeAssignmentException
 	 */
-	Attribute fillAttribute(PerunSessionImpl perunSession, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	Attribute fillAttribute(PerunSessionImpl perunSession, Member member, Resource resource, AttributeDefinition attribute);
 
 	/**
 	 * If you need to do some further work with other modules, this method do that
@@ -58,5 +55,5 @@ public interface MemberResourceAttributesModuleImplApi extends AttributesModuleI
 	 * @param resource the resource
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute);
 }

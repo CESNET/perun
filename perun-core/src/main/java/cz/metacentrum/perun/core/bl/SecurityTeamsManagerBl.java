@@ -51,9 +51,8 @@ public interface SecurityTeamsManagerBl {
 	 * @param securityTeam
 	 * @return Newly created Security team with new id
 	 * @throws InternalErrorException
-	 * @throws SecurityTeamExistsException
 	 */
-	SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamExistsException;
+	SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
 
 	/**
 	 * Update security team
@@ -107,9 +106,8 @@ public interface SecurityTeamsManagerBl {
 	 * @param securityTeam
 	 * @return list of users which are security admins in security team
 	 * @throws InternalErrorException
-	 * @throws SecurityTeamNotExistsException
 	 */
-	List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws InternalErrorException, SecurityTeamNotExistsException;
+	List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws InternalErrorException;
 
 	/**
 	 * Gets list of all group administrators of the SecurityTeam.

@@ -9,8 +9,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
@@ -32,7 +30,7 @@ public class urn_perun_group_attribute_def_def_flatGroupStructureEnabled extends
 	private static final String MANDATORY_ATTRIBUTE_NAME = GroupsManager.GROUPS_STRUCTURE_SYNCHRO_ENABLED_ATTRNAME;
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 

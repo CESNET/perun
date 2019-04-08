@@ -82,7 +82,7 @@ public class CacheManager implements CacheManagerApi {
 		this.nestedCacheNamesKey = new Object();
 	}
 
-	public void setPerunPool(DataSource perunPool) throws InternalErrorException {
+	public void setPerunPool(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
@@ -557,7 +557,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public List<Attribute> getAttributesByNames(List<String> attrNames, Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException {
+	public List<Attribute> getAttributesByNames(List<String> attrNames, Holder primaryHolder, Holder secondaryHolder) {
 		List<Attribute> attributes = new ArrayList<>();
 
 		for(String attrName: attrNames) {
@@ -1195,9 +1195,8 @@ public class CacheManager implements CacheManagerApi {
 	 * @param attrId1 key1 to store value1 under
 	 * @param attributeHolders value
 	 * @param attributeHolders1 value1
-	 * @throws InternalErrorException
 	 */
-	private void storeKeyValuePairs(AttributeIdWithHolders attrId, AttributeIdWithHolders attrId1, AttributeHolders attributeHolders, AttributeHolders attributeHolders1) throws InternalErrorException {
+	private void storeKeyValuePairs(AttributeIdWithHolders attrId, AttributeIdWithHolders attrId1, AttributeHolders attributeHolders, AttributeHolders attributeHolders1) {
 		Cache<Object, Object> cache = this.getCache(AccessType.SET);
 
 		cache.put(attrId, attributeHolders);
@@ -1233,7 +1232,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public void setAttributeDefinition(AttributeDefinition attribute) throws InternalErrorException {
+	public void setAttributeDefinition(AttributeDefinition attribute) {
 		this.setCacheUpdatedInTransaction();
 		this.setAttributeDefinitionForInit(attribute);
 	}
@@ -1243,9 +1242,8 @@ public class CacheManager implements CacheManagerApi {
 	 * This method is used in initialization, cache is not set as updated.
 	 *
 	 * @param attribute attribute definition to set
-	 * @throws InternalErrorException
 	 */
-	private void setAttributeDefinitionForInit(AttributeDefinition attribute) throws InternalErrorException {
+	private void setAttributeDefinitionForInit(AttributeDefinition attribute) {
 		Cache<Object, Object> cache = this.getCache(AccessType.SET);
 		AttributeIdWithHolders attrId = new AttributeIdWithHolders(attribute.getId());
 		AttributeIdWithHolders attrId1 = new AttributeIdWithHolders(attribute.getName());
@@ -1331,16 +1329,15 @@ public class CacheManager implements CacheManagerApi {
 	 * Used only in cache initialization.
 	 *
 	 * @param attributes list of attribute definitions to set
-	 * @throws InternalErrorException
 	 */
-	private void setAttributesDefinitions(List<AttributeDefinition> attributes) throws InternalErrorException {
+	private void setAttributesDefinitions(List<AttributeDefinition> attributes) {
 		for(AttributeDefinition attrDef: attributes) {
 			this.setAttributeDefinitionForInit(attrDef);
 		}
 	}
 
 	@Override
-	public void updateAttributeDefinition(AttributeDefinition attributeDefinition) throws InternalErrorException {
+	public void updateAttributeDefinition(AttributeDefinition attributeDefinition) {
 		this.setCacheUpdatedInTransaction();
 
 		Cache<Object, Object> cache = this.getCache(AccessType.SET);

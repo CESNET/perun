@@ -694,7 +694,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getAttributesDefinitionsByIds() throws Exception {
+	public void getAttributesDefinitionsByIds() {
 		System.out.println(CLASS_NAME + "getAttributesDefinitionsByIds");
 
 		cacheManager.newNestedTransaction();
@@ -811,15 +811,15 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 
 	// PRIVATE METHODS ----------------------------------------------
 
-	private AttributeDefinition setUpGroupAttributeDefinition() throws InternalErrorException {
+	private AttributeDefinition setUpGroupAttributeDefinition() {
 		return setUpAttributeDefinitionForCacheManager(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute-definition");
 	}
 
-	private AttributeDefinition setUpEntitylessAttributeDefinition() throws Exception {
+	private AttributeDefinition setUpEntitylessAttributeDefinition() {
 		return setUpAttributeDefinitionForCacheManager(AttributesManager.NS_ENTITYLESS_ATTR_DEF, "entityless-test-attribute-definition");
 	}
 
-	private Attribute setUpGroupAttribute() throws InternalErrorException {
+	private Attribute setUpGroupAttribute() {
 		return setUpAttributeForCacheManager(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute", "GroupAttribute");
 	}
 
@@ -827,7 +827,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return setUpAttributeForAttributesManager(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute", "GroupAttribute");
 	}
 
-	private Attribute setUpGroupAttribute1() throws InternalErrorException {
+	private Attribute setUpGroupAttribute1() {
 		return setUpAttributeForCacheManager(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute1", "GroupAttribute1");
 	}
 
@@ -835,7 +835,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return setUpAttributeForAttributesManager(AttributesManager.NS_GROUP_ATTR_OPT, "group-test-attribute1", "GroupAttribute1");
 	}
 
-	private Attribute setUpEntitylessAttribute() throws Exception {
+	private Attribute setUpEntitylessAttribute() {
 		return setUpAttributeForCacheManager(AttributesManager.NS_ENTITYLESS_ATTR_DEF, "entityless-test-attribute", "EntitylessAttribute");
 	}
 
@@ -848,13 +848,13 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return ((PerunBlImpl)perun).getAttributesManagerImpl().createAttribute(sess, attributeDefinition);
 	}
 
-	private AttributeDefinition setUpAttributeDefinitionForCacheManager(String namespace, String friendlyName) throws InternalErrorException {
+	private AttributeDefinition setUpAttributeDefinitionForCacheManager(String namespace, String friendlyName) {
 		AttributeDefinition attributeDefinition = setUpAttributeDefinition(namespace, friendlyName);
 		cacheManager.setAttributeDefinition(attributeDefinition);
 		return  attributeDefinition;
 	}
 
-	private AttributeDefinition setUpAttributeDefinition(String namespace, String friendlyName) throws InternalErrorException {
+	private AttributeDefinition setUpAttributeDefinition(String namespace, String friendlyName) {
 
 		AttributeDefinition attr = new Attribute();
 		attr.setNamespace(namespace);
@@ -871,7 +871,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return attr;
 	}
 
-	private Attribute setUpAttributeForCacheManager(String namespace, String friendlyName, String value) throws InternalErrorException {
+	private Attribute setUpAttributeForCacheManager(String namespace, String friendlyName, String value) {
 		AttributeDefinition attributeDefinition = setUpAttributeDefinitionForCacheManager(namespace, friendlyName);
 		return setUpAttribute(attributeDefinition, value);
 	}
@@ -881,7 +881,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		return setUpAttribute(attributeDefinition, value);
 	}
 
-	private Attribute setUpAttribute(AttributeDefinition attributeDefinition, String value) throws InternalErrorException {
+	private Attribute setUpAttribute(AttributeDefinition attributeDefinition, String value) {
 		Attribute attr = new Attribute(attributeDefinition);
 
 		attr.setValue(value);

@@ -28,10 +28,9 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 	}
 
 	/**
-	 * @throws java.lang.Exception
 	 */
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		createdAuditMessage.setMsg("Tested Message");
 	}
 

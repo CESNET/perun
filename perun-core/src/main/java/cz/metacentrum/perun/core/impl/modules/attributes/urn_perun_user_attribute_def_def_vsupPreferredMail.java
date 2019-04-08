@@ -47,7 +47,7 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_a
 public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		// we must allow null, since when setting required attributes all at once, value might not be filled yet
 		// if vsupMail or vsupMailAlias is empty, but it's checked by method impl.

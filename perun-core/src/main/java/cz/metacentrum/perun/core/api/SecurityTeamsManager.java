@@ -1,12 +1,10 @@
 package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
@@ -212,10 +210,9 @@ public interface SecurityTeamsManager {
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 * @throws SecurityTeamNotExistsException
 	 * @throws UserNotExistsException
-	 * @throws AlreadyMemberException
 	 * @throws UserAlreadyBlacklistedException
 	 */
-	void addUserToBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user, String description) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, AlreadyMemberException, UserAlreadyBlacklistedException;
+	void addUserToBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user, String description) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserAlreadyBlacklistedException;
 
 	/**
 	 * remove user from blacklist of given security team
@@ -226,7 +223,7 @@ public interface SecurityTeamsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 */
-	void removeUserFromBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, MemberNotExistsException, UserAlreadyRemovedException;
+	void removeUserFromBlacklist(PerunSession perunSession, SecurityTeam securityTeam, User user) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, UserNotExistsException, UserAlreadyRemovedException;
 
 	/**
 	 * get list of blacklisted users by security team
@@ -248,10 +245,9 @@ public interface SecurityTeamsManager {
 	 * @return list of blacklisted users for facility
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
-	 * @throws SecurityTeamNotExistsException
 	 * @throws FacilityNotExistsException
 	 */
-	List<User> getBlacklist(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, FacilityNotExistsException;
+	List<User> getBlacklist(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * get list of blacklisted users by security team containing also description
@@ -273,8 +269,7 @@ public interface SecurityTeamsManager {
 	 * @return List of Pairs with blacklisted users for facility
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
-	 * @throws SecurityTeamNotExistsException
 	 * @throws FacilityNotExistsException
 	 */
-	List<Pair<User,String>> getBlacklistWithDescription(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, FacilityNotExistsException;
+	List<Pair<User,String>> getBlacklistWithDescription(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
 }

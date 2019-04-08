@@ -32,7 +32,7 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
 	private static final String A_F_accountExpirationTime = AttributesManager.NS_FACILITY_ATTR + ":accountExpirationTime";
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

@@ -58,7 +58,6 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
@@ -310,7 +309,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public void deleteFacility(PerunSession sess, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteFacility(PerunSession sess, Facility facility, Boolean force) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 
 		if (force) {
 			List<Resource> resources = this.getAssignedResources(sess, facility);
@@ -563,7 +562,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			// Remove hosts attributes
 			try {
 				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, host);
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+			} catch (WrongAttributeValueException e) {
 				throw new InternalErrorException(e);
 			}
 
@@ -704,7 +703,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	public void removeHost(PerunSession sess, Host host) throws InternalErrorException, HostAlreadyRemovedException {
 		try {
 			perunBl.getAttributesManagerBl().removeAllAttributes(sess, host);
-		} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+		} catch (WrongAttributeValueException e) {
 			throw new InternalErrorException(e);
 		}
 		facilitiesManagerImpl.removeHost(sess, host);

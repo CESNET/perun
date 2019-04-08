@@ -41,22 +41,18 @@ public class urn_perun_facility_attribute_def_virt_minUID extends FacilityVirtua
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) {
 		return new Attribute(attributeDefinition);
 	}
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		try {
-			Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
-			if(uidNamespaceAttribute.getValue() == null) return attribute;
-			Attribute namespaceMinUidAttribute = getNamespaceMinUidAttribute(sess, (String) uidNamespaceAttribute.getValue());
-			attribute = Utils.copyAttributeToVirtualAttributeWithValue(namespaceMinUidAttribute, attribute);
-			return attribute;
-		} catch(WrongReferenceAttributeValueException ex) {
-			return attribute;
-		}
+		Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
+		if(uidNamespaceAttribute.getValue() == null) return attribute;
+		Attribute namespaceMinUidAttribute = getNamespaceMinUidAttribute(sess, (String) uidNamespaceAttribute.getValue());
+		attribute = Utils.copyAttributeToVirtualAttributeWithValue(namespaceMinUidAttribute, attribute);
+		return attribute;
 	}
 
 	@Override
@@ -77,7 +73,7 @@ public class urn_perun_facility_attribute_def_virt_minUID extends FacilityVirtua
 		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attributeDefinition);
 	}
 
-	private Attribute getNamespaceMinUidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException, WrongReferenceAttributeValueException {
+	private Attribute getNamespaceMinUidAttribute(PerunSessionImpl sess, String uidNamespace) throws InternalErrorException {
 		try {
 			return sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespaceMinUID);
 		} catch(AttributeNotExistsException ex) { throw new ConsistencyErrorException(ex);

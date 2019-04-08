@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -107,7 +106,7 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws ResourceNotExistsException
 	 */
-	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException;
+	Resource copyResource(PerunSession perunSession, Resource templateResource, Resource destinationResource, boolean withGroups) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, ResourceExistsException;
 
 	/**
 	 *  Deletes resource by id.
@@ -118,12 +117,11 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
-	 * @throws RelationExistsException
 	 * @throws ResourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group which is not affected by removing from DB
 	 * @throws FacilityNotExistsException if facility of this resource not exists
 	 */
-	void deleteResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException;
+	void deleteResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException;
 
 	/**
 	 *  Deletes all resources for the VO.
@@ -134,11 +132,10 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
-	 * @throws RelationExistsException
 	 * @throws ResourceAlreadyRemovedException if there are at least 1 resource not affected by deleting from DB
 	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group which is not affected by removing from DB
 	 */
-	void deleteAllResources(PerunSession perunSession, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
+	void deleteAllResources(PerunSession perunSession, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Get facility which belongs to the concrete resource.
@@ -490,11 +487,9 @@ public interface ResourcesManager {
 	 * @param perunSession
 	 *
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 *
 	 * @return count of all resources
 	 */
-	int getResourcesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
+	int getResourcesCount(PerunSession perunSession) throws InternalErrorException;
 
 
 	/**
@@ -612,11 +607,10 @@ public interface ResourcesManager {
 	 * @param resourceTag
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws ResourceTagNotExistsException
 	 * @throws VoNotExistsException
 	 * @throws ResourceTagAlreadyAssignedException
 	 */
-	void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException, PrivilegeException, ResourceTagAlreadyAssignedException, ResourceTagNotExistsException, VoNotExistsException;
+	void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException, PrivilegeException, ResourceTagAlreadyAssignedException, VoNotExistsException;
 
 	/**
 	 * Delete all ResourcesTags for specific VO.
@@ -666,9 +660,8 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws ResourceNotExistsException
-	 * @throws VoNotExistsException
 	 */
-	void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) throws InternalErrorException, PrivilegeException, VoNotExistsException, ResourceNotExistsException;
+	void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException;
 
 	/**
 	 * Get all resources in specific Vo (specific by resourceTag.getVoId) for existing resourceTag
@@ -980,12 +973,11 @@ public interface ResourcesManager {
 	 * @return updated ban
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws FacilityNotExistsException
 	 * @throws MemberNotExistsException
 	 * @throws BanNotExistsException
 	 * @throws ResourceNotExistsException
 	 */
-	BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, MemberNotExistsException, BanNotExistsException, ResourceNotExistsException;
+	BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, PrivilegeException, MemberNotExistsException, BanNotExistsException, ResourceNotExistsException;
 
 	/**
 	 * Remove specific ban by it's id.

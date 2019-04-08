@@ -7,9 +7,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesModuleImplApi;
@@ -26,7 +23,7 @@ public class urn_perun_facility_attribute_def_def_login_namespace extends Facili
 	 * Checks if the corresponding attribute uf:login-namespace:[namespace] exists.
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws InternalErrorException {
 		String userFacilityLoginNamespaceAttributeName =
 			AttributesManager.NS_USER_ATTR_DEF + ":" + attribute.getFriendlyName() + ":" + attribute.getValue();
 
@@ -38,7 +35,7 @@ public class urn_perun_facility_attribute_def_def_login_namespace extends Facili
 	}
 
 	@Override
-	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Facility facility, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 

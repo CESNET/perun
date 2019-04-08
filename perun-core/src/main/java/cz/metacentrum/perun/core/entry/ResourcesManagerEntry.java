@@ -30,7 +30,6 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
@@ -146,7 +145,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public Resource copyResource(PerunSession sess, Resource templateResource, Resource destinationResource, boolean withGroups) throws InternalErrorException, ResourceNotExistsException, FacilityNotExistsException, PrivilegeException, VoNotExistsException, ResourceExistsException {
+	public Resource copyResource(PerunSession sess, Resource templateResource, Resource destinationResource, boolean withGroups) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, ResourceExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(templateResource, "Template Resource");
 		Utils.notNull(destinationResource, "Destination Resource");
@@ -176,7 +175,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException {
+	public void deleteResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
 		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId());
 
@@ -192,7 +191,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void deleteAllResources(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, RelationExistsException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteAllResources(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 		Utils.checkPerunSession(sess);
 
 		//Authorization
@@ -642,7 +641,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public int getResourcesCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public int getResourcesCount(PerunSession sess) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		return getResourcesManagerBl().getResourcesCount(sess);
@@ -779,7 +778,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException, PrivilegeException, ResourceTagNotExistsException, VoNotExistsException, ResourceTagAlreadyAssignedException {
+	public void deleteResourceTag(PerunSession perunSession, ResourceTag resourceTag) throws InternalErrorException, PrivilegeException, VoNotExistsException, ResourceTagAlreadyAssignedException {
 		Utils.notNull(perunSession, "perunSession");
 		Utils.notNull(resourceTag, "resourceTag");
 		Vo vo = getPerunBl().getVosManagerBl().getVoById(perunSession, resourceTag.getVoId());
@@ -830,7 +829,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) throws InternalErrorException, PrivilegeException, VoNotExistsException, ResourceNotExistsException {
+	public void removeAllResourcesTagFromResource(PerunSession perunSession, Resource resource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException {
 		Utils.notNull(perunSession, "perunSession");
 		resourcesManagerBl.checkResourceExists(perunSession, resource);
 
@@ -1170,7 +1169,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, MemberNotExistsException, BanNotExistsException, ResourceNotExistsException {
+	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, PrivilegeException, MemberNotExistsException, BanNotExistsException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		this.getResourcesManagerBl().checkBanExists(sess, banOnResource.getId());
 		Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, banOnResource.getMemberId());

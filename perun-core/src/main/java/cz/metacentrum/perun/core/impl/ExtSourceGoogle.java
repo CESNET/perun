@@ -81,22 +81,22 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	private static String SERVICE_ACCOUNT_PKCS12_FILE_PATH;
 
 	@Override
-	public List<Map<String, String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjectsLogins(String searchString) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("For Google Groups using this method is not optimized, use findSubjects instead.");
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("For Google Groups using this method is not optimized, use findSubjects instead.");
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException {
 		return findSubjects(searchString, 0);
 	}
 
 	@Override
-	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
 		try {
 			query = getAttributes().get("query");
 			domainName = getAttributes().get("domain");
@@ -136,7 +136,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException, ExtSourceUnsupportedOperationException {
+	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
 		try {
 			query = getAttributes().get("loginQuery");
 			domainName = getAttributes().get("domain");
@@ -185,7 +185,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 		try {
 			// Get the query for the group subjects
 			String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -219,12 +219,12 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public void close() throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("Using this method is not supported for Google Groups.");
 	}
 
 	@Override
-	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
@@ -514,7 +514,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * executing method
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> querySource(String query, int maxResults) throws InternalErrorException, IOException {
+	private List<Map<String, String>> querySource(String query, int maxResults) throws InternalErrorException {
 		List<Map<String, String>> subjects = new ArrayList<>();
 
 		// Symbol '=' indicates getSubjectByLogin() or getGroupSubjects method

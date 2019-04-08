@@ -115,7 +115,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGID extends GroupRe
 	}
 
 	@Override
-	public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Group group, Resource resource, AttributeDefinition attribute) {
 		return false;
 		/* This method remove attribute for Group not only GroupResource (we dont want it)
 			 Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);

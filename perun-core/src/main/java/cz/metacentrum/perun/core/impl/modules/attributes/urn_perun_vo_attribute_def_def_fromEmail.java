@@ -4,10 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
@@ -24,7 +21,7 @@ public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModule
 	private static final Pattern pattern = Pattern.compile("^\".+\" <.+>$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 		String fromEmail = null;
 
 		// null attribute

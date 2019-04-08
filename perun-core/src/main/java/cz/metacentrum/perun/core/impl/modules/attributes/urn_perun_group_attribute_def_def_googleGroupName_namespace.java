@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupAttributesModuleImplApi;
@@ -27,7 +26,7 @@ public class urn_perun_group_attribute_def_def_googleGroupName_namespace extends
 	private static final Pattern pattern = Pattern.compile("^[-_a-zA-Z0-9']+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 		//prepare groupName value variable
 		String groupName = null;
 		if(attribute.getValue() != null) groupName = (String) attribute.getValue();

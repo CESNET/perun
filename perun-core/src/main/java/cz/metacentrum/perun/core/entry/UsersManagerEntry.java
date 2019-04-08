@@ -40,7 +40,6 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserExpectedException;
-import cz.metacentrum.perun.core.api.exceptions.SpecificUserMustHaveOwnerException;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
@@ -178,7 +177,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, SpecificUserExpectedException, NotSpecificUserExpectedException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException {
+	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, SpecificUserExpectedException, NotSpecificUserExpectedException, RelationNotExistsException, SpecificUserOwnerAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
 		getUsersManagerBl().checkUserExists(sess, specificUser);
@@ -292,7 +291,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -833,7 +832,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InternalErrorException, PrivilegeException {
+	public boolean isLoginAvailable(PerunSession sess, String loginNamespace, String login) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization - must be public since it's used to check anonymous users input on registration form
@@ -907,7 +906,7 @@ public class UsersManagerEntry implements UsersManager {
 
 	@Override
 	public void changePassword(PerunSession sess, String login , String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
-			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+			PrivilegeException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
 		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
@@ -1215,7 +1214,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException{
+	public List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException, PrivilegeException{
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1227,7 +1226,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws InternalErrorException, VoNotExistsException, UserNotExistsException, PrivilegeException{
+	public List<RichUser> getRichUsersWithoutVoWithAttributes(PerunSession sess, List<String> attrsName) throws InternalErrorException, UserNotExistsException, PrivilegeException{
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1327,7 +1326,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public int getUsersCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public int getUsersCount(PerunSession sess) throws InternalErrorException {
 		Utils.checkPerunSession(sess);
 
 		return getUsersManagerBl().getUsersCount(sess);
@@ -1402,7 +1401,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException, MemberNotExistsException {
+	public List<RichGroup> getRichGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException {
 
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
 				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {

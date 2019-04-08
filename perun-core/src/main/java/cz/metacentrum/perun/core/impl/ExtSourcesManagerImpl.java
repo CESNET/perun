@@ -80,7 +80,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	};
 
-	public ExtSourcesManagerImpl(DataSource perunPool) throws InternalErrorException {
+	public ExtSourcesManagerImpl(DataSource perunPool) {
 		jdbc = new JdbcPerunTemplate(perunPool);
 	}
 

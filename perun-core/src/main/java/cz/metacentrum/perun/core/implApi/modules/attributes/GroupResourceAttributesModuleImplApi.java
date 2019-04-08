@@ -53,5 +53,5 @@ public interface GroupResourceAttributesModuleImplApi extends AttributesModuleIm
 	 * @param resource the resource
 	 * @param attribute the attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void changedAttributeHook(PerunSessionImpl session, Group group, Resource resource, Attribute attribute);
 }

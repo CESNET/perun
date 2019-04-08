@@ -1224,7 +1224,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException {
+	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) {
 
 		int validWindow = BeansUtils.getCoreConfig().getMailchangeValidationWindow();
 
@@ -1247,7 +1247,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
-	public String loadPasswordResetRequest(User user, int requestId) throws InternalErrorException {
+	public String loadPasswordResetRequest(User user, int requestId) {
 
 		int validWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
 

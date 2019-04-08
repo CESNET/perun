@@ -25,11 +25,11 @@ public abstract class MemberResourceAttributesModuleAbstract extends AttributesM
 
 	}
 
-	public Attribute fillAttribute(PerunSessionImpl session, Member member, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public Attribute fillAttribute(PerunSessionImpl session, Member member, Resource resource, AttributeDefinition attribute) {
 		return new Attribute(attribute);
 	}
 
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) {
 
 	}
 }

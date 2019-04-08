@@ -20,7 +20,7 @@ public class DatabaseManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	final Pattern versionPatter = Pattern.compile("^[1-9][0-9]*[.][1-9][0-9]*[.][1-9][0-9]*");
 	
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 	}
 
 	@Test
