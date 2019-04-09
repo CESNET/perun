@@ -51,7 +51,7 @@ public class urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu extends
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu.class);
 	static final String ADNAME_ATTRIBUTE = AttributesManager.NS_GROUP_ATTR_DEF + ":adName:o365mu";
-	static final String MEMBER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE = AttributesManager.NS_MEMBER_ATTR_DEF + ":o365EmailAddresses:mu";
+	static final String USER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE = AttributesManager.NS_USER_ATTR_DEF + ":o365UserEmailAddresses:mu";
 
 	@Override
 	public void checkAttributeSyntax(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
@@ -97,18 +97,18 @@ public class urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu extends
 		}
 
 		//No need to check duplicities among other groups (attribute is unique)
-		//check for duplicities among members attributes and this one
+		//check for duplicities among users attributes and this one
 		try {
 			AttributesManagerBl attributesManagerBl = sess.getPerunBl().getAttributesManagerBl();
-			Attribute memberO365EmailAddresses = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, MEMBER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE));
-			memberO365EmailAddresses.setValue(emails);
-			Set<Pair<Integer, Integer>> memberPairs = attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, memberO365EmailAddresses);
-			if (!memberPairs.isEmpty()) {
-				throw new WrongReferenceAttributeValueException(attribute, memberO365EmailAddresses, group, null, "member " + BeansUtils.getSingleId(memberPairs) + " ");
+			Attribute userO365EmailAddresses = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, USER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE));
+			userO365EmailAddresses.setValue(emails);
+			Set<Pair<Integer, Integer>> usersPairs = attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, userO365EmailAddresses);
+			if (!usersPairs.isEmpty()) {
+				throw new WrongReferenceAttributeValueException(attribute, userO365EmailAddresses, group, null, "member " + BeansUtils.getSingleId(usersPairs) + " ");
 			}
 		} catch(AttributeNotExistsException ex) {
 			//If attribute not exists, we can log it and skip it, because there are no duplicates in not existing attributes
-			log.debug("Attribute {} not exists to check duplicities in it while checkAttributeSemantics for {}.", MEMBER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE, attribute);
+			log.debug("Attribute {} not exists to check duplicities in it while checkAttributeSemantics for {}.", USER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE, attribute);
 		}
 	}
 	/**
@@ -131,7 +131,10 @@ public class urn_perun_group_attribute_def_def_o365EmailAddresses_o365mu extends
 
 	@Override
 	public List<String> getDependencies() {
-		return Collections.singletonList(ADNAME_ATTRIBUTE);
+		List<String> dependencies = new ArrayList<>();
+		dependencies.add(ADNAME_ATTRIBUTE);
+		dependencies.add(USER_O365EMAIL_ADDRESSES_MU_ATTRIBUTE);
+		return dependencies;
 	}
 
 	@Override
