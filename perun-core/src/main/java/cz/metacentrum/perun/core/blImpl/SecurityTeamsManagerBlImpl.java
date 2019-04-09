@@ -107,26 +107,22 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 
 		// remove all users from blacklist, which were blacklisted by this security team.
 		List<User> blacklist = getSecurityTeamsManagerImpl().getBlacklist(sess, Collections.singletonList(securityTeam));
-		if (blacklist != null && !blacklist.isEmpty() && !forceDelete) {
+		if (!blacklist.isEmpty() && !forceDelete) {
 			throw new RelationExistsException("SecurityTeam has blacklisted users.");
 		}
-		if (blacklist != null) {
-			for (User blacklistedUser : blacklist) {
-				// calling BL will make auditer message about user to appear.
-				getPerunBl().getSecurityTeamsManagerBl().removeUserFromBlacklist(sess, securityTeam, blacklistedUser);
-			}
+		for (User blacklistedUser : blacklist) {
+			// calling BL will make auditer message about user to appear.
+			getPerunBl().getSecurityTeamsManagerBl().removeUserFromBlacklist(sess, securityTeam, blacklistedUser);
 		}
 
 		// remove security team from all facilities
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAssignedFacilities(sess, securityTeam);
-		if (facilities != null && !facilities.isEmpty() && !forceDelete) {
+		if (!facilities.isEmpty() && !forceDelete) {
 			throw new RelationExistsException("SecurityTeam is assigned to some facilities.");
 		}
-		if (facilities != null) {
-			for (Facility facility : facilities) {
-				// calling BL will make auditer message about facility to appear.
-				getPerunBl().getFacilitiesManagerBl().removeSecurityTeam(sess, facility, securityTeam);
-			}
+		for (Facility facility : facilities) {
+			// calling BL will make auditer message about facility to appear.
+			getPerunBl().getFacilitiesManagerBl().removeSecurityTeam(sess, facility, securityTeam);
 		}
 
 		getSecurityTeamsManagerImpl().deleteSecurityTeam(sess, securityTeam);

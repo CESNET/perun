@@ -1271,7 +1271,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			try {
 				vo = getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId());
 			} catch (VoNotExistsException ex) {
-				throw new ConsistencyErrorException("Vo does not exist.");
+				throw new ConsistencyErrorException("Vo for group " + group + " does not exist.");
 			}
 			allGroupMembers = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 		} else {

@@ -131,7 +131,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 		FacilityState state = new FacilityState();
 		state.setFacility(facility);
 		// if no tasks we can't determine facility state
-		if (tasks.isEmpty()) {
+		if (tasks == null || tasks.isEmpty()) {
 			state.setState(FacilityPropagationState.NOT_DETERMINED);
 			return state;
 		} else {

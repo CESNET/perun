@@ -151,6 +151,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 				}
 
 			}
+			//Attribute value can be null, for now, no changes for removing some GroupName of this Resource
 		} catch (WrongAttributeAssignmentException ex) {
 			//TODO: need to add WrongAttributeAssignmentException to header of modules methods
 			throw new InternalErrorException(ex);

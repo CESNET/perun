@@ -40,7 +40,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 			else return;
 		}
 		if(attribute.getValue() == null) {
-			if(certDNsValue != null) throw new WrongAttributeValueException(attribute, user, "This attribute value can't be null because of notNull attribute userCertDNs");
+			if(certDNsValue != null && !certDNsValue.isEmpty()) throw new WrongAttributeValueException(attribute, user, "This attribute value can't be null because of notNull attribute userCertDNs");
 		} else {
 			String preferredCertDNValue = (String) attribute.getValue();
 			if(!certDNsValue.containsKey(preferredCertDNValue)) throw new WrongAttributeValueException(attribute, "This attribute value must be one of exsiting keys in userCertDNs.");
