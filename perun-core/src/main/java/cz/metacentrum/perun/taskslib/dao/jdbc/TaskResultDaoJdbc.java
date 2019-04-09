@@ -103,8 +103,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 					taskResult.getTaskId(),
 					taskResult.getDestinationId(),
 					taskResult.getStatus().toString(),
-					new String(errorMessage, StandardCharsets.UTF_8),
-					new String(standardMessage, StandardCharsets.UTF_8),
+					errorMessage == null ? null : new String(errorMessage, StandardCharsets.UTF_8),
+					standardMessage == null ? null : new String(standardMessage, StandardCharsets.UTF_8),
 					taskResult.getReturnCode(),
 					TaskDaoJdbc.getDateFormatter().format(taskResult.getTimestamp()),
 					engineID);

@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DiacriticNotAllowedException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MaxSizeExceededException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -351,7 +352,11 @@ public class Utils {
 
 		// Decide which type of the JdbcTemplate is provided
 		try {
-			return jdbc.queryForObject(query, Integer.class);
+			Integer i = jdbc.queryForObject(query, Integer.class);
+			if (i == null) {
+				throw new InternalErrorException("New ID should not be null.");
+			}
+			return i;
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -1485,7 +1490,7 @@ public class Utils {
 	 */
 	public static Pair<Integer, TemporalUnit> prepareGracePeriodDate(Matcher matcher) throws InternalErrorException {
 		if (!matcher.matches()) {
-			return null;
+			throw new IllegalArgumentException("Wrong format of gracePeriod.");
 		}
 		String countString = matcher.group(1);
 		int amount = Integer.valueOf(countString);

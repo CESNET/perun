@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +46,13 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup exten
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 
-		if (attribute != null && unpermittedLogins.contains(attribute.valueAsString())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
+		Utils.notNull(attribute, "attribute");
+		if (unpermittedLogins.contains(attribute.valueAsString())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
 
 		// check is the same as VŠUP login
 		try {
 			Attribute a = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, VSUP_NAMESPACE);
-			if (attribute != null && !Objects.equals(attribute.getValue(),a.getValue())) {
+			if (!Objects.equals(attribute.getValue(),a.getValue())) {
 				throw new WrongAttributeValueException(attribute, user, "Eduroam login must match VŠUP login "+a.getValue());
 			}
 		} catch (AttributeNotExistsException ex) {

@@ -110,7 +110,9 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	};
 
 	protected static final RowMapper<RichResource> RICH_RESOURCE_MAPPER = (resultSet, i) -> {
-		RichResource richResource = new RichResource(RESOURCE_MAPPER.mapRow(resultSet, i));
+		Resource resource = RESOURCE_MAPPER.mapRow(resultSet, i);
+		if (resource == null) return null;
+		RichResource richResource = new RichResource(resource);
 		richResource.setVo(VosManagerImpl.VO_MAPPER.mapRow(resultSet, i));
 		richResource.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(resultSet, i));
 		return richResource;
@@ -153,7 +155,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 				}
 				// fetch each resource tag and add it to rich resource
 				ResourceTag tag = RESOURCE_TAG_MAPPER.mapRow(rs, rs.getRow());
-				if (tag != null && tag.getId() != 0) {
+				if (tag != null && tag.getId() != 0 && myObject != null) {
 					// add only if exists
 					myObject.addResourceTag(tag);
 				}

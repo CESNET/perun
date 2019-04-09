@@ -593,6 +593,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
+	// COUNT(*) should never return NULL
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public boolean isUserInRoleForVo(PerunSession session, User user, Role role, Vo vo) {
 		return jdbc.queryForObject(
@@ -601,6 +603,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 				user.getId(), role.getRoleName(), vo.getId()) > 0;
 	}
 
+	// COUNT(*) should never return NULL
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public boolean isGroupInRoleForVo(PerunSession session, Group group, Role role, Vo vo) {
 		return jdbc.queryForObject(

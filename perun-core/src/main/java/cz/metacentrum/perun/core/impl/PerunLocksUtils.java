@@ -83,6 +83,8 @@ public class PerunLocksUtils {
 				if (TransactionSynchronizationManager.getResource(uniqueKey.get()) == null) {
 					TransactionSynchronizationManager.bindResource(uniqueKey.get(), returnedLocks);
 				} else {
+					// the returned resource can never be null because of the previous check
+					//noinspection ConstantConditions
 					((List<Lock>) TransactionSynchronizationManager.getResource(uniqueKey.get())).addAll(returnedLocks);
 				}
 			} catch (InterruptedException ex) {
@@ -120,6 +122,8 @@ public class PerunLocksUtils {
 				if (TransactionSynchronizationManager.getResource(uniqueKey.get()) == null) {
 					TransactionSynchronizationManager.bindResource(uniqueKey.get(), returnedLocks);
 				} else {
+					// the returned resource can never be null because of the previous check
+					//noinspection ConstantConditions
 					((List<Lock>) TransactionSynchronizationManager.getResource(uniqueKey.get())).addAll(returnedLocks);
 				}
 			} catch (InterruptedException ex) {
