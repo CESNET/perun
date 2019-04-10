@@ -36,7 +36,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichFacility;
@@ -731,67 +730,62 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public List<Facility> getFacilitiesByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException {
+	public List<Facility> getFacilitiesByPerunBean(PerunSession sess, Group group) throws InternalErrorException {
 		List<Facility> facilities = new ArrayList<>();
-
-		//All possible useful objects
-		Vo vo = null;
-		Facility facility = null;
-		Group group = null;
-		Member member = null;
-		User user = null;
-		Host host = null;
-		Resource resource = null;
-
-		if(perunBean != null) {
-			if(perunBean instanceof Vo) vo = (Vo) perunBean;
-			else if(perunBean instanceof Facility) facility = (Facility) perunBean;
-			else if(perunBean instanceof Group) group = (Group) perunBean;
-			else if(perunBean instanceof Member) member = (Member) perunBean;
-			else if(perunBean instanceof User) user = (User) perunBean;
-			else if(perunBean instanceof Host) host = (Host) perunBean;
-			else if(perunBean instanceof Resource) resource = (Resource) perunBean;
-			else {
-				throw new InternalErrorException("There is unrecognized object in primaryHolder of aidingAttr.");
-			}
-		} else {
-			throw new InternalErrorException("Aiding attribtue must have primaryHolder which is not null.");
+		List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
+		for(Resource resourceElemenet: resources) {
+			facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElemenet));
 		}
+		facilities = new ArrayList<>(new HashSet<>(facilities));
+		return facilities;
+	}
 
-		//Important For Groups not work with Subgroups! Invalid members are executed too.
+	@Override
+	public List<Facility> getFacilitiesByPerunBean(PerunSession sess, Member member) throws InternalErrorException {
+		List<Facility> facilities = new ArrayList<>();
+		List<Group> groupsForMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
+		List<Resource> resourcesFromMember = new ArrayList<>();
+		for(Group groupElement: groupsForMember) {
+			resourcesFromMember.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, groupElement));
+		}
+		for(Resource resourceElement: resourcesFromMember) {
+			facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
+		}
+		facilities = new ArrayList<>(new HashSet<>(facilities));
+		return facilities;
+	}
 
-		if(group != null) {
-			List<Resource> resources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, group);
-			for(Resource resourceElemenet: resources) {
-				facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElemenet));
-			}
-		} else if(member != null) {
-			List<Group> groupsForMember = getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, member);
-			List<Resource> resourcesFromMember = new ArrayList<>();
-			for(Group groupElement: groupsForMember) {
-				resourcesFromMember.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, groupElement));
-			}
-			for(Resource resourceElement: resourcesFromMember) {
-				facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-			}
-		} else if(resource != null) {
-			facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resource));
-		} else if(user != null) {
-			List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-			List<Resource> resourcesFromMembers = new ArrayList<>();
-			for(Member memberElement: membersFromUser) {
-				resourcesFromMembers.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
-			}
-			for(Resource resourceElement: resourcesFromMembers) {
-				facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
-			}
-		} else if(host != null) {
-			facilities.add(getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host));
-		} else if(vo != null) {
-			List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
-			for(Resource resourceElemenet: resources) {
-				facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElemenet));
-			}
+	@Override
+	public List<Facility> getFacilitiesByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException {
+		return Collections.singletonList(getPerunBl().getResourcesManagerBl().getFacility(sess, resource));
+	}
+
+	@Override
+	public List<Facility> getFacilitiesByPerunBean(PerunSession sess, User user) throws InternalErrorException {
+		List<Facility> facilities = new ArrayList<>();
+		List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+		List<Resource> resourcesFromMembers = new ArrayList<>();
+		for(Member memberElement: membersFromUser) {
+			resourcesFromMembers.addAll(getPerunBl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
+		}
+		for(Resource resourceElement: resourcesFromMembers) {
+			facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElement));
+		}
+		facilities = new ArrayList<>(new HashSet<>(facilities));
+		return facilities;
+	}
+
+	@Override
+	public List<Facility> getFacilitiesByPerunBean(PerunSession sess, Host host) throws InternalErrorException {
+		return Collections.singletonList(getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host));
+	}
+
+	@Override
+	public List<Facility> getFacilitiesByPerunBean(PerunSession sess, Vo vo) throws InternalErrorException {
+		List<Facility> facilities = new ArrayList<>();
+		List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
+		for(Resource resourceElemenet: resources) {
+			facilities.add(getPerunBl().getResourcesManagerBl().getFacility(sess, resourceElemenet));
 		}
 
 		facilities = new ArrayList<>(new HashSet<>(facilities));
