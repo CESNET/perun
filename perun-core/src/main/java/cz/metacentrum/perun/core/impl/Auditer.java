@@ -489,7 +489,6 @@ public class Auditer {
 			return;
 		}
 
-		final List<Integer> ids = new ArrayList<>();
 		final List<Pair<AuditerMessage, Integer>> msgs = new ArrayList<>();
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
 
@@ -518,7 +517,6 @@ public class Auditer {
 								try {
 									final int msgId = Utils.getNewId(jdbc, "auditer_log_id_seq");
 									ps.setInt(1, msgId);
-									ids.add(msgId);
 									msgs.add(new Pair<>(auditerMessage, msgId));
 								} catch (InternalErrorException e) {
 									throw new SQLException("Cannot get unique id for new auditer log message ['" + message + "']", e);

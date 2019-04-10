@@ -292,17 +292,17 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 			if (data[i] != 0x00)
 				dataOut.write(data[i]);
 		}
-		if(maxLength < data.length) {
+		if (maxLength < data.length) {
 			// we had to cut the byte array at limit
 			// data[limit-1] is the last added byte
 			// we have to check, if it starts the non-ASCII char sequence
-			if(data[limit-1] >= 0xC0 ) {
+			if (data[limit-1] < 0 && data[limit-1] >= (byte)0xC0) {
 				dataOut.write(data[limit]);
 			}
-			if(data[limit-1] >= 0xE0 ) {
+			if (data[limit-1] < 0 && data[limit-1] >= (byte)0xE0) {
 				dataOut.write(data[limit+1]);
 			}
-			if(data[limit-1] >= 0xF0 ) {
+			if (data[limit-1] < 0 && data[limit-1] >= (byte)0xF0) {
 				dataOut.write(data[limit+2]);
 			}
 		}

@@ -404,8 +404,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		UserExtSource ues2 = new UserExtSource(ext2, 1, "testExtLogin@test");
 
 
-		ues1 = usersManager.addUserExtSource(sess, user, ues1);
-		ues2 = usersManager.addUserExtSource(sess, user, ues2);
+		usersManager.addUserExtSource(sess, user, ues1);
+		usersManager.addUserExtSource(sess, user, ues2);
 	}
 
 	@Test
@@ -473,7 +473,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		ext1 = perun.getExtSourcesManagerBl().createExtSource(sess, ext1, null);
 
 		UserExtSource ues1 = new UserExtSource(ext1, 1, "testExtLogin@test");
-		ues1 = usersManager.addUserExtSource(sess, user, ues1);
+		usersManager.addUserExtSource(sess, user, ues1);
 		UserExtSource ues2 = new UserExtSource(ext1, 1, "testExtLogin2@test");
 		ues2 = usersManager.addUserExtSource(sess, user, ues2);
 

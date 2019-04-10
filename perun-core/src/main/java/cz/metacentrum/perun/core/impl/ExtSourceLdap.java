@@ -110,8 +110,6 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
 
-		NamingEnumeration<SearchResult> results = null;
-
 		List<String> ldapGroupSubjects = new ArrayList<>();
 
 		// Get the LDAP group name
@@ -162,13 +160,6 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		} catch (NamingException e) {
 			log.error("LDAP exception during running query '{}'", ldapGroupName);
 			throw new InternalErrorException("Entry '"+ldapGroupName+"' was not found in LDAP." , e);
-		} finally {
-			try {
-				if (results != null) { results.close(); }
-			} catch (Exception e) {
-				log.error("LDAP exception during closing result, while running query '{}'", ldapGroupName);
-				throw new InternalErrorException(e);
-			}
 		}
 	}
 

@@ -675,21 +675,21 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 
 		List<Attribute> attrs = cacheManager.getAttributesByNames(attributeNames, groupHolder, null);
 		assertTrue("result should contain group attribute", attrs.contains(groupAttr));
-		assertTrue("result should contain group attribute definition", attrs.contains(groupAttrDef));
+		assertTrue("result should contain group attribute definition", attrs.contains(new Attribute(groupAttrDef)));
 		assertTrue("it should return 2 attributes", attrs.size() == 2);
 
 		cacheManager.removeAttribute(groupAttr, groupHolder, null);
 
 		attrs = cacheManager.getAttributesByNames(attributeNames, groupHolder, null);
 		assertTrue("result should not contain group attribute", !attrs.contains(groupAttr));
-		assertTrue("result should contain group attribute definition", attrs.contains(groupAttrDef));
+		assertTrue("result should contain group attribute definition", attrs.contains(new Attribute(groupAttrDef)));
 		assertTrue("it should return 2 attribute definitions", attrs.size() == 2);
 
 		cacheManager.flushNestedTransaction();
 
 		attrs = cacheManager.getAttributesByNames(attributeNames, groupHolder, null);
 		assertTrue("result should not contain group attribute", !attrs.contains(groupAttr));
-		assertTrue("result should contain group attribute definition", attrs.contains(groupAttrDef));
+		assertTrue("result should contain group attribute definition", attrs.contains(new Attribute(groupAttrDef)));
 		assertTrue("it should return 2 attribute definitions", attrs.size() == 2);
 	}
 

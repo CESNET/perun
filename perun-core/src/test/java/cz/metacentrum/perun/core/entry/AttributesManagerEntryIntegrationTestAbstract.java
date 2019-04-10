@@ -5782,11 +5782,10 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		facility = setUpFacility();
 		resource = setUpResource();
 		service = setUpService();
-		List<Attribute> attributes = new ArrayList<>();
-		attributes.addAll(setUpMemberAttribute());
-		attributes.addAll(setUpUserAttribute());
-		attributes.addAll(setUpMemberResourceAttribute());
-		attributes.addAll(setUpFacilityUserAttribute());
+		setUpMemberAttribute();
+		setUpUserAttribute();
+		setUpMemberResourceAttribute();
+		setUpFacilityUserAttribute();
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		perun.getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
