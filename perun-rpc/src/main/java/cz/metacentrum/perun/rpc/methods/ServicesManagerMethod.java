@@ -149,6 +149,37 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources.
+	 * @param filterExpiredMembers if true the method does not take expired members into account
+	 * @return List<ServiceAttributes> Attributes in special structure. Facility is in the root, facility childrens are resources. And resource childrens are members.
+	 <pre>
+	 Facility
+	 +---Attrs
+	 +---ChildNodes
+	 +------Resource
+	 |      +---Attrs
+	 |      +---ChildNodes
+	 |             +------Member
+	 |             |        +-------Attrs
+	 |             +------Member
+	 |             |        +-------Attrs
+	 |             +...
+	 |
+	 +------Resource
+	 |      +---Attrs
+	 |      +---ChildNodes
+	 .             +------Member
+	 .             |        +-------Attrs
+	 .             +------Member
+	 |        +-------Attrs
+	 +...
+	 </pre>
+	 *
+	 */
+	/*#
+	 * Generates the list of attributes per each member associated with the resource.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources.
 	 * @return List<ServiceAttributes> Attributes in special structure. Facility is in the root, facility childrens are resources. And resource childrens are members.
 	 <pre>
 	 Facility
@@ -178,12 +209,50 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public ServiceAttributes call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServicesManager().getHierarchicalData(ac.getSession(),
+			if (parms.contains("filterExpiredMembers")) {
+				return ac.getServicesManager().getHierarchicalData(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")),
-					ac.getFacilityById(parms.readInt("facility")));
+					ac.getFacilityById(parms.readInt("facility")),
+					parms.readBoolean("filterExpiredMembers"));
+			} else {
+				return ac.getServicesManager().getHierarchicalData(ac.getSession(),
+					ac.getServiceById(parms.readInt("service")),
+					ac.getFacilityById(parms.readInt("facility")),
+					false);
+			}
 		}
 	},
 
+	/*#
+	 * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
+	 *
+	 * @param service int Service <code>id</code>. You will get attributes required by this service
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources
+	 * @param filterExpiredMembers if true the method does not take expired members into account
+	 * @return ServiceAttributes Attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's childrens are all resources. Facility second child is abstract node with no attribute and it's childrens are all users.
+	 <pre>
+	 Facility
+	 +---Attrs
+	 +---ChildNodes
+	 +------()
+	 |      +---ChildNodes
+	 |             +------Resource
+	 |             |        +-------Attrs
+	 |             +------Resource
+	 |             |        +-------Attrs
+	 |             +...
+	 |
+	 +------()
+	 +---ChildNodes
+	 +------User
+	 |        +-------Attrs (do NOT return member, member-resource attributes)
+	 +------User
+	 |        +-------Attrs (do NOT return member, member-resource attributes)
+	 +...
+	 </pre>
+
+	 *
+	 */
 	/*#
 	 * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
 	 *
@@ -217,12 +286,96 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public ServiceAttributes call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServicesManager().getFlatData(ac.getSession(),
+			if (parms.contains("filterExpiredMembers")) {
+				return ac.getServicesManager().getFlatData(ac.getSession(),
+						ac.getServiceById(parms.readInt("service")),
+						ac.getFacilityById(parms.readInt("facility")),
+					parms.readBoolean("filterExpiredMembers"));
+			} else {
+				return ac.getServicesManager().getFlatData(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")),
-					ac.getFacilityById(parms.readInt("facility")));
+					ac.getFacilityById(parms.readInt("facility")),
+					false);
+			}
 		}
 	},
 
+	/*#
+	 * Generates the list of attributes per each member associated with the resources and groups.
+	 *
+	 * @param service int Service <code>id</code>. You will get attributes reuqired by this service
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources
+	 * @param filterExpiredMembers if true the method does not take expired members into account
+	 * @return ServiceAttributes Attributes in special structure. Facility is in the root, facility children are resources.
+	 *         Resource first chil is abstract structure which children are groups.
+	 *         Resource  second chi is abstract structure which children are members.
+	 *         Group first chil is abstract structure which children are groups.
+	 *         Group second chi is abstract structure which children are members.
+	 <pre>
+	 Facility
+	 +---Attrs                       ...................................................
+	 +---ChildNodes                  |                                                 .
+	 +------Resource                 |                                                 .
+	 |       +---Attrs               |                                                 .
+	 |       +---ChildNodes          |                                                 .
+	 |              +------()        V                                                 .
+	 |              |       +------Group                                               .
+	 |              |       |        +-------Attrs                                     .
+	 |              |       |        +-------ChildNodes                                .
+	 |              |       |                   +-------()                             .
+	 |              |       |                   |        +---ChildNodes                .
+	 |              |       |                   |               +------- GROUP (same structure as any other group)
+	 |              |       |                   |               +------- GROUP (same structure as any other group)
+	 |              |       |                   |               +...
+	 |              |       |                   +-------()
+	 |              |       |                            +---ChildNodes
+	 |              |       |                                   +------Member
+	 |              |       |                                   |        +----Attrs
+	 |              |       |                                   +------Member
+	 |              |       |                                   |        +----Attrs
+	 |              |       |                                   +...
+	 |              |       |
+	 |              |       +------Group
+	 |              |       |        +-------Attrs
+	 |              |       |        +-------ChildNodes
+	 |              |       |                   +-------()
+	 |              |       |                   |        +---ChildNodes
+	 |              |       |                   |               +------- GROUP (same structure as any other group)
+	 |              |       |                   |               +------- GROUP (same structure as any other group)
+	 |              |       |                   |               +...
+	 |              |       |                   +-------()
+	 |              |       |                            +---ChildNodes
+	 |              |       |                                   +------Member
+	 |              |       |                                   |        +----Attrs
+	 |              |       |                                   +------Member
+	 |              |       |                                   |        +----Attrs
+	 |              |       |                                   +...
+	 |              |       |
+	 |              |       +...
+	 |              |
+	 |              +------()
+	 |                      +------Member
+	 |                      |         +----Attrs
+	 |                      |
+	 |                      +------Member
+	 |                      |         +----Attrs
+	 |                      +...
+	 |
+	 +------Resource
+	 |       +---Attrs
+	 |       +---ChildNodes
+	 |              +------()
+	 |              |       +...
+	 |              |       +...
+	 |              |
+	 |              +------()
+	 |                      +...
+	 .                      +...
+	 .
+	 .
+	 </pre>
+	 *
+	 */
 	/*#
 	 * Generates the list of attributes per each member associated with the resources and groups.
 	 *
@@ -302,12 +455,98 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 		@Override
 		public ServiceAttributes call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServicesManager().getDataWithGroups(ac.getSession(),
+			if (parms.contains("filterExpiredMembers")) {
+				return ac.getServicesManager().getDataWithGroups(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")),
-					ac.getFacilityById(parms.readInt("facility")));
+					ac.getFacilityById(parms.readInt("facility")),
+					parms.readBoolean("filterExpiredMembers"));
+			} else {
+				return ac.getServicesManager().getDataWithGroups(ac.getSession(),
+					ac.getServiceById(parms.readInt("service")),
+					ac.getFacilityById(parms.readInt("facility")),
+					false);
+			}
 		}
 	},
 
+	/*#
+	 * Generates the list of attributes per each member associated with the resources and groups in vos.
+	 *
+	 * @param service attributes required by this service you will get
+	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
+	 * @param filterExpiredMembers if true the method does not take expired members into account
+	 * @return attributes in special structure.
+	 *        Facility is in the root, facility children are vos.
+	 *        Vo first child is abstract structure which children are resources.
+	 *        Resource first child is abstract structure which children are groups.
+	 *        Resource  second chi is abstract structure which children are members.
+	 *        Group first child is abstract structure which children are groups.
+	 *        Group second chi is abstract structure which children are members.
+	 <pre>
+	 Facility
+	 +---Attrs
+	 +---ChildNodes
+	        +-----Vo
+	        |      +---Attrs
+	        |      +---ChildNodes
+	        |             +-------Resource
+	        |             |       +---Attrs               |-------------------------------------------------.
+	        |             |       +---ChildNodes          |                                                 .
+	        |             |              +------()        V                                                 .
+	        |             |              |       +------Group                                               .
+	        |             |              |       |        +-------Attrs                                     .
+	        |             |              |       |        +-------ChildNodes                                .
+	        |             |              |       |                   +-------()                             .
+	        |             |              |       |                   |        +---ChildNodes                .
+	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
+	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
+	        |             |              |       |                   |               +...
+	        |             |              |       |                   +-------()
+	        |             |              |       |                            +---ChildNodes
+	        |             |              |       |                                   +------Member
+	        |             |              |       |                                   |        +----Attrs
+	        |             |              |       |                                   +------Member
+	        |             |              |       |                                   |        +----Attrs
+	        |             |              |       |                                   +...
+	        |             |              |       |
+	        |             |              |       +------Group
+	        |             |              |       |        +-------Attrs
+	        |             |              |       |        +-------ChildNodes
+	        |             |              |       |                   +-------()
+	        |             |              |       |                   |        +---ChildNodes
+	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
+	        |             |              |       |                   |               +------- GROUP (same structure as any other group)
+	        |             |              |       |                   |               +...
+	        |             |              |       |                   +-------()
+	        |             |              |       |                            +---ChildNodes
+	        |             |              |       |                                   +------Member
+	        |             |              |       |                                   |        +----Attrs
+	        |             |              |       |                                   +------Member
+	        |             |              |       |                                   |        +----Attrs
+	        |             |              |       |                                   +...
+	        |             |              |       |
+	        |             |              |       +...
+	        |             |              |
+	        |             |              +------()
+	        |             |                      +------Member
+	        |             |                      |         +----Attrs
+	        |             |                      |
+	        |             |                      +------Member
+	        |             |                      |         +----Attrs
+	        |             |                      +...
+	        |             |
+	        |             +------Resource
+	        |             |       +---Attrs
+	        |             |       +---ChildNodes
+	        |             |              +------()
+	        |             |              |       +...
+	        |             |              |       +...
+	        |             |              |
+	        |             |              +------()
+	        |             |                      +...
+	        +-----Vo ....
+	</pre>
+	 */
 	/*#
 	 * Generates the list of attributes per each member associated with the resources and groups in vos.
 	 *
@@ -388,9 +627,17 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	getDataWithVos {
 		@Override
 		public ServiceAttributes call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getServicesManager().getDataWithVos(ac.getSession(),
+			if (parms.contains("filterExpiredMembers")) {
+				return ac.getServicesManager().getDataWithVos(ac.getSession(),
 					ac.getServiceById(parms.readInt("service")),
-					ac.getFacilityById(parms.readInt("facility")));
+					ac.getFacilityById(parms.readInt("facility")),
+					parms.readBoolean("filterExpiredMembers"));
+			} else {
+				return ac.getServicesManager().getDataWithVos(ac.getSession(),
+					ac.getServiceById(parms.readInt("service")),
+					ac.getFacilityById(parms.readInt("facility")),
+					false);
+			}
 		}
 	},
 

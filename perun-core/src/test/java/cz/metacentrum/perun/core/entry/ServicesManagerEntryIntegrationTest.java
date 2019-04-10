@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Role;
@@ -1125,7 +1126,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		// get data for facility and service
 		// = should be one node (facility)
 		List<ServiceAttributes> facilities = new ArrayList<>();
-		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility));
+		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility, false));
 		assertNotNull("Unable to get hierarchical data",facilities);
 		assertTrue("Only 1 facility shoud be returned",facilities.size()==1);
 		assertNotNull("returned facility shouldn't be null",facilities.get(0));
@@ -1185,12 +1186,62 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
+	@Test
+	public void getHierarchicalDataWithoutExpiredMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getHierarchicalDataWithoutExpiredMembers");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		member = setUpMember();
+		Member member2 = setUpMember();
+		group = setUpGroup();
+		perun.getGroupsManager().addMember(sess, group, member);
+		perun.getGroupsManager().addMember(sess, group, member2);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+		attr.setFriendlyName("groupStatus");
+		attr.setDisplayName("Group membership status");
+		attr.setType(String.class.getName());
+
+		Attribute attribute = new Attribute(attr);
+
+		perun.getAttributesManager().createAttribute(sess, attribute);
+
+		// set element's name/id as required attributes to get some attributes for every element
+		Attribute reqFacAttr;
+		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqFacAttr);
+		Attribute reqResAttr;
+		reqResAttr = perun.getAttributesManager().getAttribute(sess, resource, "urn:perun:resource:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqResAttr);
+		Attribute reqMemAttr;
+		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, "urn:perun:member:attribute-def:core:id");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+		// finally assign service
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		List<ServiceAttributes> facilities2 = new ArrayList<ServiceAttributes>();
+		facilities2.add(perun.getServicesManager().getHierarchicalData(sess, service, facility, false));
+		assertEquals(2, facilities2.get(0).getChildElements().get(0).getChildElements().size());
+
+		// return only one member because the other one is expired
+		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
+		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility, true));
+		assertEquals(1,facilities.get(0).getChildElements().get(0).getChildElements().size());
+	}
+
 	@Test (expected=FacilityNotExistsException.class)
 	public void getHierarchicalDataWhenFacilityNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getHierarchicalDataWhenFacilityNotExists");
 
 		service = setUpService();
-		perun.getServicesManager().getHierarchicalData(sess, service, new Facility());
+		perun.getServicesManager().getHierarchicalData(sess, service, new Facility(), false);
 		// shouldn't find facility
 
 	}
@@ -1200,12 +1251,132 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println(CLASS_NAME + "getHierarchicalDataWhenServiceNotExists");
 
 		facility = setUpFacility();
-		perun.getServicesManager().getHierarchicalData(sess, new Service(), facility);
+		perun.getServicesManager().getHierarchicalData(sess, new Service(), facility, false);
 		// shouldn't find service
 
 	}
 
-	// TODO getFlatData() - not implemented yet
+	@Test
+	public void getFlatData() throws Exception {
+		System.out.println(CLASS_NAME + "getFlatData");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		member = setUpMember();
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		group = setUpGroup();
+		perun.getGroupsManager().addMember(sess, group, member);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+
+		// set element's name/id as required attributes to get some attributes for every element
+		Attribute reqFacAttr;
+		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqFacAttr);
+		Attribute reqResAttr;
+		reqResAttr = perun.getAttributesManager().getAttribute(sess, resource, "urn:perun:resource:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqResAttr);
+		Attribute reqUserAttr;
+		reqUserAttr = perun.getAttributesManager().getAttribute(sess, user, "urn:perun:user:attribute-def:core:id");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqUserAttr);
+		Attribute reqMemAttr;
+		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, "urn:perun:member:attribute-def:core:id");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+		// finally assign service
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
+		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility, false));
+		assertNotNull("Unable to get flat data",facilities);
+		assertEquals("Only 1 facility should be returned", 1, facilities.size());
+		assertNotNull("returned facility shouldn't be null",facilities.get(0));
+
+		List<Attribute> facAttr = facAttr = facilities.get(0).getAttributes();
+		assertNotNull("Unable to get facility attributes required by service",facAttr);
+		assertEquals("Only 1 facility attribute should be returned", 1, facAttr.size());
+		assertTrue("Our facility required attribute not returned",facAttr.contains(reqFacAttr));
+
+		List<ServiceAttributes> facilityElements = facilities.get(0).getChildElements();
+		List<ServiceAttributes> resources = facilityElements.get(0).getChildElements();
+		assertNotNull("Unable to get facility resources",resources);
+		assertEquals("One resource should be returned", 1, resources.size());
+		assertNotNull("Our 1st resource shouldn't be null",resources.get(0));
+
+		List<Attribute> resAttr = resources.get(0).getAttributes();
+		assertNotNull("Unable to get required resource attributes",resAttr);
+		assertEquals("Required resource attribute should be returned for resource", 1, resAttr.size());
+		assertTrue("Our 1st resource required attribute not returned",resAttr.contains(reqResAttr));
+
+		List<ServiceAttributes> users = facilityElements.get(1).getChildElements();
+		assertNotNull("Unable to get facility users",users);
+		assertEquals("One user should be returned", 1, users.size());
+		assertNotNull("Our 1st user shouldn't be null",users.get(0));
+
+		List<Attribute> userAttributes = users.get(0).getAttributes();
+		assertNotNull("Unable to get required resource attributes",userAttributes);
+		assertEquals("Required resource attribute should be returned for resource", 1, userAttributes.size());
+		assertTrue("Our 1st resource required attribute not returned",userAttributes.contains(reqUserAttr));
+	}
+
+	@Test
+	public void getFlatDataWithoutExpiredUsers() throws Exception {
+		System.out.println(CLASS_NAME + "getFlatData");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		member = setUpMember();
+		Member member2 = setUpMember();
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
+		group = setUpGroup();
+		perun.getGroupsManager().addMember(sess, group, member);
+		perun.getGroupsManager().addMember(sess, group, member2);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+		attr.setFriendlyName("groupStatus");
+		attr.setDisplayName("Group membership status");
+		attr.setType(String.class.getName());
+
+		Attribute attribute = new Attribute(attr);
+
+		perun.getAttributesManager().createAttribute(sess, attribute);
+
+		// set element's name/id as required attributes to get some attributes for every element
+		Attribute reqFacAttr;
+		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqFacAttr);
+		Attribute reqResAttr;
+		reqResAttr = perun.getAttributesManager().getAttribute(sess, resource, "urn:perun:resource:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqResAttr);
+		Attribute reqUserAttr;
+		reqUserAttr = perun.getAttributesManager().getAttribute(sess, user, "urn:perun:user:attribute-def:core:id");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqUserAttr);
+		Attribute reqMemAttr;
+		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, "urn:perun:member:attribute-def:core:id");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+		// finally assign service
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
+		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility, false));
+		List<ServiceAttributes> facilityElements = facilities.get(0).getChildElements();
+		List<ServiceAttributes> users = facilityElements.get(1).getChildElements();
+		assertEquals("Required resource attribute should be returned for resource", 2, users.size());
+
+		facilities = new ArrayList<ServiceAttributes>();
+		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility, true));
+		facilityElements = facilities.get(0).getChildElements();
+		users = facilityElements.get(1).getChildElements();
+		assertEquals("Required resource attribute should be returned for resource", 1, users.size());
+	}
 
 	@Test
 	public void getDataWithGroups() throws Exception {
@@ -1258,7 +1429,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		 */
 
 		List<ServiceAttributes> facilities = new ArrayList<>();
-		facilities.add(perun.getServicesManager().getDataWithGroups(sess, service, facility));
+		facilities.add(perun.getServicesManager().getDataWithGroups(sess, service, facility, false));
 		assertNotNull("Unable to get hierarchical data with groups",facilities);
 		assertTrue("Only 1 facility shoud be returned",facilities.size()==1);
 		assertNotNull("returned facility shouldn't be null",facilities.get(0));
@@ -1368,12 +1539,94 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		} // end of all resource
 	}
 
+	@Test
+	public void getDataWithGroupsWithoutExpiredMembers() throws Exception {
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		member = setUpMember();
+		Member member2 = setUpMember();
+		Member member3 = setUpMember();
+		group = setUpGroup();
+
+		Group group2 = new Group("GroupsManagerTestGroup2","testovaci2");
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+
+		perun.getGroupsManager().addMember(sess, group, member);
+		perun.getGroupsManager().addMember(sess, group, member2);
+		perun.getGroupsManager().addMember(sess, group, member3);
+		perun.getGroupsManager().addMember(sess, group2, member2);
+		perun.getGroupsManager().addMember(sess, group2, member3);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource);
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+		attr.setFriendlyName("groupStatus");
+		attr.setDisplayName("Group membership status");
+		attr.setType(String.class.getName());
+
+		Attribute attribute = new Attribute(attr);
+
+		perun.getAttributesManager().createAttribute(sess, attribute);
+
+		AttributeDefinition attr2 = new AttributeDefinition();
+		attr2.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+		attr2.setFriendlyName("groupStatus");
+		attr2.setDisplayName("Group membership status");
+		attr2.setType(String.class.getName());
+
+		Attribute attribute2 = new Attribute(attr2);
+
+		perun.getAttributesManager().createAttribute(sess, attribute2);
+
+		// set element's name/id as required attributes to get some attributes for every element
+		Attribute reqFacAttr;
+		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqFacAttr);
+		Attribute reqResAttr;
+		reqResAttr = perun.getAttributesManager().getAttribute(sess, resource, "urn:perun:resource:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqResAttr);
+		Attribute reqGrpAttr;
+		reqGrpAttr = perun.getAttributesManager().getAttribute(sess, group, "urn:perun:group:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqGrpAttr);
+		Attribute reqMemAttr;
+		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, "urn:perun:member:attribute-def:core:id");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+
+		// finally assign service
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member3, group, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member3, group2, MemberGroupStatus.EXPIRED);
+
+		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
+		facilities.add(perun.getServicesManager().getDataWithGroups(sess, service, facility, true));
+		List<ServiceAttributes> resources = facilities.get(0).getChildElements();
+		List<ServiceAttributes> resourceElements = resources.get(0).getChildElements();
+		List<ServiceAttributes> groups = resourceElements.get(0).getChildElements();
+		List<ServiceAttributes> groupElements = groups.get(0).getChildElements();
+		List<ServiceAttributes> groupMembers = groupElements.get(1).getChildElements();
+		List<ServiceAttributes> members = resourceElements.get(1).getChildElements();
+
+		//group has 3 members but member2 and member3 are expired
+		assertEquals(groupMembers.size(), 1);
+
+		//group2 has 2 members but member3 is expired
+		assertEquals(groups.get(1).getChildElements().get(1).getChildElements().size(), 1);
+
+		//resource has 3 members but member3 is expired in all groups of given resource
+		assertEquals(members.size(), 2);
+	}
+
 	@Test (expected=FacilityNotExistsException.class)
 	public void getDataWithGroupsWhenFacilityNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getDataWithGroupsWhenFacilityNotExists");
 
 		service = setUpService();
-		perun.getServicesManager().getDataWithGroups(sess, service, new Facility());
+		perun.getServicesManager().getDataWithGroups(sess, service, new Facility(), false);
 		// shouldn't find facility
 
 	}
@@ -1383,9 +1636,177 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println(CLASS_NAME + "getDataWithGroupsWhenServiceNotExists");
 
 		facility = setUpFacility();
-		perun.getServicesManager().getDataWithGroups(sess, new Service(), facility);
+		perun.getServicesManager().getDataWithGroups(sess, new Service(), facility, false);
 		// shouldn't find service
 
+	}
+
+	@Test
+	public void getDataWithVos() throws Exception {
+		System.out.println(CLASS_NAME + "getDataWithVos");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		member = setUpMember();
+		group = setUpGroup();
+		perun.getGroupsManager().addMember(sess, group, member);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+
+		// set element's name/id as required attributes to get some attributes for every element
+		Attribute reqFacAttr;
+		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqFacAttr);
+		Attribute reqResAttr;
+		reqResAttr = perun.getAttributesManager().getAttribute(sess, resource, "urn:perun:resource:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqResAttr);
+		Attribute reqGrpAttr;
+		reqGrpAttr = perun.getAttributesManager().getAttribute(sess, group, "urn:perun:group:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqGrpAttr);
+		Attribute reqMemAttr;
+		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, "urn:perun:member:attribute-def:core:id");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+		Attribute reqVoAttr;
+		reqVoAttr = perun.getAttributesManager().getAttribute(sess, vo, "urn:perun:vo:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqVoAttr);
+
+		// finally assign service
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
+		facilities.add(perun.getServicesManager().getDataWithVos(sess, service, facility, false));
+		assertNotNull("Unable to get data with vos",facilities);
+		assertEquals("Only 1 facility should be returned", 1, facilities.size());
+		assertNotNull("returned facility shouldn't be null",facilities.get(0));
+
+		List<Attribute> facilityAttributes = facilities.get(0).getAttributes();
+		assertNotNull("Unable to get facility attributes required by service",facilityAttributes);
+		assertEquals("Only 1 facility attribute should be returned", 1, facilityAttributes.size());
+		assertTrue("Our facility required attribute not returned",facilityAttributes.contains(reqFacAttr));
+
+		List<ServiceAttributes> vos = facilities.get(0).getChildElements();
+		assertNotNull("Unable to get vos from facility",vos);
+		assertEquals("Only 1 vo should be returned", 1, vos.size());
+		assertNotNull("returned vo shouldn't be null",vos.get(0));
+
+		List<Attribute> vosAttributes = vos.get(0).getAttributes();
+		assertNotNull("Unable to get vo attributes required by service",vosAttributes);
+		assertEquals("Only 1 vo attribute should be returned", 1, vosAttributes.size());
+		assertTrue("Our vo required attribute not returned",vosAttributes.contains(reqVoAttr));
+
+		List<ServiceAttributes> resources = vos.get(0).getChildElements();
+		assertNotNull("Unable to get resources from vo",resources);
+		assertEquals("Only 1 resource should be returned", 1, resources.size());
+		assertNotNull("returned resource shouldn't be null",resources.get(0));
+
+		List<Attribute> resourceAttributes = resources.get(0).getAttributes();
+		assertNotNull("Unable to get resource attributes required by service",resourceAttributes);
+		assertEquals("Only 1 resource attribute should be returned", 2, resourceAttributes.size());
+		assertTrue("Our resource required attribute not returned",resourceAttributes.contains(reqResAttr) && resourceAttributes.contains(reqVoAttr));
+
+		List<ServiceAttributes> resourceElements = resources.get(0).getChildElements();
+		List<ServiceAttributes> groups = resourceElements.get(0).getChildElements();
+		assertNotNull("Unable to get groups from resource",groups);
+		assertEquals("Only 1 group should be returned", 1, groups.size());
+		assertNotNull("returned group shouldn't be null",groups.get(0));
+
+		List<Attribute> groupAttributes = groups.get(0).getAttributes();
+		assertNotNull("Unable to get group attributes required by service",groupAttributes);
+		assertEquals("Only 1 group attribute should be returned", 1, groupAttributes.size());
+		assertTrue("Our group required attribute not returned",groupAttributes.contains(reqGrpAttr));
+
+		List<ServiceAttributes> members = resourceElements.get(1).getChildElements();
+		assertNotNull("Unable to get members from resource",members);
+		assertEquals("Only 1 member should be returned", 1, members.size());
+		assertNotNull("returned member shouldn't be null",members.get(0));
+
+		List<Attribute> memberAttributes = members.get(0).getAttributes();
+		assertNotNull("Unable to get member attributes required by service",memberAttributes);
+		assertEquals("Only 1 member attribute should be returned", 1, memberAttributes.size());
+		assertTrue("Our member required attribute not returned",memberAttributes.contains(reqMemAttr));
+	}
+
+	@Test
+	public void getDataWithVosWithoutExpiredMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getDataWithVos");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		member = setUpMember();
+		Member member2 = setUpMember();
+		Member member3 = setUpMember();
+		group = setUpGroup();
+		Group group2 = new Group("GroupsManagerTestGroup2","testovaci2");
+		perun.getGroupsManager().createGroup(sess, vo, group2);
+
+		perun.getGroupsManager().addMember(sess, group, member);
+		perun.getGroupsManager().addMember(sess, group, member2);
+		perun.getGroupsManager().addMember(sess, group, member3);
+		perun.getGroupsManager().addMember(sess, group2, member2);
+		perun.getGroupsManager().addMember(sess, group2, member3);
+		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource);
+
+		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member3, group, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member3, group2, MemberGroupStatus.EXPIRED);
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+		attr.setFriendlyName("groupStatus");
+		attr.setDisplayName("Group membership status");
+		attr.setType(String.class.getName());
+		Attribute attribute = new Attribute(attr);
+		perun.getAttributesManager().createAttribute(sess, attribute);
+
+		AttributeDefinition attr2 = new AttributeDefinition();
+		attr2.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+		attr2.setFriendlyName("groupStatus");
+		attr2.setDisplayName("Group membership status");
+		attr2.setType(String.class.getName());
+		Attribute attribute2 = new Attribute(attr2);
+		perun.getAttributesManager().createAttribute(sess, attribute2);
+
+		// set element's name/id as required attributes to get some attributes for every element
+		Attribute reqFacAttr;
+		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqFacAttr);
+		Attribute reqResAttr;
+		reqResAttr = perun.getAttributesManager().getAttribute(sess, resource, "urn:perun:resource:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqResAttr);
+		Attribute reqGrpAttr;
+		reqGrpAttr = perun.getAttributesManager().getAttribute(sess, group, "urn:perun:group:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqGrpAttr);
+		Attribute reqMemAttr;
+		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, "urn:perun:member:attribute-def:core:id");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+		Attribute reqVoAttr;
+		reqVoAttr = perun.getAttributesManager().getAttribute(sess, vo, "urn:perun:vo:attribute-def:core:name");
+		perun.getServicesManager().addRequiredAttribute(sess, service, reqVoAttr);
+
+		// finally assign service
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
+		facilities.add(perun.getServicesManager().getDataWithVos(sess, service, facility, true));
+		List<ServiceAttributes> vos = facilities.get(0).getChildElements();
+		List<ServiceAttributes> resources = vos.get(0).getChildElements();
+		List<ServiceAttributes> resourceElements = resources.get(0).getChildElements();
+		List<ServiceAttributes> groupMembers = resourceElements.get(0).getChildElements().get(0).getChildElements().get(1).getChildElements();
+		List<ServiceAttributes> group2Members = resourceElements.get(0).getChildElements().get(1).getChildElements().get(1).getChildElements();
+		List<ServiceAttributes> members = resourceElements.get(1).getChildElements();
+
+		//group has 3 members but member2 and member3 are expired
+		assertEquals(groupMembers.size(), 1);
+
+		//group2 has 2 members but member3 is expired
+		assertEquals(group2Members.size(), 1);
+
+		//resource has 3 members but member3 is expired in all groups of given resource
+		assertEquals(members.size(), 2);
 	}
 
 	@Test
