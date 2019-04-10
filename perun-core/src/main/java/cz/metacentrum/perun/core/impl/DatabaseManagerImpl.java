@@ -30,47 +30,41 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 	final static Logger log = LoggerFactory.getLogger(DatabaseManagerImpl.class);
 	private static JdbcPerunTemplate jdbc;
 
-	private static final String VERSION_PROPETY = "DATABASE VERSION";
-	
+	private static final String VERSION_PROPERTY = "DATABASE VERSION";
+
 	public DatabaseManagerImpl(DataSource perunPool) {
 		jdbc = new JdbcPerunTemplate(perunPool);
 	}
-	
+
 	@Override
 	public String getCurrentDatabaseVersion() throws InternalErrorException {
 		try {
-			return jdbc.queryForObject("select value from configurations where property=?", String.class, VERSION_PROPETY);
+			return jdbc.queryForObject("select value from configurations where property=?", String.class, VERSION_PROPERTY);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new ConsistencyErrorException(ex);
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	@Override
 	public String getDatabaseDriverInformation() throws InternalErrorException {
-		try {
-			Connection con;
-			// for tests
-			con = jdbc.getDataSource().getConnection();
+		if (jdbc.getDataSource() == null) return "Data source is NULL.";
+		try (Connection con = jdbc.getDataSource().getConnection()) {
 			String driverVersion = con.getMetaData().getDriverVersion();
 			String driverName = con.getMetaData().getDriverName();
-			con.close();
 			return driverName + "-" + driverVersion;
 		} catch (Exception ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	@Override
 	public String getDatabaseInformation() throws InternalErrorException {
-		try {
-			Connection con;
-			// for tests
-			con = jdbc.getDataSource().getConnection();
+		if (jdbc.getDataSource() == null) return "Data source is NULL.";
+		try (Connection con = jdbc.getDataSource().getConnection()) {
 			String dbName = con.getMetaData().getDatabaseProductName();
 			String dbVersion = con.getMetaData().getDatabaseProductVersion();
-			con.close();
 			return dbName + "-" + dbVersion;
 		} catch (Exception ex) {
 			throw new InternalErrorException(ex);
