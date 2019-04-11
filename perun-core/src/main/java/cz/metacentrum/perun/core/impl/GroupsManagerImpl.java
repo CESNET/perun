@@ -144,7 +144,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 
 	public String getName(int id) throws InternalErrorException {
-		List name= null;
+		List name;
 		try {
 			name = jdbc.query("group.name as (with temp (name, id, parent_group_id) as ((select name, id, parent_group_id from GROUPS where parent_group_id is null) union all (select cast((temp.name + ':' + groups.name) as varchar(128)), " +
 					"groups.id, groups.parent_group_id from groups inner join temp on temp.id = groups.parent_group_id )) select name from temp where group.id = ?"

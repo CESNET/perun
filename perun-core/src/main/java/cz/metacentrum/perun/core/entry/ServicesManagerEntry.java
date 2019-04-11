@@ -452,7 +452,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		}
 
 		//prepare lists of facilities
-		List<Facility> facilitiesByHostname = new ArrayList<>();
+		List<Facility> facilitiesByHostname;
 		List<Facility> facilitiesByDestination = new ArrayList<>();
 		if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) ||
 				destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) ||
@@ -505,7 +505,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		}
 
 		//prepare lists of facilities
-		List<Facility> facilitiesByHostname = new ArrayList<>();
+		List<Facility> facilitiesByHostname;
 		List<Facility> facilitiesByDestination = new ArrayList<>();
 		if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) ||
 				destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) ||

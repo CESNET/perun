@@ -42,7 +42,7 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 
 		String groupName = (String) attribute.getValue();
-		Attribute isSystemGroup = new Attribute();
+		Attribute isSystemGroup;
 
 		if(groupName==null) {
 
@@ -59,8 +59,11 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 			}
 		}
 
-		Matcher matcher = pattern.matcher(groupName);
-		if(!matcher.matches()) throw new WrongAttributeValueException(attribute,"String with other chars than numbers, letters or symbols _ and - is not allowed value.");
+		if (groupName != null) {
+			Matcher matcher = pattern.matcher(groupName);
+			if (!matcher.matches())
+				throw new WrongAttributeValueException(attribute, "String with other chars than numbers, letters or symbols _ and - is not allowed value.");
+		}
 
 		//Get facility for the resource
 		Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
@@ -73,8 +76,8 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 			if(!p.getLeft().equals(group) || !p.getRight().equals(resource)) {
 				Facility facilityForTest = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, p.getRight());
 
-				Attribute group1GID = new Attribute();
-				Attribute group2GID = new Attribute();
+				Attribute group1GID;
+				Attribute group2GID;
 
 				try {
 					group1GID = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, group, A_GR_systemUnixGID);

@@ -98,7 +98,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 			// we don't allow dots in attribute friendlyName, so we convert domain dots to dash.
 			String namespace = ((String) googleGroupNameNamespaceAttribute.getValue()).replaceAll("\\.", "-");
 			Attribute groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + namespace);
-			attribute = Utils.copyAttributeToVirtualAttributeWithValue(groupNameAttribute, attribute);
+			Utils.copyAttributeToVirtualAttributeWithValue(groupNameAttribute, attribute);
 			return attribute;
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);

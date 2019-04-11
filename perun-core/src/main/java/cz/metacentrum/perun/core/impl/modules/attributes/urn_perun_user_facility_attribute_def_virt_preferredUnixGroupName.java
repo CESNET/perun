@@ -53,14 +53,14 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attr = new Attribute(attributeDefinition);
-		Attribute preferredGroupNameAttribute = null;
+		Attribute preferredGroupNameAttribute;
 
 		try {
 			Attribute facilityGroupNameNamespaceAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FACILITY_DEF_UNIX_GROUPNAME_NAMESPACE);
 			if(facilityGroupNameNamespaceAttr.getValue() != null) {
 				String namespace = (String) facilityGroupNameNamespaceAttr.getValue();
 				preferredGroupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_PREFERRED_UNIX_GROUPNAME_NAMESPACE + namespace);
-				attr = Utils.copyAttributeToVirtualAttributeWithValue(preferredGroupNameAttribute, attr);
+				Utils.copyAttributeToVirtualAttributeWithValue(preferredGroupNameAttribute, attr);
 			} else {
 				attr.setValue(null);
 			}

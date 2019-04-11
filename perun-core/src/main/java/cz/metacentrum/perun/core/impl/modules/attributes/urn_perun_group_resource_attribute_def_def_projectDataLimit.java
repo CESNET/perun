@@ -44,9 +44,9 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrProjectDataQuota = null;
-		String projectDataQuota = null;
-		String projectDataLimit = null;
+		Attribute attrProjectDataQuota;
+		String projectDataQuota;
+		String projectDataLimit;
 
 		String projectDataQuotaNumber = null;
 		String projectDataQuotaLetter = null;
@@ -89,7 +89,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 		BigDecimal limitNumber;
 		if(projectDataLimitNumber != null) limitNumber = new BigDecimal(projectDataLimitNumber.replace(',', '.'));
 		else limitNumber = new BigDecimal("0");
-		if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+		if (limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
 			throw new WrongAttributeValueException(attribute, attribute + " can't be less than 0.");
 		}
 
@@ -115,16 +115,16 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 		if(projectDataQuotaNumber != null) quotaNumber = new BigDecimal(projectDataQuotaNumber.replace(',', '.'));
 		else quotaNumber = new BigDecimal("0");
 
-		if (quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
 			throw new WrongReferenceAttributeValueException(attribute, attrProjectDataQuota, attrProjectDataQuota + " cant be less than 0.");
 		}
 
 		//Compare ProjectDataLimit with ProjectDataQuota
-		if (quotaNumber == null || quotaNumber.compareTo(BigDecimal.valueOf(0)) == 0) {
-			if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
+		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) == 0) {
+			if (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
 				throw new WrongReferenceAttributeValueException(attribute, attrProjectDataQuota, "Try to set limited limit, but there is still set unlimited Quota.");
 			}
-		} else if ((quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0)) {
+		} else if ((quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) && projectDataLimitLetter != null && projectDataQuotaLetter != null) {
 
 			switch (projectDataLimitLetter) {
 				case "K":

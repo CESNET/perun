@@ -21,7 +21,7 @@ public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttr
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
-		String pbsServer = null;
+		String pbsServer;
 		if(attribute.getValue() != null) {
 			pbsServer = (String) attribute.getValue();
 		} else {
@@ -29,8 +29,7 @@ public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttr
 		}
 
 		//TODO better method for searching Facility by querry in DB
-		List<Facility> allFacilities = new ArrayList<>();
-		allFacilities = perunSession.getPerunBl().getFacilitiesManagerBl().getFacilities(perunSession);
+		List<Facility> allFacilities = perunSession.getPerunBl().getFacilitiesManagerBl().getFacilities(perunSession);
 		boolean success = false;
 		for(Facility f: allFacilities) {
 			if(f.getName().equals(pbsServer)) {

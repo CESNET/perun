@@ -95,7 +95,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		Service service = new Service();
 		service.setName("ServicesManagerTestService");
 		service = perun.getServicesManager().createService(sess, service);
-		service = perun.getServicesManager().createService(sess, service);
+		perun.getServicesManager().createService(sess, service);
 		// shouldn't create same service twice
 
 	}
@@ -985,8 +985,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		destination = setUpDestination();
 		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
 		List<RichDestination> richDestinations = perun.getServicesManager().getAllRichDestinations(sess, facility);
-		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there shoudl be one detination",!richDestinations.isEmpty());
+		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there is the right facility in the richDestination",richDestination.getFacility().equals(facility));
 		assertTrue("there is the right service in the richDestination",richDestination.getService().equals(service));
 		assertTrue("there is the right destination in the richDestination",richDestination.getDestination().equals(destination.getDestination()));
@@ -1000,8 +1000,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		destination = setUpDestination();
 		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
 		List<RichDestination> richDestinations = perun.getServicesManager().getAllRichDestinations(sess, service);
-		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there shoudl be one detination",!richDestinations.isEmpty());
+		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there is the right facility in the richDestination",richDestination.getFacility().equals(facility));
 		assertTrue("there is the right service in the richDestination",richDestination.getService().equals(service));
 		assertTrue("there is the right destination in the richDestination",richDestination.getDestination().equals(destination.getDestination()));
@@ -1015,8 +1015,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		destination = setUpDestination();
 		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
 		List<RichDestination> richDestinations = perun.getServicesManager().getRichDestinations(sess, facility, service);
-		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there shoudl be one detination",!richDestinations.isEmpty());
+		RichDestination richDestination = richDestinations.get(0);
 		assertTrue("there is the right facility in the richDestination",richDestination.getFacility().equals(facility));
 		assertTrue("there is the right service in the richDestination",richDestination.getService().equals(service));
 		assertTrue("there is the right destination in the richDestination",richDestination.getDestination().equals(destination.getDestination()));
@@ -1132,16 +1132,14 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all required facility attributes
 		// = should be 1 required attribute for 1 facility
-		List<Attribute> facAttr = new ArrayList<>();
-		facAttr = facilities.get(0).getAttributes();
+		List<Attribute> facAttr = facilities.get(0).getAttributes();
 		assertNotNull("Unable to get facility attrbutes required by service",facAttr);
 		assertTrue("Only 1 facility attribute should be returned",facAttr.size()==1);
 		assertTrue("Our facility required attribute not returned",facAttr.contains(reqFacAttr));
 
 		// get all facility resources
 		// = should be 2 resources for 1 facility (3rd resource is without proper service)
-		List<ServiceAttributes> resources = new ArrayList<>();
-		resources = facilities.get(0).getChildElements();
+		List<ServiceAttributes> resources = facilities.get(0).getChildElements();
 		assertNotNull("Unable to get facility resources",resources);
 		assertTrue("Two resource should be returned",resources.size()==2);
 		assertNotNull("Our 1st resource shouldn't be null",resources.get(0));
@@ -1267,16 +1265,14 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		// get all required facility attributes
 		// = should be 1 required attribute for 1 facility
-		List<Attribute> facAttr = new ArrayList<>();
-		facAttr = facilities.get(0).getAttributes();
+		List<Attribute> facAttr = facilities.get(0).getAttributes();
 		assertNotNull("Unable to get facility attrbutes required by service",facAttr);
 		assertTrue("Only 1 facility attribute should be returned",facAttr.size()==1);
 		assertTrue("Our facility required attribute not returned",facAttr.contains(reqFacAttr));
 
 		// get all facility resources
 		// = should be 2 resources for 1 facility (3rd resource is without proper service)
-		List<ServiceAttributes> resources = new ArrayList<>();
-		resources = facilities.get(0).getChildElements();
+		List<ServiceAttributes> resources = facilities.get(0).getChildElements();
 		assertNotNull("Unable to get facility resources",resources);
 		assertTrue("Two resource should be returned",resources.size()==2);
 		assertNotNull("Our 1st resource shouldn't be null",resources.get(0));
@@ -1298,8 +1294,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		// 1st are GROUPS / 2nd are MEMBERS
 		for (ServiceAttributes resourceData : resources) {
 
-			List<ServiceAttributes> resElem = new ArrayList<>();
-			resElem = resourceData.getChildElements();
+			List<ServiceAttributes> resElem= resourceData.getChildElements();
 			assertNotNull("Unable to get resource elements from resource", resElem);
 			assertTrue("There should be only 2 virtual nodes - groups/members", resElem.size() == 2);
 
@@ -1341,8 +1336,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 			// 1st are SUBGROUPS - 2nd are GROUP-MEMBERS
 			for (ServiceAttributes groupData : groups) {
 
-				List<ServiceAttributes> grpElem = new ArrayList<>();
-				grpElem = groupData.getChildElements();
+				List<ServiceAttributes> grpElem = groupData.getChildElements();
 				assertNotNull("Unable to get group child elements", grpElem);
 				assertTrue("There should be 2 group child elements", grpElem.size() == 2);
 

@@ -38,7 +38,7 @@ public class Base64Coder {
 		for (char c='A'; c<='Z'; c++) map1[i++] = c;
 		for (char c='a'; c<='z'; c++) map1[i++] = c;
 		for (char c='0'; c<='9'; c++) map1[i++] = c;
-		map1[i++] = '+'; map1[i++] = '/'; }
+		map1[i++] = '+'; map1[i] = '/'; }
 
 	//Mapping table from Base64 characters to 6-bit nibbles.
 	private static final byte[]    map2 = new byte[128];

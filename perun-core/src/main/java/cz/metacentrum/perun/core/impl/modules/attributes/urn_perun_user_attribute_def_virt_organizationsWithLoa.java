@@ -49,7 +49,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
 
 			if(uES.getCreatedAt() != null) {
 				Date testingDate = null;
-				Date lastUsedDate = null;
+				Date lastUsedDate;
 				boolean parsed = true;
 				try {
 					testingDate = BeansUtils.getDateFormatter().parse(uES.getCreatedAt());
@@ -75,7 +75,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
 
 			if(uES.getModifiedAt() != null) {
 				Date testingDate = null;
-				Date lastUsedDate = null;
+				Date lastUsedDate;
 				boolean parsed = true;
 				try {
 					testingDate = BeansUtils.getDateFormatter().parse(uES.getModifiedAt());

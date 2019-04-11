@@ -82,7 +82,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 		log.debug("Parameters of rtMessage are queue='" + queue +"', subject='{}' and text='{}'", subject, text);
 
 		//Get Email from User who get from session
-		String email = null;
+		String email;
 		User user = sess.getPerunPrincipal().getUser();
 
 		//try to get user/member email from user in session
@@ -172,7 +172,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 
 	private String findUserPreferredEmail(PerunSession sess, User user) throws InternalErrorException {
 		String email = null;
-		Attribute userPreferredMail = null;
+		Attribute userPreferredMail;
 		try {
 			userPreferredMail = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:preferredMail");
 		} catch (WrongAttributeAssignmentException ex) {
@@ -207,14 +207,14 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 		}
 		//If queue is null, try to check if exist value in attribute rtVoQueue, if not, use default
 		if(queue == null || queue.isEmpty()) {
-			Vo vo = null;
+			Vo vo;
 			if(voId != 0) {
 				try {
 					vo = perunBl.getVosManagerBl().getVoById(sess, voId);
 				} catch (VoNotExistsException ex) {
 					throw new InternalErrorException("VoId with Id=" + voId + " not exists.", ex);
 				}
-				Attribute voQueue = null;
+				Attribute voQueue;
 				try {
 					voQueue = perunBl.getAttributesManagerBl().getAttribute(sess, vo, AttributesManager.NS_VO_ATTR_DEF + ":RTVoQueue");
 				} catch (AttributeNotExistsException ex) {

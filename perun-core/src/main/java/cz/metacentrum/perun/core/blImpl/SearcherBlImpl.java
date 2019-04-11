@@ -101,7 +101,7 @@ public class SearcherBlImpl implements SearcherBl {
 
 	@Override
 	public List<Group> getGroupsByGroupResourceSetting(PerunSession sess, Attribute groupResourceAttribute, Attribute resourceAttribute) throws InternalErrorException {
-		if(groupResourceAttribute == null || groupResourceAttribute.getValue() == null || resourceAttribute == null || groupResourceAttribute == null) {
+		if(groupResourceAttribute == null || groupResourceAttribute.getValue() == null || resourceAttribute == null || resourceAttribute.getValue() == null) {
 			throw new InternalErrorException("Can't find groups by attributes with null value.");
 		}
 		if(!groupResourceAttribute.getNamespace().equals(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF)) {

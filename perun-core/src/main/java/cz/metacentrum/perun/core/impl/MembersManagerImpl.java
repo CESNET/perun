@@ -70,12 +70,14 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 		while(resultSet.next()) {
 			Member member = MembersManagerImpl.MEMBER_MAPPER.mapRow(resultSet, resultSet.getRow());
-			if (members.containsKey(member.getId())) {
-				members.get(member.getId()).putGroupStatuses(member.getGroupStatuses());
-			} else {
-				member.setSourceGroupId(null);
-				member.setMembershipType((String)null);
-				members.put(member.getId(), member);
+			if (member != null) {
+				if (members.containsKey(member.getId())) {
+					members.get(member.getId()).putGroupStatuses(member.getGroupStatuses());
+				} else {
+					member.setSourceGroupId(null);
+					member.setMembershipType((String) null);
+					members.put(member.getId(), member);
+				}
 			}
 		}
 

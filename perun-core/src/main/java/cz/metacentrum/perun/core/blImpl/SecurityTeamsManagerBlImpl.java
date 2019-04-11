@@ -107,7 +107,7 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 
 		// remove all users from blacklist, which were blacklisted by this security team.
 		List<User> blacklist = getSecurityTeamsManagerImpl().getBlacklist(sess, Collections.singletonList(securityTeam));
-		if (blacklist != null && !blacklist.isEmpty() && !forceDelete) {
+		if (!blacklist.isEmpty() && !forceDelete) {
 			throw new RelationExistsException("SecurityTeam has blacklisted users.");
 		}
 		for (User blacklistedUser : blacklist) {
@@ -117,7 +117,7 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 
 		// remove security team from all facilities
 		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAssignedFacilities(sess, securityTeam);
-		if (facilities != null && !facilities.isEmpty() && !forceDelete) {
+		if (!facilities.isEmpty() && !forceDelete) {
 			throw new RelationExistsException("SecurityTeam is assigned to some facilities.");
 		}
 		for (Facility facility : facilities) {

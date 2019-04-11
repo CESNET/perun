@@ -36,7 +36,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 	@Override
 	public void checkAttributeValue(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-		List<Resource> usersResources = null;
+		List<Resource> usersResources;
 		usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
 
 		List<String> homeMntPointsOnAllResources = new ArrayList<>();
@@ -55,7 +55,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 		if (homeMntPointsOnAllResources.isEmpty()) {
 			throw new WrongReferenceAttributeValueException("No homeMountPoints set on associated resources.");
 		}
-		if (!homeMntPointsOnAllResources.contains(attribute.getValue())) {
+		if (!homeMntPointsOnAllResources.contains(attribute.valueAsString())) {
 			throw new WrongAttributeValueException(attribute, user, facility, "User's home mount point is invalid. Valid mount points: " + homeMntPointsOnAllResources);
 		}
 
@@ -68,7 +68,7 @@ public class urn_perun_user_facility_attribute_def_def_homeMountPoint extends Us
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl session, User user, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		Attribute returnAttribute = new Attribute(attribute);
-		List<Resource> usersResources = null;
+		List<Resource> usersResources;
 		usersResources = session.getPerunBl().getUsersManagerBl().getAllowedResources(session, facility, user);
 		for (Resource res : usersResources) {
 			Attribute resAttribute;

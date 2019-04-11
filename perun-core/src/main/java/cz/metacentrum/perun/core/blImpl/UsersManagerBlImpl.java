@@ -754,10 +754,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
-		List<User> allSearchingUsers = new ArrayList<>();
-		List<User> allVoUsers = new ArrayList<>();
-		allSearchingUsers = this.findUsers(sess, searchString);
-		allVoUsers = getUsersManagerImpl().getUsersByVo(sess, vo);
+		List<User> allSearchingUsers = this.findUsers(sess, searchString);
+		List<User> allVoUsers = getUsersManagerImpl().getUsersByVo(sess, vo);
 		allSearchingUsers.removeAll(allVoUsers);
 		return allSearchingUsers;
 	}
@@ -1091,7 +1089,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		} else if(facility != null) {
 			List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 			users.addAll(usersFromFacility);
-		} else if(vo != null) {
+		} else {
 			List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 			List<User> usersFromVo = new ArrayList<>();
 			for(Member memberElement: members) {
@@ -1321,7 +1319,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						someChange = true;
 					}
 
-					if (someChange) {
+					if (someChange && kerberosLoginsAttr != null) {
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
 					}
@@ -1348,7 +1346,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 					}
 
-					if (!kerberosLogins.contains(userLogin + "@EGI")) {
+					if (!kerberosLogins.contains(userLogin + "@EGI") && kerberosLoginsAttr != null) {
 						kerberosLogins.add(userLogin + "@EGI");
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
@@ -1376,7 +1374,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 					}
 
-					if (!kerberosLogins.contains(userLogin + "@SITOLA.FI.MUNI.CZ")) {
+					if (!kerberosLogins.contains(userLogin + "@SITOLA.FI.MUNI.CZ") && kerberosLoginsAttr != null) {
 						kerberosLogins.add(userLogin + "@SITOLA.FI.MUNI.CZ");
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
@@ -1404,7 +1402,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 					}
 
-					if (!kerberosLogins.contains(userLogin + "@ICS.MUNI.CZ")) {
+					if (!kerberosLogins.contains(userLogin + "@ICS.MUNI.CZ") && kerberosLoginsAttr != null) {
 						kerberosLogins.add(userLogin + "@ICS.MUNI.CZ");
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
@@ -1460,7 +1458,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 					}
 
-					if (!kerberosLogins.contains(userLogin + "@ELIXIR-EUROPE.ORG")) {
+					if (!kerberosLogins.contains(userLogin + "@ELIXIR-EUROPE.ORG") && kerberosLoginsAttr != null) {
 						kerberosLogins.add(userLogin + "@ELIXIR-EUROPE.ORG");
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
@@ -1488,7 +1486,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 					}
 
-					if (!kerberosLogins.contains(userLogin + "@EINFRA-SERVICES")) {
+					if (!kerberosLogins.contains(userLogin + "@EINFRA-SERVICES") && kerberosLoginsAttr != null) {
 						kerberosLogins.add(userLogin + "@EINFRA-SERVICES");
 						kerberosLoginsAttr.setValue(kerberosLogins);
 						getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
@@ -2150,7 +2148,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public User convertUserEmptyStringsInObjectAttributesIntoNull(User user) {
 		//if user is null, return it back without change
-		if(user == null) return user;
+		if(user == null) return null;
 
 		//convert all empty strings to null
 		if(user.getFirstName() != null && user.getFirstName().isEmpty()) user.setFirstName(null);
@@ -2374,7 +2372,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public List<Group> getGroupsWhereUserIsActive(PerunSession sess, Resource resource, User user) throws InternalErrorException {
 
 		Vo vo = getPerunBl().getResourcesManagerBl().getVo(sess, resource);
-		Member voMember = null;
+		Member voMember;
 		try {
 			voMember = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, user);
 		} catch (MemberNotExistsException e) {

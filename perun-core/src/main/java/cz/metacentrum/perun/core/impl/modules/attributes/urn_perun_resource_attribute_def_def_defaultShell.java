@@ -78,7 +78,7 @@ public class urn_perun_resource_attribute_def_def_defaultShell extends ResourceA
 			if (shells.isEmpty()) {
 				throw new WrongAttributeValueException(resourceAttr);
 			}
-			if (!shells.contains(attribute.getValue())) {
+			if (!shells.contains(attribute.valueAsString())) {
 				throw new WrongAttributeValueException("Shell " + attribute.getValue() + " is not at specified resource (" + resource + ")");
 			}
 		}

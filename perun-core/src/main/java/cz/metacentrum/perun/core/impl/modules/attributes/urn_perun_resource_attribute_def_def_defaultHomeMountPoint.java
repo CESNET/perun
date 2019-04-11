@@ -50,7 +50,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 			throw new WrongAttributeValueException(attribute);
 		}
 
-		Attribute resourceAttribute = null;
+		Attribute resourceAttribute;
 		try {
 			resourceAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_homeMountPoints);
 		} catch (AttributeNotExistsException ex) {
@@ -73,7 +73,7 @@ public class urn_perun_resource_attribute_def_def_defaultHomeMountPoint extends 
 
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-		Attribute resourceAttribute = null;
+		Attribute resourceAttribute;
 		try {
 			resourceAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_homeMountPoints);
 		} catch (AttributeNotExistsException ex) {

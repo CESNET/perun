@@ -37,7 +37,7 @@ public class urn_perun_user_attribute_def_virt_optionalLogin_namespace_mu extend
 
 		try {
 			Attribute loginInMU = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_D_loginNamespace_mu);
-			attribute = Utils.copyAttributeToVirtualAttributeWithValue(loginInMU, attribute);
+			Utils.copyAttributeToVirtualAttributeWithValue(loginInMU, attribute);
 		} catch (AttributeNotExistsException ex) {
 			//That means that mu login attribute not exists at all
 		} catch (WrongAttributeAssignmentException ex) {

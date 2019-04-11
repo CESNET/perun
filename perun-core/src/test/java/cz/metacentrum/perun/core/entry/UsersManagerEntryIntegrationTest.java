@@ -1000,8 +1000,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		// we shouldn't find anybody using substring
 		searchString = searchString.substring(0, searchString.length()-3);
 		users = perun.getUsersManager().findUsersByExactName(sess, searchString);
-		assertTrue("Some user found using substring when we shouldn't find anybody!", users.isEmpty());
 		assertTrue("Test user found in results when shouldn't!", !users.contains(user));
+		assertTrue("Some user found using substring when we shouldn't find anybody!", users.isEmpty());
 
 	}
 

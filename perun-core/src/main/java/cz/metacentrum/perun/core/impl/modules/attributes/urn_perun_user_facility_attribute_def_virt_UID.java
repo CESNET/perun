@@ -38,14 +38,14 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 		try {
 			Attribute uidNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace");
 
-			Attribute uidAttribute = null;
+			Attribute uidAttribute;
 			if (uidNamespaceAttribute.getValue() != null) {
 				// Get the u:uid-namespace[uidNamespaceAttribute]
 				uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + uidNamespaceAttribute.getValue());
 				uidAttribute.setValue(attribute.getValue());
 				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, uidAttribute);
 			} else {
-				throw new WrongReferenceAttributeValueException(attribute, uidAttribute);
+				throw new WrongReferenceAttributeValueException(attribute, (Attribute) null);
 			}
 		} catch (AttributeNotExistsException e) {
 			throw new ConsistencyErrorException(e);
@@ -83,7 +83,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attr = new Attribute(attributeDefinition);
 
-		Attribute uidAttribute = null;
+		Attribute uidAttribute;
 
 		try {
 			// Get the f:uid-namespace attribute
@@ -92,7 +92,7 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends UserFacility
 			if (uidNamespaceAttribute.getValue() != null) {
 				// Get the u:uid-namespace[uidNamespaceAttribute]
 				uidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:" + uidNamespaceAttribute.getValue());
-				attr = Utils.copyAttributeToVirtualAttributeWithValue(uidAttribute, attr);
+				Utils.copyAttributeToVirtualAttributeWithValue(uidAttribute, attr);
 			} else {
 				attr.setValue(null);
 			}

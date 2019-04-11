@@ -1167,7 +1167,10 @@ public class MembersManagerEntry implements MembersManager {
 			throw new InternalErrorException(ex);
 		}
 
-		String mailAddress = (String) mailAttribute.getValue();
+		if (mailAttribute == null) {
+			throw new InternalErrorException("MailAttribute should not be null.");
+		}
+		String mailAddress = mailAttribute.valueAsString();
 
 		getMembersManagerBl().sendPasswordResetLinkEmail(sess, member, namespace, url, mailAddress, language);
 

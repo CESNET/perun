@@ -34,7 +34,7 @@ public class urn_perun_user_attribute_def_def_titleBeforeKos extends UserAttribu
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException {
 
 		if (attribute.getValue() != null) {
-			Attribute titleBeforeVema = null;
+			Attribute titleBeforeVema;
 			try {
 				titleBeforeVema = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, NS_USER_ATTR_DEF + ":titleBeforeVema");
 				if (titleBeforeVema.getValue() == null) {

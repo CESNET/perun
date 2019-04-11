@@ -41,9 +41,9 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrDefaultDataQuota = null;
-		String defaultDataQuota = null;
-		String defaultDataLimit = null;
+		Attribute attrDefaultDataQuota;
+		String defaultDataQuota;
+		String defaultDataLimit;
 
 		String defaultDataQuotaNumber = null;
 		String defaultDataQuotaLetter = null;
@@ -84,7 +84,7 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 		BigDecimal limitNumber;
 		if(defaultDataLimitNumber != null) limitNumber = new BigDecimal(defaultDataLimitNumber.replace(',', '.'));
 		else limitNumber = new BigDecimal("0");
-		if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+		if (limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
 			throw new WrongAttributeValueException(attribute, resource, attribute + " can't be less than 0.");
 		}
 
@@ -110,16 +110,16 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 		if(defaultDataQuotaNumber != null) quotaNumber = new BigDecimal(defaultDataQuotaNumber.replace(',', '.'));
 		else quotaNumber = new BigDecimal("0");
 
-		if (quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
 			throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataQuota, resource, null, resource, null, attrDefaultDataQuota + " cant be less than 0.");
 		}
 
 		//Compare DefaultDataLimit with DefaultDataQuota
-		if (quotaNumber == null || quotaNumber.compareTo(BigDecimal.valueOf(0)) == 0) {
-			if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
+		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) == 0) {
+			if (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
 				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataQuota, resource, null, resource, null, "Try to set limited limit, but there is still set unlimited Quota.");
 			}
-		} else if ((quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0)) {
+		} else if ((quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) && defaultDataLimitLetter != null && defaultDataQuotaLetter != null) {
 
 			switch (defaultDataLimitLetter) {
 				case "K":

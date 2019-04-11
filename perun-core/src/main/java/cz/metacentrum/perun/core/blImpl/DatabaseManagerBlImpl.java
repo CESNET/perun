@@ -75,7 +75,7 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 		}
 
 		String currentDBVersion = getCurrentDatabaseVersion();
-		List<DBVersion> dbVersions = null;
+		List<DBVersion> dbVersions;
 
 		//trying to parse db versions from changelog
 		try {

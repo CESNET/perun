@@ -131,7 +131,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 		FacilityState state = new FacilityState();
 		state.setFacility(facility);
 		// if no tasks we can't determine facility state
-		if (tasks.isEmpty() || tasks == null) {
+		if (tasks == null || tasks.isEmpty()) {
 			state.setState(FacilityPropagationState.NOT_DETERMINED);
 			return state;
 		} else {
@@ -210,10 +210,9 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	@Override
 	public List<FacilityState> getAllFacilitiesStates(PerunSession session) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		List<FacilityState> list = new ArrayList<>();
-		List<Facility> facs = new ArrayList<>();
 
 		// return facilities where user is admin or all if perun admin
-		facs = perun.getFacilitiesManager().getFacilities(session);
+		List<Facility> facs = perun.getFacilitiesManager().getFacilities(session);
 		Collections.sort(facs);
 		for (Facility facility : facs) {
 			list.add(getFacilityState(session, facility));
@@ -225,8 +224,7 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 	public List<FacilityState> getAllFacilitiesStatesForVo(PerunSession session, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException {
 
 		List<FacilityState> list = new ArrayList<>();
-		List<RichResource> facs = new ArrayList<>();
-		facs = perun.getResourcesManager().getRichResources(session, vo);
+		List<RichResource> facs = perun.getResourcesManager().getRichResources(session, vo);
 
 		Set<Facility> facilities = new HashSet<>();
 		for (RichResource res : facs) {

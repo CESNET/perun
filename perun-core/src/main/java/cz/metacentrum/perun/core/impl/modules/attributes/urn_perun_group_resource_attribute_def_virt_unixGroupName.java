@@ -91,8 +91,7 @@ public class urn_perun_group_resource_attribute_def_virt_unixGroupName extends G
 
 		try {
 			Attribute groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + unixGroupNameNamespaceAttribute.getValue());
-			attribute = Utils.copyAttributeToVirtualAttributeWithValue(groupNameAttribute, attribute);
-			return attribute;
+			return Utils.copyAttributeToVirtualAttributeWithValue(groupNameAttribute, attribute);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		} catch(AttributeNotExistsException ex) {

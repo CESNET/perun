@@ -28,7 +28,7 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
-		String attributeValue = null;
+		String attributeValue;
 
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Member mail can't be null.");
 		else attributeValue = (String) attribute.getValue();

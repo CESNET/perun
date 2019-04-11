@@ -51,8 +51,7 @@ public class urn_perun_facility_attribute_def_virt_maxUID extends FacilityVirtua
 		Attribute uidNamespaceAttribute = getUidNamespaceAttribute(sess, facility);
 		if(uidNamespaceAttribute.getValue() == null) return attribute;
 		Attribute namespaceMaxUidAttribute = getNamespaceMaxUidAttribute(sess, (String) uidNamespaceAttribute.getValue());
-		attribute = Utils.copyAttributeToVirtualAttributeWithValue(namespaceMaxUidAttribute, attribute);
-		return attribute;
+		return Utils.copyAttributeToVirtualAttributeWithValue(namespaceMaxUidAttribute, attribute);
 	}
 
 	@Override

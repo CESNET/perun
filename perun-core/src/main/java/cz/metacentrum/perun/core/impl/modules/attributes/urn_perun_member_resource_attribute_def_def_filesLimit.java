@@ -31,7 +31,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Memb
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrFilesQuota = null;
+		Attribute attrFilesQuota;
 		Integer filesQuota = null;
 		Integer filesLimit = null;
 
@@ -62,13 +62,13 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Memb
 		//Get FilesQuota value
 		if(attrFilesQuota != null &&  attrFilesQuota.getValue() != null) {
 			filesQuota = (Integer) attrFilesQuota.getValue();
-		} else if(attrFilesQuota == null || attrFilesQuota.getValue() == null) {
+		} else {
 			try {
 				attrFilesQuota = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, resource, A_R_defaultFilesQuota);
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException("Attribute with defaultFilesQuota from resource " + resource.getId() + " could not obtained.", ex);
 			}
-			if(attrFilesQuota != null || attrFilesQuota.getValue() != null) {
+			if(attrFilesQuota != null && attrFilesQuota.getValue() != null) {
 				filesQuota = (Integer) attrFilesQuota.getValue();
 			}
 		}
@@ -77,7 +77,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Memb
 		//Compare FilesLimit with FilesQuota
 		if(filesQuota == null || filesQuota == 0) {
 			if(filesLimit != null && filesLimit != 0) throw new WrongReferenceAttributeValueException(attribute, attrFilesQuota, resource, member, resource, null, "Try to set limited limit, but there is still set unlimited Quota.");
-		} else if((filesQuota != null && filesQuota != 0) && (filesLimit != null && filesLimit != 0))  {
+		} else if(filesLimit != null && filesLimit != 0)  {
 			if(filesLimit < filesQuota) throw new WrongReferenceAttributeValueException(attribute, attrFilesQuota, resource, member, resource, null, attribute + " must be more than or equals to " + attrFilesQuota);
 		}
 	}

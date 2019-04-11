@@ -915,7 +915,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		List<String> similarAttrNames = new ArrayList<>();
 		String name = "urn:perun:user:attribute-def:def:login-namespace";
 		similarAttrNames = perun.getAttributesManagerBl().getAllSimilarAttributeNames(sess, name);
-		assertTrue("returned less than 0 names",similarAttrNames.size() >= 0);
+		//FIXME add assertion that tests the method
 	}
 
 	@Test
@@ -5600,6 +5600,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 						break;
 					case "member_resource":
 						Pair<Integer, Integer> mId_rId = BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertNotNull("member_resource should not be null", mId_rId);
 						assertThat("member with duplicate value is not the one",mId_rId.getLeft(), is(member1OfUser1.getId()));
 						assertThat("resource with duplicate value is not the one",mId_rId.getRight(), is(resource1InVo1.getId()));
 						attributesManager.removeAttribute(sess, member1OfUser1, resource1InVo1, a);
@@ -5607,6 +5608,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 						break;
 					case "member_group":
 						Pair<Integer,Integer> mId_gId = BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertNotNull("member_group should not be null", mId_gId);
 						assertThat("member with duplicate value is not the one",mId_gId.getLeft(), is(member1OfUser1.getId()));
 						assertThat("group with duplicate value is not the one",mId_gId.getRight(), is(group1InVo1.getId()));
 						attributesManager.removeAttribute(sess, member1OfUser1, group1InVo1, a);
@@ -5614,6 +5616,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 						break;
 					case "user_facility":
 						Pair<Integer,Integer> uId_fId = BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertNotNull("user_facility should not be null", uId_fId);
 						assertThat("user with duplicate value is not the one",uId_fId.getLeft(), is(user1.getId()));
 						assertThat("facility with duplicate value is not the one",uId_fId.getRight(), is(facility1.getId()));
 						attributesManager.removeAttribute(sess, facility1, user1, a);
@@ -5621,6 +5624,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 						break;
 					case "group_resource":
 						Pair<Integer,Integer> gId_rId = BeansUtils.getSinglePair(attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, b));
+						assertNotNull("group_resource should not be null", gId_rId);
 						assertThat("group with duplicate value is not the one",gId_rId.getLeft(), is(group1InVo1.getId()));
 						assertThat("resource with duplicate value is not the one",gId_rId.getRight(), is(resource1InVo1.getId()));
 						attributesManager.removeAttribute(sess, resource1InVo1, group1InVo1, a);

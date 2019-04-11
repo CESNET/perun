@@ -545,11 +545,9 @@ public class Utils {
 					}
 
 					//rest of parts if lastName exists go to the title after
-					if (lastNameDone) {
-						//add space if this is not first title after
-						if (titleAfter.isEmpty()) titleAfter += part;
-						else titleAfter += " " + part;
-					}
+					//add space if this is not first title after
+					if (titleAfter.isEmpty()) titleAfter += part;
+					else titleAfter += " " + part;
 				}
 			}
 		}
@@ -581,12 +579,14 @@ public class Utils {
 			return classes;
 		}
 		File[] files = directory.listFiles();
-		for (File file : files) {
-			if (file.isDirectory()) {
-				assert !file.getName().contains(".");
-				classes.addAll(findClasses(file, packageName + "." + file.getName()));
-			} else if (file.getName().endsWith(".class")) {
-				classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+		if (files != null) {
+			for (File file : files) {
+				if (file.isDirectory()) {
+					assert !file.getName().contains(".");
+					classes.addAll(findClasses(file, packageName + "." + file.getName()));
+				} else if (file.getName().endsWith(".class")) {
+					classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+				}
 			}
 		}
 		return classes;
@@ -1424,15 +1424,12 @@ public class Utils {
 	 * allowed format is given by regex "\\+([0-9]+)([dmy]?)"
 	 */
 	public static LocalDate extendDateByPeriod(LocalDate localDate, String period) throws InternalErrorException {
-		// By default do not add nothing
-		int amount = 0;
-
 		// We will add days/months/years
 		Pattern p = Pattern.compile("\\+([0-9]+)([dmy]?)");
 		Matcher m = p.matcher(period);
 		if (m.matches()) {
 			String countString = m.group(1);
-			amount = Integer.valueOf(countString);
+			int amount = Integer.valueOf(countString);
 
 			String dmyString = m.group(2);
 			switch (dmyString) {

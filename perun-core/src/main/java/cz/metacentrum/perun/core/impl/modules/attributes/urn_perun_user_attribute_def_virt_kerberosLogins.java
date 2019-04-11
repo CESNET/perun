@@ -64,7 +64,7 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
 			}
 		}
 
-		attribute = Utils.copyAttributeToViAttributeWithoutValue(krbLogins, attribute);
+		Utils.copyAttributeToViAttributeWithoutValue(krbLogins, attribute);
 		attribute.setValue(krbPrincipalName);
 		return attribute;
 	}

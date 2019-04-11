@@ -21,8 +21,7 @@ public class urn_perun_vo_attribute_def_def_RTVoQueue extends VoAttributesModule
 		if(attribute.getValue() == null) return;
 
 		//Get value from attribute
-		String attrValue = null;
-		attrValue = (String) attribute.getValue();
+		String attrValue = attribute.valueAsString();
 
 		//TODO: Create some regexp Pattern for RTVoQueue and test it there
 	}

@@ -26,13 +26,13 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		Attribute userCertDNs = null;
+		Attribute userCertDNs;
 		try {
 			userCertDNs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertDNs");
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
-		Map<String, String> certDNsValue = null;
+		Map<String, String> certDNsValue;
 		if(userCertDNs.getValue() != null) {
 			certDNsValue = (Map<String, String>) userCertDNs.getValue();
 		} else {
@@ -40,7 +40,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 			else return;
 		}
 		if(attribute.getValue() == null) {
-			if(certDNsValue != null || !certDNsValue.isEmpty()) throw new WrongAttributeValueException(attribute, user, "This attribute value can't be null because of notNull attribute userCertDNs");
+			if(certDNsValue != null && !certDNsValue.isEmpty()) throw new WrongAttributeValueException(attribute, user, "This attribute value can't be null because of notNull attribute userCertDNs");
 		} else {
 			String preferredCertDNValue = (String) attribute.getValue();
 			if(!certDNsValue.containsKey(preferredCertDNValue)) throw new WrongAttributeValueException(attribute, "This attribute value must be one of exsiting keys in userCertDNs.");
@@ -49,13 +49,13 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-		Attribute userCertDNs = null;
+		Attribute userCertDNs;
 		try {
 			userCertDNs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertDNs");
 		} catch (AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
-		Map<String, String> certDNsValue = null;
+		Map<String, String> certDNsValue;
 		if(userCertDNs.getValue() != null) {
 			certDNsValue = (Map<String, String>) userCertDNs.getValue();
 			Set<String> keys = certDNsValue.keySet();
@@ -91,7 +91,7 @@ public class urn_perun_user_attribute_def_def_userPreferredCertDN extends UserAt
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		if(attribute.getValue() == null) {
-			Attribute userCertDNs = null;
+			Attribute userCertDNs;
 			try {
 				userCertDNs = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertDNs");
 			} catch (AttributeNotExistsException ex) {

@@ -1680,7 +1680,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		List<Group> groups = setUpGroupsWithSubgroups(newVo);
 
 		Group subgroup = new Group("Test", "test");
-		subgroup = this.groupsManagerBl.createGroup(sess, groups.get(0), subgroup);
+		this.groupsManagerBl.createGroup(sess, groups.get(0), subgroup);
 //		org.hsqldb.util.DatabaseManager.main(new String[] {
 //				"--url", "jdbc:hsqldb:mem:dataSource", "--noexit"
 //		});
@@ -1696,7 +1696,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		List<Group> groups = setUpGroupsWithSubgroups(newVo);
 
 		Group subgroup = new Group("Test", "test");
-		subgroup = this.groupsManagerBl.createGroup(sess, groups.get(0), subgroup);
+		this.groupsManagerBl.createGroup(sess, groups.get(0), subgroup);
 
 		this.groupsManager.deleteGroups(sess, groups, true);
 	}
@@ -2280,9 +2280,9 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group parentGroup = new Group("TestGroupParent", "ParentGroup");
 		Group subgroup1 = new Group("TestGroup1", "Test1");
 		Group subgroup2 = new Group("TestGroup2", "Test2");
-		parentGroup = groupsManagerBl.createGroup(sess, createdVo, parentGroup);
-		subgroup1 = groupsManagerBl.createGroup(sess, parentGroup, subgroup1);
-		subgroup2 = groupsManagerBl.createGroup(sess, parentGroup, subgroup2);
+		groupsManagerBl.createGroup(sess, createdVo, parentGroup);
+		groupsManagerBl.createGroup(sess, parentGroup, subgroup1);
+		groupsManagerBl.createGroup(sess, parentGroup, subgroup2);
 		//Fake Group
 		Group group3 = groupsManagerBl.createGroup(sess, createdVo, new Group("TaTamNemaByt", "Test3"));
 		Facility facility = new Facility();

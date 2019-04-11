@@ -43,7 +43,7 @@ public class urn_perun_resource_attribute_def_def_accountExpirationTime extends 
 			throw new WrongAttributeValueException("Attribute value shouldnt be null");
 		}
 		Facility fac = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
-		Integer facilityAccExpTime = null;
+		Integer facilityAccExpTime;
 		try {
 			//FIXME this can't work (different namespace!!)
 			facilityAccExpTime = (Integer) perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, fac, A_F_accountExpirationTime).getValue();

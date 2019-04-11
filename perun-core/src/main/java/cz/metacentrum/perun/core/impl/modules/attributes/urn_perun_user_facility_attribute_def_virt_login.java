@@ -34,7 +34,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		try  {
 			Attribute loginNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":login-namespace");
-			Attribute loginAttribute = null;
+			Attribute loginAttribute;
 			if (loginNamespaceAttribute.getValue() != null) {
 				loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess,
 						user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespaceAttribute.getValue());
@@ -82,7 +82,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attr = new Attribute(attributeDefinition);
 
-		Attribute loginAttribute = null;
+		Attribute loginAttribute;
 
 		try {
 			// Get the f:login-namespace attribute
@@ -91,7 +91,7 @@ public class urn_perun_user_facility_attribute_def_virt_login extends UserFacili
 			if (loginNamespaceAttribute.getValue() != null) {
 				// Get the u:login-namespace[loginNamespaceAttribute]
 				loginAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespaceAttribute.getValue());
-				attr = Utils.copyAttributeToVirtualAttributeWithValue(loginAttribute, attr);
+				Utils.copyAttributeToVirtualAttributeWithValue(loginAttribute, attr);
 			} else {
 				attr.setValue(null);
 			}

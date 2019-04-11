@@ -47,7 +47,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 		}
 
 		//Prepare this resource projectsBasePath
-		Attribute thisResourceProjectsBasePath = null;
+		Attribute thisResourceProjectsBasePath;
 		try {
 			thisResourceProjectsBasePath = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_projectsBasePath);
 		} catch (AttributeNotExistsException ex) {
@@ -55,7 +55,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 		}
 
 		//Prepare value of this resource projectsBasePath
-		String thisResourceProjectBasePathValue = null;
+		String thisResourceProjectBasePathValue;
 		if(thisResourceProjectsBasePath.getValue() != null) {
 			thisResourceProjectBasePathValue = (String) thisResourceProjectsBasePath.getValue();
 		} else {
@@ -71,7 +71,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 		Iterator<Resource> iterator = resources.iterator();
 		while(iterator.hasNext()) {
 			Resource r = iterator.next();
-			Attribute otherResourceProjectsBasePath = null;
+			Attribute otherResourceProjectsBasePath;
 			try {
 				otherResourceProjectsBasePath = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, r, A_R_projectsBasePath);
 			} catch (AttributeNotExistsException ex) {
@@ -93,7 +93,7 @@ public class urn_perun_group_resource_attribute_def_def_projectName extends Grou
 			//Our group may aslo be part of assigned Group, need to be removed
 			groups.remove(group);
 			for(Group g: groups) {
-				Attribute groupProjectName = null;
+				Attribute groupProjectName;
 				try {
 					groupProjectName = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, r, g, A_GR_projectName);
 				} catch (AttributeNotExistsException ex) {

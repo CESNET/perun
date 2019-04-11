@@ -42,9 +42,9 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Membe
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		Attribute attrDataQuota = null;
-		String dataQuota = null;
-		String dataLimit = null;
+		Attribute attrDataQuota;
+		String dataQuota;
+		String dataLimit;
 
 		String dataQuotaNumber = null;
 		String dataQuotaLetter = null;
@@ -89,7 +89,7 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Membe
 		if(dataLimitNumber != null) limitNumber = new BigDecimal(dataLimitNumber.replace(',', '.'));
 		else limitNumber = new BigDecimal("0");
 
-		if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+		if (limitNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
 			throw new WrongAttributeValueException(attribute, resource, member, attribute + " cant be less than 0.");
 		}
 
@@ -122,16 +122,16 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Membe
 		if(dataQuotaNumber != null) quotaNumber = new BigDecimal(dataQuotaNumber.replace(',', '.'));
 		else quotaNumber = new BigDecimal("0");
 
-		if (quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
+		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) < 0) {
 			throw new WrongReferenceAttributeValueException(attribute, attrDataQuota, resource, member, resource, null,  attrDataQuota + " cant be less than 0.");
 		}
 
 		//Compare dataLimit with dataQuota
-		if (quotaNumber == null || quotaNumber.compareTo(BigDecimal.valueOf(0)) == 0) {
-			if (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
+		if (quotaNumber.compareTo(BigDecimal.valueOf(0)) == 0) {
+			if (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
 				throw new WrongReferenceAttributeValueException(attribute, attrDataQuota, resource, member, resource, null, "Try to set limited limit, but there is still set unlimited Quota.");
 			}
-		} else if ((quotaNumber != null && quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber != null && limitNumber.compareTo(BigDecimal.valueOf(0)) != 0)) {
+		} else if ((quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) && dataLimitLetter != null && dataQuotaLetter != null) {
 			switch (dataLimitLetter) {
 				case "K":
 					limitNumber = limitNumber.multiply(BigDecimal.valueOf(K));

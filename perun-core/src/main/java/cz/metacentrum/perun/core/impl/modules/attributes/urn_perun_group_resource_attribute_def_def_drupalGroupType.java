@@ -23,7 +23,7 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
-		String attributeValue = null;
+		String attributeValue;
 
 		if(attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute, resource, group, "Type of drupal group can't be null.");

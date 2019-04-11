@@ -22,15 +22,13 @@ public class urn_perun_group_attribute_def_def_fromEmail  extends GroupAttribute
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
-		String fromEmail = null;
-
 		// null attribute
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Group fromEmail cannot be null.");
 
 		// wrong type of the attribute
 		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
 
-		fromEmail = (String) attribute.getValue();
+		String fromEmail = attribute.valueAsString();
 
 		if (!(sess.getPerunBl().getModulesUtilsBl().isNameOfEmailValid(sess, fromEmail))){
 

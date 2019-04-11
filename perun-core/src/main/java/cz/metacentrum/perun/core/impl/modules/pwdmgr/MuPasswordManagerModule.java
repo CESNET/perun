@@ -478,7 +478,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		PerunBl perunBl = (PerunBl)session.getPerun();
 
-		List<UserExtSource> ueses = null;
+		List<UserExtSource> ueses;
 		try {
 			if (session.getPerunPrincipal().getUser() != null) {
 				ueses = perunBl.getUsersManagerBl().getUserExtSources(session, session.getPerunPrincipal().getUser());

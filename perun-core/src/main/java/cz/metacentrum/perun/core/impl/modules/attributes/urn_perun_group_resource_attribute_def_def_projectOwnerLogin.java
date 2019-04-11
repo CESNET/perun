@@ -51,7 +51,7 @@ public class urn_perun_group_resource_attribute_def_def_projectOwnerLogin extend
 
 		//Check if exists any user with this login
 		for(User u: users) {
-			Attribute userLogin = null;
+			Attribute userLogin;
 			try {
 				userLogin = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, u, A_UF_V_login);
 			} catch (AttributeNotExistsException ex) {

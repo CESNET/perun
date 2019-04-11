@@ -48,8 +48,8 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 			throw new WrongAttributeValueException(attribute, "Attribute was not filled, therefore there is nothing to be checked.");
 		}
 
-		Attribute minUidAttribute = null;
-		Attribute maxUidAttribute = null;
+		Attribute minUidAttribute;
+		Attribute maxUidAttribute;
 		try {
 			minUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_minUID);
 			maxUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_maxUID);
@@ -88,8 +88,8 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 		String uidNamespace = attribute.getFriendlyNameParameter();
 		Attribute atr = new Attribute(attribute);
 
-		Attribute minUidAttribute = null;
-		Attribute maxUidAttribute = null;
+		Attribute minUidAttribute;
+		Attribute maxUidAttribute;
 		try {
 			minUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_minUID);
 			maxUidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, uidNamespace, A_E_namespace_maxUID);

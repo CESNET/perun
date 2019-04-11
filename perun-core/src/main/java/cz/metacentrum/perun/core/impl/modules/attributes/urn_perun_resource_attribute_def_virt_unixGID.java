@@ -93,8 +93,7 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 
 		try {
 			Attribute gidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, resource, A_R_unixGID_namespace + unixGIDNamespaceAttribute.getValue());
-			attribute = Utils.copyAttributeToVirtualAttributeWithValue(gidAttribute, attribute);
-			return attribute;
+			return Utils.copyAttributeToVirtualAttributeWithValue(gidAttribute, attribute);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		} catch(AttributeNotExistsException ex) {
