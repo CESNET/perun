@@ -476,23 +476,14 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<property name="jdbcUrl" value="${jdbc.url}"/>
 			<property name="username" value="${jdbc.username}"/>
 			<property name="password" value="${jdbc.password}"/>
+
 			<property name="maximumPoolSize" value="${jdbc.maximumPoolSize}"/>
 			<property name="minimumIdle" value="${jdbc.minimumIdle}"/>
-			<!--
-			<property name="maxTotal" value="150" />
-			<property name="maxIdle" value="30" />
-			<property name="maxWaitMillis" value="30000" />
-			-->
+			<property name="connectionTimeout" value="${jdbc.connectionTimeout}"/>
+			<property name="maxLifetime" value="${jdbc.maxLifetime}"/>
+			<property name="idleTimeout" value="${jdbc.idleTimeout}"/>
+			<property name="leakDetectionThreshold" value="${jdbc.leakDetectionThreshold}" />
 
-			<!-- Oracle  <property name="validationQuery" value="select 1 from dual" /> -->
-			<!-- Postgres  <property name="validationQuery" value="select 1" /> -->
-			<!--
-			<property name="removeAbandonedOnBorrow" value="true" />
-			<property name="removeAbandonedOnMaintenance" value="true" />
-			<property name="logAbandoned" value="true" />
-			<property name="removeAbandonedTimeout" value="300" />
-			<property name="testOnBorrow" value="true" />
-			-->
 			<property name="auditer" ref="auditer"/>
 			<property name="cacheManager" ref="cacheManager"/>
 		</bean>
