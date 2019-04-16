@@ -87,6 +87,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		standardMessage = clearZeroBytesFromString(standardMessage, 4000);
 		errorMessage = clearZeroBytesFromString(errorMessage, 4000);
 
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		this.getJdbcTemplate()
 			.update(
 					"insert into tasks_results(" +
@@ -113,6 +115,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public List<TaskResult> getTaskResults(int engineID) {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
@@ -126,6 +130,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public List<TaskResult> getTaskResults() {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
@@ -137,6 +143,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public TaskResult getTaskResultById(int taskResultId, int engineID) {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().queryForObject(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
@@ -149,6 +157,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public TaskResult getTaskResultById(int taskResultId) {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().queryForObject("select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
@@ -160,21 +170,29 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public int clearByTask(int taskId, int engineID) {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().update("delete from tasks_results where task_id = ? and engine_id = ?", taskId, engineID);
 	}
 
 	@Override
 	public int clearByTask(int taskId) {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().update("delete from tasks_results where task_id = ?", taskId);
 	}
 
 	@Override
 	public int clearAll(int engineID) {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().update("delete from tasks_results where engine_id = ?", engineID);
 	}
 
 	@Override
 	public int clearAll() {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().update("delete from tasks_results");
 	}
 
@@ -183,6 +201,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 		String compareDate = LocalDateTime.now().minusDays(numDays).format(TaskDaoJdbc.getDateTimeFormatter());
 
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().update("delete from tasks_results where engine_id = ? and " +
 				"id in (" +
 				"select otr.id from tasks_results otr " +
@@ -198,6 +218,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public List<TaskResult> getTaskResultsByTask(int taskId, int engineID) {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
@@ -212,6 +234,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public List<TaskResult> getTaskResultsByTaskOnlyNewest(int taskId) {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
@@ -238,6 +262,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public List<TaskResult> getTaskResultsByTask(int taskId) {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
@@ -250,6 +276,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public List<TaskResult> getTaskResultsByTaskAndDestination(int taskId, int destinationId) {
+		// jdbc template cannot be null
+		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 						ServicesManagerImpl.serviceMappingSelectQuery +
