@@ -2,10 +2,13 @@ package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Host;
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberCandidate;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
@@ -364,16 +367,64 @@ public interface VosManagerBl {
 	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException;
 
 	/**
-	 * !!! Not Complete yet, need to implement all perunBeans !!!
-	 *
-	 * Get perunBean and try to find all connected Vos
+	 * Returns list of vos connected with a group
 	 *
 	 * @param sess
-	 * @param perunBean
-	 * @return list of vos connected with perunBeans
+	 * @param group
+	 * @return list of vos connected with group
 	 * @throws InternalErrorException
 	 */
-	List<Vo> getVosByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException, VoNotExistsException;
+	List<Vo> getVosByPerunBean(PerunSession sess, Group group) throws InternalErrorException, VoNotExistsException;
+
+	/**
+	 * Returns list of vos connected with a member
+	 *
+	 * @param sess
+	 * @param member
+	 * @return list of vos connected with member
+	 * @throws InternalErrorException
+	 */
+	List<Vo> getVosByPerunBean(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
+	 * Returns list of vos connected with a resource
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of vos connected with resource
+	 * @throws InternalErrorException
+	 */
+	List<Vo> getVosByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException, VoNotExistsException;
+
+	/**
+	 * Returns list of vos connected with a user
+	 *
+	 * @param sess
+	 * @param user
+	 * @return list of vos connected with user
+	 * @throws InternalErrorException
+	 */
+	List<Vo> getVosByPerunBean(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Returns list of vos connected with a host
+	 *
+	 * @param sess
+	 * @param host
+	 * @return list of vos connected with host
+	 * @throws InternalErrorException
+	 */
+	List<Vo> getVosByPerunBean(PerunSession sess, Host host) throws InternalErrorException;
+
+	/**
+	 * Returns list of vos connected with a facility
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return list of vos connected with facility
+	 * @throws InternalErrorException
+	 */
+	List<Vo> getVosByPerunBean(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	void checkVoExists(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException;
 
