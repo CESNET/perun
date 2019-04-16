@@ -5,8 +5,8 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
@@ -764,16 +764,64 @@ public interface UsersManagerBl {
 	boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
-	 * !!! Not Complete yet, need to implement all perunBeans !!!
-	 * <p/>
-	 * Get perunBean and try to find all connected Users
+	 * Returns list of users connected with a group
 	 *
 	 * @param sess
-	 * @param perunBean
-	 * @return list of users connected with perunBeans
+	 * @param group
+	 * @return list of users connected with group
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsersByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException;
+	List<User> getUsersByPerunBean(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns list of users connected with a member
+	 *
+	 * @param sess
+	 * @param member
+	 * @return list of users connected with member
+	 * @throws InternalErrorException
+	 */
+	List<User> getUsersByPerunBean(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
+	 * Returns list of users connected with a resource
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of users connected with resource
+	 * @throws InternalErrorException
+	 */
+	List<User> getUsersByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Returns list of users connected with a host
+	 *
+	 * @param sess
+	 * @param host
+	 * @return list of users connected with host
+	 * @throws InternalErrorException
+	 */
+	List<User> getUsersByPerunBean(PerunSession sess, Host host) throws InternalErrorException;
+
+	/**
+	 * Returns list of users connected with a facility
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return list of users connected with facility
+	 * @throws InternalErrorException
+	 */
+	List<User> getUsersByPerunBean(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Returns list of users connected with a vo
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return list of users connected with vo
+	 * @throws InternalErrorException
+	 */
+	List<User> getUsersByPerunBean(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct. user must exists.

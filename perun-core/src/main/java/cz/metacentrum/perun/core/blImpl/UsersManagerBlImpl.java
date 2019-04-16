@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
@@ -98,6 +97,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -1039,66 +1039,43 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public List<User> getUsersByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException {
+	public List<User> getUsersByPerunBean(PerunSession sess, Group group) throws InternalErrorException {
 		List<User> users = new ArrayList<>();
-
-		//All possible useful objects
-		Vo vo = null;
-		Facility facility = null;
-		Group group = null;
-		Member member = null;
-		User user = null;
-		Host host = null;
-		Resource resource = null;
-
-		//Get object for primaryHolder of aidingAttr
-		if(perunBean != null) {
-			if(perunBean instanceof Vo) vo = (Vo) perunBean;
-			else if(perunBean instanceof Facility) facility = (Facility) perunBean;
-			else if(perunBean instanceof Group) group = (Group) perunBean;
-			else if(perunBean instanceof Member) member = (Member) perunBean;
-			else if(perunBean instanceof User) user = (User) perunBean;
-			else if(perunBean instanceof Host) host = (Host) perunBean;
-			else if(perunBean instanceof Resource) resource = (Resource) perunBean;
-			else {
-				throw new InternalErrorException("There is unrecognized object in primaryHolder of aidingAttr.");
-			}
-		} else {
-			throw new InternalErrorException("Aiding attribtue must have primaryHolder which is not null.");
+		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		for(Member memberElement: members) {
+			users.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
 		}
+		return users;
+	}
 
-		if(group != null) {
-			List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-			List<User> usersFromGroup = new ArrayList<>();
-			for(Member memberElement: members) {
-				usersFromGroup.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-			}
-			users.addAll(usersFromGroup);
-		} else if(member != null) {
-			user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-			users.add(user);
-		} else if(resource != null) {
-			List<User> usersFromResource = getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
-			users.addAll(usersFromResource);
-		} else if(user != null) {
-			users.add(user);
-		} else if(host != null) {
-			facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-			List<User> usersFromHost = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-			users.addAll(usersFromHost);
-		} else if(facility != null) {
-			List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-			users.addAll(usersFromFacility);
-		} else {
-			// At this point the Vo must be not null
-			List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
-			List<User> usersFromVo = new ArrayList<>();
-			for(Member memberElement: members) {
-				usersFromVo.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-			}
-			users.addAll(usersFromVo);
+	@Override
+	public List<User> getUsersByPerunBean(PerunSession sess, Member member) throws InternalErrorException {
+		return Collections.singletonList(getPerunBl().getUsersManagerBl().getUserByMember(sess, member));
+	}
+
+	@Override
+	public List<User> getUsersByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException {
+		return getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
+	}
+
+	@Override
+	public List<User> getUsersByPerunBean(PerunSession sess, Host host) throws InternalErrorException {
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		return getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
+	}
+
+	@Override
+	public List<User> getUsersByPerunBean(PerunSession sess, Facility facility) throws InternalErrorException {
+		return getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
+	}
+
+	@Override
+	public List<User> getUsersByPerunBean(PerunSession sess, Vo vo) throws InternalErrorException {
+		List<User> users = new ArrayList<>();
+		List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
+		for(Member memberElement: members) {
+			users.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
 		}
-
 		return users;
 	}
 
