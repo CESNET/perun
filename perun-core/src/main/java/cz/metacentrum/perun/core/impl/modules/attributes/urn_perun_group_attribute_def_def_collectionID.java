@@ -24,7 +24,7 @@ public class urn_perun_group_attribute_def_def_collectionID extends GroupAttribu
 		// wrong type of the attribute
 		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
 
-		String collectionID = (String) attribute.getValue();
+		String collectionID = attribute.valueAsString();
 
 		if (collectionID.isEmpty()) {
 			throw new WrongAttributeValueException(attribute, "Attribute collectionID cannot be empty.");

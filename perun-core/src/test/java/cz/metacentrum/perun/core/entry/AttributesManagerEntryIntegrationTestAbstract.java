@@ -912,10 +912,9 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 	public void getAllSimilarAttributeNames() throws Exception {
 		System.out.println(CLASS_NAME + "getAllSimilarAttributeNames");
 
-		List<String> similarAttrNames = new ArrayList<>();
 		String name = "urn:perun:user:attribute-def:def:login-namespace";
-		similarAttrNames = perun.getAttributesManagerBl().getAllSimilarAttributeNames(sess, name);
-		//FIXME add assertion that tests the method
+		List<String> similarAttrNames = perun.getAttributesManagerBl().getAllSimilarAttributeNames(sess, name);
+		assertFalse("returned no names", similarAttrNames.isEmpty());
 	}
 
 	@Test

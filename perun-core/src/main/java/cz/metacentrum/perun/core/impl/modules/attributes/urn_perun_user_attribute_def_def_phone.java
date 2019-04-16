@@ -30,7 +30,7 @@ public class urn_perun_user_attribute_def_def_phone extends UserAttributesModule
 		// wrong type of the attribute
 		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
 
-		String phone = (String) attribute.getValue();
+		String phone = attribute.valueAsString();
 
 		Matcher matcher = pattern.matcher(phone);
 		if (!matcher.matches()) {
