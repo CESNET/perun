@@ -90,8 +90,8 @@ public class ServiceState {
 	 *
 	 * @return Time when was last task scheduled.
 	 */
-	public LocalDateTime getScheduled() {
-		return (task != null) ? task.getSchedule() : null;
+	public Long getScheduled() {
+		return (task != null) ? task.getScheduleAsLong() : null;
 	}
 
 	/**
@@ -99,8 +99,8 @@ public class ServiceState {
 	 *
 	 * @return Time when was last task scheduled.
 	 */
-	public LocalDateTime getStartTime() {
-		return (task != null) ? task.getStartTime() : null;
+	public Long getStartTime() {
+		return (task != null) ? task.getStartTimeAsLong() : null;
 	}
 
 	/**
@@ -108,8 +108,8 @@ public class ServiceState {
 	 *
 	 * @return Time when was last task scheduled.
 	 */
-	public LocalDateTime getEndTime() {
-		return (task != null) ? task.getEndTime() : null;
+	public Long getEndTime() {
+		return (task != null) ? task.getEndTimeAsLong() : null;
 	}
 
 	/**

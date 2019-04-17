@@ -340,13 +340,13 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			task.setStatus(TaskStatus.WAITING);
 			task.setSchedule(LocalDateTime.now());
 			// clear previous timestamps
-			task.setSentToEngine(null);
-			task.setStartTime(null);
-			task.setGenStartTime(null);
-			task.setSendStartTime(null);
-			task.setEndTime(null);
-			task.setGenEndTime(null);
-			task.setSendEndTime(null);
+			task.setSentToEngine((LocalDateTime) null);
+			task.setStartTime((LocalDateTime) null);
+			task.setGenStartTime((LocalDateTime) null);
+			task.setSendStartTime((LocalDateTime) null);
+			task.setEndTime((LocalDateTime) null);
+			task.setGenEndTime((LocalDateTime) null);
+			task.setSendEndTime((LocalDateTime) null);
 
 			taskManager.updateTask(task);
 
