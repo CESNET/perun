@@ -25,7 +25,7 @@ public class urn_perun_vo_attribute_def_def_toEmail extends VoAttributesModuleAb
 		// wrong type of the attribute
 		if (!(attribute.getValue() instanceof List)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: List");
 
-		List<String> toEmails = (List) attribute.getValue();
+		List<String> toEmails = attribute.valueAsList();
 
 		// the List is empty
 		if (toEmails.isEmpty()) throw new WrongAttributeValueException(attribute, "Attribute List of toEmails is empty.");

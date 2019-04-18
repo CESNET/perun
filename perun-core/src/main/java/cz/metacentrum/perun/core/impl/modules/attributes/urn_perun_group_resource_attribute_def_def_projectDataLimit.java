@@ -50,12 +50,12 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 
 		String projectDataQuotaNumber = null;
 		String projectDataQuotaLetter = null;
-		String projectDataLimitNumber = null;
-		String projectDataLimitLetter = null;
+		String projectDataLimitNumber;
+		String projectDataLimitLetter;
 
 		//Check if attribute value has the right exp pattern (can be null)
 		if(attribute.getValue() != null) {
-			Matcher testMatcher = testingPattern.matcher((String) attribute.getValue());
+			Matcher testMatcher = testingPattern.matcher(attribute.valueAsString());
 			if(!testMatcher.find()) throw new WrongAttributeValueException(attribute, resource, group, "Format of quota must be something like ex.: 1.30M or 2500K, but it is " + attribute.getValue());
 		} else return;
 
@@ -69,23 +69,22 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 		}
 
 		//Get ProjectDataLimit value
-		if (attribute.getValue() != null) {
-			projectDataLimit = (String) attribute.getValue();
-			Matcher numberMatcher = numberPattern.matcher(projectDataLimit);
-			Matcher letterMatcher = letterPattern.matcher(projectDataLimit);
-			numberMatcher.find();
-			letterMatcher.find();
-			try {
-				projectDataLimitNumber = projectDataLimit.substring(numberMatcher.start(), numberMatcher.end());
-			} catch (IllegalStateException ex) {
-				projectDataLimitNumber = null;
-			}
-			try {
-				projectDataLimitLetter = projectDataLimit.substring(letterMatcher.start(), letterMatcher.end());
-			} catch (IllegalStateException ex) {
-				projectDataLimitLetter = "G";
-			}
+		projectDataLimit = attribute.valueAsString();
+		Matcher numberMatcher = numberPattern.matcher(projectDataLimit);
+		Matcher letterMatcher = letterPattern.matcher(projectDataLimit);
+		numberMatcher.find();
+		letterMatcher.find();
+		try {
+			projectDataLimitNumber = projectDataLimit.substring(numberMatcher.start(), numberMatcher.end());
+		} catch (IllegalStateException ex) {
+			projectDataLimitNumber = null;
 		}
+		try {
+			projectDataLimitLetter = projectDataLimit.substring(letterMatcher.start(), letterMatcher.end());
+		} catch (IllegalStateException ex) {
+			projectDataLimitLetter = "G";
+		}
+
 		BigDecimal limitNumber;
 		if(projectDataLimitNumber != null) limitNumber = new BigDecimal(projectDataLimitNumber.replace(',', '.'));
 		else limitNumber = new BigDecimal("0");
@@ -96,8 +95,8 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 		//Get ProjectDataQuota value
 		if (attrProjectDataQuota != null && attrProjectDataQuota.getValue() != null) {
 			projectDataQuota = (String) attrProjectDataQuota.getValue();
-			Matcher numberMatcher = numberPattern.matcher(projectDataQuota);
-			Matcher letterMatcher = letterPattern.matcher(projectDataQuota);
+			numberMatcher = numberPattern.matcher(projectDataQuota);
+			letterMatcher = letterPattern.matcher(projectDataQuota);
 			numberMatcher.find();
 			letterMatcher.find();
 			try {
@@ -124,7 +123,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDataLimit extends
 			if (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) {
 				throw new WrongReferenceAttributeValueException(attribute, attrProjectDataQuota, "Try to set limited limit, but there is still set unlimited Quota.");
 			}
-		} else if ((quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) && projectDataLimitLetter != null && projectDataQuotaLetter != null) {
+		} else if ((quotaNumber.compareTo(BigDecimal.valueOf(0)) != 0) && (limitNumber.compareTo(BigDecimal.valueOf(0)) != 0) && projectDataQuotaLetter != null) {
 
 			switch (projectDataLimitLetter) {
 				case "K":

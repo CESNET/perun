@@ -1090,6 +1090,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 			users.addAll(usersFromFacility);
 		} else {
+			// At this point the Vo must be not null
 			List<Member> members = getPerunBl().getMembersManagerBl().getMembers(sess, vo);
 			List<User> usersFromVo = new ArrayList<>();
 			for(Member memberElement: members) {
@@ -2147,7 +2148,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public User convertUserEmptyStringsInObjectAttributesIntoNull(User user) {
-		//if user is null, return it back without change
+		// If user is null, return null
 		if(user == null) return null;
 
 		//convert all empty strings to null
