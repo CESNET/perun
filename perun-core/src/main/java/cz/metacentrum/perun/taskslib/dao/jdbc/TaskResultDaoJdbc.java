@@ -18,13 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Transactional
 public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	private static final Logger log = LoggerFactory.getLogger(TaskResultDaoJdbc.class);
+	private static final int MAX_NUMBER_OF_UTF8_BYTES = 4;
 	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
 
 	public final static String taskResultMappingSelectQuery = " tasks_results.id as tasks_results_id, tasks_results.task_id as tasks_results_task_id," +
@@ -287,26 +287,63 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 	private static byte[] clearZeroBytesFromString(byte[] data, int maxLength) {
 		if (data == null) return null;
 		ByteArrayOutputStream dataOut = new ByteArrayOutputStream() ;
-		int limit = (maxLength < data.length) ? maxLength - 4 : data.length;
+		boolean maxLengthExceeded = maxLength < data.length;
+		int limit = maxLengthExceeded ? maxLength - MAX_NUMBER_OF_UTF8_BYTES : data.length;
 		for (int i = 0; i < limit; i++) {
 			if (data[i] != 0x00)
 				dataOut.write(data[i]);
 		}
-		if(maxLength < data.length) {
-			// we had to cut the byte array at limit
-			// data[limit-1] is the last added byte
-			// we have to check, if it starts the non-ASCII char sequence
-			if(data[limit-1] >= 0xC0 ) {
-				dataOut.write(data[limit]);
+		if(maxLengthExceeded) {
+			// check if we have to add some bytes in case we have split an UTF-8 character that is longer than 1 byte.
+			if (!isASingleByteUTF8Char(data[limit-1])) {
+				int i = 0;
+				while (!isAStartingByteUTF8Char(data[limit + i])) {
+					if (i == MAX_NUMBER_OF_UTF8_BYTES) {
+						log.error("The message data contains invalid UTF-8 character. The byte limit for one character was exceeded.");
+						break;
+					}
+					dataOut.write(data[limit + i]);
+					i++;
+				}
 			}
-			if(data[limit-1] >= 0xE0 ) {
-				dataOut.write(data[limit+1]);
-			}
-			if(data[limit-1] >= 0xF0 ) {
-				dataOut.write(data[limit+2]);
-			}
+
 		}
 		return dataOut.toByteArray();
 	}
 
+	/**
+	 * Checks if the given byte represents an initial UTF-8 character.
+	 *
+	 * An initial character can be in those formats:
+	 *     110XXXXXX
+	 *     1110XXXXX
+	 *     11110XXXX
+	 *     0XXXXXXXX
+	 *
+	 * If the given value is in range 10000000(inclusive) ... 11000000(exclusive)
+	 * it means that the byte is part of a UTF-8 character composed of multiple bytes.
+	 *
+	 * The value 10000000 for byte in Java is equal to -128 and this value is minimal.
+	 * The value 11000000 for byte in Java is equal to -64.
+	 *
+	 * @param b byte to check
+	 * @return true, if the given byte is a starting byte for UTF-8 char, false otherwise.
+	 */
+	private static boolean isAStartingByteUTF8Char(byte b) {
+		return b >= (byte)0b11000000;
+	}
+
+	/**
+	 * Check if this byte represents a UTF-8 character that is represented by one byte.
+	 *
+	 * That means, check if the value is in range 00000000 ... 01111111.
+	 * If the given byte starts with '1' it means its lower than 0 because bytes in Java
+	 * are represented with inversion code.
+	 *
+	 * @param b byte to check
+	 * @return true, if the given byte represents a single byte UTF-8 character, false otherwise.
+	 */
+	private static boolean isASingleByteUTF8Char(byte b) {
+		return b > 0;
+	}
 }
