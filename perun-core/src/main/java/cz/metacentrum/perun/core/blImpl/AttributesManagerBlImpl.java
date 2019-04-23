@@ -54,6 +54,7 @@ import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.CoreConfig;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -6882,6 +6883,71 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		rights = new ArrayList<>();
 		attributes.put(attr, rights);
+
+		// create namespaced attributes for each namespace
+		for (String namespace : BeansUtils.getCoreConfig().getAutocreatedNamespaces()) {
+
+			// skip if empty
+			if (namespace == null || namespace.isEmpty()) continue;
+
+			// login-namespace
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+			attr.setType(String.class.getName());
+			attr.setFriendlyName("login-namespace:"+namespace);
+			attr.setDisplayName("Login in namespace: "+namespace);
+			attr.setDescription("Logname in namespace '"+namespace+"'.");
+
+			rights = new ArrayList<>();
+			rights.add(new AttributeRights(-1, Role.SELF, Collections.singletonList(ActionType.READ)));
+			rights.add(new AttributeRights(-1, Role.VOADMIN, Collections.singletonList(ActionType.READ)));
+			rights.add(new AttributeRights(-1, Role.GROUPADMIN, Collections.singletonList(ActionType.READ)));
+			rights.add(new AttributeRights(-1, Role.FACILITYADMIN, Collections.singletonList(ActionType.READ)));
+			attributes.put(attr, rights);
+
+			// pwd-reset templates
+
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+			attr.setType(String.class.getName());
+			attr.setFriendlyName("nonAuthzPwdResetConfirmMailSubject:"+namespace);
+			attr.setDisplayName("Non-Authz Pwd Reset Confirmation Mail Subject");
+			attr.setDescription("Template of PWD reset confirmation mails subject.");
+
+			rights = new ArrayList<>();
+			attributes.put(attr, rights);
+
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+			attr.setType("java.lang.LargeString");
+			attr.setFriendlyName("nonAuthzPwdResetConfirmMailTemplate:"+namespace);
+			attr.setDisplayName("Non-Authz Pwd Reset Confirmation Mail Template");
+			attr.setDescription("Template of confirmation message in password reset notification.");
+
+			rights = new ArrayList<>();
+			attributes.put(attr, rights);
+
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+			attr.setType(String.class.getName());
+			attr.setFriendlyName("nonAuthzPwdResetMailSubject:"+namespace);
+			attr.setDisplayName("Non-Authz Pwd Reset Mail Subject");
+			attr.setDescription("Non authz password reset mail subject for "+namespace+".");
+
+			rights = new ArrayList<>();
+			attributes.put(attr, rights);
+
+			attr = new AttributeDefinition();
+			attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
+			attr.setType("java.lang.LargeString");
+			attr.setFriendlyName("nonAuthzPwdResetMailTemplate:"+namespace);
+			attr.setDisplayName("Non-Authz Pwd Reset Mail Template");
+			attr.setDescription("Non authz password reset mail template for "+namespace+".");
+
+			rights = new ArrayList<>();
+			attributes.put(attr, rights);
+
+		}
 
 		if (perunBl.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");
 

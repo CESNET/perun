@@ -58,6 +58,7 @@
 		<property name="mailDebug" value="${mail.debug}" />
 		<property name="smtpUser" value="${perun.smtp.user}" />
 		<property name="smtpPass" value="${perun.smtp.pass}" />
+		<property name="autocreatedNamespaces" value="#{'${perun.autocreatedNamespaces}'.split('\s*,\s*')}" />
 	</bean>
 
 
@@ -141,6 +142,8 @@
 				<prop key="mail.debug">false</prop>
 				<prop key="perun.smtp.user"></prop>
 				<prop key="perun.smtp.pass"></prop>
+
+				<prop key="perun.autocreatedNamespaces"></prop>
 
 			</props>
 		</property>
