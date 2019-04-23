@@ -62,6 +62,7 @@
 
 		<!-- redefine versions of some libraries defined by Spring Boot Starter Parent -->
 		<tomcat.version>8.5.34</tomcat.version>
+		<hikaricp.version>3.3.1</hikaricp.version>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
 		<cglib-nodep.version>2.2.2</cglib-nodep.version>
