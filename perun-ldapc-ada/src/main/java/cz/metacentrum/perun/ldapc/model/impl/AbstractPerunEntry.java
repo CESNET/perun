@@ -174,6 +174,10 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 
 	@Override
 	public DirContextOperations findByDN(Name dn) {
+		Name baseDN = LdapNameBuilder.newInstance(this.getBaseDN()).build();
+		if(dn.startsWith(baseDN)) {
+			return ldapTemplate.lookupContext(dn.getSuffix(baseDN.size()));
+		}
 		return ldapTemplate.lookupContext(dn);
 	}
 
