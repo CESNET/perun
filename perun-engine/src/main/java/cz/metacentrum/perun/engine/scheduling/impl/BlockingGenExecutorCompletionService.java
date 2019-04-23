@@ -8,7 +8,7 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.concurrent.*;
 
 /**
@@ -54,7 +54,7 @@ public class BlockingGenExecutorCompletionService implements BlockingCompletionS
 		try {
 			GenWorker genWorker = (GenWorker) taskWorker;
 			// We must have start time before adding Task to executingGenTasks
-			genWorker.getTask().setGenStartTime(new Date(System.currentTimeMillis()));
+			genWorker.getTask().setGenStartTime(LocalDateTime.now());
 			future = completionService.submit(genWorker);
 			executingGenTasks.put(future, genWorker.getTask());
 		} catch (Exception ex) {

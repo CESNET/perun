@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.taskslib.model.Task;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * ServiceState is object containing information about one service propagated on one facility.
@@ -90,8 +90,8 @@ public class ServiceState {
 	 *
 	 * @return Time when was last task scheduled.
 	 */
-	public Date getScheduled() {
-		return (task != null) ? task.getSchedule() : null;
+	public Long getScheduled() {
+		return (task != null) ? task.getScheduleAsLong() : null;
 	}
 
 	/**
@@ -99,8 +99,8 @@ public class ServiceState {
 	 *
 	 * @return Time when was last task scheduled.
 	 */
-	public Date getStartTime() {
-		return (task != null) ? task.getStartTime() : null;
+	public Long getStartTime() {
+		return (task != null) ? task.getStartTimeAsLong() : null;
 	}
 
 	/**
@@ -108,8 +108,8 @@ public class ServiceState {
 	 *
 	 * @return Time when was last task scheduled.
 	 */
-	public Date getEndTime() {
-		return (task != null) ? task.getEndTime() : null;
+	public Long getEndTime() {
+		return (task != null) ? task.getEndTimeAsLong() : null;
 	}
 
 	/**

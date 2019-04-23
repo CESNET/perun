@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.taskslib.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Destination;
@@ -23,14 +25,14 @@ public class Task implements Serializable {
 	private int id;
 	private int delay;
 	private int recurrence;
-	private Date startTime;
-	private Date sentToEngine;
-	private Date sendStartTime;
-	private Date schedule;
-	private Date genStartTime;
-	private Date genEndTime;
-	private Date sendEndTime;
-	private Date endTime;
+	private LocalDateTime startTime;
+	private LocalDateTime sentToEngine;
+	private LocalDateTime sendStartTime;
+	private LocalDateTime schedule;
+	private LocalDateTime genStartTime;
+	private LocalDateTime genEndTime;
+	private LocalDateTime sendEndTime;
+	private LocalDateTime endTime;
 	private Service service;
 	private Facility facility;
 	private List<Destination> destinations;
@@ -88,20 +90,44 @@ public class Task implements Serializable {
 		this.recurrence = recurrence;
 	}
 
-	public Date getStartTime() {
+	public LocalDateTime getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(Date startTime) {
+	public Long getStartTimeAsLong() {
+		return (startTime == null) ? null : startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+	}
+
+	public void setStartTime(LocalDateTime startTime) {
 		this.startTime = startTime;
 	}
 
-	public Date getSchedule() {
+	public void setStartTime(Long startTime) {
+		if (startTime != null) {
+			this.startTime = Instant.ofEpochMilli(startTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+		} else {
+			this.startTime = null;
+		}
+	}
+
+	public LocalDateTime getSchedule() {
 		return schedule;
 	}
 
-	public void setSchedule(Date schedule) {
+	public Long getScheduleAsLong() {
+		return (schedule == null) ? null : schedule.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+	}
+
+	public void setSchedule(LocalDateTime schedule) {
 		this.schedule = schedule;
+	}
+
+	public void setSchdule(Long schedule) {
+		if (schedule != null) {
+			this.schedule = Instant.ofEpochMilli(schedule).atZone(ZoneId.systemDefault()).toLocalDateTime();
+		} else {
+			this.schedule = null;
+		}
 	}
 
 
@@ -129,52 +155,124 @@ public class Task implements Serializable {
 		}
 	}
 
-	public Date getGenEndTime() {
+	public LocalDateTime getGenEndTime() {
 		return genEndTime;
 	}
 
-	public void setGenEndTime(Date genEndTime) {
+	public Long getGenEndTimeAsLong() {
+		return (genEndTime == null) ? null : genEndTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+	}
+
+	public void setGenEndTime(LocalDateTime genEndTime) {
 		this.genEndTime = genEndTime;
 	}
 
-	public Date getSendEndTime() {
+	public void setGenEndTime(Long genEndTime) {
+		if (genEndTime != null) {
+			this.genEndTime = Instant.ofEpochMilli(genEndTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+		} else {
+			this.genEndTime = null;
+		}
+	}
+
+	public LocalDateTime getSendEndTime() {
 		return sendEndTime;
 	}
 
-	public void setSendEndTime(Date sendEndTime) {
+	public Long getSendEndTimeAsLong() {
+		return (sendEndTime == null) ? null : sendEndTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+	}
+
+	public void setSendEndTime(LocalDateTime sendEndTime) {
 		this.sendEndTime = sendEndTime;
 	}
 
-	public Date getSendStartTime() {
+	public void setSendEndTime(Long sendEndTime) {
+		if (sendEndTime != null) {
+			this.sendEndTime = Instant.ofEpochMilli(sendEndTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+		} else {
+			this.sendEndTime = null;
+		}
+	}
+
+	public LocalDateTime getSendStartTime() {
 		return sendStartTime;
 	}
 
-	public Date getGenStartTime() {
+	public Long getSendStartTimeAsLong() {
+		return (sendStartTime == null) ? null : sendStartTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+	}
+
+	public LocalDateTime getGenStartTime() {
 		return genStartTime;
 	}
 
-	public void setGenStartTime(Date genStartTime) {
+	public Long getGenStartTimeAsLong() {
+		return (genStartTime == null) ? null : genStartTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+	}
+
+	public void setGenStartTime(LocalDateTime genStartTime) {
 		this.genStartTime = genStartTime;
 	}
 
-	public Date getSentToEngine() {
+	public void setGenStartTime(Long genStartTime) {
+		if (genStartTime != null) {
+			this.genStartTime = Instant.ofEpochMilli(genStartTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+		} else {
+			this.genStartTime = null;
+		}
+	}
+
+	public LocalDateTime getSentToEngine() {
 		return sentToEngine;
 	}
 
-	public void setSentToEngine(Date sentToEngine) {
+	public Long getSentToEngineAsLong() {
+		return (sentToEngine == null) ? null : sentToEngine.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+	}
+
+	public void setSentToEngine(LocalDateTime sentToEngine) {
 		this.sentToEngine = sentToEngine;
 	}
 
-	public void setSendStartTime(Date sendStartTime) {
+	public void setSentToEngine(Long sentToEngine) {
+		if (sentToEngine != null) {
+			this.sentToEngine = Instant.ofEpochMilli(sentToEngine).atZone(ZoneId.systemDefault()).toLocalDateTime();
+		} else {
+			this.sentToEngine = null;
+		}
+	}
+
+	public void setSendStartTime(LocalDateTime sendStartTime) {
 		this.sendStartTime = sendStartTime;
 	}
 
-	public Date getEndTime() {
+	public void setSendStartTime(Long sendStartTime) {
+		if (sendStartTime != null) {
+			this.sendStartTime = Instant.ofEpochMilli(sendStartTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+		} else {
+			this.sendStartTime = null;
+		}
+	}
+
+	public LocalDateTime getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(Date endTime) {
+	public Long getEndTimeAsLong() {
+		return (endTime == null) ? null : endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+	}
+
+	public void setEndTime(LocalDateTime endTime) {
 		this.endTime = endTime;
+	}
+
+	public void setEndTime(Long endTime) {
+		if (endTime != null) {
+			this.endTime = Instant.ofEpochMilli(endTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+		} else {
+			this.endTime = null;
+		}
 	}
 
 	public Facility getFacility() {

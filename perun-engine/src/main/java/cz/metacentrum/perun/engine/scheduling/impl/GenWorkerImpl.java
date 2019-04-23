@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Implementation of GenWorker, which is used for starting GEN scripts.
@@ -41,7 +41,7 @@ public class GenWorkerImpl extends AbstractWorker<Task> implements GenWorker {
 	@Override
 	public Task call() throws TaskExecutionException {
 
-		getTask().setGenStartTime(new Date(System.currentTimeMillis()));
+		getTask().setGenStartTime(LocalDateTime.now());
 		Service service = getTask().getService();
 
 		log.info("[{}] Executing GEN worker for Task with Service ID: {} and Facility ID: {}.",
@@ -55,7 +55,7 @@ public class GenWorkerImpl extends AbstractWorker<Task> implements GenWorker {
 			super.execute(pb);
 
 			// set gen end time
-			getTask().setGenEndTime(new Date(System.currentTimeMillis()));
+			getTask().setGenEndTime(LocalDateTime.now());
 
 			if (getReturnCode() != 0) {
 

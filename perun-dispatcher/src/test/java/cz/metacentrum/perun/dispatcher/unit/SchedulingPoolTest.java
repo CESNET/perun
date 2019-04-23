@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.dispatcher.unit;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
@@ -53,7 +53,7 @@ public class SchedulingPoolTest extends AbstractDispatcherTest {
 		task1.setDestinations(destinations);
 
 		task1.setStatus(TaskStatus.WAITING);
-		task1.setSchedule(new Date(System.currentTimeMillis()));
+		task1.setSchedule(LocalDateTime.now());
 		engineMessageProducer = new EngineMessageProducer(1, "test-queue");
 		schedulingPool.addToPool(task1, engineMessageProducer);
 	}
@@ -76,7 +76,7 @@ public class SchedulingPoolTest extends AbstractDispatcherTest {
 		task2.setService(service2);
 		task2.setFacility(facility1);
 		task2.setDestinations(destinations);
-		task2.setSchedule(new Date(System.currentTimeMillis()));
+		task2.setSchedule(LocalDateTime.now());
 		schedulingPool.addToPool(task2, engineMessageProducer);
 		Assert.isTrue(schedulingPool.getSize() == 2, "new size is 2");
 	}

@@ -4,15 +4,20 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.taskslib.model.Task;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
 
 /**
  * JSON serializer.
@@ -42,6 +47,65 @@ public final class JsonSerializer implements Serializer {
 	private interface PerunExceptionMixIn {
 	}
 
+	@SuppressWarnings("unused")
+	private interface TaskMixIn {
+		@JsonSerialize
+		@JsonProperty(value = "startTime")
+		Long getStartTimeAsLong();
+
+		@JsonIgnore
+		LocalDateTime getStartTime();
+
+		@JsonSerialize
+		@JsonProperty(value = "schedule")
+		Long getScheduleAsLong();
+
+		@JsonIgnore
+		LocalDateTime getSchedule();
+
+		@JsonSerialize
+		@JsonProperty(value = "genEndTime")
+		Long getGenEndTimeAsLong();
+
+		@JsonIgnore
+		LocalDateTime getGenEndTime();
+
+		@JsonSerialize
+		@JsonProperty(value = "sendEndTime")
+		Long getSendEndTimeAsLong();
+
+		@JsonIgnore
+		LocalDateTime getSendEndTime();
+
+		@JsonSerialize
+		@JsonProperty(value = "sendStartTime")
+		Long getSendStartTimeAsLong();
+
+		@JsonIgnore
+		LocalDateTime getSendStartTime();
+
+		@JsonSerialize
+		@JsonProperty(value = "genStartTime")
+		Long getGenStartTimeAsLong();
+
+		@JsonIgnore
+		LocalDateTime getGenStartTime();
+
+		@JsonSerialize
+		@JsonProperty(value = "sentToEngine")
+		Long getSentToEngineAsLong();
+
+		@JsonIgnore
+		LocalDateTime getSentToEngine();
+
+		@JsonSerialize
+		@JsonProperty(value = "endTime")
+		Long getEndTimeAsLong();
+
+		@JsonIgnore
+		LocalDateTime getEndTime();
+	}
+
 	public static final String CONTENT_TYPE = "application/json; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -52,6 +116,7 @@ public final class JsonSerializer implements Serializer {
 		mapper.getSerializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, PerunExceptionMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(Task.class, TaskMixIn.class);
 	}
 
 	private static final JsonFactory jsonFactory = new JsonFactory();

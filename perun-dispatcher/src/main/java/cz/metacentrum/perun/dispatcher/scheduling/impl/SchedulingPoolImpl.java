@@ -32,10 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -336,15 +338,15 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		if (!task.getStatus().equals(TaskStatus.WAITING)) {
 
 			task.setStatus(TaskStatus.WAITING);
-			task.setSchedule(new Date(System.currentTimeMillis()));
+			task.setSchedule(LocalDateTime.now());
 			// clear previous timestamps
-			task.setSentToEngine(null);
-			task.setStartTime(null);
-			task.setGenStartTime(null);
-			task.setSendStartTime(null);
-			task.setEndTime(null);
-			task.setGenEndTime(null);
-			task.setSendEndTime(null);
+			task.setSentToEngine((LocalDateTime) null);
+			task.setStartTime((LocalDateTime) null);
+			task.setGenStartTime((LocalDateTime) null);
+			task.setSendStartTime((LocalDateTime) null);
+			task.setEndTime((LocalDateTime) null);
+			task.setGenEndTime((LocalDateTime) null);
+			task.setSendEndTime((LocalDateTime) null);
 
 			taskManager.updateTask(task);
 
@@ -485,7 +487,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			if (!Arrays.asList(TaskStatus.DONE, TaskStatus.ERROR, TaskStatus.GENERROR, TaskStatus.SENDERROR).contains(task.getStatus())) {
 				if (task.getStatus().equals(TaskStatus.WAITING)) {
 					// if were in WAITING, reset timestamp to now
-					task.setSchedule(new Date(System.currentTimeMillis()));
+					task.setSchedule(LocalDateTime.now());
 					taskManager.updateTask(task);
 				}
 				scheduleTask(task, 0);
@@ -554,7 +556,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			log.warn("[{}] Timestamp of change '{}' could not be parsed, current time will be used instead.", task.getId(), milliseconds);
 			ms = System.currentTimeMillis();
 		}
-		Date changeDate = new Date(ms);
+		LocalDateTime changeDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(ms), ZoneId.systemDefault());
 
 		switch (task.getStatus()) {
 			case WAITING:

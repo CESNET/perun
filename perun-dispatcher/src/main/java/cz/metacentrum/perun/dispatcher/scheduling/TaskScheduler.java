@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -241,22 +241,22 @@ public class TaskScheduler extends AbstractRunner {
 			task.setFacility(facility);
 		} catch (ServiceNotExistsException e) {
 			log.error("[{}] Service for task does not exist...", task.getId());
-			task.setEndTime(new Date(System.currentTimeMillis()));
+			task.setEndTime(LocalDateTime.now());
 			task.setStatus(TaskStatus.ERROR);
 			return DB_ERROR;
 		} catch (FacilityNotExistsException e) {
 			log.error("[{}] Facility for task does not exist...", task.getId());
-			task.setEndTime(new Date(System.currentTimeMillis()));
+			task.setEndTime(LocalDateTime.now());
 			task.setStatus(TaskStatus.ERROR);
 			return DB_ERROR;
 		} catch (PrivilegeException e) {
 			log.error("[{}] Privilege error accessing the database: {}", task.getId(), e.getMessage());
-			task.setEndTime(new Date(System.currentTimeMillis()));
+			task.setEndTime(LocalDateTime.now());
 			task.setStatus(TaskStatus.ERROR);
 			return DB_ERROR;
 		} catch (InternalErrorException e) {
 			log.error("[{}] Internal error: {}", task.getId(), e.getMessage());
-			task.setEndTime(new Date(System.currentTimeMillis()));
+			task.setEndTime(LocalDateTime.now());
 			task.setStatus(TaskStatus.ERROR);
 			return DB_ERROR;
 		}
@@ -322,22 +322,22 @@ public class TaskScheduler extends AbstractRunner {
 				destinations = perun.getServicesManager().getDestinations(perunSession, task.getService(), task.getFacility());
 			} catch (ServiceNotExistsException e) {
 				log.error("[{}] No destinations found for task. Service not exists...", task.getId());
-				task.setEndTime(new Date(System.currentTimeMillis()));
+				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
 				return DB_ERROR;
 			} catch (FacilityNotExistsException e) {
 				log.error("[{}] No destinations found for task. Facility for task does not exist...", task.getId());
-				task.setEndTime(new Date(System.currentTimeMillis()));
+				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
 				return DB_ERROR;
 			} catch (PrivilegeException e) {
 				log.error("[{}] No destinations found for task. Privilege error accessing the database: {}", task.getId(), e.getMessage());
-				task.setEndTime(new Date(System.currentTimeMillis()));
+				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
 				return DB_ERROR;
 			} catch (InternalErrorException e) {
 				log.error("[{}] No destinations found for task. Internal error: {}", task.getId(), e.getMessage());
-				task.setEndTime(new Date(System.currentTimeMillis()));
+				task.setEndTime(LocalDateTime.now());
 				task.setStatus(TaskStatus.ERROR);
 				return DB_ERROR;
 			}
@@ -383,7 +383,7 @@ public class TaskScheduler extends AbstractRunner {
 
 		// modify task status and reset forced flag
 
-		task.setSentToEngine(new Date(System.currentTimeMillis()));
+		task.setSentToEngine(LocalDateTime.now());
 		task.setStatus(Task.TaskStatus.PLANNED);
 		task.setPropagationForced(false);
 		return SUCCESS;
