@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichFacility;
@@ -782,16 +781,64 @@ public interface FacilitiesManagerBl {
 	List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
-	 * !!! Not Complete yet, need to implement all perunBeans !!!
-	 *
-	 * Get perunBean and try to find all connected Facilities
+	 * Returns list of facilities connected with a group
 	 *
 	 * @param sess
-	 * @param perunBean
-	 * @return list of facilities connected with perunBeans
+	 * @param group
+	 * @return list of facilities connected with group
 	 * @throws InternalErrorException
 	 */
-	List<Facility> getFacilitiesByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException;
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns list of facilities connected with a member
+	 *
+	 * @param sess
+	 * @param member
+	 * @return list of facilities connected with member
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
+	 * Returns list of facilities connected with a resource
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of facilities connected with resource
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Returns list of facilities connected with a user
+	 *
+	 * @param sess
+	 * @param user
+	 * @return list of facilities connected with user
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Returns list of facilities connected with a host
+	 *
+	 * @param sess
+	 * @param host
+	 * @return list of facilities connected with host
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Host host) throws InternalErrorException;
+
+	/**
+	 * Returns list of facilities connected with a vo
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return list of facilities connected with vo
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getFacilitiesByPerunBean(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	void checkFacilityExists(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException;
 
