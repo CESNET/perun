@@ -71,6 +71,7 @@ public class CoreConfig {
 	private boolean mailDebug;
 	private String smtpUser;
 	private String smtpPass;
+	private List<String> autocreatedNamespaces;
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
@@ -558,6 +559,14 @@ public class CoreConfig {
 
 	public void setSmtpPass(String smtpPass) {
 		this.smtpPass = smtpPass;
+	}
+
+	public List<String> getAutocreatedNamespaces() {
+		return autocreatedNamespaces;
+	}
+
+	public void setAutocreatedNamespaces(List<String> autocreatedNamespaces) {
+		this.autocreatedNamespaces = autocreatedNamespaces;
 	}
 
 }
