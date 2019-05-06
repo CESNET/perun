@@ -20,7 +20,9 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
+import cz.metacentrum.perun.ldapc.model.PerunFacility;
 import cz.metacentrum.perun.ldapc.model.PerunGroup;
 import cz.metacentrum.perun.ldapc.model.PerunResource;
 
@@ -30,6 +32,10 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 
 	@Autowired
 	private PerunGroup perunGroup;
+	@Autowired
+	private PerunFacility perunFacility;
+	@Autowired
+	private LdapProperties LdapProperties;
 	
 	@Override
 	protected List<String> getDefaultUpdatableAttributes() {
@@ -65,6 +71,12 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 						PerunAttribute.PerunAttributeNames.ldapAttrDescription, 
 						PerunAttribute.OPTIONAL, 
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> resource.getDescription()
+						),
+				new PerunAttributeDesc<>(
+						PerunAttribute.PerunAttributeNames.ldapAttrPerunFacilityDn, 
+						PerunAttribute.OPTIONAL, 
+						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> perunFacility.getEntryDN(String.valueOf(resource.getFacilityId())).toString() 
+															+ "," + ldapProperties.getLdapBase()
 						)
 				);
 	}

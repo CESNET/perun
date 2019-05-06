@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.ldapc.beans.FacilitySynchronizer;
 import cz.metacentrum.perun.ldapc.beans.GroupSynchronizer;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.beans.ResourceSynchronizer;
@@ -28,6 +29,8 @@ public class LdapcManagerImpl implements LdapcManager {
 	private EventDispatcher eventDispatcher;
 	@Autowired
 	private VOSynchronizer voSynchronizer;
+	@Autowired
+	private FacilitySynchronizer facilitySynchronizer;
 	@Autowired
 	private ResourceSynchronizer resourceSynchronizer;
 	@Autowired
@@ -58,6 +61,7 @@ public class LdapcManagerImpl implements LdapcManager {
 	public void synchronize() {
 		try {
 			voSynchronizer.synchronizeVOs();
+			facilitySynchronizer.synchronizeFacilities();
 			userSynchronizer.synchronizeUsers();
 			resourceSynchronizer.synchronizeResources();
 			groupSynchronizer.synchronizeGroups();
