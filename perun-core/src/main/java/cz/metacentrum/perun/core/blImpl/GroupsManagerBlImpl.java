@@ -136,6 +136,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static cz.metacentrum.perun.core.impl.PerunLocksUtils.lockGroupMembership;
 
 /**
  * GroupsManager business logic
@@ -849,6 +850,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 */
 	protected void addDirectMember(PerunSession sess, Group group, Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException {
 
+		lockGroupMembership(group, Collections.singletonList(member));
+
 		if(this.groupsManagerImpl.isDirectGroupMember(sess, group, member)) throw new AlreadyMemberException(member);
 
 		boolean memberWasIndirectInGroup = this.isGroupMember(sess, group, member);
@@ -896,6 +899,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// save list of old group members
 		List<Member> oldMembers = this.getGroupMembers(sess, group);
 		List<Member> membersToAdd = new ArrayList<>(members);
+
+		lockGroupMembership(group, members);
 
 		for (Member member : membersToAdd) {
 			groupsManagerImpl.addMember(sess, group, member, MembershipType.INDIRECT, sourceGroupId);
@@ -947,6 +952,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 */
 	private List<Member> removeIndirectMembers(PerunSession sess, Group group, List<Member> members, int sourceGroupId) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
 		List<Member> membersToRemove = new ArrayList<>(members);
+
+		lockGroupMembership(group, membersToRemove);
+
 		for (Member member: membersToRemove) {
 			member.setSourceGroupId(sourceGroupId);
 			groupsManagerImpl.removeMember(sess, group, member);
@@ -992,6 +1000,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	private void removeDirectMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+
+		lockGroupMembership(group, Collections.singletonList(member));
 
 		member.setSourceGroupId(group.getId());
 		getGroupsManagerImpl().removeMember(sess, group, member);
@@ -3130,6 +3140,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws InternalErrorException if some internal error occurs
 	 */
 	private void addMissingMembersWhileSynchronization(PerunSession sess, Group group, List<Candidate> candidatesToAdd, List<String> overwriteUserAttributesList, List<String> mergeMemberAttributesList, List<String> skippedMembers) throws InternalErrorException {
+		//sort candidates to prevent deadlocks during member locking
+		//IMPORTANT: Candidates sorting may produce a different result than members sorting, thus there is a potential risk of creating a deadlock
+		Collections.sort(candidatesToAdd);
 		// Now add missing members
 		for (Candidate candidate: candidatesToAdd) {
 			Member member;
@@ -3244,6 +3257,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			log.error("Attribute {} doesn't exists.", A_G_D_AUTHORITATIVE_GROUP);
 		}
 
+		//sort members to prevent deadlocks during member locking
+		Collections.sort(membersToRemove);
 		//Second remove members (use authoritative group where is needed)
 		for (RichMember member: membersToRemove) {
 			// Member is missing in the external group, so remove him from the perun group
