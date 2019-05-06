@@ -16,7 +16,7 @@ public class FacilityCreated extends AuditEvent implements EngineIgnoreEvent {
 
 	public FacilityCreated(Facility facility) {
 		this.facility = facility;
-		this.message = formatMessage("Facility created %s.",facility);
+		this.message = formatMessage("%s created.",facility);
 	}
 
 	public Facility getFacility() {

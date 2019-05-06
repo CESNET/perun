@@ -26,6 +26,11 @@ public class UpdateEventProcessor extends AbstractEventProcessor {
 					perunResource.updateResource(beans.getResource());
 					break;
 					
+				case MessageBeans.FACILITY_F:
+					log.debug("Updating facility {}", beans.getFacility());
+					perunFacility.updateFacility(beans.getFacility());
+					break;
+					
 				case MessageBeans.USER_F:
 					log.debug("Updating user {}", beans.getUser());
 					perunUser.updateUser(beans.getUser());
