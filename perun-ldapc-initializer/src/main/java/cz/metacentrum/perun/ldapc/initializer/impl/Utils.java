@@ -482,6 +482,30 @@ public class Utils implements cz.metacentrum.perun.ldapc.initializer.api.UtilsAp
 			else bonaFideStatus+= (String) attrBonaFideStatus.getValue();
 			if(bonaFideStatus != null) writer.write(bonaFideStatus + '\n');
 
+			//isCesnetEligible
+			String isCesnetEligible = "isCesnetEligible: ";
+			Attribute attrIsCesnetEligible = null;
+			try {
+				attrIsCesnetEligible = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":isCesnetEligibleLastSeen");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("isCesnetEligibleLastSeen attribute is missing or it's assignment is wrong. Attribute was skipped.", ex);
+			}
+			if(attrIsCesnetEligible == null || attrIsCesnetEligible.getValue() == null || ((String) attrIsCesnetEligible.getValue()).isEmpty()) isCesnetEligible = null;
+			else isCesnetEligible+= (String) attrIsCesnetEligible.getValue();
+			if(isCesnetEligible != null) writer.write(isCesnetEligible + '\n');
+
+			//LoA
+			String loa = "loa: ";
+			Attribute attrLoA = null;
+			try {
+				attrLoA = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":loa");
+			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+				log.error("LoA attribute is missing or it's assignment is wrong. Attribute was skipped.", ex);
+			}
+			if(attrLoA == null || attrLoA.getValue() == null || ((String) attrLoA.getValue()).isEmpty()) loa = null;
+			else loa+= (String) attrLoA.getValue();
+			if(loa != null) writer.write(loa + '\n');
+
 			//all certificates subjects
 			Attribute attrVirtCertDNs = null;
 			try {
