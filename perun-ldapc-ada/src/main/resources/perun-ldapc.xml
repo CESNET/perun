@@ -534,6 +534,26 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						</bean>
 					</property>
 				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="isCesnetEligible" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="namespace" value="urn:perun:user:attribute-def:def" />
+							<property name="name" value="isCesnetEligibleLastSeen" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="loa" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
+							<property name="name" value="loa" />
+						</bean>
+					</property>
+				</bean>
 			</list>
 		</property>
 	</bean>
