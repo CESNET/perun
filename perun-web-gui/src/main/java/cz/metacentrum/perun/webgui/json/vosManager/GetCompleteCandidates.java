@@ -220,7 +220,12 @@ public class GetCompleteCandidates implements JsonCallback, JsonCallbackTable<Me
 				if (groupId == 0) {
 					if (candidate.getMember() != null) return "Member of VO";
 				} else {
-					if (candidate.getMember() != null && candidate.getMember().getSourceGroupId() != 0) return "Member of Group";
+					if (candidate.getMember() != null &&
+							candidate.getMember().getSourceGroupId() != 0 &&
+							"DIRECT".equalsIgnoreCase( candidate.getMember().getMembershipType())) return "Member of Group";
+					if (candidate.getMember() != null &&
+							candidate.getMember().getSourceGroupId() != 0 &&
+							"INDIRECT".equalsIgnoreCase( candidate.getMember().getMembershipType())) return "Indirect member of Group";
 					if (candidate.getMember() != null) return "Member of VO";
 				}
 				return "";
