@@ -1097,9 +1097,9 @@ public interface MembersManager {
 	 *
 	 * @param sess PerunSession
 	 * @param member Member to get user to send link mail to
-	 * @param namespace namespace to change password in (member must have login in)
+	 * @param namespace namespace to change password in (member must have login in it)
 	 * @param url base URL of Perun instance
-	 * @param mailAttributeUrn urn of the auttribute with stored mail
+	 * @param mailAttributeUrn urn of the attribute with stored mail
 	 * @param language language of the message
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException If not VO admin of member
