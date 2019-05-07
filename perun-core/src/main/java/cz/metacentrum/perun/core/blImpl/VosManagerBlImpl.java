@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -658,54 +659,34 @@ public class VosManagerBlImpl implements VosManagerBl {
 	}
 
 	@Override
-	public List<Vo> getVosByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException, VoNotExistsException {
-		List<Vo> vos = new ArrayList<>();
+	public List<Vo> getVosByPerunBean(PerunSession sess, Group group) throws InternalErrorException, VoNotExistsException {
+		return Collections.singletonList(getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId()));
+	}
 
-		//All possible useful objects
-		Vo vo = null;
-		Facility facility = null;
-		Group group = null;
-		Member member = null;
-		User user = null;
-		Host host = null;
-		Resource resource = null;
+	@Override
+	public List<Vo> getVosByPerunBean(PerunSession sess, Member member) throws InternalErrorException {
+		return Collections.singletonList(getPerunBl().getMembersManagerBl().getMemberVo(sess, member));
+	}
 
-		if (perunBean != null) {
-			if (perunBean instanceof Vo) vo = (Vo) perunBean;
-			else if (perunBean instanceof Facility) facility = (Facility) perunBean;
-			else if (perunBean instanceof Group) group = (Group) perunBean;
-			else if (perunBean instanceof Member) member = (Member) perunBean;
-			else if (perunBean instanceof User) user = (User) perunBean;
-			else if (perunBean instanceof Host) host = (Host) perunBean;
-			else if (perunBean instanceof Resource) resource = (Resource) perunBean;
-			else {
-				throw new InternalErrorException("There is unrecognized object in primaryHolder of aidingAttr.");
-			}
-		} else {
-			throw new InternalErrorException("Aiding attribtue must have primaryHolder which is not null.");
-		}
+	@Override
+	public List<Vo> getVosByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException, VoNotExistsException {
+		return Collections.singletonList(getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId()));
+	}
 
-		//Important For Groups not work with Subgroups! Invalid members are executed too.
+	@Override
+	public List<Vo> getVosByPerunBean(PerunSession sess, User user) throws InternalErrorException {
+		return new ArrayList<>(new HashSet<>(getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user)));
+	}
 
-		if (group != null) {
-			vos.add(getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId()));
-		} else if (member != null) {
-			vos.add(getPerunBl().getMembersManagerBl().getMemberVo(sess, member));
-		} else if (resource != null) {
-			vos.add(getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId()));
-		} else if (user != null) {
-			vos.addAll(getPerunBl().getUsersManagerBl().getVosWhereUserIsMember(sess, user));
-		} else if (host != null) {
-			facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-			vos.addAll(getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility));
-		} else if (facility != null) {
-			vos.addAll(getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility));
-		} else {
-			vos.add(vo);
-		}
+	@Override
+	public List<Vo> getVosByPerunBean(PerunSession sess, Host host) throws InternalErrorException {
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+		return new ArrayList<>(new HashSet<>(getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility)));
+	}
 
-		vos = new ArrayList<>(new HashSet<>(vos));
-		return vos;
+	@Override
+	public List<Vo> getVosByPerunBean(PerunSession sess, Facility facility) throws InternalErrorException {
+		return new ArrayList<>(new HashSet<>(getPerunBl().getFacilitiesManagerBl().getAllowedVos(sess, facility)));
 	}
 
 	@Override
