@@ -4,11 +4,11 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
@@ -1076,16 +1076,64 @@ public interface GroupsManagerBl {
 	boolean isGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException;
 
 	/**
-	 * !!! Not Complete yet, need to implement all perunBeans !!!
-	 *
-	 * Get perunBean and try to find all connected Groups
+	 * Returns list of groups connected with a member
 	 *
 	 * @param sess
-	 * @param perunBean
-	 * @return list of groups connected with perunBeans
+	 * @param member
+	 * @return list of groups connected with member
 	 * @throws InternalErrorException
 	 */
-	List<Group> getGroupsByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException;
+	List<Group> getGroupsByPerunBean(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
+	 * Returns list of groups connected with a resource
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of groups connected with resource
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsByPerunBean(PerunSession sess, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Returns list of groups connected with a user
+	 *
+	 * @param sess
+	 * @param user
+	 * @return list of groups connected with user
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsByPerunBean(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Returns list of groups connected with a host
+	 *
+	 * @param sess
+	 * @param host
+	 * @return list of groups connected with host
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsByPerunBean(PerunSession sess, Host host) throws InternalErrorException;
+
+	/**
+	 * Returns list of groups connected with a facility
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return list of groups connected with facility
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsByPerunBean(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Returns list of groups connected with a vo
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return list of groups connected with vo
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsByPerunBean(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	void checkGroupExists(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException;
 
