@@ -34,6 +34,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -823,19 +824,23 @@ public class VosManagerBlImpl implements VosManagerBl {
 		// try to find member for MemberCandidates with not null RichUser
 		for (MemberCandidate memberCandidate : memberCandidates) {
 			if (memberCandidate.getRichUser() != null) {
+				Member member = null;
 				try {
-					Member member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, memberCandidate.getRichUser());
 
+					member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, memberCandidate.getRichUser());
 					if (group != null) {
-						// check if member is in group
-						if (getPerunBl().getGroupsManagerBl().isGroupMember(sess, group, member)) {
-							member.setSourceGroupId(group.getId());
-						}
+						member = getPerunBl().getGroupsManagerBl().getGroupMemberById(sess, group, member.getId());
 					}
-					memberCandidate.setMember(member);
+
 				} catch (MemberNotExistsException ignored) {
-					// no matching member was found
+					// no matching VO member was found
+				} catch (NotGroupMemberException e) {
+					// not matching Group member was found
 				}
+
+				// put null or matching member
+				memberCandidate.setMember(member);
+
 			}
 		}
 
