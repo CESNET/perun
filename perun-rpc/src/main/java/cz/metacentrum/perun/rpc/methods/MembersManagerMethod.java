@@ -1246,8 +1246,9 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Correct authz information is stored in link's URL.
 	 *
 	 * @param member int Member to get user to send link mail to
-	 * @param namespace String Namespace to change password in (member must have login in)
-	 * @param url String Base URL of Perun instance
+	 * @param namespace String Namespace to change password in (member must have login in it)
+	 * @param emailAttributeURN urn of the attribute with stored mail
+	 * @param language language of the message
 	 */
 	sendPasswordResetLinkEmail {
 		@Override
