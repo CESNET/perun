@@ -482,6 +482,11 @@ public class CoreConfig {
 					break;
 				// forwardedScopedAffiliation - is not standardized and published by the proxy itself, we do not
 				// set it back to the Perun (UES attribute), but we can read it (for registrar purpose).
+				case "entitlement":
+					attr.setDisplayName("eduPersonEntitlement");
+					attr.setDescription("Entitlements of user (aka group memberships).");
+					attr.setType(BeansUtils.largeStringClassName);
+					break;
 				case "dn":
 					attr.setDisplayName("certificate DN");
 					attr.setDescription("Distinguished Name from X509 digital certificate");
