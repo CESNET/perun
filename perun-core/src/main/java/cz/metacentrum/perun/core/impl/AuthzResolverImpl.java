@@ -593,20 +593,20 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
-	// COUNT(*) should never return NULL
 	@SuppressWarnings("ConstantConditions")
 	@Override
 	public boolean isUserInRoleForVo(PerunSession session, User user, Role role, Vo vo) {
+		// COUNT(*) should never return NULL
 		return jdbc.queryForObject(
 				"SELECT COUNT(*) FROM authz JOIN roles ON (authz.role_id=roles.id) " +
 						"WHERE authz.user_id=? AND roles.name=? AND authz.vo_id=?",	Integer.class,
 				user.getId(), role.getRoleName(), vo.getId()) > 0;
 	}
 
-	// COUNT(*) should never return NULL
 	@SuppressWarnings("ConstantConditions")
 	@Override
 	public boolean isGroupInRoleForVo(PerunSession session, Group group, Role role, Vo vo) {
+		// COUNT(*) should never return NULL
 		return jdbc.queryForObject(
 				"SELECT COUNT(*) FROM authz JOIN roles ON (authz.role_id=roles.id) " +
 						"WHERE authz.authorized_group_id=? AND roles.name=? AND authz.vo_id=?",	Integer.class,

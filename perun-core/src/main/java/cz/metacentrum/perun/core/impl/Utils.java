@@ -1487,6 +1487,7 @@ public class Utils {
 	 * @param matcher matcher
 	 * @return pair of field(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH) and amount
 	 * @throws InternalErrorException when given matcher contains invalid data
+	 * @throws IllegalArgumentException when matcher does not match gracePeriod format
 	 */
 	public static Pair<Integer, TemporalUnit> prepareGracePeriodDate(Matcher matcher) throws InternalErrorException {
 		if (!matcher.matches()) {

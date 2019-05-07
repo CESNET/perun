@@ -123,13 +123,13 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		return new Pair<>(task, engineID);
 	};
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public int scheduleNewTask(Task task, int engineID) {
 		int newTaskId = 0;
 		try {
 			newTaskId = Utils.getNewId(this.getJdbcTemplate(), "tasks_id_seq");
 			// jdbc template cannot be null
-			//noinspection ConstantConditions
 			this.getJdbcTemplate().update(
 						"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?,?)",
 						newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID < 0 ? null : engineID);
@@ -144,13 +144,13 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		return 0;
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public int insertTask(Task task, int engineID) {
 		int newTaskId = 0;
 		try {
 			newTaskId = task.getId();
 			// jdbc template cannot be null
-			//noinspection ConstantConditions
 			this.getJdbcTemplate().update(
 					"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
 					newTaskId, task.getServiceId(), task.getFacilityId(), task.getSchedule().format(getDateTimeFormatter()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID < 0 ? null : engineID);
@@ -167,11 +167,11 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		return getTask(service.getId(), facility.getId());
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public Task getTask(int serviceId, int facilityId) {
 		try {
 			// jdbc template cannot be null
-			//noinspection ConstantConditions
 			return this.getJdbcTemplate().queryForObject(
 						"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 						", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join services on tasks.service_id = services.id and tasks.service_id=?" +
@@ -187,11 +187,11 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		return getTask(service.getId(), facility.getId(), engineID);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public Task getTask(int serviceId, int facilityId, int engineID) {
 		try {
 			// jdbc template cannot be null
-			//noinspection ConstantConditions
 			return this.getJdbcTemplate().queryForObject(
 						"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 						", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join services on tasks.service_id = services.id " +
@@ -204,11 +204,11 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public List<Task> listAllTasksForFacility(int facilityId) {
 		try {
 			// jdbc template cannot be null
-			//noinspection ConstantConditions
 			return this.getJdbcTemplate().query(
 					"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 					", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join services on tasks.service_id = services.id " +
@@ -219,11 +219,11 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public Task getTaskById(int id) {
 		try {
 			// jdbc template cannot be null
-			//noinspection ConstantConditions
 			return this.getJdbcTemplate().queryForObject(
 					"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 					", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
@@ -234,11 +234,11 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public Task getTaskById(int id, int engineID) {
 		try {
 			// jdbc template cannot be null
-			//noinspection ConstantConditions
 			return this.getJdbcTemplate().queryForObject(
 					"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 					", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
@@ -249,67 +249,68 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public List<Task> listAllTasks() {
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
 				"left join facilities on facilities.id = tasks.facility_id", TASK_ROWMAPPER);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public List<Task> listAllTasks(int engineID) {
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left where tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
 				engineID < 0 ? new Integer[] { } : new Integer[] { engineID }, TASK_ROWMAPPER);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public List<Pair<Task, Integer>> listAllTasksAndClients() {
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
 				"left join facilities on facilities.id = tasks.facility_id", TASK_CLIENT_ROWMAPPER);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public List<Task> listAllTasksInState(Task.TaskStatus state) {
 		String textState = state.toString().toUpperCase();
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left where tasks.status = ?",
 				TASK_ROWMAPPER, textState);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public List<Task> listAllTasksInState(Task.TaskStatus state, int engineID) {
 		String textState = state.toString().toUpperCase();
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
 				"left join facilities on facilities.id = tasks.facility_id where tasks.status = ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
 				engineID < 0 ? new Object[] { textState } : new Object[] { textState, engineID }, TASK_ROWMAPPER);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public List<Task> listAllTasksNotInState(Task.TaskStatus state, int engineID) {
 		String textState = state.toString().toUpperCase();
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
 				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
 				"left join facilities on facilities.id = tasks.facility_id where tasks.status != ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
 				engineID < 0 ? new Object[] { textState } : new Object[] { textState, engineID }, TASK_ROWMAPPER);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void updateTask(Task task, int engineID) {
 		String scheduled = null;
@@ -326,7 +327,6 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		this.getJdbcTemplate().update(
 				"update tasks set service_id = ?, facility_id = ?, schedule = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", recurrence = ?, delay = ?, "
 				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " where id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"), task.getServiceId(),
@@ -334,6 +334,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				engineID < 0 ? null : engineID);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void updateTask(Task task) {
 		String scheduled = null;
@@ -350,18 +351,17 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		this.getJdbcTemplate().update(
 				"update tasks set service_id = ?, facility_id = ?, schedule = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", recurrence = ?, delay = ?, "
 				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " where id = ?", task.getServiceId(),
 				task.getFacilityId(), scheduled, task.getRecurrence(), task.getDelay(), task.getStatus().toString(), startTime, endTime, task.getId());
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void updateTaskEngine(Task task, int engineID) throws InternalErrorException {
 		try {
 			// jdbc template cannot be null
-			//noinspection ConstantConditions
 			this.getJdbcTemplate().update(
 				"update tasks set engine_id = ? where id = ?", engineID < 0 ? null : engineID, task.getId());
 		} catch(Exception e) {
@@ -369,10 +369,10 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public boolean isThereSuchTask(Service service, Facility facility, int engineID) {
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		this.getJdbcTemplate().update("select id from services where id = ?", service.getId());
 
 		List<Integer> tasks = this.getJdbcTemplate().queryForList("select id from tasks where service_id = ? and facility_id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"),
@@ -391,7 +391,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		//this.getJdbcTemplate().update("select id from services where id = ? for update", service.getId());
 
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
+		@SuppressWarnings("ConstantConditions")
 		List<Integer> tasks = this.getJdbcTemplate().queryForList("select id from tasks where service_id = ? and facility_id = ?",
 				new Integer[] { service.getId(), facility.getId() }, Integer.class);
 		if (tasks.size() == 0) {
@@ -402,45 +402,44 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		return true;
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void removeTask(Service service, Facility facility, int engineID) {
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		this.getJdbcTemplate().update("delete from tasks where service_id = ? and facility_id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"),
 				engineID < 0 ? new Object[] { service.getId(), facility.getId() }
 					: new Object[] { service.getId(), facility.getId(), engineID });
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void removeTask(Service service, Facility facility) {
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		this.getJdbcTemplate().update("delete from tasks where service_id = ? and facility_id = ?", service.getId(), facility.getId());
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void removeTask(int id, int engineID) {
 		if(engineID < 0) {
 			// jdbc template cannot be null
-			//noinspection ConstantConditions
 			this.getJdbcTemplate().update("delete from tasks where id = ? and engine_id is null", id);
 		} else {
 			// jdbc template cannot be null
-			//noinspection ConstantConditions
 			this.getJdbcTemplate().update("delete from tasks where id = ? and engine_id = ?", id, engineID);
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void removeTask(int id) {
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
 		this.getJdbcTemplate().update("delete from tasks where id = ?", id);
 	}
 
 	private int queryForInt(String sql, Object... args) throws DataAccessException {
 		// jdbc template cannot be null
-		//noinspection ConstantConditions
+		@SuppressWarnings("ConstantConditions")
 		Integer i = getJdbcTemplate().queryForObject(sql, args, Integer.class);
 		return (i != null ? i : 0);
 	}

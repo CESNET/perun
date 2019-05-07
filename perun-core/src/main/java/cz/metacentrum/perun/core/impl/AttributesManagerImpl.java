@@ -5390,7 +5390,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 
-		Utils.notNull(rights, "rights");
+		if (rights == null) {
+			throw new InternalErrorException("The attribute rights for the attribute with id " + attributeId + " were null.");
+		}
 		// set also empty rights for other roles (not present in DB)
 
 		boolean roleExists;

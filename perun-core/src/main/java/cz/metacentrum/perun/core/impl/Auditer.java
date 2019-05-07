@@ -220,7 +220,7 @@ public class Auditer {
 				newTopLevelTransaction();
 				topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
 				if (topLevelTransactions == null) {
-					log.error("Failed to log event in Auditer because topLevelTransaction was null.");
+					log.error("Failed to log event: " + event + " in Auditer because topLevelTransaction was null.");
 					return;
 				}
 			}

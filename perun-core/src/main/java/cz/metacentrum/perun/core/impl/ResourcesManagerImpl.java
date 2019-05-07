@@ -151,11 +151,15 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 				if(myObject == null){
 					// if not preset, put in map
 					myObject = RICH_RESOURCE_MAPPER.mapRow(rs, rs.getRow());
+					if (myObject == null) {
+						log.warn("RICH_RESOURCE_MAPPER returned null during extraction of data.");
+						continue;
+					}
 					map.put(id, myObject);
 				}
 				// fetch each resource tag and add it to rich resource
 				ResourceTag tag = RESOURCE_TAG_MAPPER.mapRow(rs, rs.getRow());
-				if (tag != null && tag.getId() != 0 && myObject != null) {
+				if (tag != null && tag.getId() != 0) {
 					// add only if exists
 					myObject.addResourceTag(tag);
 				}

@@ -135,6 +135,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", attrs.isEmpty());
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAllNonEmptyAttributesByStartPartOfName() throws Exception {
 		System.out.println(CLASS_NAME + "getAllAttributesByStartPartOfName");
@@ -149,7 +150,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		List<Attribute> attrs = cacheManager.getAllAttributesByStartPartOfName("urn:perun:group:attribute-def:opt", groupHolder);
 
 		assertTrue("result should contain group attribute", attrs.contains(groupAttr));
-		assertTrue("result should contain attribute definition", attrs.contains(new Attribute(attrDef)));
+		assertTrue("result should contain attribute definition", attrs.contains(attrDef));
 		assertTrue("result should not contain group-resource attribute", !attrs.contains(groupResourceAttr));
 		assertTrue("it should return 2 attributes", attrs.size() == 2);
 	}
@@ -190,6 +191,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", attrs.size() == 0);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAttributesByNamesAndPrimaryHolder() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesByNamesAndPrimaryHolder");
@@ -209,7 +211,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		List<Attribute> attrs = cacheManager.getAttributesByNames(attributeNames, groupHolder, null);
 
 		assertTrue("result should contain group attribute", attrs.contains(groupAttr));
-		assertTrue("result should contain group attribute definition", attrs.contains(new Attribute(groupAttrDef)));
+		assertTrue("result should contain group attribute definition", attrs.contains(groupAttrDef));
 		assertTrue("it should return 2 attributes", attrs.size() == 2);
 	}
 
@@ -223,6 +225,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", attrs.size() == 0);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAttributesByNamesAndHolders() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesByNamesAndHolders");
@@ -242,7 +245,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		List<Attribute> attrs = cacheManager.getAttributesByNames(attributeNames, memberHolder, groupHolder);
 
 		assertTrue("result should contain member-group attribute", attrs.contains(memberGroupAttr));
-		assertTrue("result should contain member-group attribute definition", attrs.contains(new Attribute(memberGroupAttrDef)));
+		assertTrue("result should contain member-group attribute definition", attrs.contains(memberGroupAttrDef));
 		assertTrue("it should return 2 attributes", attrs.size() == 2);
 	}
 
@@ -326,6 +329,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", cacheManager.getAttributesByAttributeDefinition(attributeDefinition).size() == 0);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getVirtualAttributesByPrimaryHolder() throws Exception {
 		System.out.println(CLASS_NAME + "getVirtualAttributesByPrimaryHolder");
@@ -337,8 +341,8 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 
 		List<Attribute> attrs = cacheManager.getVirtualAttributes(Holder.HolderType.MEMBER, null);
 
-		assertTrue("result should contain virtual member attribute definition", attrs.contains(new Attribute(memberVirtAttr)));
-		assertTrue("result should not contain virtual member-resource attribute definition", !attrs.contains(new Attribute(memberResourceVirtAttr)));
+		assertTrue("result should contain virtual member attribute definition", attrs.contains(memberVirtAttr));
+		assertTrue("result should not contain virtual member-resource attribute definition", !attrs.contains(memberResourceVirtAttr));
 		assertTrue("it should return only 1 attribute", attrs.size() == 1);
 	}
 
@@ -351,6 +355,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", attrs.size() == 0);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getVirtualAttributesByHolders() throws Exception {
 		System.out.println(CLASS_NAME + "getVirtualAttributesByHolders");
@@ -362,8 +367,8 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 
 		List<Attribute> attrs = cacheManager.getVirtualAttributes(Holder.HolderType.MEMBER, Holder.HolderType.RESOURCE);
 
-		assertTrue("result should contain virtual member-resource attribute definition", attrs.contains(new Attribute(memberResourceVirtAttr)));
-		assertTrue("result should not contain virtual member attribute definition", !attrs.contains(new Attribute(memberVirtAttr)));
+		assertTrue("result should contain virtual member-resource attribute definition", attrs.contains(memberResourceVirtAttr));
+		assertTrue("result should not contain virtual member attribute definition", !attrs.contains(memberVirtAttr));
 		assertTrue("it should return only 1 attribute", attrs.size() == 1);
 	}
 
@@ -667,6 +672,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("it should return only 1 attribute", attrs.size() == 1);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAllNonEmptyEntitylessAttributesByNameWhenOnlyDefinitionExists() throws Exception {
 		System.out.println(CLASS_NAME + "getAllNonEmptyEntitylessAttributesByNameWhenOnlyDefinitionExists");
@@ -677,7 +683,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 
 		List<Attribute> attrs = cacheManager.getAllNonEmptyEntitylessAttributesByName(entitylessAttrDef.getName());
 
-		assertTrue("result should not contain entityless attribute definition", !attrs.contains(new Attribute(entitylessAttrDef)));
+		assertTrue("result should not contain entityless attribute definition", !attrs.contains(entitylessAttrDef));
 		assertTrue("there should be no returned attributes", attrs.isEmpty());
 	}
 
@@ -832,6 +838,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("it should return no attributes", values.isEmpty());
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAttributesByIdsAndPrimaryHolder() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesByIdsAndPrimaryHolder");
@@ -852,7 +859,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		List<Attribute> attrs = cacheManager.getAttributesByIds(attributeIds, groupHolder);
 
 		assertTrue("result should contain group attribute", attrs.contains(groupAttr));
-		assertTrue("result should contain group attribute definition", attrs.contains(new Attribute(groupAttrDef)));
+		assertTrue("result should contain group attribute definition", attrs.contains(groupAttrDef));
 		assertTrue("it should return 2 attributes", attrs.size() == 2);
 	}
 
@@ -866,6 +873,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", attrs.size() == 0);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAttributesByIdsAndHolders() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesByIdsAndHolders");
@@ -886,7 +894,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		List<Attribute> attrs = cacheManager.getAttributesByIds(attributeIds, memberHolder, groupHolder);
 
 		assertTrue("result should contain member-group attribute", attrs.contains(memberGroupAttr));
-		assertTrue("result should contain member-group attribute definition", attrs.contains(new Attribute(memberGroupAttrDef)));
+		assertTrue("result should contain member-group attribute definition", attrs.contains(memberGroupAttrDef));
 		assertTrue("it should return 2 attributes", attrs.size() == 2);
 	}
 

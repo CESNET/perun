@@ -195,7 +195,8 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
         // if entity belongs to groupName
         if (groups != null && compareGroupName(groups, groupName)) {
             JSONObject entity = getEntityFromRemote(entityId);
-            if (entity != null) return parseValidUnityEntity(entity);
+            if (entity == null) throw new InternalErrorException("Entity returned for entityId " + entityId + " was null.");
+            return parseValidUnityEntity(entity);
         }
         return null;
     }
