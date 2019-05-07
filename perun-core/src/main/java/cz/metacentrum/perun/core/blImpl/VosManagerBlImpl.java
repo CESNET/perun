@@ -7,8 +7,40 @@ import cz.metacentrum.perun.audit.events.VoManagerEvents.AdminRemovedForVo;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoCreated;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoDeleted;
 import cz.metacentrum.perun.audit.events.VoManagerEvents.VoUpdated;
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Host;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberCandidate;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
@@ -793,19 +825,23 @@ public class VosManagerBlImpl implements VosManagerBl {
 		// try to find member for MemberCandidates with not null RichUser
 		for (MemberCandidate memberCandidate : memberCandidates) {
 			if (memberCandidate.getRichUser() != null) {
+				Member member = null;
 				try {
-					Member member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, memberCandidate.getRichUser());
 
+					member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, memberCandidate.getRichUser());
 					if (group != null) {
-						// check if member is in group
-						if (getPerunBl().getGroupsManagerBl().isGroupMember(sess, group, member)) {
-							member.setSourceGroupId(group.getId());
-						}
+						member = getPerunBl().getGroupsManagerBl().getGroupMemberById(sess, group, member.getId());
 					}
-					memberCandidate.setMember(member);
+
 				} catch (MemberNotExistsException ignored) {
-					// no matching member was found
+					// no matching VO member was found
+				} catch (NotGroupMemberException e) {
+					// not matching Group member was found
 				}
+
+				// put null or matching member
+				memberCandidate.setMember(member);
+
 			}
 		}
 
