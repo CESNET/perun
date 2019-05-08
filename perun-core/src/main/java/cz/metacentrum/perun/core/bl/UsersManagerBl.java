@@ -284,6 +284,15 @@ public interface UsersManagerBl {
 	User createUser(PerunSession perunSession, User user) throws InternalErrorException;
 
 	/**
+	 * Inserts user into DB.
+	 *
+	 * @param perunSession
+	 * @param candidate
+	 * @throws InternalErrorException
+	 */
+	User createUser(PerunSession perunSession, Candidate candidate) throws InternalErrorException;
+
+	/**
 	 * Set specific user type for specific user and set ownership of this user for the owner.
 	 *
 	 * @param sess perun session

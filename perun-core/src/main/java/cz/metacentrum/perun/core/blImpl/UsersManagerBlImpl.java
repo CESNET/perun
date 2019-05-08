@@ -419,6 +419,44 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return user;
 	}
 
+	public User createUser(PerunSession sess, Candidate candidate) throws InternalErrorException {
+		User user = new User();
+		// trim input
+		if (candidate.getFirstName() != null) user.setFirstName(candidate.getFirstName().trim());
+		if (candidate.getLastName() != null) user.setLastName(candidate.getLastName().trim());
+		if (candidate.getMiddleName() != null) user.setMiddleName(candidate.getMiddleName().trim());
+		if (candidate.getTitleBefore() != null) user.setTitleBefore(candidate.getTitleBefore().trim());
+		if (candidate.getTitleAfter() != null) user.setTitleAfter(candidate.getTitleAfter().trim());
+		if (candidate.isSponsoredUser()) user.setSponsoredUser(true);
+		if (candidate.isServiceUser()) user.setServiceUser(true);
+
+		//Convert empty strings to null
+		if(user.getFirstName() != null && user.getFirstName().isEmpty()) user.setFirstName(null);
+		if(user.getLastName() != null && user.getLastName().isEmpty()) user.setLastName(null);
+		if(user.getMiddleName() != null && user.getMiddleName().isEmpty()) user.setMiddleName(null);
+		if(user.getTitleBefore() != null && user.getTitleBefore().isEmpty()) user.setTitleBefore(null);
+		if(user.getTitleAfter() != null && user.getTitleAfter().isEmpty()) user.setTitleAfter(null);
+
+		user = getUsersManagerImpl().createUser(sess, user);
+		getPerunBl().getAuditer().log(sess, new UserCreated(user));
+
+		// Add default userExtSource
+		ExtSource es;
+		try {
+			es = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN);
+		} catch (ExtSourceNotExistsException e1) {
+			throw new ConsistencyErrorException("Default extSource PERUN must exists! It is created in ExtSourcesManagerImpl.init function.",e1);
+		}
+		UserExtSource ues = new UserExtSource(es, 0, String.valueOf(user.getId()));
+		try {
+			this.addUserExtSource(sess, user, ues);
+		} catch (UserExtSourceExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
+
+		return user;
+	}
+
 	@Override
 	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		this.deleteUser(sess, user, false);
