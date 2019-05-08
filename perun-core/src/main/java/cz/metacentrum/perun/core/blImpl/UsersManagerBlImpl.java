@@ -315,6 +315,17 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return richUsers;
 	}
 
+	public List<RichUser> convertRichUsersToRichUsersWithAllAttributes(PerunSession sess, List<RichUser> richUsers) throws InternalErrorException, UserNotExistsException {
+		for (RichUser richUser : richUsers) {
+			User user = getPerunBl().getUsersManagerBl().getUserById(sess, richUser.getId());
+			List<Attribute> userAttributes = getPerunBl().getAttributesManagerBl().getAllAttributes(sess, user);
+
+			richUser.setUserAttributes(userAttributes);
+		}
+
+		return richUsers;
+	}
+
 	@Override
 	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
 		List<User> users = new ArrayList<User>();
