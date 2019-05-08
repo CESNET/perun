@@ -33,6 +33,9 @@ public interface GroupsManager {
 	public static final String GROUPSYNCHROENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationEnabled";
 	// Defines the interval, when the group has to be synchronized. It is fold of 5 minutes
 	public static final String GROUPSYNCHROINTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationInterval";
+	// Defines the times, when the group has to be synchronized.
+	public static final String GROUPSYNCHROTIMES_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationTimes";
+
 	// Defines if we want to skip updating already existing members in group from extSource (updating attributes etc.)
 	public static final String GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":lightweightSynchronization";
 
