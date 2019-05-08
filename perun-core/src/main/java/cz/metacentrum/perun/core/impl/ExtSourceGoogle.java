@@ -219,6 +219,12 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
+	public List<Map<String, String>> getUsersSubjects() throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
+
+	@Override
 	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException("Using this method is not supported for Google Groups.");
 	}

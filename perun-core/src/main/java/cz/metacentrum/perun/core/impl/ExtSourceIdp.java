@@ -45,6 +45,11 @@ public class ExtSourceIdp extends ExtSource implements ExtSourceSimpleApi {
 	}
 
 	@Override
+	public List<Map<String, String>> getUsersSubjects() throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	@Override
 	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
