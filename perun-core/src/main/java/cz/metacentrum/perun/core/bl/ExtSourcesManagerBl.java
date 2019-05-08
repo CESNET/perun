@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyRemovedException;
@@ -19,6 +20,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import java.util.Map;
 
@@ -217,11 +219,8 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @return a Candidate object
 	 * @throws InternalErrorException
-	 * @throws ExtSourceNotExistsException
-	 * @throws CandidateNotExistsException
-	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData ,ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
+	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData ,ExtSource source, String login) throws InternalErrorException;
 
 	void checkExtSourceExists(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException;
 
@@ -253,4 +252,45 @@ public interface ExtSourcesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	Map<String, String> getAttributes(ExtSource extSource) throws InternalErrorException;
-}
+
+
+	/**
+	 * Start userSynchronization for all subjects from extSource
+	 *
+	 * @param sess PerunSession
+	 * @param extSource ExtSource
+	 * @throws UserNotExistsException
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws ExtSourceUnsupportedOperationException
+	 * @throws CandidateNotExistsException
+	 * @throws ExtSourceNotExistsException
+	 */
+	void synchronizeExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException;
+
+	/**
+	 * Run synchronization for all extSources
+	 *
+	 * @param sess PerunSession
+	 * @throws InternalErrorException
+	 */
+	void synchronizeExtSources(PerunSession sess) throws InternalErrorException;
+
+	/**
+	 * Run force synchronization of extSource
+	 *
+	 * @param sess PerunSession
+	 * @param extSource ExtSource for synchronization
+	 * @throws InternalErrorException
+	 */
+	void forceExtSourceSynchronization(PerunSession sess, ExtSource extSource) throws InternalErrorException;
+
+	/**
+	 * Returns list of overwrite user attribute list
+	 * @param extSource ExtSource
+	 * @return List of overwrite user attributes names
+	 * @throws InternalErrorException
+	 */
+	List<String> getOverwriteUserAttributeList(ExtSource extSource) throws InternalErrorException;
+
+	}

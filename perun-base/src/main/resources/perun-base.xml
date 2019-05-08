@@ -16,6 +16,10 @@
 		<property name="dontLookupUsers" value="#{'${perun.dont.lookup.users}'.split('\s*,\s*')}"/>
 		<property name="enginePrincipals" value="#{'${perun.engine.principals}'.split('\s*,\s*')}"/>
 		<property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
+		<property name="userSynchronizationTimeout" value="${perun.user.synchronization.timeout}"/>
+		<property name="userMaxConcurentUsersToSynchronize" value="${perun.user.maxConcurentUsersToSynchronize}"/>
+		<property name="extSourceSynchronizationTimeout" value="${perun.extSource.synchronization.timeout}"/>
+		<property name="extSourceMaxConcurentExtSourcesToSynchronize" value="${perun.extSource.maxConcurentExtSourcesToSynchronize}"/>
 		<property name="groupSynchronizationInterval" value="${perun.group.synchronization.interval}"/>
 		<property name="groupSynchronizationTimeout" value="${perun.group.synchronization.timeout}"/>
 		<property name="groupMaxConcurentGroupsToSynchronize" value="${perun.group.maxConcurentGroupsToSynchronize}"/>
@@ -73,6 +77,10 @@
 					perunLdapInitializer
 				</prop>
 				<prop key="perun.db.type">hsqldb</prop>
+				<prop key="perun.user.synchronization.timeout">1</prop>
+				<prop key="perun.user.maxConcurentUsersToSynchronize">10</prop>
+				<prop key="perun.extSource.synchronization.timeout">120</prop>
+				<prop key="perun.extSource.maxConcurentExtSourcesToSynchronize">2</prop>
 				<prop key="perun.group.synchronization.interval">1</prop>
 				<prop key="perun.group.synchronization.timeout">10</prop>
 				<prop key="perun.group.maxConcurentGroupsToSynchronize">10</prop>

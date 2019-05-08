@@ -33,6 +33,7 @@ import java.util.Objects;
 public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private final static String CLASS_NAME = "UsersManager.";
+	private final static String STORED_ATTRIBUTES_ATTR_NAME = "urn:perun:ues:attribute-def:def:storedAttributes";
 
 	private User user;           // our User
 	private User serviceUser1;
@@ -47,12 +48,14 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	final UserExtSource userExtSource = new UserExtSource();   // create new User Ext Source
 	private UsersManager usersManager;
+	private AttributesManager attributesManager;
 
 
 	@Before
 	public void setUp() throws Exception {
 
 		usersManager = perun.getUsersManager();
+		attributesManager = perun.getAttributesManager();
 		// set random name and logins during every setUp method
 		userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
@@ -1110,6 +1113,10 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull(usersManager.addUserExtSource(sess, user, userExtSource));
 		// create new user ext source in database
 
+		perun.getUsersManagerBl().setLowestPriority(sess, user, userExtSource);
+
+		Attribute storedAttributesAttr = attributesManager.getAttribute(sess, userExtSource, STORED_ATTRIBUTES_ATTR_NAME);
+		attributesManager.setAttribute(sess, userExtSource, storedAttributesAttr);
 	}
 
 	private Vo setUpVo() throws Exception {

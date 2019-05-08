@@ -203,5 +203,40 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 			ac.getExtSourcesManager().loadExtSourcesDefinitions(ac.getSession());
 			return null;
 		}
+	},
+
+	/*#
+	 * Run ExtSourceSynchronization
+	 * @param extSource int ExtSource <code>id</code>
+	 */
+	synchronizeExtSources {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getExtSourcesManager().synchronizeExtSources(ac.getSession());
+			return null;
+		}
+	},
+
+	/*#
+	 * Run ExtSourceSynchronization
+	 * @param extSource int ExtSource <code>id</code>
+	 */
+	forceExtSourceSynchronization {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			if (parms.contains("extSource")) {
+				ac.getExtSourcesManager().forceExtSourceSynchronization(ac.getSession(),
+						ac.getExtSourceById(parms.readInt("extSource"))
+				);
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "extSource");
+			}
+			return null;
+		}
 	};
+
+
 }

@@ -221,4 +221,13 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	public Map<String,String> getAttributes(ExtSource extSource) throws InternalErrorException;
+
+
+	/**
+	 * Returns alls ExtSources with enabled synchronization
+	 * @param sess PerunSession
+	 * @return	List of External Sources with enabled synchronization
+	 * @throws InternalErrorException
+	 */
+	List<ExtSource> getExtSourcesToSynchronize(PerunSession sess) throws InternalErrorException;
 }

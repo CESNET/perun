@@ -11,6 +11,10 @@ import java.util.Map;
 import java.util.Set;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.util.JSONPObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Candidate member of a Virtual Organization.
@@ -18,6 +22,9 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * @author Martin Kuba makub@ics.muni.cz
  */
 public class Candidate extends User {
+
+	private String NS_USER_ATTR_CORE = "urn:perun:user:attribute-def:core:";
+	private String NS_USER_ATTR = "urn:perun:user:attribute-def:";
 
 	private UserExtSource userExtSource;
 	private List<UserExtSource> additionalUserExtSources;
@@ -130,6 +137,26 @@ public class Candidate extends User {
 		}
 		return str.append(getClass().getSimpleName()+":[userExtSource='").append(userExtSource).append("', attributes='"
 			+ attrNew).append("', additionalUserExtSources='").append(additionalUserExtSources).append("']").toString();
+	}
+
+	public JSONObject convertAttributesToJSON() {
+		JSONObject candidateAttributes = new JSONObject();
+
+		//Convert userCoreAttributes to JSON
+		candidateAttributes.append(NS_USER_ATTR_CORE + "firstName", firstName);
+		candidateAttributes.append(NS_USER_ATTR_CORE + "lastName", lastName );
+		candidateAttributes.append(NS_USER_ATTR_CORE + "middleName", middleName);
+		candidateAttributes.append(NS_USER_ATTR_CORE + "tittleAfter", titleAfter);
+		candidateAttributes.append(NS_USER_ATTR_CORE + "tittleBefore", titleBefore);
+		candidateAttributes.append(NS_USER_ATTR_CORE + "serviceUser", isServiceUser());
+		candidateAttributes.append(NS_USER_ATTR_CORE + "sponsoredUser", isSponsoredUser());
+
+		//Convert other attributes to JSON
+		for (Map.Entry<String, String> attribute : attributes.entrySet()) {
+			if (attribute.getKey().startsWith(NS_USER_ATTR))
+			candidateAttributes.append(attribute.getKey(), attribute.getValue());
+		}
+		return candidateAttributes;
 	}
 
 	@Override

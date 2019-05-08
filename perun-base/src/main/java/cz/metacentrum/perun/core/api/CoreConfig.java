@@ -31,6 +31,10 @@ public class CoreConfig {
 	private boolean dbInitializatorEnabled;
 	private boolean readOnlyPerun;
 	private boolean cacheEnabled;
+	private int extSourceSynchronizationTimeout;
+	private int extSourceMaxConcurentExtSourcesToSynchronize;
+	private int userSynchronizationTimeout;
+	private int userMaxConcurentUsersToSynchronize;
 	private int groupSynchronizationInterval;
 	private int groupSynchronizationTimeout;
 	private int groupMaxConcurentGroupsToSynchronize;
@@ -64,6 +68,38 @@ public class CoreConfig {
 	private String userExtSourcesPersistent;
 	private List<String> allowedCorsDomains;
 	private String pdfFontPath;
+
+	public int getUserSynchronizationTimeout() {
+		return userSynchronizationTimeout;
+	}
+
+	public void setUserSynchronizationTimeout(int userSynchronizationTimeout) {
+		this.userSynchronizationTimeout = userSynchronizationTimeout;
+	}
+
+	public int getUserMaxConcurentUsersToSynchronize() {
+		return userMaxConcurentUsersToSynchronize;
+	}
+
+	public void setUserMaxConcurentUsersToSynchronize(int userMaxConcurentUsersToSynchronize) {
+		this.userMaxConcurentUsersToSynchronize = userMaxConcurentUsersToSynchronize;
+	}
+
+	public int getExtSourceSynchronizationTimeout() {
+		return extSourceSynchronizationTimeout;
+	}
+
+	public void setExtSourceSynchronizationTimeout(int extSourceSynchronizationTimeout) {
+		this.extSourceSynchronizationTimeout = extSourceSynchronizationTimeout;
+	}
+
+	public int getExtSourceMaxConcurentExtSourcesToSynchronize() {
+		return extSourceMaxConcurentExtSourcesToSynchronize;
+	}
+
+	public void setExtSourceMaxConcurentExtSourcesToSynchronize(int extSourceMaxConcurentExtSourcesToSynchronize) {
+		this.extSourceMaxConcurentExtSourcesToSynchronize = extSourceMaxConcurentExtSourcesToSynchronize;
+	}
 
 	public int getGroupMaxConcurentGroupsToSynchronize() {
 		return groupMaxConcurentGroupsToSynchronize;
