@@ -283,6 +283,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return richUsersWithAttributes.get(0);
 	}
 
+	public RichUser getRichUserWithAllAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+		List<User> users = new ArrayList<User>();
+		users.add(user);
+		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
+		List<RichUser> richUsersWithAttributes = this.convertRichUsersToRichUsersWithAllAttributes(sess, richUsers);
+		return richUsersWithAttributes.get(0);
+	}
+
 	@Override
 	public List<RichUser> convertUsersToRichUsers(PerunSession sess, List<User> users) throws InternalErrorException {
 		List<RichUser> richUsers = new ArrayList<RichUser>();

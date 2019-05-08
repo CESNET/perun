@@ -190,7 +190,7 @@ public interface UsersManagerBl {
 	RichUser getRichUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException;
 
 	/**
-	 * Get User to RichUser with attributes.
+	 * Get User to RichUser with <b>non-empty</b> attributes.
 	 *
 	 * @param sess
 	 * @param user
@@ -199,6 +199,17 @@ public interface UsersManagerBl {
 	 * @throws UserNotExistsException
 	 */
 	RichUser getRichUserWithAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException;
+
+	/**
+	 * Get User to RichUser with all attributes.
+	 *
+	 * @param sess
+	 * @param user
+	 * @return
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	RichUser getRichUserWithAllAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 * Get All richUsers with or without specificUsers.
