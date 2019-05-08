@@ -61,6 +61,10 @@ public final class JsonSerializerJSONP implements Serializer {
 	private interface CandidateMixIn {
 	}
 
+	@JsonIgnoreProperties({"usersSubjects"})
+	private interface ExtSourceMixIn {
+	}
+
 	@JsonIgnoreProperties({"createdAt", "createdBy", "modifiedAt", "modifiedBy", "createdByUid", "modifiedByUid"})
 	private interface PerunBeanMixIn {
 	}
@@ -91,6 +95,7 @@ public final class JsonSerializerJSONP implements Serializer {
 		mapper.getSerializationConfig().addMixInAnnotations(Category.class, CabinetMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(Publication.class, CabinetMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(Thanks.class, CabinetMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(ExtSource.class, ExtSourceMixIn.class);
 	}
 
 	private static final JsonFactory jsonFactory = new JsonFactory();
