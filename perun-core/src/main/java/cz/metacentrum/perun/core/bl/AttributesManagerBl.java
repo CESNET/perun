@@ -461,6 +461,17 @@ public interface AttributesManagerBl {
 	List<Attribute> getAttributes(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
+	 * Get all attributes associated with the user.
+	 *
+	 * @param sess perun session
+	 * @param user to get the attributes from
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getAllAttributes(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
 	 * Get all <b>non-empty</b> attributes associated with the host
 	 * @param sess perun session
 	 * @param host host to get attributes from

@@ -473,6 +473,16 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getAttributes(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
+	 * Get all attributes associated with the user.
+	 *
+	 * @param sess perun session
+	 * @param user
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Attribute> getAllAttributes(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
 	 * Get all attributes associated with the user which have name in list attrNames (empty and virtual too).
 	 *
 	 * @param sess perun session

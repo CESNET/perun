@@ -561,6 +561,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	public List<Attribute> getAllAttributes(PerunSession sess, User user) throws InternalErrorException {
+		//get virtual attributes
+		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, user);
+		attributes.addAll(getAttributesManagerImpl().getAllAttributes(sess, user));
+		return attributes;
+	}
+
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException {
 		if (attrNames.isEmpty()) return new ArrayList<>();
