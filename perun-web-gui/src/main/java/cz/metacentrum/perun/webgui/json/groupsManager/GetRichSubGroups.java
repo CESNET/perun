@@ -28,6 +28,7 @@ import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableInfoCellWithImag
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * GroupsManager/getRichSubGroupsWithAttributesByNames Method
@@ -217,7 +218,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 						} else {
 							syncSuccessTimestamp = object.getLastSuccessSynchronizationTimestamp().split("\\.")[0];
 						}
-						if (object.getAuthoritativeGroup() != null && object.getAuthoritativeGroup().equals("1")) {
+						if (Objects.equals(object.getAuthoritativeGroup(),"1")) {
 							authGroup = "Yes";
 						} else {
 							authGroup = "No";
@@ -286,8 +287,8 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 					if (o1.isSyncEnabled()) o1val = 5;
 					if (o2.isSyncEnabled()) o2val = 5;
 
-					if (o1.getAuthoritativeGroup() != null && o1.getAuthoritativeGroup().equalsIgnoreCase("1")) o1val = o1val + 3;
-					if (o2.getAuthoritativeGroup() != null && o2.getAuthoritativeGroup().equalsIgnoreCase("1")) o2val = o2val + 3;
+					if (Objects.equals(o1.getAuthoritativeGroup(),"1")) o1val = o1val + 3;
+					if (Objects.equals(o2.getAuthoritativeGroup(),"1")) o2val = o2val + 3;
 
 					return o1val - o2val;
 				}
