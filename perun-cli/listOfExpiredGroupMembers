@@ -1,0 +1,90 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction tableToPrint);
+
+sub help {
+	return qq{
+	Prints list of expired Group Members. 
+	------------------------------
+	Available options:
+	--voId           | -v  VO identifier
+	--voShortName    | -V  VO short name (default meta)
+	--groupId        | -g  group identifier
+	--groupName      | -G  group name
+	--orderById      | -i  order by Member's identifier
+	--orderByName    | -n  order by Member's last name
+	--batch          | -b  batch
+	--help           | -h  prints this help
+	};
+}
+
+my ($voId, $voShortName, $groupId, $groupName, $sortingFunction, @status, @attrs, $unsetDate);
+our $batch;
+GetOptions("help|h"    => sub {
+			print help;
+			exit 0;
+	},
+	"voId|v=i"         => \$voId,
+	"voShortName|V=s"  => \$voShortName,
+	"groupId|g=i"      => \$groupId,
+	"groupName|G=s"    => \$groupName,
+	"orderById|i"      => sub { $sortingFunction = getSortingFunction("getMemberId") },
+	"orderByName|n"    => sub { $sortingFunction = getSortingFunction("getLastName", 1) },
+	"unsetExpirDate|u" => \$unsetDate,
+	"batch|b"          => \$batch) || die help;
+
+$attrs[0] = 'urn:perun:member_group:attribute-def:def:groupMembershipExpiration';
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+
+#options check
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getMemberId"); }
+
+unless (defined $groupId) {
+	unless (defined $groupName) {
+		die "ERROR: GroupId or GroupName required \n";
+	} else {
+		unless (defined $voId or defined $voShortName) {
+			die "ERROR: for groupName VO information is needed. \n";
+		}
+		if (defined $voShortName) {
+			my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
+			$voId = $vo->getId;
+		}
+	}
+	my $group = $groupsAgent->getGroupByName( name => $groupName, vo => $voId);
+	$groupId = $group->getId;
+}	
+
+my $lookingInParentGroup=0;
+my $membersAgent = $agent->getMembersAgent;
+my @richMembers = $membersAgent->getCompleteRichMembers( group => $groupId, attrsNames => \@attrs, lookingInParentGroup => $lookingInParentGroup );
+
+unless (@richMembers) {
+	printMessage "No such member found", $batch;
+	exit 0;
+}
+
+# output
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+$table->setCols( 'MemberId', 'Name', 'VO status','Group status','Expiration' );
+
+foreach my $member (sort $sortingFunction @richMembers) {
+	my @mattributes = $member->getMemberAttributes;
+	my $val = $mattributes[0]->getValue;
+	my $stat = $member->getGroupStatus;
+	if ($stat eq 'EXPIRED' ) {
+		if (not defined $val) { $val="UNSET";} 
+		$table->addRow( $member->getMemberId, $member->getCommonName, $member->getStatus, $stat, $val );
+	}
+}
+
+#output
+print tableToPrint($table, $batch) unless defined $unsetDate;
