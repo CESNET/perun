@@ -12,6 +12,7 @@ import cz.metacentrum.perun.webgui.widgets.ImageResourceAltRenderer;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -50,7 +51,7 @@ public class CustomClickableInfoCellWithImageResource extends AbstractCell<RichG
 				if ((value.getLastSynchronizationState() != null && value.getLastSynchronizationState().equals("OK")) ||
 						(value.getLastSynchronizationState() == null && value.getLastSuccessSynchronizationTimestamp() != null)) {
 					resource = SmallIcons.INSTANCE.bulletGreenIcon();
-					if (value.getAuthoritativeGroup() != null && value.getAuthoritativeGroup().equals("1")) {
+					if (Objects.equals(value.getAuthoritativeGroup(),"1")) {
 						sb.append(renderer.render(resource, "Synchronized - OK / Authoritative sync"));
 						sb.append(renderer.render(SmallIcons.INSTANCE.bulletStarIcon(), "Synchronized - OK / Authoritative sync"));
 					} else {
@@ -58,7 +59,7 @@ public class CustomClickableInfoCellWithImageResource extends AbstractCell<RichG
 					}
 				} else {
 					resource = SmallIcons.INSTANCE.bulletRedIcon();
-					if (value.getAuthoritativeGroup() != null && value.getAuthoritativeGroup().equals("1")) {
+					if (Objects.equals(value.getAuthoritativeGroup(),"1")) {
 						sb.append(renderer.render(resource, "Synchronized - Error / Authoritative sync"));
 						sb.append(renderer.render(SmallIcons.INSTANCE.bulletStarIcon(), "Synchronized - Error / Authoritative sync"));
 					} else {
@@ -66,7 +67,7 @@ public class CustomClickableInfoCellWithImageResource extends AbstractCell<RichG
 					}
 				}
 			} else {
-				if (value.getAuthoritativeGroup() != null && value.getAuthoritativeGroup().equals("1")) {
+				if (Objects.equals(value.getAuthoritativeGroup(),"1")) {
 					sb.append(renderer.render(resource, "Not synchronized / Authoritative sync"));
 				} else {
 					sb.append(renderer.render(resource, "Not synchronized"));
