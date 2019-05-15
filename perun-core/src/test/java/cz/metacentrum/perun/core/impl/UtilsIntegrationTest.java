@@ -49,6 +49,7 @@ public class UtilsIntegrationTest {
 		String text12 = "RNDr. Petr Kulhánek, PhD.";
 		String text13 = "prof. RNDr. David Kurka, CSc.";
 		String text14 = "prof.,RNDr. David  Kurka_mladsi, CSc.";
+		String text15 = "Kurka";
 
 		Map<String,String> parsedRawName;
 
@@ -135,6 +136,12 @@ public class UtilsIntegrationTest {
 		assertEquals("David", parsedRawName.get(firstNameString));
 		assertEquals("Kurka mladsi", parsedRawName.get(lastNameString));
 		assertEquals("CSc.", parsedRawName.get(titleAfterString));
+
+		parsedRawName = Utils.parseCommonName(text15);
+		assertEquals(null, parsedRawName.get(titleBeforeString));
+		assertEquals(null, parsedRawName.get(firstNameString));
+		assertEquals("Kurka", parsedRawName.get(lastNameString));
+		assertEquals(null, parsedRawName.get(titleAfterString));
 	}
 
 	@Test
