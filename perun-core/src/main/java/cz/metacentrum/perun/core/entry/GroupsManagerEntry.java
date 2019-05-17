@@ -1202,6 +1202,25 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, resource, true);
 	}
 
+	@Override
+	public List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		this.getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+		this.getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+			!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
+			!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "getRichGroupsAssignedToResourceWithAttributesByNames");
+		}
+
+		List<RichGroup> richGroups = getGroupsManagerBl().getRichGroupsWithAttributesAssignedToResource(sess, member, resource, attrNames);
+
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, member, resource, true);
+	}
+
 	public List<RichGroup> getMemberRichGroupsWithAttributesByNames(PerunSession sess, Member member, List<String> attrNames) throws InternalErrorException, MemberNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		this.getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);

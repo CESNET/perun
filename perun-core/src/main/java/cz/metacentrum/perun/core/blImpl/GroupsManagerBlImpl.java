@@ -134,6 +134,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * GroupsManager business logic
@@ -2196,29 +2197,34 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 	@Override
 	public List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Resource resource, boolean useContext) throws InternalErrorException {
+		return this.filterOnlyAllowedAttributes(sess, richGroups, null, resource, useContext);
+	}
+
+	@Override
+	public List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Member member, Resource resource, boolean useContext) throws InternalErrorException {
+		//If empty, return empty list (no filtering is needed)
+		List<RichGroup> filteredRichGroups = new ArrayList<>();
+		if(richGroups == null || richGroups.isEmpty()) return filteredRichGroups;
 
 		//If no context should be used - every attribute is unique in context of group (for every group test access rights for all attributes again)
 		if(!useContext) return filterOnlyAllowedAttributes(sess, richGroups);
 
 		//If context should be used - every attribute is unique in a context of users authz_roles for a group + attribute URN
 		// (every attribute test only once per authz+friendlyName)
-		List<RichGroup> filteredRichGroups = new ArrayList<>();
-		if(richGroups == null || richGroups.isEmpty()) return filteredRichGroups;
-
 		// context+attr_name to boolean where null means - no rights at all, false means no write rights, true means read and write rights
 		Map<String, Boolean> contextMap = new HashMap<>();
 
-		for(RichGroup rg : richGroups) {
+		for(RichGroup richGroup : richGroups) {
 
-			String voadmin = ((AuthzResolver.isAuthorized(sess, Role.VOADMIN, rg) ? "VOADMIN" : ""));
-			String voobserver = ((AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, rg) ? "VOOBSERVER" : ""));
-			String groupadmin = ((AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, rg) ? "GROUPADMIN" : ""));
+			String voadmin = ((AuthzResolver.isAuthorized(sess, Role.VOADMIN, richGroup) ? "VOADMIN" : ""));
+			String voobserver = ((AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, richGroup) ? "VOOBSERVER" : ""));
+			String groupadmin = ((AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, richGroup) ? "GROUPADMIN" : ""));
 			String facilityadmin = ((AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) ? "FACILITYADMIN" : ""));
 			String key = voadmin + voobserver + groupadmin + facilityadmin;
 
 			//Filtering group attributes
-			if(rg.getAttributes() != null) {
-				List<Attribute> groupAttributes = rg.getAttributes();
+			if(richGroup.getAttributes() != null) {
+				List<Attribute> groupAttributes = richGroup.getAttributes();
 				List<Attribute> allowedGroupAttributes = new ArrayList<>();
 				for(Attribute groupAttr: groupAttributes) {
 					//if there is record in contextMap, use it
@@ -2233,16 +2239,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						//if not, get information about authz rights and set record to contextMap
 						boolean canRead = false;
 						if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg, resource);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, richGroup, resource);
 						} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_ATTR)) {
-							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg, null);
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, richGroup, null);
+						} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+							canRead = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, member, richGroup);
 						}
 						if(canRead) {
 							boolean isWritable = false;
 							if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, rg, resource);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, richGroup, resource);
 							} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_GROUP_ATTR)) {
-								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, rg, null);
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, richGroup, null);
+							} else if (groupAttr.getNamespace().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+								isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, member, richGroup);
 							}
 							groupAttr.setWritable(isWritable);
 							allowedGroupAttributes.add(groupAttr);
@@ -2252,9 +2262,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						}
 					}
 				}
-				rg.setAttributes(allowedGroupAttributes);
+				richGroup.setAttributes(allowedGroupAttributes);
 			}
-			filteredRichGroups.add(rg);
+			filteredRichGroups.add(richGroup);
 		}
 		return filteredRichGroups;
 
@@ -2314,11 +2324,50 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException, MemberResourceMismatchException {
+		List<RichGroup> richGroups = new ArrayList<>();
+		for(Group group: groups) {
+			List<Attribute> attributes = new ArrayList<>();
+
+			//Add all group and group-resource attributes (empty list means all possible attributes there)
+			List<String> supportedNames = attrNames.stream().filter(attrName ->
+				attrName.startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR) || attrName.startsWith(AttributesManager.NS_GROUP_ATTR)).collect(Collectors.toList()
+			);
+			attributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group, supportedNames, true));
+
+			//Add all member-group attributes (empty list means all possible attributes there)
+			//WARNING - there is different behavior of method getAttributes for member and group by list of attr names, empty list means "no attributes to return"
+			supportedNames = attrNames.stream().filter(attrName ->
+				attrName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)).collect(Collectors.toList()
+			);
+			if(supportedNames.isEmpty()) {
+				attributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group));
+			} else {
+				attributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group, supportedNames));
+			}
+
+			richGroups.add(new RichGroup(group, attributes));
+		}
+		return richGroups;
+	}
+
+	@Override
 	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException {
 		List<Group> assignedGroups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		try {
 			return this.convertGroupsToRichGroupsWithAttributes(sess, resource, assignedGroups, attrNames);
 		} catch (GroupResourceMismatchException ex) {
+			throw new ConsistencyErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException {
+		List<Group> assignedGroups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+		assignedGroups.retainAll(perunBl.getGroupsManagerBl().getAllMemberGroups(sess, member));
+		try {
+			return this.convertGroupsToRichGroupsWithAttributes(sess, member, resource, assignedGroups, attrNames);
+		} catch (GroupResourceMismatchException | MemberResourceMismatchException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
