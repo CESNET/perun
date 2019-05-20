@@ -36,6 +36,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.GroupStructureSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -1188,6 +1189,27 @@ public interface GroupsManagerBl {
 	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Resource resource, boolean useContext) throws InternalErrorException;
 
 	/**
+	 * For list of richGroups filter all their group attributes and remove all which principal has no access to.
+	 * Context usage is safe even for groups from different VOs.
+	 *
+	 * Context means same "combination of authz role for a group"+"attribute_urn (name)". Since privileges are resolved by roles on group and attribute type.
+	 *
+	 * if useContext is true: every attribute is unique in a context of authz roles combination and its URN. So for each combination of
+	 * users authz roles granted for the group, attributes with same URN has same privilege.
+	 *
+	 * if useContext is false: every attribute is unique in context of group, which means every attribute for more groups need to be check separately,
+	 * because for example groups can be from different vos where user has different authz (better authorization check, worse performance)
+	 *
+	 * @param sess
+	 * @param richGroups
+	 * @param member optional member param used for context
+	 * @param resource optional resource param used for context
+	 * @return list of RichGroups with only allowed attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, Member member, Resource resource, boolean useContext) throws InternalErrorException;
+
+	/**
 	 * This method takes group and creates RichGroup containing all attributes
 	 *
 	 * @param sess
@@ -1249,7 +1271,9 @@ public interface GroupsManagerBl {
 	 * @param sess
 	 * @param resource
 	 * @param groups
-	 * @param attrNames list of selected attributes (even with empty values), if it is empty, return all possible non-empty attributes
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
 	 * @return list of RichGroups with selected attributes
 	 * @throws InternalErrorException
 	 * @throws GroupResourceMismatchException
@@ -1257,15 +1281,55 @@ public interface GroupsManagerBl {
 	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException;
 
 	/**
+	 * This method takes list of groups, resource, member and list of attrNames and then creates list of RichGroups containing
+	 * all selected group, group-resource and member-group attributes filtered by list (attributes from other
+	 * namespaces are skipped without any warning).
+	 * If attribute with correct namespace is in the list, it will be return even with empty value (if no value exists).
+	 *
+	 * @param sess
+	 * @param member member to get member-resource and member-group attributes for
+	 * @param resource resource to get group-resource and member-resource attributes for
+	 * @param groups to convert to richGroups and get group-resource and member-group attributes for
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
+	 * @return list of RichGroups with selected attributes
+	 * @throws InternalErrorException
+	 * @throws GroupResourceMismatchException if group is not assigned to resource
+	 * @throws MemberResourceMismatchException if member is not assigned to group
+	 */
+	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException, MemberResourceMismatchException;
+
+	/**
 	 * Get all RichGroups with selected attributes assigned to the resource.
 	 *
 	 * @param sess
 	 * @param resource the resource to get assigned groups from it
-	 * @param attrNames list of selected attributes (even with empty values), if it is empty, return all possible non-empty attributes
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
 	 * @return list of RichGroups with selected attributes assigned to the resource
 	 * @throws InternalErrorException
 	 */
 	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException;
+
+	/**
+	 * Get list of all richGroups with selected attributes assigned to the resource filtered by specific member.
+	 * Allowed namespaces of attributes are group, group-resource, member-group and member-resource.
+	 *
+	 * Last step is filtration of attributes:
+	 * Attributes are filtered by rights of user in session. User get only those selected attributes he has rights to read.
+	 *
+	 * @param sess
+	 * @param member member used for filtering returned groups (groups have to contain this member to be returned)
+	 * @param resource resource to get assigned groups for
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
+	 * @return list of RichGroup objects with specific attributes specified by object Resource and object Member
+	 * @throws InternalErrorException
+	 */
+	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException;
 
 	/**
 	 * Return all RichGroups for specified member, containing selected attributes.

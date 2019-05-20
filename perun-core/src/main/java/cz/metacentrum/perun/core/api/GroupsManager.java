@@ -633,13 +633,37 @@ public interface GroupsManager {
 	 *
 	 * @param sess
 	 * @param resource resource to get assigned groups for
-	 * @param attrNames If empty, return all non-empty attributes. If not empty, return all selected attributes in allowed namespaces.
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
+	 * @return list of RichGroup objects with specific attributes specified by object Resource and object Member.
 	 * @return
 	 * @throws InternalErrorException
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 */
 	List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
+
+	/**
+	 * Get list of all richGroups with selected attributes assigned to the resource filtered by specific member.
+	 * Allowed namespaces of attributes are group, group-resource, member-group
+	 *
+	 * Last step is filtration of attributes:
+	 * Attributes are filtered by rights of user in session. User get only those selected attributes he has rights to read.
+	 *
+	 * @param sess
+	 * @param member member used for filtering returned groups (groups have to contain this member to be returned)
+	 * @param resource resource to get assigned groups for
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
+	 * @return list of RichGroup objects with specific attributes specified by object Resource and object Member
+	 * @throws InternalErrorException
+	 * @throws MemberNotExistsException
+	 * @throws ResourceNotExistsException
+	 * @throws PrivilegeException
+	 */
+	List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, MemberNotExistsException;
 
 	/**
 	 * Gets list of all user administrators of this group.

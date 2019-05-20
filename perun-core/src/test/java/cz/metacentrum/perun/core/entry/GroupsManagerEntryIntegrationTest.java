@@ -3326,6 +3326,49 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void getRichGroupsWithAttributesAssignedToResourceFilteredByMember() throws Exception {
+		System.out.println("GroupsManagerBl.getRichGroupsWithAttributesAssignedToResourceFilteredByMember");
+
+		vo = setUpVo();
+		Member member = setUpMember(vo);
+		List<Group> groups = setUpGroups(vo);
+		Group firstGroup = groups.get(0);
+		perun.getGroupsManagerBl().addMember(sess, firstGroup, member);
+
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(vo, facility);
+		for(Group group: groups) perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		List<Attribute> groupAttributes = setUpGroupAttributes();
+		List<Attribute> groupResourceAttributes = setUpGroupResourceAttribute();
+		List<Attribute> memberGroupAttributes = setMemberGroupAttribute();
+
+		List<Attribute> attributes = new ArrayList<>();
+		List<Attribute> allAttributes = new ArrayList<>();
+
+		//group-resource and group attributes
+		attributes.addAll(groupAttributes);
+		attributes.addAll(groupResourceAttributes);
+		allAttributes.addAll(attributes);
+		attributesManager.setAttributes(sess, resource, firstGroup, attributes, true);
+
+		//member-group attributes
+		attributes.clear();
+		attributes.addAll(memberGroupAttributes);
+		allAttributes.addAll(attributes);
+		attributesManager.setAttributes(sess, member, firstGroup, attributes);
+
+		RichGroup richGroup = new RichGroup(firstGroup, allAttributes);
+
+		List<String> attrNames = new ArrayList<>();
+		allAttributes.forEach(attribute -> attrNames.add(attribute.getName()));
+		List<RichGroup> returnedGroups = groupsManager.getRichGroupsAssignedToResourceWithAttributesByNames(sess, member, resource, attrNames);
+
+		assertTrue(returnedGroups.size() == 1);
+		assertTrue(returnedGroups.contains(richGroup));
+	}
+
+	@Test
 	public void convertGroupToRichGroupWithAttributesByNameTest() throws Exception {
 		System.out.println("GroupsManagerBl.convertGroupToRichGroupWithAttributesByName");
 
@@ -4438,6 +4481,18 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		// put attribute into list because setAttributes requires it
 
 		return attributes;
+	}
+
+	private List<Attribute> setMemberGroupAttribute() throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_OPT);
+		attrDef.setFriendlyName("member-group-test-attribute");
+		attrDef.setType(String.class.getName());
+
+		Attribute attribute = new Attribute(attributesManager.createAttribute(sess, attrDef));
+		attribute.setValue("MemberGroupAttribute");
+
+		return Collections.singletonList(attribute);
 	}
 
 	private Facility setUpFacility() throws Exception {
