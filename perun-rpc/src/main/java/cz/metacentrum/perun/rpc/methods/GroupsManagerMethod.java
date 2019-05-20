@@ -683,25 +683,66 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 **
+	 *
+	 * Get list of all richGroups with all attributes assigned to the resource filtered by specific member.
+	 * Allowed namespaces of attributes are group, group-resource and member-group.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @return List<RichGroup> groups with all group, group-resource and member-group attributes (non-empty)
+	 */
+	/*#
+	 *
+	 * Get list of all richGroups with selected attributes assigned to the resource filtered by specific member.
+	 * Allowed namespaces of attributes are group, group-resource and member-group.
+	 *
+	 * You will get only attributes which you are authorized to read. You must specify names of requested attributes
+	 * by their URNs in attrNames. Empty list means no attributes to return.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param attrNames List<String> names of attributes
+	 * @return List<RichGroup> groups with attributes
+	 */
+	/*#
+	 *
+	 * Get list of all richGroups with all attributes assigned to resource.
+	 * Allowed namespaces of attributes are group and group-resource.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @return List<RichGroup> groups with all group and group-resource attributes (non-empty)
+	 */
+	/*#
+	 *
 	 * Get list of all richGroups with selected attributes assigned to resource.
 	 * Allowed namespaces of attributes are group and group-resource.
 	 *
-	 * Last step is filtration of attributes:
-	 * Attributes are filtered by rights of user in session. User get only those selected attributes he has rights to read.
+	 * You will get only attributes which you are authorized to read. You must specify names of requested attributes
+	 * by their URNs in attrNames.
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param attrNames List<String> names of attributes
 	 * @return List<RichGroup> groups with attributes
-	 *
 	 */
 	getRichGroupsAssignedToResourceWithAttributesByNames {
 
 		@Override
 		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGroupsManager().getRichGroupsAssignedToResourceWithAttributesByNames(ac.getSession(),
+			List<String> attrNames = null;
+			if(parms.contains("attrNames")) {
+				attrNames = parms.readList("attrNames", String.class);
+			}
+
+			if(parms.contains("member")) {
+				return ac.getGroupsManager().getRichGroupsAssignedToResourceWithAttributesByNames(ac.getSession(),
+					ac.getMemberById(parms.readInt("member")),
 					ac.getResourceById(parms.readInt("resource")),
-					parms.readList("attrNames", String.class));
+					attrNames);
+			} else {
+				return ac.getGroupsManager().getRichGroupsAssignedToResourceWithAttributesByNames(ac.getSession(),
+					ac.getResourceById(parms.readInt("resource")),
+					attrNames);
+			}
 		}
 	},
 
