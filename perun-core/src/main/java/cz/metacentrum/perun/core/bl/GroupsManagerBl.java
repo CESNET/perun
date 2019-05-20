@@ -1271,7 +1271,9 @@ public interface GroupsManagerBl {
 	 * @param sess
 	 * @param resource
 	 * @param groups
-	 * @param attrNames list of selected attributes (even with empty values), if it is empty, return all possible non-empty attributes
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
 	 * @return list of RichGroups with selected attributes
 	 * @throws InternalErrorException
 	 * @throws GroupResourceMismatchException
@@ -1288,7 +1290,9 @@ public interface GroupsManagerBl {
 	 * @param member member to get member-resource and member-group attributes for
 	 * @param resource resource to get group-resource and member-resource attributes for
 	 * @param groups to convert to richGroups and get group-resource and member-group attributes for
-	 * @param attrNames list of selected attributes (even with empty values), if it is empty, return all possible non-empty attributes
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
 	 * @return list of RichGroups with selected attributes
 	 * @throws InternalErrorException
 	 * @throws GroupResourceMismatchException if group is not assigned to resource
@@ -1301,7 +1305,9 @@ public interface GroupsManagerBl {
 	 *
 	 * @param sess
 	 * @param resource the resource to get assigned groups from it
-	 * @param attrNames list of selected attributes (even with empty values), if it is empty, return all possible non-empty attributes
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
 	 * @return list of RichGroups with selected attributes assigned to the resource
 	 * @throws InternalErrorException
 	 */
@@ -1317,10 +1323,10 @@ public interface GroupsManagerBl {
 	 * @param sess
 	 * @param member member used for filtering returned groups (groups have to contain this member to be returned)
 	 * @param resource resource to get assigned groups for
-	 * @param attrNames If empty, return all non-empty attributes. If not empty, return all selected attributes in allowed namespaces.
-	 *
+	 * @param attrNames list of selected attribute names,
+	 *                  if it is null, return all possible non-empty attributes,
+	 *                  empty list in attrNames means - no attributes needed
 	 * @return list of RichGroup objects with specific attributes specified by object Resource and object Member
-	 *
 	 * @throws InternalErrorException
 	 */
 	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException;

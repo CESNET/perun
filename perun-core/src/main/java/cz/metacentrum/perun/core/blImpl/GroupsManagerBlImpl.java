@@ -2326,27 +2326,36 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	@Override
 	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Member member, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException, MemberResourceMismatchException {
 		List<RichGroup> richGroups = new ArrayList<>();
+
+		//filter attr names for different namespaces (we need to process them separately)
+		List<String> groupAndGroupResourceAttrNames = new ArrayList<>();
+		List<String> memberGroupAttrNames = new ArrayList<>();
+		if(attrNames != null && !attrNames.isEmpty()) {
+			groupAndGroupResourceAttrNames = attrNames.stream().filter(attrName ->
+				attrName.startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR) || attrName.startsWith(AttributesManager.NS_GROUP_ATTR)).collect(Collectors.toList());
+			memberGroupAttrNames = attrNames.stream().filter(attrName -> attrName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)).collect(Collectors.toList());
+		}
+
 		for(Group group: groups) {
-			List<Attribute> attributes = new ArrayList<>();
-
-			//Add all group and group-resource attributes (empty list means all possible attributes there)
-			List<String> supportedNames = attrNames.stream().filter(attrName ->
-				attrName.startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR) || attrName.startsWith(AttributesManager.NS_GROUP_ATTR)).collect(Collectors.toList()
-			);
-			attributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group, supportedNames, true));
-
-			//Add all member-group attributes (empty list means all possible attributes there)
-			//WARNING - there is different behavior of method getAttributes for member and group by list of attr names, empty list means "no attributes to return"
-			supportedNames = attrNames.stream().filter(attrName ->
-				attrName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)).collect(Collectors.toList()
-			);
-			if(supportedNames.isEmpty()) {
+			if(attrNames == null) {
+				//null means - we want all possible attributes
+				List<Attribute> attributes = new ArrayList<>();
+				attributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group, true));
 				attributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group));
+				richGroups.add(new RichGroup(group, attributes));
+			} else if (attrNames.isEmpty()) {
+				//empty means we don't need any attributes
+				richGroups.add(new RichGroup(group, new ArrayList<>()));
 			} else {
-				attributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group, supportedNames));
-			}
+				//non-empty means - filter only these attributes if possible
+				List<Attribute> attributes = new ArrayList<>();
+				//if there is any group or group-resource attribute, add it
+				if (!groupAndGroupResourceAttrNames.isEmpty()) attributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group, groupAndGroupResourceAttrNames, true));
+				//if there is any member-group attribute, add it
+				if (!memberGroupAttrNames.isEmpty()) attributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, member, group, memberGroupAttrNames));
 
-			richGroups.add(new RichGroup(group, attributes));
+				richGroups.add(new RichGroup(group, attributes));
+			}
 		}
 		return richGroups;
 	}
