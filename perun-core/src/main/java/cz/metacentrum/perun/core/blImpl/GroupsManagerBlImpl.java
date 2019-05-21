@@ -1702,16 +1702,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		Iterator<GroupSynchronizerThread> threadIterator = groupSynchronizerThreads.iterator();
 		while(threadIterator.hasNext()) {
 			GroupSynchronizerThread thread = threadIterator.next();
-			long threadStart = thread.getStartTime();
-			//If thread start time is 0, this thread is waiting for another job, skip it
-			if(threadStart == 0) continue;
 
+			long threadStart = thread.getStartTime();
 			long timeDiff = System.currentTimeMillis() - threadStart;
+
 			//If thread was interrupted by anything, remove it from the pool of active threads
-			if (thread.isInterrupted()) {
+			if (thread.isInterrupted() || !thread.isAlive()) {
 				numberOfNewlyRemovedThreads++;
 				threadIterator.remove();
-			} else if(timeDiff/1000/60 > timeout) {
+			} else if (threadStart != 0 && timeDiff/1000/60 > timeout) {
+				//If thread start time is 0, this thread is waiting for another job, skip it
 				// If the time is greater than timeout set in the configuration file (in minutes), interrupt and remove this thread from pool
 				log.error("One of threads was interrupted because of timeout!");
 				thread.interrupt();
@@ -3488,15 +3488,18 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		Iterator<GroupStructureSynchronizerThread> threadIterator = groupStructureSynchronizerThreads.iterator();
 		while(threadIterator.hasNext()) {
 			GroupStructureSynchronizerThread thread = threadIterator.next();
-			long threadStart = thread.getStartTime();
-			//If the thread start time is 0, this thread is waiting for another job, skip it
-			if (threadStart == 0) continue;
 
+
+			long threadStart = thread.getStartTime();
 			long timeDiff = System.currentTimeMillis() - threadStart;
-			if (thread.isInterrupted()) {
+
+			//If thread was interrupted by anything, remove it from the pool of active threads
+			if (thread.isInterrupted() || !thread.isAlive()) {
 				numberOfNewlyRemovedThreads++;
 				threadIterator.remove();
-			} else if(timeDiff/1000/60 > timeoutMinutes) {
+			} else if (threadStart != 0 && timeDiff/1000/60 > timeoutMinutes) {
+				//If thread start time is 0, this thread is waiting for another job, skip it
+				// If the time is greater than timeout set in the configuration file (in minutes), interrupt and remove this thread from pool
 				log.error("One of threads was interrupted because of timeout!");
 				thread.interrupt();
 				threadIterator.remove();
