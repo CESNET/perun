@@ -18,9 +18,7 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServiceUpdated;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageCreated;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageDeleted;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUpdated;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,24 +171,10 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
 
 		List<Member> members;
-		members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-
 		if (filterExpiredMembers) {
-			List<Member> membersToRemove = new ArrayList<>();
-			for (Member member : members) {
-				try {
-					Attribute groupStatus = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, resource, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":groupStatus");
-					if (groupStatus == null) {
-						throw new InternalErrorException("groupStatus is null");
-					}
-					if (groupStatus.getValue() == "EXPIRED") {
-						membersToRemove.add(member);
-					}
-				} catch (MemberResourceMismatchException | WrongAttributeAssignmentException | AttributeNotExistsException e) {
-					throw new InternalErrorException(e);
-				}
-			}
-			members.removeAll(membersToRemove);
+			members = getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpired(sess, resource);
+		} else {
+			members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		}
 
 		HashMap<Member, List<Attribute>> attributes;
@@ -227,21 +211,12 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		ServiceAttributes membersAbstractSA = new ServiceAttributes();
 		Map<Member, ServiceAttributes> memberAttributes = new HashMap<>();
-		List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 
+		List<Member> members;
 		if (filterExpiredMembers) {
-			List<Member> membersToRemove = new ArrayList<>();
-			for (Member member : members) {
-				try {
-					Attribute groupStatus = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, resource, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":groupStatus");
-					if (groupStatus.getValue() == "EXPIRED") {
-						membersToRemove.add(member);
-					}
-				} catch (MemberResourceMismatchException | WrongAttributeAssignmentException | AttributeNotExistsException e) {
-					throw new InternalErrorException(e);
-				}
-			}
-			members.removeAll(membersToRemove);
+			members = getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpired(sess, resource);
+		} else {
+			members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
 		}
 
 		HashMap<Member, List<Attribute>> attributes;
@@ -310,13 +285,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		if (filterExpiredMembers) {
 			List<Member> membersToRemove = new ArrayList<>();
 			for (Member member : members) {
-				try {
-					Attribute groupStatus = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, group, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT + ":groupStatus");
-					if (groupStatus.getValue() == "EXPIRED") {
-						membersToRemove.add(member);
-					}
-				} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-					throw new InternalErrorException(e);
+				if (member.getGroupStatus() == MemberGroupStatus.EXPIRED) {
+					membersToRemove.add(member);
 				}
 			}
 			members.removeAll(membersToRemove);
@@ -393,21 +363,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		}
 
 		ServiceAttributes allUsersServiceAttributes = new ServiceAttributes();
-		List<User> facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility, null, service);
-
+		List<User> facilityUsers;
 		if (filterExpiredMembers) {
-			List<User> usersToRemove = new ArrayList<>();
-			for (User user : facilityUsers) {
-				try {
-					Attribute attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, user, AttributesManager.NS_USER_FACILITY_ATTR_VIRT+ ":groupStatus");
-					if (attribute.getValue() == "EXPIRED") {
-						usersToRemove.add(user);
-					}
-				} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-					throw new InternalErrorException(e);
-				}
-			}
-			facilityUsers.removeAll(usersToRemove);
+			facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsersNotExpired(sess, facility, null, service);
+		} else {
+			facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility, null, service);
 		}
 
 		// get attributes for all users at once !

@@ -1202,16 +1202,6 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
 		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
 
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
-		attr.setFriendlyName("groupStatus");
-		attr.setDisplayName("Group membership status");
-		attr.setType(String.class.getName());
-
-		Attribute attribute = new Attribute(attr);
-
-		perun.getAttributesManager().createAttribute(sess, attribute);
-
 		// set element's name/id as required attributes to get some attributes for every element
 		Attribute reqFacAttr;
 		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:name");
@@ -1226,12 +1216,12 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		// finally assign service
 		perun.getResourcesManager().assignService(sess, resource, service);
 
-		List<ServiceAttributes> facilities2 = new ArrayList<ServiceAttributes>();
-		facilities2.add(perun.getServicesManager().getHierarchicalData(sess, service, facility, false));
-		assertEquals(2, facilities2.get(0).getChildElements().get(0).getChildElements().size());
+		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
+		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility, false));
+		assertEquals(2, facilities.get(0).getChildElements().get(0).getChildElements().size());
 
 		// return only one member because the other one is expired
-		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
+		facilities = new ArrayList<>();
 		facilities.add(perun.getServicesManager().getHierarchicalData(sess, service, facility, true));
 		assertEquals(1,facilities.get(0).getChildElements().get(0).getChildElements().size());
 	}
@@ -1324,58 +1314,59 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void getFlatDataWithoutExpiredUsers() throws Exception {
 		System.out.println(CLASS_NAME + "getFlatData");
 
+		Vo vo2 = new Vo(1, "ServicesManagerTestVo2", "RMTestVo2");
+		vo2 = perun.getVosManager().createVo(sess, vo2);
+
 		vo = setUpVo();
 		facility = setUpFacility();
 		resource = setUpResource();
 		service = setUpService();
 		member = setUpMember();
-		Member member2 = setUpMember();
+
+		Resource resource2 = new Resource();
+		resource2.setName("ServicesManagerTestResource2");
+		resource2.setDescription("Testovaci2");
+		resource2 = perun.getResourcesManager().createResource(sess, resource2, vo2, facility);
+
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
+		Member member2 = perun.getMembersManagerBl().createMember(sess, vo2, user);
+		Member member3 = setUpMember();
+		Member member5 = setUpMemberInVo2(vo2);
+		User user3 = perun.getUsersManagerBl().getUserByMember(sess, member5);
+		Member member4 = perun.getMembersManagerBl().createMember(sess, vo, user3);
+		perun.getMembersManagerBl().validateMember(sess, member2);
+		perun.getMembersManagerBl().validateMember(sess, member4);
+
 		group = setUpGroup();
+		Group group2 = new Group("GroupsManagerTestGroup2","testovaci2");
+		group2 = perun.getGroupsManager().createGroup(sess, vo2, group2);
 		perun.getGroupsManager().addMember(sess, group, member);
-		perun.getGroupsManager().addMember(sess, group, member2);
+		perun.getGroupsManager().addMember(sess, group2, member2);
+		perun.getGroupsManager().addMember(sess, group, member3);
+		perun.getGroupsManager().addMember(sess, group, member4);
+		perun.getGroupsManager().addMember(sess, group2, member5);
 		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
-		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
-
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
-		attr.setFriendlyName("groupStatus");
-		attr.setDisplayName("Group membership status");
-		attr.setType(String.class.getName());
-
-		Attribute attribute = new Attribute(attr);
-
-		perun.getAttributesManager().createAttribute(sess, attribute);
-
-		// set element's name/id as required attributes to get some attributes for every element
-		Attribute reqFacAttr;
-		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:name");
-		perun.getServicesManager().addRequiredAttribute(sess, service, reqFacAttr);
-		Attribute reqResAttr;
-		reqResAttr = perun.getAttributesManager().getAttribute(sess, resource, "urn:perun:resource:attribute-def:core:name");
-		perun.getServicesManager().addRequiredAttribute(sess, service, reqResAttr);
-		Attribute reqUserAttr;
-		reqUserAttr = perun.getAttributesManager().getAttribute(sess, user, "urn:perun:user:attribute-def:core:id");
-		perun.getServicesManager().addRequiredAttribute(sess, service, reqUserAttr);
-		Attribute reqMemAttr;
-		reqMemAttr = perun.getAttributesManager().getAttribute(sess, member, "urn:perun:member:attribute-def:core:id");
-		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group2, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member, group, MemberGroupStatus.EXPIRED);
+		perun.getGroupsManager().setMemberGroupStatus(sess, member4, group, MemberGroupStatus.EXPIRED);
 
 		// finally assign service
 		perun.getResourcesManager().assignService(sess, resource, service);
+		perun.getResourcesManager().assignService(sess, resource2, service);
 
 		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
 		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility, false));
 		List<ServiceAttributes> facilityElements = facilities.get(0).getChildElements();
 		List<ServiceAttributes> users = facilityElements.get(1).getChildElements();
-		assertEquals("Required resource attribute should be returned for resource", 2, users.size());
+		assertEquals("There should be all 3 users", 3, users.size());
 
 		facilities = new ArrayList<ServiceAttributes>();
 		facilities.add(perun.getServicesManager().getFlatData(sess, service, facility, true));
 		facilityElements = facilities.get(0).getChildElements();
 		users = facilityElements.get(1).getChildElements();
-		assertEquals("Required resource attribute should be returned for resource", 1, users.size());
+		// 1 user is expired in all groups so users should not contain it, the remaining 2 are not expired in one group associated to different resources
+		assertEquals("There should be only 2 users", 2, users.size());
 	}
 
 	@Test
@@ -1561,26 +1552,6 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
 		perun.getResourcesManager().assignGroupToResource(sess, group2, resource);
 
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
-		attr.setFriendlyName("groupStatus");
-		attr.setDisplayName("Group membership status");
-		attr.setType(String.class.getName());
-
-		Attribute attribute = new Attribute(attr);
-
-		perun.getAttributesManager().createAttribute(sess, attribute);
-
-		AttributeDefinition attr2 = new AttributeDefinition();
-		attr2.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-		attr2.setFriendlyName("groupStatus");
-		attr2.setDisplayName("Group membership status");
-		attr2.setType(String.class.getName());
-
-		Attribute attribute2 = new Attribute(attr2);
-
-		perun.getAttributesManager().createAttribute(sess, attribute2);
-
 		// set element's name/id as required attributes to get some attributes for every element
 		Attribute reqFacAttr;
 		reqFacAttr = perun.getAttributesManager().getAttribute(sess, facility, "urn:perun:facility:attribute-def:core:name");
@@ -1753,22 +1724,6 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getGroupsManager().setMemberGroupStatus(sess, member2, group, MemberGroupStatus.EXPIRED);
 		perun.getGroupsManager().setMemberGroupStatus(sess, member3, group, MemberGroupStatus.EXPIRED);
 		perun.getGroupsManager().setMemberGroupStatus(sess, member3, group2, MemberGroupStatus.EXPIRED);
-
-		AttributeDefinition attr = new AttributeDefinition();
-		attr.setNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
-		attr.setFriendlyName("groupStatus");
-		attr.setDisplayName("Group membership status");
-		attr.setType(String.class.getName());
-		Attribute attribute = new Attribute(attr);
-		perun.getAttributesManager().createAttribute(sess, attribute);
-
-		AttributeDefinition attr2 = new AttributeDefinition();
-		attr2.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
-		attr2.setFriendlyName("groupStatus");
-		attr2.setDisplayName("Group membership status");
-		attr2.setType(String.class.getName());
-		Attribute attribute2 = new Attribute(attr2);
-		perun.getAttributesManager().createAttribute(sess, attribute2);
 
 		// set element's name/id as required attributes to get some attributes for every element
 		Attribute reqFacAttr;
@@ -2042,6 +1997,32 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		candidate.setAttributes(new HashMap<>());
 
 		Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		assertNotNull("No member created", createdMember);
+		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, createdMember));
+		// save user for deletion after test
+		return createdMember;
+
+	}
+
+	private Member setUpMemberInVo2(Vo vo2) throws Exception {
+
+		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));              // his login in external source
+
+		Candidate candidate;
+		candidate = new Candidate();  //Mockito.mock(Candidate.class);
+		candidate.setFirstName(userFirstName);
+		candidate.setId(0);
+		candidate.setMiddleName("");
+		candidate.setLastName(userLastName);
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		UserExtSource ues = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
+		candidate.setUserExtSource(ues);
+		candidate.setAttributes(new HashMap<>());
+
+		Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, vo2, candidate);
 		assertNotNull("No member created", createdMember);
 		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, createdMember));
 		// save user for deletion after test

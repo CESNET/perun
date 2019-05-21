@@ -261,6 +261,18 @@ public interface FacilitiesManagerBl {
 	List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
 
 	/**
+	 * Return all users who can use this facility and who are not expired in all groups associated to any resources of facility.
+	 * specificVo and specificService can choose concrete users
+	 * if specificVo, specificService or both are null, they do not specific (all possible results are returned)
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> getAllowedUsersNotExpired(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
+
+	/**
 	 * Return all members, which are "allowed" on facility.
 	 *
 	 * @param sess

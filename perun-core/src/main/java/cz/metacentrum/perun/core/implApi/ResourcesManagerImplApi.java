@@ -356,6 +356,16 @@ public interface ResourcesManagerImplApi {
 	 */
 	List<User> getAllowedUsers(PerunSession sess, Resource resource) throws InternalErrorException;
 
+	/**
+	 * Returns all users who are allowed on the defined resource and not expired in at least one group.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> getAllowedUsersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException;
+
 
 	/**
 	 * Return all resources which are under the facility and has member of the user with status other than INVALID.
@@ -388,6 +398,16 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Member> getAllowedMembers(PerunSession sess, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Returns all members who are allowed on the defined resource and also valid in at least one group associated to the resources.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of members
+	 * @throws InternalErrorException
+	 */
+	List<Member> getAllowedMembersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Returns all resources where the member is assigned through the groups.

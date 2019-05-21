@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourceTag;
@@ -325,6 +326,20 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	@Override
+	public List<User> getAllowedUsersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException {
+		try  {
+			return jdbc.query("select distinct " + UsersManagerImpl.userMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
+					" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id join users on " +
+					" users.id=members.user_id where groups_resources.resource_id=? and members.status!=? and members.status!=? and groups_members.source_group_status =?",
+				UsersManagerImpl.USER_MAPPER, resource.getId(),	String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()), String.valueOf(MemberGroupStatus.VALID.getCode()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<Resource> getAllowedResources(PerunSession sess, Facility facility, User user) throws InternalErrorException {
 		try {
 			return jdbc.query("select distinct " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources left outer join facilities on resources.facility_id=facilities.id" +
@@ -347,6 +362,20 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 					" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
 					" where groups_resources.resource_id=? and members.status!=? and members.status!=?", MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(),
 					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Member> getAllowedMembersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException {
+		try  {
+			return jdbc.query("select distinct " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
+					" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
+					" where groups_resources.resource_id=? and members.status!=? and members.status!=? and groups_members.source_group_status =?", MembersManagerImpl.MEMBERS_WITH_GROUP_STATUSES_SET_EXTRACTOR, resource.getId(),
+				String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()), String.valueOf(MemberGroupStatus.VALID.getCode()));
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
