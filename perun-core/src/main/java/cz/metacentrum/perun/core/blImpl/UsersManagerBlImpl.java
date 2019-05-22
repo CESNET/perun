@@ -624,6 +624,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public void updateUserExtSourceLastAccess(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
+		getPerunBl().getAuditer().log(sess, new UserExtSourceUpdated(userExtSource));
 		getUsersManagerImpl().updateUserExtSourceLastAccess(sess, userExtSource);
 	}
 
