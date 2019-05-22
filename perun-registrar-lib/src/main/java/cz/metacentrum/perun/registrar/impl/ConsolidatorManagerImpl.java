@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
+import net.jodah.expiringmap.ExpirationPolicy;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
@@ -62,7 +63,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		registrarSession = perun.getPerunSession(pp, new PerunClient());
 
 		// cache expires after 5 minutes from creation
-		requestCache = ExpiringMap.builder().expiration(5, TimeUnit.MINUTES).expirationPolicy(ExpiringMap.ExpirationPolicy.CREATED).build();
+		requestCache = ExpiringMap.builder().expiration(5, TimeUnit.MINUTES).expirationPolicy(ExpirationPolicy.CREATED).build();
 
 	}
 
