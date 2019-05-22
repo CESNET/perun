@@ -70,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -430,9 +431,9 @@ public class Utils {
 	 * If rawName is null or empty, return map with empty values of all keys.
 	 *
 	 * Parsing procedure:
-	 * 1] prepare array of parts by replacing all characters "," and "_" by spaces
-	 * 2] change all sequence of inivisible characters (space, tabulator etc.) to one space
-	 * 3] one by one try to parsing parts from array
+	 * 1] prepare list of parts by replacing all characters "," and "_" by spaces
+	 * 2] change all sequence of invisible characters (space, tabulator etc.) to one space
+	 * 3] one by one try to parsing parts from the list
 	 *  - A] try to find all titleBefore parts
 	 *  - B] try to find one firstName part
 	 *  - C] try to find all lastName parts
@@ -442,117 +443,59 @@ public class Utils {
 	 * 1] rawName = "Mgr. et Mgr.    Petr_Jiri R. Sojka, Ph.D., CSc."
 	 * 2] convert all ',' and '_' to spaces: rawName = "Mgr. et Mgr.    Petr Jiri R. Sojka  Ph.D.  CSc."
 	 * 3] convert more than 1 invisible char to 1 space: rawName = "Mgr. et Mgr. Petr Jiri R. Sojka Ph.D. CSc."
-	 * 4] parse string to array of parts by space: ArrayOfParts= ["Mgr.","et","Mgr.","Petr","Jiri","R.","Sojka","Ph.D.","CSc."]
+	 * 4] parse string to list of parts by space: ListOfParts= ["Mgr.","et","Mgr.","Petr","Jiri","R.","Sojka","Ph.D.","CSc."]
 	 * 5] first fill everything what can be in title before: titleBefore="Mgr. et Mgr."
 	 * 6] then fill everything what can be in first name (maximum 1 part): firstName="Petr"
 	 * 7] then fill everything what can be in last name: lastName="Jiri R. Sojka"
 	 * 8] everything else put to the title after: titleAfter="Ph.D. CSc."
-	 * 9] put these variables to map like key=value, for ex.: Map["titleBefore"="Mgr. et Mgr.",firstName="Petr", ... ] and return this map
+	 * 9] put these variables to map like key=value, for ex.: Map[titleBefore="Mgr. et Mgr.",firstName="Petr", ... ] and return this map
 	 *
-	 * @param rawName
+	 * @param rawName name to parse
 	 * @return map string to string where are 4 keys (titleBefore,titleAfter,firstName and lastName) with their values (value can be null)
 	 */
 	public static Map<String, String> parseCommonName(String rawName) {
-		//prepare variables and map
+		// prepare variables and result map
 		Map<String, String> parsedName = new HashMap<>();
 		String titleBefore = "";
 		String firstName = "";
 		String lastName = "";
 		String titleAfter = "";
 
-		//if raw name is null or empty, skip this part and only return map with null values for keys
-		if(rawName!=null && !rawName.isEmpty()) {
-			// all characters ',' replace by ' ' for rawName
-			rawName = rawName.replaceAll(",", " ").trim();
-			// all characters '_' replace by ' ' for rawName
-			rawName = rawName.replaceAll("_", " ").trim();
-			// replace all inivisible chars in row for
+		if (rawName != null && !rawName.isEmpty()) {
+			// replace all ',' and '_' characters for ' ' for rawName
+			rawName = rawName.replaceAll("[,_]", " ");
+			// replace all invisible chars in row for ' '
 			rawName = rawName.replaceAll("\\s+", " ").trim();
 
-			//split parts by space
-			String[] nameParts = rawName.split(" ");
+			// split parts by space
+			List<String> nameParts = new ArrayList<>(Arrays.asList(rawName.split(" ")));
 
-			//if length of nameParts is 1, save it to the lastName
-			if(nameParts.length == 1) {
-				lastName = nameParts[0];
-				//if length of nameParts is more than 1, try to choose which part belong to which value
+			// if length of nameParts is 1, save it to the lastName
+			if(nameParts.size() == 1) {
+				lastName = nameParts.get(0);
+				// if length of nameParts is more than 1, try to choose which part belong to which value
 			} else {
-				//variables for states
-				boolean titleBeforeDone = false;
-				boolean firstNameDone = false;
-				boolean lastNameDone = false;
+				// join title before name to single string with ' ' as delimiter
+				titleBefore = parsePartOfName(nameParts, new StringJoiner(" "), titleBeforePattern);
 
-				//for every part try to get which one it is
-				for (String namePart : nameParts) {
-					String part = namePart;
-					//trim this value (remove spaces before and after string)
-					part = part.trim();
+				// get first name as a next name part if pattern matches and nameParts are not empty
+				if (!nameParts.isEmpty()) firstName = parsePartOfName(nameParts, new StringJoiner(" "), firstNamePattern);
 
-					//if titleBeforeDone is false, this string can be title before
-					if (!titleBeforeDone) {
-						Matcher titleBeforeMatcher = titleBeforePattern.matcher(part);
-						//if title before matches
-						if (titleBeforeMatcher.matches()) {
-							//add space if this title is not first title before
-							if (titleBefore.isEmpty()) titleBefore += part;
-							else titleBefore += " " + part;
-							//go on next part
-							continue;
-						} else {
-							//this is not title before, so end part of title before and go next
-							titleBeforeDone = true;
-						}
+				// join last names to single string with ' ' as delimiter
+				if (!nameParts.isEmpty()) lastName = parsePartOfName(nameParts, new StringJoiner(" "), lastNamePattern);
+
+				// if any nameParts are left join them to one string with ' ' as delimiter and assume they are titles after name
+				if (!nameParts.isEmpty()) {
+					StringJoiner titleAfterBuilder = new StringJoiner(" ");
+					for (String namePart : nameParts) {
+						titleAfterBuilder.add(namePart);
 					}
-
-					//if firstNameDone is false, this string can be first name
-					if (!firstNameDone) {
-						Matcher firstNameMatcher = firstNamePattern.matcher(part);
-						//if first name matches
-						if (firstNameMatcher.matches()) {
-							//first name can be only one
-							firstName = part;
-							//go on next part
-							firstNameDone = true;
-							continue;
-						}
-						//if this is not firstName skip firstName because only first word after titleBefore can be firstName
-						firstNameDone = true;
-					}
-
-					//if lastNameDone is false, this string can be lastName
-					if (!lastNameDone) {
-						Matcher lastNameMatcher = lastNamePattern.matcher(part);
-						//if last name matches
-						if (lastNameMatcher.matches()) {
-							//add space if this name is not first last name
-							if (lastName.isEmpty()) lastName += part;
-							else lastName += " " + part;
-							//go on next part
-							continue;
-							//if last name not matches
-						} else {
-							//because last name can't be empty, save this part to lastName even if not matches
-							if (lastName.isEmpty()) {
-								lastName = part;
-								lastNameDone = true;
-								//go on next part
-								continue;
-							} else {
-								//if there is already something in lastName, go on title after
-								lastNameDone = true;
-							}
-						}
-					}
-
-					//rest of parts if lastName exists go to the title after
-					//add space if this is not first title after
-					if (titleAfter.isEmpty()) titleAfter += part;
-					else titleAfter += " " + part;
+					titleAfter = titleAfterBuilder.toString();
 				}
 			}
 		}
 
-		//empty string means null, add variables to map
+		// add variables to map, empty string means null
 		if (titleBefore.isEmpty()) titleBefore = null;
 		parsedName.put(TITLE_BEFORE, titleBefore);
 		if (firstName.isEmpty()) firstName = null;
@@ -563,6 +506,21 @@ public class Utils {
 		parsedName.put(TITLE_AFTER, titleAfter);
 
 		return parsedName;
+	}
+
+	private static String parsePartOfName(List<String> nameParts, StringJoiner result, Pattern pattern) {
+		Matcher matcher = pattern.matcher(nameParts.get(0));
+
+		// if the matcher does not match continue to the next part of the name
+		if (!matcher.matches()) return result.toString();
+
+		result.add(nameParts.get(0));
+		nameParts.remove(0);
+		// when nameParts are depleted or firstName was found there is no reason to continue the recursion
+		if (nameParts.isEmpty() || pattern.equals(firstNamePattern)) return result.toString();
+
+		// continue the recursion to find the next part
+		return parsePartOfName(nameParts, result, pattern);
 	}
 
 	/**
