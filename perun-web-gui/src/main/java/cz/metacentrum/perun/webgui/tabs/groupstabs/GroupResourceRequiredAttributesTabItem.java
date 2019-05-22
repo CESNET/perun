@@ -105,6 +105,16 @@ public class GroupResourceRequiredAttributesTabItem implements TabItem, TabItemW
 		return !(group == null || resource == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 
 	public Widget draw() {
 

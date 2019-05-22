@@ -90,6 +90,16 @@ public class AddUserExtSourceTabItem implements TabItem, TabItemWithUrl {
 		return !(user == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		titleWidget.setText("Add ext. identity");
@@ -189,7 +199,7 @@ public class AddUserExtSourceTabItem implements TabItem, TabItemWithUrl {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				session.getTabManager().closeTab(tab);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

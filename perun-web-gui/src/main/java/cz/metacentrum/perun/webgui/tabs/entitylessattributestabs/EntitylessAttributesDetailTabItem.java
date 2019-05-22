@@ -84,6 +84,16 @@ public class EntitylessAttributesDetailTabItem implements TabItem {
 	}
 
 	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
+	@Override
 	public Widget draw() {
 
 		titleWidget.setText(def.getName());
@@ -291,7 +301,7 @@ public class EntitylessAttributesDetailTabItem implements TabItem {
 		menu.addWidget(updateButton);
 
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", event ->
-			session.getTabManager().closeTab(tab, false)));
+			session.getTabManager().closeTab(tab, isRefreshParentOnClose())));
 
 		CustomButton showKeys = new CustomButton();
 		showKeys.setText("show keys");

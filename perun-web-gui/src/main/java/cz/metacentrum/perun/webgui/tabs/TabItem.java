@@ -76,4 +76,17 @@ public interface TabItem{
 	 */
 	public boolean isPrepared();
 
+	/**
+	 * Whether tab should refresh parent on close. This is just a hint, it can be overridden in
+	 * button action implementation (like events to close tab on action finish, where refreshing parent is default).
+	 *
+	 * @return TRUE refresh / FALSE dont refresh
+	 */
+	public boolean isRefreshParentOnClose();
+
+	/**
+	 * Performs tab specific action on closing
+	 */
+	public void onClose();
+
 }

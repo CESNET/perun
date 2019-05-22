@@ -93,6 +93,16 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 		return (appMail != null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	/**
 	 * Returns message texarea
 	 *
@@ -392,7 +402,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

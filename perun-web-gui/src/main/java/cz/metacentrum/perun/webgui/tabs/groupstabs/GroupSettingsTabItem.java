@@ -102,6 +102,16 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 		return !(group == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(group.getName()) + ": settings");

@@ -85,6 +85,16 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 		return !(resource == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(resource.getName()) + ": manage assigned services");

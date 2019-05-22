@@ -86,6 +86,16 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 		return !(vo == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return !alreadyAddedList.isEmpty();
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	/**
 	 * Constructor
 	 *
@@ -192,7 +202,7 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

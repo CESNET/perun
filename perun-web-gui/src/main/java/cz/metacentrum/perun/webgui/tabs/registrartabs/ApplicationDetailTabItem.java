@@ -40,7 +40,7 @@ import java.util.Map;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
+public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -89,6 +89,16 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isPrepared(){
 		return (app != null);
+	}
+
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return true;
+	}
+
+	@Override
+	public void onClose() {
+
 	}
 
 	public Widget draw() {
@@ -208,7 +218,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 					HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve, new JsonCallbackEvents(){
 						@Override
 						public void onFinished(JavaScriptObject jso) {
-							session.getTabManager().closeTab(tab, true);
+							session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 						}
 					}));
 					request.approveApplication(app);
@@ -236,7 +246,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject, new JsonCallbackEvents(){
 								@Override
 								public void onFinished(JavaScriptObject jso) {
-									session.getTabManager().closeTab(tab, true);
+									session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 								}
 							}));
 							request.rejectApplication(appId, reason.getText());
@@ -259,7 +269,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 					HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete, new JsonCallbackEvents(){
 						@Override
 						public void onFinished(JavaScriptObject jso) {
-							session.getTabManager().closeTab(tab, true);
+							session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 						}
 					}));
 					request.deleteApplication(appId);

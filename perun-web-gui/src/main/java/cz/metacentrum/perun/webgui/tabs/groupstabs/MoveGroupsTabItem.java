@@ -83,6 +83,16 @@ public class MoveGroupsTabItem implements TabItem {
 		return ((this.vo != null) || (this.group != null)) && (this.groups != null) && (!this.groups.isEmpty());
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		VerticalPanel vp = new VerticalPanel();
@@ -226,7 +236,7 @@ public class MoveGroupsTabItem implements TabItem {
 		cancelButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		});
 
