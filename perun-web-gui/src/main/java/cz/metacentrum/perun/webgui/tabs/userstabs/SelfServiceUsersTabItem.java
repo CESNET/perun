@@ -331,6 +331,16 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 1259;
 		int result = 432;

@@ -80,6 +80,16 @@ public class ServicePackageDetailTabItem implements TabItem, TabItemWithUrl {
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(servicesPackage.getName()) + ": assigned services");
@@ -191,7 +201,7 @@ public class ServicePackageDetailTabItem implements TabItem, TabItemWithUrl {
 		CustomButton close = TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				session.getTabManager().closeTab(tab);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		});
 

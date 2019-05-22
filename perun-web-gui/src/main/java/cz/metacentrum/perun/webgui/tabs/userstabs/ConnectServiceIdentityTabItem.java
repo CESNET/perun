@@ -85,6 +85,16 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 		return !(user == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return true;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		titleWidget.setText("Connect identity");
@@ -124,7 +134,7 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			public void onClick(ClickEvent clickEvent) {
 				// close tab and refresh
-				session.getTabManager().closeTab(tab, true);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

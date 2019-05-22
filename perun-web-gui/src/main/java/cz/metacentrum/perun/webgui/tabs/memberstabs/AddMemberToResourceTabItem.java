@@ -93,6 +93,16 @@ public class AddMemberToResourceTabItem implements TabItem  {
 		return (vo != null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	/**
 	 * Start tab at stage two with 1 member selected for adding
 	 *
@@ -477,7 +487,7 @@ public class AddMemberToResourceTabItem implements TabItem  {
 			CustomButton finish = TabMenu.getPredefinedButton(ButtonType.FINISH, "Close the tab", new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent clickEvent) {
-					session.getTabManager().closeTab(tab, false);
+					session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 				}
 			});
 			finish.setImageAlign(true);

@@ -85,6 +85,16 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 		return !(facility == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// set title

@@ -44,6 +44,16 @@ public class MemberServiceUsersTabItem implements TabItem {
 		return !(member == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		if (member.getUser().isServiceUser()) {

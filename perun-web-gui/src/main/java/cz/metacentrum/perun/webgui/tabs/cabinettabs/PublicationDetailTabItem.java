@@ -102,6 +102,16 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 		return !(publication == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// show only part of title

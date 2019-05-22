@@ -96,6 +96,16 @@ public class AddFacilityManagerGroupTabItem implements TabItem {
 		return facility != null;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+		if (refreshEvents != null) refreshEvents.onFinished(null);
+	}
+
 	public Widget draw() {
 
 		titleWidget.setText("Add manager group");
@@ -156,8 +166,8 @@ public class AddFacilityManagerGroupTabItem implements TabItem {
 		tabMenu.addWidget(1, TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				if (refreshEvents != null) refreshEvents.onFinished(null);
-				session.getTabManager().closeTab(tab, false);
+				//if (refreshEvents != null) refreshEvents.onFinished(null);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 
@@ -209,9 +219,7 @@ public class AddFacilityManagerGroupTabItem implements TabItem {
 						if (i == list.size() - 1) {
 							AddAdmin request = new AddAdmin(JsonCallbackEvents.disableButtonEvents(addButton, new JsonCallbackEvents(){
 								public void onFinished(JavaScriptObject jso) {
-									// close tab and refresh table
-									if (refreshEvents != null) refreshEvents.onFinished(null);
-									session.getTabManager().closeTab(tab, false);
+									session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 								}
 							}));
 							request.addFacilityAdminGroup(facility, list.get(i));

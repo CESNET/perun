@@ -19,6 +19,7 @@ import cz.metacentrum.perun.webgui.widgets.NotAuthorizedWidget;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Manager for the tabs in the main tab panel
@@ -67,6 +68,33 @@ public class TabManager {
 	private Map<TabItem, TabItem> tabOverlaysTabItems = new HashMap<TabItem, TabItem>();
 
 	public TabManager() {
+		// allow JS to close overlay tabs by calling back to java
+		exportMyFunction();
+	}
+
+	/**
+	 * Exports function to JS so we can call GWT code from JS onClick on "X" button for overlay tabs.
+	 */
+	public static native void exportMyFunction()/*-{
+		$wnd.handleOverlayTabClose = @cz.metacentrum.perun.webgui.tabs.TabManager::closeOverlayTabFromJS(*);
+	}-*/;
+
+	/**
+	 * Close overlay tabs for selected parent tab ID
+	 *
+	 * @param selectedTabUniqueId
+	 */
+	public static void closeOverlayTabFromJS(int selectedTabUniqueId) {
+		TabItem parent = PerunWebSession.getInstance().getTabManager().getTabItemByUniqueId(selectedTabUniqueId);
+		// inner tab -> parent
+		Map<TabItem,TabItem> overlayTabs = PerunWebSession.getInstance().getTabManager().getTabOverlayTabs();
+
+		for (Map.Entry<TabItem, TabItem> entry : overlayTabs.entrySet()) {
+			if (Objects.equals(entry.getValue(), parent)) {
+				PerunWebSession.getInstance().getTabManager().closeTab(entry.getKey(), entry.getKey().isRefreshParentOnClose());
+				break;
+			}
+		}
 	}
 
 	/**
@@ -316,17 +344,17 @@ public class TabManager {
 	 * @param id TabItemWithHelp panel ID
 	 */
 	static private native void toggleHelp(String id) /*-{
-        var helpWidgetWidth = 400;
-        var helpWidgetWrapper = $wnd.jQuery("." + id);
-        var left = parseInt($wnd.jQuery(helpWidgetWrapper).css("left"), 10);
-        if ($wnd.jQuery(helpWidgetWrapper).hasClass("opened")) {
-            $wnd.jQuery(helpWidgetWrapper).removeClass("opened");
-            $wnd.jQuery(helpWidgetWrapper).animate({ left: left + helpWidgetWidth + "px" }, 500);
-        } else {
-            $wnd.jQuery(helpWidgetWrapper).addClass("opened");
-            $wnd.jQuery(helpWidgetWrapper).animate({ left: left - helpWidgetWidth + "px" }, 500);
-        }
-    }-*/;
+		var helpWidgetWidth = 400;
+		var helpWidgetWrapper = $wnd.jQuery("." + id);
+		var left = parseInt($wnd.jQuery(helpWidgetWrapper).css("left"), 10);
+		if ($wnd.jQuery(helpWidgetWrapper).hasClass("opened")) {
+			$wnd.jQuery(helpWidgetWrapper).removeClass("opened");
+			$wnd.jQuery(helpWidgetWrapper).animate({left: left + helpWidgetWidth + "px"}, 500);
+		} else {
+			$wnd.jQuery(helpWidgetWrapper).addClass("opened");
+			$wnd.jQuery(helpWidgetWrapper).animate({left: left - helpWidgetWidth + "px"}, 500);
+		}
+	}-*/;
 
 	/**
 	 * Whether is the help opened
@@ -335,8 +363,8 @@ public class TabManager {
 	 * @return
 	 */
 	static private native boolean isHelpOpened(String id) /*-{
-        return $wnd.jQuery("." + id).hasClass("opened");
-    }-*/;
+		return $wnd.jQuery("." + id).hasClass("opened");
+	}-*/;
 
 	/**
 	 * Adds a "small tab" as overlay to current tab
@@ -439,7 +467,7 @@ public class TabManager {
 		Button closeTabButton = new Button("X");
 		closeTabButton.addStyleName("tabPanelCloseButton");
 		closeTabButton.addStyleName("tab-overlay-close-button");
-		closeTabButton.getElement().setAttribute("onclick", "jQuery(\"#tab-" + selectedTabUniqueId + " .tab-overlay-shield\").animate({ top : \"-1000px\" }, 'fast', function(){ jQuery(\"#tab-" + selectedTabUniqueId + " .tab-overlay-shield\").hide(''); }); jQuery(\"#tab-" + selectedTabUniqueId + " .tab-overlay\").animate({ top : \"-1000px\" }, 'fast', function(){ jQuery(\"#tab-" + selectedTabUniqueId + " .tab-overlay\").hide(''); }); jQuery(\"#tab-" + selectedTabUniqueId + " .tab-content\").fadeTo('fast', 1.0);");
+		closeTabButton.getElement().setAttribute("onclick", "window.handleOverlayTabClose(" + selectedTabUniqueId + ")");
 		closeTabButton.setTitle(WidgetTranslation.INSTANCE.closeThisTab());
 
 		// title
@@ -487,6 +515,15 @@ public class TabManager {
 
 		return true;
 
+	}
+
+	/**
+	 * Returns current mapping between parent and overlay tabs
+	 *
+	 * @return Map with overlayTab => parent
+	 */
+	public Map<TabItem, TabItem> getTabOverlayTabs() {
+		return this.tabOverlaysTabItems;
 	}
 
 	/**
@@ -679,6 +716,8 @@ public class TabManager {
 			// overlay close
 			int parentUniqueId = this.tabs.get(parent);
 			setTabOverlayVisible(parentUniqueId, false);
+			// perform custom action
+			tabItem.onClose();
 
 			// remove from overlay tab
 			this.activeOverlayTab = null;
@@ -695,6 +734,9 @@ public class TabManager {
 		//this.tabs.remove(tabItem);
 		// refresh url
 		refreshUrl();
+
+		// perform custom action
+		tabItem.onClose();
 
 		session.getUiElements().closeTab(id);
 

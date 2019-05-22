@@ -64,6 +64,16 @@ public class EditGroupDetailsTabItem implements TabItem {
 		return (group != null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		titleWidget = new Label("Edit group");
@@ -139,7 +149,7 @@ public class EditGroupDetailsTabItem implements TabItem {
 		cancelButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		});
 

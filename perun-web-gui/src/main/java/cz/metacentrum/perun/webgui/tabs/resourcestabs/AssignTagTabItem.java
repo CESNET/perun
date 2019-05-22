@@ -77,6 +77,16 @@ public class AssignTagTabItem implements TabItem {
 		return !(resource == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		titleWidget.setText("Add tag");
@@ -115,7 +125,7 @@ public class AssignTagTabItem implements TabItem {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

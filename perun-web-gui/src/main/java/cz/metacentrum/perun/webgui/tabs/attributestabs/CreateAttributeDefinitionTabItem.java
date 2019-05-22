@@ -3,7 +3,6 @@ package cz.metacentrum.perun.webgui.tabs.attributestabs;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
@@ -73,6 +72,16 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 
 	public boolean isPrepared(){
 		return true;
+	}
+
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
 	}
 
 	public Widget draw() {
@@ -260,7 +269,7 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

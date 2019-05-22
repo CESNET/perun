@@ -88,6 +88,16 @@ public class UserExtSourceSettingsTabItem implements TabItem, TabItemWithUrl {
 		return !(userExtSource == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(userExtSource.getLogin().trim()));

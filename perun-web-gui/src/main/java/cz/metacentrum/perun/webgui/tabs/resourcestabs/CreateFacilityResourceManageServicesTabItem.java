@@ -103,6 +103,16 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 		return (facility != null && resource != null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return true;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		this.titleWidget.setText("Create resource: Assign and configure services");

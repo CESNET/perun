@@ -100,6 +100,17 @@ public class AddAuthorTabItem implements TabItem, TabItemWithUrl {
 		return !(publication == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+		// trigger refresh of sub-tab via event
+		if (events != null) events.onFinished(null);
+	}
+
 	public Widget draw() {
 
 
@@ -171,9 +182,7 @@ public class AddAuthorTabItem implements TabItem, TabItemWithUrl {
 		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				// trigger refresh of sub-tab via event
-				events.onFinished(null);
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

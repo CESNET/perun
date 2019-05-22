@@ -119,6 +119,16 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 		return (resource != null && serviceId == 0) || (resource != null && service != null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		if (service != null) {

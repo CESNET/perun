@@ -67,6 +67,16 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// create main panel for content

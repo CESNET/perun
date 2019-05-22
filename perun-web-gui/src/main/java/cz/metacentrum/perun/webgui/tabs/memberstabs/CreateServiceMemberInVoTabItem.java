@@ -83,6 +83,16 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		return !(vo == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	/**
 	 * Constructor
 	 *

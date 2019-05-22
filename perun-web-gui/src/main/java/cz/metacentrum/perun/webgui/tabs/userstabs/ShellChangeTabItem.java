@@ -33,7 +33,7 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class ShellChangeTabItem implements TabItem{
+public class ShellChangeTabItem implements TabItem {
 
 	private PerunWebSession session = PerunWebSession.getInstance();
 
@@ -62,6 +62,16 @@ public class ShellChangeTabItem implements TabItem{
 
 	public boolean isPrepared(){
 		return (userId != 0 && resource != null);
+	}
+
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
 	}
 
 	public Widget draw() {
@@ -147,7 +157,7 @@ public class ShellChangeTabItem implements TabItem{
 						// refresh only what's necessary
 						events.onFinished(jso);
 						// don't refresh underlaying tab
-						session.getTabManager().closeTab(tab, false);
+						session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 					}
 				}));
 				request.setAttribute(ids, a);
@@ -180,7 +190,7 @@ public class ShellChangeTabItem implements TabItem{
 						// refresh only what's necessary
 						events.onFinished(jso);
 						// don't refresh underlaying tab
-						session.getTabManager().closeTab(tab, false);
+						session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 					}
 				}));
 				ArrayList<Attribute> list = new ArrayList<Attribute>();
@@ -194,7 +204,7 @@ public class ShellChangeTabItem implements TabItem{
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

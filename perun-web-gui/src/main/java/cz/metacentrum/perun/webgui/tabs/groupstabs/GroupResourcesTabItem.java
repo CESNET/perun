@@ -86,6 +86,16 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 		return !(group == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// set title

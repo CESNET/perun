@@ -108,6 +108,16 @@ public class ManageGroupsBeforeAssigning implements TabItem, TabItemWithUrl{
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		final VerticalPanel vp = new VerticalPanel();

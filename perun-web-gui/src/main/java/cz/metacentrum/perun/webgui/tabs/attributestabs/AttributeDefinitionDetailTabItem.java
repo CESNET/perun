@@ -86,6 +86,16 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		titleWidget.setText(def.getName());
@@ -307,7 +317,7 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

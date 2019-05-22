@@ -149,7 +149,7 @@ public class AddGroupUnionTabItem implements TabItem {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 
@@ -256,6 +256,16 @@ public class AddGroupUnionTabItem implements TabItem {
 	@Override
 	public boolean isPrepared() {
 		return !(group == null);
+	}
+
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return !alreadyAddedList.isEmpty();
+	}
+
+	@Override
+	public void onClose() {
+
 	}
 
 	public final static String URL = "add-grp-union";

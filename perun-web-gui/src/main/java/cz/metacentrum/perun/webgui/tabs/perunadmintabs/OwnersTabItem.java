@@ -60,6 +60,16 @@ public class OwnersTabItem implements TabItem, TabItemWithUrl {
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// tab content

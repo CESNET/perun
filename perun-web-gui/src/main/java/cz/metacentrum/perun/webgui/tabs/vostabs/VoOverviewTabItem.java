@@ -90,6 +90,16 @@ public class VoOverviewTabItem implements TabItem {
 		return !(vo == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	private void setLabels() {
 		this.titleWidget.setText(vo.getName());
 		this.voNameLabel.setText(vo.getName());

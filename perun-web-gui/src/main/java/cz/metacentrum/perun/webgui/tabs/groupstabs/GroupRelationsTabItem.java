@@ -286,6 +286,16 @@ public class GroupRelationsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
+	@Override
 	public boolean equals(Object o) {
 
 		if (this == o)

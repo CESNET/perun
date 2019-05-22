@@ -57,6 +57,16 @@ public class MemberAddToGroupTabItem implements TabItem {
 		return !(member == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		this.titleWidget.setText("Add to group(s)");
@@ -112,7 +122,7 @@ public class MemberAddToGroupTabItem implements TabItem {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

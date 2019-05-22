@@ -100,6 +100,16 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl {
 		return !(vo == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// SET TAB NAME

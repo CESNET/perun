@@ -71,6 +71,16 @@ public class TestDataGridAttributesTabItem implements TabItem, TabItemWithUrl {
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		//contentWidget.setSize("100%", "100%");

@@ -111,6 +111,16 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 		return !(facility == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public void hideServicesSwitch(boolean hide) {
 		this.hide = hide;
 		lastCheckBoxValue = !hide;
