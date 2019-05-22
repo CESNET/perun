@@ -82,6 +82,16 @@ public class SelfPersonalTabItem implements TabItem {
 		return !(user == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// content

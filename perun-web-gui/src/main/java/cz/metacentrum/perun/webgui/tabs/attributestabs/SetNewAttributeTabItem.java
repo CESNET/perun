@@ -81,6 +81,16 @@ public class SetNewAttributeTabItem implements TabItem {
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		VerticalPanel mainTab = new VerticalPanel();
@@ -340,7 +350,7 @@ public class SetNewAttributeTabItem implements TabItem {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 		menu.addWidget(helper);

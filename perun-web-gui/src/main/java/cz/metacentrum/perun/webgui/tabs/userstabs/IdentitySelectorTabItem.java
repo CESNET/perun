@@ -43,6 +43,16 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		final TabItem tab = this;
@@ -69,7 +79,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 			@Override
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTab(new SelfDetailTabItem(session.getUser()));
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		});
 		baseLayout.setWidget(2, 0, new Image(LargeIcons.INSTANCE.userGrayIcon()));
@@ -121,7 +131,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 								@Override
 								public void onClick(ClickEvent event) {
 									session.getTabManager().addTab(new SelfDetailTabItem(u2));
-									session.getTabManager().closeTab(tab, false);
+									session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 								}
 							});
 							innerTable.setWidget(row, 1, userName);

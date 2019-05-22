@@ -126,6 +126,16 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+		if (eventsOnClose != null) eventsOnClose.onFinished(null);
+	}
+
 	public Widget draw() {
 
 		final TabItemWithUrl tab = this;
@@ -235,7 +245,6 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 					UiElements.generateAlert("Confirmation", "Do you really want to exit create facility wizard ?", new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent clickEvent) {
-							eventsOnClose.onFinished(null);
 							session.getTabManager().closeTab(tab);
 						}
 					});
@@ -1369,7 +1378,6 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 			finish.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent clickEvent) {
-					eventsOnClose.onFinished(null);
 					session.getTabManager().closeTab(tab);
 				}
 			});

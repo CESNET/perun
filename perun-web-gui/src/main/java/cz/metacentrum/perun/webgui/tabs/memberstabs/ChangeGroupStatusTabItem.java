@@ -63,6 +63,16 @@ public class ChangeGroupStatusTabItem implements TabItem {
 		return !(member == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		this.titleWidget.setText("Change group member status");
@@ -119,7 +129,7 @@ public class ChangeGroupStatusTabItem implements TabItem {
 					@Override
 					public void onFinished(JavaScriptObject jso) {
 						// close without refresh
-						session.getTabManager().closeTab(tab, false);
+						session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 					}
 				})));
 				request.setStatus(lb.getValue(lb.getSelectedIndex()));
@@ -130,7 +140,7 @@ public class ChangeGroupStatusTabItem implements TabItem {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, ButtonTranslation.INSTANCE.cancelButton(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

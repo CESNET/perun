@@ -81,6 +81,16 @@ public class SecurityTeamMembersTabItem implements TabItem, TabItemWithUrl {
 		return securityTeam != null;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// MAIN PANEL
@@ -145,7 +155,7 @@ public class SecurityTeamMembersTabItem implements TabItem, TabItemWithUrl {
 				@Override
 				public void update(int i, User user, String string) {
 					session.getTabManager().addTab(new UserDetailTabItem(user));
-					session.getTabManager().closeTab(tab, false);
+					session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 				}
 			});
 		} else {

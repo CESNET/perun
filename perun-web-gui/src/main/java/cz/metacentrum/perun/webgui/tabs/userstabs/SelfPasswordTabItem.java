@@ -127,6 +127,16 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 		return (user != null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		String actionText = "Change";
@@ -443,7 +453,7 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					session.getTabManager().closeTab(tab, false);
+					session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 				}
 			}));
 		}

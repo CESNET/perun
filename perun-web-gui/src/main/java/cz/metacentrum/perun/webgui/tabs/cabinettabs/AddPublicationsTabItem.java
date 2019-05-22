@@ -97,6 +97,16 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		return !(user == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		tab = this; // save this tab for reloading

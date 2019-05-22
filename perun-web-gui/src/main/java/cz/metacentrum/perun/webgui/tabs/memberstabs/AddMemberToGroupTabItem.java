@@ -116,6 +116,16 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		return !(group == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return !alreadyAddedList.isEmpty();
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		titleWidget.setText("Add member(s)");
@@ -495,7 +505,7 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				// with refresh if somebody was added
-				session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

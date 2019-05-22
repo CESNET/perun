@@ -115,6 +115,16 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		return !(user == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 
 	public Widget draw() {
 

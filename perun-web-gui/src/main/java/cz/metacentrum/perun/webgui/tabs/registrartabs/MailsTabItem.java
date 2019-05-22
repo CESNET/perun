@@ -133,6 +133,16 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		final GetApplicationMails mailsRequest;

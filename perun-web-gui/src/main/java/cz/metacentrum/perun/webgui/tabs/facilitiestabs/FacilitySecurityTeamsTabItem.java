@@ -72,6 +72,16 @@ public class FacilitySecurityTeamsTabItem implements TabItem, TabItemWithUrl {
 		return !(facility == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	/**
 	 * Creates a tab instance
 	 * @param facility

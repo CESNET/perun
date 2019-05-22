@@ -94,6 +94,16 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 		return ((voId != 0 && vo != null) || (voId == 0 && vo == null));
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// main panel
@@ -135,7 +145,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 			public void update(int index, RichGroup group, String value) {
 				session.getTabManager().addTab(new GroupDetailTabItem(group));
 				// close group selection tab when group is selected
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		});
 

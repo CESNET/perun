@@ -135,6 +135,16 @@ public class CreateMailTabItem implements TabItem {
 		}
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	/**
 	 * Returns message texarea
 	 *
@@ -469,7 +479,7 @@ public class CreateMailTabItem implements TabItem {
 		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

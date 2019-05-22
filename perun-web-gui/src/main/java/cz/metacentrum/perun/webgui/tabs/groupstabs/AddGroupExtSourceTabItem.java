@@ -67,7 +67,7 @@ public class AddGroupExtSourceTabItem implements TabItem, TabItemWithUrl{
 	/**
 	 * Creates a tab instance
 	 *
-	 * @param voId ID of Vo to have ext source added
+	 * @param groupId ID of Group to have ext source added
 	 */
 	public AddGroupExtSourceTabItem(int groupId){
 		this.groupId = groupId;
@@ -93,6 +93,16 @@ public class AddGroupExtSourceTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isPrepared(){
 		return !(group == null);
+	}
+
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return !alreadyAddedList.isEmpty();
+	}
+
+	@Override
+	public void onClose() {
+
 	}
 
 	public Widget draw() {
@@ -169,7 +179,7 @@ public class AddGroupExtSourceTabItem implements TabItem, TabItemWithUrl{
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

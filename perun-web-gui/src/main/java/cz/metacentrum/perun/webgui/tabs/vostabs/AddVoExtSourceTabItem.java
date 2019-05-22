@@ -38,7 +38,7 @@ import java.util.Map;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
-public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
+public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -92,6 +92,16 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 
 	public boolean isPrepared(){
 		return !(vo == null);
+	}
+
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return !alreadyAddedList.isEmpty();
+	}
+
+	@Override
+	public void onClose() {
+
 	}
 
 	public Widget draw() {
@@ -170,7 +180,7 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

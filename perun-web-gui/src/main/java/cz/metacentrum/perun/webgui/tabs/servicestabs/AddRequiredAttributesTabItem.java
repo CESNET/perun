@@ -83,6 +83,16 @@ public class AddRequiredAttributesTabItem implements TabItem {
 		return (service != null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return !alreadyAddedList.isEmpty();
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		titleWidget.setText("Add required attributes");
@@ -140,7 +150,7 @@ public class AddRequiredAttributesTabItem implements TabItem {
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().closeTab(tab, !alreadyAddedList.isEmpty());
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

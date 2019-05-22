@@ -53,6 +53,16 @@ public class TestAttributeTableTabItem implements TabItem, TabItemWithUrl{
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		PerunAttributeTableWidget.SaveEvent saveEvent = new PerunAttributeTableWidget.SaveEvent() {

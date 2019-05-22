@@ -100,6 +100,16 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 		return !(publication == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// MAIN PANEL
@@ -156,7 +166,7 @@ public class CreateThanksTabItem implements TabItem, TabItemWithUrl{
 			public void onClick(ClickEvent event) {
 				// trigger refresh of sub-tab via event
 				events.onFinished(null);
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

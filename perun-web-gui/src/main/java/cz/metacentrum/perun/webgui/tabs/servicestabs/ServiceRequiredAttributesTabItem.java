@@ -83,6 +83,15 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 		return !(service == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
 
 
 	public Widget draw() {

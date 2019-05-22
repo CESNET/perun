@@ -75,6 +75,16 @@ public class AssignGroupTabItem implements TabItem {
 		return !(group == null);
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return !alreadyAddedList.isEmpty();
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// set tab name
@@ -144,7 +154,7 @@ public class AssignGroupTabItem implements TabItem {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				// fixme - probably should be button for finish and close
-				session.getTabManager().closeTab(tab, true);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		}));
 

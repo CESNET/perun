@@ -56,6 +56,16 @@ public class SecurityTeamSelectTabItem implements TabItem, TabItemWithUrl {
 		return true;
 	}
 
+	@Override
+	public boolean isRefreshParentOnClose() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+
+	}
+
 	public Widget draw() {
 
 		// MAIN PANEL
@@ -129,7 +139,7 @@ public class SecurityTeamSelectTabItem implements TabItem, TabItemWithUrl {
 			@Override
 			public void update(int i, SecurityTeam securityTeam, String string) {
 				session.getTabManager().addTab(new SecurityTeamDetailTabItem(securityTeam));
-				session.getTabManager().closeTab(tab, false);
+				session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 			}
 		});
 
