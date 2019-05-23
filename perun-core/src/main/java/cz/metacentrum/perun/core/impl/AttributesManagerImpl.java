@@ -5193,6 +5193,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					Object value = null;
 					try {
 						value = BeansUtils.stringToAttributeValue(readAttributeValue(session, attrDef, rs), attrDef.getType());
+						Utils.notNull(value, "value");
 						switch (attrDef.getType()) {
 							case "java.lang.String":
 							case BeansUtils.largeStringClassName:
@@ -5235,6 +5236,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					Object value = null;
 					try {
 						value = BeansUtils.stringToAttributeValue(readAttributeValue(session, attrDef, rs), attrDef.getType());
+						Utils.notNull(value, "value");
 						switch (attrDef.getType()) {
 							case "java.lang.String":
 							case BeansUtils.largeStringClassName:
@@ -5388,6 +5390,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 
+		if (rights == null) {
+			throw new InternalErrorException("The attribute rights for the attribute with id " + attributeId + " were null.");
+		}
 		// set also empty rights for other roles (not present in DB)
 
 		boolean roleExists;

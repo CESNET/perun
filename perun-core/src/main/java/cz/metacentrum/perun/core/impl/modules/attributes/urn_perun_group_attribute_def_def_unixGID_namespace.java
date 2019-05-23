@@ -52,9 +52,8 @@ public class urn_perun_group_attribute_def_def_unixGID_namespace extends GroupAt
 			facilitiesOfGroup.add(sess.getPerunBl().getResourcesManagerBl().getFacility(sess, r));
 		}
 		//Prepare list of gid namespaces of all facilities which have the same groupName namespace like this unixGroupName namespace
-		Set<String> groupNameNamespaces;
 		try {
-			groupNameNamespaces = sess.getPerunBl().getModulesUtilsBl().getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(sess, new ArrayList<>(facilitiesOfGroup), attribute);
+			sess.getPerunBl().getModulesUtilsBl().getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace(sess, new ArrayList<>(facilitiesOfGroup), attribute);
 		} catch(WrongReferenceAttributeValueException ex) {
 			//TODO: need to add WrongAttributeAssignmentException to header of modules methods
 			throw new InternalErrorException(ex);

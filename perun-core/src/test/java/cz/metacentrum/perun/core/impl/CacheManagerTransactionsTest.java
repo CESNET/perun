@@ -659,6 +659,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 		assertEquals("returned attribute value should be null", null, cacheManager.getEntitylessAttrValue(attr.getId(), subject));
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAttributesByNames() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesByNames");

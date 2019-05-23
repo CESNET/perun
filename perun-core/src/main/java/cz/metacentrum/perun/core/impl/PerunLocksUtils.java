@@ -42,6 +42,7 @@ public class PerunLocksUtils {
 	 * @throws InternalErrorException
 	 * @throws InterruptedException
 	 */
+	@SuppressWarnings("ConstantConditions")
 	public static void lockGroupMembership(Group group, List<Member> members) throws InternalErrorException {
 		if(group == null) throw new InternalErrorException("Group can't be null when creating lock for group and list of members.");
 		if(members == null) throw new InternalErrorException("Members can't be null or empty when creating lock for group and list of members.");
@@ -83,6 +84,7 @@ public class PerunLocksUtils {
 				if (TransactionSynchronizationManager.getResource(uniqueKey.get()) == null) {
 					TransactionSynchronizationManager.bindResource(uniqueKey.get(), returnedLocks);
 				} else {
+					// the returned resource can never be null because of the previous check
 					((List<Lock>) TransactionSynchronizationManager.getResource(uniqueKey.get())).addAll(returnedLocks);
 				}
 			} catch (InterruptedException ex) {
@@ -102,6 +104,7 @@ public class PerunLocksUtils {
 	 * @throws InternalErrorException
 	 * @throws InterruptedException
 	 */
+	@SuppressWarnings("ConstantConditions")
 	public static void lockGroupMembership(Group group) throws InternalErrorException {
 		if(group == null) throw new InternalErrorException("Group can't be null when creating lock for group.");
 
@@ -120,6 +123,7 @@ public class PerunLocksUtils {
 				if (TransactionSynchronizationManager.getResource(uniqueKey.get()) == null) {
 					TransactionSynchronizationManager.bindResource(uniqueKey.get(), returnedLocks);
 				} else {
+					// the returned resource can never be null because of the previous check
 					((List<Lock>) TransactionSynchronizationManager.getResource(uniqueKey.get())).addAll(returnedLocks);
 				}
 			} catch (InterruptedException ex) {

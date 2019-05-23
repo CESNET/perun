@@ -135,6 +135,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", attrs.isEmpty());
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAllNonEmptyAttributesByStartPartOfName() throws Exception {
 		System.out.println(CLASS_NAME + "getAllAttributesByStartPartOfName");
@@ -190,6 +191,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", attrs.size() == 0);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAttributesByNamesAndPrimaryHolder() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesByNamesAndPrimaryHolder");
@@ -223,6 +225,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", attrs.size() == 0);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAttributesByNamesAndHolders() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesByNamesAndHolders");
@@ -326,6 +329,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", cacheManager.getAttributesByAttributeDefinition(attributeDefinition).size() == 0);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getVirtualAttributesByPrimaryHolder() throws Exception {
 		System.out.println(CLASS_NAME + "getVirtualAttributesByPrimaryHolder");
@@ -351,6 +355,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", attrs.size() == 0);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getVirtualAttributesByHolders() throws Exception {
 		System.out.println(CLASS_NAME + "getVirtualAttributesByHolders");
@@ -667,6 +672,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("it should return only 1 attribute", attrs.size() == 1);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAllNonEmptyEntitylessAttributesByNameWhenOnlyDefinitionExists() throws Exception {
 		System.out.println(CLASS_NAME + "getAllNonEmptyEntitylessAttributesByNameWhenOnlyDefinitionExists");
@@ -832,6 +838,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("it should return no attributes", values.isEmpty());
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAttributesByIdsAndPrimaryHolder() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesByIdsAndPrimaryHolder");
@@ -866,6 +873,7 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 		assertTrue("there should be no returned attributes", attrs.size() == 0);
 	}
 
+	@SuppressWarnings("SuspiciousMethodCalls")
 	@Test
 	public void getAttributesByIdsAndHolders() throws Exception {
 		System.out.println(CLASS_NAME + "getAttributesByIdsAndHolders");

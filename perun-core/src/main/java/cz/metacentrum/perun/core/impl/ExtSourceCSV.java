@@ -217,9 +217,6 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 	 */
 	private CSVReader initializeCSVReader(String fileName) throws FileNotFoundException {
 		FileReader fileReader = new FileReader(fileName);
-		if (fileReader == null) {
-			throw new FileNotFoundException("File was not found!");
-		}
 		return new CSVReader(fileReader);
 	}
 

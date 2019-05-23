@@ -137,6 +137,7 @@ public class Auditer {
 	protected static final RowMapper<AuditMessage> AUDITMESSAGE_MAPPER = new RowMapper<AuditMessage>() {
 		public AuditMessage mapRow(ResultSet rs, int i) throws SQLException {
 			AuditMessage auditMessage = AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
+			if (auditMessage == null) return null;
 			auditMessage.setMsg(BeansUtils.eraseEscaping(BeansUtils.replaceEscapedNullByStringNull(BeansUtils.replacePointyBracketsByApostrophe(auditMessage.getMsg()))));
 			return auditMessage;
 		}
@@ -171,17 +172,17 @@ public class Auditer {
 
 	protected static final RowMapper<String> AUDITER_FULL_LOG_MAPPER = (resultSet, i) -> {
 		AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(resultSet, i);
-		return auditMessage.getFullMessage();
+		return auditMessage == null ? null : auditMessage.getFullMessage();
 	};
 
 	protected static final RowMapper<String> AUDITER_LOG_MAPPER = (resultSet, i) -> {
 		AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(resultSet, i);
-		return auditMessage.getMsg();
+		return auditMessage == null ? null : auditMessage.getMsg();
 	};
 
 	protected static final RowMapper<String> AUDITER_LOG_MAPPER_FOR_PARSER = (rs, i) -> {
 		AuditMessage auditMessage = AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
-		return auditMessage.getMsg();
+		return auditMessage == null ? null : auditMessage.getMsg();
 	};
 
 	protected static final ResultSetExtractor<Map<String, Integer>> AUDITER_CONSUMER_EXTRACTOR = resultSet -> {
@@ -218,6 +219,10 @@ public class Auditer {
 			if (topLevelTransactions == null) {
 				newTopLevelTransaction();
 				topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
+				if (topLevelTransactions == null) {
+					log.error("Failed to log event: " + event + " in Auditer because topLevelTransaction was null.");
+					return;
+				}
 			}
 			// pick last top-level messages chain
 			List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
@@ -484,7 +489,6 @@ public class Auditer {
 			return;
 		}
 
-		final List<Integer> ids = new ArrayList<>();
 		final List<Pair<AuditerMessage, Integer>> msgs = new ArrayList<>();
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
 
@@ -513,7 +517,6 @@ public class Auditer {
 								try {
 									final int msgId = Utils.getNewId(jdbc, "auditer_log_id_seq");
 									ps.setInt(1, msgId);
-									ids.add(msgId);
 									msgs.add(new Pair<>(auditerMessage, msgId));
 								} catch (InternalErrorException e) {
 									throw new SQLException("Cannot get unique id for new auditer log message ['" + message + "']", e);

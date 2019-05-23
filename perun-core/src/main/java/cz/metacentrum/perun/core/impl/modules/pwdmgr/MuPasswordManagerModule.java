@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
@@ -381,11 +382,11 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 			throw new InternalErrorException("Error when creating newDocumentBuilder. Request ID: " + requestID, ex);
 		}
 
-		String response = null;
+		String response;
 		try {
 			response = convertStreamToString(inputStream, "UTF-8");
 		} catch (IOException ex) {
-			log.error("Unable to convert InputStream to String: {}", ex);
+			throw new IllegalArgumentException("Unable to convert InputStream to String.", ex);
 		}
 
 		log.trace("[IS Request {}] Response: {}", requestID, response);

@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.impl.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 
-		if (attribute != null && unpermittedLogins.contains(attribute.valueAsString())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
+		Utils.notNull(attribute, "attribute");
+		if (unpermittedLogins.contains(attribute.valueAsString())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
 
 		// check uniqueness
 		super.checkAttributeValue(sess, user, attribute);

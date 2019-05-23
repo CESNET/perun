@@ -153,6 +153,7 @@ public class SearcherImpl implements SearcherImplApi {
 	 * @param attributesWithSearchingValues attributes with values used for generating WHERE clauses
 	 * @throws InternalErrorException internal error
 	 */
+	@SuppressWarnings("ConstantConditions")
 	private void insertWhereClausesAndQueryParametersFromAttributes(StringBuilder query, MapSqlParameterSource parameters,
 	                                                                String attrValueTableName, String entityName, String entityTableName,
 	                                                                Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
@@ -205,6 +206,7 @@ public class SearcherImpl implements SearcherImplApi {
 					whereClauses.add("val" + counter + ".attr_value LIKE :v" + counter + " ");
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, ArrayList.class.getName());
+					// key can not be null because value is not null due to previous check
 					parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(key).substring(0, BeansUtils.attributeValueToString(key).length() - 1) + '%');
 				} else if (key.getType().equals(BeansUtils.largeArrayListClassName)) {
 					List<String> list = new ArrayList<>();
@@ -213,6 +215,7 @@ public class SearcherImpl implements SearcherImplApi {
 					whereClauses.add("val" + counter + ".attr_value_text LIKE :v" + counter + " ");
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, BeansUtils.largeArrayListClassName);
+					// key can not be null because value is not null due to previous check
 					parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(key).substring(0, BeansUtils.attributeValueToString(key).length() - 1) + '%');
 				} else if (key.getType().equals(LinkedHashMap.class.getName())) {
 					String[] splitMapItem = value.split("=");
