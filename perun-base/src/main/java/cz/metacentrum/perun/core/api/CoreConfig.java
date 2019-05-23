@@ -60,6 +60,7 @@ public class CoreConfig {
 	private String rtServiceuserPassword;
 	private String rtServiceuserUsername;
 	private String rtUrl;
+	private String rtSendToMail;
 	private String smsProgram;
 	private String userExtSourcesPersistent;
 	private List<String> allowedCorsDomains;
@@ -574,4 +575,11 @@ public class CoreConfig {
 		this.autocreatedNamespaces = autocreatedNamespaces;
 	}
 
+	public void setRtSendToMail(String rtSendToMail) {
+		this.rtSendToMail = rtSendToMail;
+	}
+
+	public String getRtSendToMail() {
+		return rtSendToMail;
+	}
 }

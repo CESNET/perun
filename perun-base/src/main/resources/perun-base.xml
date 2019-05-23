@@ -56,6 +56,7 @@
 		<property name="smtpUser" value="${perun.smtp.user}" />
 		<property name="smtpPass" value="${perun.smtp.pass}" />
 		<property name="autocreatedNamespaces" value="#{'${perun.autocreatedNamespaces}'.split('\s*,\s*')}" />
+		<property name="rtSendToMail" value="${perun.rt.sendToMail}" />
 	</bean>
 
 
@@ -90,6 +91,7 @@
 				<prop key="perun.rt.defaultQueue">perun</prop>
 				<prop key="perun.rt.serviceuser.username">perunv3-rt</prop>
 				<prop key="perun.rt.serviceuser.password">password</prop>
+				<prop key="perun.rt.sendToMail" />
 				<prop key="perun.passwordManager.program">/usr/local/bin/perun.passwordManager</prop>
 				<prop key="perun.alternativePasswordManager.program">/usr/local/bin/perun.altPasswordManager</prop>
 				<prop key="perun.recaptcha.privatekey"/>
