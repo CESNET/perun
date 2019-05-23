@@ -1,8 +1,6 @@
 package cz.metacentrum.perun.ldapc.beans;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.ldapc.model.PerunVO;
-import cz.metacentrum.perun.rpclib.Rpc;
 
 @Component
 public class VOSynchronizer extends AbstractSynchronizer {
@@ -25,17 +22,17 @@ public class VOSynchronizer extends AbstractSynchronizer {
 
 	@Autowired
 	protected PerunVO perunVO;
-	
+
 	public void synchronizeVOs() {
 		Perun perun = ldapcManager.getPerunBl();
 		try {
 			log.debug("Getting list of VOs");
 			// List<Vo> vos = Rpc.VosManager.getVos(ldapcManager.getRpcCaller());
-			List<Vo> vos = perun.getVosManager().getVos(ldapcManager.getPerunSession());  
+			List<Vo> vos = perun.getVosManager().getVos(ldapcManager.getPerunSession());
 			for (Vo vo : vos) {
 				// Map<String, Object> params = new HashMap<String, Object>();
 				// params.put("vo", new Integer(vo.getId()));
-				
+
 				try {
 					log.debug("Synchronizing VO entry {}", vo);
 					perunVO.synchronizeEntry(vo);
