@@ -71,12 +71,12 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 		if (message == null) return resolvingMessages;
 
 		if (message instanceof UserExtSourceAddedToUser) {
-			resolvingMessages.addAll(resolveEvent(sess, ((UserExtSourceAddedToUser) message).getUser()));
+			resolvingMessages.add(resolveEvent(sess, ((UserExtSourceAddedToUser) message).getUser()));
 		} else if (message instanceof UserExtSourceRemovedFromUser) {
-			resolvingMessages.addAll(resolveEvent(sess, ((UserExtSourceRemovedFromUser) message).getUser()));
+			resolvingMessages.add(resolveEvent(sess, ((UserExtSourceRemovedFromUser) message).getUser()));
 		} else if (message instanceof UserExtSourceUpdated) {
 			try {
-				resolvingMessages.addAll(resolveEvent(sess, sess.getPerunBl().getUsersManagerBl().getUserById(
+				resolvingMessages.add(resolveEvent(sess, sess.getPerunBl().getUsersManagerBl().getUserById(
 						sess, ((UserExtSourceUpdated) message).getUserExtSource().getUserId())));
 			} catch (UserNotExistsException e) {
 				throw new ConsistencyErrorException("User associated with updated UserExtSource no longer exists while resolving virtual attribute value change.", e);
@@ -87,7 +87,7 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 	}
 
 	/**
-	 * Resolve and create new auditer messages about LOA attribute change based on current attribute value.
+	 * Resolve and create new auditer message about LOA attribute change based on current attribute value.
 	 *
 	 * @param sess PerunSession
 	 * @param user User to resolve LoA messages
@@ -96,18 +96,15 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 	 * @throws AttributeNotExistsException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	private List<AuditEvent> resolveEvent(PerunSessionImpl sess, User user) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+	private AuditEvent resolveEvent(PerunSessionImpl sess, User user) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
-		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		Attribute attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_V_LOA);
 
 		if (attribute.getValue() == null) {
-			resolvingMessages.add(new AttributeRemovedForUser(new AttributeDefinition(attribute),user));
+			return new AttributeRemovedForUser(new AttributeDefinition(attribute),user);
 		} else {
-			resolvingMessages.add(new AttributeSetForUser(attribute,user));
+			return new AttributeSetForUser(attribute,user);
 		}
-
-		return resolvingMessages;
 
 	}
 
