@@ -557,13 +557,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	@Override
 	public UserExtSource updateUserExtSource(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
+		UserExtSource updatedUes = getUsersManagerImpl().updateUserExtSource(sess, userExtSource);
 		getPerunBl().getAuditer().log(sess, new UserExtSourceUpdated(userExtSource));
-		return getUsersManagerImpl().updateUserExtSource(sess, userExtSource);
+		return updatedUes;
 	}
 
 	@Override
 	public void updateUserExtSourceLastAccess(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
 		getUsersManagerImpl().updateUserExtSourceLastAccess(sess, userExtSource);
+		getPerunBl().getAuditer().log(sess, new UserExtSourceUpdated(userExtSource));
 	}
 
 	@Override
