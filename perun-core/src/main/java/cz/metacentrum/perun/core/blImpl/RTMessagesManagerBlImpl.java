@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -28,6 +29,9 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,6 +52,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 	private final PerunBl perunBl;
 	private final String rtURL;
 	private final String rtDefaultQueue;
+	private final MailSender mailSender = BeansUtils.getDefaultMailSender();
 
 	private final Pattern ticketNumberPattern = Pattern.compile("^# Ticket ([0-9]+) created.");
 
@@ -131,43 +136,70 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 			}
 		}
 
-		//Prepare sending message
-		HttpResponse response;
-		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-		// just like cookie-policy: ignore cookies
-		httpClientBuilder.disableCookieManagement();
-		HttpClient httpClient = httpClientBuilder.build();
+		if (StringUtils.isNotBlank(BeansUtils.getCoreConfig().getRtSendToMail())) {
 
-		StringBuilder responseMessage = new StringBuilder();
-		String ticketNumber = "0";
-		try {
-			response = httpClient.execute(this.prepareDataAndGetHttpRequest(sess, voId, queue, email, subject, text));
-			BufferedReader bw = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-			//Reading response from RT
-			String line;
-			while((line = bw.readLine()) != null) {
-				responseMessage.append(line);
-				responseMessage.append('\n');
-				//Matcher for ticketNumber
-				Matcher ticketNumberMatcher = this.ticketNumberPattern.matcher(line);
-				if(ticketNumberMatcher.find()) {
-					ticketNumber = ticketNumberMatcher.group(1);
-				}
+			// redirect all RT messages to mail address
+			SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+			simpleMailMessage.setSubject("["+queue+"] " + subject);
+			simpleMailMessage.setText(text);
+			if (email != null) {
+				simpleMailMessage.setReplyTo(email);
 			}
-		} catch (IOException ex) {
-			throw new InternalErrorException("IOException has been throw while executing http request.", ex);
+			simpleMailMessage.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
+			simpleMailMessage.setTo(BeansUtils.getCoreConfig().getRtSendToMail());
+
+			try {
+				log.trace("Message to be sent: {}", simpleMailMessage);
+				mailSender.send(simpleMailMessage);
+			} catch (MailException ex) {
+				log.error("RT message was not send to email address, due to an error.", ex);
+				throw new InternalErrorException("RT message was not send to email address, due to an error: " + ex.getMessage());
+			}
+
+			return new RTMessage(email, 0);
+
+		} else {
+
+			//Prepare sending message
+			HttpResponse response;
+			HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+			// just like cookie-policy: ignore cookies
+			httpClientBuilder.disableCookieManagement();
+			HttpClient httpClient = httpClientBuilder.build();
+
+			StringBuilder responseMessage = new StringBuilder();
+			String ticketNumber = "0";
+			try {
+				response = httpClient.execute(this.prepareDataAndGetHttpRequest(sess, voId, queue, email, subject, text));
+				BufferedReader bw = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+				//Reading response from RT
+				String line;
+				while((line = bw.readLine()) != null) {
+					responseMessage.append(line);
+					responseMessage.append('\n');
+					//Matcher for ticketNumber
+					Matcher ticketNumberMatcher = this.ticketNumberPattern.matcher(line);
+					if(ticketNumberMatcher.find()) {
+						ticketNumber = ticketNumberMatcher.group(1);
+					}
+				}
+			} catch (IOException ex) {
+				throw new InternalErrorException("IOException has been throw while executing http request.", ex);
+			}
+
+			//Return message if response is ok, or throw exception with bad response
+			int ticketNum = Integer.valueOf(ticketNumber);
+			if(ticketNum != 0) {
+				RTMessage rtmessage = new RTMessage(email, ticketNum);
+				log.debug("RT message was send successfully and the ticket has number: " + ticketNum);
+				return rtmessage;
+			} else {
+				throw new InternalErrorException("RT message was not send due to error with RT returned this message: " + responseMessage.toString());
+			}
+
 		}
 
-		//Return message if response is ok, or throw exception with bad response
-		int ticketNum = Integer.valueOf(ticketNumber);
-		if(ticketNum != 0) {
-			RTMessage rtmessage = new RTMessage(email, ticketNum);
-			log.debug("RT message was send successfully and the ticket has number: " + ticketNum);
-			return rtmessage;
-		} else {
-			throw new InternalErrorException("RT message was not send due to error with RT returned this message: " + responseMessage.toString());
-		}
 	}
 
 	private String findUserPreferredEmail(PerunSession sess, User user) throws InternalErrorException {
