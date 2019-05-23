@@ -119,6 +119,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	public static final String perunAttrClientID = "OIDCClientID";
 	public static final String perunAttrGroupNames = "groupNames";
 	public static final String perunAttrInstitutionsCountries = "institutionsCountries";
+	public static final String perunAttrIsCesnetEligible = "isCesnetEligibleLastSeen";
+	public static final String perunAttrLoA = "loa";
 
 	//LDAP ATTRIBUTES NAMES
 	public static final String ldapAttrAssignedToResourceId = "assignedToResourceId";
@@ -159,6 +161,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	public static final String ldapAttrIsSponsoredUser = "isSponsoredUser";
 	public static final String ldapAttrGroupNames = perunAttrGroupNames;
 	public static final String ldapAttrInstitutionsCountries = perunAttrInstitutionsCountries;
+	public static final String ldapAttrIsCesnetEligible = "isCesnetEligible";
+	public static final String ldapAttrLoA = "loa";
 
 	//LDAP OBJECT CLASSES
 	public static final String objectClassTop = "top";
@@ -575,7 +579,22 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 							updateUserAttribute(ldapAttrBonaFideStatus, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
-
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrIsCesnetEligible)) {
+					if(this.attribute.getValue() != null) {
+						updateUserAttribute(ldapAttrIsCesnetEligible, (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
+					} else {
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrIsCesnetEligible)) {
+							updateUserAttribute(ldapAttrIsCesnetEligible, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						}
+					}
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrLoA)) {
+					if(this.attribute.getValue() != null) {
+						updateUserAttribute(ldapAttrLoA, (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
+					} else {
+						if(ldapConnector.userAttributeExist(this.user, ldapAttrLoA)) {
+							updateUserAttribute(ldapAttrLoA, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						}
+					}
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrSchacHomeOrganizations)) {
 					updateUserMultivalueAttributeInLDAP((ArrayList) this.attribute.getValue(), this.user, ldapAttrSchacHomeOrganizations);
 
@@ -669,6 +688,16 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrBonaFideStatus)) {
 					if(ldapConnector.userAttributeExist(this.user, ldapAttrBonaFideStatus)) {
 						updateUserAttribute(ldapAttrBonaFideStatus, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					}
+
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":" + perunAttrIsCesnetEligible)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrIsCesnetEligible)) {
+						updateUserAttribute(ldapAttrIsCesnetEligible, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					}
+
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrLoA)) {
+					if(ldapConnector.userAttributeExist(this.user, ldapAttrLoA)) {
+						updateUserAttribute(ldapAttrLoA, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrSchacHomeOrganizations)) {
@@ -876,6 +905,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		attributesWithoutOption.add(ldapAttrUserCertDNs);
 		attributesWithoutOption.add(ldapAttrSchacHomeOrganizations);
 		attributesWithoutOption.add(ldapAttrBonaFideStatus);
+		attributesWithoutOption.add(ldapAttrIsCesnetEligible);
+		attributesWithoutOption.add(ldapAttrLoA);
 		attributesWithoutOption.add(ldapAttrEduPersonScopedAffiliations);
 		attributesWithoutOption.add(ldapAttrLibraryIDs);
 		attributesWithoutOption.add(ldapAttrTelephoneNumber);
