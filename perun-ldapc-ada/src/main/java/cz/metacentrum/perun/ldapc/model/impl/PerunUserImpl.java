@@ -84,11 +84,6 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 						PerunAttribute.PerunAttributeNames.ldapAttrIsSponsoredUser, 
 						PerunAttribute.REQUIRED, 
 						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> user.isSponsoredUser() ? "1" : "0"
-						),
-				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrPreferredMail, 
-						PerunAttribute.OPTIONAL, 
-						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> user.isSponsoredUser() ? "1" : "0"
 						)
 				);
 	}
