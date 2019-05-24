@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.ldapc.service;
 
 import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -20,7 +19,7 @@ public interface LdapcManager {
 	void stopProcessingEvents();
 
 	void synchronize();
-	
+
 	/**
 	 * Sets RPCCaller.
 	 *
@@ -34,9 +33,9 @@ public interface LdapcManager {
 	 * @return rpcCaller
 	 */
 	RpcCaller getRpcCaller();
-	
+
 	public Perun getPerunBl();
-	
+
 	public void setPerunBl(Perun perunBl);
 
 	public PerunSession getPerunSession() throws InternalErrorException;
@@ -44,5 +43,5 @@ public interface LdapcManager {
 	public PerunPrincipal getPerunPrincipal();
 
 	public void setPerunPrincipal(PerunPrincipal perunPrincipal);
-	
+
 }

@@ -18,7 +18,6 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
-import cz.metacentrum.perun.ldapc.processor.EventProcessor;
 import cz.metacentrum.perun.ldapc.processor.LdapConnector;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
 import cz.metacentrum.perun.rpclib.Rpc;

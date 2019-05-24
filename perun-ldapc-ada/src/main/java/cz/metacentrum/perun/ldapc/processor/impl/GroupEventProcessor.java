@@ -14,7 +14,6 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
-import cz.metacentrum.perun.rpclib.Rpc;
 
 public class GroupEventProcessor extends AbstractEventProcessor {
 
@@ -91,7 +90,7 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 		try {
 			// TODO move to PerunGroupImpl?
 			log.debug("Moving group {}", beans.getGroup());
-			perunGroup.modifyEntry(beans.getGroup(), 
+			perunGroup.modifyEntry(beans.getGroup(),
 						PerunAttribute.PerunAttributeNames.ldapAttrCommonName,
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunUniqueGroupName,
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunParentGroup,
@@ -99,7 +98,7 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 		} catch (NamingException | InternalErrorException e) {
 			log.error("Error moving group {}: {}", beans.getGroup().getId(), e.getMessage());
 		}
-		
+
 	}
 
 	public void processMemberValidated(String msg, MessageBeans beans) {
