@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -39,7 +40,7 @@ public class VOSynchronizer extends AbstractSynchronizer {
 					try {
 						log.debug("Getting list of VO {} members", vo.getId());
 						// List<Member> members = ldapcManager.getRpcCaller().call("membersManager", "getMembers", params).readList(Member.class);
-						List<Member> members = perun.getMembersManager().getMembers(ldapcManager.getPerunSession(), vo);
+						List<Member> members = perun.getMembersManager().getMembers(ldapcManager.getPerunSession(), vo, Status.VALID);
 						log.debug("Synchronizing {} members of VO {}", members.size(), vo.getId());
 						perunVO.synchronizeMembers(vo, members);
 					} catch (PerunException e) {
