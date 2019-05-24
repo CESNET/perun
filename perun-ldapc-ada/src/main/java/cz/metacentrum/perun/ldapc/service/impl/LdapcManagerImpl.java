@@ -36,12 +36,12 @@ public class LdapcManagerImpl implements LdapcManager {
 	private UserSynchronizer userSynchronizer;
 	@Autowired
 	private LdapProperties ldapProperties;
-	
+
 	private RpcCaller rpcCaller;
 	private PerunPrincipal perunPrincipal;
 	private Perun perunBl;
 	private PerunSession perunSession;
-	
+
 	public void startProcessingEvents() {
 		eventProcessorThread = new Thread(eventDispatcher);
 		eventProcessorThread.start();
@@ -69,7 +69,7 @@ public class LdapcManagerImpl implements LdapcManager {
 			log.error("Error synchronizing to LDAP", e);
 		}
 	}
-	
+
 	public void setRpcCaller(RpcCaller rpcCaller) {
 		this.rpcCaller = rpcCaller;
 	}

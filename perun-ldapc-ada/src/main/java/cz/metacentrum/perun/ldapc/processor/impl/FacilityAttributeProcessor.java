@@ -8,13 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ldap.NamingException;
 
 import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
-import cz.metacentrum.perun.rpclib.Rpc;
 
 public class FacilityAttributeProcessor extends AbstractAttributeProcessor {
 
@@ -86,6 +84,6 @@ public class FacilityAttributeProcessor extends AbstractAttributeProcessor {
 		} catch (NamingException | FacilityNotExistsException | InternalErrorException | PrivilegeException e) {
 			log.error("Error removing attributes:", e);
 		}
-	}	
+	}
 
 }
