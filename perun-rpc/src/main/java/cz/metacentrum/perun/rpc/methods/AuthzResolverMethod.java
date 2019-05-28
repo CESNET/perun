@@ -17,7 +17,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 
 	/*#
 	 * Returns list of caller's role names.
-	 * 
+	 *
 	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
 	 * @return List<String> List of roles
 	 */
@@ -29,27 +29,27 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 	/*#
 	 * Returns list of user's role names.
-	 * 
+	 *
 	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
 	 * @return List<String> List of roles
 	 */
 	getUserRoleNames {
 		@Override
 		public List<String> call(ApiCaller ac, Deserializer parms ) throws PerunException {
-			return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoleNames(ac.getSession(), ac.getUserById(parms.readInt("user"))); 
-		} 
+			return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoleNames(ac.getSession(), ac.getUserById(parms.readInt("user")));
+		}
 	},
 	/*#
 	 * Returns list of group's role names.
-	 * 
+	 *
 	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
 	 * @return List<String> List of roles
 	 */
 	getGroupRoleNames {
 		@Override
 		public List<String> call(ApiCaller ac, Deserializer parms ) throws PerunException {
-			return cz.metacentrum.perun.core.api.AuthzResolver.getGroupRoleNames(ac.getSession(), ac.getGroupById(parms.readInt("group"))); 
-		} 
+			return cz.metacentrum.perun.core.api.AuthzResolver.getGroupRoleNames(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+		}
 	},
 	/*#
 	 * Get all managers for complementaryObject and role with specified attributes.
@@ -300,7 +300,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 					return null;
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "list of complementary objects or complementary object");
-				}		
+				}
 			} else if(parms.contains("authorizedGroup")) {
 				if(parms.contains("complementaryObject")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
@@ -317,7 +317,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "list of complementary objects or complementary object");
 				}
-				
+
 			} else {
 				 throw new RpcException(RpcException.Type.MISSING_VALUE, "user or authorizedGroup");
 			}
@@ -325,53 +325,89 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns 1 if User has VO manager role (voadmin) for specific VO defined by ID.
+	 *
+	 * @param vo int <code>id</code> of object VO
+	 * @exampleResponse 1
+	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
+	 */
+	/*#
 	 * Returns 1 if User has VO manager role (voadmin).
-	 * 
+	 *
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
 	isVoAdmin {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (cz.metacentrum.perun.core.api.AuthzResolver.isVoAdmin(ac.getSession())) {
-				return 1;
-			} else return 0;
+			if(parms.contains("vo")) {
+				if(cz.metacentrum.perun.core.api.AuthzResolver.isAuthorized(
+					ac.getSession(), Role.VOADMIN, ac.getVoById(parms.readInt("vo")))) return 1;
+				else return 0;
+			} else {
+				if (cz.metacentrum.perun.core.api.AuthzResolver.isVoAdmin(ac.getSession())) return 1;
+				else return 0;
+			}
 		}
 	},
 
 	/*#
+	 * Returns 1 if User has Group manager role (groupadmin) for specific Group defined by ID.
+	 *
+	 * @param group int <code>id</code> of object Group
+	 * @exampleResponse 1
+	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
+	 */
+	/*#
 	 * Returns 1 if User has Group manager role (groupadmin).
-	 * 
+	 *
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
 	isGroupAdmin {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (cz.metacentrum.perun.core.api.AuthzResolver.isGroupAdmin(ac.getSession())) {
-				return 1;
-			} else return 0;
+			if (parms.contains("group")){
+				if(cz.metacentrum.perun.core.api.AuthzResolver.isAuthorized(
+					ac.getSession(), Role.GROUPADMIN, ac.getGroupById(parms.readInt("group")))) return 1;
+				else return 0;
+			} else{
+				if (cz.metacentrum.perun.core.api.AuthzResolver.isGroupAdmin(ac.getSession())) return 1;
+				else return 0;
+			}
 		}
 	},
 
 	/*#
+	 * Returns 1 if User has Facility manager role (facilityadmin) for specific Facility defined by ID.
+	 *
+	 * @param facility int <code>id</code> of object Facility
+	 * @exampleResponse 1
+	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
+	 */
+	/*#
 	 * Returns 1 if User has Facility manager role (facilityadmin).
-	 * 
+	 *
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
 	isFacilityAdmin {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (cz.metacentrum.perun.core.api.AuthzResolver.isFacilityAdmin(ac.getSession())) {
-				return 1;
-			} else return 0;
+			if(parms.contains("facility")) {
+				if(cz.metacentrum.perun.core.api.AuthzResolver.isAuthorized(
+					ac.getSession(), Role.FACILITYADMIN, ac.getFacilityById(parms.readInt("facility")))) return 1;
+				else return 0;
+			} else {
+				if (cz.metacentrum.perun.core.api.AuthzResolver.isFacilityAdmin(ac.getSession())) return 1;
+				else return 0;
+			}
 		}
 	},
 
 	/*#
 	 * Returns 1 if User has Perun admin role (perunadmin).
-	 * 
+	 *
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
@@ -386,7 +422,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 
 	/*#
 	 * Returns User which is associated with credentials used to log-in to Perun.
-	 * 
+	 *
 	 * @return User Currently logged user
 	 */
 	getLoggedUser {
@@ -412,7 +448,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 
 	/*#
 	 * Returns "OK" string. Helper method for GUI check if connection is alive.
-	 * 
+	 *
 	 * @exampleResponse "OK"
 	 * @return String "OK"
 	 */
