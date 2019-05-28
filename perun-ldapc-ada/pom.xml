@@ -97,7 +97,7 @@
 
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-rpc-lib</artifactId>
+			<artifactId>perun-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
