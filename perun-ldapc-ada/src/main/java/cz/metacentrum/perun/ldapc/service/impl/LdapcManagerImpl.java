@@ -16,7 +16,6 @@ import cz.metacentrum.perun.ldapc.beans.UserSynchronizer;
 import cz.metacentrum.perun.ldapc.beans.VOSynchronizer;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
-import cz.metacentrum.perun.rpclib.api.RpcCaller;
 
 @org.springframework.stereotype.Service(value = "ldapcManager")
 public class LdapcManagerImpl implements LdapcManager {
@@ -37,7 +36,6 @@ public class LdapcManagerImpl implements LdapcManager {
 	@Autowired
 	private LdapProperties ldapProperties;
 
-	private RpcCaller rpcCaller;
 	private PerunPrincipal perunPrincipal;
 	private Perun perunBl;
 	private PerunSession perunSession;
@@ -68,14 +66,6 @@ public class LdapcManagerImpl implements LdapcManager {
 		} catch (Exception  e) {
 			log.error("Error synchronizing to LDAP", e);
 		}
-	}
-
-	public void setRpcCaller(RpcCaller rpcCaller) {
-		this.rpcCaller = rpcCaller;
-	}
-
-	public RpcCaller getRpcCaller() {
-		return this.rpcCaller;
 	}
 
 	public Perun getPerunBl() {
