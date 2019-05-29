@@ -1713,7 +1713,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				threadIterator.remove();
 			} else if(timeDiff/1000/60 > timeout) {
 				// If the time is greater than timeout set in the configuration file (in minutes), interrupt and remove this thread from pool
-				log.error("One of threads was interrupted because of timeout!");
+				log.error("Thread was interrupted while synchronizing the group {} because of timeout!", thread.getGroup());
 				thread.interrupt();
 				threadIterator.remove();
 				numberOfNewlyRemovedThreads++;
@@ -1783,6 +1783,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		private final PerunBl perunBl;
 		private final PerunSession sess;
 		private volatile long startTime;
+		private Group group;
 
 		public GroupSynchronizerThread(PerunSession sess) throws InternalErrorException {
 			// take only reference to perun
@@ -1809,7 +1810,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				boolean failedDueToException = false;
 
 				//Take another group from the pool to synchronize it
-				Group group;
 				try {
 					group = poolOfGroupsToBeSynchronized.takeJob();
 				} catch (InterruptedException ex) {
@@ -1862,6 +1862,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
+		public Group getGroup() {
+			return group;
+		}
+
 		public long getStartTime() {
 			return startTime;
 		}
@@ -1906,6 +1910,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		private final PerunBl perunBl;
 		private final PerunSession sess;
 		private volatile long startTime;
+		private Group group;
 
 		/**
 		 * Take only reference to perun
@@ -1933,7 +1938,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				String skippedGroupsMessage = null;
 				boolean failedDueToException = false;
 
-				Group group;
 				try {
 					group = poolOfGroupsStructuresToBeSynchronized.takeJob();
 				} catch (InterruptedException ex) {
@@ -1972,6 +1976,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					log.debug("GroupStructureSynchronizerThread finished for group: {}", group);
 				}
 			}
+		}
+
+		public Group getGroup() {
+			return group;
 		}
 
 		public long getStartTime() {
@@ -3497,7 +3505,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				numberOfNewlyRemovedThreads++;
 				threadIterator.remove();
 			} else if(timeDiff/1000/60 > timeoutMinutes) {
-				log.error("One of threads was interrupted because of timeout!");
+				log.error("Thread was interrupted while synchronizing the group structure {} because of timeout!", thread.getGroup());
 				thread.interrupt();
 				threadIterator.remove();
 				numberOfNewlyRemovedThreads++;
