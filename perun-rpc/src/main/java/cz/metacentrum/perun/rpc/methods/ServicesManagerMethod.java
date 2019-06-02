@@ -148,9 +148,9 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Generates the list of attributes per each member associated with the resource.
 	 *
 	 * @param service int Service <code>id</code>
-	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources.
-	 * @param filterExpiredMembers if true the method does not take expired members into account
-	 * @return List<ServiceAttributes> Attributes in special structure. Facility is in the root, facility childrens are resources. And resource childrens are members.
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources.
+	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
+	 * @return List<ServiceAttributes> Attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
 	 <pre>
 	 Facility
 	 +---Attrs
@@ -179,8 +179,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Generates the list of attributes per each member associated with the resource.
 	 *
 	 * @param service int Service <code>id</code>
-	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources.
-	 * @return List<ServiceAttributes> Attributes in special structure. Facility is in the root, facility childrens are resources. And resource childrens are members.
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources.
+	 * @return List<ServiceAttributes> Attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
 	 <pre>
 	 Facility
 	 +---Attrs
@@ -227,9 +227,9 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
 	 *
 	 * @param service int Service <code>id</code>. You will get attributes required by this service
-	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take expired members into account
-	 * @return ServiceAttributes Attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's childrens are all resources. Facility second child is abstract node with no attribute and it's childrens are all users.
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
+	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
+	 * @return ServiceAttributes Attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all users.
 	 <pre>
 	 Facility
 	 +---Attrs
@@ -257,8 +257,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
 	 *
 	 * @param service int Service <code>id</code>. You will get attributes required by this service
-	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources
-	 * @return ServiceAttributes Attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's childrens are all resources. Facility second child is abstract node with no attribute and it's childrens are all users.
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
+	 * @return ServiceAttributes Attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all users.
 	 <pre>
 	 Facility
 	 +---Attrs
@@ -304,8 +304,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Generates the list of attributes per each member associated with the resources and groups.
 	 *
 	 * @param service int Service <code>id</code>. You will get attributes reuqired by this service
-	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take expired members into account
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
+	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return ServiceAttributes Attributes in special structure. Facility is in the root, facility children are resources.
 	 *         Resource first chil is abstract structure which children are groups.
 	 *         Resource  second chi is abstract structure which children are members.
@@ -380,7 +380,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Generates the list of attributes per each member associated with the resources and groups.
 	 *
 	 * @param service int Service <code>id</code>. You will get attributes reuqired by this service
-	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources associated with it and members assigned to the resources
 	 * @return ServiceAttributes Attributes in special structure. Facility is in the root, facility children are resources.
 	 *         Resource first chil is abstract structure which children are groups.
 	 *         Resource  second chi is abstract structure which children are members.
@@ -474,7 +474,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take expired members into account
+	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return attributes in special structure.
 	 *        Facility is in the root, facility children are vos.
 	 *        Vo first child is abstract structure which children are resources.

@@ -261,12 +261,12 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		//Get all facilities resources
 		List<Resource> resources = getAssignedResources(sess, facility, specificVo, specificService);
 
-		List<User> users = new ArrayList<>();
+		Set<User> users = new TreeSet<>();
 		for (Resource resource: resources) {
 			users.addAll(getPerunBl().getResourcesManagerBl().getAllowedUsersNotExpired(sess, resource));
 		}
 
-		return users;
+		return new ArrayList<>(users);
 	}
 
 	@Override

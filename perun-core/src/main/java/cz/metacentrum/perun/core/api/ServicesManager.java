@@ -140,7 +140,7 @@ public interface ServicesManager {
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take expired members into account
+	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
 	 <pre>
 	 Facility
@@ -179,7 +179,7 @@ public interface ServicesManager {
 	 * @param perunSession
 	 * @param service you will get attributes required by this service
 	 * @param facility you will get attributes for this facility, resources associated with it and users assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take expired members into account
+	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all users.
 	 <pre>
 	 Facility
@@ -216,7 +216,7 @@ public interface ServicesManager {
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take expired members into account
+	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return attributes in special structure. Facility is in the root, facility children are resources.
 	 *         Resource first child is abstract structure which children are groups.
 	 *         Resource  second chi is abstract structure which children are members.
@@ -299,7 +299,7 @@ public interface ServicesManager {
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
-	 * @param filterExpiredMembers if true the method does not take expired members into account
+	 * @param filterExpiredMembers if true the method does not take members expired in groups into account
 	 * @return attributes in special structure.
 	 *        Facility is in the root, facility children are vos.
 	 *        Vo first child is abstract structure which children are resources.
