@@ -502,8 +502,21 @@ public class Utils implements cz.metacentrum.perun.ldapc.initializer.api.UtilsAp
 			} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
 				log.error("LoA attribute is missing or it's assignment is wrong. Attribute was skipped.", ex);
 			}
-			if(attrLoA == null || attrLoA.getValue() == null || ((String) attrLoA.getValue()).isEmpty()) loa = null;
-			else loa+= (String) attrLoA.getValue();
+			if (attrLoA == null || attrLoA.getValue() == null) {
+				loa = null;
+			} else {
+				// we don't have unified type of loa attr value !!
+				if (attrLoA.getValue() instanceof String) {
+					if (!((String) attrLoA.getValue()).isEmpty()) {
+						loa += (String) attrLoA.getValue();
+					} else {
+						loa = null;
+					}
+				} else {
+					// integer expected
+					loa += String.valueOf(attrLoA.getValue());
+				}
+			}
 			if(loa != null) writer.write(loa + '\n');
 
 			//all certificates subjects
