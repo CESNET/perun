@@ -2,16 +2,21 @@ package cz.metacentrum.perun.core.impl;
 
 import com.zaxxer.hikari.HikariDataSource;
 import cz.metacentrum.perun.core.api.BeansUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * BasicDataSource used instead of BasicDataSource in Perun to override getConnection.
+ * DataSource used instead of HikariDataSource in Perun to override getConnection.
  *
  * @author Jiri Mauritz <jirmauritz at gmail dot com>
  */
 public class PerunBasicDataSource extends HikariDataSource {
+
+	private static final Logger log = LoggerFactory.getLogger(PerunBasicDataSource.class);
 
 	private Auditer auditer;
 	private CacheManager cacheManager;
@@ -44,5 +49,21 @@ public class PerunBasicDataSource extends HikariDataSource {
 
 	public void setCacheManager(CacheManager cacheManager) {
 		this.cacheManager = cacheManager;
+	}
+
+	@Override
+	public void setJdbcUrl(String jdbcUrl) {
+		//for PostgreSQL, adds system property ApplicationName to URL, it is diplayed as application_name in
+		// SELECT usename||'@'||datname AS who,application_name AS app,client_addr,state,query_start FROM pg_stat_activity ORDER BY app;
+		String applicationName = System.getProperty("ApplicationName");
+		if(applicationName!=null && jdbcUrl.contains("jdbc:postgresql")) {
+			if(jdbcUrl.contains("?")) {
+				jdbcUrl+= "&ApplicationName="+ URLEncoder.encode(applicationName);
+			} else {
+				jdbcUrl+= "?ApplicationName="+ URLEncoder.encode(applicationName);
+			}
+			log.info("changed jdbc.url to include ApplicationName: {}",jdbcUrl);
+		}
+		super.setJdbcUrl(jdbcUrl);
 	}
 }
