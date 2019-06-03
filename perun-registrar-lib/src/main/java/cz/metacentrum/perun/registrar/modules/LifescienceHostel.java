@@ -20,13 +20,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Module for VOs managing LifescienceHostel
+ * Module for VOs managing LifeScience Hostel
+ *
+ * NOTE: !!! LifeScience Hostel uses BBMRI login namespace !!!
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
+ * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
 public class LifescienceHostel implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(LifescienceHostel.class);
+
+	private final static String BBMRI_LOGIN_NS = "login-namespace:bbmri";
+	private final static String LS_HOSTEL_SCOPE = "@lifescience-hostel.org";
+	private final static String LS_HOSTEL_EXT_SOURCE_NAME = "https://login.bbmri-eric.eu/lshostel/";
 
 	private RegistrarManager registrar;
 
@@ -56,10 +63,10 @@ public class LifescienceHostel implements RegistrarModule {
 
 		} else {
 
-			Attribute userLogin = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:lifescience-hostel");
+			Attribute userLogin = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":" + BBMRI_LOGIN_NS);
 			if (userLogin != null && userLogin.getValue() != null) {
-				ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(session, "https://login.bbmri-eric.eu/lshostel/");
-				UserExtSource ues = new UserExtSource(extSource, userLogin.valueAsString() + "@lifescience-hostel.org");
+				ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(session, LS_HOSTEL_EXT_SOURCE_NAME);
+				UserExtSource ues = new UserExtSource(extSource, userLogin.valueAsString() + LS_HOSTEL_SCOPE);
 				ues.setLoa(0);
 
 				try {
