@@ -44,9 +44,9 @@ export KRB5CCNAME
 
 # Last processed ID can be set in /etc/perun/perun-ldapc (line above)
 if [ $LAST_PROCESSED_ID ]; then
-  DAEMON_OPTS="-Dlogback.configurationFile=$LOG_CONF -Dperun.conf.custom=$PERUN_LDAPC_CONF_DIR $JAVA_OPTS -Dspring.profiles.default=production -jar $JAR $LAST_PROCESSED_ID"
+  DAEMON_OPTS="-Dlogback.configurationFile=$LOG_CONF -Dperun.conf.custom=$PERUN_LDAPC_CONF_DIR $JAVA_OPTS -Dspring.profiles.default=production -DApplicationName=LDAPc -jar $JAR $LAST_PROCESSED_ID"
 else
-  DAEMON_OPTS="-Dlogback.configurationFile=$LOG_CONF -Dperun.conf.custom=$PERUN_LDAPC_CONF_DIR $JAVA_OPTS -Dspring.profiles.default=production -jar $JAR"
+  DAEMON_OPTS="-Dlogback.configurationFile=$LOG_CONF -Dperun.conf.custom=$PERUN_LDAPC_CONF_DIR $JAVA_OPTS -Dspring.profiles.default=production -DApplicationName=LDAPc -jar $JAR"
 fi
 
 # Load the VERBOSE setting and other rcS variables
