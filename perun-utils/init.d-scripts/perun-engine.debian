@@ -45,7 +45,7 @@ EXEC_DIR=/home/perun/perun-engine/
 # Read configuration if it is present.
 [ -r /etc/perun/$NAME ] && . /etc/perun/$NAME
 
-DAEMON_OPTS="-Dlogback.configurationFile=$LOG_CONF -Dperun.conf.custom=$PERUN_ENGINE_CONF_DIR $JAVA_OPTS -Dspring.profiles.default=production -jar $JAR"
+DAEMON_OPTS="-Dlogback.configurationFile=$LOG_CONF -Dperun.conf.custom=$PERUN_ENGINE_CONF_DIR $JAVA_OPTS -Dspring.profiles.default=production -DApplicationName=Engine -jar $JAR"
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
