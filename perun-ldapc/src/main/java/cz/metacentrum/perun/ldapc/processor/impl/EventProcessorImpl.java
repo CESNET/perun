@@ -589,7 +589,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 					}
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":" + perunAttrLoA)) {
 					if(this.attribute.getValue() != null) {
-						updateUserAttribute(ldapAttrLoA, (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
+						// we are not consistent in data type of LoA (Integer vs. String)
+						updateUserAttribute(ldapAttrLoA, String.valueOf(attribute.getValue()), LdapOperation.REPLACE_ATTRIBUTE, this.user);
 					} else {
 						if(ldapConnector.userAttributeExist(this.user, ldapAttrLoA)) {
 							updateUserAttribute(ldapAttrLoA, null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
