@@ -50,7 +50,15 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 			if(maxLoa < e.getLoa()) maxLoa = e.getLoa();
 		}
 		Attribute attribute = new Attribute(attributeDefinition);
-		attribute.setValue(maxLoa.toString());
+
+		// since we are not consistent of which data type LoA is between instances,
+		// we must determine it from attribute definition
+		if (String.class.getName().equals(attribute.getType())) {
+			attribute.setValue(maxLoa.toString());
+		} else {
+			attribute.setValue(maxLoa);
+		}
+
 		return attribute;
 	}
 
