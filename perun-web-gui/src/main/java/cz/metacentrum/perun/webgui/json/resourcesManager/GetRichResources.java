@@ -321,15 +321,16 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 			list.addAll(fullBackup);
 		} else {
 			for (RichResource res : fullBackup){
-				// store facility by filter
+				// store resources by filter
 				if (res.getName().toLowerCase().contains(filter.toLowerCase())) {
 					list.add(res);
-				}
-				for (ResourceTag r : res.getResourceTags()) {
-					// remove " (tag)" from tag name
-					if (r.getName().contains(filter.substring(0, (filter.length() > 6) ? filter.length()-6 : filter.length()).trim())) {
-						list.add(res);
-						break;
+				} else {
+					for (ResourceTag r : res.getResourceTags()) {
+						// remove " (tag)" from tag name
+						if (r.getName().contains(filter.substring(0, (filter.length() > 6) ? filter.length()-6 : filter.length()).trim())) {
+							list.add(res);
+							break;
+						}
 					}
 				}
 			}
