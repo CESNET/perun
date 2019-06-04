@@ -126,11 +126,12 @@ public interface ServicesManagerBl {
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
+	 * @param filterExpiredMembers if true the method does not take expired members into account
 	 * @return attributes in special structure. Facility is in the root, facility children are resources. And resource children are members.
 	 *
 	 * @throws InternalErrorException
 	 */
-	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
+	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException;
 
 	/**
 	 * Generates the list of attributes per each resource associated with the facility and filtered by service. Next it generates list of attributes
@@ -139,12 +140,13 @@ public interface ServicesManagerBl {
 	 * @param perunSession
 	 * @param service you will get attributes required by this service
 	 * @param facility you will get attributes for this facility, resources associated with it and users assigned to the resources
+	 * @param filterExpiredMembers if true the method does not take expired members into account
 	 * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources.
 	 * 				Facility second child is abstract node with no attribute and it's children are all users.
 	 *
 	 * @throws InternalErrorException
 	 */
-	ServiceAttributes getFlatData(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
+	ServiceAttributes getFlatData(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException;
 
 	/**
 	 * Generates the list of attributes per each member associated with the resources and groups.
@@ -154,6 +156,7 @@ public interface ServicesManagerBl {
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
+	 * @param filterExpiredMembers if true the method does not take expired members into account
 	 * @return attributes in special structure. Facility is in the root, facility children are resources.
 	 *         Resource first child is abstract structure which children are groups.
 	 *         Resource  second chi is abstract structure which children are members.
@@ -162,13 +165,14 @@ public interface ServicesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
+	ServiceAttributes getDataWithGroups(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException;
 	/**
 	 * Generates the list of attributes per each member associated with the resources and groups.
 	 *
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
+	 * @param filterExpiredMembers if true the method does not take expired members into account
 	 * @return attributes in special structure. Facility is in the root, facility children are resources.
 	 *         Resource first child is abstract structure which children are groups.
 	 *         Resource  second chi is abstract structure which children are members.
@@ -178,7 +182,7 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws VoNotExistsException
 	 */
-	ServiceAttributes getDataWithVos(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, VoNotExistsException;
+	ServiceAttributes getDataWithVos(PerunSession perunSession, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException, VoNotExistsException;
 
 	/**
 	 * List packages

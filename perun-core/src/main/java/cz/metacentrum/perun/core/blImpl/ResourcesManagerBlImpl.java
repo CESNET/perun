@@ -278,6 +278,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	@Override
+	public List<User> getAllowedUsersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException {
+		return getResourcesManagerImpl().getAllowedUsersNotExpired(sess, resource);
+	}
+
+	@Override
 	public boolean isUserAssigned(PerunSession sess, User user, Resource resource) throws InternalErrorException {
 		return getResourcesManagerImpl().isUserAssigned(sess, user, resource);
 	}
@@ -306,6 +311,11 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	@Override
 	public List<Member> getAllowedMembers(PerunSession sess, Resource resource) throws InternalErrorException {
 		return getResourcesManagerImpl().getAllowedMembers(sess, resource);
+	}
+
+	@Override
+	public List<Member> getAllowedMembersNotExpired(PerunSession sess, Resource resource) throws InternalErrorException {
+		return getResourcesManagerImpl().getAllowedMembersNotExpired(sess, resource);
 	}
 
 	@Override

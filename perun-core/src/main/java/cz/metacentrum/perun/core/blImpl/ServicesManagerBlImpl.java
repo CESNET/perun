@@ -18,6 +18,10 @@ import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServiceUpdated;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageCreated;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageDeleted;
 import cz.metacentrum.perun.audit.events.ServicesManagerEvents.ServicesPackageUpdated;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Destination;
@@ -162,12 +166,17 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return resourceServiceAttributes;
 	}
 
-	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException {
+	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, boolean filterExpiredMembers) throws InternalErrorException {
 		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
 		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
 
 		List<Member> members;
-		members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
+		if (filterExpiredMembers) {
+			members = getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpired(sess, resource);
+		} else {
+			members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
+		}
+
 		HashMap<Member, List<Attribute>> attributes;
 
 		try {
@@ -186,7 +195,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	}
 
-	private ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException {
+	private ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, Resource resource, boolean filterExpiredMembers) throws InternalErrorException {
 
 		// append resource attributes
 		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
@@ -202,7 +211,14 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		ServiceAttributes membersAbstractSA = new ServiceAttributes();
 		Map<Member, ServiceAttributes> memberAttributes = new HashMap<>();
-		List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
+
+		List<Member> members;
+		if (filterExpiredMembers) {
+			members = getPerunBl().getResourcesManagerBl().getAllowedMembersNotExpired(sess, resource);
+		} else {
+			members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
+		}
+
 		HashMap<Member, List<Attribute>> attributes;
 
 		try {
@@ -223,7 +239,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		ServiceAttributes groupsAbstractSA = new ServiceAttributes();
 		List<Group> groups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		for(Group group: groups) {
-			groupsAbstractSA.addChildElement(getData(sess, service, facility, resource, group, memberAttributes));
+			groupsAbstractSA.addChildElement(getData(sess, service, facility, resource, group, memberAttributes, filterExpiredMembers));
 		}
 
 		//assign abstract services attributes to resource service attributes
@@ -233,19 +249,19 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return resourceServiceAttributes;
 	}
 
-	private ServiceAttributes getDataWithVo(PerunSession sess, Service service, Facility facility, Vo vo, List<Resource> resources) throws InternalErrorException {
+	private ServiceAttributes getDataWithVo(PerunSession sess, Service service, Facility facility, Vo vo, List<Resource> resources, boolean filterExpiredMembers) throws InternalErrorException {
 		ServiceAttributes voServiceAttributes = new ServiceAttributes();
 		voServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, vo));
 
 		for(Resource resource: resources) {
-			ServiceAttributes resourceServiceAttributes = getDataWithGroups(sess, service, facility, resource);
+			ServiceAttributes resourceServiceAttributes = getDataWithGroups(sess, service, facility, resource, filterExpiredMembers);
 			voServiceAttributes.addChildElement(resourceServiceAttributes);
 		}
 
 		return voServiceAttributes;
 	}
 
-	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Group group, Map<Member, ServiceAttributes> memberAttributes) throws InternalErrorException {
+	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Group group, Map<Member, ServiceAttributes> memberAttributes, boolean filterExpiredMembers) throws InternalErrorException {
 		ServiceAttributes groupServiceAttributes = new ServiceAttributes();
 		try {
 			// add group and group_resource attributes
@@ -258,13 +274,24 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		if (!group.getName().equals(VosManager.MEMBERS_GROUP)) {
 			List<Group> subGroups = getPerunBl().getGroupsManagerBl().getSubGroups(sess, group);
 			for(Group subGroup : subGroups) {
-				groupsSubGroupsElement.addChildElement(getData(sess, service, facility, resource, subGroup, memberAttributes));
+				groupsSubGroupsElement.addChildElement(getData(sess, service, facility, resource, subGroup, memberAttributes, filterExpiredMembers));
 			}
 		}
 
 		ServiceAttributes groupsMembersElement = new ServiceAttributes();
 		//Invalid and disabled are not allowed here
 		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
+
+		if (filterExpiredMembers) {
+			List<Member> membersToRemove = new ArrayList<>();
+			for (Member member : members) {
+				if (member.getGroupStatus() == MemberGroupStatus.EXPIRED) {
+					membersToRemove.add(member);
+				}
+			}
+			members.removeAll(membersToRemove);
+		}
+
 		for(Member member : members) {
 			// append also member_group attributes for each member in a group
 			// rest of member/user attributes was passed in a param if present
@@ -308,21 +335,21 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
 		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		resources.retainAll(getAssignedResources(sess, service));
 		for(Resource resource: resources) {
-			ServiceAttributes resourceServiceAttributes = getData(sess, service, facility, resource);
+			ServiceAttributes resourceServiceAttributes = getData(sess, service, facility, resource, filterExpiredMembers);
 			serviceAttributes.addChildElement(resourceServiceAttributes);
 		}
 		return serviceAttributes;
 	}
 
 	@Override
-	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
@@ -336,7 +363,12 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		}
 
 		ServiceAttributes allUsersServiceAttributes = new ServiceAttributes();
-		List<User> facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility, null, service);
+		List<User> facilityUsers;
+		if (filterExpiredMembers) {
+			facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsersNotExpired(sess, facility, null, service);
+		} else {
+			facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility, null, service);
+		}
 
 		// get attributes for all users at once !
 		HashMap<User, List<Attribute>> userFacilityAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, facilityUsers);
@@ -359,7 +391,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility) throws InternalErrorException, VoNotExistsException {
+	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException, VoNotExistsException {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
@@ -381,7 +413,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		for(Vo vo: vos) {
 			List<Resource> voResources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
 			voResources.retainAll(resources);
-			ServiceAttributes voServiceAttributes = getDataWithVo(sess, service, facility, vo, voResources);
+			ServiceAttributes voServiceAttributes = getDataWithVo(sess, service, facility, vo, voResources, filterExpiredMembers);
 			serviceAttributes.addChildElement(voServiceAttributes);
 		}
 
@@ -389,14 +421,14 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	@Override
-	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
 		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		resources.retainAll(getAssignedResources(sess, service));
 		for(Resource resource: resources) {
-			ServiceAttributes resourceServiceAttributes = getDataWithGroups(sess, service, facility, resource);
+			ServiceAttributes resourceServiceAttributes = getDataWithGroups(sess, service, facility, resource, filterExpiredMembers);
 			serviceAttributes.addChildElement(resourceServiceAttributes);
 		}
 		return serviceAttributes;

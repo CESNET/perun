@@ -248,7 +248,7 @@ public interface FacilitiesManagerBl {
 
 	/**
 	 * Return all users who can use this facility
-	 * specificVo and specificService can choose concrete users
+	 * You can specify VO or Service you are interested in to filter resulting users (they must be members of VO and from Resource with assigned Service).
 	 * if specificVo, specificService or both are null, they do not specific (all possible results are returned)
 	 *
 	 * @param sess
@@ -259,6 +259,20 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
+
+	/**
+	 * Return all users who can use this facility and who are not expired in any of groups associated with any resource
+	 * You can specify VO or Service you are interested in to filter resulting users (they must be members of VO and from Resource with assigned Service).
+	 * if specificVo, specificService or both are null, they do not specific (all possible results are returned)
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param specificVo specific only those results which are in specific VO (with null, all results)
+	 * @param specificService specific only those results, which have resource with assigned specific service (if null, all results)
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> getAllowedUsersNotExpired(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
 
 	/**
 	 * Return all members, which are "allowed" on facility.

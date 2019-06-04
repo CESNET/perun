@@ -178,7 +178,7 @@ public class ServicesManagerEntry implements ServicesManager {
 	}
 
 	@Override
-	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public ServiceAttributes getHierarchicalData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -190,11 +190,11 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		return getServicesManagerBl().getHierarchicalData(sess, service, facility);
+		return getServicesManagerBl().getHierarchicalData(sess, service, facility, filterExpiredMembers);
 	}
 
 	@Override
-	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public ServiceAttributes getFlatData(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -206,11 +206,11 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		return getServicesManagerBl().getFlatData(sess, service, facility);
+		return getServicesManagerBl().getFlatData(sess, service, facility, filterExpiredMembers);
 	}
 
 	@Override
-	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -222,11 +222,11 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		return getServicesManagerBl().getDataWithGroups(sess, service, facility);
+		return getServicesManagerBl().getDataWithGroups(sess, service, facility, filterExpiredMembers);
 	}
 
 	@Override
-	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, VoNotExistsException, ServiceNotExistsException, PrivilegeException {
+	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility, boolean filterExpiredMembers) throws InternalErrorException, FacilityNotExistsException, VoNotExistsException, ServiceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -238,7 +238,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		getServicesManagerBl().checkServiceExists(sess, service);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		return getServicesManagerBl().getDataWithVos(sess, service, facility);
+		return getServicesManagerBl().getDataWithVos(sess, service, facility, filterExpiredMembers);
 	}
 
 	@Override

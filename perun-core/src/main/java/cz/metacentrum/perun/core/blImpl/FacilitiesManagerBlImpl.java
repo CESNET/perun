@@ -256,6 +256,20 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
+	public List<User> getAllowedUsersNotExpired(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+
+		//Get all facilities resources
+		List<Resource> resources = getAssignedResources(sess, facility, specificVo, specificService);
+
+		Set<User> users = new TreeSet<>();
+		for (Resource resource: resources) {
+			users.addAll(getPerunBl().getResourcesManagerBl().getAllowedUsersNotExpired(sess, resource));
+		}
+
+		return new ArrayList<>(users);
+	}
+
+	@Override
 	public List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException {
 		return getFacilitiesManagerImpl().getAllowedMembers(sess, facility);
 	}
