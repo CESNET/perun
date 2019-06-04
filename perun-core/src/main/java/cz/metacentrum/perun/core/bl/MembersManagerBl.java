@@ -1212,8 +1212,10 @@ public interface MembersManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 * @throws MemberNotValidYetException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
 	 */
-	Member expireMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException;
+	Member expireMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Disable member.

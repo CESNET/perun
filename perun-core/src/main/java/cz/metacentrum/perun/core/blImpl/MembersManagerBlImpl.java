@@ -1541,16 +1541,23 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member expireMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException {
+	public Member expireMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 		if(this.haveStatus(sess, member, Status.EXPIRED)) {
 			log.debug("Trying to set member expired but he's already expired. " + member);
 			return member;
 		}
 
 		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
+		Status oldStatus = member.getStatus();
 		getMembersManagerImpl().setStatus(sess, member, Status.EXPIRED);
 		member.setStatus(Status.EXPIRED);
 		getPerunBl().getAuditer().log(sess, new MemberExpired(member));
+
+		//We need to check validity of attributes first (expired member has to have valid attributes)
+		if(oldStatus.equals(Status.INVALID) || oldStatus.equals(Status.DISABLED)) {
+			getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
+		}
+
 		return member;
 	}
 
@@ -2434,7 +2441,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 			try {
 				expireMember(sess, sponsoredMember);
-			} catch (MemberNotValidYetException ex) {
+			} catch (MemberNotValidYetException | WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
 				throw new InternalErrorException("cannot expire member "+sponsoredMember.getId(),ex);
 			}
 		}

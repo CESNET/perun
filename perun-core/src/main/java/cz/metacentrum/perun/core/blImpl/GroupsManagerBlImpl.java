@@ -3071,7 +3071,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 									perunBl.getMembersManagerBl().expireMember(sess, richMember);
 									log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), membershipExpiration.getValue());
 									log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
-								} catch (MemberNotValidYetException e) {
+								} catch (MemberNotValidYetException | WrongReferenceAttributeValueException | WrongAttributeValueException e) {
 									log.error("Consistency error while trying to expire member id {}, exception {}", richMember.getId(), e);
 								}
 							}
