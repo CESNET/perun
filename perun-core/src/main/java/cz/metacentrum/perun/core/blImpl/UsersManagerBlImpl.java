@@ -640,6 +640,49 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
+	public UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException {
+		if(attrId <= 0) throw new InternalErrorException("Unexpected attribute Id with zero or negative value.");
+		AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinitionById(sess, attrId);
+		return getUserExtSourceByUniqueAttributeValue(sess, attrDef, uniqueValue);
+
+	}
+
+	@Override
+	public UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, String attrName, String uniqueValue) throws InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException {
+		if(attrName == null || attrName.isEmpty()) throw new InternalErrorException("Can't find attribute, because it's name is missing.");
+		AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, attrName);
+
+		return getUserExtSourceByUniqueAttributeValue(sess, attrDef, uniqueValue);
+	}
+
+	/**
+	 * Return userExtSource for specific attribute definition and unique value.
+	 * If not found, throw and exception.
+	 *
+	 * It looks for exactly one value of the specific attribute type:
+	 * - Integer -> exactly match
+	 * - String -> exactly match
+	 * - Map -> exactly match of "key=value"
+	 * - ArrayList -> exactly match of one of the value
+	 *
+	 * @param sess
+	 * @param attrDef attribute definition we are looking for, has to be unique and in userExtSource namespace
+	 * @param uniqueValue value used for searching
+	 *
+	 * @return userExtSource found by attribute definition and it's unique value
+	 *
+	 * @throws InternalErrorException if attributeDefinition or uniqueValue is in incorrect format
+	 * @throws UserExtSourceNotExistsException if userExtSource can't be found
+	 */
+	private UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, AttributeDefinition attrDef, String uniqueValue) throws InternalErrorException, UserExtSourceNotExistsException {
+		if(!attrDef.getNamespace().startsWith(AttributesManager.NS_UES_ATTR)) throw new InternalErrorException("Attribute definition has to be from 'ues' namespace: " + attrDef);
+		if(!attrDef.isUnique()) throw new InternalErrorException("Attribute definition has to be unique: " + attrDef);
+		if(uniqueValue == null || uniqueValue.isEmpty()) throw new InternalErrorException("Can't find userExtSource by empty value!");
+
+		return usersManagerImpl.getUserExtSourceByUniqueAttributeValue(sess, attrDef.getId(), uniqueValue);
+	}
+
+	@Override
 	public List<UserExtSource> getAllUserExtSourcesByTypeAndLogin(PerunSession sess, String extType, String extLogin) throws InternalErrorException {
 		return getUsersManagerImpl().getAllUserExtSourcesByTypeAndLogin(sess, extType, extLogin);
 	}

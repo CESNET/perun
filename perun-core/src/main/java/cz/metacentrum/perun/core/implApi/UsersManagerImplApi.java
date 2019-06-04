@@ -309,6 +309,27 @@ public interface UsersManagerImplApi {
 	UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException;
 
 	/**
+	 * Return userExtSource for specific attribute id and unique value.
+	 * If not found, throw and exception.
+	 *
+	 * It looks for exactly one value of the specific attribute type:
+	 * - Integer -> exactly match
+	 * - String -> exactly match
+	 * - Map -> exactly match of "key=value"
+	 * - ArrayList -> exactly match of one of the value
+	 *
+	 * @param sess
+	 * @param attrId attribute id we are looking for
+	 * @param uniqueValue value used for searching
+	 *
+	 * @return userExtSource found by attribute id and it's unique value
+	 *
+	 * @throws InternalErrorException if Runtime exception has been thrown
+	 * @throws UserExtSourceNotExistsException if userExtSource can't be found
+	 */
+	UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws InternalErrorException, UserExtSourceNotExistsException;
+
+	/**
 	 * Get List of user ext sources by user
 	 *
 	 * @param sess session

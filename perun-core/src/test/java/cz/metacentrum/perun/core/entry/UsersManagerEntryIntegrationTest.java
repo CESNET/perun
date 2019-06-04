@@ -36,7 +36,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
@@ -605,6 +607,86 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		usersManager.getUserExtSourceById(sess, 0);
 		// shouldn't find ext source
 
+	}
+
+	@Test
+	public void getUserExtSourceByListValue() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceByListValue");
+
+		List<String> listValue = new ArrayList<>();
+		listValue.add("A-VALUE");
+		listValue.add("B-VALUE");
+		listValue.add("C-VALUE");
+
+		Attribute attribute = createUserExtSourceAttribute("testAttribute", ArrayList.class.getName(), listValue, true);
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, attribute);
+
+		for(String value : listValue) {
+			UserExtSource returnedUserExtSource = perun.getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, attribute.getId(), value);
+			assertEquals(userExtSource, returnedUserExtSource);
+		}
+	}
+
+	@Test
+	public void getUserExtSourceByMapValue() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceByMapValue");
+
+		Map<String, String> mapValue = new LinkedHashMap<>();
+		mapValue.put("A-KEY", "A-VALUE");
+		mapValue.put("B-KEY", "B-VALUE");
+		mapValue.put("C-KEY", "C-VALUE");
+
+		Attribute attribute = createUserExtSourceAttribute("testAttribute", LinkedHashMap.class.getName(), mapValue, true);
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, attribute);
+
+		for(String key : mapValue.keySet()) {
+			String uniqueValue = key + "=" + mapValue.get(key);
+			UserExtSource returnedUserExtSource = perun.getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, attribute.getId(), uniqueValue);
+			assertEquals(userExtSource, returnedUserExtSource);
+		}
+	}
+
+	@Test
+	public void getUserExtSourceByStringValue() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceByStringValue");
+
+		Attribute attribute = createUserExtSourceAttribute("testAttribute", String.class.getName(), "testValue", true);
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, attribute);
+
+		UserExtSource returnedUserExtSource = perun.getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, attribute.getId(), attribute.valueAsString());
+		assertEquals(userExtSource, returnedUserExtSource);
+	}
+
+	@Test
+	public void getUserExtSourceByIntegerValue() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceByIntegerValue");
+
+		Attribute attribute = createUserExtSourceAttribute("testAttribute", Integer.class.getName(), 77, true);
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, attribute);
+
+		UserExtSource returnedUserExtSource = perun.getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, attribute.getId(), attribute.valueAsInteger().toString());
+		assertEquals(userExtSource, returnedUserExtSource);
+	}
+
+	@Test
+	public void getUserExtSourceByBooleanValue() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceByBooleanValue");
+
+		Attribute attribute = createUserExtSourceAttribute("testAttribute", Boolean.class.getName(), true, true);
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, attribute);
+
+		UserExtSource returnedUserExtSource = perun.getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, attribute.getId(), attribute.valueAsBoolean().toString());
+		assertEquals(userExtSource, returnedUserExtSource);
+	}
+
+	@Test (expected=InternalErrorException.class)
+	public void getUserExtSourceByNonUniqueAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceByNonUniqueAttribute");
+
+		Attribute attribute = createUserExtSourceAttribute("testAttribute");
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, attribute);
+
+		perun.getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, attribute.getId(), attribute.valueAsString());
 	}
 
 	@Test (expected=UserExtSourceNotExistsException.class)
@@ -1321,14 +1403,19 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	private Attribute createUserExtSourceAttribute(String name) throws Exception {
+		return this.createUserExtSourceAttribute(name, String.class.getName(), "Testing value", false);
+	}
+
+	private Attribute createUserExtSourceAttribute(String name, String type, Object value, boolean unique) throws Exception {
 		AttributeDefinition attrDef = new AttributeDefinition();
 		attrDef.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
 		attrDef.setDescription(name);
 		attrDef.setFriendlyName(name);
-		attrDef.setType(String.class.getName());
+		attrDef.setType(type);
+		attrDef.setUnique(unique);
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 		Attribute attribute = new Attribute(attrDef);
-		attribute.setValue("Testing value");
+		attribute.setValue(value);
 		return attribute;
 	}
 }
