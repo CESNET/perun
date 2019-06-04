@@ -441,6 +441,50 @@ public interface UsersManagerBl {
 	UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException;
 
 	/**
+	 * Return userExtSource for specific attribute definition (specified by id) and unique value.
+	 * If not found, throw and exception.
+	 *
+	 * It looks for exactly one value of the specific attribute type:
+	 * - Integer -> exactly match
+	 * - String -> exactly match
+	 * - Map -> exactly match of "key=value"
+	 * - ArrayList -> exactly match of one of the value
+	 *
+	 * @param sess
+	 * @param attrId attribute id used for founding attribute definition which has to exists, be unique and in userExtSource namespace
+	 * @param uniqueValue value used for searching
+	 *
+	 * @return userExtSource found by attribute id and it's unique value
+	 *
+	 * @throws InternalErrorException if attrId or uniqueValue is in incorrect format
+	 * @throws UserExtSourceNotExistsException if userExtSource can't be found
+	 * @throws AttributeNotExistsException if attribute can't be found by it's id
+	 */
+	UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException;
+
+	/**
+	 * Return userExtSource for specific attribute definition (specified by id) and unique value.
+	 * If not found, throw and exception.
+	 *
+	 * It looks for exactly one value of the specific attribute type:
+	 * - Integer -> exactly match
+	 * - String -> exactly match
+	 * - Map -> exactly match of "key=value"
+	 * - ArrayList -> exactly match of one of the value
+	 *
+	 * @param sess
+	 * @param attrName attribute name used for founding attribute definition which has to exists, be unique and in userExtSource namespace
+	 * @param uniqueValue value used for searching
+	 *
+	 * @return userExtSource found by attribute name and it's unique value
+	 *
+	 * @throws InternalErrorException if attrName or uniqueValue is in incorrect format
+	 * @throws UserExtSourceNotExistsException if userExtSource can't be found
+	 * @throws AttributeNotExistsException if attribute can't be found by it's name
+	 */
+	UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, String attrName, String uniqueValue) throws InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException;
+
+	/**
 	 * Get all users userExtSources with last_access not older than (now - m),
 	 * where 'm' is number of months defined in CONSTANT in UsersManagerImpl.
 	 *

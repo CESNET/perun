@@ -620,6 +620,20 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	@Override
+	public UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, int attrId, String uniqueValue) throws InternalErrorException, UserExtSourceNotExistsException {
+		try {
+			return jdbc.queryForObject("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
+				" from user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id " +
+				" left join user_ext_source_attr_u_values on user_ext_source_attr_u_values.user_ext_source_id=user_ext_sources.id" +
+				" where user_ext_source_attr_u_values.attr_id=? and user_ext_source_attr_u_values.attr_value=?", USEREXTSOURCE_MAPPER, attrId, uniqueValue);
+		} catch (EmptyResultDataAccessException e) {
+			throw new UserExtSourceNotExistsException(e);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			return jdbc.query("SELECT " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
