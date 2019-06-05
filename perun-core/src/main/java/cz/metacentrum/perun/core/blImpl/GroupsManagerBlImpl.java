@@ -155,6 +155,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	private static final String A_G_D_EXPIRATION_RULES = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembershipExpirationRules";
 	private static final String A_MG_D_MEMBERSHIP_EXPIRATION = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":groupMembershipExpiration";
 	private static final String A_M_V_LOA = AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa";
+	private static final List<Status> statusesAffectedBySynchronization = Arrays.asList(Status.DISABLED, Status.EXPIRED, Status.INVALID);
 
 	private final Integer maxConcurrentGroupsStructuresToSynchronize;
 	private final PerunBeanProcessingPool<Group> poolOfGroupsStructuresToBeSynchronized;
@@ -3057,56 +3058,48 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			//Set correct member Status
-			// If the member has expired or disabled status, try to expire/validate him (depending on expiration date)
-			if (richMember.getStatus().equals(Status.DISABLED) || richMember.getStatus().equals(Status.EXPIRED)) {
+			Status memberStatus = richMember.getStatus();
+			if (statusesAffectedBySynchronization.contains(memberStatus)) {
+				//prepare variables with information about member's expiration
+				boolean memberHasExpiration;
+				boolean memberExpiredInPast = false;
+
 				Date now = new Date();
+				Date currentMembershipExpirationDate = now;
 				Attribute membershipExpiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, richMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-				if(membershipExpiration.getValue() != null) {
+				//Check if member has not empty expiration date
+				memberHasExpiration = membershipExpiration.getValue() != null;
+
+				if (memberHasExpiration) {
+					//Check if member has expiration date in the past or not (default is false even if he doesn't have expiration at all)
 					try {
-						Date currentMembershipExpirationDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpiration.getValue());
-						if (currentMembershipExpirationDate.before(now)) {
-							//disabled members which are after expiration date will be expired
-							if (richMember.getStatus().equals(Status.DISABLED)) {
-								try {
-									perunBl.getMembersManagerBl().expireMember(sess, richMember);
-									log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), membershipExpiration.getValue());
-									log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
-								} catch (MemberNotValidYetException | WrongReferenceAttributeValueException | WrongAttributeValueException e) {
-									log.error("Consistency error while trying to expire member id {}, exception {}", richMember.getId(), e);
-								}
-							}
-						} else {
-							//disabled and expired members which are before expiration date will be validated
-							try {
-								perunBl.getMembersManagerBl().validateMember(sess, richMember);
-								log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), membershipExpiration.getValue());
-								log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
-							} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-								log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
-							}
-						}
+						currentMembershipExpirationDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpiration.getValue());
+						memberExpiredInPast = currentMembershipExpirationDate.before(now);
 					} catch (ParseException ex) {
-						log.error("Group synchronization: memberId {} expiration String cannot be parsed, exception {}.",richMember.getId(), ex);
+						log.error("Group synchronization: memberId {} expiration String cannot be parsed, exception {}.", richMember.getId(), ex);
 					}
 				}
-			}
 
-			// If the member has INVALID status, try to validate the member
-			try {
-				if (richMember.getStatus().equals(Status.INVALID)) {
-					getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
+				if ((Status.DISABLED.equals(memberStatus) || Status.INVALID.equals(memberStatus)) && memberHasExpiration && memberExpiredInPast) {
+					//If member has expiration in the past (should be expired now) and is in other state than expired, expire him
+					try {
+						//if success, this method will change status of member as side effect
+						perunBl.getMembersManagerBl().expireMember(sess, richMember);
+						log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), membershipExpiration.getValue());
+						log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
+					} catch (WrongReferenceAttributeValueException | WrongAttributeValueException e) {
+						log.error("Consistency error while trying to expire member id {}, exception {}", richMember.getId(), e);
+					}
+				} else if ((memberHasExpiration && !memberExpiredInPast) || !memberHasExpiration) {
+					//If member shouldn't be expired, validate him (don't have expiration at all or expire in the future from now)
+					try {
+						perunBl.getMembersManagerBl().validateMember(sess, richMember);
+						log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), membershipExpiration.getValue());
+						log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
+					} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+						log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
+					}
 				}
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-				log.info("Member id {} will stay in INVALID state, because there was problem with attributes {}.", richMember.getId(), e);
-			}
-
-			// If the member has still DISABLED status, try to validate the member
-			try {
-				if (richMember.getStatus().equals(Status.DISABLED)) {
-					getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
-				}
-			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
-				log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
 			}
 		}
 	}
