@@ -72,7 +72,7 @@ public class UserAttributeProcessor extends AbstractAttributeProcessor {
 		}
 	}	
 
-	public void processExtSourceSet(String msg, MessageBeans beans) {
+	public void processExtSourceAdded(String msg, MessageBeans beans) {
 		// ensure we have the correct beans available
 		if(beans.getUser() == null || beans.getUserExtSource() == null) {
 			return;
