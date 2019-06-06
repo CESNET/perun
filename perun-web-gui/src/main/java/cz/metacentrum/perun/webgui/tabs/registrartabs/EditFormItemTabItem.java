@@ -65,7 +65,7 @@ public class EditFormItemTabItem implements TabItem {
 	 * Item object
 	 */
 	private ApplicationFormItem item;
-
+	private boolean forGroup = false;
 	private JsonCallbackEvents events;
 
 	/**
@@ -76,6 +76,7 @@ public class EditFormItemTabItem implements TabItem {
 	private ListBox federationAttributes = new ListBox();
 	private CheckBox requiredCheckBox = new CheckBox();
 	private ListBox perunDestinationAttributeListBox = new ListBox();
+	private ListBox perunSourceAttributeListBox = new ListBox();
 	private TextBox regexTextBox = new TextBox();
 	private ArrayList<CheckBox> applicationTypesCheckBoxes = new ArrayList<CheckBox>();
 	private TextBox federationAttributeCustomValue = new TextBox();
@@ -102,6 +103,19 @@ public class EditFormItemTabItem implements TabItem {
 	 */
 	public EditFormItemTabItem(ApplicationFormItem item, JsonCallbackEvents events) {
 		this.item = item;
+		this.events = events;
+	}
+
+	/**
+	 * Creates a tab instance
+	 *
+	 * @param item
+	 * @param forGroup
+	 * @param events
+	 */
+	public EditFormItemTabItem(ApplicationFormItem item, boolean forGroup, JsonCallbackEvents events) {
+		this.item = item;
+		this.forGroup = forGroup;
 		this.events = events;
 	}
 
@@ -454,6 +468,17 @@ public class EditFormItemTabItem implements TabItem {
 		GetAttributesDefinition attrDef = new GetAttributesDefinition(new JsonCallbackEvents() {
 			@Override
 			public void onError(PerunError error) {
+
+				// SOURCE LIST BOX
+				perunSourceAttributeListBox.clear();
+				perunSourceAttributeListBox.addItem("No item selected (empty value)", "");
+				if (item.getPerunSourceAttribute() != null && !item.getPerunSourceAttribute().isEmpty()) {
+					// add and select returned perun dest attr
+					perunSourceAttributeListBox.addItem(item.getPerunSourceAttribute(), item.getPerunSourceAttribute());
+					perunSourceAttributeListBox.setSelectedIndex(1);
+				}
+
+				// DESTINATION LIST BOX
 				perunDestinationAttributeListBox.clear();
 				perunDestinationAttributeListBox.addItem("No item selected (empty value)", "");
 				if (item.getPerunDestinationAttribute() != null && !item.getPerunDestinationAttribute().isEmpty()) {
@@ -461,13 +486,16 @@ public class EditFormItemTabItem implements TabItem {
 					perunDestinationAttributeListBox.addItem(item.getPerunDestinationAttribute(), item.getPerunDestinationAttribute());
 					perunDestinationAttributeListBox.setSelectedIndex(1);
 				}
+
 			}
 
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				// clear
+				perunSourceAttributeListBox.clear();
 				perunDestinationAttributeListBox.clear();
 				// set empty possibility
+				perunSourceAttributeListBox.addItem("No item selected (empty value)", "");
 				perunDestinationAttributeListBox.addItem("No item selected (empty value)", "");
 
 				ArrayList<AttributeDefinition> list = JsonUtils.jsoAsList(jso);
@@ -477,11 +505,21 @@ public class EditFormItemTabItem implements TabItem {
 					for (AttributeDefinition def : list) {
 						// add only member and user attributes
 						if (def.getEntity().equalsIgnoreCase("user") || def.getEntity().equalsIgnoreCase("member")) {
+							perunSourceAttributeListBox.addItem(def.getFriendlyName() + " (" + def.getEntity() + " / " + def.getDefinition() + ")", def.getName());
 							perunDestinationAttributeListBox.addItem(def.getFriendlyName() + " (" + def.getEntity() + " / " + def.getDefinition() + ")", def.getName());
+						} else if (def.getEntity().equalsIgnoreCase("vo")) {
+							// source attributes can be VO too
+							perunSourceAttributeListBox.addItem(def.getFriendlyName() + " (" + def.getEntity() + " / " + def.getDefinition() + ")", def.getName());
+						} else if (def.getEntity().equalsIgnoreCase("group") && forGroup) {
+							// source attributes can be Group too if form is for group
+							perunSourceAttributeListBox.addItem(def.getFriendlyName() + " (" + def.getEntity() + " / " + def.getDefinition() + ")", def.getName());
 						}
 					}
 				} else {
 					// no attr def loaded, keep as it is set
+					if (item.getPerunSourceAttribute() != null && !item.getPerunSourceAttribute().isEmpty()) {
+						perunSourceAttributeListBox.addItem(item.getPerunSourceAttribute(), item.getPerunSourceAttribute());
+					}
 					if (item.getPerunDestinationAttribute() != null && !item.getPerunDestinationAttribute().isEmpty()) {
 						perunDestinationAttributeListBox.addItem(item.getPerunDestinationAttribute(), item.getPerunDestinationAttribute());
 					}
@@ -494,10 +532,18 @@ public class EditFormItemTabItem implements TabItem {
 						break;
 					}
 				}
+				for (int i = 0; i < perunSourceAttributeListBox.getItemCount(); i++) {
+					// set proper value as "selected"
+					if (perunSourceAttributeListBox.getValue(i).equalsIgnoreCase(item.getPerunSourceAttribute())) {
+						perunSourceAttributeListBox.setSelectedIndex(i);
+						break;
+					}
+				}
 			}
 
 			@Override
 			public void onLoadingStart() {
+				perunSourceAttributeListBox.addItem("Loading...");
 				perunDestinationAttributeListBox.addItem("Loading...");
 			}
 		});
@@ -552,6 +598,7 @@ public class EditFormItemTabItem implements TabItem {
 		// sizes
 		shortNameTextBox.setWidth("200px");
 		federationAttributes.setWidth("200px");
+		perunSourceAttributeListBox.setWidth("300px");
 		perunDestinationAttributeListBox.setWidth("300px");
 		regexTextBox.setWidth("200px");
 
@@ -628,13 +675,25 @@ public class EditFormItemTabItem implements TabItem {
 
 			row++;
 
+			Label srcAttrLabel = new Label("Source attribute:");
+			ft.setWidget(row, 0, srcAttrLabel);
+			ft.setWidget(row, 1, perunSourceAttributeListBox);
+			ftf.setColSpan(row, 1, 2);
+
+			row++;
+			ft.setHTML(row, 1, "Select attribute, which will be used to pre-fill form value. You can select also VO "+(forGroup ? "and group" : "")+" attributes.");
+			ftf.setStyleName(row, 1, "inputFormInlineComment");
+			ftf.setColSpan(row, 1, 2);
+
+			row++;
+
 			Label destAttrLabel = new Label("Destination attribute:");
 			ft.setWidget(row, 0, destAttrLabel);
 			ft.setWidget(row, 1, perunDestinationAttributeListBox);
 			ftf.setColSpan(row, 1, 2);
 
 			row++;
-			ft.setHTML(row, 1, "Select attribute, where will be submitted value stored after accepting user`s application and where is taken to pre-fill the form.");
+			ft.setHTML(row, 1, "Select attribute, where will be submitted value stored after accepting user`s application.");
 			ftf.setStyleName(row, 1, "inputFormInlineComment");
 			ftf.setColSpan(row, 1, 2);
 
@@ -775,6 +834,14 @@ public class EditFormItemTabItem implements TabItem {
 		} else {
 			// empty value set
 			item.setPerunDestinationAttribute(null);
+		}
+
+		if (perunSourceAttributeListBox.getSelectedIndex() > 0) {
+			// some value set
+			item.setPerunSourceAttribute(perunSourceAttributeListBox.getValue(perunSourceAttributeListBox.getSelectedIndex()));
+		} else {
+			// empty value set
+			item.setPerunSourceAttribute(null);
 		}
 
 		item.setRegex(regexTextBox.getText().trim());

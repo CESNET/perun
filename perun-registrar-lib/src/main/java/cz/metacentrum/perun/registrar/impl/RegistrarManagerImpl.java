@@ -808,10 +808,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		int itemId = Utils.getNewId(jdbc, "APPLICATION_FORM_ITEMS_ID_SEQ");
 		jdbc.update(
-				"insert into application_form_items(id,form_id,ordnum,shortname,required,type,fed_attr,dst_attr,regex) values (?,?,?,?,?,?,?,?,?)",
+				"insert into application_form_items(id,form_id,ordnum,shortname,required,type,fed_attr,src_attr,dst_attr,regex) values (?,?,?,?,?,?,?,?,?,?)",
 				itemId, form.getId(), ordnum, item.getShortname(), item.isRequired() ? "1" : "0",
 				item.getType().name(), item.getFederationAttribute(),
-				item.getPerunDestinationAttribute(), item.getRegex());
+				item.getPerunSourceAttribute(), item.getPerunDestinationAttribute(), item.getRegex());
 
 		// create texts
 		for (Locale locale : item.getI18n().keySet()) {
@@ -872,11 +872,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			// else update form item
 
-			int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?,fed_attr=?,dst_attr=?,regex=? where id=?",
-					item.getOrdnum(), item.getShortname(), item.isRequired() ? "1" : "0", item
-							.getType().toString(), item.getFederationAttribute(), item
-							.getPerunDestinationAttribute(), item.getRegex(), item
-							.getId());
+			int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?,fed_attr=?,src_attr=?,dst_attr=?,regex=? where id=?",
+					item.getOrdnum(), item.getShortname(), item.isRequired() ? "1" : "0",
+					item.getType().toString(), item.getFederationAttribute(),
+					item.getPerunSourceAttribute(), item.getPerunDestinationAttribute(),
+					item.getRegex(), item.getId());
 			finalResult += result;
 			if (result == 0) {
 				// skip whole set if not found for update
@@ -2150,11 +2150,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// else update form item
 
-		int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?,fed_attr=?,dst_attr=?,regex=? where id=?",
-				item.getOrdnum(), item.getShortname(), item.isRequired() ? "1" : "0", item
-						.getType().toString(), item.getFederationAttribute(), item
-						.getPerunDestinationAttribute(), item.getRegex(), item
-						.getId());
+		int result = jdbc.update("update application_form_items set ordnum=?,shortname=?,required=?,type=?,fed_attr=?,src_attr=?,dst_attr=?,regex=? where id=?",
+				item.getOrdnum(), item.getShortname(), item.isRequired() ? "1" : "0",
+				item.getType().toString(), item.getFederationAttribute(),
+				item.getPerunSourceAttribute(), item.getPerunDestinationAttribute(),
+				item.getRegex(), item.getId());
 		if (result == 0) {
 			// skip whole set if not found for update
 		}
@@ -2239,22 +2239,34 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// we don't care that user is not yet member
 			}
 
+			// get also vo/group attributes for extended pre-fill !!
+			List<Attribute> voAttributes = attrManager.getAttributes(registrarSession, vo);
+			for (Attribute att : voAttributes) {
+				map.put(att.getName(), att);
+			}
+			if (group != null) {
+				List<Attribute> groupAttributes = attrManager.getAttributes(registrarSession, group);
+				for (Attribute att : groupAttributes) {
+					map.put(att.getName(), att);
+				}
+			}
+
 			Iterator<ApplicationFormItemWithPrefilledValue> it = ((Collection<ApplicationFormItemWithPrefilledValue>) itemsWithValues).iterator();
 			while (it.hasNext()) {
 				ApplicationFormItemWithPrefilledValue itemW = it.next();
-				String dstAtt = itemW.getFormItem().getPerunDestinationAttribute();
+				String sourceAttribute = itemW.getFormItem().getPerunSourceAttribute();
 				// skip items without perun attr reference
-				if (dstAtt == null || dstAtt.equals(""))
+				if (sourceAttribute == null || sourceAttribute.equals(""))
 					continue;
 				// if attr exist and value != null
-				if (map.get(dstAtt) != null && map.get(dstAtt).getValue() != null) {
+				if (map.get(sourceAttribute) != null && map.get(sourceAttribute).getValue() != null) {
 					if (itemW.getFormItem().getType() == PASSWORD) {
 						// if login in namespace exists, do not return password field
 						// because application form is not place to change login or password
 						it.remove();
 					} else {
 						// else set value
-						itemW.setPrefilledValue(BeansUtils.attributeValueToString(map.get(dstAtt)));
+						itemW.setPrefilledValue(BeansUtils.attributeValueToString(map.get(sourceAttribute)));
 					}
 				}
 			}
@@ -2290,24 +2302,24 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// TRY TO CONSTRUCT THE VALUE FROM PARTIAL FED-INFO
 
 				ApplicationFormItem item = itemW.getFormItem();
-				String dstAtt = item.getPerunDestinationAttribute();
-				if (URN_USER_TITLE_BEFORE.equals(dstAtt)) {
+				String sourceAttribute = item.getPerunSourceAttribute();
+				if (URN_USER_TITLE_BEFORE.equals(sourceAttribute)) {
 					String titleBefore = parsedName.get("titleBefore");
 					if (titleBefore != null && !titleBefore.trim().isEmpty())
 						itemW.setPrefilledValue(titleBefore);
-				} else if (URN_USER_TITLE_AFTER.equals(dstAtt)) {
+				} else if (URN_USER_TITLE_AFTER.equals(sourceAttribute)) {
 					String titleAfter = parsedName.get("titleAfter");
 					if (titleAfter != null && !titleAfter.trim().isEmpty())
 						itemW.setPrefilledValue(titleAfter);
-				} else if (URN_USER_FIRST_NAME.equals(dstAtt)) {
+				} else if (URN_USER_FIRST_NAME.equals(sourceAttribute)) {
 					String firstName = parsedName.get("firstName");
 					if (firstName != null && !firstName.trim().isEmpty())
 						itemW.setPrefilledValue(firstName);
-				} else if (URN_USER_LAST_NAME.equals(dstAtt)) {
+				} else if (URN_USER_LAST_NAME.equals(sourceAttribute)) {
 					String lastName = parsedName.get("lastName");
 					if (lastName != null && !lastName.trim().isEmpty())
 						itemW.setPrefilledValue(lastName);
-				} else if (URN_USER_DISPLAY_NAME.equals(dstAtt)) {
+				} else if (URN_USER_DISPLAY_NAME.equals(sourceAttribute)) {
 
 					// overwrite only if not filled by Perun
 					if (itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) {
@@ -3203,7 +3215,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	private static final String FORM_SELECT = "select id,vo_id,group_id,automatic_approval,automatic_approval_extension,module_name from application_form";
 
-	private static final String FORM_ITEM_SELECT = "select id,ordnum,shortname,required,type,fed_attr,dst_attr,regex from application_form_items";
+	private static final String FORM_ITEM_SELECT = "select id,ordnum,shortname,required,type,fed_attr,src_attr,dst_attr,regex from application_form_items";
 
 	private static final String FORM_ITEM_TEXTS_SELECT = "select locale,label,options,help,error_message from application_form_item_texts";
 
@@ -3268,7 +3280,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			ApplicationFormItem app = new ApplicationFormItem(rs.getInt("id"),
 					rs.getString("shortname"), rs.getBoolean("required"),
 					Type.valueOf(rs.getString("type")), rs.getString("fed_attr"),
-					rs.getString("dst_attr"), rs.getString("regex"));
+					rs.getString("src_attr"), rs.getString("dst_attr"), rs.getString("regex"));
 			app.setOrdnum(rs.getInt("ordnum"));
 			return app;
 		}

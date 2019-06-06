@@ -83,6 +83,22 @@ public class ApplicationFormItem extends JavaScriptObject {
 	}-*/;
 
 	/**
+	 * Get PerunSourceAttribute
+	 * @return PerunSourceAttribute
+	 */
+	public final native String getPerunSourceAttribute() /*-{
+		if(typeof this.perunSourceAttribute == "undefined") return "";
+		return this.perunSourceAttribute;
+	}-*/;
+
+	/**
+	 * Set PerunSourceAttribute
+	 */
+	public final native void setPerunSourceAttribute(String perunSourceAttribute) /*-{
+		this.perunSourceAttribute = perunSourceAttribute;
+	}-*/;
+
+	/**
 	 * Get perunDestinationAttribute
 	 * @return perunDestinationAttribute
 	 */
