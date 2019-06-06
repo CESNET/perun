@@ -27,11 +27,32 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.model.PerunEntry;
+import cz.metacentrum.perun.ldapc.model.PerunEntry.SyncOperation;
 
 public abstract class AbstractPerunEntry<T extends PerunBean> implements InitializingBean, PerunEntry<T> {
 
 	private final static Logger log = LoggerFactory.getLogger(AbstractPerunEntry.class);
 
+	protected class SyncOperationImpl implements SyncOperation {
+		public DirContextOperations entry;
+		public boolean isNew;
+
+		public SyncOperationImpl(DirContextOperations entry, boolean isNew) {
+			this.entry = entry;
+			this.isNew = isNew;
+		}
+
+		@Override
+		public boolean isNew() {
+			return isNew;
+		}
+
+		@Override
+		public DirContextOperations getEntry() {
+			return entry;
+		}
+	}
+	
 	@Autowired
 	protected LdapTemplate ldapTemplate;
 	@Autowired
@@ -127,7 +148,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	
 
 	@Override
-	public void synchronizeEntry(T bean) throws InternalErrorException {
+	public SyncOperation beginSynchronizeEntry(T bean) throws InternalErrorException {
 		DirContextOperations entry;
 		boolean newEntry = false;
 		try {
@@ -140,17 +161,18 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 			log.debug("Creating new entry {} ", entry.toString());
 			// map with objectclasses
 			mapToContext(bean, entry);
-			ldapTemplate.bind(entry);
+			// ldapTemplate.bind(entry);
 		} else {
 			log.debug("Modifying entry {} ", entry.toString());
 			// map without objectclasses (entry exists)
 			mapToContext(bean, entry, getAttributeDescriptions());
-			ldapTemplate.modifyAttributes(entry);
+			//ldapTemplate.modifyAttributes(entry);
 		}
+		return new SyncOperationImpl(entry, newEntry);
 	}
 
 	@Override
-	public void synchronizeEntry(T bean, Iterable<Attribute> attrs) throws InternalErrorException {
+	public SyncOperation beginSynchronizeEntry(T bean, Iterable<Attribute> attrs) throws InternalErrorException {
 		DirContextOperations entry;
 		boolean newEntry = false;
 		try {
@@ -165,11 +187,33 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 				mapToContext(bean, entry, attributeDesc, attribute);
 			}
 		}
+		/*
 		if(newEntry) {
 			ldapTemplate.bind(entry);
 		} else {
 			ldapTemplate.modifyAttributes(entry);
 		}
+		*/
+		return new SyncOperationImpl(entry, newEntry);
+	}
+
+	@Override
+	public void commitSyncOperation(SyncOperation op) throws InternalErrorException {
+		if(op.isNew()) {
+			ldapTemplate.bind(op.getEntry());
+		} else {
+			ldapTemplate.modifyAttributes(op.getEntry());
+		}
+	}
+
+	@Override
+	public void synchronizeEntry(T bean) throws InternalErrorException {
+		commitSyncOperation(beginSynchronizeEntry(bean));
+	}
+
+	@Override
+	public void synchronizeEntry(T bean, Iterable<Attribute> attrs) throws InternalErrorException {
+		commitSyncOperation(beginSynchronizeEntry(bean, attrs));
 	}
 
 	@Override

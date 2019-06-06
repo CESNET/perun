@@ -7,13 +7,15 @@ import java.util.Set;
 
 import javax.naming.Name;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 
-
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.User;
@@ -29,7 +31,7 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 
 	@Autowired
 	private PerunGroup perunGroup;
-	
+
 	@Override
 	protected List<String> getDefaultUpdatableAttributes() {
 		return Arrays.asList(
@@ -42,23 +44,23 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 	protected List<PerunAttribute<User>> getDefaultAttributeDescriptions() {
 		return Arrays.asList(
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrEntryStatus, 
-						PerunAttribute.REQUIRED, 
+						PerunAttribute.PerunAttributeNames.ldapAttrEntryStatus,
+						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> "active"
 						),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrSurname, 
-						PerunAttribute.REQUIRED, 
-						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> user.getLastName()
+						PerunAttribute.PerunAttributeNames.ldapAttrSurname,
+						PerunAttribute.REQUIRED,
+						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> (StringUtils.isBlank(user.getLastName()) ? "N/A" : user.getLastName())
 						),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrGivenName, 
-						PerunAttribute.OPTIONAL, 
+						PerunAttribute.PerunAttributeNames.ldapAttrGivenName,
+						PerunAttribute.OPTIONAL,
 						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> user.getFirstName()
 						),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrCommonName, 
-						PerunAttribute.REQUIRED, 
+						PerunAttribute.PerunAttributeNames.ldapAttrCommonName,
+						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> {
 							String firstName = user.getFirstName();
 							String lastName = user.getLastName();
@@ -71,18 +73,18 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 						}
 						),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrPerunUserId, 
-						PerunAttribute.REQUIRED, 
+						PerunAttribute.PerunAttributeNames.ldapAttrPerunUserId,
+						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> String.valueOf(user.getId())
 						),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrIsServiceUser, 
-						PerunAttribute.REQUIRED, 
+						PerunAttribute.PerunAttributeNames.ldapAttrIsServiceUser,
+						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> user.isServiceUser() ? "1" : "0"
 						),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrIsSponsoredUser, 
-						PerunAttribute.REQUIRED, 
+						PerunAttribute.PerunAttributeNames.ldapAttrIsSponsoredUser,
+						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> user.isSponsoredUser() ? "1" : "0"
 						)
 				);
@@ -119,30 +121,47 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 		ldapTemplate.modifyAttributes(entry);
 	}
 
-	@Override
-	public void synchronizeMembership(User user, Set<Integer> voIds, List<Group> groups) {
-		DirContextOperations entry = findByDN(buildDN(user));
+	protected void doSynchronizeMembership(DirContextOperations entry, Set<Integer> voIds, List<Group> groups) {
 		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrMemberOfPerunVo, voIds.stream().map(id -> String.valueOf(id)).toArray(String[]::new));
 		List<Name> memberOfNames = new ArrayList<Name>();
 		for(Group group: groups) {
 			memberOfNames.add(addBaseDN(perunGroup.getEntryDN(String.valueOf(group.getVoId()), String.valueOf(group.getId()))));
 		}
 		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrMemberOf, memberOfNames.toArray());
+	}
+	
+	protected void doSynchronizePrincipals(DirContextOperations entry, List<UserExtSource> extSources) {
+		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames,
+				extSources.stream()
+					.filter(ues -> ues != null && ues.getExtSource() != null
+						&& ues.getExtSource().getType() != null
+						&& ues.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP))
+					.map(ues ->  ues.getLogin())
+					.filter(login -> login != null)
+					.toArray(String[]::new)
+					);
+	}
+	
+	@Override
+	public void synchronizeUser(User user, Iterable<Attribute> attrs, Set<Integer> voIds, List<Group> groups, List<UserExtSource> extSources) throws InternalErrorException {
+		SyncOperation syncOp = beginSynchronizeEntry(user, attrs);
+		doSynchronizeMembership(syncOp.getEntry(), voIds, groups);
+		doSynchronizePrincipals(syncOp.getEntry(), extSources);
+		commitSyncOperation(syncOp);
+		//ldapTemplate.modifyAttributes(entry);
+	}
+
+	@Override
+	public void synchronizeMembership(User user, Set<Integer> voIds, List<Group> groups) {
+		DirContextOperations entry = findByDN(buildDN(user));
+		doSynchronizeMembership(entry, voIds, groups);
 		ldapTemplate.modifyAttributes(entry);
 	}
 
 	@Override
 	public void synchronizePrincipals(User user, List<UserExtSource> extSources) {
 		DirContextOperations entry = findByDN(buildDN(user));
-		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames, 
-				extSources.stream()
-					.filter(ues -> ues != null && ues.getExtSource() != null 
-						&& ues.getExtSource().getType() != null 
-						&& ues.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP))
-					.map(ues ->  ues.getLogin())
-					.filter(login -> login != null)
-					.toArray(String[]::new)
-					);
+		doSynchronizePrincipals(entry, extSources);
 		ldapTemplate.modifyAttributes(entry);
 	}
 

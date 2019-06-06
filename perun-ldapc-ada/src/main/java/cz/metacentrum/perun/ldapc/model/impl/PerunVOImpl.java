@@ -9,6 +9,7 @@ import javax.naming.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 
@@ -24,6 +25,7 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 	private final static Logger log = LoggerFactory.getLogger(PerunVOImpl.class);
 
 	@Autowired
+	@Lazy
 	private PerunUser user;
 	
 	@Override
@@ -99,14 +101,25 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 		ldapTemplate.modifyAttributes(userEntry);
 	}
 
-	@Override
-	public void synchronizeMembers(Vo vo, List<Member> members) {
-		DirContextOperations voEntry = findByDN(buildDN(vo));
+	protected void doSynchronizeMembers(DirContextOperations voEntry, List<Member> members) {
 		List<Name> memberList = new ArrayList<Name>(members.size());
 		for (Member member: members) {
 			memberList.add(addBaseDN(user.getEntryDN(String.valueOf(member.getUserId()))));
 		}
 		voEntry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrUniqueMember, memberList.stream().map( name -> name.toString()).toArray(String[]::new));
+	}
+	
+	@Override
+	public void synchronizeVo(Vo vo, List<Member> members) throws InternalErrorException {
+		SyncOperation syncOp = beginSynchronizeEntry(vo);
+		doSynchronizeMembers(syncOp.getEntry(), members);
+		commitSyncOperation(syncOp);
+	}
+
+	@Override
+	public void synchronizeMembers(Vo vo, List<Member> members) {
+		DirContextOperations voEntry = findByDN(buildDN(vo));
+		doSynchronizeMembers(voEntry, members);
 		ldapTemplate.modifyAttributes(voEntry);
 		// user attributes are set when synchronizing users
 	}

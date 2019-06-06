@@ -19,6 +19,11 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  */
 public interface PerunEntry<T extends PerunBean> {
 
+	public interface SyncOperation {
+		public boolean isNew();
+		public DirContextOperations getEntry();
+	};
+	
 	/**
 	 * 
 	 * @param bean
@@ -75,6 +80,28 @@ public interface PerunEntry<T extends PerunBean> {
 	 */
 	void deleteEntry(T bean) throws InternalErrorException;
 
+	/**
+	 * 
+	 * @param bean
+	 * @throws InternalErrorException
+	 */
+	SyncOperation beginSynchronizeEntry(T bean) throws InternalErrorException;
+	
+	/**
+	 * 
+	 * @param bean
+	 * @param attrs
+	 * @throws InternalErrorException 
+	 */
+	SyncOperation beginSynchronizeEntry(T bean, Iterable<Attribute> attrs) throws InternalErrorException;
+	
+	/**
+	 * 
+	 * @param op
+	 * @throws InternalErrorException
+	 */
+	void commitSyncOperation(SyncOperation op) throws InternalErrorException;
+	
 	/**
 	 * 
 	 * @param bean
