@@ -7,6 +7,7 @@ import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1083,6 +1084,25 @@ public enum MembersManagerMethod implements ManagerMethod {
 				return ac.getMembersManager().setStatus(ac.getSession(), ac.getMemberById(parms.readInt("member")), status, parms.readString("message"));
 			}
 			return ac.getMembersManager().setStatus(ac.getSession(), ac.getMemberById(parms.readInt("member")), status);
+		}
+	},
+
+	/*#
+	 * Set date to which will be member suspended in his VO.
+	 *
+	 * For almost unlimited time please use time in the far future.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param suspendedTo Date to which will be member suspended (after this date, he will not be affected by suspension any more)
+	 */
+	suspendMemberTo {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getMembersManager().suspendMemberTo(ac.getSession(), ac.getMemberById(parms.readInt("member")), parms.read("suspendedTo", Date.class));
+
+			return null;
 		}
 	},
 

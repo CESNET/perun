@@ -1033,6 +1033,21 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException, MemberNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(suspendedTo, "suspendedTo");
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+			throw new PrivilegeException(sess, "suspendMemberTo");
+		}
+
+		getMembersManagerBl().checkMemberExists(sess, member);
+
+		membersManagerBl.suspendMemberTo(sess, member, suspendedTo);
+	}
+
+	@Override
 	public Member validateMemberAsync(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);

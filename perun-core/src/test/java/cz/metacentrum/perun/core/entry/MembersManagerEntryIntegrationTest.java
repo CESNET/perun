@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -38,6 +39,8 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -303,6 +306,34 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		}
 
 		assertTrue(ids.contains(createdMember.getId()));
+	}
+
+	@Test
+	public void suspendMemberTo() throws Exception {
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.DAY_OF_MONTH, -1);
+		Date yesterday = calendar.getTime();
+		calendar.add(Calendar.DAY_OF_MONTH, +2);
+		Date tommorow = calendar.getTime();
+
+		Member member = perun.getMembersManager().getMemberById(sess, createdMember.getId());
+		assertTrue(member.getSuspendedTo() == null);
+		assertFalse(member.isSuspended());
+
+		perun.getMembersManager().suspendMemberTo(sess, member, yesterday);
+		member = perun.getMembersManager().getMemberById(sess, member.getId());
+		System.out.println(member);
+		String returnedValue = BeansUtils.getDateFormatterWithoutTime().format(member.getSuspendedTo());
+		String expectedValue = BeansUtils.getDateFormatterWithoutTime().format(yesterday);
+		assertEquals(expectedValue, returnedValue);
+		assertFalse(member.isSuspended());
+
+		perun.getMembersManager().suspendMemberTo(sess, member, tommorow);
+		member = perun.getMembersManager().getMemberById(sess, member.getId());
+		returnedValue = BeansUtils.getDateFormatterWithoutTime().format(member.getSuspendedTo());
+		expectedValue = BeansUtils.getDateFormatterWithoutTime().format(tommorow);
+		assertEquals(expectedValue, returnedValue);
+		assertTrue(member.isSuspended());
 	}
 
 	@Test

@@ -1101,6 +1101,18 @@ public interface MembersManagerBl {
 	void checkMemberExists(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException;
 
 	/**
+	 * Set date to which will be member suspended in his VO.
+	 *
+	 * For almost unlimited time please use time in the far future.
+	 *
+	 * @param sess
+	 * @param member member who will be suspended
+	 * @param suspendedTo date to which will be member suspended (after this date, he will not be affected by suspension any more)
+	 * @throws InternalErrorException
+	 */
+	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException;
+
+	/**
 	 * Return false if member has status INVALID or DISABLED. True in other cases.
 	 *
 	 * @param sess

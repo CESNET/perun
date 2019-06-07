@@ -973,6 +973,20 @@ public interface MembersManager {
 	Member setStatus(PerunSession sess, Member member, Status status, String message) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
 
 	/**
+	 * Set date to which will be member suspended in his VO.
+	 *
+	 * For almost unlimited time please use time in the far future.
+	 *
+	 * @param sess
+	 * @param member member who will be suspended
+	 * @param suspendedTo date to which will be member suspended (after this date, he will not be affected by suspension any more)
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws MemberNotExistsException
+	 */
+	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException, MemberNotExistsException, PrivilegeException;
+
+	/**
 	 * Validate all attributes for member and set member's status to VALID.
 	 * This method runs asynchronously. It immediately return member with <b>ORIGINAL</b> status and after asynchronous validation successfully
 	 * finishes it switch member's status to VALID. If validation ends with error, member keeps his status.
