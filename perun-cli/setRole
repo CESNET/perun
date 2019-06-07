@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w                                                                            
+#!/usr/bin/perl -w
 
 use strict;
 use warnings;
@@ -30,9 +30,9 @@ our $batch;
 
 my ($userId, $authorizedGroupId, $role, $facilityId, $groupId, $voId, $resourceId, $serviceId);
 GetOptions ("help|h"        => sub {
-		print help();
-		exit 0;
-	}, "batch|b"            => \$batch,
+	print help();
+	exit 0;
+}, "batch|b"            => \$batch,
 	"userId|u=i"            => \$userId,
 	"authorizedGroupId|a=i" => \$authorizedGroupId,
 	"role|R=s"              => \$role,
@@ -65,7 +65,17 @@ if ($role eq "PERUNADMIN") {
 	} else {
 		die "ERROR: PERUNADMIN role cannot be set for group \n";
 	}
-#if there is other role, only one complementary object is needed
+} elsif ($role eq "CABINETADMIN") {
+	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
+		die "ERROR: no other object needed when setting role $role\n";
+	}
+	if (defined($userId)) {
+		$authzResolverAgent->setRole( user => $userId, complementaryObject => undef, role => $role );
+		printMessage("CABINETADMIN role is successfully set for user $userId", $batch);
+	} else {
+		die "ERROR: CABINETADMIN role cannot be set for group \n";
+	}
+	#if there is other role, only one complementary object is needed
 } else {
 	#facility
 	if (defined($facilityId) && !defined($groupId) && !defined($voId) && !defined($resourceId) && !defined($serviceId)) {
@@ -125,7 +135,7 @@ if ($role eq "PERUNADMIN") {
 	#no object or more than one
 	} else {
 		die "ERROR: only one of objects (facility,vo,group,resource,service) id need to be set\n";
-	}
+}
 }
 
 

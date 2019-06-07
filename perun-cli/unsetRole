@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w                                                                            
+#!/usr/bin/perl -w
 
 use strict;
 use warnings;
@@ -65,7 +65,17 @@ if ($role eq "PERUNADMIN") {
 	} else {
 		die "ERROR: PERUNADMIN role cannot be unset from group \n";
 	}
-#if there is other role, only one complementary object is needed
+} elsif ($role eq "CABINETADMIN") {
+	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
+		die "ERROR: no other object needed when setting role $role\n";
+	}
+	if (defined($userId)) {
+		$authzResolverAgent->unsetRole( user => $userId, complementaryObject => undef, role => $role );
+		printMessage("CABINETADMIN role was removed from user $userId", $batch);
+	} else {
+		die "ERROR: CABINETADMIN role cannot be unset from group \n";
+	}
+	#if there is other role, only one complementary object is needed
 } else {
 	#facility
 	if (defined($facilityId) && !defined($groupId) && !defined($voId) && !defined($resourceId) && !defined($serviceId)) {

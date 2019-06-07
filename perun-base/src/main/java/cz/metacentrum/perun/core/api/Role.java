@@ -18,6 +18,7 @@ public enum Role {
 	VOOBSERVER ("voobserver"),
 	TOPGROUPCREATOR ("topgroupcreator"),
 	SECURITYADMIN ("securityadmin"),
+	CABINETADMIN ("cabinetadmin"),
 	UNKNOWNROLENAME ("unknown");
 
 	private final String roleName;

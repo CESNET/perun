@@ -542,6 +542,26 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
+	public void makeUserCabinetAdmin(PerunSession sess, User user) throws InternalErrorException {
+		try {
+			jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.CABINETADMIN.getRoleName());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeCabinetAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.CABINETADMIN.getRoleName())) {
+				throw new UserNotAdminException("User id=" + user.getId() + " is not cabinet admin.");
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public void addVoRole(PerunSession sess, Role role, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
 		if(!Arrays.asList(Role.SPONSOR,Role.TOPGROUPCREATOR,Role.VOADMIN,Role.VOOBSERVER).contains(role)) {
 			throw new IllegalArgumentException("Role "+role+" cannot be set on VO");

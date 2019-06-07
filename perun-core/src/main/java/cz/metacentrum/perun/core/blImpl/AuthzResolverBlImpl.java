@@ -1080,6 +1080,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if (role.equals(Role.PERUNADMIN)) {
 					if (user != null) makeUserPerunAdmin(sess, user);
 					else throw new InternalErrorException("Not supported perunRole on authorizedGroup.");
+				} else if (role.equals(Role.CABINETADMIN)) {
+					if (user != null) authzResolverImpl.makeUserCabinetAdmin(sess, user);
+					else throw new InternalErrorException("Not supported perunRole on authorizedGroup.");
 				} else if (role.equals(Role.VOOBSERVER)) {
 					if (complementaryObject instanceof Vo) {
 						if (user != null) authzResolverImpl.addVoRole(sess, Role.VOOBSERVER, (Vo) complementaryObject, user);
@@ -1154,6 +1157,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				//Check role
 				if (role.equals(Role.PERUNADMIN)) {
 					if (user != null) authzResolverImpl.removePerunAdmin(sess, user);
+					else throw new InternalErrorException("Not supported perunRole on authorizedGroup.");
+				} else if (role.equals(Role.CABINETADMIN)) {
+					if (user != null) authzResolverImpl.removeCabinetAdmin(sess, user);
 					else throw new InternalErrorException("Not supported perunRole on authorizedGroup.");
 				} else if (role.equals(Role.VOOBSERVER)) {
 					if (complementaryObject instanceof Vo) {
