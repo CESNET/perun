@@ -315,6 +315,24 @@ public interface AuthzResolverImplApi {
 	 */
 	void removePerunAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException;
 
+	/**
+	 * Make user Cabinet manager.
+	 *
+	 * @param sess PerunSession
+	 * @param user User to add Cabinet manager role.
+	 * @throws InternalErrorException When implementation fails
+	 */
+	void makeUserCabinetAdmin(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Remove role Cabinet manager from user.
+	 *
+	 * @param sess PerunSession
+	 * @param user User to have cabinet manager role removed
+	 * @throws InternalErrorException If implementation fails
+	 * @throws UserNotAdminException If user was not cabinet admin
+	 */
+	void removeCabinetAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException;
 
 	/**
 	 * Adds role for user in VO.

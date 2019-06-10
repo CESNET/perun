@@ -405,9 +405,9 @@ public interface CabinetManager {
 
 	/**
 	 * Delete publication by its ID.
-	 * Only author of the record or PerunAdmin can do this.
+	 * Only author of the record or CabinetAdmin can do this.
 	 *  - Author deletes authorships and thanks from publication.
-	 *  - PerunAdmin also delete publication record.
+	 *  - CabinetAdmin also delete publication record.
 	 *
 	 * @param sess PerunSession for authz
 	 * @param publication Publication to delete
