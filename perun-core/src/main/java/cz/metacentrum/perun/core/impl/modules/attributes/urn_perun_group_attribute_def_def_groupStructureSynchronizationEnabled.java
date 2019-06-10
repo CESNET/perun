@@ -69,6 +69,10 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 				if (requiredAttribute.getValue() == null) {
 					throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
 				}
+				requiredAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, group, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
+				if (requiredAttribute.getValue() == null) {
+					throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
+				}
 			} catch (AttributeNotExistsException e) {
 				throw new ConsistencyErrorException(e);
 			}
@@ -82,6 +86,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 		dependencies.add(GroupsManager.GROUPSQUERY_ATTRNAME);
 		dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 		dependencies.add(GroupsManager.GROUPEXTSOURCE_ATTRNAME);
+		dependencies.add(GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
 		return dependencies;
 	}
 

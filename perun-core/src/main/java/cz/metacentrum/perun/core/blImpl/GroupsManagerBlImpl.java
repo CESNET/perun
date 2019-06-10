@@ -136,6 +136,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+
 /**
  * GroupsManager business logic
  *
@@ -1656,9 +1657,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		updateExistingGroupsWhileSynchronization(sess, baseGroup, groupsToUpdate, skippedGroups);
 		removeFormerGroupsWhileSynchronization(sess, baseGroup, groupsToRemove, skippedGroups);
 
-		log.info("Group structure synchronization {}: ended.", baseGroup);
+		setUpSynchronizationAttributesForAllSubGroups(sess, baseGroup, source);
 
-		synchronizeSubGroupsMembers(sess, baseGroup, source);
+		log.info("Group structure synchronization {}: ended.", baseGroup);
 
 		return skippedGroups;
 	}
@@ -3367,7 +3368,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
-	 * Synchronize members for all subgroups of given base group
+	 * Set up attributes, which are necessary for members synchronization,for all subgroups of given base group.
 	 *
 	 * Method used by group structure synchronization
 	 *
@@ -3380,23 +3381,24 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	private void synchronizeSubGroupsMembers(PerunSession sess, Group baseGroup, ExtSource source) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		List<Group> groupsForMemberSynchronization = getAllSubGroups(sess, baseGroup);
+	private void setUpSynchronizationAttributesForAllSubGroups(PerunSession sess, Group baseGroup, ExtSource source) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		Attribute baseMembersQuery = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
-		Attribute membersQueryAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-		Attribute baseMemberExtsource = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME);
-
-		if (membersQueryAttribute.getValue() == null) {
+		if (baseMembersQuery.getValue() == null) {
 			throw new WrongAttributeValueException("Group members query attribute is not set for base group " + baseGroup + "!");
 		}
 
-		//Order subGroups from (leaf groups are first)
-		groupsForMemberSynchronization.sort((g1, g2) -> {
-			int g1size = g1.getName().split(":").length;
-			int g2size = g2.getName().split(":").length;
+		Attribute membersQueryAttribute = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
+		Attribute baseMemberExtsource = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME);
+		Attribute lightWeightSynchronization = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME);
+		Attribute synchronizationInterval = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
+		Attribute extSourceNameAttr = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
+		Attribute synchroEnabled = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
 
-			return g1size - g2size;
-		});
+		extSourceNameAttr.setValue(source.getName());
+		synchroEnabled.setValue("true");
+
+		List<Group> groupsForMemberSynchronization = getAllSubGroups(sess, baseGroup);
 
 		//for each group set attributes for members synchronization, synchronize them and save the result
 		for (Group group: groupsForMemberSynchronization) {
@@ -3407,54 +3409,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				} catch (ExtSourceAlreadyAssignedException e) {
 					log.info("ExtSource already assigned to group: {}", group);
 				}
-				Attribute extSourceNameAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPEXTSOURCE_ATTRNAME);
-				extSourceNameAttr.setValue(source.getName());
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, group, extSourceNameAttr);
 			}
 
-			Attribute membersQueryForGroup = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-			membersQueryForGroup.setValue(membersQueryAttribute.getValue().toString().replace("?", group.getShortName()));
-			getPerunBl().getAttributesManagerBl().setAttribute(sess, group, membersQueryForGroup);
+			membersQueryAttribute.setValue(baseMembersQuery.getValue().toString().replace("?", group.getShortName()));
 
-			Attribute groupMemberExtsource = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME);
-			groupMemberExtsource.setValue(baseMemberExtsource.getValue());
-			getPerunBl().getAttributesManagerBl().setAttribute(sess, group, groupMemberExtsource);
-
-			synchronizeMembersAndSaveResult(sess, group);
+			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, Arrays.asList(baseMemberExtsource, lightWeightSynchronization, synchronizationInterval, synchroEnabled, membersQueryAttribute));
 		}
 
-	}
-
-	/**
-	 * Synchronize members under group and save information about it
-	 *
-	 * Method used by group structure synchronization
-	 *
-	 * @param sess perun session
-	 * @param group under which will be members synchronized
-	 */
-	private void synchronizeMembersAndSaveResult(PerunSession sess, Group group) {
-		String exceptionMessage = null;
-		String skippedMembersMessage = null;
-		boolean failedDueToException = false;
-		try {
-			List<String> skippedMembers = perunBl.getGroupsManagerBl().synchronizeGroup(sess, group);
-			skippedMembersMessage = prepareSkippedObjectsMessage(skippedMembers, "members");
-			exceptionMessage = skippedMembersMessage;
-
-		} catch (Exception e) {
-			failedDueToException = true;
-			exceptionMessage = "Cannot synchronize group ";
-			log.error(exceptionMessage + group, e);
-			exceptionMessage += "due to exception: " + e.getClass().getName() + " => " + e.getMessage();
-		} finally {
-			try {
-				perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronizationInNestedTransaction(sess, group, failedDueToException, exceptionMessage);
-			} catch (Exception ex) {
-				log.error("When synchronization group " + group + ", exception was thrown.", ex);
-				log.info("Info about exception from synchronization: " + skippedMembersMessage);
-			}
-		}
 	}
 
 	/**

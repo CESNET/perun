@@ -112,13 +112,12 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup testGroup = new TestGroup("createdGroup", baseGroup.getShortName(), "group is child of base group");
 		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		// tested method
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
 		// asserts
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
@@ -135,11 +134,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup testGroup = new TestGroup("createdGroup", null, "group without parent");
 		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
@@ -156,11 +154,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup testGroup = new TestGroup("createdGroup", "nonExistingParent", "group's parent does not exist");
 		List<Map<String, String>> subjects = Collections.singletonList(testGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
@@ -178,11 +175,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup testGroupB = new TestGroup("groupB", baseGroup.getShortName(), "description of group B");
 		List<Map<String, String>> subjects = Arrays.asList(testGroupA.toMap(), testGroupB.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
@@ -197,7 +193,6 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup testGroupB = new TestGroup("groupB", "groupA", "description of group B");
 		List<Map<String, String>> subjects = Arrays.asList(testGroupB.toMap(), testGroupA.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
@@ -225,13 +220,12 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup testGroup = new TestGroup("createdGroup", subGroup.getShortName(), "child of subgroup (baseGroup -> subGroup -> [this group])");
 		subjects.add(testGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		// tested method
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
 		// assertions
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, subGroup);
 
@@ -255,11 +249,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		List<Map<String, String>> complexGroupTree = makeComplexGroupTreeSample(childOfBaseGroup.getShortName());
 		subjects.addAll(complexGroupTree);
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		// assert structure
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
@@ -283,11 +276,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		List<Map<String, String>> subjects = new ArrayList<>();
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
@@ -308,13 +300,12 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup subBaseTestGroup = new TestGroup("subGroup", baseGroup.getShortName(), "child of base group");
 		List<Map<String, String>> subjects = Collections.singletonList(subBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		// tested method
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
 		// asserts
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
@@ -339,11 +330,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup leafTestGroup = new TestGroup("leafGroup", subBaseGroup.getShortName(), "leaf group");
 		List<Map<String, String>> subjects = Arrays.asList(subBaseTestGroup.toMap(), leafTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
@@ -370,11 +360,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup modifiedSubBaseTestGroup = new TestGroup("modified", baseGroup.getShortName(), "child of base group");
 		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 		assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
@@ -392,11 +381,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup modifiedSubBaseTestGroup = new TestGroup("group1", baseGroup.getShortName(), "modified");
 		List<Map<String, String>> subjects = Collections.singletonList(modifiedSubBaseTestGroup.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 		assertTrue("Base group should have exactly one child!", 1 == subGroups.size());
@@ -418,11 +406,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		final TestGroup testGroupB = new TestGroup("groupB", groupA.getShortName(), "group B");
 		List<Map<String, String>> subjects = Arrays.asList(testGroupA.toMap(), testGroupB.toMap());
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 		assertTrue("Base group should have exactly one child!",1 == subGroups.size());
@@ -450,11 +437,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 
 		List<Map<String, String>> subjects = new ArrayList<>();
 		when(essa.getSubjectGroups(anyMap())).thenReturn(subjects);
-		when(essa.getGroupSubjects(anyMap())).thenReturn(Collections.emptyList());
 
 		List<String> skipped = groupsManagerBl.synchronizeGroupStructure(sess, baseGroup);
 
-		assertTrue("No users should be skipped!", skipped.isEmpty());
+		assertTrue("No groups should be skipped!", skipped.isEmpty());
 
 		List<Group> subGroups = groupsManagerBl.getSubGroups(sess, baseGroup);
 
@@ -487,6 +473,10 @@ public class GroupStructureSynchronizationIntegrationTest extends AbstractPerunI
 		Attribute membersQuery = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME));
 		membersQuery.setValue("SELECT * from members where groupName='?';");
 		attributesManagerBl.setAttribute(sess, baseGroup, membersQuery);
+
+		Attribute interval = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME));
+		interval.setValue("1");
+		attributesManagerBl.setAttribute(sess, baseGroup, interval);
 
 		// create test Group in database
 		assertNotNull("unable to create testing Group",returnedGroup);
