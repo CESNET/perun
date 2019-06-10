@@ -59,8 +59,9 @@ public interface UsersManagerBl {
 	 *
 	 * @param perunSession
 	 * @param userExtSource
-	 * @return selected user or throws  in case the user doesn't exists
+	 * @return selected user or throws UserNotExistsException in case the user doesn't exists
 	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
 	 */
 	User getUserByUserExtSource(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException;
 
