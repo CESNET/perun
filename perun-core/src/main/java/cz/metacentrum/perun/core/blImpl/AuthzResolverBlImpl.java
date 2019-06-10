@@ -1070,8 +1070,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			throw new InternalErrorException("There is no object for setting role (user or authorizedGroup).");
 		if (authorizedGroup != null && user != null)
 			throw new InternalErrorException("There are both authorizedGroup and user for setting role, only one is acceptable.");
-		if (!role.equals(Role.PERUNADMIN) && complementaryObject == null)
-			throw new InternalErrorException("Complementary object can be null only for the role perunadmin.");
+		if (!(role.equals(Role.PERUNADMIN) || role.equals(Role.CABINETADMIN)) && complementaryObject == null)
+			throw new InternalErrorException("Complementary object can be null only for the role perunadmin/cabinetadmin.");
 
 		//Check operation
 		switch (operation) {
