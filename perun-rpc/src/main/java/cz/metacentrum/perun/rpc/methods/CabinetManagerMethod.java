@@ -33,6 +33,46 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Deletes PublicationSystem by its ID.
+	 *
+	 * @param id int ID of PublicationSystem to delete.
+	 * @throw CabinetException When Category doesn't exists or has publications
+	 */
+	deletePublicationSystem {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			ac.getCabinetManager().deletePublicationSystem(ac.getSession(), ac.getPublicationSystemById(parms.readInt("id")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Creates new PublicationSystem.
+	 *
+	 * @param pubsys PublicationSystem Publication system to create.
+	 * @return PublicationSystem Created PublicationSystem with ID set.
+	 */
+	createPublicationSystem {
+		public PublicationSystem call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			return ac.getCabinetManager().createPublicationSystem(ac.getSession(), parms.read("pubsys", PublicationSystem.class));
+		}
+	},
+
+	/*#
+	 * Updates PublicationSystem by its ID.
+	 *
+	 * @param pubsys PublicationSystem Publication system to update.
+	 * @return PublicationSystem Created PublicationSystem with ID set.
+	 */
+	updatePublicationSystem {
+		public PublicationSystem call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			return ac.getCabinetManager().updatePublicationSystem(ac.getSession(), parms.read("pubsys", PublicationSystem.class));
+		}
+	},
+
+	/*#
 	 * Return list of all Categories in Perun or empty list of none present.
 	 *
 	 * @return List<Category> Categories

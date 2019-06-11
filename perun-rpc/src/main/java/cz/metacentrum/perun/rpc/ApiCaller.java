@@ -9,6 +9,7 @@ import javax.servlet.ServletContext;
 import cz.metacentrum.perun.cabinet.api.CabinetManager;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
+import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -420,6 +421,10 @@ public class ApiCaller {
 
 	public Publication getPublicationById(int id) throws PerunException {
 		return getCabinetManager().getPublicationById(id);
+	}
+
+	public PublicationSystem getPublicationSystemById(int id) throws PerunException {
+		return getCabinetManager().getPublicationSystemById(id);
 	}
 
 	public ApiCaller(ServletContext context, PerunPrincipal perunPrincipal, PerunClient client) throws InternalErrorException {
