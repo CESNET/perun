@@ -359,7 +359,7 @@ public class ExpirationNotifScheduler {
 				try {
 					perun.getMembersManagerBl().expireMember(sess, member);
 					log.info("Switching {} to EXPIRE state, due to expiration {}.", member, perun.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
-				} catch (MemberNotValidYetException e) {
+				} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 					log.error("Consistency error while trying to expire member {}, exception {}", member, e);
 				}
 			}

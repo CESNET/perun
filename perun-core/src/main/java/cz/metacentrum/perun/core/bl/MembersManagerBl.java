@@ -1145,6 +1145,9 @@ public interface MembersManagerBl {
 	 * Validate all atributes for member and set member's status to VALID.
 	 * This method runs synchronously.
 	 *
+	 * Method runs in nested transaction.
+	 * As side effect, on success will change status of the object member.
+	 *
 	 * @param sess
 	 * @param member
 	 * @return membet with new status set
@@ -1170,6 +1173,8 @@ public interface MembersManagerBl {
 	/**
 	 * Set member status to invalid.
 	 *
+	 * As side effect it will change status of the object member.
+	 *
 	 * @param sess
 	 * @param member
 	 * @return member with new status set
@@ -1180,6 +1185,8 @@ public interface MembersManagerBl {
 
 	/**
 	 * Suspend member.
+	 *
+	 * As side effect it will change status of the object member.
 	 *
 	 * @param sess
 	 * @param member
@@ -1193,6 +1200,8 @@ public interface MembersManagerBl {
 	/**
 	 * Suspend member with reason for suspension.
 	 *
+	 * As side effect it will change status of the object member.
+	 *
 	 * @param sess
 	 * @param member
 	 * @param message
@@ -1205,18 +1214,26 @@ public interface MembersManagerBl {
 
 	/**
 	 * Set member's status to expired.
+	 * All attributes are validated if was in INVALID or DISABLED state before.
+	 * If validation ends with error, member keeps his old status.
+	 *
+	 * Method runs in nested transaction.
+	 * As side effect, on success will change status of the object member.
 	 *
 	 * @param sess
 	 * @param member
 	 * @return member with new status set
 	 *
 	 * @throws InternalErrorException
-	 * @throws MemberNotValidYetException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
 	 */
-	Member expireMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException;
+	Member expireMember(PerunSession sess, Member member) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Disable member.
+	 *
+	 * As side effect, on success will change status of the object member.
 	 *
 	 * @param sess
 	 * @param member
