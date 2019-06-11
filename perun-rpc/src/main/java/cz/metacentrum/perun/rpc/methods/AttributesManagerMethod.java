@@ -14,6 +14,7 @@ import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+import cz.metacentrum.perun.utils.graphs.GraphDTO;
 import guru.nidi.graphviz.engine.Graphviz;
 
 public enum AttributesManagerMethod implements ManagerMethod {
@@ -3356,7 +3357,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	getAttributeModulesDependenciesGraphText {
 		@Override
-		public String call(ApiCaller ac, Deserializer parms) throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
+		public GraphDTO call(ApiCaller ac, Deserializer parms) throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
 			String formatString = parms.readString("format").toUpperCase();
 
 			GraphTextFormat format;
@@ -3368,10 +3369,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 
 			if (parms.contains("attrName")) {
-				return ac.getAttributesManager().getModulesDependenciesGraphText(ac.getSession(), format, parms.readString("attrName"));
+				return ac.getAttributesManager().getModulesDependenciesGraph(ac.getSession(), format, parms.readString("attrName"));
 			}
 
-			return ac.getAttributesManager().getModulesDependenciesGraphText(ac.getSession(), format);
+			return ac.getAttributesManager().getModulesDependenciesGraph(ac.getSession(), format);
 		}
 	},
 
