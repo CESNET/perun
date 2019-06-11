@@ -681,7 +681,7 @@ public class EditFormItemTabItem implements TabItem {
 			ftf.setColSpan(row, 1, 2);
 
 			row++;
-			ft.setHTML(row, 1, "Select attribute, which will be used to pre-fill form value. You can select also VO "+(forGroup ? "and group" : "")+" attributes.");
+			ft.setHTML(row, 1, "Select attribute, which will be used to pre-fill form value. You can select also VO "+(forGroup ? "and grou p" : "")+"attributes.");
 			ftf.setStyleName(row, 1, "inputFormInlineComment");
 			ftf.setColSpan(row, 1, 2);
 

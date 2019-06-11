@@ -33,20 +33,13 @@ public class ApplicationFormItemData {
 	}
 
 	public ApplicationFormItemData(ApplicationFormItem formItem, String shortname, String value, String prefilled, String assuranceLevel) {
-		this.formItem = formItem;
-		this.shortname = shortname;
-		this.value = value;
+		this(formItem, shortname, value, assuranceLevel);
 		this.prefilledValue = prefilled;
-		this.assuranceLevel = assuranceLevel;
 	}
 
 	public ApplicationFormItemData(Integer id, ApplicationFormItem formItem, String shortname, String value, String prefilled, String assuranceLevel) {
-		this.id = id;
-		this.formItem = formItem;
-		this.shortname = shortname;
-		this.value = value;
+		this(id, formItem, shortname, value, assuranceLevel);
 		this.prefilledValue = prefilled;
-		this.assuranceLevel = assuranceLevel;
 	}
 
 	public Integer getId() {

@@ -10,7 +10,7 @@
 
 3.1.53
 alter table application_form_items ADD src_attr varchar(384);
-update application_form_items set src_attr = application_form_items.dst_attr where id=application_form_items.id;
+update application_form_items set src_attr = application_form_items.dst_attr;
 update configurations set value='3.1.53' where property='DATABASE VERSION';
 
 3.1.52

@@ -73,14 +73,7 @@ public class ApplicationFormItem {
 	                           String perunSourceAttribute, String perunDestinationAttribute, String regex,
 	                           List<AppType> applicationTypes, Integer ordnum, boolean forDelete,
 	                           Map<Locale, ItemTexts> i18n) {
-		this.id = id;
-		this.shortname = shortname;
-		this.required = required;
-		this.type = type;
-		this.federationAttribute = federationAttribute;
-		this.perunSourceAttribute = perunSourceAttribute;
-		this.perunDestinationAttribute = perunDestinationAttribute;
-		this.regex = regex;
+		this(id, shortname, required, type, federationAttribute, perunSourceAttribute, perunDestinationAttribute, regex);
 		this.applicationTypes = applicationTypes;
 		this.ordnum = ordnum;
 		this.forDelete = forDelete;
