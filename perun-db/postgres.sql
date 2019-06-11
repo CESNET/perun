@@ -1,4 +1,4 @@
--- database version 3.1.52 (don't forget to update insert statement at the end of file)
+-- database version 3.1.53 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -601,6 +601,7 @@ create table application_form_items (
 	required char(1),          --value for item is mandatory
 	type varchar(128),         --type of item
 	fed_attr varchar(128),     --copied from federation attribute
+	src_attr varchar(384),     --sourced from attribute
 	dst_attr varchar(384),     --saved to attribute
 	regex varchar(4000),       --regular expression for checking of value
 	created_by_uid integer,
@@ -1903,7 +1904,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.52');
+insert into configurations values ('DATABASE VERSION','3.1.53');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
