@@ -12,8 +12,6 @@ import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.applicationresources.RegistrarFormItemGenerator;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
-import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
-import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
@@ -28,7 +26,6 @@ import cz.metacentrum.perun.webgui.tabs.registrartabs.EditFormItemTabItem;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
-import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 
@@ -390,7 +387,7 @@ public class GetFormItems implements JsonCallback {
 			CustomButton editButton = new CustomButton(ButtonTranslation.INSTANCE.editFormItemButton(), ButtonTranslation.INSTANCE.editFormItem(), SmallIcons.INSTANCE.applicationFormEditIcon());
 			editButton.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
-					session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(item, refreshEvents));
+					session.getTabManager().addTabToCurrentTab(new EditFormItemTabItem(item, group != null, refreshEvents));
 				}
 			});
 			editTable.setWidget(0, 2, editButton);

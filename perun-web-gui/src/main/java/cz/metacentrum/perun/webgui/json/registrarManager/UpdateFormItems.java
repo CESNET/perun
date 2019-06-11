@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.webgui.json.registrarManager;
 
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
@@ -125,6 +124,7 @@ public class UpdateFormItems {
 			newItem.put("required", obj.get("required"));
 			newItem.put("type", obj.get("type"));
 			newItem.put("federationAttribute", obj.get("federationAttribute"));
+			newItem.put("perunSourceAttribute", obj.get("perunSourceAttribute"));
 			newItem.put("perunDestinationAttribute", obj.get("perunDestinationAttribute"));
 			newItem.put("regex", obj.get("regex"));
 			newItem.put("appTypes", obj.get("appTypes"));

@@ -18,6 +18,7 @@ public class ApplicationFormItem {
 	private boolean required = false;
 	private Type type = Type.TEXTFIELD;
 	private String federationAttribute;
+	private String perunSourceAttribute;
 	private String perunDestinationAttribute;
 	private String regex;
 	private List<AppType> applicationTypes = Arrays.asList(AppType.INITIAL,AppType.EXTENSION);
@@ -54,12 +55,13 @@ public class ApplicationFormItem {
 		}
 	}
 
-	public ApplicationFormItem(int id, String shortname, boolean required, Type type, String federationAttribute, String perunDestinationAttribute, String regex) {
+	public ApplicationFormItem(int id, String shortname, boolean required, Type type, String federationAttribute, String perunSourceAttribute, String perunDestinationAttribute, String regex) {
 		this.id = id;
 		this.shortname = shortname;
 		this.required = required;
 		this.type = type;
 		this.federationAttribute = federationAttribute;
+		this.perunSourceAttribute = perunSourceAttribute;
 		this.perunDestinationAttribute = perunDestinationAttribute;
 		this.regex = regex;
 	}
@@ -68,20 +70,22 @@ public class ApplicationFormItem {
 
 	public ApplicationFormItem(int id, String shortname, boolean required,
 	                           Type type, String federationAttribute,
-	                           String perunDestinationAttribute, String regex,
+	                           String perunSourceAttribute, String perunDestinationAttribute, String regex,
 	                           List<AppType> applicationTypes, Integer ordnum, boolean forDelete,
 	                           Map<Locale, ItemTexts> i18n) {
-		this.id = id;
-		this.shortname = shortname;
-		this.required = required;
-		this.type = type;
-		this.federationAttribute = federationAttribute;
-		this.perunDestinationAttribute = perunDestinationAttribute;
-		this.regex = regex;
+		this(id, shortname, required, type, federationAttribute, perunSourceAttribute, perunDestinationAttribute, regex);
 		this.applicationTypes = applicationTypes;
 		this.ordnum = ordnum;
 		this.forDelete = forDelete;
 		this.i18n = i18n;
+	}
+
+	public String getPerunSourceAttribute() {
+		return perunSourceAttribute;
+	}
+
+	public void setPerunSourceAttribute(String perunSourceAttribute) {
+		this.perunSourceAttribute = perunSourceAttribute;
 	}
 
 	public String getPerunDestinationAttribute() {
