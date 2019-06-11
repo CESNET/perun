@@ -1448,6 +1448,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	@Override
 	public Member validateMember(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		//this method run in nested transaction
 		if(this.haveStatus(sess, member, Status.VALID)) {
 			log.debug("Trying to validate member who is already valid. " + member);
 			return member;
@@ -1458,7 +1459,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		member.setStatus(Status.VALID);
 		getPerunBl().getAuditer().log(sess, new MemberValidated(member));
 		if(oldStatus.equals(Status.INVALID) || oldStatus.equals(Status.DISABLED)) {
-			getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
+			try {
+				getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
+			} catch (Exception ex) {
+				//return old status to object to prevent incorrect result in higher methods
+				member.setStatus(oldStatus);
+				throw ex;
+			}
 		}
 
 		return member;
@@ -1505,7 +1512,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			log.warn("Trying to suspend member who is already suspended. Suspend operation will be procesed anyway (to be shure)." + member);
 		}
 
-		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
+		if(this.haveStatus(sess, member, Status.INVALID) || this.haveStatus(sess, member, Status.DISABLED)) throw new MemberNotValidYetException(member);
 		getMembersManagerImpl().setStatus(sess, member, Status.SUSPENDED);
 		member.setStatus(Status.SUSPENDED);
 		getPerunBl().getAuditer().log(sess, new MemberSuspended(member, Auditer.engineForceKeyword));
@@ -1518,7 +1525,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			log.warn("Trying to suspend member who is already suspended. Suspend operation will be procesed anyway (to be shure)." + member);
 		}
 
-		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
+		if(this.haveStatus(sess, member, Status.INVALID) || this.haveStatus(sess, member, Status.DISABLED)) throw new MemberNotValidYetException(member);
 		getMembersManagerImpl().setStatus(sess, member, Status.SUSPENDED);
 		member.setStatus(Status.SUSPENDED);
 		try {
@@ -1541,16 +1548,29 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
-	public Member expireMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException {
+	public Member expireMember(PerunSession sess, Member member) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+		//this method run in nested transaction
 		if(this.haveStatus(sess, member, Status.EXPIRED)) {
 			log.debug("Trying to set member expired but he's already expired. " + member);
 			return member;
 		}
 
-		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
+		Status oldStatus = member.getStatus();
 		getMembersManagerImpl().setStatus(sess, member, Status.EXPIRED);
 		member.setStatus(Status.EXPIRED);
 		getPerunBl().getAuditer().log(sess, new MemberExpired(member));
+
+		//We need to check validity of attributes first (expired member has to have valid attributes)
+		if(oldStatus.equals(Status.INVALID) || oldStatus.equals(Status.DISABLED)) {
+			try {
+				getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
+			} catch (Exception ex) {
+				//return old status to object to prevent incorrect result in higher methods
+				member.setStatus(oldStatus);
+				throw ex;
+			}
+		}
+
 		return member;
 	}
 
@@ -2434,7 +2454,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 			try {
 				expireMember(sess, sponsoredMember);
-			} catch (MemberNotValidYetException ex) {
+			} catch (WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
 				throw new InternalErrorException("cannot expire member "+sponsoredMember.getId(),ex);
 			}
 		}
