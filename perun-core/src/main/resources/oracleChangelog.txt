@@ -9,7 +9,7 @@
 3.1.53
 alter table application_form_items ADD src_attr nvarchar2(384);
 update application_form_items set src_attr=dst_attr;
-update configurations set value='3.1.49' where property='DATABASE VERSION';
+update configurations set value='3.1.53' where property='DATABASE VERSION';
 
 3.1.52
 create or replace type TARRAYOFCHARACTERS is table of nvarchar2(2000);
