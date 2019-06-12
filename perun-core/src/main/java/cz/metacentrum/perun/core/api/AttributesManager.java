@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
+import cz.metacentrum.perun.utils.graphs.GraphDTO;
 import guru.nidi.graphviz.engine.Graphviz;
 
 import java.util.HashMap;
@@ -3626,7 +3627,7 @@ public interface AttributesManager {
 	 * @throws InternalErrorException internal error
 	 * @throws PrivilegeException insufficient permissions
 	 */
-	String getModulesDependenciesGraphText(PerunSession session, GraphTextFormat format) throws InternalErrorException, PrivilegeException;
+	GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Generates graph describing dependencies for given AttributeDefinition.
@@ -3639,7 +3640,7 @@ public interface AttributesManager {
 	 * @throws InternalErrorException internal error
 	 * @throws PrivilegeException insufficient permissions
 	 */
-	String getModulesDependenciesGraphText(PerunSession session, GraphTextFormat format, String attributeName) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
+	GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format, String attributeName) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
 
 	/**
 	 * Generates Graphviz representation of a graph describing dependencies
