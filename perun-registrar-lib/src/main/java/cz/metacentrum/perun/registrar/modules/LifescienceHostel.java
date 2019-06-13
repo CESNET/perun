@@ -66,7 +66,9 @@ public class LifescienceHostel implements RegistrarModule {
 			Attribute userLogin = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":" + BBMRI_LOGIN_NS);
 			if (userLogin != null && userLogin.getValue() != null) {
 				ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(session, LS_HOSTEL_EXT_SOURCE_NAME);
-				UserExtSource ues = new UserExtSource(extSource, userLogin.valueAsString() + LS_HOSTEL_SCOPE);
+				// as user email will be used as login, we want to get rid of all '@' characters - change them to '_'
+				String modifiedLogin = userLogin.valueAsString().replace('@', '_');
+				UserExtSource ues = new UserExtSource(extSource, modifiedLogin + LS_HOSTEL_SCOPE);
 				ues.setLoa(0);
 
 				try {
