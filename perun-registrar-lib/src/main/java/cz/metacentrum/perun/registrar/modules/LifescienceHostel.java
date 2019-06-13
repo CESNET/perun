@@ -22,8 +22,6 @@ import java.util.Map;
 /**
  * Module for VOs managing LifeScience Hostel
  *
- * NOTE: !!! LifeScience Hostel uses BBMRI login namespace !!!
- *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
@@ -31,7 +29,7 @@ public class LifescienceHostel implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(LifescienceHostel.class);
 
-	private final static String BBMRI_LOGIN_NS = "login-namespace:bbmri";
+	private final static String LIFESCIENCE_HOSTEL_NS = "login-namespace:lifescience-hostel";
 	private final static String LS_HOSTEL_SCOPE = "@lifescience-hostel.org";
 	private final static String LS_HOSTEL_EXT_SOURCE_NAME = "https://login.bbmri-eric.eu/lshostel/";
 
@@ -63,7 +61,7 @@ public class LifescienceHostel implements RegistrarModule {
 
 		} else {
 
-			Attribute userLogin = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":" + BBMRI_LOGIN_NS);
+			Attribute userLogin = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":" + LIFESCIENCE_HOSTEL_NS);
 			if (userLogin != null && userLogin.getValue() != null) {
 				ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(session, LS_HOSTEL_EXT_SOURCE_NAME);
 				// as user email will be used as login, we want to get rid of all '@' characters - change them to '_'
