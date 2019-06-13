@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -86,7 +87,11 @@ public class BBMRINetworks implements RegistrarModule {
 			if (group == null) {
 				log.debug("For network ID: " + networkID + " there is no group in Perun.");
 			} else {
-				perun.getGroupsManager().addMember(session, group, member);
+				try {
+					perun.getGroupsManager().addMember(session, group, member);
+				} catch (AlreadyMemberException ex) {
+					// ignore
+				}
 			}
 		}
 

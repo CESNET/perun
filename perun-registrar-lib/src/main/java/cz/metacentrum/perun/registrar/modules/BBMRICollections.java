@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.registrar.modules;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -77,7 +78,11 @@ public class BBMRICollections implements RegistrarModule {
 				log.debug("For collection ID " + collectionID + " there is no group in Perun.");
 			} else {
 				// add user to the group
-				perun.getGroupsManager().addMember(session, group, member);
+				try {
+					perun.getGroupsManager().addMember(session, group, member);
+				} catch (AlreadyMemberException ex) {
+					// ignore
+				}
 			}
 		}
 

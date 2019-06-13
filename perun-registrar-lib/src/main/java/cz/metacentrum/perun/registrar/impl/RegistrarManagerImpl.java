@@ -1442,7 +1442,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			app = registrarManager.approveApplicationInternal(sess, appId);
 		} catch (AlreadyMemberException ex) {
 			// case when user joined identity after sending initial application and former user was already member of VO
-			throw new RegistrarException("User is already member of your VO/group with ID:"+ex.getMember().getId()+" (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
+			throw new RegistrarException("User is already member (with ID: "+ex.getMember().getId()+") of your VO/group. (user joined his identities after sending new application). You can reject this application and re-validate old member to keep old data (e.g. login,email).", ex);
 		} catch (MemberNotExistsException ex) {
 			throw new RegistrarException("To approve application user must already be member of VO.", ex);
 		} catch (NotGroupMemberException ex) {
