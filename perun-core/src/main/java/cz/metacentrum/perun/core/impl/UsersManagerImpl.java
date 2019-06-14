@@ -78,7 +78,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	protected final static String userExtSourceMappingSelectQuery = "user_ext_sources.id as user_ext_sources_id, user_ext_sources.login_ext as user_ext_sources_login_ext, " +
 		"user_ext_sources.user_id as user_ext_sources_user_id, user_ext_sources.loa as user_ext_sources_loa, user_ext_sources.created_at as user_ext_sources_created_at, user_ext_sources.created_by as user_ext_sources_created_by, " +
 		"user_ext_sources.modified_by as user_ext_sources_modified_by, user_ext_sources.modified_at as user_ext_sources_modified_at, " +
-		"user_ext_sources.created_by_uid as ues_created_by_uid, user_ext_sources.modified_by_uid as ues_modified_by_uid";
+		"user_ext_sources.created_by_uid as ues_created_by_uid, user_ext_sources.modified_by_uid as ues_modified_by_uid, user_ext_sources.last_access as ues_last_access";
 
 	private static final Map<String, Pattern> userExtSourcePersistentPatterns;
 
@@ -136,7 +136,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					rs.getString("user_ext_sources_created_at"), rs.getString("user_ext_sources_created_by"),
 					rs.getString("user_ext_sources_modified_at"), rs.getString("user_ext_sources_modified_by"),
 					rs.getInt("ues_created_by_uid") == 0 ? null : rs.getInt("ues_created_by_uid"),
-					rs.getInt("ues_modified_by_uid") == 0 ? null : rs.getInt("ues_modified_by_uid"));
+					rs.getInt("ues_modified_by_uid") == 0 ? null : rs.getInt("ues_modified_by_uid"),
+					rs.getTimestamp("ues_last_access").toLocalDateTime().toLocalDate());
 		}
 	};
 
@@ -524,6 +525,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				} catch (DuplicateKeyException ex) {
 					throw new UserExtSourceExistsException("UES with same login already exists: " + userExtSource);
 				}
+			}
+			if (!userExtSourceDb.getLastAccess().equals(userExtSource.getLastAccess())) {
+				jdbc.update("update user_ext_sources set last_access=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
+					userExtSource.getLastAccess(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), userExtSource.getId());
 			}
 
 			return userExtSource;
