@@ -137,7 +137,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					rs.getString("user_ext_sources_modified_at"), rs.getString("user_ext_sources_modified_by"),
 					rs.getInt("ues_created_by_uid") == 0 ? null : rs.getInt("ues_created_by_uid"),
 					rs.getInt("ues_modified_by_uid") == 0 ? null : rs.getInt("ues_modified_by_uid"),
-					rs.getTimestamp("ues_last_access").toLocalDateTime().toLocalDate());
+					rs.getString("ues_last_access"));
 		}
 	};
 
@@ -525,10 +525,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				} catch (DuplicateKeyException ex) {
 					throw new UserExtSourceExistsException("UES with same login already exists: " + userExtSource);
 				}
-			}
-			if (!userExtSourceDb.getLastAccess().equals(userExtSource.getLastAccess())) {
-				jdbc.update("update user_ext_sources set last_access=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
-					userExtSource.getLastAccess(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), userExtSource.getId());
 			}
 
 			return userExtSource;

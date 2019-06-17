@@ -8,7 +8,6 @@ import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
 
 import java.text.ParseException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -447,7 +446,7 @@ public class AuditParser {
 			List<Pair<String, Map<String, String>>> extSourceList = beansToMap(beanAttr.get("source"));
 			extSource = createExtSource(extSourceList.get(0).getRight());
 		}
-		userExtSource.setLastAccess(LocalDate.parse(beanAttr.get("lastAccess")));
+		userExtSource.setLastAccess(BeansUtils.eraseEscaping(beanAttr.get("lastAccess")));
 		userExtSource.setExtSource(extSource);
 		return userExtSource;
 	}

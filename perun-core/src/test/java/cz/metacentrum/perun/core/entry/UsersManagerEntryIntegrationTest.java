@@ -34,7 +34,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -1209,22 +1208,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-	@Test
-	public void lastAccess() throws Exception {
-		ExtSource externalSource = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
-		UserExtSource userExtSource = usersManager.getUserExtSourceByExtLogin(sess, externalSource, extLogin);
-		assertEquals(userExtSource.getLastAccess(), LocalDate.now());
-
-		LocalDate time = LocalDate.now().minusMonths(5);
-		userExtSource.setLastAccess(time);
-		usersManager.updateUserExtSource(sess, userExtSource);
-		userExtSource = usersManager.getUserExtSourceByExtLogin(sess, externalSource, extLogin);
-		assertEquals(userExtSource.getLastAccess(), time);
-
-		usersManager.updateUserExtSourceLastAccess(sess, userExtSource);
-		userExtSource = usersManager.getUserExtSourceByExtLogin(sess, externalSource, extLogin);
-		assertEquals(LocalDate.now(), userExtSource.getLastAccess());
-	}
 
 
 	// PRIVATE METHODS -------------------------------------------------------------
