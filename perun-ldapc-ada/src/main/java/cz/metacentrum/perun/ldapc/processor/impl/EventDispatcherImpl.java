@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.ldapc.processor.impl;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

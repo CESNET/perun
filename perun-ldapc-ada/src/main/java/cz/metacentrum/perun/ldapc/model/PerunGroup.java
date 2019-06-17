@@ -85,6 +85,8 @@ public interface PerunGroup extends PerunEntry<Group> {
 	@Deprecated
 	public List<String> getAllUniqueMembersInGroup(int groupId, int voId);
 
+	public void synchronizeGroup(Group group, List<Member> members, List<Resource> resources) throws InternalErrorException;
+	
 	public void synchronizeMembers(Group group, List<Member> members);
 
 	public void synchronizeResources(Group group, List<Resource> resources);

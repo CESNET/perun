@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 
@@ -35,6 +36,7 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 	@Autowired
 	private PerunVO vo;
 	@Autowired
+	@Lazy
 	private PerunUser user;
 	@Autowired
 	private PerunResource perunResource;
@@ -164,14 +166,30 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 		ldapTemplate.modifyAttributes(userEntry);
 	}
 
-	@Override
-	public void synchronizeMembers(Group group, List<Member> members) {
-		DirContextOperations groupEntry = findByDN(buildDN(group));
+	protected void doSynchronizeMembers(DirContextOperations groupEntry, List<Member> members) {
 		List<Name> memberList = new ArrayList<Name>(members.size());
 		for (Member member: members) {
 			memberList.add(addBaseDN(user.getEntryDN(String.valueOf(member.getUserId()))));
 		}
 		groupEntry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrUniqueMember, memberList.stream().map( name -> name.toString() ).toArray(String[]::new));
+	}
+	
+	protected void doSynchronizeResources(DirContextOperations groupEntry, List<Resource> resources) {
+		groupEntry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrAssignedToResourceId, resources.stream().map( resource -> String.valueOf(resource.getId())).toArray(String[]::new));
+	}
+	
+	@Override
+	public void synchronizeGroup(Group group, List<Member> members, List<Resource> resources) throws InternalErrorException {
+		SyncOperation syncOp = beginSynchronizeEntry(group);
+		doSynchronizeMembers(syncOp.getEntry(), members);
+		doSynchronizeResources(syncOp.getEntry(), resources);
+		commitSyncOperation(syncOp);
+	}
+
+	@Override
+	public void synchronizeMembers(Group group, List<Member> members) {
+		DirContextOperations groupEntry = findByDN(buildDN(group));
+		doSynchronizeMembers(groupEntry, members);
 		ldapTemplate.modifyAttributes(groupEntry);
 		// user attributes are set when synchronizing users
 	}
@@ -179,7 +197,7 @@ public class PerunGroupImpl extends AbstractPerunEntry<Group> implements PerunGr
 	@Override
 	public void synchronizeResources(Group group, List<Resource> resources) {
 		DirContextOperations groupEntry = findByDN(buildDN(group));
-		groupEntry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrAssignedToResourceId, resources.stream().map( resource -> String.valueOf(resource.getId())).toArray(String[]::new));
+		doSynchronizeResources(groupEntry, resources);
 		ldapTemplate.modifyAttributes(groupEntry);
 	}
 
