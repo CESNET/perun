@@ -37,9 +37,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Collections;
 import java.util.HashMap;
@@ -310,11 +310,11 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void suspendMemberTo() throws Exception {
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DAY_OF_MONTH, -1);
-		Date yesterday = calendar.getTime();
-		calendar.add(Calendar.DAY_OF_MONTH, +2);
-		Date tommorow = calendar.getTime();
+		System.out.println(CLASS_NAME + "suspendMemberTo");
+
+		LocalDate today = LocalDate.now();
+		Date yesterday = Date.from(today.plusDays(-1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+		Date tommorow = Date.from(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
 		Member member = perun.getMembersManager().getMemberById(sess, createdMember.getId());
 		assertTrue(member.getSuspendedTo() == null);
@@ -322,7 +322,6 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		perun.getMembersManager().suspendMemberTo(sess, member, yesterday);
 		member = perun.getMembersManager().getMemberById(sess, member.getId());
-		System.out.println(member);
 		String returnedValue = BeansUtils.getDateFormatterWithoutTime().format(member.getSuspendedTo());
 		String expectedValue = BeansUtils.getDateFormatterWithoutTime().format(yesterday);
 		assertEquals(expectedValue, returnedValue);
@@ -334,6 +333,25 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		expectedValue = BeansUtils.getDateFormatterWithoutTime().format(tommorow);
 		assertEquals(expectedValue, returnedValue);
 		assertTrue(member.isSuspended());
+	}
+
+	@Test
+	public void unsuspendMember() throws Exception {
+		System.out.println(CLASS_NAME + "unsuspendMember");
+		LocalDate today = LocalDate.now();
+		Date tommorow = Date.from(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		Member member = perun.getMembersManager().getMemberById(sess, createdMember.getId());
+		assertTrue(member.getSuspendedTo() == null);
+		assertFalse(member.isSuspended());
+
+		perun.getMembersManager().suspendMemberTo(sess, member, tommorow);
+		member = perun.getMembersManager().getMemberById(sess, member.getId());
+		assertTrue(member.isSuspended());
+
+		perun.getMembersManager().unsuspendMember(sess, member);
+		member = perun.getMembersManager().getMemberById(sess, member.getId());
+		assertFalse(member.isSuspended());
 	}
 
 	@Test

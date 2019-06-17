@@ -218,6 +218,16 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
+	public void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException {
+		Utils.notNull(member, "member");
+		try {
+			jdbc.update("update members set suspended_to=?, modified_by=?, modified_at=" + Compatibility.getSysdate() + "  where id=?", null, sess.getPerunPrincipal().getActor(), member.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public void checkMemberExists(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException {
 		if (!memberExists(sess, member)) throw new MemberNotExistsException("Member: " + member);
 	}

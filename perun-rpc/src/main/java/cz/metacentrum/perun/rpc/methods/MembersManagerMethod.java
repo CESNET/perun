@@ -1107,6 +1107,24 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Remove suspend state from Member - remove date to which member should be considered as suspended in the VO.
+	 *
+	 * WARNING: this will remove the date even if it is in the past (so member is no longer considered as suspended)
+	 *
+	 * @param member int Member <code>id</code>
+	 */
+	unsuspendMember {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getMembersManager().unsuspendMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
+
+			return null;
+		}
+	},
+
+	/*#
 	 * Returns member by his login in external source, name of external source and vo
 	 *
 	 * @param vo int Vo <code>id</code>

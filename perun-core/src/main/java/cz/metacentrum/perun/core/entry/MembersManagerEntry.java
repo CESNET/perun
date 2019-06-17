@@ -30,6 +30,7 @@ import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
@@ -1045,6 +1046,21 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().checkMemberExists(sess, member);
 
 		membersManagerBl.suspendMemberTo(sess, member, suspendedTo);
+	}
+
+	@Override
+	public void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, MemberNotSuspendedException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+			throw new PrivilegeException(sess, "unsuspendMember");
+		}
+
+		getMembersManagerBl().checkMemberExists(sess, member);
+		if(member.getSuspendedTo() == null) throw new MemberNotSuspendedException(member);
+
+		membersManagerBl.unsuspendMember(sess, member);
 	}
 
 	@Override

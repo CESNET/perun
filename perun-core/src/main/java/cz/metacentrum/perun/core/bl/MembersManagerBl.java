@@ -1113,6 +1113,17 @@ public interface MembersManagerBl {
 	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException;
 
 	/**
+	 * Remove suspend state from Member - remove date to which member should be considered as suspended in the VO.
+	 *
+	 * WARNING: this method will always succeed if member exists, because it will set date for suspension to null
+	 *
+	 * @param sess
+	 * @param member member for which the suspend state will be removed
+	 * @throws InternalErrorException
+	 */
+	void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
 	 * Return false if member has status INVALID or DISABLED. True in other cases.
 	 *
 	 * @param sess

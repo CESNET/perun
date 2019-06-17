@@ -66,7 +66,7 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"shortName", "beanName"})
 	public interface GroupMixIn {}
 
-	@JsonIgnoreProperties({"groupStatuses", "groupStatus", "beanName"})
+	@JsonIgnoreProperties({"groupStatuses", "groupStatus", "beanName", "suspended"})
 	public interface MemberMixIn {
 		@JsonIgnore
 		void setStatus(String status);

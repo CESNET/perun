@@ -1398,6 +1398,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
+	public void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException {
+		getMembersManagerImpl().unsuspendMember(sess, member);
+	}
+
+	@Override
 	public boolean isMemberAllowed(PerunSession sess, Member member) throws InternalErrorException {
 		if(member == null) throw new InternalErrorException("Member can't be null.");
 		if(this.haveStatus(sess, member, Status.INVALID)) return false;

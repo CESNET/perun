@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -130,7 +131,7 @@ public class Member extends Auditable {
 
 	public boolean isSuspended() {
 		if(getSuspendedTo() != null) {
-			return suspendedTo.after(Calendar.getInstance().getTime());
+			return suspendedTo.after(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
 		}
 
 		return false;
