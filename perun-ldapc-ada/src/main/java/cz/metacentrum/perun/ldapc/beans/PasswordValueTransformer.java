@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.ldapc.beans;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -12,7 +13,8 @@ public class PasswordValueTransformer implements AttributeValueTransformer {
 	
 	@Override
 	public String getValue(String value, Attribute attr) {
-		return "{SASL}" + attr.getValue() + "@" + ldapProperties.getLdapLoginNamespace().toUpperCase();
+		return StringUtils.isBlank(ldapProperties.getLdapLoginNamespace()) ? 
+				null : "{SASL}" + attr.getValue() + "@" + ldapProperties.getLdapLoginNamespace().toUpperCase();
 	}
 
 }

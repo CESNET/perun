@@ -44,6 +44,8 @@ public interface PerunVO extends PerunEntry<Vo> {
 
 	public void removeMemberFromVO(int voId, Member member);
 
+	public void synchronizeVo(Vo vo, List<Member> members) throws InternalErrorException;
+	
 	public void synchronizeMembers(Vo vo, List<Member> members);
 
 }

@@ -7,6 +7,7 @@ import javax.naming.Name;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -48,6 +49,7 @@ public interface PerunUser extends PerunEntry<User> {
 
 	public void removePrincipal(User user, String login) throws InternalErrorException;
 
+	public void synchronizeUser(User user, Iterable<Attribute> attrs, Set<Integer> voIds, List<Group> groups, List<UserExtSource> extSources) throws InternalErrorException;
 
 	public void synchronizeMembership(User user, Set<Integer> voIds, List<Group> groups);
 	

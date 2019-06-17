@@ -14,6 +14,7 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -111,14 +112,25 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 		ldapTemplate.modifyAttributes(entry);
 	}
 
-	@Override
-	public void synchronizeGroups(Resource resource, List<Group> assignedGroups) throws InternalErrorException {
-		DirContextOperations entry = findByDN(buildDN(resource));
+	protected void doSynchronizeGroups(DirContextOperations entry, List<Group> assignedGroups) {
 		List<String> groupIds = new ArrayList<String>();
 		for (Group group : assignedGroups) {
 			groupIds.add(String.valueOf(group.getId()));
 		}
 		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrAssignedGroupId, groupIds.toArray());
+	}
+	
+	@Override
+	public void synchronizeResource(Resource resource, Iterable<Attribute> attrs, List<Group> assignedGroups) throws InternalErrorException {
+		SyncOperation syncOp = beginSynchronizeEntry(resource, attrs);
+		doSynchronizeGroups(syncOp.getEntry(), assignedGroups);
+		commitSyncOperation(syncOp);
+	}
+
+	@Override
+	public void synchronizeGroups(Resource resource, List<Group> assignedGroups) throws InternalErrorException {
+		DirContextOperations entry = findByDN(buildDN(resource));
+		doSynchronizeGroups(entry, assignedGroups);
 		ldapTemplate.modifyAttributes(entry);
 	}
 
