@@ -8,6 +8,10 @@
 
 -- this update is not supported on hsql since its used only as in-memory db
 
+3.1.54
+ALTER TABLE members ADD suspended_to timestamp;
+update configurations set value='3.1.54' where property='DATABASE VERSION';
+
 3.1.53
 alter table application_form_items ADD src_attr varchar(384);
 update application_form_items set src_attr = application_form_items.dst_attr;

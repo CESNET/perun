@@ -1,6 +1,9 @@
 package cz.metacentrum.perun.core.api;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +20,7 @@ public class Member extends Auditable {
 	private MembershipType membershipType;
 	private Integer sourceGroupId;
 	private boolean sponsored = false;
+	private Date suspendedTo;
 	private Map<Integer, MemberGroupStatus> groupsStatuses = new HashMap<>();
 
 	public Member() {
@@ -119,6 +123,20 @@ public class Member extends Auditable {
 		this.sponsored = sponsored;
 	}
 
+	public Date getSuspendedTo() {
+		return suspendedTo;
+	}
+
+	public void setSuspendedTo(Date suspendedTo) { this.suspendedTo = suspendedTo; }
+
+	public boolean isSuspended() {
+		if(getSuspendedTo() != null) {
+			return suspendedTo.after(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+		}
+
+		return false;
+	}
+
 	/**
 	 * Adds member's status for given group. If member already had a VALID status
 	 * for given group, nothing is changed.
@@ -212,11 +230,20 @@ public class Member extends Auditable {
 				", type=<" + (getMembershipType() == null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())) + ">" +
 				", sourceGroupId=<" + (getSourceGroupId() == null ? "\\0" : getSourceGroupId().toString()) + ">" +
 				", sponsored=<" + sponsored + ">" +
+				", suspendedTo=<" + (getSuspendedTo() == null ? "\\0" : BeansUtils.createEscaping(BeansUtils.getDateFormatter().format(getSuspendedTo()))) + ">" +
 				']';
 	}
 
 	@Override
 	public String toString() {
-		return "Member:[id='" + getId() + "', userId='" + userId + "', voId='" + voId + "', status='" + status + "', type='" + membershipType + "', sourceGroupId='" + sourceGroupId + "', sponsored='" + sponsored+ "']";
+		return "Member:[id='" + getId() +
+			"', userId='" + userId +
+			"', voId='" + voId +
+			"', status='" + status +
+			"', type='" + membershipType +
+			"', sourceGroupId='" + sourceGroupId +
+			"', sponsored='" + sponsored +
+			"', suspendedTo='" + (getSuspendedTo() == null ? "null" : BeansUtils.getDateFormatter().format(getSuspendedTo())) +
+			"']";
 	}
 }
