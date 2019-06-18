@@ -34,8 +34,8 @@ public class AppTest extends AbstractTest {
 	public void testNotificationListener() throws Exception {
 		prepareData();
 
-		schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId + ">, status=<VALID>, sourceGroupId=<\\0>] created.");
-		schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId + ">, status=<VALID>, sourceGroupId=<\\0>] validated.");
+		schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId + ">, status=<VALID>, sourceGroupId=<\\0>, suspendedTo=<\\0>] created.");
+		schedulingManager.processOneAuditerMessage("Member:[id=<" + memberId + ">, userId=<" + userId + ">, voId=<" + voId + ">, status=<VALID>, sourceGroupId=<\\0>, suspendedTo=<\\0>] validated.");
 
 		schedulingManager.doNotification();
 

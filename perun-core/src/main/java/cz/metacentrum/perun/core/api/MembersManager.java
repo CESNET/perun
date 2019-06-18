@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotSuspendedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
@@ -971,6 +972,35 @@ public interface MembersManager {
 	 * @throws PrivilegeException
 	 */
 	Member setStatus(PerunSession sess, Member member, Status status, String message) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException;
+
+	/**
+	 * Set date to which will be member suspended in his VO.
+	 *
+	 * For almost unlimited time please use time in the far future.
+	 *
+	 * @param sess
+	 * @param member member who will be suspended
+	 * @param suspendedTo date to which will be member suspended (after this date, he will not be affected by suspension any more)
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws MemberNotExistsException if member not exists in Perun
+	 */
+	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException, MemberNotExistsException, PrivilegeException;
+
+	/**
+	 * Remove suspend state from Member - remove date to which member should be considered as suspended in the VO.
+	 *
+	 * WARNING: this will remove the date even if it is in the past (so member is no longer considered as suspended)
+	 *
+	 * @param sess
+	 * @param member member for which the suspend state will be removed
+	 * @throws InternalErrorException
+	 * @throws MemberNotExistsException
+	 * @throws MemberNotSuspendedException if member has not set date to which should be considered as suspended
+	 * @throws PrivilegeException
+	 */
+	void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, MemberNotSuspendedException, PrivilegeException;
+
 
 	/**
 	 * Validate all attributes for member and set member's status to VALID.

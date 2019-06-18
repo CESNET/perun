@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -118,6 +119,29 @@ public interface MembersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	boolean memberExists(PerunSession perunSession, Member member) throws InternalErrorException;
+
+	/**
+	 * Set date to which will be member suspended in his VO.
+	 *
+	 * For almost unlimited time please use time in the far future.
+	 *
+	 * @param sess
+	 * @param member member who will be suspended
+	 * @param suspendedTo date to which will be member suspended (after this date, he will not be affected by suspension any more)
+	 * @throws InternalErrorException
+	 */
+	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException;
+
+	/**
+	 * Remove suspend state from Member - remove date to which member should be considered as suspended in the VO.
+	 *
+	 * WARNING: this method will always succeed if member exists, because it will set date for suspension to null
+	 *
+	 * @param sess
+	 * @param member member for which the suspend state will be removed
+	 * @throws InternalErrorException
+	 */
+	void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
 	 * Check if member exists in underlaying data source.

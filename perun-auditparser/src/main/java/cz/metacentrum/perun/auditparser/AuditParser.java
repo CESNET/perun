@@ -8,7 +8,10 @@ import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -376,7 +379,7 @@ public class AuditParser {
 		return group;
 	}
 
-	private static Host createHost(Map<String, String> beanAttr) throws InternalErrorException {
+	private static Host createHost(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Host host = new Host();
 		host.setId(Integer.valueOf(beanAttr.get("id")));
@@ -384,7 +387,7 @@ public class AuditParser {
 		return host;
 	}
 
-	private static Member createMember(Map<String, String> beanAttr) {
+	private static Member createMember(Map<String, String> beanAttr) throws InternalErrorException {
 		if(beanAttr==null) return null;
 		Member member = new Member();
 		member.setId(Integer.valueOf(beanAttr.get("id")));
@@ -393,6 +396,11 @@ public class AuditParser {
 		member.setStatus(BeansUtils.eraseEscaping(beanAttr.get("status")));
 		member.setMembershipType(BeansUtils.eraseEscaping(beanAttr.get("type")));
 		member.setSourceGroupId(beanAttr.get("sourceGroupId").equals("\\0") ? null : Integer.valueOf(beanAttr.get("sourceGroupId")));
+		try {
+			member.setSuspendedTo(beanAttr.get("suspendedTo").equals("\\0") ? null : BeansUtils.getDateFormatter().parse(BeansUtils.eraseEscaping(beanAttr.get("suspendedTo"))));
+		} catch (ParseException ex) {
+			throw new InternalErrorException("Can't parse date for member suspendedTo from the string representation!" , ex);
+		}
 		member.setSponsored(Boolean.valueOf(beanAttr.get("sponsored")));
 		return member;
 	}

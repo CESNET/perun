@@ -1,4 +1,4 @@
--- database version 3.1.53 (don't forget to update insert statement at the end of file)
+-- database version 3.1.54 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -253,6 +253,7 @@ create table members (
 	modified_by nvarchar2(1300) default user not null,
 	status char(1) default '0' not null, --status of membership
 	sponsored char(1) default '0' not null,
+	suspended_to date,
 	created_by_uid integer,
 	modified_by_uid integer,
 	constraint mem_pk primary key(id),
@@ -1806,7 +1807,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.53');
+insert into configurations values ('DATABASE VERSION','3.1.54');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
