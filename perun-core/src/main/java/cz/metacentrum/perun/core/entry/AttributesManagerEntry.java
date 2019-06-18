@@ -45,7 +45,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
 import cz.metacentrum.perun.utils.graphs.GraphDTO;
-import guru.nidi.graphviz.engine.Graphviz;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -3987,26 +3986,6 @@ public class AttributesManagerEntry implements AttributesManager {
 		AttributeDefinition definition = attributesManagerBl.getAttributeDefinition(session, attributeName);
 
 		return new GraphDTO(attributesManagerBl.getAttributeModulesDependenciesGraphAsString(session, format, definition), format.name());
-	}
-
-	@Override
-	public Graphviz getModulesDependenciesGraphImage(PerunSession session) throws InternalErrorException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) {
-			throw new PrivilegeException("This operation can be done only by PerunAdmin.");
-		}
-
-		return attributesManagerBl.getAttributeModulesDependenciesGraphAsImage(session);
-	}
-
-	@Override
-	public Graphviz getModulesDependenciesGraphImage(PerunSession session, String attributeName) throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
-		if (!AuthzResolver.isAuthorized(session, Role.PERUNADMIN)) {
-			throw new PrivilegeException("This operation can be done only by PerunAdmin.");
-		}
-
-		AttributeDefinition definition = attributesManagerBl.getAttributeDefinition(session, attributeName);
-
-		return attributesManagerBl.getAttributeModulesDependenciesGraphAsImage(session, definition);
 	}
 
 	public PerunBl getPerunBl() {
