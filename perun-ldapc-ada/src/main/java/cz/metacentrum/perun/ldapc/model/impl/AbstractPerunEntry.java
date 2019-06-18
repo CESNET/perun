@@ -3,21 +3,23 @@ package cz.metacentrum.perun.ldapc.model.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.NameNotFoundException;
+import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.support.LdapNameBuilder;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -27,7 +29,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
 import cz.metacentrum.perun.ldapc.model.PerunEntry;
-import cz.metacentrum.perun.ldapc.model.PerunEntry.SyncOperation;
 
 public abstract class AbstractPerunEntry<T extends PerunBean> implements InitializingBean, PerunEntry<T> {
 
@@ -147,6 +148,15 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	}
 	
 
+	@Override
+	public void deleteEntry(Name dn) throws InternalErrorException {
+		try {
+			ldapTemplate.unbind(dn);
+		} catch (NameNotFoundException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+	
 	@Override
 	public SyncOperation beginSynchronizeEntry(T bean) throws InternalErrorException {
 		DirContextOperations entry;
@@ -427,4 +437,13 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 		return result;
 	}
 
+	protected ContextMapper<Name> getNameMapper() {
+		return new AbstractContextMapper<Name>() {
+
+			@Override
+			protected Name doMapFromContext(DirContextOperations ctx) {
+				return ctx.getDn();
+			}
+		};
+	}
 } 

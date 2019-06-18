@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
+import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Vo;
@@ -142,6 +143,13 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 		return LdapNameBuilder.newInstance()
 				.add(PerunAttribute.PerunAttributeNames.ldapAttrPerunVoId, voId[0])
 				.build();
+	}
+
+	@Override
+	public List<Name> listEntries() throws InternalErrorException {
+		return ldapTemplate.search(query().
+				where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunVO),
+				getNameMapper());
 	}
 
 }
