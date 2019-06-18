@@ -33,6 +33,10 @@ public class UserExtSource extends JavaScriptObject {
 		return this.persistent;
 	}-*/;
 
+	public final native String getLastAccess() /*-{
+		return this.lastAccess;
+	}-*/;
+
 	/**
 	 * Returns Perun specific type of object
 	 *
