@@ -446,6 +446,7 @@ public class AuditParser {
 			List<Pair<String, Map<String, String>>> extSourceList = beansToMap(beanAttr.get("source"));
 			extSource = createExtSource(extSourceList.get(0).getRight());
 		}
+		userExtSource.setLastAccess(BeansUtils.eraseEscaping(beanAttr.get("lastAccess")));
 		userExtSource.setExtSource(extSource);
 		return userExtSource;
 	}
