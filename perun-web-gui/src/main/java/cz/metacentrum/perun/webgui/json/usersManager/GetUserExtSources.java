@@ -33,7 +33,6 @@ import java.util.Comparator;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserExtSource> {
 
 	// Session
@@ -175,6 +174,17 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 			}
 		}, tableFieldUpdater);
 
+		// LastAccess column
+		Column<UserExtSource, String> lastAccessColumn = JsonUtils.addColumn(new JsonUtils.GetValue<UserExtSource, String>() {
+			public String getValue(UserExtSource extSource) {
+				if (extSource.getLastAccess() != null && !extSource.getLastAccess().isEmpty()) {
+					return extSource.getLastAccess().split("\\.")[0];
+				} else {
+					return "N/A";
+				}
+			}
+		}, tableFieldUpdater);
+
 		// sort name column
 		nameColumn.setSortable(true);
 		columnSortHandler.setComparator(nameColumn, new GeneralComparator<UserExtSource>(GeneralComparator.Column.NAME));
@@ -187,7 +197,7 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 			}
 		});
 
-		// sort login column
+		// sort loa column
 		loaColumn.setSortable(true);
 		columnSortHandler.setComparator(loaColumn, new Comparator<UserExtSource>() {
 			public int compare(UserExtSource o1, UserExtSource o2) {
@@ -195,9 +205,20 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 			}
 		});
 
+		// sort lastAccess column
+		lastAccessColumn.setSortable(true);
+		columnSortHandler.setComparator(lastAccessColumn, new Comparator<UserExtSource>() {
+			public int compare(UserExtSource o1, UserExtSource o2) {
+				String la1 = (o1.getLastAccess() != null && !o1.getLastAccess().isEmpty()) ? o1.getLastAccess().split("\\.")[0] : "N/A";
+				String la2 = (o2.getLastAccess() != null && !o2.getLastAccess().isEmpty()) ? o2.getLastAccess().split("\\.")[0] : "N/A";
+				return la1.compareTo(la2);
+			}
+		});
+
 		table.addColumn(nameColumn, "External source name");
 		table.addColumn(loginColumn, "ID in external source");
 		table.addColumn(loaColumn, "Level of assurance");
+		table.addColumn(lastAccessColumn, "Last access");
 
 		return table;
 
