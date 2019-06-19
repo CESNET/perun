@@ -30,7 +30,6 @@ authz
 hosts
 host_attr_values
 auditer_consumers
-auditer_subscribers
 security_teams_facilities
 blacklists
 resources_bans
