@@ -438,22 +438,6 @@ create table auditer_consumers (
 	constraint audcon_u unique(name)
 );
 
--- AUDITER_SUBSCRIBERS - registers recently processed events
-create table auditer_subscribers (
-	id integer not null,
-	name varchar(256) not null,
-	last_processed_id integer,
-	filters clob,
-	created_at timestamp default current_date not null,
-	created_by varchar(1300) default user not null,
-	modified_at timestamp default current_date not null,
-	modified_by varchar(1300) default user not null,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint audsub_pk primary key (id),
-	constraint audsub_u unique(name)
-);
-
 -- SERVICES - provided services, their atomic form
 create table services (
 	id integer not null,
@@ -1591,7 +1575,6 @@ create table authz (
 
 create sequence attr_names_id_seq;
 create sequence auditer_consumers_id_seq;
-create sequence auditer_subscribers_id_seq;
 create sequence auditer_log_id_seq;
 create sequence auditer_log_json_id_seq;
 create sequence destinations_id_seq;
