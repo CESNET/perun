@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
 import cz.metacentrum.perun.utils.graphs.GraphDTO;
-import guru.nidi.graphviz.engine.Graphviz;
 
 import java.util.HashMap;
 import java.util.List;
@@ -3641,27 +3640,4 @@ public interface AttributesManager {
 	 * @throws PrivilegeException insufficient permissions
 	 */
 	GraphDTO getModulesDependenciesGraph(PerunSession session, GraphTextFormat format, String attributeName) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
-
-	/**
-	 * Generates Graphviz representation of a graph describing dependencies
-	 * of attribute modules.
-	 *
-	 * @param session session
-	 * @return {@link Graphviz} representation of modules dependencies.
-	 * @throws InternalErrorException internal error
-	 * @throws PrivilegeException insufficient permissions
-	 */
-	Graphviz getModulesDependenciesGraphImage(PerunSession session) throws InternalErrorException, PrivilegeException;
-
-	/**
-	 * Generates Graphviz represenRtation of a graph describing dependencies
-	 * for given AttributeDefinition of attribute modules.
-	 *
-	 * @param session session
-	 * @param attributeName attribute definition which dependencies will be used
-	 * @return {@link Graphviz} representation of modules dependencies.
-	 * @throws InternalErrorException internal error
-	 * @throws PrivilegeException insufficient permissions
-	 */
-	Graphviz getModulesDependenciesGraphImage(PerunSession session, String attributeName) throws InternalErrorException, PrivilegeException, AttributeNotExistsException;
 }

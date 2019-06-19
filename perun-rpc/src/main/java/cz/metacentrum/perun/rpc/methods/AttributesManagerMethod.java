@@ -15,7 +15,6 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.utils.graphs.GraphDTO;
-import guru.nidi.graphviz.engine.Graphviz;
 
 public enum AttributesManagerMethod implements ManagerMethod {
 
@@ -3373,43 +3372,6 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			}
 
 			return ac.getAttributesManager().getModulesDependenciesGraph(ac.getSession(), format);
-		}
-	},
-
-	/*#
-	 * Generates image file describing dependencies between attribute modules.
-	 * Modules that has no dependency relations are omitted.
-	 *
-	 * Warning: No matter which serializer you specify, this method always
-	 * returns .svg file as an attachment.
-	 *
-	 * @throw InternalErrorException when some internal error happens.
-	 */
-	/*#
-	 * Generates image file describing dependencies of given attribute.
-	 * Modules that has no dependency relations are omitted.
-	 *
-	 * Warning: No matter which serializer you specify, this method always
-	 * returns .svg file as an attachment.
-	 *
-	 * @param attrName attribute name which dependencies will be found.
-	 * @throw InternalErrorException when some internal error happens.
-	 * @throw AttributeNotExistsException when specified attribute doesn't exist.
-	 * @exampleParam attrName [ "urn:perun:resource:attribute-def:virt:unixGID" ]
-	 */
-	getAttributeModulesDependenciesGraphImage {
-		@Override
-		public Graphviz call(ApiCaller ac, Deserializer parms) throws InternalErrorException, PrivilegeException, AttributeNotExistsException {
-			if (parms.contains("attrName")) {
-				try {
-					return ac.getAttributesManager().getModulesDependenciesGraphImage(ac.getSession(), parms.readString("attrName"));
-				} catch (AttributeNotExistsException e) {
-					throw new RpcException(RpcException.Type.WRONG_PARAMETER,
-							"Attribute definition not found. If you are trying to find namespace attribute, " +
-										"you have to specify the whole urn. Example: \"urn:perun:group:attribute-def:def:googleGroupName-namespace:einfra-cesnet-cz\"");
-				}
-			}
-			return ac.getAttributesManager().getModulesDependenciesGraphImage(ac.getSession());
 		}
 	}
 }

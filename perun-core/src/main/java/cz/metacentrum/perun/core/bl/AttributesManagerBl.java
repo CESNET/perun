@@ -34,7 +34,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.utils.graphs.Graph;
 import cz.metacentrum.perun.utils.graphs.GraphTextFormat;
-import guru.nidi.graphviz.engine.Graphviz;
 
 import java.util.HashMap;
 import java.util.List;
@@ -4043,27 +4042,6 @@ public interface AttributesManagerBl {
 	 * @return body of text file containing description of modules dependencies.
 	 */
 	String getAttributeModulesDependenciesGraphAsString(PerunSession session, GraphTextFormat format, AttributeDefinition attributeDefinition);
-
-	/**
-	 * Generates Graphviz representation of a graph describing dependencies
-	 * of attribute modules.
-	 *
-	 * @param session session
-	 * @return Graphviz representation of modules dependencies.
-	 * @throws InternalErrorException internal error
-	 */
-	Graphviz getAttributeModulesDependenciesGraphAsImage(PerunSession session) throws InternalErrorException;
-
-	/**
-	 * Generates Graphviz representation of a graph describing dependencies
-	 * for given AttributeDefinition of attribute modules.
-	 *
-	 * @param session session
-	 * @param attributeDefinition attribute definition which dependencies will be used
-	 * @return Graphviz representation of modules dependencies.
-	 * @throws InternalErrorException internal error
-	 */
-	Graphviz getAttributeModulesDependenciesGraphAsImage(PerunSession session, AttributeDefinition attributeDefinition) throws InternalErrorException;
 
 	/**
 	 * Generates graph describing dependencies of attribute modules.

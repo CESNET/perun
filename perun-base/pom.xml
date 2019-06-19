@@ -124,30 +124,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>guru.nidi</groupId>
-			<artifactId>graphviz-java</artifactId>
-			<version>${graphviz.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.eclipsesource.j2v8</groupId>
-					<artifactId>j2v8_macosx_x86_64</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.eclipsesource.j2v8</groupId>
-					<artifactId>j2v8_win32_x86_64</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.eclipsesource.j2v8</groupId>
-					<artifactId>j2v8_win32_x86</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>jcl-over-slf4j</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
 		</dependency>
