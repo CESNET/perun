@@ -39,33 +39,6 @@ public interface AuditMessagesManagerBl {
 	List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException;
 
 	/**
-	 * Returns list of messages from audit's log which id is bigger than last processed id.
-	 *
-	 * @param consumerName consumer to get messages for
-	 * @return list of messages
-	 * @throws InternalErrorException
-	 */
-	List<String> pollConsumerMessages(String consumerName) throws InternalErrorException;
-
-	/**
-	 * Returns list of <b>full</b> messages from audit's log which id is bigger than last processed id.
-	 *
-	 * @param consumerName consumer to get messages for
-	 * @return list of full messages
-	 * @throws InternalErrorException
-	 */
-	List<String> pollConsumerFullMessages(String consumerName) throws InternalErrorException;
-
-	/**
-	 * Returns list of messages for parser from audit's log which id is bigger than last processed id.
-	 *
-	 * @param consumerName consumer to get messages for
-	 * @return list of messages for parser
-	 * @throws InternalErrorException
-	 */
-	List<String> pollConsumerMessagesForParserSimple(String consumerName) throws InternalErrorException;
-
-	/**
 	 * Returns list of <b>auditMessages</b> for parser from audit's log which id is bigger than last processed id.
 	 *
 	 * @param consumerName consumer to get messages for

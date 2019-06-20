@@ -170,16 +170,6 @@ public class Auditer {
 		return auditMessage;
 	};
 
-	protected static final RowMapper<String> AUDITER_FULL_LOG_MAPPER = (resultSet, i) -> {
-		AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(resultSet, i);
-		return auditMessage == null ? null : auditMessage.getFullMessage();
-	};
-
-	protected static final RowMapper<String> AUDITER_LOG_MAPPER = (resultSet, i) -> {
-		AuditMessage auditMessage = AUDITMESSAGE_MAPPER.mapRow(resultSet, i);
-		return auditMessage == null ? null : auditMessage.getMsg();
-	};
-
 	protected static final RowMapper<String> AUDITER_LOG_MAPPER_FOR_PARSER = (rs, i) -> {
 		AuditMessage auditMessage = AUDITMESSAGE_MAPPER_FOR_PARSER.mapRow(rs, i);
 		return auditMessage == null ? null : auditMessage.getMsg();
@@ -626,78 +616,6 @@ public class Auditer {
 
 		return lastProcessedId;
 
-	}
-
-	public List<String> pollConsumerMessages(String consumerName) throws InternalErrorException {
-
-		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
-
-		try {
-			if(jdbc.queryForInt("select count(*) from auditer_consumers where name=?", consumerName) != 1) {
-				throw new InternalErrorException("Auditer consumer doesn't exist.");
-			}
-
-			int lastProcessedId = getLastProcessedId(consumerName);
-
-			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
-			if(maxId > lastProcessedId) {
-				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER, lastProcessedId, maxId);
-				lastProcessedId = maxId;
-				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
-				return messages;
-			}
-			return new ArrayList<>();
-		} catch(Exception ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	public List<String> pollConsumerFullMessages(String consumerName) throws InternalErrorException {
-
-		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
-
-		try {
-			if(jdbc.queryForInt("select count(*) from auditer_consumers where name=?", consumerName) != 1) {
-				throw new InternalErrorException("Auditer consumer doesn't exist.");
-			}
-
-			int lastProcessedId = getLastProcessedId(consumerName);
-
-			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
-			if(maxId > lastProcessedId) {
-				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_FULL_LOG_MAPPER, lastProcessedId, maxId);
-				lastProcessedId = maxId;
-				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
-				return messages;
-			}
-			return new ArrayList<>();
-		} catch(Exception ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
-	public List<String> pollConsumerMessagesForParserSimple(String consumerName) throws InternalErrorException {
-
-		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
-
-		try {
-			if(jdbc.queryForInt("select count(*) from auditer_consumers where name=?", consumerName) != 1) {
-				throw new InternalErrorException("Auditer consumer doesn't exist.");
-			}
-
-			int lastProcessedId = getLastProcessedId(consumerName);
-
-			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
-			if(maxId > lastProcessedId) {
-				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER_FOR_PARSER, lastProcessedId, maxId);
-				lastProcessedId = maxId;
-				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
-				return messages;
-			}
-			return new ArrayList<>();
-		} catch(Exception ex) {
-			throw new InternalErrorException(ex);
-		}
 	}
 
 	public List<AuditMessage> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException {

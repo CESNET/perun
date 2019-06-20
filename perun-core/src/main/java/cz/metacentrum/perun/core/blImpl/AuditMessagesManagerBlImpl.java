@@ -51,24 +51,6 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	}
 
 	@Override
-	public List<String> pollConsumerMessages(String consumerName) throws InternalErrorException {
-
-		return perunBl.getAuditer().pollConsumerMessages(consumerName);
-	}
-
-	@Override
-	public List<String> pollConsumerFullMessages(String consumerName) throws InternalErrorException {
-
-		return perunBl.getAuditer().pollConsumerFullMessages(consumerName);
-	}
-
-	@Override
-	public List<String> pollConsumerMessagesForParserSimple(String consumerName) throws InternalErrorException {
-
-		return perunBl.getAuditer().pollConsumerMessagesForParserSimple(consumerName);
-	}
-
-	@Override
 	public List<AuditMessage> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException {
 
 		return perunBl.getAuditer().pollConsumerMessagesForParser(consumerName);

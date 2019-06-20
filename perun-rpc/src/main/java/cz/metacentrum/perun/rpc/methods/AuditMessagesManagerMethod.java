@@ -11,13 +11,15 @@ import java.util.Map;
 public enum AuditMessagesManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Returns messages from audit's logs.
+	 * Returns specified number of messages from audit logs.
+	 * Count starts at latest event (newest message).
 	 *
 	 * @param count int Messages limit
 	 * @return List<AuditMessage> Audit messages
 	 */
 	/*#
-	 * Returns reasonable number of messages from audit's logs.
+	 * Returns 100 messages from audit logs.
+	 * Count starts at latest event (newest message).
 	 *
 	 * @return List<AuditMessage> Audit messages
 	 */
@@ -31,60 +33,16 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns less than count or equals to count messages from audit's logs.
+	 * Returns messages from audit log where param count is applied to messages IDs starting with current max_id.
+	 * It returns messages by their IDs from max_id to max_id-count (can be less then count messages).
 	 *
-	 * IMPORTANT: This variant does not guarantee returning just count of messages! It returns messages by Id from max_id to max_id-count (can be less then count messages).
-	 *
-	 * @param count int Count of returned messages
-	 * @return List<AuditMessage> List of audit's messages
+	 * @param count int Number of IDs to subtract from max_id
+	 * @return List<AuditMessage> List of audit messages
 	 */
 	getMessagesByCount {
 		@Override
 		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
 			return ac.getAuditMessagesManager().getMessagesByCount(ac.getSession(), parms.readInt("count"));
-		}
-	},
-
-	/*#
-	 * Returns list of messages from audit's log which id is bigger than last processed id.
-	 *
-	 * @param consumerName String Consumer to get messages for
-	 * @return List<String> List of messages
-	 */
-	pollConsumerMessages {
-		@Override
-		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getAuditMessagesManager().pollConsumerMessages(ac.getSession(), parms.readString("consumerName"));
-		}
-	},
-
-	/*#
-	 * Returns list of full messages from audit's log which id is bigger than last processed id.
-	 *
-	 * @param consumerName String Consumer to get messages for
-	 * @return List<String> List of full messages
-	 */
-	pollConsumerFullMessages {
-		@Override
-		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getAuditMessagesManager().pollConsumerFullMessages(ac.getSession(), parms.readString("consumerName"));
-		}
-	},
-
-	/*#
-	 * Returns list of messages for parser from audit's log which id is bigger than last processed id.
-	 *
-	 * @param consumerName String Consumer to get messages for
-	 * @return List<String> List of messages for parser
-	 */
-	pollConsumerMessagesForParserSimple {
-		@Override
-		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			return ac.getAuditMessagesManager().pollConsumerMessagesForParserSimple(ac.getSession(), parms.readString("consumerName"));
 		}
 	},
 
@@ -97,7 +55,6 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	pollConsumerMessagesForParser {
 		@Override
 		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
 			return ac.getAuditMessagesManager().pollConsumerMessagesForParser(ac.getSession(), parms.readString("consumerName"));
 		}
 	},
@@ -112,7 +69,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	setLastProcessedId {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-
+			ac.stateChangingCheck();
 			ac.getAuditMessagesManager().setLastProcessedId(ac.getSession(), parms.readString("consumerName"),
 			  parms.readInt("lastProcessedId"));
 			return null;
@@ -127,55 +84,60 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	createAuditerConsumer {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-
+			ac.stateChangingCheck();
 			ac.getAuditMessagesManager().createAuditerConsumer(ac.getSession(), parms.readString("consumerName"));
 			return null;
 		}
 	},
 
 	/*#
-	 * Get all auditer consumers from database. In map is String = name and Integer = lastProcessedId.
+	 * Get all auditer consumers as a map with key=value pairs like String(name)=Integer(lastProcessedId).
+	 *
+	 * @return Map<String, Integer> Mapping of all auditer consumers to their last processed message ID.
 	 */
 	getAllAuditerConsumers {
 		@Override
 		public Map<String, Integer> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
 			return ac.getAuditMessagesManager().getAllAuditerConsumers(ac.getSession());
 		}
 	},
 
 	/*#
-	 * Get id of last message from auditer_log.
+	 * Get ID of last (newest) message in auditer logs.
+	 *
+	 * @return Integer ID of last (newest) message.
 	 */
 	getLastMessageId {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-
 			return ac.getAuditMessagesManager().getLastMessageId(ac.getSession());
 		}
 	},
 
 	/*#
-	 * Get messages count in auditer_log.
+	 * Get count of all messages stored in auditer logs.
+	 *
+	 * @return Integer Count of all messages.
 	 */
 	getAuditerMessagesCount {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-
 			return ac.getAuditMessagesManager().getAuditerMessagesCount(ac.getSession());
 		}
 	},
 
 	/*#
-	 * Logs an auditer message.
+	 * Logs an auditer message/event to the auditer logs.
 	 *
 	 * @param msg String Message to be logged
 	 */
 	log {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			ac.getAuditMessagesManager().log(ac.getSession(), parms.readString("msg"));
 			return null;
 		}
-	};
+	}
+
 }

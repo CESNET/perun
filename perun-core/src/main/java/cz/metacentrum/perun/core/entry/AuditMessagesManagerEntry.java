@@ -47,36 +47,6 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	}
 
 	@Override
-	public List<String> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
-		// Authorization
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
-			throw new PrivilegeException(perunSession, "pollConsumerMessages");
-		}
-
-		return getAuditMessagesManagerBl().pollConsumerMessages(consumerName);
-	}
-
-	@Override
-	public List<String> pollConsumerFullMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
-		// Authorization
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
-			throw new PrivilegeException(perunSession, "pollConsumerFullMessages");
-		}
-
-		return getAuditMessagesManagerBl().pollConsumerFullMessages(consumerName);
-	}
-
-	@Override
-	public List<String> pollConsumerMessagesForParserSimple(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
-		// Authorization
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
-			throw new PrivilegeException(perunSession, "pollConsumerMessagesForParserSimple");
-		}
-
-		return getAuditMessagesManagerBl().pollConsumerMessagesForParserSimple(consumerName);
-	}
-
-	@Override
 	public List<AuditMessage> pollConsumerMessagesForParser(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
