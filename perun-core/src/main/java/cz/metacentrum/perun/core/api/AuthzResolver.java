@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 
 import java.util.List;
@@ -376,6 +377,21 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Get all roles for a given user.
+	 *
+	 * @param sess perun session
+	 * @param userId id of a user
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @return AuthzRoles object which contains all roles with perunbeans
+	 */
+	public static AuthzRoles getUserRoles(PerunSession sess, int userId) throws InternalErrorException, UserNotExistsException {
+		User user = ((PerunBl) sess.getPerun()).getUsersManagerBl().getUserById(sess, userId);
+
+		return AuthzResolverBlImpl.getUserRoles(sess, user);
+	}
+
+	/**
 	 * Get all group role names. Role is defined as a name, translation table is in Role class.
 	 *
 	 * @param sess perun session
@@ -388,6 +404,21 @@ public class AuthzResolver {
 		((PerunBl) sess.getPerun()).getGroupsManagerBl().checkGroupExists(sess, group);
 
 		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.getGroupRoleNames(sess, group);
+	}
+
+	/**
+	 * Get all roles for a given group.
+	 *
+	 * @param sess perun session
+	 * @param groupId id of a group
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 * @return AuthzRoles object which contains all roles with perunbeans
+	 */
+	public static AuthzRoles getGroupRoles(PerunSession sess, int groupId) throws InternalErrorException, GroupNotExistsException {
+		Group group = ((PerunBl) sess.getPerun()).getGroupsManagerBl().getGroupById(sess, groupId);
+
+		return AuthzResolverBlImpl.getGroupRoles(sess, group);
 	}
 
 	/**
