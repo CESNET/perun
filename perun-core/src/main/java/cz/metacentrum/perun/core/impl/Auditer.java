@@ -486,7 +486,7 @@ public class Auditer {
 			try {
 
 				//Get perun session from the first message (all sessions should be same from the same principal)
-				PerunSessionImpl session = (PerunSessionImpl) auditerMessages.get(0).getOriginaterPerunSession();
+				PerunSessionImpl session = (PerunSessionImpl) auditerMessages.get(0).getOriginatingSession();
 
 				//Check recursively all messages if they can create any resolving message
 				auditerMessages.addAll(checkRegisteredAttributesModules(session, auditerMessages, new ArrayList<>()));
@@ -502,7 +502,7 @@ public class Auditer {
 							public void setValues(PreparedStatement ps, int i) throws SQLException {
 								final AuditerMessage auditerMessage = auditerMessages.get(i);
 								final String message = auditerMessage.getEvent().getMessage();
-								final PerunSession session = auditerMessage.getOriginaterPerunSession();
+								final PerunSession session = auditerMessage.getOriginatingSession();
 								log.trace("AUDIT: {}", message);
 								try {
 									final int msgId = Utils.getNewId(jdbc, "auditer_log_id_seq");
@@ -555,7 +555,7 @@ public class Auditer {
 									log.error("Could not map event {} to JSON.", message.getEvent().getClass().getSimpleName());
 								}
 								//store message without duplicit message attribute because it is stored in separate table
-								final PerunSession session = messages.get(i).getLeft().getOriginaterPerunSession();
+								final PerunSession session = messages.get(i).getLeft().getOriginatingSession();
 								log.info("AUDIT_JSON: {}", jsonString);
 								ps.setInt(1, messages.get(i).getRight());
 								ps.setString(2, jsonString);
