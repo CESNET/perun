@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.5.RELEASE</version>
+		<version>2.1.6.RELEASE</version>
 		<relativePath/>
 	</parent>
 
@@ -64,26 +64,22 @@
 		<hikaricp.version>3.3.1</hikaricp.version>
 
 		<!-- versions of libraries not defined by the Spring Boot Starter Parent -->
-		<cglib-nodep.version>2.2.2</cglib-nodep.version>
 		<commons-cli.version>1.4</commons-cli.version>
-		<commons-collections.version>3.2.2</commons-collections.version>
+		<commons-text.version>1.6</commons-text.version>
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.5.9</expiringmap.version>
-		<flying-saucer-pdf.version>9.1.16</flying-saucer-pdf.version>
-		<google-api-services-admin-directory.version>directory_v1-rev103-1.24.1</google-api-services-admin-directory.version>
+		<flying-saucer-pdf.version>9.1.18</flying-saucer-pdf.version>
+		<google-api-services-admin-directory.version>directory_v1-rev110-1.25.0</google-api-services-admin-directory.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
+		<netty3.version>3.2.1.Final</netty3.version><!-- needed for HornetQ -->
 		<jackson1.version>1.9.13</jackson1.version>
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
 		<jcip.version>1.0</jcip.version>
 		<jdom.version>1.0</jdom.version>
 		<json.version>20140107</json.version>
-		<netty3.version>3.2.1.Final</netty3.version>
-		<opencsv.version>4.2</opencsv.version>
-		<commons-text.version>1.4</commons-text.version>
+		<opencsv.version>4.6</opencsv.version>
 		<oracle.version>12.2.0.1.0</oracle.version>
-		<recaptcha4j.version>0.0.7</recaptcha4j.version>
 		<smackx.version>3.1.0</smackx.version>
-		<taglibs-standard.version>1.2.5</taglibs-standard.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS
@@ -334,12 +330,6 @@
 				<groupId>com.oracle</groupId>
 				<artifactId>orai18n</artifactId>
 				<version>${oracle.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>cglib</groupId>
-				<artifactId>cglib-nodep</artifactId>
-				<version>${cglib-nodep.version}</version>
 			</dependency>
 
 			<dependency>
