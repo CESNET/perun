@@ -24,18 +24,19 @@ public class AuditMessage extends JavaScriptObject {
 		 * Get message
 		 * @return message
 		 */
-		public final native String getFullMessage() /*-{
-			return this.fullMessage;
+		public final native String getEvent() /*-{
+			if (!this.event) return "";
+			return this.event;
 		}-*/;
 
-		/**
-		 * Get message
-		 * @return message
-		 */
-		public final native String getMessage() /*-{
-			if (!this.msg) return "";
-			return this.msg;
-		}-*/;
+	/**
+	 * Get message
+	 * @return message
+	 */
+	public final native String getMessage() /*-{
+		if (!this.uimessage) return "";
+		return this.uimessage;
+	}-*/;
 
 		/**
 		 * Get actor

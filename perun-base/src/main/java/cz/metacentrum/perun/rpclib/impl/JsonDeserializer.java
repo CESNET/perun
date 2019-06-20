@@ -39,16 +39,16 @@ import org.codehaus.jackson.map.annotate.JsonDeserialize;
 @SuppressWarnings("WeakerAccess")
 public class JsonDeserializer extends Deserializer {
 
-	@JsonIgnoreProperties({"name", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
+	@JsonIgnoreProperties({"name","baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
 	public interface AttributeMixIn {}
 
-	@JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
+	@JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName", "writable"})
 	public interface AttributeDefinitionMixIn {}
 
-	@JsonIgnoreProperties({"commonName", "displayName", "beanName"})
+	@JsonIgnoreProperties({"commonName", "displayName", "beanName", "specificUser", "majorSpecificType"})
 	public interface UserMixIn {}
 
-	@JsonIgnoreProperties({"fullMessage"})
+	@JsonIgnoreProperties({"uimessage"})
 	public interface AuditMessageMixIn {}
 
 	@JsonIgnoreProperties({"beanName"})
@@ -66,6 +66,10 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"shortName", "beanName"})
 	public interface GroupMixIn {}
 
+	@JsonIgnoreProperties({"persistent","beanName"})
+	public interface UserExtSourceMixIn {}
+
+	@SuppressWarnings("unused")
 	@JsonIgnoreProperties({"groupStatuses", "groupStatus", "beanName", "suspended"})
 	public interface MemberMixIn {
 		@JsonIgnore
@@ -90,9 +94,6 @@ public class JsonDeserializer extends Deserializer {
 		void putGroupStatus(int groupId, MemberGroupStatus status);
 
 	}
-
-	@JsonIgnoreProperties({"persistent","beanName"})
-	public interface UserExtSourceMixIn {}
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 	static {

@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
+import cz.metacentrum.perun.core.implApi.AuditMessagesManagerImplApi;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 
 	private Auditer auditer;
 	private PerunBl perunBl;
+	private AuditMessagesManagerImplApi auditMessagesManagerImpl;
 
 	public void setAuditer(Auditer auditer) {
 		this.auditer = auditer;
@@ -38,62 +40,62 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 		this.perunBl = perunBl;
 	}
 
+	public AuditMessagesManagerImplApi getAuditMessagesManagerImpl() {
+		return auditMessagesManagerImpl;
+	}
+
+	public AuditMessagesManagerBlImpl(AuditMessagesManagerImplApi auditMessagesManagerImpl) {
+		this.auditMessagesManagerImpl = auditMessagesManagerImpl;
+	}
+
 	@Override
 	public List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException {
-
-		return perunBl.getAuditer().getMessages(count);
+		return getAuditMessagesManagerImpl().getMessages(perunSession, count);
 	}
 
 	@Override
 	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException {
-
-		return perunBl.getAuditer().getMessagesByCount(count);
+		return getAuditMessagesManagerImpl().getMessagesByCount(perunSession, count);
 	}
 
 	@Override
 	public List<AuditMessage> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException {
-
-		return perunBl.getAuditer().pollConsumerMessagesForParser(consumerName);
+		return getAuditMessagesManagerImpl().pollConsumerMessagesForParser(consumerName);
 	}
 
 	@Override
 	public List<AuditEvent> pollConsumerEvents(String consumerName) throws InternalErrorException {
-
-		return perunBl.getAuditer().pollConsumerEvents(consumerName);
+		return getAuditMessagesManagerImpl().pollConsumerEvents(consumerName);
 	}
 
 	@Override
 	public void createAuditerConsumer(String consumerName) throws InternalErrorException {
-
-		perunBl.getAuditer().createAuditerConsumer(consumerName);
+		getAuditMessagesManagerImpl().createAuditerConsumer(consumerName);
 	}
 
 	@Override
 	public void log(PerunSession perunSession, String message) {
-
 		perunBl.getAuditer().log(perunSession, new StringMessageEvent(message));
 	}
 
 	@Override
 	public Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException {
-
-		return perunBl.getAuditer().getAllAuditerConsumers(perunSession);
+		return getAuditMessagesManagerImpl().getAllAuditerConsumers(perunSession);
 	}
 
 	@Override
 	public int getLastMessageId() throws InternalErrorException {
-
-		return perunBl.getAuditer().getLastMessageId();
+		return getAuditMessagesManagerImpl().getLastMessageId();
 	}
 
 	@Override
 	public void setLastProcessedId(String consumerName, int lastProcessedId) throws InternalErrorException {
-
-		perunBl.getAuditer().setLastProcessedId(consumerName, lastProcessedId);
+		getAuditMessagesManagerImpl().setLastProcessedId(consumerName, lastProcessedId);
 	}
 
 	@Override
 	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException {
-		return perunBl.getAuditer().getAuditerMessagesCount(perunSession);
+		return getAuditMessagesManagerImpl().getAuditerMessagesCount(perunSession);
 	}
+
 }

@@ -1,15 +1,20 @@
 package cz.metacentrum.perun.core.api;
 
+import cz.metacentrum.perun.audit.events.AuditEvent;
 
 /**
- * Represents auditors message.
+ * This is a wrapper around AuditEvent with metadata, like ID, timestamp, and actor.
+ * It is used solely for reading purpose (once event is stored in DB).
+ *
+ * @see cz.metacentrum.perun.audit.events.AuditEvent
  *
  * @author Michal Stava
+ * @author Pavel Zlámal
  */
 public class AuditMessage {
 
 	protected int id;
-	protected String msg;
+	protected AuditEvent event;
 	protected String actor;
 	protected String createdAt;
 	protected Integer createdByUid;
@@ -17,19 +22,13 @@ public class AuditMessage {
 	public AuditMessage() {
 	}
 
-	public AuditMessage(int id, String msg, String actor, String createdAt, Integer createdByUid) {
+	public AuditMessage(int id, AuditEvent event, String actor, String createdAt, Integer createdByUid) {
 		this();
 		this.id = id;
-		this.msg = msg;
+		this.event = event;
 		this.actor = actor;
 		this.createdAt = createdAt;
 		this.createdByUid = createdByUid;
-	}
-
-	public String getFullMessage() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(id).append(" \"").append(createdAt).append("\" \"").append(actor).append("\" ").append(msg);
-		return sb.toString();
 	}
 
 	public int getId() {
@@ -40,12 +39,12 @@ public class AuditMessage {
 		this.id = id;
 	}
 
-	public String getMsg() {
-		return msg;
+	public AuditEvent getEvent() {
+		return event;
 	}
 
-	public void setMsg(String msg) {
-		this.msg = msg;
+	public void setEvent(AuditEvent event) {
+		this.event = event;
 	}
 
 	public String getCreatedAt() {
@@ -72,36 +71,12 @@ public class AuditMessage {
 		this.createdByUid = createdByUid;
 	}
 
-	/**
-	 * Compares messages.
-	 * @see Comparable#compareTo(Object)
-	 * @param auditMessage AuditMessage
-	 * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object
-	 */
-	public int compareTo(AuditMessage auditMessage) {
-		int comp = compare(this.getMsg(),auditMessage.getMsg());
-		if (comp!=0) {
-			return comp;
+	public String getUIMessage() {
+		if (event != null) {
+			return BeansUtils.eraseEscaping(BeansUtils.replaceEscapedNullByStringNull(BeansUtils.replacePointyBracketsByApostrophe(event.getMessage())));
 		} else {
-			comp = compare(this.getCreatedAt(),auditMessage.getCreatedAt());
-			if (comp!=0) {
-				return comp;
-			} else {
-				return this.getId()-auditMessage.getId();
-			}
+			return null;
 		}
-	}
-
-	/**
-	 * Compares Strings and handles null values.
-	 * @param s1 string or null
-	 * @param s2 string or null
-	 * @return compare of the two strings
-	 */
-	private int compare(String s1,String s2) {
-		if (s1==null) s1 = "";
-		if (s2==null) s2 = "";
-		return s1.compareTo(s2);
 	}
 
 	@Override
@@ -110,8 +85,8 @@ public class AuditMessage {
 		ret.append(getClass().getSimpleName());
 		ret.append(":[id='");
 		ret.append(id);
-		ret.append("', msg='");
-		ret.append(msg);
+		ret.append("', event='");
+		ret.append(event);
 		ret.append("']");
 
 		return ret.toString();
@@ -123,7 +98,7 @@ public class AuditMessage {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-			+ ((msg == null) ? 0 : msg.hashCode());
+			+ ((event == null) ? 0 : event.hashCode());
 		result = prime * result + id;
 		result = prime * result
 			+ ((createdAt == null) ? 0 : createdAt.hashCode());
@@ -141,10 +116,10 @@ public class AuditMessage {
 		AuditMessage other = (AuditMessage) obj;
 		if (id != other.id)
 			return false;
-		if (msg == null) {
-			if (other.msg != null)
+		if (event == null) {
+			if (other.event != null)
 				return false;
-		} else if (!msg.equals(other.msg))
+		} else if (!event.equals(other.event))
 			return false;
 		if (createdAt == null) {
 			if (other.createdAt != null)

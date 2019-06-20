@@ -202,7 +202,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 
 		running = true;
 		Integer lastProcessedIdNumber = 0;
-		AuditMessage message = new AuditMessage(0, "Empty", null, null, null);
+		AuditMessage message = null;
 		List<AuditMessage> messages;
 
 		try {
@@ -240,8 +240,8 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 					}
 					lastProcessedIdNumber = message.getId();
 					//IMPORTANT STEP2: Resolve next message
-					MessageBeans presentBeans = this.resolveMessage(message.getMsg(), message.getId());
-					this.dispatchEvent(message.getMsg(), presentBeans);
+					MessageBeans presentBeans = this.resolveMessage(message.getEvent().getMessage(), message.getId());
+					this.dispatchEvent(message.getEvent().getMessage(), presentBeans);
 				}
 				//After all messages has been resolved, test interrupting of thread and if its ok, wait and go for another bulk of messages
 				if (Thread.interrupted()) {
@@ -253,13 +253,13 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 			//If ldapc is interrupted
 		} catch (InterruptedException e) {
 			Date date = new Date();
-			log.error("Last message has ID='" + message.getId()+ "' and was INTERRUPTED at " + DATE_FORMAT.format(date) + " due to interrupting.");
+			log.error("Last message has ID='" + ((message!=null) ? message.getId() : 0) + "' and was INTERRUPTED at " + DATE_FORMAT.format(date) + " due to interrupting.");
 			running = false;
 			Thread.currentThread().interrupt();
 			//If some other exception is thrown
 		} catch (Exception e) {
 			Date date = new Date();
-			log.error("Last message has ID='" + message.getId() + "' and was bad PARSED or EXECUTE at " + DATE_FORMAT.format(date) + " due to exception " + e.toString());
+			log.error("Last message has ID='" + ((message!=null) ? message.getId() : 0) + "' and was bad PARSED or EXECUTE at " + DATE_FORMAT.format(date) + " due to exception " + e.toString());
 			throw new RuntimeException(e);
 		}
 	}

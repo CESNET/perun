@@ -6,6 +6,12 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.55
+drop sequence auditer_log_json_id_seq;
+alter table auditer_log rename to auditer_log_old;
+alter table auditer_log_json rename to auditer_log;
+update configurations set value='3.1.55' where property='DATABASE VERSION';
+
 3.1.54
 ALTER TABLE members ADD suspended_to date;
 update configurations set value='3.1.54' where property='DATABASE VERSION';

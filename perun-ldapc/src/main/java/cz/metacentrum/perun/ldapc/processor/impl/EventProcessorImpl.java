@@ -195,8 +195,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		//Get instance of auditerConsumer and set runnig to true
 
 		running = true;
-		Integer lastProcessedIdNumber = 0;
-		AuditMessage message = new AuditMessage(0, "Empty", null, null, null);
+		int lastProcessedIdNumber = 0;
+		AuditMessage message = null;
 		List<AuditMessage> messages;
 
 		try {
@@ -230,7 +230,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 					}
 					lastProcessedIdNumber = message.getId();
 					//IMPORTANT STEP2: Resolve next message
-					this.resolveMessage(message.getMsg(), message.getId());
+					this.resolveMessage(message.getEvent().getMessage(), message.getId());
 				}
 				//After all messages has been resolved, test interrupting of thread and if its ok, wait and go for another bulk of messages
 				if (Thread.interrupted()) {
@@ -242,13 +242,13 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			//If ldapc is interrupted
 		} catch (InterruptedException e) {
 			Date date = new Date();
-			log.error("Last message has ID='" + message.getId()+ "' and was INTERRUPTED at " + DATE_FORMAT.format(date) + " due to interrupting.");
+			log.error("Last message has ID='" + ((message!=null) ? message.getId() : 0) + "' and was INTERRUPTED at " + DATE_FORMAT.format(date) + " due to interrupting.");
 			running = false;
 			Thread.currentThread().interrupt();
 			//If some other exception is thrown
 		} catch (Exception e) {
 			Date date = new Date();
-			log.error("Last message has ID='" + message.getId() + "' and was bad PARSED or EXECUTE at " + DATE_FORMAT.format(date) + " due to exception " + e.toString());
+			log.error("Last message has ID='" + ((message!=null) ? message.getId() : 0)  + "' and was bad PARSED or EXECUTE at " + DATE_FORMAT.format(date) + " due to exception " + e.toString());
 			throw new RuntimeException(e);
 		}
 	}

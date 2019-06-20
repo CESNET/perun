@@ -837,7 +837,7 @@ create table groups_members (
 	modified_at date default sysdate not null,
 	modified_by nvarchar2(1300) default user not null,
 	status char(1) default '0' not null,
-	source_group_status integer not null default 0,
+	source_group_status integer default 0 not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	membership_type integer not null,  --identifier of membership type (membersip_types.id)
@@ -1203,21 +1203,10 @@ create table auditer_log (
 	id integer not null,         --identifier of logged event
 	msg clob not null,           --text of logging message
 	actor nvarchar2(256) not null, --who causes the event
-	created_at date default sysdate not null ,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint audlog_pk primary key (id)
-);
-
--- AUDITER_LOG_JSON - logging in JSON
-create table auditer_log_json (
-	id integer not null,         --identifier of logged event
-	msg clob not null,           --text of logging message
-	actor nvarchar2(256) not null, --who causes the event
 	created_at date default sysdate not null,
 	created_by_uid integer,
 	modified_by_uid integer,
-	constraint audlogjson_pk primary key (id)
+	constraint audlog_pk primary key (id)
 );
 
 -- SERVICE_PRINCIPALS - principals for executing of services by engine, actually is not used
@@ -1583,7 +1572,6 @@ create table authz (
 create sequence ATTR_NAMES_ID_SEQ nocache;
 create sequence AUDITER_CONSUMERS_ID_SEQ nocache;
 create sequence AUDITER_LOG_ID_SEQ nocache;
-create sequence AUDITER_LOG_JSON_ID_SEQ nocache;
 create sequence DESTINATIONS_ID_SEQ nocache;
 create sequence EXT_SOURCES_ID_SEQ nocache;
 create sequence FACILITIES_ID_SEQ nocache;

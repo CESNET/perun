@@ -48,7 +48,7 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"commonName", "displayName", "beanName", "specificUser", "majorSpecificType"})
 	private interface UserMixIn {}
 
-	@JsonIgnoreProperties({"fullMessage"})
+	@JsonIgnoreProperties({"uimessage"})
 	private interface AuditMessageMixIn {}
 
 	@JsonIgnoreProperties({"beanName"})
