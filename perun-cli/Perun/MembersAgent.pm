@@ -108,4 +108,14 @@ sub removeSponsor
 	return Perun::Common::callManagerMethod('removeSponsor', '', @_);
 }
 
+sub suspendMemberTo
+{
+	return Perun::Common::callManagerMethod('suspendMemberTo', '', @_);
+}
+
+sub unsuspendMember
+{
+ return Perun::Common::callManagerMethod('unsuspendMember', '', @_);
+}
+
 1;

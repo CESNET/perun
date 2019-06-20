@@ -35,7 +35,14 @@ sub TO_JSON
 		$sponsored = undef;
 	}
 
-	return { id => $id, userId => $userId, sponsored => $sponsored };
+	my $suspendedTo;
+	if (defined($self->{_suspendedTo})) {
+		$suspendedTo = $self->{_suspendedTo};
+	} else {
+		$suspendedTo = undef;
+	}
+
+	return { id => $id, userId => $userId, sponsored => $sponsored, suspendedTo => $suspendedTo };
 }
 
 sub getId
@@ -106,6 +113,35 @@ sub setSponsored
 	return;
 }
 
+sub getSuspendedTo
+{
+	my $self = shift;
+	
+}
+
+sub setSuspendedTo
+{
+	my $self = shift;
+	$self->{_suspendedTo} = shift;
+
+  return;
+}
+
+sub isSuspended
+{
+	my $self = shift;
+
+	return ($self->{_suspendedTo}) ? 1 : 0;
+}
+
+sub isSuspendedToPrint
+{
+	my $self = shift;
+
+	return ($self->{_suspendedTo}) ? 'true' : 'false';
+}
+
+
 sub getStatus {
 	my $self = shift;
 	return $self->{_status};
@@ -124,11 +160,11 @@ sub getMembershipType {
 
 sub getCommonArrayRepresentation {
 	my $member = shift;
-	return ($member->getId, $member->getUserId, $member->getStatus, $member->getGroupStatus, $member->getMembershipType, $member->isSponsoredToPrint);
+	return ($member->getId, $member->getUserId, $member->getStatus, $member->getGroupStatus, $member->getMembershipType, $member->isSponsoredToPrint, $member->getSuspendedTo);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return('Id', 'UserId', 'Status', 'Group Status', 'Membership type', 'Sponsored');
+	return('Id', 'UserId', 'Status', 'Group Status', 'Membership type', 'Sponsored', 'SuspendedTo');
 }
 
 1;
