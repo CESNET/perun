@@ -47,15 +47,16 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns list of auditMessages for parser from audit's log which id is bigger than last processed id.
+	 * Returns list of AuditMessages from audit log with IDs > lastProcessedId for registered auditer consumer
+	 * specified by consumerName param.
 	 *
 	 * @param consumerName String Consumer to get messages for
-	 * @return List<AuditMessage> List of auditMessages for parser
+	 * @return List<AuditMessage> List of Audit Messages
 	 */
-	pollConsumerMessagesForParser {
+	pollConsumerMessages {
 		@Override
 		public List<AuditMessage> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getAuditMessagesManager().pollConsumerMessagesForParser(ac.getSession(), parms.readString("consumerName"));
+			return ac.getAuditMessagesManager().pollConsumerMessages(ac.getSession(), parms.readString("consumerName"));
 		}
 	},
 

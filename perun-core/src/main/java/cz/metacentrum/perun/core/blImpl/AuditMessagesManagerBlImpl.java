@@ -59,18 +59,18 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	}
 
 	@Override
-	public List<AuditMessage> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException {
-		return getAuditMessagesManagerImpl().pollConsumerMessagesForParser(consumerName);
+	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException {
+		return getAuditMessagesManagerImpl().pollConsumerMessages(perunSession, consumerName);
 	}
 
 	@Override
-	public List<AuditEvent> pollConsumerEvents(String consumerName) throws InternalErrorException {
-		return getAuditMessagesManagerImpl().pollConsumerEvents(consumerName);
+	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException {
+		return getAuditMessagesManagerImpl().pollConsumerEvents(perunSession, consumerName);
 	}
 
 	@Override
-	public void createAuditerConsumer(String consumerName) throws InternalErrorException {
-		getAuditMessagesManagerImpl().createAuditerConsumer(consumerName);
+	public void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException {
+		getAuditMessagesManagerImpl().createAuditerConsumer(perunSession, consumerName);
 	}
 
 	@Override
@@ -84,13 +84,13 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	}
 
 	@Override
-	public int getLastMessageId() throws InternalErrorException {
-		return getAuditMessagesManagerImpl().getLastMessageId();
+	public int getLastMessageId(PerunSession perunSession) throws InternalErrorException {
+		return getAuditMessagesManagerImpl().getLastMessageId(perunSession);
 	}
 
 	@Override
-	public void setLastProcessedId(String consumerName, int lastProcessedId) throws InternalErrorException {
-		getAuditMessagesManagerImpl().setLastProcessedId(consumerName, lastProcessedId);
+	public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException {
+		getAuditMessagesManagerImpl().setLastProcessedId(perunSession, consumerName, lastProcessedId);
 	}
 
 	@Override

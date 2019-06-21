@@ -121,7 +121,7 @@ public class SchedulingManagerImpl {
 	 */
 	public void processPerunAuditMessages() throws Exception {
 		try {
-			List<AuditEvent> events = perun.getAuditMessagesManagerBl().pollConsumerEvents(consumerName);
+			List<AuditEvent> events = perun.getAuditMessagesManagerBl().pollConsumerEvents(session, consumerName);
 			for (AuditEvent event : events) {
 				try {
 					perunNotifAuditMessagesManager.saveMessageToPerunAuditerMessage(event.getMessage(), session);

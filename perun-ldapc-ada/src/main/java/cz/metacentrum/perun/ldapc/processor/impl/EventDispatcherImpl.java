@@ -218,8 +218,8 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 				do {
 					try {
 						//IMPORTANT STEP1: Get new bulk of messages
-						messages = perun.getAuditMessagesManager().pollConsumerMessagesForParser(perunSession, ldapProperties.getLdapConsumerName());
-						// Rpc.AuditMessagesManager.pollConsumerMessagesForParser(ldapcManager.getRpcCaller(), ldapProperties.getLdapConsumerName());
+						messages = perun.getAuditMessagesManager().pollConsumerMessages(perunSession, ldapProperties.getLdapConsumerName());
+						// Rpc.AuditMessagesManager.pollConsumerMessages(ldapcManager.getRpcCaller(), ldapProperties.getLdapConsumerName());
 					} catch (InternalErrorException ex) {
 						log.error("Consumer failed due to {}. Sleeping for {} ms.",ex, sleepTime);
 						Thread.sleep(sleepTime);

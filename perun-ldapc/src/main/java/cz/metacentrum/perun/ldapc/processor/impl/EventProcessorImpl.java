@@ -209,7 +209,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				do {
 					try {
 						//IMPORTANT STEP1: Get new bulk of messages
-						messages = Rpc.AuditMessagesManager.pollConsumerMessagesForParser(ldapcManager.getRpcCaller(), ldapProperties.getLdapConsumerName());
+						messages = Rpc.AuditMessagesManager.pollConsumerMessages(ldapcManager.getRpcCaller(), ldapProperties.getLdapConsumerName());
 					} catch (InternalErrorException ex) {
 						log.error("Consumer failed due to {}. Sleeping for {} ms.",ex, sleepTime);
 						Thread.sleep(sleepTime);

@@ -62,8 +62,8 @@ public class LdapcManagerImpl implements LdapcManager {
 			resourceSynchronizer.synchronizeResources();
 			groupSynchronizer.synchronizeGroups();
 
-			int lastProcessedMessageId = ((PerunBl)getPerunBl()).getAuditMessagesManagerBl().getLastMessageId();
-			((PerunBl)getPerunBl()).getAuditMessagesManagerBl().setLastProcessedId(ldapProperties.getLdapConsumerName(), lastProcessedMessageId);
+			int lastProcessedMessageId = ((PerunBl)getPerunBl()).getAuditMessagesManagerBl().getLastMessageId(perunSession);
+			((PerunBl)getPerunBl()).getAuditMessagesManagerBl().setLastProcessedId(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedMessageId);
 		} catch (Exception  e) {
 			log.error("Error synchronizing to LDAP", e);
 		}
