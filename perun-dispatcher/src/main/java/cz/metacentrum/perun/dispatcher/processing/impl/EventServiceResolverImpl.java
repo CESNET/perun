@@ -232,6 +232,27 @@ public class EventServiceResolverImpl implements EventServiceResolver {
 			servicesResolvedFromEvent.add(service);
 		}
 
+		// FIXME - Following code is commented since we don't want to start propagation for messages like "ServiceUpdated".
+		// Generally it could clog the propagations, when single service is assigned to the many facilities.
+		// It also means, that messages to force/planServicePropagation for service (without facility specified) are ignored.
+		/*
+		if (servicesResolvedFromEvent.size() == 1 &&
+				facilitiesResolvedFromEvent.isEmpty() &&
+				resourcesResolvedFromEvent.isEmpty()) {
+			// there was no proper sourcing object other than the service
+			// so we will append all facilities with such service
+			facilitiesResolvedFromEvent.addAll(perun.getFacilitiesManager().getAssignedFacilities(perunSession, service));
+			for (Facility fac : facilitiesResolvedFromEvent) {
+				try {
+					resourcesResolvedFromEvent.addAll(perun.getFacilitiesManager()
+							.getAssignedResources(perunSession, fac));
+				} catch (FacilityNotExistsException e) {
+					log.error("Facility {} was probably deleted, can't get resources for it.", fac, e);
+				}
+			}
+		}
+		*/
+
 		for (Resource r : resourcesResolvedFromEvent) {
 
 			Facility facilityResolvedFromEvent;
