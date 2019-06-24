@@ -4,12 +4,11 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunBeanProcessingPool;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -19,6 +18,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * It does not run any scheduler, it just provides the functionality for the scheduling of synchronizations.
  *
  * Methods in this class are thread safe
+ *
+ * @author Peter Balčirák peter.balcirak@gmail.com
  */
 public class SynchronizationPool {
 	private final PerunBeanProcessingPool<Group> poolOfGroupsToBeSynchronized = new PerunBeanProcessingPool<>();
@@ -31,6 +32,7 @@ public class SynchronizationPool {
 	//Semaphore which takes care about emptiness of list of waiting groups structures (threads will wait for another group structure)
 	//Counter in this semaphore counts number of waiting groups structures in the pool (0 means no groups structures are waiting to be processed)
 	private final Semaphore notEmptyGroupsStructuresPoolSemaphore = new Semaphore(0, true);
+	private final static Random random = new Random();
 
 	private final static Logger log = LoggerFactory.getLogger(SynchronizationPool.class);
 
@@ -130,8 +132,9 @@ public class SynchronizationPool {
 
 	/**
 	 * Take a first group, which can be safely synchronized, from the pool of waiting groups and add it to the pool of running groups.
-	 * If the group does not exists anymore, remove it from the pool of waiting groups, wait 10 seconds and try the whole process again.
-	 * If none of the waiting groups can be synchronized, wait 10 seconds and try the whole process again.
+	 * If the group does not exists anymore, remove it from the pool of waiting groups, wait 1-2 seconds and try the whole process again.
+	 * We cannot remove more than one group during the one while loop because of the concurrent use of semaphore.
+	 * If none of the waiting groups can be synchronized, wait 1-2 seconds and try the whole process again.
 	 *
 	 * @param sess
 	 * @return
@@ -179,13 +182,13 @@ public class SynchronizationPool {
 			} finally {
 				poolAccessLock.unlock();
 			}
-			Thread.sleep(10000);
+			Thread.sleep(1000 + random.nextInt(1001));
 		}
 	}
 
 	/**
 	 * Take a first group, which can be safely synchronized, from the pool of waiting groups structures and add it to the pool of running groups structures.
-	 * If none of the waiting groups can be taken, wait 10 seconds and try again.
+	 * If none of the waiting groups can be taken, wait 1-2 seconds and try again.
 	 *
 	 * @param sess
 	 * @return
@@ -221,38 +224,34 @@ public class SynchronizationPool {
 			} finally {
 				poolAccessLock.unlock();
 			}
-			Thread.sleep(10000);
+			Thread.sleep(1000 + random.nextInt(1001));
 		}
 	}
 
 	/**
 	 * Remove group from the pool of running groups structures
 	 *
+	 * This method does not use poolAccessLock because of performance improvement.
+	 * Locking is done in PerunBeanProcessingPool.
+	 *
 	 * @param group which will be removed from the pool of running groups structures
 	 * @return
 	 */
 	public boolean removeGroupStructure(Group group) {
-		try {
-			poolAccessLock.lock();
 			return poolOfGroupsStructuresToBeSynchronized.removeJob(group);
-		} finally {
-			poolAccessLock.unlock();
-		}
 	}
 
 	/**
 	 * Remove group from the pool of running groups
 	 *
+	 * This method does not use poolAccessLock because of performance improvement.
+	 * Locking is done in PerunBeanProcessingPool.
+	 *
 	 * @param group which will be removed from the pool of running groups structures
 	 * @return
 	 */
 	public boolean removeGroup(Group group) {
-		try {
-			poolAccessLock.lock();
 			return poolOfGroupsToBeSynchronized.removeJob(group);
-		} finally {
-			poolAccessLock.unlock();
-		}
 	}
 
 	/**
