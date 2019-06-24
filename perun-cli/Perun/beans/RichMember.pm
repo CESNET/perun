@@ -125,11 +125,11 @@ sub getGroupStatus {
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return($self->{_id}, $self->{_user}->{id}, $self->getDisplayName, $self->{_status}, $self->{_groupStatus}, $self->{_membershipType}, $self->isSponsoredToPrint);
+	return($self->{_id}, $self->{_user}->{id}, $self->getDisplayName, $self->{_status}, $self->{_groupStatus}, $self->{_membershipType}, $self->isSponsoredToPrint, $self->{_suspendedTo});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return('Member Id', 'User Id', 'Name', 'VO Status', 'Group Status', 'Membership type', 'Sponsored');
+	return('Member Id', 'User Id', 'Name', 'VO Status', 'Group Status', 'Membership type', 'Sponsored', 'SuspendedTo');
 }
 
 1;

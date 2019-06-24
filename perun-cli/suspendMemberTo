@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+use Switch;
+
+sub help {
+	return qq{
+  Member will be set as suspended to the date. Member id and date are required.
+	--------------------------------------
+	Available options:
+	--memberId        | -m member id
+	--date            | -d date in format yyyy-mm-dd
+	--batch           | -b batch
+	--help            | -h prints this help
+
+	};
+}
+
+my ($memberId, $date);
+our $batch;
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"memberId|m=i"   => \$memberId, "date|d=s" => \$date) || die help();
+
+# Check options
+unless (defined($memberId)) { die "ERROR: memberId is required \n";}
+unless (defined($date)) { die "ERROR: date to which will be member suspended is required \n";}
+
+my $agent = Perun::Agent->new();
+my $membersAgent = $agent->getMembersAgent;
+
+$membersAgent->suspendMemberTo( member => $memberId, suspendedTo => $date );
+
+printMessage("Member with id $memberId was suspended to $date.", $batch);

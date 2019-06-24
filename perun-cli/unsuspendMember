@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+use Switch;
+
+sub help {
+	return qq{
+  The date of suspension for Member will be removed (if exists).
+	--------------------------------------
+	Available options:
+	--memberId        | -m member id
+	--batch           | -b batch
+	--help            | -h prints this help
+
+	};
+}
+
+my ($memberId, $date);
+our $batch;
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"memberId|m=i"   => \$memberId) || die help();
+
+# Check options
+unless (defined($memberId)) { die "ERROR: memberId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $membersAgent = $agent->getMembersAgent;
+
+$membersAgent->unsuspendMember( member => $memberId );
+
+printMessage("Suspension for member with id $memberId was removed.", $batch);
