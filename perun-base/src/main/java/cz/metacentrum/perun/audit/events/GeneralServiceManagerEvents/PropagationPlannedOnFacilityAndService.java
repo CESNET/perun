@@ -20,7 +20,7 @@ public class PropagationPlannedOnFacilityAndService extends AuditEvent {
 	public PropagationPlannedOnFacilityAndService(Facility facility, Service service) {
 		this.facility = facility;
 		this.service = service;
-		this.message = formatMessage("propagation planned: On %s.", service);
+		this.message = formatMessage("propagation planned: On %s and %s.", facility, service);
 	}
 
 	public Facility getFacility() {
