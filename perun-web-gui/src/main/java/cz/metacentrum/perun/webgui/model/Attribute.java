@@ -1,7 +1,10 @@
 package cz.metacentrum.perun.webgui.model;
 
+import com.google.gson.JsonObject;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 
@@ -328,6 +331,25 @@ public class Attribute extends JavaScriptObject {
 	public final Map<String, JSONValue> getValueAsMap()
 	{
 		return JsonUtils.parseJsonToMap(getValueAsJso());
+	}
+
+	public final Map<String, String> getValueAsMapString()
+	{
+		return JsonUtils.parseJsonToMapString(getValueAsJso());
+	}
+
+	public final void setValueAsMap(Map<String, String> map) {
+
+		if (map == null || map.isEmpty()) {
+			setValueAsJso(null);
+		} else {
+			JSONObject json = new JSONObject();
+			for (String key : map.keySet()) {
+				json.put(key, new JSONString(map.get(key)));
+			}
+			setValueAsJso(json.getJavaScriptObject());
+		}
+
 	}
 
 	/**

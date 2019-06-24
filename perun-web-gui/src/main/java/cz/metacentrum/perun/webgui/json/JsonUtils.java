@@ -563,6 +563,27 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Parses a JavaScript map into a Java map.
+	 * @param jso
+	 * @return
+	 */
+	static final public Map<String, String> parseJsonToMapString(JavaScriptObject jso) {
+
+		if (jso == null) {
+			return new HashMap<String, String>();   // when null, return empty map
+		}
+
+		JSONObject obj = new JSONObject(jso);
+
+		HashMap<String, String> m = new HashMap<String, String>();
+		for (String key : obj.keySet()) {
+			m.put(key, obj.get(key).toString());
+		}
+		return m;
+
+	}
+
+	/**
 	 * Clones the JavaScriptObject
 	 * @param obj
 	 */
@@ -639,6 +660,27 @@ public class JsonUtils {
 	 */
 	public static final native int getCurrentYear()  /*-{
 		return new Date().getFullYear()
+	}-*/;
+
+	/**
+	 * Return current date as YYYY-MM-DD
+	 * @return current date as string
+	 */
+	public static final native String getCurrentDateAsString()  /*-{
+
+		var today = new Date();
+		var dd = today.getDate();
+		var mm = today.getMonth() + 1; //January is 0!
+
+		var yyyy = today.getFullYear();
+		if (dd < 10) {
+			dd = '0' + dd;
+		}
+		if (mm < 10) {
+			mm = '0' + mm;
+		}
+		return yyyy + '-' + mm + '-' + dd;
+
 	}-*/;
 
 

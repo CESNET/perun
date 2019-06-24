@@ -9,6 +9,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.History;
@@ -21,9 +23,14 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetGuiConfiguration;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesV2;
+import cz.metacentrum.perun.webgui.json.attributesManager.GetEntitylessAttributes;
+import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
+import cz.metacentrum.perun.webgui.json.attributesManager.SetAttribute;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetPerunPrincipal;
 import cz.metacentrum.perun.webgui.json.authzResolver.KeepAlive;
 import cz.metacentrum.perun.webgui.json.usersManager.ValidatePreferredEmailChange;
+import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.PerunPrincipal;
@@ -40,6 +47,11 @@ import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CantLogAsServiceUserWidget;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.NotUserOfPerunWidget;
+
+import java.text.DateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The main web GUI class. It's GWT Entry point.
@@ -314,17 +326,63 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 						JsonUtils.setExtendedInfoVisible(showExtendedInfo);
 						session.getUiElements().getExtendedInfoButtonWidget().setDown(showExtendedInfo); // set extended info button
 
-						// perun loaded = true
-						perunLoaded = true;
+						// Specific GDPR approval is required only from admins
+						if (session.isFacilityAdmin() || session.isVoAdmin() || session.isVoObserver() ||
+								session.isGroupAdmin() || session.isPerunAdmin() || session.isSecurityAdmin()) {
+							checkGdprApproval(new JsonCallbackEvents() {
+								@Override
+								public void onFinished(JavaScriptObject jso) {
 
-						// loads the page based on URL or default
-						loadPage();
+									// FINISH LOADING UI ONCE ITS CHECKED
 
-						// hides the loading box
-						loadingBox.hide();
+									// perun loaded = true
+									perunLoaded = true;
 
-						// load proper parts of menu (based on roles)
-						session.getUiElements().getMenu().prepare();
+									// loads the page based on URL or default
+									loadPage();
+
+									// hides the loading box
+									loadingBox.hide();
+
+									// load proper parts of menu (based on roles)
+									session.getUiElements().getMenu().prepare();
+
+								}
+
+								@Override
+								public void onError(PerunError error) {
+
+									// hides the loading box
+									loadingBox.hide();
+
+									// shows error box
+									PopupPanel loadingFailedBox;
+									if (error != null) {
+										loadingFailedBox = session.getUiElements().perunLoadingFailedBox(error.getErrorInfo());
+									} else {
+										loadingFailedBox = session.getUiElements().perunLoadingFailedBox("GDPR check failed");
+									}
+									loadingFailedBox.show();
+
+								}
+							});
+						} else {
+
+							// NO GDPR CHECK NEEDED
+
+							// perun loaded = true
+							perunLoaded = true;
+
+							// loads the page based on URL or default
+							loadPage();
+
+							// hides the loading box
+							loadingBox.hide();
+
+							// load proper parts of menu (based on roles)
+							session.getUiElements().getMenu().prepare();
+
+						}
 
 					}
 					@Override
@@ -642,6 +700,104 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 				return connected;
 			}
 		}, 15000);
+
+	}
+
+	private void checkGdprApproval(JsonCallbackEvents finishEvents) {
+
+		if (session.getConfiguration() != null) {
+
+			String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("gdprAdminEnabled");
+			if (value != null && !value.isEmpty() && "true".equalsIgnoreCase(value) && session.getUser() != null) {
+
+				final String currentVersion = PerunWebSession.getInstance().getConfiguration().getCustomProperty("gdprAdminLastVersion");
+
+				if (currentVersion != null && !currentVersion.isEmpty()) {
+
+					Map<String,Integer> ids = new HashMap<>();
+					ids.put("user", session.getUser().getId());
+
+					GetListOfAttributes list = new GetListOfAttributes(new JsonCallbackEvents() {
+						@Override
+						public void onFinished(JavaScriptObject jso) {
+
+							List<Attribute> response = JsonUtils.<Attribute>jsoAsList(jso);
+							for (Attribute a : response) {
+								if (a != null && "gdprAdminApprovedVersions".equalsIgnoreCase(a.getFriendlyName())) {
+									Map<String, String> approvedAdminGDPR = a.getValueAsMapString();
+									if (approvedAdminGDPR.containsKey(currentVersion)) {
+										// user already approved latest version - continue loading UI
+										finishEvents.onFinished(null);
+										break;
+									} else {
+										// show current GDPR approval
+										showCurrentGDPRApproval(ids, a, approvedAdminGDPR, currentVersion, finishEvents);
+										break;
+									}
+								} else {
+									PerunError error = (PerunError)PerunError.createObject();
+									error.setErrorInfo("In order to use GUI as administrator you must approve latest version of GDPR. But configuration for it is missing in Perun (missing gdprAdminApprovedVersions attribute).");
+									finishEvents.onError(error);
+									return;
+								}
+							}
+
+						}
+					});
+					list.getListOfAttributes(ids, "urn:perun:user:attribute-def:def:gdprAdminApprovedVersions");
+
+				}
+
+			} else {
+				// load gui - check was disabled
+				finishEvents.onFinished(null);
+			}
+		} else {
+			// load gui - check is disabled - no configuration object
+			finishEvents.onFinished(null);
+		}
+
+	}
+
+	private void showCurrentGDPRApproval(Map<String, Integer> ids, Attribute a, Map<String, String> approvedAdminGDPR, String currentVersion, JsonCallbackEvents finishEvents) {
+
+		TextArea area = new TextArea();
+		area.setSize("500px", "800px");
+		area.setText(session.getConfiguration().getCustomProperty("gdprAdminText"));
+
+		Confirm gdprConfirm = new Confirm("GDPR approval", area, new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				SetAttribute setAttribute = new SetAttribute(new JsonCallbackEvents() {
+
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						// approved finish loading UI
+						finishEvents.onFinished(null);
+					}
+
+					@Override
+					public void onError(PerunError error) {
+						error.setErrorInfo("Failed to store your GDPR approval for version: "+currentVersion);
+						finishEvents.onError(error);
+					}
+				});
+
+				approvedAdminGDPR.put(currentVersion, JsonUtils.getCurrentDateAsString());
+				a.setValueAsMap(approvedAdminGDPR);
+				setAttribute.setAttribute(ids,a);
+
+			}
+		}, new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				PerunError error = (PerunError)PerunError.createObject();
+				error.setErrorInfo("In order to use GUI as administrator you must approve latest version of GDPR.");
+				finishEvents.onError(error);
+			}
+		}, "Approve", "Reject", true);
+		gdprConfirm.show();
 
 	}
 
