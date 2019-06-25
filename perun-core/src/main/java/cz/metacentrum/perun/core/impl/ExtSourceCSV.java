@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.core.impl;
 
-import com.opencsv.CSVReader;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
@@ -11,16 +13,21 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
+ * Ext source for CSV files. It expects them to have 1st row as a header.
+ *
+ * Docs: https://wiki.metacentrum.cz/wiki/Perun_external_sources#CSV
+ *
  * @author Sona Mastrakova
+ * @author Pavel Zlámal
  */
 public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
@@ -28,7 +35,6 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
     private String file = null;
     private String query = null;
-    private String[] header = null;
 
     private static PerunBlImpl perunBl;
 
@@ -146,25 +152,15 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException {
-        try {
-            String queryForGroup = attributes.get(GroupsManager.GROUPSQUERY_ATTRNAME);
-
-            if (queryForGroup == null) {
-                throw new InternalErrorException("Attribute " + GroupsManager.GROUPSQUERY_ATTRNAME + " can't be null.");
-            }
-
-			// Get CSV file
-            prepareFile();
-
-            return csvParsing(queryForGroup, 0);
-
-        } catch (IOException ex) {
-            log.error("IOException in getSubjectGroups() method while parsing csv file", ex);
-        }
-        return null;
+    public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws ExtSourceUnsupportedOperationException {
+        throw new ExtSourceUnsupportedOperationException("Using this method is not supported for CSV.");
     }
 
+    /**
+     * Initialize CSV file.
+     *
+     * @throws InternalErrorException When fail not exists or is empty
+     */
     private void prepareFile() throws InternalErrorException {
         //Get CSV file
         file = getAttributes().get("file");
@@ -173,111 +169,114 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         }
     }
 
+    /**
+     * Parse CSV file into list of our standard "subject" (aka candidates)
+     *
+     * @param query query to check CSV file content against
+     * @param maxResults limit results to X row or 0 for unlimited
+     * @return List of Maps representing subjects for synchronization (perun_attr/constant = value).
+     * @throws InternalErrorException When implementation fails
+     * @throws IOException When reading CSV file fails
+     */
     private List<Map<String, String>> csvParsing(String query, int maxResults) throws InternalErrorException, IOException {
+
         List<Map<String, String>> subjects = new ArrayList<>();
 
-		CSVReader reader = initializeCSVReader(file);
+        Map<String,String> attributeMapping = getCsvMapping();
 
-        header = reader.readNext();
-        if (header == null) {
-            throw new RuntimeException("No header in csv file");
-        }
-        String[] row;
+        File csvFile = new File(file);
+        CsvMapper mapper = new CsvMapper();
+        // use first row as header; otherwise defaults are fine
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
-        while ((row = reader.readNext()) != null) {
-            if (header.length != row.length) {
-                throw new RuntimeException("Csv file is not valid - some rows have different number of columns from the header row.");
-            }
+        MappingIterator<Map<String,String>> it = mapper.readerFor(Map.class).with(schema).readValues(csvFile);
+        while (it.hasNext()) {
 
-            if (compareRowToQuery(row, query)) {
+            Map<String,String> rowAsMap = it.next();
 
-                Map<String, String> map = convertLineToMap(row);
+            if (compareRowToQuery(rowAsMap, query)) {
 
-                if (map != null) {
-                    subjects.add(map);
+                Map<String,String> singleSubject = new HashMap<>();
+
+                // translate CSV column names to perun attribute URNs
+                for (String key : rowAsMap.keySet()) {
+                    singleSubject.put(attributeMapping.get(key), rowAsMap.get(key));
                 }
 
+                subjects.add(singleSubject);
+
+                // break if we required limited response
                 if (maxResults > 0) {
                     if (subjects.size() >= maxResults) {
                         break;
                     }
                 }
+
             }
+
         }
 
         return subjects;
-    }
 
-	/**
-	 * Initialize CSVReader object to read CSV file from path defined in parameter.
-	 *
-	 * @param fileName Path to file
-	 * @return CSVReader object
-	 * @throws FileNotFoundException
-	 */
-	private CSVReader initializeCSVReader(String fileName) throws FileNotFoundException {
-		FileReader fileReader = new FileReader(fileName);
-		return new CSVReader(fileReader);
-	}
+    }
 
     /**
      * Comparison of one row in CSV file with the query.
      * - if the row would be result of the query, then this method returns true
      * - if not, then this method returns false
      *
-     * @param row one row from CSV file
+     * Basically it has two modes, exact match when query contains mapping "column=value"
+     * and contains (substring) when query contains mapping "column contains ?".
+     *
+     * @param rowAsMap one row from CSV file
      * @param query query we want to 'execute' on the row, e.g. nameOfColumn=valueInRow
-     * @return boolean
-     * @throws InternalErrorException
+     * @return TRUE if row matches query and should be processed / FALSE when row should be skipped
+     * @throws InternalErrorException When implementation fails
      */
-    private boolean compareRowToQuery(String[] row, String query) throws InternalErrorException {
+    private boolean compareRowToQuery(Map<String,String> rowAsMap, String query) throws InternalErrorException {
 
-        // symbol '=' indicates getSubjectByLogin() or getGroupSubjects method
+        // symbol '=' indicates getSubjectByLogin() or getGroupSubjects() method
         int index = query.indexOf("=");
         // word 'contains' indicates findSubjects() method
         int indexContains = query.indexOf("contains");
 
         if (index != -1) {
+
             String queryType = query.substring(0, index);
             String value = query.substring(index + 1);
 
-            for (int i = 0; i < row.length; i++) {
-                if ((header[i].compareTo(queryType) == 0 && row[i].compareTo(value) == 0)) {
-                    return true;
-                }
-            }
+            // whether value in requested "column" in CSV equals expected value
+            return Objects.equals(value, rowAsMap.get(queryType));
+
+        } else if (indexContains != -1) {
+
+            String queryType = query.substring(0, indexContains);
+            String value = query.substring(indexContains + "contains".trim().length());
+
+            value = value.trim();
+            queryType = queryType.trim();
+
+            // whether value in requested "column" in CSV contains (substring) expected value
+            return (rowAsMap.get(queryType) != null && rowAsMap.get(queryType).contains(value));
+
         } else {
-            if (indexContains != -1) {
-                String queryType = query.substring(0, indexContains);
-                String value = query.substring(indexContains + "contains".trim().length());
 
-                for (int i = 0; i < row.length; i++) {
-                    value = value.trim();
-                    queryType = queryType.trim();
+            // If there's no symbol '=' or word 'contains' in the query
+            throw new InternalErrorException("Wrong query!");
 
-                    if (header[i].compareTo(queryType) == 0 && row[i].contains(value)) {
-                        return true;
-                    }
-                }
-            } else {
-                // If there's no symbol '=' or word 'contains' in the query
-                throw new InternalErrorException("Wrong query!");
-            }
         }
 
-        return false;
     }
 
     /**
-     * Creates Map<String,String> from one row in CSV file
+     * Returns Map<String,String> with mapping of "CSV column name" to "Perun attribute URN".
      *
-     * @param line one row from CSV file
-     * @return Map<String, String>, like <name,value>
-     * @throws InternalErrorException
+     * @return Map<String, String>, like <CSV column name,Perun attribute URN>
+     * @throws InternalErrorException When implementation fails
      */
-    private Map<String, String> convertLineToMap(String[] line) throws InternalErrorException {
+    private Map<String, String> getCsvMapping() throws InternalErrorException {
 
-        Map<String, String> lineAsMap = new HashMap<>();
+        Map<String, String> attributeMapping = new HashMap<>();
 
         String mapping = getAttributes().get("csvMapping");
 
@@ -285,45 +284,38 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
         for (String s : mappingArray) {
 
-            for (int j = 0; j < line.length; j++) {
+            String attr = s.trim();
 
-                String attr = s.trim();
+            int index = attr.indexOf("=");
 
-                int index = attr.indexOf("=");
-
-                if (index <= 0) {
-                    throw new InternalErrorException("There is no text in csvMapping attribute or there is no '=' character.");
-                }
-
-                String name = attr.substring(0, index);
-                String value = attr.substring(index + 1);
-
-                if (value.startsWith("{")) {
-
-                    // exclude curly brackets from value
-                    value = value.substring(1, value.length() - 1);
-
-                    if (value.compareTo(header[j]) == 0) {
-                        value = line[j];
-                        lineAsMap.put(name.trim(), value.trim());
-                        break;
-                    }
-                } else {
-                    lineAsMap.put(name.trim(), value.trim());
-                    break;
-                }
+            if (index <= 0) {
+                throw new InternalErrorException("There is no text in csvMapping attribute or there is no '=' character.");
             }
+
+            String name = attr.substring(0, index);
+            String value = attr.substring(index + 1);
+
+            if (value.startsWith("{")) {
+                // exclude curly brackets from value
+                value = value.substring(1, value.length() - 1);
+            }
+
+            attributeMapping.put(name.trim(), value.trim());
+
         }
-        return lineAsMap;
+
+        return attributeMapping;
+
     }
 
-	/**
-	 * Get attributes of the external source (defined in perun-extSources.xml).
-	 *
-	 * @return map with attributes about the external source
-	 * @throws InternalErrorException
-	 */
+    /**
+     * Get attributes of the external source (defined in perun-extSources.xml).
+     *
+     * @return map with attributes about the external source
+     * @throws InternalErrorException When implementation fails
+     */
     protected Map<String,String> getAttributes() throws InternalErrorException {
         return perunBl.getExtSourcesManagerBl().getAttributes(this);
     }
+
 }
