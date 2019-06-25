@@ -16,21 +16,24 @@ import java.util.Map;
 public interface AuditMessagesManagerImplApi {
 
 	/**
-	 * Returns newest X audit messages, where X is a number specified by count param.
+	 * Returns exact number of newest audit messages defined by 'count' param (disregarding message IDs).
+	 * If there is less messages present, then all of them are returned.
 	 *
 	 * @param perunSession perun session
 	 * @param count        Count of returned messages.
 	 * @return List of audit messages
+	 * @throws InternalErrorException When implementation fails
 	 */
 	List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException;
 
 	/**
-	 * Returns messages from audit log where param 'count' is applied to message IDs starting with current max_id.
-	 * It returns messages by their IDs from max_id to max_id-count (can be less than count messages).
+	 * Returns all messages with IDs within the range from max(ID) to (max(ID)-count), where number of returned messages
+	 * is equal or less than 'count' param, because some IDs could be skipped in the sequence.
 	 *
 	 * @param perunSession perun session
-	 * @param count int Number of IDs to subtract from max_id
+	 * @param count Number of IDs to subtract from max(ID)
 	 * @return List of audit messages
+	 * @throws InternalErrorException When implementation fails
 	 */
 	List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException;
 
@@ -40,6 +43,7 @@ public interface AuditMessagesManagerImplApi {
 	 * @param perunSession perun session
 	 * @param consumerName consumer to get messages for
 	 * @return List of audit messages
+	 * @throws InternalErrorException When implementation fails
 	 */
 	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
@@ -49,6 +53,7 @@ public interface AuditMessagesManagerImplApi {
 	 * @param perunSession perun session
 	 * @param consumerName consumer to get messages for
 	 * @return List of audit messages
+	 * @throws InternalErrorException When implementation fails
 	 */
 	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
@@ -57,6 +62,7 @@ public interface AuditMessagesManagerImplApi {
 	 *
 	 * @param perunSession perun session
 	 * @param consumerName new name for consumer
+	 * @throws InternalErrorException When implementation fails
 	 */
 	void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
@@ -65,30 +71,46 @@ public interface AuditMessagesManagerImplApi {
 	 *
 	 * @param perunSession perun session
 	 * @return Mapping of auditer consumer names to their last processed ID.
+	 * @throws InternalErrorException When implementation fails
 	 */
 	Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException;
 
 	/**
-	 * Get ID of last message in auditer log (max_id).
+	 * Get ID of last (newest) message in audit log (max_id).
 	 *
 	 * @param perunSession perun session
-	 * @return Last message id
+	 * @return ID of last (newest) message.
+	 * @throws InternalErrorException When implementation fails
 	 */
 	int getLastMessageId(PerunSession perunSession) throws InternalErrorException;
 
 	/**
-	 * Set last processed ID of message in consumer with consumerName.
+	 * Set ID of last processed message for specified consumer.
 	 *
+	 * @param perunSession perun session
 	 * @param consumerName    name of consumer
 	 * @param lastProcessedId id of last processed message in consumer
+	 * @throws InternalErrorException When implementation fails
 	 */
 	void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException;
 
 	/**
-	 * Get count of all messages in auditer log.
+	 * Get count of all messages in audit log.
 	 *
-	 * @return Count of all messages in auditer log
+	 * @param perunSession perun session
+	 * @return Count of all messages in audit log
+	 * @throws InternalErrorException When implementation fails
 	 */
 	int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException;
+
+	/**
+	 * Returns TRUE if auditer consumer with specified name exist.
+	 *
+	 * @param session PerunSession
+	 * @param consumerName Name of consumer to check
+	 * @return TRUE if consumer exists by name / FALSE otherwise
+	 * @throws InternalErrorException When implementation fails
+	 */
+	boolean checkAuditerConsumerExists(PerunSession session, String consumerName) throws InternalErrorException;
 
 }

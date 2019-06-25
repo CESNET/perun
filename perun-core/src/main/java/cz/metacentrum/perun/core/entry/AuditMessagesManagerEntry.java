@@ -98,10 +98,7 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	}
 
 	@Override
-	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
-		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
-			throw new PrivilegeException(perunSession, "getAuditerMessagesCount");
-		}
+	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException {
 		return getAuditMessagesManagerBl().getAuditerMessagesCount(perunSession);
 	}
 

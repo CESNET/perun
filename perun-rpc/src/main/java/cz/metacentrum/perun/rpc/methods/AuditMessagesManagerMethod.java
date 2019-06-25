@@ -11,15 +11,15 @@ import java.util.Map;
 public enum AuditMessagesManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Returns specified number of messages from audit logs.
-	 * Count starts at latest event (newest message).
+	 * Returns exact number of newest audit messages defined by 'count' param (disregarding message IDs).
+	 * If there is less messages present, then all of them are returned.
 	 *
 	 * @param count int Messages limit
 	 * @return List<AuditMessage> Audit messages
 	 */
 	/*#
-	 * Returns 100 messages from audit logs.
-	 * Count starts at latest event (newest message).
+	 * Returns 100 newest audit messages from audit log. If there is a less messages than 100,
+	 * then all of them are returned.
 	 *
 	 * @return List<AuditMessage> Audit messages
 	 */
@@ -33,8 +33,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns messages from audit log where param count is applied to messages IDs starting with current max_id.
-	 * It returns messages by their IDs from max_id to max_id-count (can be less then count messages).
+	 * Returns all messages with IDs within the range from max(ID) to (max(ID)-count), where number of returned messages
+	 * is equal or less than 'count' param, because some IDs could be skipped in the sequence.
 	 *
 	 * @param count int Number of IDs to subtract from max_id
 	 * @return List<AuditMessage> List of audit messages
@@ -61,7 +61,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Set last processed ID of message in consumer with consumerName.
+	 * Set ID of last processed message for specified consumer.
 	 *
 	 * @param consumerName String name of consumer
 	 * @param lastProcessedId int id of message to what consumer will be set
@@ -78,7 +78,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Creates new auditer consumer with last processed id which equals auditer log max id.
+	 * Creates new auditer consumer with last processed id which equals current auditer log max id.
 	 *
 	 * @param consumerName String New name for consumer
 	 */
@@ -128,7 +128,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Logs an auditer message/event to the auditer logs.
+	 * Log arbitrary auditer message/event to the audit log.
 	 *
 	 * @param msg String Message to be logged
 	 */

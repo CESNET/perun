@@ -4,7 +4,7 @@ import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.PerunSession;
 
 /**
- * Wrapper for AuditEvent which associated it with origination user session.
+ * Wrapper for AuditEvent associating it with originating user session.
  * It is supposed to be used solely inside Auditer to store runtime state of events.
  *
  * @see Auditer

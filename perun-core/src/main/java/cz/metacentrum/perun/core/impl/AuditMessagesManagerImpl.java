@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.implApi.AuditMessagesManagerImplApi;
@@ -75,7 +76,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 		mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, JsonDeserializer.PerunExceptionMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, JsonDeserializer.DestinationMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Group.class, JsonDeserializer.GroupMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Group.class, JsonDeserializer.UserExtSourceMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(UserExtSource.class, JsonDeserializer.UserExtSourceMixIn.class);
 
 		// we probably do not log these objects to auditer log, but to be sure we could read them later they are included
 
@@ -142,7 +143,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	@Override
 	public List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log ORDER BY id Desc limit ?) "+Compatibility.getAsAlias("temp"),
+			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log ORDER BY id desc) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
 					AUDIT_MESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<>();
@@ -174,7 +175,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	@Override
 	public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException {
 		try {
-			jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId ,consumerName);
+			jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
 		} catch (Exception ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -192,8 +193,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	@Override
 	public void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException {
 		try {
-			int lastProcessedId = jdbc.queryForInt("select max(id) from auditer_log");
-
+			int lastProcessedId = getLastMessageId(perunSession);
 			int consumerId = Utils.getNewId(jdbc, "auditer_consumers_id_seq");
 			jdbc.update("insert into auditer_consumers (id, name, last_processed_id) values (?,?,?)", consumerId, consumerName, lastProcessedId);
 			log.debug("New consumer [name: '{}', lastProcessedId: '{}'] created.", consumerName, lastProcessedId);
@@ -204,23 +204,22 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
 	@Override
 	public List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException {
-		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
+
+		checkAuditerConsumerExists(perunSession, consumerName);
 
 		try {
-			if(jdbc.queryForInt("select count(*) from auditer_consumers where name=?", consumerName) != 1) {
-				throw new InternalErrorException("Auditer consumer doesn't exist.");
-			}
+
+			List<AuditMessage> messages = new ArrayList<>();
 
 			int lastProcessedId = getLastProcessedId(consumerName);
-
-			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
+			int maxId = getLastMessageId(perunSession);
 			if(maxId > lastProcessedId) {
-				List<AuditMessage> messages = jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDIT_MESSAGE_MAPPER, lastProcessedId, maxId);
-				lastProcessedId = maxId;
-				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", lastProcessedId, consumerName);
-				return messages;
+				// get messages
+				messages = jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDIT_MESSAGE_MAPPER, lastProcessedId, maxId);
+				// update counter
+				setLastProcessedId(perunSession, consumerName, maxId);
 			}
-			return new ArrayList<>();
+			return messages;
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -228,25 +227,20 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
 	@Override
 	public List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException {
-		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
+
+		checkAuditerConsumerExists(perunSession, consumerName);
 
 		try {
-
-			if(jdbc.queryForInt("select count(*) from auditer_consumers where name=?", consumerName) != 1) {
-				throw new InternalErrorException("Auditer consumer doesn't exist.");
-			}
 
 			List<AuditEvent> eventList = new ArrayList<>();
 
 			int lastProcessedId = getLastProcessedId(consumerName);
-			int maxId = jdbc.queryForInt("select max(id) from auditer_log");
+			int maxId = getLastMessageId(perunSession);
 			if (maxId > lastProcessedId) {
-
+				// get events
 				eventList = jdbc.query("select " + auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDIT_EVENT_MAPPER, lastProcessedId, maxId);
-
-				// we successfully de-serialized all messages, bump counter
-				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", maxId, consumerName);
-
+				// update counter
+				setLastProcessedId(perunSession, consumerName, maxId);
 			}
 
 			return eventList;
@@ -259,15 +253,21 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
 	@Override
 	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException {
-		Map<String, Integer> auditerConsumers;
-
 		try {
-			auditerConsumers = jdbc.query("select name, last_processed_id from auditer_consumers", AUDITER_CONSUMER_EXTRACTOR);
+			return jdbc.query("select name, last_processed_id from auditer_consumers", AUDITER_CONSUMER_EXTRACTOR);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+	}
 
-		return auditerConsumers;
+	@Override
+	public boolean checkAuditerConsumerExists(PerunSession session, String consumerName) throws InternalErrorException {
+		if (consumerName == null) throw new InternalErrorException("Auditer consumer doesn't exist.");
+		try {
+			return jdbc.queryForInt("select count(*) from auditer_consumers where name=?", consumerName) == 1;
+		} catch (Exception ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	/**
@@ -278,16 +278,11 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	 * @throws InternalErrorException When implementation failse
 	 */
 	private int getLastProcessedId(String consumerName) throws InternalErrorException {
-		int lastProcessedId;
-
 		try {
-			lastProcessedId = jdbc.queryForInt("select last_processed_id from auditer_consumers where name=? for update", consumerName);
+			return jdbc.queryForInt("select last_processed_id from auditer_consumers where name=? for update", consumerName);
 		} catch (Exception ex) {
 			throw new InternalErrorException(ex);
 		}
-
-		return lastProcessedId;
-
 	}
 
 }
