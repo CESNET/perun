@@ -399,7 +399,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			int number = jdbc.queryForInt("select count(1) from authz " +
 					" left outer join groups_members on groups_members.group_id=authz.authorized_group_id " +
 					" left outer join members on members.id=groups_members.member_id " +
-					" where (user_id=? or members.user_id=?) and security_team_id=? ", user.getId(), user.getId(), securityTeam.getId());
+					" where (authz.user_id=? or members.user_id=?) and security_team_id=? ", user.getId(), user.getId(), securityTeam.getId());
 			if (number > 0) {
 				return true;
 			}
