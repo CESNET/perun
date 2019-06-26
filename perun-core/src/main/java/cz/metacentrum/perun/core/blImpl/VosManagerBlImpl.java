@@ -186,6 +186,17 @@ public class VosManagerBlImpl implements VosManagerBl {
 		vo = getVosManagerImpl().createVo(sess, vo);
 		getPerunBl().getAuditer().log(sess, new VoCreated(vo));
 
+		//set creator as VO manager
+		if (sess.getPerunPrincipal().getUser() != null) {
+			try {
+				addAdmin(sess, vo, sess.getPerunPrincipal().getUser());
+			} catch (AlreadyAdminException ex) {
+				throw new ConsistencyErrorException("Add manager to newly created VO failed because there is a particular manager already assigned", ex);
+			}
+		} else {
+			log.error("Can't set VO manager during creating of the VO. User from perunSession is null. {} {}", vo, sess);
+		}
+
 		try {
 			// Create group containing VO members
 			Group members = new Group(VosManager.MEMBERS_GROUP, VosManager.MEMBERS_GROUP_DESCRIPTION + " for VO " + vo.getName());
@@ -197,17 +208,6 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 		// create empty application form
 		getVosManagerImpl().createApplicationForm(sess, vo);
-
-		//set creator as VO manager
-		if (sess.getPerunPrincipal().getUser() != null) {
-			try {
-				addAdmin(sess, vo, sess.getPerunPrincipal().getUser());
-			} catch (AlreadyAdminException ex) {
-				throw new ConsistencyErrorException("Add manager to newly created VO failed because there is a particular manager already assigned", ex);
-			}
-		} else {
-			log.error("Can't set VO manager during creating of the VO. User from perunSession is null. {} {}", vo, sess);
-		}
 
 		log.info("Vo {} created", vo);
 
