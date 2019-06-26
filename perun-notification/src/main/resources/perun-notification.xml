@@ -38,7 +38,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<list>
 				<bean id="perunNotifEmailGroupSender" class="cz.metacentrum.perun.notif.senders.PerunNotifEmailGroupSender" autowire="byName"/>
 				<bean id="perunNotifEmailUserSender" class="cz.metacentrum.perun.notif.senders.PerunNotifEmailUserSender" autowire="byName"/>
-				<bean id="perunNotifJabberSender" class="cz.metacentrum.perun.notif.senders.PerunNotifJabberSender" autowire="byName" />
 			</list>
 		</property>
 	</bean>
@@ -64,11 +63,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					<prop key="notif.emailFrom">perun@localhost</prop>
 					<prop key="notif.fromText">perun@localhost test message</prop>
 					<prop key="notif.sendMessages">true</prop>
-					<prop key="notif.jabber.jabberServer">jabber.org</prop>
-					<prop key="notif.jabber.port">5222</prop>
-					<prop key="notif.jabber.serviceName">jabber.org</prop>
-					<prop key="notif.jabber.username"></prop>
-					<prop key="notif.jabber.password"></prop>
 					<prop key="notif.dispatcherName">notifications</prop>
 				</props>
 			</property>

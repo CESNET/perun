@@ -124,7 +124,7 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- OTHERS -->
 
 		<dependency>
@@ -145,11 +145,6 @@
 		<dependency>
 			<groupId>javax.transaction</groupId>
 			<artifactId>javax.transaction-api</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>jivesoftware</groupId>
-			<artifactId>smackx</artifactId>
 		</dependency>
 
 		<!-- @Resource and @PostConstruct for Java 11 -->
