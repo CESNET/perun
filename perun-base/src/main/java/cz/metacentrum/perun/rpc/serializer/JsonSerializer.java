@@ -43,9 +43,6 @@ public final class JsonSerializer implements Serializer {
 	private interface CandidateMixIn {
 	}
 
-	@JsonIgnoreProperties({"uimessage"})
-	public interface AuditMessageMixIn {}
-
 	@JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace"})
 	private interface PerunExceptionMixIn {
 	}
@@ -119,7 +116,6 @@ public final class JsonSerializer implements Serializer {
 		mapper.getSerializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, PerunExceptionMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(AuditMessage.class, AuditMessageMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(Task.class, TaskMixIn.class);
 	}
 
