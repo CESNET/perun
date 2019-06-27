@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.scim.api.entities;
 
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * All resources (user, group, ..) extend from this class, that contains resource

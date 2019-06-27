@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Endpoint controller, that returns all user resources.

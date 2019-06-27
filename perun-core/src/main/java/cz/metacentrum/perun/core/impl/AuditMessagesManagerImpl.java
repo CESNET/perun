@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
@@ -28,10 +31,7 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import cz.metacentrum.perun.rpclib.impl.JsonDeserializer;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -57,6 +57,7 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(AuditMessagesManagerImpl.class);
 	private final static ObjectMapper mapper = new ObjectMapper();
+	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 	private final static String auditMessageMappingSelectQuery = "id, msg, actor, created_at, created_by_uid";
 
 	private final JdbcPerunTemplate jdbc;
@@ -64,35 +65,37 @@ public class AuditMessagesManagerImpl implements AuditMessagesManagerImplApi {
 	static {
 
 		// configure JSON deserializer for auditer log
-		mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		mapper.enableDefaultTyping();
 
-		mapper.getDeserializationConfig().addMixInAnnotations(Attribute.class, JsonDeserializer.AttributeMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(AttributeDefinition.class, JsonDeserializer.AttributeDefinitionMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(User.class, JsonDeserializer.UserMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Member.class, JsonDeserializer.MemberMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(PerunBean.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Candidate.class, JsonDeserializer.CandidateMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, JsonDeserializer.PerunExceptionMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, JsonDeserializer.DestinationMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Group.class, JsonDeserializer.GroupMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(UserExtSource.class, JsonDeserializer.UserExtSourceMixIn.class);
+		mixinMap.put(Attribute.class, JsonDeserializer.AttributeMixIn.class);
+		mixinMap.put(AttributeDefinition.class, JsonDeserializer.AttributeDefinitionMixIn.class);
+		mixinMap.put(User.class, JsonDeserializer.UserMixIn.class);
+		mixinMap.put(Member.class, JsonDeserializer.MemberMixIn.class);
+		mixinMap.put(PerunBean.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(Candidate.class, JsonDeserializer.CandidateMixIn.class);
+		mixinMap.put(PerunException.class, JsonDeserializer.PerunExceptionMixIn.class);
+		mixinMap.put(Destination.class, JsonDeserializer.DestinationMixIn.class);
+		mixinMap.put(Group.class, JsonDeserializer.GroupMixIn.class);
+		mixinMap.put(UserExtSource.class, JsonDeserializer.UserExtSourceMixIn.class);
 
 		// we probably do not log these objects to auditer log, but to be sure we could read them later they are included
 
-		mapper.getDeserializationConfig().addMixInAnnotations(Application.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationForm.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationFormItem.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationFormItemWithPrefilledValue.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationMail.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(Application.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(ApplicationForm.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(ApplicationFormItem.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(ApplicationFormItemWithPrefilledValue.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(ApplicationMail.class, JsonDeserializer.PerunBeanMixIn.class);
 
-		mapper.getDeserializationConfig().addMixInAnnotations(Author.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Category.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Publication.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(PublicationForGUI.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(PublicationSystem.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Thanks.class, JsonDeserializer.PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ThanksForGUI.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(Author.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(Category.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(Publication.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(PublicationForGUI.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(PublicationSystem.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(Thanks.class, JsonDeserializer.PerunBeanMixIn.class);
+		mixinMap.put(ThanksForGUI.class, JsonDeserializer.PerunBeanMixIn.class);
+
+		mapper.setMixIns(mixinMap);
 
 	}
 

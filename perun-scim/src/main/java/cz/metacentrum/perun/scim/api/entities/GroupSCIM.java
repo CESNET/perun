@@ -1,11 +1,9 @@
 package cz.metacentrum.perun.scim.api.entities;
 
-
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.List;
-
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * Group resource type for SCIM protocol.
