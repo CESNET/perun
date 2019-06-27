@@ -78,7 +78,6 @@
 		<jdom.version>1.0</jdom.version>
 		<json.version>20140107</json.version>
 		<oracle.version>12.2.0.1.0</oracle.version>
-		<smackx.version>3.1.0</smackx.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS
