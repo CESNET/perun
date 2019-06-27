@@ -140,11 +140,7 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 	 */
 	@Override
 	public void deleteEntry(T bean) throws InternalErrorException {
-		try {
-			ldapTemplate.unbind(buildDN(bean));
-		} catch (NameNotFoundException e) {
-			throw new InternalErrorException(e);
-		}
+		deleteEntry(buildDN(bean));
 	}
 	
 
@@ -446,4 +442,5 @@ public abstract class AbstractPerunEntry<T extends PerunBean> implements Initial
 			}
 		};
 	}
+
 } 

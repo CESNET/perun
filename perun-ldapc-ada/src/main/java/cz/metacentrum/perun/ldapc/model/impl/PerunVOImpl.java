@@ -152,4 +152,18 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 				getNameMapper());
 	}
 
+	@Override
+	public void deleteEntry(Name dn) throws InternalErrorException {
+		// first find and remove entries in subtree
+		List<Name> subentries = ldapTemplate.search(query()
+				.base(dn)
+				.where("objectclass").like("*"),
+				getNameMapper());
+		for(Name entrydn : subentries) {
+			ldapTemplate.unbind(entrydn);
+		}
+		// then remove this entry
+		super.deleteEntry(dn);
+	}
+
 }

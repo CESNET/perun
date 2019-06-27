@@ -56,6 +56,14 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
 					<property name="beansCondition">
 						<list>
+							<value>cz.metacentrum.perun.core.api.Resource</value>
+						</list>
+					</property>
+					<property name="pattern" value=" deleted.#Facility" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
 							<value>cz.metacentrum.perun.core.api.Group</value>
 						</list>
 					</property>
