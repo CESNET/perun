@@ -316,6 +316,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	<bean id="auditMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.AuditMessagesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunBl" ref="perun"/>
 		<property name="auditer" ref="auditer"/>
+		<constructor-arg ref="auditMessagesManagerImpl" />
 	</bean>
 	<bean id="RTMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg name="perunBl" ref="perun"/>
@@ -376,6 +377,9 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="searcherImpl" class="cz.metacentrum.perun.core.impl.SearcherImpl" scope="singleton" depends-on="databaseManagerBl">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="auditMessagesManagerImpl" class="cz.metacentrum.perun.core.impl.AuditMessagesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
 	</bean>
 

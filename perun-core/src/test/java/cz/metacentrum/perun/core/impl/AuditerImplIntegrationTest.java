@@ -18,7 +18,6 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private Facility facility;      // uses creation of facility to store same system message in Auditer
 
-
 	@Before
 	public void checkAuditerExists() {
 
@@ -37,10 +36,10 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		perun.getAuditer().log(sess, facilityCreatedEvent);
 		perun.getAuditer().flush();
 
-		List<AuditMessage> messages = perun.getAuditer().getMessagesByCount(1);
+		List<AuditMessage> messages = perun.getAuditMessagesManagerBl().getMessagesByCount(sess, 1);
 
 		assertEquals("Invalid number of messages.", 1, messages.size());
-		assertTrue("Invalid message received.", messages.get(0).getMsg().contains("Facility created"));
+		assertEquals("Invalid number of messages.", facilityCreatedEvent, messages.get(0).getEvent());
 
 	}
 
@@ -56,8 +55,8 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
-	public void getCorrectJsonMessages() throws Exception{
-		System.out.println("AuditerTest.getCorrectJsonMessages");
+	public void getCorrectMessages() throws Exception{
+		System.out.println("AuditerTest.getCorrectMessages");
 		perun.getAuditer().clean();
 
 		Facility testFacility = new Facility(0,"AuditorTestFacility");
@@ -66,10 +65,11 @@ public class AuditerImplIntegrationTest extends AbstractPerunIntegrationTest {
 		perun.getAuditer().log(sess, facilityCreatedEvent);
 		perun.getAuditer().flush();
 
-		List<AuditMessage> messages = perun.getAuditer().getJSONMessages(1);
+		List<AuditMessage> messages = perun.getAuditMessagesManagerBl().getMessagesByCount(sess,1);
 
 		assertEquals("Invalid number of messages.", 1, messages.size());
-		assertTrue("Invalid message received.", messages.get(0).getMsg().contains("\"message\":\"Facility created Facility:"));
+		assertEquals(facilityCreatedEvent, messages.get(0).getEvent());
+		//assertTrue("Invalid message received.", messages.get(0).getEvent().getMessage().contains("\"message\":\"Facility created Facility:"));
 	}
 
 	// ------------- private methods ----------------------------------

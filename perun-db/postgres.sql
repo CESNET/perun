@@ -1,4 +1,4 @@
--- database version 3.1.54 (don't forget to update insert statement at the end of file)
+-- database version 3.1.55 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1189,26 +1189,14 @@ create table tasks_results (
   constraint taskres_stat_chk check (status in ('DONE','ERROR','FATAL_ERROR','DENIED'))
 );
 
--- AUDITER_LOG - logging
 create table auditer_log (
-	id integer not null,         --identifier of logged event
-	msg text not null,           --text of logging message
-	actor varchar(256) not null, --who causes the event
-	created_at timestamp default statement_timestamp() not null ,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint audlog_pk primary key (id)
-);
---auditerlogjson
--- AUDITER_LOG_JSON - logging in JSON
-create table auditer_log_json (
 	id integer not null,         --identifier of logged event
 	msg text not null,           --text of logging message
 	actor varchar(256) not null, --who causes the event
 	created_at timestamp default statement_timestamp() not null,
 	created_by_uid integer,
 	modified_by_uid integer,
-	constraint audlogjson_pk primary key (id)
+	constraint audlog_pk primary key (id)
 );
 
 -- SERVICE_PRINCIPALS - principals for executing of services by engine, actually is not used
@@ -1574,7 +1562,6 @@ create table authz (
 create sequence "attr_names_id_seq";
 create sequence "auditer_consumers_id_seq";
 create sequence "auditer_log_id_seq";
-create sequence "auditer_log_json_id_seq"; --auditerJson seq
 create sequence "destinations_id_seq";
 create sequence "ext_sources_id_seq";
 create sequence "facilities_id_seq";
@@ -1843,7 +1830,6 @@ grant all on application_data to perun;
 grant all on application_reserved_logins to perun;
 grant all on auditer_log to perun;
 grant all on auditer_consumers to perun;
-grant all on auditer_log_json to perun;
 grant all on entityless_attr_values to perun;
 grant all on cabinet_categories to perun;
 grant all on cabinet_publication_systems to perun;
@@ -1887,7 +1873,7 @@ grant all on user_ext_source_attr_u_values to perun;
 grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.54');
+insert into configurations values ('DATABASE VERSION','3.1.55');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

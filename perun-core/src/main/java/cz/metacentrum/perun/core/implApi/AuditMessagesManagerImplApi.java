@@ -1,31 +1,19 @@
-package cz.metacentrum.perun.core.api;
+package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.audit.events.AuditEvent;
+import cz.metacentrum.perun.core.api.AuditMessage;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * AuditMessagesManager manages audit messages (logs). Entry Logic interface.
+ * This interface represents AuditMessagesManagerImpl methods.
  *
- * @author Michal Stava
  * @author Pavel Zlámal
  */
-public interface AuditMessagesManager {
-
-	Integer COUNTOFMESSAGES = 100;
-
-	/**
-	 * Returns 100 newest audit messages from audit log. If there is a less messages than 100,
-	 * then all of them are returned.
-	 *
-	 * @param perunSession perun session
-	 * @return List of 100 newest audit messages
-	 * @throws InternalErrorException When implementation fails
-	 */
-	List<AuditMessage> getMessages(PerunSession perunSession) throws InternalErrorException;
+public interface AuditMessagesManagerImplApi {
 
 	/**
 	 * Returns exact number of newest audit messages defined by 'count' param (disregarding message IDs).
@@ -56,9 +44,8 @@ public interface AuditMessagesManager {
 	 * @param consumerName consumer to get messages for
 	 * @return List of audit messages
 	 * @throws InternalErrorException When implementation fails
-	 * @throws PrivilegeException When you are not authorized to poll messages
 	 */
-	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
 	/**
 	 * Returns list of <b>AuditEvents</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
@@ -67,9 +54,8 @@ public interface AuditMessagesManager {
 	 * @param consumerName consumer to get messages for
 	 * @return List of audit messages
 	 * @throws InternalErrorException When implementation fails
-	 * @throws PrivilegeException When you are not authorized to poll events
 	 */
-	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
+	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
 	/**
 	 * Creates new auditer consumer with last processed id which equals current auditer log max id.
@@ -77,19 +63,8 @@ public interface AuditMessagesManager {
 	 * @param perunSession perun session
 	 * @param consumerName new name for consumer
 	 * @throws InternalErrorException When implementation fails
-	 * @throws PrivilegeException When you are not authorized to create auditer consumer
 	 */
-	void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException, PrivilegeException;
-
-	/**
-	 * Log arbitrary audit message.
-	 *
-	 * @param perunSession perun session
-	 * @param message      message to be logged
-	 * @throws InternalErrorException When implementation fails
-	 * @throws PrivilegeException When you are not authorized to log arbitrary message
-	 */
-	void log(PerunSession perunSession, String message) throws InternalErrorException, PrivilegeException;
+	void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
 	/**
 	 * Get all registered auditer consumers as map name(String)=lastProcessedId(Integer).
@@ -116,9 +91,8 @@ public interface AuditMessagesManager {
 	 * @param consumerName    name of consumer
 	 * @param lastProcessedId id of last processed message in consumer
 	 * @throws InternalErrorException When implementation fails
-	 * @throws PrivilegeException When you are not authorized to set last processed id
 	 */
-	void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException;
+	void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException;
 
 	/**
 	 * Get count of all messages in audit log.
@@ -128,5 +102,15 @@ public interface AuditMessagesManager {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException;
+
+	/**
+	 * Returns TRUE if auditer consumer with specified name exist.
+	 *
+	 * @param session PerunSession
+	 * @param consumerName Name of consumer to check
+	 * @return TRUE if consumer exists by name / FALSE otherwise
+	 * @throws InternalErrorException When implementation fails
+	 */
+	boolean checkAuditerConsumerExists(PerunSession session, String consumerName) throws InternalErrorException;
 
 }

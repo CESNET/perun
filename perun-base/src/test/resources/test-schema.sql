@@ -2,7 +2,7 @@ set database sql syntax PGS true;
 -- fix unique index on authz, since PGS compatibility doesn't allow coalesce call in index and treats nulls in columns as different values.
 SET DATABASE SQL UNIQUE NULLS FALSE;
 
--- database version 3.1.54 (don't forget to update insert statement at the end of file)
+-- database version 3.1.55 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table vos (
@@ -1203,17 +1203,6 @@ create table auditer_log (
 	constraint audlog_pk primary key (id)
 );
 
--- AUDITER_LOG_JSON - logging in JSON
-create table auditer_log_json (
-	id integer not null,         --identifier of logged event
-	msg clob not null,           --text of logging message
-	actor varchar(256) not null, --who causes the event
-	created_at timestamp default current_date not null ,
-	created_by_uid integer,
-	modified_by_uid integer,
-	constraint audlogjson_pk primary key (id)
-);
-
 -- SERVICE_PRINCIPALS - principals for executing of services by engine, actually is not used
 create table service_principals (
 	id integer not null,
@@ -1576,7 +1565,6 @@ create table authz (
 create sequence attr_names_id_seq;
 create sequence auditer_consumers_id_seq;
 create sequence auditer_log_id_seq;
-create sequence auditer_log_json_id_seq;
 create sequence destinations_id_seq;
 create sequence ext_sources_id_seq;
 create sequence facilities_id_seq;
@@ -1785,7 +1773,7 @@ CREATE INDEX ufauv_idx ON user_facility_attr_u_values (user_id, facility_id, att
 CREATE INDEX vauv_idx ON vo_attr_u_values (vo_id, attr_id) ;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.54');
+insert into configurations values ('DATABASE VERSION','3.1.55');
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');

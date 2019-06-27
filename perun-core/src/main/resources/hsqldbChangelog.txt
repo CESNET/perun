@@ -8,6 +8,12 @@
 
 -- this update is not supported on hsql since its used only as in-memory db
 
+3.1.55
+drop sequence "auditer_log_json_id_seq";
+alter table auditer_log rename to auditer_log_old;
+alter table auditer_log_json rename to auditer_log;
+update configurations set value='3.1.55' where property='DATABASE VERSION';
+
 3.1.54
 ALTER TABLE members ADD suspended_to timestamp;
 update configurations set value='3.1.54' where property='DATABASE VERSION';

@@ -52,7 +52,7 @@ public class Utils implements cz.metacentrum.perun.ldapc.initializer.api.UtilsAp
 	public void initializeLDAPFromPerun(PerunInitializer perunInitializer, Boolean updateLastProcessedId) throws InternalErrorException {
 		try {
 			//get last message id before start of initializing
-			int lastMessageBeforeInitializingData = perunInitializer.getPerunBl().getAuditer().getLastMessageId();
+			int lastMessageBeforeInitializingData = perunInitializer.getPerunBl().getAuditMessagesManagerBl().getLastMessageId(perunInitializer.getPerunSession());
 			System.err.println("Last message id before starting initializing: " + lastMessageBeforeInitializingData + '\n');
 
 			try {
@@ -68,7 +68,7 @@ public class Utils implements cz.metacentrum.perun.ldapc.initializer.api.UtilsAp
 			}
 
 			//get last message id after initializing
-			int lastMessageAfterInitializingData = perunInitializer.getPerunBl().getAuditer().getLastMessageId();
+			int lastMessageAfterInitializingData = perunInitializer.getPerunBl().getAuditMessagesManagerBl().getLastMessageId(perunInitializer.getPerunSession());
 			System.err.println("Last message id after initializing: " + lastMessageAfterInitializingData + '\n');
 
 			//This is the only operation of WRITING to the DB

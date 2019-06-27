@@ -16,121 +16,100 @@ import java.util.Map;
 public interface AuditMessagesManagerBl {
 
 	/**
-	 * Returns countOfMessages messages from audit's logs.
+	 * Returns exact number of newest audit messages defined by 'count' param (disregarding message IDs).
+	 * If there is less messages present, then all of them are returned.
 	 *
 	 * @param perunSession perun session
-	 * @param count Count of returned messages.
-	 * @return list of audit's messages
-	 * @throws InternalErrorException
+	 * @param count        Count of returned messages.
+	 * @return List of audit messages
+	 * @throws InternalErrorException When implementation fails
 	 */
 	List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException;
 
 	/**
-	 * Return less than count or equals to count messages from audit's logs.
-	 *
-	 * <b>IMPORTANT:</b> This variant do not guarantee returning just count of messages!
-	 * Return messages by Id from max_id to max_id-count (can be less then count messages).
+	 * Returns all messages with IDs within the range from max(ID) to (max(ID)-count), where number of returned messages
+	 * is equal or less than 'count' param, because some IDs could be skipped in the sequence.
 	 *
 	 * @param perunSession perun session
-	 * @param count Count of returned messages
-	 * @return list of audit's messages
-	 * @throws InternalErrorException
+	 * @param count Number of IDs to subtract from max(ID)
+	 * @return List of audit messages
+	 * @throws InternalErrorException When implementation fails
 	 */
 	List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException;
 
 	/**
-	 * Returns list of messages from audit's log which id is bigger than last processed id.
+	 * Returns list of <b>AuditMessages</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
 	 *
+	 * @param perunSession perun session
 	 * @param consumerName consumer to get messages for
-	 * @return list of messages
-	 * @throws InternalErrorException
+	 * @return List of audit messages
+	 * @throws InternalErrorException When implementation fails
 	 */
-	List<String> pollConsumerMessages(String consumerName) throws InternalErrorException;
+	List<AuditMessage> pollConsumerMessages(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
 	/**
-	 * Returns list of <b>full</b> messages from audit's log which id is bigger than last processed id.
+	 * Returns list of <b>AuditEvents</b> from audit log with IDs > lastProcessedId for registered auditer consumer.
 	 *
+	 * @param perunSession perun session
 	 * @param consumerName consumer to get messages for
-	 * @return list of full messages
-	 * @throws InternalErrorException
+	 * @return List of audit messages
+	 * @throws InternalErrorException When implementation fails
 	 */
-	List<String> pollConsumerFullMessages(String consumerName) throws InternalErrorException;
+	List<AuditEvent> pollConsumerEvents(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
 	/**
-	 * Returns list of messages for parser from audit's log which id is bigger than last processed id.
+	 * Creates new auditer consumer with last processed id which equals current auditer log max id.
 	 *
-	 * @param consumerName consumer to get messages for
-	 * @return list of messages for parser
-	 * @throws InternalErrorException
-	 */
-	List<String> pollConsumerMessagesForParserSimple(String consumerName) throws InternalErrorException;
-
-	/**
-	 * Returns list of <b>auditMessages</b> for parser from audit's log which id is bigger than last processed id.
-	 *
-	 * @param consumerName consumer to get messages for
-	 * @return list of auditMessages for Ldap
-	 * @throws InternalErrorException
-	 */
-	List<AuditMessage> pollConsumerMessagesForParser(String consumerName) throws InternalErrorException;
-
-	/**
-	 * Returns list of <b>AuditEvent</b>s from audit log which id is bigger than last processed id.
-	 *
-	 * @param consumerName consumer to get messages for
-	 * @return list of audit events
-	 * @throws InternalErrorException
-	 */
-	List<AuditEvent> pollConsumerEvents(String consumerName) throws InternalErrorException;
-
-	/**
-	 * Creates new auditer consumer with last processed id which equals auditer log max id.
-	 *
+	 * @param perunSession perun session
 	 * @param consumerName new name for consumer
-	 * @throws InternalErrorException
+	 * @throws InternalErrorException When implementation fails
 	 */
-	void createAuditerConsumer(String consumerName) throws InternalErrorException;
+	void createAuditerConsumer(PerunSession perunSession, String consumerName) throws InternalErrorException;
 
 	/**
-	 * Log auditer message.
+	 * Log arbitrary audit message.
 	 *
-	 * @param perunSession perunSession
-	 * @param message message to be logged
+	 * @param perunSession perun session
+	 * @param message      message to be logged
+	 * @throws InternalErrorException When implementation fails
 	 */
-	void log(PerunSession perunSession, String message);
+	void log(PerunSession perunSession, String message) throws InternalErrorException;
 
 	/**
-	 * Get all auditer consumers from database. In map is String = name and Integer = lastProcessedId.
+	 * Get all registered auditer consumers as map name(String)=lastProcessedId(Integer).
 	 *
-	 * @param perunSession perunSession
-	 * @return map string to integer where string is name of consumer and int is last_processed_id of consumer
-	 * @throws InternalErrorException
+	 * @param perunSession perun session
+	 * @return Mapping of auditer consumer names to their last processed ID.
+	 * @throws InternalErrorException When implementation fails
 	 */
 	Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException;
 
 	/**
-	 * Get id of last message from auditer_log.
+	 * Get ID of last (newest) message in audit log (max_id).
 	 *
-	 * @return last message id
-	 * @throws InternalErrorException
+	 * @param perunSession perun session
+	 * @return ID of last (newest) message.
+	 * @throws InternalErrorException When implementation fails
 	 */
-	int getLastMessageId() throws InternalErrorException;
+	int getLastMessageId(PerunSession perunSession) throws InternalErrorException;
 
 	/**
-	 * Set last processed ID of message in consumer with consumerName.
+	 * Set ID of last processed message for specified consumer.
 	 *
-	 * @param consumerName name of consumer
+	 * @param perunSession perun session
+	 * @param consumerName    name of consumer
 	 * @param lastProcessedId id of last processed message in consumer
-	 * @throws InternalErrorException
+	 * @throws InternalErrorException When implementation fails
 	 */
-	void setLastProcessedId(String consumerName, int lastProcessedId) throws InternalErrorException;
+	void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException;
 
 	/**
-	 * Get number of messages in auditer log.
+	 * Get count of all messages in audit log.
 	 *
-	 * @param perunSession
-	 * @return number of messages in auditer log
-	 * @throws InternalErrorException
+	 * @param perunSession perun session
+	 * @return Count of all messages in audit log
+	 * @throws InternalErrorException When implementation fails
 	 */
 	int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException;
+
 }

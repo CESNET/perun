@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.audit.events;
 
 import cz.metacentrum.perun.core.api.PerunBean;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import java.util.Set;
 /**
  * @author Vojtech Sassmann <vojtech.sassmann@gmail.com>
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "name")
 public abstract class AuditEvent {
 
 	protected String name = getClass().getName();

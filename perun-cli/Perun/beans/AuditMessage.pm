@@ -26,11 +26,18 @@ sub TO_JSON
 		$id = 0;
 	}
 
-	my $msg;
-	if (defined($self->{_msg})) {
-		$msg = "$self->{_msg}";
+	my $event;
+	if (defined($self->{_event})) {
+		$event = $self->{_event};
 	} else {
-		$msg = undef;
+		$event = undef;
+	}
+
+	my $uimessage;
+	if (defined($self->{_uimessage})) {
+		$uimessage = "$self->{_uimessage}";
+	} else {
+		$uimessage = undef;
 	}
 
 	my $actor;
@@ -47,7 +54,7 @@ sub TO_JSON
 		$createdAt = undef;
 	}
 
-	return { id => $id, msg => $msg, actor => $actor, createdAt => $createdAt };
+	return { id => $id, event => $event, uimessage => $uimessage, actor => $actor, createdAt => $createdAt };
 }
 
 sub getId
@@ -65,19 +72,24 @@ sub setId
 	return;
 }
 
-sub getMsg
+sub getEvent
 {
 	my $self = shift;
-
-	return $self->{_msg};
+	return $self->{_event};
 }
 
-sub setMsg
+sub setEvent
 {
 	my $self = shift;
-	$self->{_msg} = shift;
+	$self->{_event} = shift;
 
 	return;
+}
+
+sub getUiMessage
+{
+	my $self = shift;
+	return $self->{_uimessage};
 }
 
 sub getActor
@@ -112,7 +124,7 @@ sub setCreatedAt
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->getId, $self->getActor, $self->getMsg, $self->getCreatedAt);
+	return ($self->getId, $self->getActor, $self->getUiMessage, $self->getCreatedAt);
 }
 
 sub getCommonArrayRepresentationHeading {

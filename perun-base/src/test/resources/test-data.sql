@@ -2034,8 +2034,6 @@ drop sequence cabinet_pub_sys_id_seq;
 create sequence cabinet_pub_sys_id_seq start with 62;
 drop sequence auditer_log_id_seq;
 create sequence auditer_log_id_seq start with 3199217;
-drop sequence auditer_log_json_id_seq;
-create sequence auditer_log_json_id_seq;
 drop sequence pn_template_regex_seq;
 create sequence pn_template_regex_seq start with 142;
 drop sequence application_data_id_seq;

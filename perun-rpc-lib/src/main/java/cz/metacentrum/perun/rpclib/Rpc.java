@@ -97,12 +97,12 @@ public class Rpc {
 			}
 		}
 
-		public static List<AuditMessage> pollConsumerMessagesForParser(RpcCaller rpcCaller, String consumerName) throws InternalErrorException {
+		public static List<AuditMessage> pollConsumerMessages(RpcCaller rpcCaller, String consumerName) throws InternalErrorException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("consumerName", consumerName);
 
 			try {
-				Deserializer deserializer = rpcCaller.call("auditMessagesManager", "pollConsumerMessagesForParser", params);
+				Deserializer deserializer = rpcCaller.call("auditMessagesManager", "pollConsumerMessages", params);
 				// FIXME - this is check to prevent NullPointerException caused by communication with RPC.
 				if (deserializer == null) throw new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, "Unable to create deserializer.");
 				return deserializer.readList(AuditMessage.class);

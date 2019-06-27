@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.ldapc.service.impl;
 
+import cz.metacentrum.perun.core.bl.PerunBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +62,8 @@ public class LdapcManagerImpl implements LdapcManager {
 			resourceSynchronizer.synchronizeResources();
 			groupSynchronizer.synchronizeGroups();
 
-			int lastProcessedMessageId = getPerunBl().getAuditer().getLastMessageId();
-			getPerunBl().getAuditer().setLastProcessedId(ldapProperties.getLdapConsumerName(), lastProcessedMessageId);
+			int lastProcessedMessageId = ((PerunBl)getPerunBl()).getAuditMessagesManagerBl().getLastMessageId(perunSession);
+			((PerunBl)getPerunBl()).getAuditMessagesManagerBl().setLastProcessedId(perunSession, ldapProperties.getLdapConsumerName(), lastProcessedMessageId);
 		} catch (Exception  e) {
 			log.error("Error synchronizing to LDAP", e);
 		}
