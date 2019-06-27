@@ -129,11 +129,15 @@ public class Api extends HttpServlet {
 					}
 				}
 				throw new InternalErrorException("OIDC issuer "+iss+" not configured");
+			} else if (req.getAttribute(EXTSOURCE) != null) {
+				return getStringAttribute(req, EXTSOURCE);
+				// Cert / SSL must be after kerberos, since apache fills property always when cert was provided
 			} else if (Objects.equals(req.getAttribute(SSL_CLIENT_VERIFY), SUCCESS)) {
 				return getStringAttribute(req, SSL_CLIENT_ISSUER_DN);
+			} else if (des.readString(DELEGATED_EXTSOURCE_NAME) != null) {
+				return des.readString(DELEGATED_EXTSOURCE_NAME);
 			} else {
-				String extSource = getStringAttribute(req, EXTSOURCE);
-				return extSource != null ? extSource : des.readString(DELEGATED_EXTSOURCE_NAME);
+				throw new InternalErrorException("Ext source name was not provided");
 			}
 		}
 	}
@@ -181,13 +185,11 @@ public class Api extends HttpServlet {
 			}
 		} else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
 			actor = remoteUser;
+		} else if (getStringAttribute(req, EXTSOURCE) != null) {
+			actor = getExtLogin(req, getStringAttribute(req, EXTSOURCE), remoteUser);
+			// certificate must be after kerberos/ba, since apache always fills properties when cert is provided !!
 		} else if (Objects.equals(req.getAttribute(SSL_CLIENT_VERIFY), SUCCESS)) {
 			actor = getStringAttribute(req, SSL_CLIENT_SUBJECT_DN);
-		} else {
-			String extSourceName = getStringAttribute(req, EXTSOURCE);
-			if (extSourceName != null) {
-				actor = getExtLogin(req, extSourceName, remoteUser);
-			}
 		}
 
 		if (des != null && actor != null) {
@@ -781,7 +783,7 @@ public class Api extends HttpServlet {
 	}
 
 	private Serializer selectSerializer(String format, String manager, String method, OutputStream out,
-		                                HttpServletRequest req, HttpServletResponse resp) throws IOException, RpcException {
+	                                    HttpServletRequest req, HttpServletResponse resp) throws IOException, RpcException {
 		Serializer serializer;
 
 		switch (Formats.match(format)) {
