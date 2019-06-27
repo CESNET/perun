@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -20,6 +19,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.List;
 public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 	private static final String A_U_V_LOA = AttributesManager.NS_USER_ATTR_VIRT + ":" + "loa";
+	private static final Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_loa.class);
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
@@ -78,18 +80,24 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
-		if (message instanceof UserExtSourceAddedToUser) {
-			resolvingMessages.add(resolveEvent(sess, ((UserExtSourceAddedToUser) message).getUser()));
-		} else if (message instanceof UserExtSourceRemovedFromUser) {
-			resolvingMessages.add(resolveEvent(sess, ((UserExtSourceRemovedFromUser) message).getUser()));
-		} else if (message instanceof UserExtSourceUpdated) {
-			try {
+		User user = null;
+		try {
+			if (message instanceof UserExtSourceAddedToUser) {
+				user = ((UserExtSourceAddedToUser) message).getUser();
+				sess.getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+				resolvingMessages.add(resolveEvent(sess, user));
+			} else if (message instanceof UserExtSourceRemovedFromUser) {
+				user = ((UserExtSourceRemovedFromUser) message).getUser();
+				sess.getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+				resolvingMessages.add(resolveEvent(sess, user));
+			} else if (message instanceof UserExtSourceUpdated) {
 				resolvingMessages.add(resolveEvent(sess, sess.getPerunBl().getUsersManagerBl().getUserById(
-						sess, ((UserExtSourceUpdated) message).getUserExtSource().getUserId())));
-			} catch (UserNotExistsException e) {
-				throw new ConsistencyErrorException("User associated with updated UserExtSource no longer exists while resolving virtual attribute value change.", e);
+							sess, ((UserExtSourceUpdated) message).getUserExtSource().getUserId())));
 			}
+		} catch (UserNotExistsException e) {
+			log.warn("User {} associated with event {} no longer exists while resolving virtual attribute value change for LoA.", user, message.getName());
 		}
+
 		return resolvingMessages;
 
 	}
