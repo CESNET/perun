@@ -157,7 +157,7 @@ public class PerunVOImpl extends AbstractPerunEntry<Vo> implements PerunVO {
 		// first find and remove entries in subtree
 		List<Name> subentries = ldapTemplate.search(query()
 				.base(dn)
-				.where("objectclass").like("*"),
+				.where("objectclass").not().is(PerunAttribute.PerunAttributeNames.objectClassPerunVO),
 				getNameMapper());
 		for(Name entrydn : subentries) {
 			ldapTemplate.unbind(entrydn);
