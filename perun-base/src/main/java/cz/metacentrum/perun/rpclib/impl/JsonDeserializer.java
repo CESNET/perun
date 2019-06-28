@@ -3,9 +3,13 @@ package cz.metacentrum.perun.rpclib.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
@@ -19,16 +23,13 @@ import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemWithPrefilledValue;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpclib.api.Deserializer;
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
 /**
  * Deserializer that reads values from JSON content.
@@ -96,33 +97,35 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	private static final ObjectMapper mapper = new ObjectMapper();
+	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 	static {
-		mapper.getDeserializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Member.class, MemberMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(AuditMessage.class, AuditMessageMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(PerunBean.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, DestinationMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Group.class, GroupMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(UserExtSource.class, UserExtSourceMixIn.class);
+		mixinMap.put(Attribute.class, AttributeMixIn.class);
+		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
+		mixinMap.put(User.class, UserMixIn.class);
+		mixinMap.put(Member.class, MemberMixIn.class);
+		mixinMap.put(AuditMessage.class, AuditMessageMixIn.class);
+		mixinMap.put(PerunBean.class, PerunBeanMixIn.class);
+		mixinMap.put(Candidate.class, CandidateMixIn.class);
+		mixinMap.put(PerunException.class, PerunExceptionMixIn.class);
+		mixinMap.put(Destination.class, DestinationMixIn.class);
+		mixinMap.put(Group.class, GroupMixIn.class);
+		mixinMap.put(UserExtSource.class, UserExtSourceMixIn.class);
 
-		mapper.getDeserializationConfig().addMixInAnnotations(Application.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationForm.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationFormItem.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationFormItemWithPrefilledValue.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationMail.class, PerunBeanMixIn.class);
+		mixinMap.put(Application.class, PerunBeanMixIn.class);
+		mixinMap.put(ApplicationForm.class, PerunBeanMixIn.class);
+		mixinMap.put(ApplicationFormItem.class, PerunBeanMixIn.class);
+		mixinMap.put(ApplicationFormItemWithPrefilledValue.class, PerunBeanMixIn.class);
+		mixinMap.put(ApplicationMail.class, PerunBeanMixIn.class);
 
-		mapper.getDeserializationConfig().addMixInAnnotations(Author.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Category.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Publication.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(PublicationForGUI.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(PublicationSystem.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Thanks.class, PerunBeanMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ThanksForGUI.class, PerunBeanMixIn.class);
+		mixinMap.put(Author.class, PerunBeanMixIn.class);
+		mixinMap.put(Category.class, PerunBeanMixIn.class);
+		mixinMap.put(Publication.class, PerunBeanMixIn.class);
+		mixinMap.put(PublicationForGUI.class, PerunBeanMixIn.class);
+		mixinMap.put(PublicationSystem.class, PerunBeanMixIn.class);
+		mixinMap.put(Thanks.class, PerunBeanMixIn.class);
+		mixinMap.put(ThanksForGUI.class, PerunBeanMixIn.class);
 
+		mapper.setMixIns(mixinMap);
 	}
 
 	private JsonNode root;
@@ -198,14 +201,14 @@ public class JsonDeserializer extends Deserializer {
 				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
 			} else {
 				try {
-					return Integer.parseInt(node.getTextValue());
+					return Integer.parseInt(node.textValue());
 				} catch (NumberFormatException ex) {
 					throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int", ex);
 				}
 			}
 		}
 
-		return node.getIntValue();
+		return node.intValue();
 	}
 
 	@Override
@@ -239,7 +242,7 @@ public class JsonDeserializer extends Deserializer {
 			if (!value.isInt()) {
 				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as int");
 			}
-			array[i] = node.get(i).getIntValue();
+			array[i] = node.get(i).intValue();
 		}
 		return array;
 	}
@@ -272,7 +275,7 @@ public class JsonDeserializer extends Deserializer {
 		}
 
 		try {
-			return mapper.readValue(node, valueType);
+			return mapper.readValue(node.traverse(), valueType);
 		} catch (IOException ex) {
 			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName(), ex);
 		}
@@ -308,7 +311,7 @@ public class JsonDeserializer extends Deserializer {
 		try {
 			List<T> list = new ArrayList<>(node.size());
 			for (JsonNode e : node) {
-				list.add(mapper.readValue(e, valueType));
+				list.add(mapper.readValue(e.traverse(), valueType));
 			}
 			return list;
 		} catch (IOException ex) {

@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.scim.api.entities;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Authentication Schemes for ServiceProviderConfigs endpoint.

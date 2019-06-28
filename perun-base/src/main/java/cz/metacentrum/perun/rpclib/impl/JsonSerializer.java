@@ -2,14 +2,16 @@ package cz.metacentrum.perun.rpclib.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import cz.metacentrum.perun.core.api.AuditMessage;
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -41,12 +43,15 @@ public final class JsonSerializer implements Serializer {
 	}
 
 	private static final ObjectMapper mapper = new ObjectMapper();
+	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 
 	static {
-		mapper.getSerializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(AuditMessage.class, AuditMessageMixIn.class);
+		mixinMap.put(Attribute.class, AttributeMixIn.class);
+		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
+		mixinMap.put(User.class, UserMixIn.class);
+		mixinMap.put(AuditMessage.class, AuditMessageMixIn.class);
+
+		mapper.setMixIns(mixinMap);
 	}
 	private static final JsonFactory jsonFactory = new JsonFactory();
 

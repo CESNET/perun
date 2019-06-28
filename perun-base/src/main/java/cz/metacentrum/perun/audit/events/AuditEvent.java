@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.audit.events;
 
 import cz.metacentrum.perun.core.api.PerunBean;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -1,5 +1,14 @@
 package cz.metacentrum.perun.rpc.serializer;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
@@ -10,21 +19,14 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.taskslib.model.Task;
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * JSONP serializer.
@@ -140,22 +142,25 @@ public final class JsonSerializerJSONP implements Serializer {
 
 	public static final String CONTENT_TYPE = "text/javascript; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();
+	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
 
 	static {
-		mapper.getSerializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(PerunException.class, ExceptionMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, ExceptionMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(PerunBean.class, PerunBeanMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(PerunRequest.class, PerunRequestMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(Authorship.class, CabinetMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(Author.class, CabinetMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(Category.class, CabinetMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(Publication.class, CabinetMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(Thanks.class, CabinetMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(Task.class, TaskMixIn.class);
+		mixinMap.put(Attribute.class, AttributeMixIn.class);
+		mixinMap.put(AttributeDefinition.class, AttributeDefinitionMixIn.class);
+		mixinMap.put(User.class, UserMixIn.class);
+		mixinMap.put(Candidate.class, CandidateMixIn.class);
+		mixinMap.put(PerunException.class, ExceptionMixIn.class);
+		mixinMap.put(PerunRuntimeException.class, ExceptionMixIn.class);
+		mixinMap.put(PerunBean.class, PerunBeanMixIn.class);
+		mixinMap.put(PerunRequest.class, PerunRequestMixIn.class);
+		mixinMap.put(Authorship.class, CabinetMixIn.class);
+		mixinMap.put(Author.class, CabinetMixIn.class);
+		mixinMap.put(Category.class, CabinetMixIn.class);
+		mixinMap.put(Publication.class, CabinetMixIn.class);
+		mixinMap.put(Thanks.class, CabinetMixIn.class);
+		mixinMap.put(Task.class, TaskMixIn.class);
+
+		mapper.setMixIns(mixinMap);
 	}
 
 	private static final JsonFactory jsonFactory = new JsonFactory();
