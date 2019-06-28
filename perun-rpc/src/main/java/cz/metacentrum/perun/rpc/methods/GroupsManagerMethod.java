@@ -214,10 +214,15 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Moves "movingGroup" (including subGroups) under "destinationGroup" as subGroup within same Vo.
-	 * In case of null "destinationGroup", "movingGroup" is moved as top level group.
-	 * During movement are also processed indirect members.
+	 * Indirect group members are also processed during move operation.
 	 *
 	 * @param destinationGroup int <code>id</code> of Group to have "movingGroup" as subGroup
+	 * @param movingGroup int <code>id</code> of Group to be moved under "destinationGroup"
+	 */
+	/*#
+	 * Moves "movingGroup" (including subGroups) from it`s location to top-level.
+	 * Indirect group members are also processed during move operation.
+	 *
 	 * @param movingGroup int <code>id</code> of Group to be moved under "destinationGroup"
 	 */
 	moveGroup {
