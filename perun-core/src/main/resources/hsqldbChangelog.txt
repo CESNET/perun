@@ -8,6 +8,11 @@
 
 -- this update is not supported on hsql since its used only as in-memory db
 
+3.1.56
+update members set suspended_to=to_date('2999-01-01', 'YYYY-MM-DD') where status='2';
+update members set status='0' where status='2';
+update configurations set value='3.1.56' where property='DATABASE VERSION';
+
 3.1.55
 drop sequence "auditer_log_json_id_seq";
 alter table auditer_log rename to auditer_log_old;

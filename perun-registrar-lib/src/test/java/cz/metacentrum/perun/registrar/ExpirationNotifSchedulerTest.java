@@ -133,13 +133,10 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		// set statuses synchronizer should ignore
 		perun.getMembersManager().setStatus(session, member2, Status.DISABLED);
 		perun.getMembersManager().setStatus(session, member3, Status.INVALID);
-		perun.getMembersManager().setStatus(session, member4, Status.SUSPENDED);
 		perun.getMembersManager().setStatus(session, member7, Status.DISABLED);
 		perun.getMembersManager().setStatus(session, member8, Status.INVALID);
-		perun.getMembersManager().setStatus(session, member9, Status.SUSPENDED);
 		perun.getMembersManager().setStatus(session, member12, Status.DISABLED);
 		perun.getMembersManager().setStatus(session, member13, Status.INVALID);
-		perun.getMembersManager().setStatus(session, member14, Status.SUSPENDED);
 
 		// set status synchronizer should keep
 		perun.getMembersManager().setStatus(session, member5, Status.EXPIRED);  // expiration today
@@ -160,9 +157,6 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		Member returnedMember3 = perun.getMembersManager().getMemberById(session, member3.getId());
 		assertEquals("Member3 should be kept invalid!", returnedMember3.getStatus(), Status.INVALID);
 
-		Member returnedMember4 = perun.getMembersManager().getMemberById(session, member4.getId());
-		assertEquals("Member4 should be kept suspended!", returnedMember4.getStatus(), Status.SUSPENDED);
-
 		Member returnedMember5 = perun.getMembersManager().getMemberById(session, member5.getId());
 		assertEquals("Member5 should be kept expired!", returnedMember5.getStatus(), Status.EXPIRED);
 
@@ -175,9 +169,6 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		Member returnedMember8 = perun.getMembersManager().getMemberById(session, member8.getId());
 		assertEquals("Member8 should be kept invalid!", returnedMember8.getStatus(), Status.INVALID);
 
-		Member returnedMember9 = perun.getMembersManager().getMemberById(session, member9.getId());
-		assertEquals("Member9 should be kept suspended!", returnedMember9.getStatus(), Status.SUSPENDED);
-
 		Member returnedMember10 = perun.getMembersManager().getMemberById(session, member10.getId());
 		assertEquals("Member10 should be kept valid!", returnedMember10.getStatus(), Status.VALID);
 
@@ -189,9 +180,6 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 
 		Member returnedMember13 = perun.getMembersManager().getMemberById(session, member13.getId());
 		assertEquals("Member13 should be kept invalid!", returnedMember13.getStatus(), Status.INVALID);
-
-		Member returnedMember14 = perun.getMembersManager().getMemberById(session, member14.getId());
-		assertEquals("Member14 should be kept suspended!", returnedMember14.getStatus(), Status.SUSPENDED);
 
 		Member returnedMember15 = perun.getMembersManager().getMemberById(session, member15.getId());
 		assertEquals("Member15 should be kept expired!", returnedMember15.getStatus(), Status.EXPIRED);

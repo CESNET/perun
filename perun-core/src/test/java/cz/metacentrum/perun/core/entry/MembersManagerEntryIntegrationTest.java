@@ -230,7 +230,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		perun.getAttributesManagerBl().setAttributes(sess, createdMember, resource, new ArrayList<>(Collections.singletonList(memberResourceAttribute1)));
 
 		List<String> attrNames = new ArrayList<>(Arrays.asList(userAttribute1.getName(), memberAttribute1.getName(), userFacilityAttribute1.getName(), memberResourceAttribute1.getName()));
-		List<RichMember> richMembers = membersManagerEntry.getCompleteRichMembers(sess, createdGroup, resource, attrNames, Arrays.asList("INVALID", "DISABLED", "SUSPENDED", "EXPIRED"));
+		List<RichMember> richMembers = membersManagerEntry.getCompleteRichMembers(sess, createdGroup, resource, attrNames, Arrays.asList("INVALID", "DISABLED", "EXPIRED"));
 		assertTrue(richMembers.isEmpty());
 		richMembers = membersManagerEntry.getCompleteRichMembers(sess, createdGroup, resource, attrNames, Collections.singletonList("VALID"));
 
@@ -638,7 +638,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	public void getMembersCountByStatus() throws Exception {
 		System.out.println(CLASS_NAME + "getMembersCountByStatus");
 
-		final int count = membersManagerEntry.getMembersCount(sess, createdVo, Status.SUSPENDED);
+		final int count = membersManagerEntry.getMembersCount(sess, createdVo, Status.EXPIRED);
 		assertTrue("testing VO should have 0 members with SUSPENDED status", count == 0);
 		final int count2 = membersManagerEntry.getMembersCount(sess, createdVo, Status.VALID);
 		assertTrue("testing VO should have 1 member with VALID status", count2 == 1);

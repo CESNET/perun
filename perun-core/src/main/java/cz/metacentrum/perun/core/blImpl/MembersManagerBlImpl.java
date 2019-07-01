@@ -6,6 +6,7 @@ import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberDisabled;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberExpired;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberInvalidated;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberSuspended;
+import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberUnsuspended;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberValidated;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.MemberValidatedFailed;
 import cz.metacentrum.perun.audit.events.MembersManagerEvents.SponsoredMemberSet;
@@ -1398,8 +1399,38 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
+	public void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo, String message) throws InternalErrorException {
+		this.suspendMemberTo(sess, member, suspendedTo);
+
+		try {
+			Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:suspensionInfo");
+			HashMap<String, String> map = new LinkedHashMap<>();
+			if (message != null) {
+				map.put("reason", message);
+			}
+			int id = sess.getPerunPrincipal().getUserId();
+			map.put("userId", String.valueOf(id));
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+			map.put("timestamp", String.valueOf(timestamp));
+			attribute.setValue(map);
+			perunBl.getAttributesManagerBl().setAttribute(sess, member, attribute);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			throw new InternalErrorException(ex);
+		}
+		getPerunBl().getAuditer().log(sess, new MemberSuspended(member, Auditer.engineForceKeyword));
+	}
+
+	@Override
 	public void unsuspendMember(PerunSession sess, Member member) throws InternalErrorException {
 		getMembersManagerImpl().unsuspendMember(sess, member);
+
+		try {
+			Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:suspensionInfo");
+			perunBl.getAttributesManagerBl().removeAttribute(sess, member, attribute);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
+			throw new InternalErrorException(ex);
+		}
+		getPerunBl().getAuditer().log(sess, new MemberUnsuspended(member, Auditer.engineForceKeyword));
 	}
 
 	@Override
@@ -1418,9 +1449,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			//break;
 			case INVALID:
 				return invalidateMember(sess, member);
-			//break;
-			case SUSPENDED:
-				return suspendMember(sess, member);
 			//break;
 			case EXPIRED:
 				return expireMember(sess, member);
@@ -1441,9 +1469,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				//break;
 			case INVALID:
 				return invalidateMember(sess, member);
-				//break;
-			case SUSPENDED:
-				return suspendMember(sess, member, message);
 				//break;
 			case EXPIRED:
 				return expireMember(sess, member);
@@ -1513,47 +1538,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getMembersManagerImpl().setStatus(sess, member, Status.INVALID);
 		member.setStatus(Status.INVALID);
 		getPerunBl().getAuditer().log(sess, new MemberInvalidated(member));
-		return member;
-	}
-
-	@Override
-	public Member suspendMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException {
-		if(this.haveStatus(sess, member, Status.SUSPENDED)) {
-			log.warn("Trying to suspend member who is already suspended. Suspend operation will be procesed anyway (to be shure)." + member);
-		}
-
-		if(this.haveStatus(sess, member, Status.INVALID) || this.haveStatus(sess, member, Status.DISABLED)) throw new MemberNotValidYetException(member);
-		getMembersManagerImpl().setStatus(sess, member, Status.SUSPENDED);
-		member.setStatus(Status.SUSPENDED);
-		getPerunBl().getAuditer().log(sess, new MemberSuspended(member, Auditer.engineForceKeyword));
-		return member;
-	}
-
-	@Override
-	public Member suspendMember(PerunSession sess, Member member, String message) throws InternalErrorException, MemberNotValidYetException {
-		if(this.haveStatus(sess, member, Status.SUSPENDED)) {
-			log.warn("Trying to suspend member who is already suspended. Suspend operation will be procesed anyway (to be shure)." + member);
-		}
-
-		if(this.haveStatus(sess, member, Status.INVALID) || this.haveStatus(sess, member, Status.DISABLED)) throw new MemberNotValidYetException(member);
-		getMembersManagerImpl().setStatus(sess, member, Status.SUSPENDED);
-		member.setStatus(Status.SUSPENDED);
-		try {
-			Attribute attribute = perunBl.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:suspensionInfo");
-			HashMap<String, String> map = new LinkedHashMap<>();
-			if (message != null) {
-				map.put("reason", message);
-			}
-			int id = sess.getPerunPrincipal().getUserId();
-			map.put("userId", String.valueOf(id));
-			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-			map.put("timestamp", String.valueOf(timestamp));
-			attribute.setValue(map);
-			perunBl.getAttributesManagerBl().setAttribute(sess, member, attribute);
-		} catch (WrongAttributeAssignmentException | AttributeNotExistsException | WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
-			throw new InternalErrorException(ex);
-		}
-		getPerunBl().getAuditer().log(sess, new MemberSuspended(member, Auditer.engineForceKeyword));
 		return member;
 	}
 

@@ -14,19 +14,20 @@ sub help {
 	Available options:
 	--memberId        | -m member id
 	--date            | -d date in format yyyy-mm-dd
+	--reason          | -r reason for suspension
 	--batch           | -b batch
 	--help            | -h prints this help
 
 	};
 }
 
-my ($memberId, $date);
+my ($memberId, $date, $reason);
 our $batch;
 GetOptions ("help|h" => sub {
 		print help();
 		exit 0;
 	}, "batch|b"     => \$batch,
-	"memberId|m=i"   => \$memberId, "date|d=s" => \$date) || die help();
+	"memberId|m=i"   => \$memberId, "date|d=s" => \$date, "reason|r=s" => \$reason) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}
@@ -35,6 +36,10 @@ unless (defined($date)) { die "ERROR: date to which will be member suspended is 
 my $agent = Perun::Agent->new();
 my $membersAgent = $agent->getMembersAgent;
 
-$membersAgent->suspendMemberTo( member => $memberId, suspendedTo => $date );
+if($reason) {
+	$membersAgent->suspendMemberTo( member => $memberId, suspendedTo => $date, message => $reason );
+else {
+	$membersAgent->suspendMemberTo( member => $memberId, suspendedTo => $date );
+}
 
 printMessage("Member with id $memberId was suspended to $date.", $batch);

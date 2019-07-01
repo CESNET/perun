@@ -307,7 +307,6 @@ public class ExpirationNotifScheduler {
 		// Only members with following statuses will be notified
 		List<Status> allowedStatuses = new ArrayList<>();
 		allowedStatuses.add(Status.VALID);
-		allowedStatuses.add(Status.SUSPENDED);
 
 		Map<Integer, Vo> vosMap = new HashMap<>();
 		for (Vo vo : vos) {
@@ -560,7 +559,6 @@ public class ExpirationNotifScheduler {
 		// Only members with following statuses will be notified
 		List<Status> allowedStatuses = new ArrayList<>();
 		allowedStatuses.add(Status.VALID);
-		allowedStatuses.add(Status.SUSPENDED);
 		// in opposite to vo expiration we want to notify about incoming group expirations even when user is expired in VO
 		allowedStatuses.add(Status.EXPIRED);
 

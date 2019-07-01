@@ -7,7 +7,7 @@ import java.util.Map;
 public enum Status {
 	VALID  (0),
 				 INVALID (1),    //just created object, where some information (e.g. attribute)  is missing
-				 SUSPENDED (2),  //security issue
+				 //SUSPENDED (2),  //security issue, this status was replaced by suspension logic
 				 EXPIRED (3),
 				 DISABLED (4);   //use this status instead of deleting the entity
 

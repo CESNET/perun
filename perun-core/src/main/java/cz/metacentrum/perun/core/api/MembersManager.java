@@ -988,7 +988,24 @@ public interface MembersManager {
 	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException, MemberNotExistsException, PrivilegeException;
 
 	/**
+	 * Set date to which will be member suspended in his VO.
+	 * Also set reason of this suspension to the member attribute.
+	 *
+	 * For almost unlimited time please use time in the far future.
+	 *
+	 * @param sess
+	 * @param member member who will be suspended
+	 * @param message reason of suspension
+	 * @param suspendedTo date to which will be member suspended (after this date, he will not be affected by suspension any more)
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws MemberNotExistsException if member not exists in Perun
+	 */
+	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo, String message) throws InternalErrorException, MemberNotExistsException, PrivilegeException;
+
+	/**
 	 * Remove suspend state from Member - remove date to which member should be considered as suspended in the VO.
+	 * Also remove message with reason for suspension.
 	 *
 	 * WARNING: this will remove the date even if it is in the past (so member is no longer considered as suspended)
 	 *

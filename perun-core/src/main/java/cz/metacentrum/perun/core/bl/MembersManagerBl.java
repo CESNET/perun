@@ -1113,7 +1113,22 @@ public interface MembersManagerBl {
 	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo) throws InternalErrorException;
 
 	/**
+	 * Set date to which will be member suspended in his VO.
+	 * Also set reason of this suspension to the member attribute.
+	 *
+	 * For almost unlimited time please use time in the far future.
+	 *
+	 * @param sess
+	 * @param member member who will be suspended
+	 * @param message reason of suspension
+	 * @param suspendedTo date to which will be member suspended (after this date, he will not be affected by suspension any more)
+	 * @throws InternalErrorException
+	 */
+	void suspendMemberTo(PerunSession sess, Member member, Date suspendedTo, String message) throws InternalErrorException;
+
+	/**
 	 * Remove suspend state from Member - remove date to which member should be considered as suspended in the VO.
+	 * Also remove message with reason for suspension.
 	 *
 	 * WARNING: this method will always succeed if member exists, because it will set date for suspension to null
 	 *
@@ -1205,35 +1220,6 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	Member invalidateMember(PerunSession sess, Member member) throws InternalErrorException;
-
-	/**
-	 * Suspend member.
-	 *
-	 * As side effect it will change status of the object member.
-	 *
-	 * @param sess
-	 * @param member
-	 * @return member with new status set
-	 *
-	 * @throws InternalErrorException
-	 * @throws MemberNotValidYetException
-	 */
-	Member suspendMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotValidYetException;
-
-	/**
-	 * Suspend member with reason for suspension.
-	 *
-	 * As side effect it will change status of the object member.
-	 *
-	 * @param sess
-	 * @param member
-	 * @param message
-	 * @return member with new status set
-	 *
-	 * @throws InternalErrorException
-	 * @throws MemberNotValidYetException
-	 */
-	Member suspendMember(PerunSession sess, Member member, String message) throws InternalErrorException, MemberNotValidYetException;
 
 	/**
 	 * Set member's status to expired.
