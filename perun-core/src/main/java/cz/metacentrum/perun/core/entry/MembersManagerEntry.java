@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -91,6 +92,21 @@ public class MembersManagerEntry implements MembersManager {
 
 
 		getMembersManagerBl().deleteMember(sess, member);
+	}
+
+	@Override
+	public void deleteMembers(PerunSession sess, List<Member> members) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException {
+		Utils.checkPerunSession(sess);
+
+		for (Member member : members) {
+			getMembersManagerBl().checkMemberExists(sess, member);
+
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)) {
+				throw new PrivilegeException(sess, "deleteMembers");
+			}
+		}
+
+		getMembersManagerBl().deleteMembers(sess, members);
 	}
 
 	@Override

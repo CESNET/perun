@@ -47,6 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -723,6 +724,21 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		membersManagerEntry.deleteAllMembers(sess, new Vo());
 
+	}
+
+	@Test()
+	public void deleteMembers() throws Exception {
+		System.out.println(CLASS_NAME + "deleteMembers");
+
+		Member otherCreatedMember = setUpMember(createdVo);
+
+		membersManagerEntry.deleteMembers(sess, Arrays.asList(createdMember, otherCreatedMember));
+
+		assertThatExceptionOfType(MemberNotExistsException.class)
+			.isThrownBy(() -> membersManagerEntry.getMemberById(sess, createdMember.getId()));
+
+		assertThatExceptionOfType(MemberNotExistsException.class)
+			.isThrownBy(() -> membersManagerEntry.getMemberById(sess, otherCreatedMember.getId()));
 	}
 
 	@Test
