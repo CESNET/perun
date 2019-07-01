@@ -8,6 +8,7 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,26 @@ public enum MembersManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			ac.getMembersManager().deleteMember(ac.getSession(), ac.getMemberById(parms.readInt("member")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Delete members with given ids. It is possible to delete members from multiple vos.
+	 *
+	 * @param member int Member <code>id</code>
+	 */
+	deleteMembers {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			int[] ids = parms.readArrayOfInts("members");
+			List<Member> members = new ArrayList<>(ids.length);
+			for (int id : ids) {
+				members.add(ac.getMemberById(id));
+			}
+			ac.getMembersManager().deleteMembers(ac.getSession(), members);
 			return null;
 		}
 	},

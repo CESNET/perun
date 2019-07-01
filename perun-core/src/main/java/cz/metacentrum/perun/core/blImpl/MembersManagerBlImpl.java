@@ -231,6 +231,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
+	public void deleteMembers(PerunSession sess, List<Member> members) throws InternalErrorException, MemberAlreadyRemovedException {
+		Collections.sort(members);
+
+		for (Member member : members) {
+			deleteMember(sess, member);
+		}
+	}
+
+	@Override
 	public void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException {
 		for (Member m: this.getMembers(sess, vo)) {
 			this.deleteMember(sess, m);

@@ -59,6 +59,18 @@ public interface MembersManager {
 	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException;
 
 	/**
+	 * Delete given members. It is possible to delete members from multiple vos.
+	 *
+	 * @param sess session
+	 * @param members members that will be deleted
+	 * @throws InternalErrorException internal error
+	 * @throws MemberNotExistsException if any member doesn't exist
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws MemberAlreadyRemovedException if already removed
+	 */
+	void deleteMembers(PerunSession sess, List<Member> members) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException;
+
+	/**
 	 *  Deletes all VO members.
 	 *
 	 * @param sess

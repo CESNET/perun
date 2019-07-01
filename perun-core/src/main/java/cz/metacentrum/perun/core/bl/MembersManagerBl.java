@@ -33,6 +33,7 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
 import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
@@ -61,6 +62,16 @@ public interface MembersManagerBl {
 	 * @throws MemberAlreadyRemovedException
 	 */
 	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException;
+
+	/**
+	 * Delete given members. It is possible to delete members from multiple vos.
+	 *
+	 * @param sess session
+	 * @param members members that will be deleted
+	 * @throws InternalErrorException internal error
+	 * @throws MemberAlreadyRemovedException if already removed
+	 */
+	void deleteMembers(PerunSession sess, List<Member> members) throws InternalErrorException, MemberAlreadyRemovedException;
 
 	/**
 	 *  Deletes all VO members.
