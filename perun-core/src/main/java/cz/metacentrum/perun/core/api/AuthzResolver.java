@@ -370,9 +370,10 @@ public class AuthzResolver {
 	 * @param user User
 	 * @return list of integers, which represents role from enum Role.
 	 */
-	public static List<String> getUserRoleNames(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
+	public static List<String> getUserRoleNames(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		((PerunBl) sess.getPerun()).getUsersManagerBl().checkUserExists(sess, user);
 
+		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("You are not privileged to use this method getUserRoleNames.");
 		return AuthzResolverBlImpl.getUserRoleNames(sess, user);
 	}
 
@@ -385,9 +386,10 @@ public class AuthzResolver {
 	 * @throws UserNotExistsException
 	 * @return AuthzRoles object which contains all roles with perunbeans
 	 */
-	public static AuthzRoles getUserRoles(PerunSession sess, int userId) throws InternalErrorException, UserNotExistsException {
+	public static AuthzRoles getUserRoles(PerunSession sess, int userId) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		User user = ((PerunBl) sess.getPerun()).getUsersManagerBl().getUserById(sess, userId);
 
+		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("You are not privileged to use this method getUserRoles.");
 		return AuthzResolverBlImpl.getUserRoles(sess, user);
 	}
 
@@ -400,9 +402,10 @@ public class AuthzResolver {
 	 * @throws GroupNotExistsException
 	 * @return list of integers, which represents role from enum Role.
 	 */
-	public static List<String> getGroupRoleNames(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException {
+	public static List<String> getGroupRoleNames(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
 		((PerunBl) sess.getPerun()).getGroupsManagerBl().checkGroupExists(sess, group);
 
+		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("You are not privileged to use this method getGroupRoleNames.");
 		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.getGroupRoleNames(sess, group);
 	}
 
@@ -415,9 +418,10 @@ public class AuthzResolver {
 	 * @throws GroupNotExistsException
 	 * @return AuthzRoles object which contains all roles with perunbeans
 	 */
-	public static AuthzRoles getGroupRoles(PerunSession sess, int groupId) throws InternalErrorException, GroupNotExistsException {
+	public static AuthzRoles getGroupRoles(PerunSession sess, int groupId) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
 		Group group = ((PerunBl) sess.getPerun()).getGroupsManagerBl().getGroupById(sess, groupId);
 
+		if (!isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("You are not privileged to use this method getGroupRoles.");
 		return AuthzResolverBlImpl.getGroupRoles(sess, group);
 	}
 
