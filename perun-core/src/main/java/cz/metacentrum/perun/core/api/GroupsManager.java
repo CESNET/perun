@@ -72,6 +72,10 @@ public interface GroupsManager {
 	String GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":lightweightSynchronization";
 	// Defines if we want to synchronize group structure without group hierarchy
 	String GROUP_FLAT_SYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":flatGroupStructureEnabled";
+	// Defines the times, when the group has to be synchronized.
+	String GROUP_SYNCHRO_TIMES_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupSynchronizationTimes";
+	// Defines the times, when the group has to be synchronized.
+	String GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureSynchronizationTimes";
 
 	String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
 	String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";

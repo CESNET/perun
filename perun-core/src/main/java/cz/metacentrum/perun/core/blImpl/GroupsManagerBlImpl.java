@@ -114,8 +114,11 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipEx
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
@@ -1704,9 +1707,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public synchronized void synchronizeGroups(PerunSession sess) throws InternalErrorException {
 		// Get the default synchronization interval and synchronization timeout from the configuration file
 		int timeout = BeansUtils.getCoreConfig().getGroupSynchronizationTimeout();
-		int defaultIntervalMultiplier = BeansUtils.getCoreConfig().getGroupSynchronizationInterval();
-		// Get the number of seconds from the epoch, so we can divide it by the synchronization interval value
-		long minutesFromEpoch = System.currentTimeMillis()/1000/60;
+		// Get the number of miliseconds from the epoch, so we can divide it by the synchronization interval value
+		long millisecondsFromEpoch = System.currentTimeMillis();
+		long minutesFromEpoch = millisecondsFromEpoch/1000/60;
+
+		LocalDateTime localDateTime = new Timestamp(millisecondsFromEpoch).toLocalDateTime();
 
 		int numberOfNewlyRemovedThreads = 0;
 		// Firstly interrupt threads after timeout, then remove all interrupted threads
@@ -1747,31 +1752,22 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		int numberOfNewlyAddedGroups;
 		for (Group group: groups) {
-			// Get the synchronization interval for the group
-			int intervalMultiplier;
+
 			try {
-				Attribute intervalAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
-				if (intervalAttribute.getValue() != null) {
-					intervalMultiplier = Integer.parseInt((String) intervalAttribute.getValue());
-				} else {
-					intervalMultiplier = defaultIntervalMultiplier;
-					log.debug("Group {} hasn't set synchronization interval, using default {} seconds", group, intervalMultiplier);
+				Attribute synchronizationTimesAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess,group,GroupsManager.GROUP_SYNCHRO_TIMES_ATTRNAME);
+				if (synchronizationTimesAttr.getValue() != null) {
+					if (isTimeCompliantWithExactTimes(localDateTime, synchronizationTimesAttr.valueAsList())) {
+						timeCompliantGroups.add(group);
+					}
+				} else if (isTimeCompliantWithGroupInterval(sess, group, minutesFromEpoch, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME,"Group")) {
+					timeCompliantGroups.add(group);
 				}
 			} catch (AttributeNotExistsException e) {
-				log.error("Required attribute {} isn't defined in Perun! Using default value from properties instead!", GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
-				intervalMultiplier = defaultIntervalMultiplier;
+				log.error("Required attribute {} isn't defined in Perun!", GroupsManager.GROUP_SYNCHRO_TIMES_ATTRNAME);
 			} catch (WrongAttributeAssignmentException e) {
-				log.error("Cannot get attribute " + GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME + " for group " + group + " due to exception. Using default value from properties instead!",e);
-				intervalMultiplier = defaultIntervalMultiplier;
+				log.error("Cannot get attribute " + GroupsManager.GROUP_SYNCHRO_TIMES_ATTRNAME + " for group " + group + " due to exception.", e);
 			}
 
-			// Multiply with 5 to get real minutes
-			intervalMultiplier = intervalMultiplier*5;
-
-			// If the minutesFromEpoch can be divided by the intervalMultiplier, then synchronize
-			if ((minutesFromEpoch % intervalMultiplier) == 0) {
-				timeCompliantGroups.add(group);
-			}
 		}
 
 		numberOfNewlyAddedGroups = poolOfSynchronizations.putGroupsToPoolOfWaitingGroups(timeCompliantGroups);
@@ -2462,6 +2458,65 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	//----------- PRIVATE METHODS FOR  GROUP SYNCHRONIZATION -----------
+
+	/**
+	 * Check if local time matches some of the times in synchronizationTimes list.
+	 *
+	 * @param localDateTime is current time
+	 * @param synchronizationTimes is list of times against which will be local time compared
+	 *
+	 * @return True if local time matches some of the times in synchronizationTimes list. False otherwise.
+	 */
+	private boolean isTimeCompliantWithExactTimes(LocalDateTime localDateTime, ArrayList<String> synchronizationTimes) {
+
+		String actualTime = localDateTime.format(DateTimeFormatter.ofPattern("HH:mm"));
+		for (String synchronizationTime : synchronizationTimes) {
+			if (actualTime.equals(synchronizationTime)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Check if current time matches with group time interval
+	 *
+	 * @param sess
+	 * @param group which has set the interval attribute
+	 * @param minutesFromEpoch is current time which will be compared against group interval
+	 * @param attributeName of attribute which contains a interval for the group
+	 * @param objectName which will be used in log messages
+	 *
+	 * @return True if current time matches with group time interval. False otherwise.
+	 *
+	 * @throws InternalErrorException
+	 */
+	private boolean isTimeCompliantWithGroupInterval(PerunSession sess, Group group, long minutesFromEpoch, String attributeName, String objectName) throws InternalErrorException{
+		int defaultIntervalMultiplier = BeansUtils.getCoreConfig().getGroupSynchronizationInterval();
+		// Get the synchronization interval for the group
+		int intervalMultiplier;
+		try {
+			Attribute intervalAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, attributeName);
+			if (intervalAttribute.getValue() != null) {
+				intervalMultiplier = Integer.parseInt((String) intervalAttribute.getValue());
+			} else {
+				intervalMultiplier = defaultIntervalMultiplier;
+				log.debug(objectName + " {} hasn't set synchronization interval, using default value: {}", group, intervalMultiplier);
+			}
+		} catch (AttributeNotExistsException e) {
+			log.error("Required attribute {} isn't defined in Perun! Using default value from properties instead!", attributeName);
+			intervalMultiplier = defaultIntervalMultiplier;
+		} catch (WrongAttributeAssignmentException e) {
+			log.error("Cannot get attribute " + attributeName + " for " + objectName.toLowerCase() + " " + group + " due to exception. Using default value from properties instead!",e);
+			intervalMultiplier = defaultIntervalMultiplier;
+		}
+
+		// Multiply with 5 to get real minutes
+		intervalMultiplier = intervalMultiplier*5;
+
+		// If the minutesFromEpoch can be divided by the intervalMultiplier, then synchronize
+		return (minutesFromEpoch % intervalMultiplier) == 0;
+	}
 
     private void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		//get current timestamp of this synchronization
@@ -3409,6 +3464,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		Attribute synchronizationInterval = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
 		Attribute extSourceNameAttr = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPEXTSOURCE_ATTRNAME));
 		Attribute synchroEnabled = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
+		Attribute synchronizationTimes = getPerunBl().getAttributesManagerBl().getAttribute(sess, baseGroup, GroupsManager.GROUP_SYNCHRO_TIMES_ATTRNAME);
 
 		extSourceNameAttr.setValue(source.getName());
 		synchroEnabled.setValue("true");
@@ -3429,7 +3485,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			membersQueryAttribute.setValue(baseMembersQuery.getValue().toString().replace("?", group.getShortName()));
 
-			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, Arrays.asList(baseMemberExtsource, lightWeightSynchronization, synchronizationInterval, synchroEnabled, membersQueryAttribute));
+			getPerunBl().getAttributesManagerBl().setAttributes(sess, group, Arrays.asList(baseMemberExtsource, lightWeightSynchronization, synchronizationInterval, synchroEnabled, membersQueryAttribute, synchronizationTimes));
 		}
 
 	}
@@ -3526,36 +3582,32 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	private int addGroupsToGroupStructureSynchronizationPool(PerunSession sess) throws InternalErrorException {
-		int defaultIntervalMultiplier = BeansUtils.getCoreConfig().getGroupStructureSynchronizationInterval();
-		long minutesFromEpoch = System.currentTimeMillis()/1000/60;
+		// Get the number of miliseconds from the epoch, so we can divide it by the synchronization interval value
+		long millisecondsFromEpoch = System.currentTimeMillis();
+		long minutesFromEpoch = millisecondsFromEpoch/1000/60;
+
+		LocalDateTime localDateTime = new Timestamp(millisecondsFromEpoch).toLocalDateTime();
 
 		List<Group> groups = groupsManagerImpl.getGroupsStructuresToSynchronize(sess);
 		List<Group> timeCompliantGroups = new ArrayList<>();
 
 		for (Group group: groups) {
-			int intervalMultiplier;
+
 			try {
-				Attribute intervalAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);
-				if (intervalAttribute.getValue() != null) {
-					intervalMultiplier = Integer.parseInt((String) intervalAttribute.getValue());
-				} else {
-					intervalMultiplier = defaultIntervalMultiplier;
-					log.debug("Group structure {} hasn't set synchronization interval, using default {} seconds", group, intervalMultiplier);
+				Attribute synchronizationTimesAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME);
+				if (synchronizationTimesAttr.getValue() != null) {
+					if (isTimeCompliantWithExactTimes(localDateTime, synchronizationTimesAttr.valueAsList())) {
+						timeCompliantGroups.add(group);
+					}
+				} else if (isTimeCompliantWithGroupInterval(sess, group, minutesFromEpoch, GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME,"Group structure")) {
+					timeCompliantGroups.add(group);
 				}
 			} catch (AttributeNotExistsException e) {
-				log.debug("Required attribute {} isn't defined in Perun! Using default value from properties instead!", GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);
-				intervalMultiplier = defaultIntervalMultiplier;
+				log.error("Required attribute {} isn't defined in Perun!", GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME);
 			} catch (WrongAttributeAssignmentException e) {
-				log.debug("Cannot get attribute " + GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME + " for group structure " + group + " due to exception. Using default value from properties instead!",e);
-				intervalMultiplier = defaultIntervalMultiplier;
+				log.error("Cannot get attribute " + GroupsManager.GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME + " for group " + group + " due to exception.", e);
 			}
 
-			intervalMultiplier = intervalMultiplier*5;
-
-			//If the minutesFromEpoch can be divided by the intervalMultiplier, then synchronize
-			if ((minutesFromEpoch % intervalMultiplier) == 0) {
-				timeCompliantGroups.add(group);
-			}
 		}
 
 		return poolOfSynchronizations.putGroupsStructuresToPoolOfWaitingGroupsStructures(timeCompliantGroups);
