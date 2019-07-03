@@ -109,6 +109,33 @@ public class CacheManagerTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
+	public void getAllAttributesByPrimaryHolder() throws Exception {
+		System.out.println(CLASS_NAME + "getAllNonEmptyAttributesByPrimaryHolder");
+
+		Attribute groupAttr = setUpGroupAttribute();
+		Attribute groupResourceAttr = setUpGroupResourceAttribute();
+		setUpGroupAttributeDefinition();
+		cacheManager.setAttribute(groupAttr, groupHolder, null);
+		cacheManager.setAttribute(groupResourceAttr, groupHolder, resourceHolder);
+		setUpVirtualGroupAttribute();
+
+		List<Attribute> attrs = cacheManager.getAllAttributes(groupHolder);
+
+		assertTrue("result should contain group attribute", attrs.contains(groupAttr));
+		assertTrue("result should not contain group-resource attribute", !attrs.contains(groupResourceAttr));
+		assertTrue("it should return 3 attributes (2 with null value)", attrs.size() == 3);
+	}
+
+	@Test
+	public void getAllAttributesByPrimaryHolderEmpty() throws Exception {
+		System.out.println(CLASS_NAME + "getAllNonEmptyAttributesByPrimaryHolderEmpty");
+
+		List<Attribute> attrs = cacheManager.getAllAttributes(groupHolder);
+
+		assertTrue("there should be no returned attributes", attrs.isEmpty());
+	}
+
+	@Test
 	public void getAllNonEmptyAttributesByHolders() throws Exception {
 		System.out.println(CLASS_NAME + "getAllNonEmptyAttributesByHolders");
 

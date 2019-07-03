@@ -1208,6 +1208,26 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
+	@Test
+	public void getRichUserWithAllAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getRichUserWithAllAttributes");
+
+		AttributeDefinition user_phone_atr_def = new AttributeDefinition();
+		user_phone_atr_def.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		user_phone_atr_def.setDescription("user_phone_atr_def");
+		user_phone_atr_def.setFriendlyName("test-user-phone-atr-def");
+		user_phone_atr_def.setType(String.class.getName());
+		user_phone_atr_def = perun.getAttributesManagerBl().createAttribute(sess, user_phone_atr_def);
+		Attribute user_phone_attribute = new Attribute(user_phone_atr_def);
+		user_phone_attribute.setValue(null);
+		perun.getAttributesManagerBl().setAttribute(sess, user, user_phone_attribute);
+
+		List<Attribute> attributes = perun.getAttributesManagerBl().getAllAttributes(sess, user);
+		RichUser richUser = perun.getUsersManagerBl().getRichUserWithAllAttributes(sess, user);
+
+		assertTrue("Attributes of rich user should contain even attributes with null value.", richUser.getUserAttributes().contains(user_phone_attribute));
+		assertEquals("Rich user should have all user's attributes.", richUser.getUserAttributes(), attributes);
+	}
 
 
 	// PRIVATE METHODS -------------------------------------------------------------

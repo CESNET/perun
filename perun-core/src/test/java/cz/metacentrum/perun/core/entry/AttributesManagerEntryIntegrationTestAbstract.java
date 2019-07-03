@@ -1564,6 +1564,33 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 	}
 
+	@Test
+	public void getAllUserAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getUserAttributes");
+
+		vo = setUpVo();
+		member = setUpMember();
+		attributes = setUpUserAttribute();
+		User user = perun.getUsersManager().getUserByMember(sess, member);
+		attributes.get(0).setValue(null);
+		attributesManager.setAttribute(sess, user, attributes.get(0));
+		AttributeDefinition user_phone_atr_def = new AttributeDefinition();
+		user_phone_atr_def.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		user_phone_atr_def.setDescription("user_phone_atr_def");
+		user_phone_atr_def.setFriendlyName("test-user-phone-atr-def");
+		user_phone_atr_def.setType(String.class.getName());
+		user_phone_atr_def = perun.getAttributesManagerBl().createAttribute(sess, user_phone_atr_def);
+		Attribute user_phone_attribute = new Attribute(user_phone_atr_def);
+		user_phone_attribute.setValue(null);
+		perun.getAttributesManagerBl().setAttribute(sess, user, user_phone_attribute);
+		attributes.add(user_phone_attribute);
+
+		List<Attribute> retAttr = perun.getAttributesManagerBl().getAllAttributes(sess, user);
+		assertNotNull("unable to get user attributes", retAttr);
+		assertTrue("our null attribute was not returned", retAttr.contains(attributes.get(0)));
+		assertTrue("our not null attribute was not returned", retAttr.contains(attributes.get(1)));
+	}
+
 	@Test (expected=UserNotExistsException.class)
 	public void getUserAttributesWhenUserNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getUserAttributesWhenUserNotExists");

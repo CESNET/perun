@@ -236,6 +236,17 @@ public interface UsersManagerBl {
 	RichUser getRichUserWithAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException;
 
 	/**
+	 * Get RichUser with all attributes from user.
+	 *
+	 * @param sess perun session
+	 * @param user
+	 * @return RichUser with all attributes
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	RichUser getRichUserWithAllAttributes(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException;
+
+	/**
 	 * Get All richUsers with or without specificUsers.
 	 * If includedSpecificUsers is true, you got all Users included specificUsers
 	 * If includedSpecificUsers is false, you get all Users without specificUsers
@@ -1074,6 +1085,17 @@ public interface UsersManagerBl {
 	 * @throws UserNotExistsException
 	 */
 	List<RichUser> convertRichUsersToRichUsersWithAttributes(PerunSession sess, List<RichUser> richUsers) throws InternalErrorException, UserNotExistsException;
+
+	/**
+	 * From List of Rich Users without attributes make list of Rich Users with all attributes.
+	 *
+	 * @param sess perun session
+	 * @param richUsers
+	 * @return list of Rich Users with all attributes
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> convertRichUsersToRichUsersWithAllAttributes(PerunSession sess, List<RichUser> richUsers) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 * From List of Users make list of RichUsers (with attributes by names)

@@ -36,6 +36,17 @@ public interface CacheManagerApi {
 	List<Attribute> getAllNonEmptyAttributes(Holder holder) throws InternalErrorException;
 
 	/**
+	 * Gets all attributes associated with the primary holder.
+	 * Gets only non-virtual attributes.
+	 * Should be used only if wasCacheUpdatedInTransaction is false, else may return incorrect results.
+	 *
+	 * @param holder primary holder
+	 * @return list of attributes
+	 * @throws InternalErrorException
+	 */
+	List<Attribute> getAllAttributes(Holder holder) throws InternalErrorException;
+
+	/**
 	 * Gets all <b>non-empty</b> attributes associated with the primary holder and secondary holder.
 	 * Gets only non-virtual, non-core attributes.
 	 * Should be used only if wasCacheUpdatedInTransaction is false, else may return incorrect results.

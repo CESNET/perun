@@ -1518,6 +1518,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public List<Attribute> getAllAttributes(PerunSession sess, User user) throws InternalErrorException {
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
+			List<Attribute> attrs = perun.getCacheManager().getAllAttributes(new Holder(user.getId(), Holder.HolderType.USER));
+			return this.setValuesOfAttributes(sess, attrs, user, null);
+		}
+
+		try {
+			return jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
+					"left join user_attr_values usr on id=usr.attr_id and user_id=? where namespace=? or (namespace in (?,?))",
+				new SingleBeanAttributeRowMapper<>(sess, this, user), user.getId(),
+				AttributesManager.NS_USER_ATTR_CORE, AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("No attribute for user exists.");
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws InternalErrorException {
 		if(!CacheManager.isCacheDisabled()) {
 			List<String> controlledAttrNames = new ArrayList<>();

@@ -448,6 +448,33 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
+	public List<Attribute> getAllAttributes(Holder holder) throws InternalErrorException {
+		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
+
+		org.infinispan.query.dsl.Query query =
+			qf.from(AttributeHolders.class)
+				.having(NAMESPACE).in(getCoreAttributesNamespace(holder.getType()))
+				.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
+				.and(qf.having(PRIMARY_HOLDER + "." + HOLDER_ID).eq(holder.getId())
+					.and().having(PRIMARY_HOLDER + "." + HOLDER_TYPE).eq(holder.getType())
+					.and().having(SECONDARY_HOLDER).isNull()
+					.or(qf.having(PRIMARY_HOLDER).isNull()
+						.and().having(SECONDARY_HOLDER).isNull()
+						.and().having(SUBJECT).isNull()))
+				.or(qf.having(NAMESPACE).in(getNonEmptyAttributesNamespaces(holder.getType(), null))
+					.and().having(SAVED_BY).eq(AttributeHolders.SavedBy.ID)
+					.and(qf.having(PRIMARY_HOLDER + "." + HOLDER_ID).eq(holder.getId())
+						.and().having(PRIMARY_HOLDER + "." + HOLDER_TYPE).eq(holder.getType())
+						.and().having(SECONDARY_HOLDER).isNull()
+						.or(qf.having(PRIMARY_HOLDER).isNull()
+							.and().having(SECONDARY_HOLDER).isNull()
+							.and().having(SUBJECT).isNull())))
+				.toBuilder().build();
+
+		return BeansUtils.getAttributesFromAttributeHolders(query.list());
+	}
+
+	@Override
 	public List<Attribute> getAllNonEmptyAttributes(Holder primaryHolder, Holder secondaryHolder) throws InternalErrorException {
 		QueryFactory qf = Search.getQueryFactory(this.getCache(AccessType.READ_NOT_UPDATED_CACHE));
 
