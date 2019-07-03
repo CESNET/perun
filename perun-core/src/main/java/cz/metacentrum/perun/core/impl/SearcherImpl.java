@@ -42,6 +42,8 @@ public class SearcherImpl implements SearcherImplApi {
 	public SearcherImpl(DataSource perunPool) {
 		jdbc = new NamedParameterJdbcTemplate(perunPool);
 		jdbcTemplate = new JdbcPerunTemplate(perunPool);
+		jdbc.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+		jdbcTemplate.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	@Override

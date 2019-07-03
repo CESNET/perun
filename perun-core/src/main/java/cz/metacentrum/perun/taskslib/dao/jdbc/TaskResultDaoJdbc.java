@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.taskslib.dao.jdbc;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.impl.ServicesManagerImpl;
@@ -68,6 +69,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		if (this.namedParameterJdbcTemplate == null && this.getDataSource() != null) {
 			this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.getDataSource());
 		}
+		this.namedParameterJdbcTemplate.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 		return this.namedParameterJdbcTemplate;
 	}
 

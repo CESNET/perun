@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -34,6 +35,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 
 	public DatabaseManagerImpl(DataSource perunPool) {
 		jdbc = new JdbcPerunTemplate(perunPool);
+		jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	@Override

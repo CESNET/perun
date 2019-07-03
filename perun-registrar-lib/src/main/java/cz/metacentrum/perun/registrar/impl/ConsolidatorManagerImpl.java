@@ -52,6 +52,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 	public void setDataSource(DataSource dataSource) {
 		this.jdbc = new JdbcPerunTemplate(dataSource);
+		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	protected void initialize() throws PerunException {

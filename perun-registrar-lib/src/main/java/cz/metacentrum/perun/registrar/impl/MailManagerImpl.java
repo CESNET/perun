@@ -89,6 +89,7 @@ public class MailManagerImpl implements MailManager {
 
 	public void setDataSource(DataSource dataSource) {
 		this.jdbc =  new JdbcPerunTemplate(dataSource);
+		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	/**

@@ -169,6 +169,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public void setDataSource(DataSource dataSource) {
 		this.jdbc = new JdbcPerunTemplate(dataSource);
 		this.namedJdbc = new NamedParameterJdbcTemplate(jdbc);
+		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
+		this.namedJdbc.getJdbcTemplate().setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	public void setRegistrarManager(RegistrarManager registrarManager) {

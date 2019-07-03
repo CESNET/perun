@@ -39,6 +39,7 @@ public class CoreConfig {
 	private int groupMaxConcurrentGroupsStructuresToSynchronize;
 	private int mailchangeValidationWindow;
 	private int pwdresetValidationWindow;
+	private int queryTimeout;
 	private List<String> admins;
 	private List<String> enginePrincipals;
 	private List<String> generatedLoginNamespaces;
@@ -613,5 +614,13 @@ public class CoreConfig {
 
 	public String getRtSendToMail() {
 		return rtSendToMail;
+	}
+
+	public int getQueryTimeout() {
+		return queryTimeout;
+	}
+
+	public void setQueryTimeout(int queryTimeout) {
+		this.queryTimeout = queryTimeout;
 	}
 }
