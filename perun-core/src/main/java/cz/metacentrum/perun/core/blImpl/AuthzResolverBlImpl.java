@@ -1366,6 +1366,19 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
+	 * Get all roles for a given user.
+	 *
+	 * @param sess perun session
+	 * @param user user
+	 * @return AuthzRoles object which contains all roles with perunbeans
+	 * @throws InternalErrorException
+	 */
+	public static AuthzRoles getUserRoles(PerunSession sess, User user) throws InternalErrorException {
+
+		return authzResolverImpl.getRoles(user);
+	}
+
+	/**
 	 * Get all Group's roles. Role is defined as a name, translation table is in Role class.
 	 *
 	 * @param sess perun session
@@ -1375,6 +1388,19 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	public static List<String> getGroupRoleNames(PerunSession sess,Group group) throws InternalErrorException {
 
 		return authzResolverImpl.getRoles(group).getRolesNames();
+	}
+
+	/**
+	 * Get all roles for a given group.
+	 *
+	 * @param sess perun session
+	 * @param group group
+	 * @return AuthzRoles object which contains all roles with perunbeans
+	 * @throws InternalErrorException
+	 */
+	public static AuthzRoles getGroupRoles(PerunSession sess, Group group) throws InternalErrorException {
+
+		return authzResolverImpl.getRoles(group);
 	}
 
 	/**
