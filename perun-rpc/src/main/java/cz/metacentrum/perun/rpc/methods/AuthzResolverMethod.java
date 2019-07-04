@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -40,6 +41,18 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		}
 	},
 	/*#
+	 * Returns all roles as an AuthzRoles object for a given user.
+	 *
+	 * @param userId Id of a user
+	 * @return AuthzRoles Object which contains all roles with perunbeans
+	 */
+	getUserRoles {
+		@Override
+		public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return cz.metacentrum.perun.core.api.AuthzResolver.getUserRoles(ac.getSession(), parms.readInt("userId"));
+		}
+	},
+	/*#
 	 * Returns list of group's role names.
 	 *
 	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
@@ -49,6 +62,18 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		@Override
 		public List<String> call(ApiCaller ac, Deserializer parms ) throws PerunException {
 			return cz.metacentrum.perun.core.api.AuthzResolver.getGroupRoleNames(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+		}
+	},
+	/*#
+	 * Returns all roles as an AuthzRoles object for a given group.
+	 *
+	 * @param groupId Id of a group
+	 * @return AuthzRoles Object which contains all roles with perunbeans
+	 */
+	getGroupRoles {
+		@Override
+		public AuthzRoles call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return cz.metacentrum.perun.core.api.AuthzResolver.getGroupRoles(ac.getSession(), parms.readInt("groupId"));
 		}
 	},
 	/*#
