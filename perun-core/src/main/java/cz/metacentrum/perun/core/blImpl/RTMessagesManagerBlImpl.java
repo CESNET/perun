@@ -141,9 +141,12 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 			// redirect all RT messages to mail address
 			SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
 			simpleMailMessage.setSubject("["+queue+"] " + subject);
-			simpleMailMessage.setText(text);
+
 			if (email != null) {
+				simpleMailMessage.setText("Requestor: " + email + "\n\n" + text);
 				simpleMailMessage.setReplyTo(email);
+			} else {
+				simpleMailMessage.setText("Requestor: UNKNOWN\n\n" + text);
 			}
 			simpleMailMessage.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
 			simpleMailMessage.setTo(BeansUtils.getCoreConfig().getRtSendToMail());
