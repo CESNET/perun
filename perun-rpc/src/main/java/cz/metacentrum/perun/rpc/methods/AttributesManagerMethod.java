@@ -106,6 +106,29 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
 	 */
 	/*#
+	 * Get all attributes by the list of attrNames if they are in one of these namespaces:
+	 * - member
+	 * - group
+	 * - member-group
+	 * - resource
+	 * - member-resource
+	 * - group-resource
+	 * - user (get from member object)
+	 * - facility (get from resource object)
+	 * - user-facility
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param attrNames List<String> Attribute names
+	 * @return List<Attribute> All attributes from supported namespaces.
+	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
+	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @throw MemberResourceMismatchException When Member is not from the same Vo as Resource.
+	 * @throw GroupResourceMismatchException When Group is not from the same Vo as Resource.
+	 */
+	/*#
 	 * Returns all non-empty Group-Resource attributes for selected Group and Resource.
 	 *
 	 * @param group int Group <code>id</code>
@@ -298,6 +321,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 									ac.getResourceById(parms.readInt("resource")),
 									parms.readBoolean("workWithUserAttributes"));
 						}
+					} else if (parms.contains("attrNames") && parms.contains("group")) {
+						return ac.getAttributesManager().getAttributes(ac.getSession(),
+								ac.getResourceById(parms.readInt("resource")),
+								ac.getGroupById(parms.readInt("group")),
+								ac.getMemberById(parms.readInt("member")),
+								parms.readList("attrNames", String.class));
 					} else {
 						return ac.getAttributesManager().getAttributes(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")),
