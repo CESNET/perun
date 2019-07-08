@@ -19,6 +19,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.membersManager.DeleteMember;
+import cz.metacentrum.perun.webgui.json.membersManager.DeleteMembers;
 import cz.metacentrum.perun.webgui.json.membersManager.FindCompleteRichMembers;
 import cz.metacentrum.perun.webgui.json.membersManager.GetCompleteRichMembers;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -197,16 +198,8 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl {
 				UiElements.showDeleteConfirm(membersForRemoving, text, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
-						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						for (int i = 0; i < membersForRemoving.size(); i++) {
-							DeleteMember request;
-							if (i == membersForRemoving.size() - 1) {
-								request = new DeleteMember(JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvent));
-							} else {
-								request = new DeleteMember(JsonCallbackEvents.disableButtonEvents(removeButton));
-							}
-							request.deleteMember(membersForRemoving.get(i).getId());
-						}
+						DeleteMembers request = new DeleteMembers(JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvent));
+						request.deleteMembers(membersForRemoving);
 					}
 				});
 			}
