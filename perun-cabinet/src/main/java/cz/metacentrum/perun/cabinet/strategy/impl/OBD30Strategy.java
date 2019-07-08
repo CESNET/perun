@@ -47,7 +47,7 @@ import java.util.List;
  */
 public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 
-	private Logger log = LoggerFactory.getLogger(OBD30Strategy.class);
+	private static Logger log = LoggerFactory.getLogger(OBD30Strategy.class);
 
 	// ZČU
 	// http://obd.zcu.cz:6443/fcgi/verso.fpl?fname=obd_exportt_xml&_a_prijmeni=Habernal&_diakritika=0&_a_jmeno=Ivan&_diakritika=0
@@ -107,7 +107,7 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 		//hook for titles with &
 		xml= xml.replace("&", "&amp;");
 
-		//log.debug("RESPONSE: "+xml);
+		log.trace("RESPONSE: "+xml);
 
 		//Create new document factory builder
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

@@ -99,7 +99,7 @@ public class EuropePMCStrategy extends AbstractPublicationSystemStrategy {
 		//hook for titles with &
 		xml= xml.replace("&", "&amp;");
 
-		//log.debug("RESPONSE: "+xml);
+		log.trace("RESPONSE: "+xml);
 
 		//Create new document factory builder
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
