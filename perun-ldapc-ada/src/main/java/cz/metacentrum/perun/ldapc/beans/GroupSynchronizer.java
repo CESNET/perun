@@ -1,8 +1,12 @@
 package cz.metacentrum.perun.ldapc.beans;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.naming.Name;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +41,7 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 			log.debug("Group synchronization - getting list of VOs");
 			// List<Vo> vos = Rpc.VosManager.getVos(ldapcManager.getRpcCaller());
 			List<Vo> vos = perun.getVosManagerBl().getVos(ldapcManager.getPerunSession());
+			Set<Name> presentGroups = new HashSet<Name>();
 
 			for(Vo vo : vos) {
 				// Map<String, Object> params = new HashMap<String, Object>();
@@ -50,6 +55,10 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 
 					for(Group group : groups) {
 
+						presentGroups.add(perunGroup.getEntryDN(
+								String.valueOf(vo.getId()),
+								String.valueOf(group.getId())));
+						
 						try {
 							log.debug("Synchronizing group {}", group);
 							//perunGroup.synchronizeEntry(group);
@@ -75,10 +84,20 @@ public class GroupSynchronizer extends AbstractSynchronizer {
 							log.error("Error synchronizing group", e);
 						}
 					}
+
+
+					
 				} catch (PerunException e) {
 					log.error("Error synchronizing groups", e);
 				}
 			}
+
+			try {
+				removeOldEntries(perunGroup, presentGroups, log);
+			} catch (InternalErrorException e) {
+				log.error("Error removing old group entries", e);
+			}
+		
 		} catch (InternalErrorException e) {
 			log.error("Error reading list of VOs", e);
 		}

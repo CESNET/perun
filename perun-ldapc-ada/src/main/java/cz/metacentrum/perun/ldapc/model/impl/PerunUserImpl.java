@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
+import static org.springframework.ldap.query.LdapQueryBuilder.query;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -195,5 +197,13 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 				.add(PerunAttribute.PerunAttributeNames.ldapAttrPerunUserId, userId[0])
 				.build();
 	}
+
+	@Override
+	public List<Name> listEntries() throws InternalErrorException {
+		return ldapTemplate.search(query().
+				where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerson),
+				getNameMapper());
+	}
+
 
 }

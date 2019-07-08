@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.naming.Name;
 
 import cz.metacentrum.perun.core.bl.PerunBl;
 import org.slf4j.Logger;
@@ -20,6 +23,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.ldapc.model.PerunUser;
 
@@ -32,6 +36,8 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
 	private PerunUser[] perunUser = new PerunUser[5];
 
+	private static AtomicInteger taskCount;
+	
 	private class SyncUsersWorker implements Runnable {
 
 		public int poolIndex;
@@ -65,6 +71,8 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 			} catch (Exception e) {
 				log.error("Error synchronizing user", e);
 
+			} finally {
+				taskCount.decrementAndGet();
 			}
 		}
 
@@ -86,6 +94,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 
 			log.debug("Getting list of users");
 			List<User> users = perun.getUsersManagerBl().getUsers(ldapcManager.getPerunSession());
+			Set<Name> presentUsers = new HashSet<Name>(users.size());
 
 			syncExecutor.setCorePoolSize(5);
 			syncExecutor.setMaxPoolSize(8);
@@ -93,8 +102,11 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 			syncExecutor.initialize();
 
 			poolIndex = 0;
-
+			taskCount = new AtomicInteger(0);
+			
 			for(User user: users) {
+				
+				presentUsers.add(perunUser[0].getEntryDN(String.valueOf(user.getId())));
 
 				log.debug("Getting list of attributes for user {}", user.getId());
 				List<Attribute> attrs = new ArrayList<Attribute>();
@@ -141,6 +153,7 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 					//perunUser.synchronizePrincipals(user, userExtSources);
 
 					syncExecutor.execute(new SyncUsersWorker(poolIndex, user, attrs, voIds, groups, userExtSources));
+					taskCount.incrementAndGet();
 
 				} catch (PerunException e) {
 					log.error("Error synchronizing user", e);
@@ -149,9 +162,31 @@ public class UserSynchronizer extends AbstractSynchronizer implements Applicatio
 				poolIndex = (poolIndex + 1) % perunUser.length;
 			}
 
+			try {
+				removeOldEntries(perunUser[0], presentUsers, log);
+			} catch (InternalErrorException e) {
+				log.error("Error removing old user entries", e);
+			}
+			
 		} catch (PerunException e) {
 			log.error("Error synchronizing users", e);
 		} finally {
+			// wait for all the tasks to get executed
+			while(!syncExecutor.getThreadPoolExecutor().getQueue().isEmpty()) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					break;
+				}
+			}
+			// wait for all the tasks to complete (for at most 10 seconds)
+			for(int i = 0; i < 10 && taskCount.get() > 0; i++) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					break;
+				}
+			}
 			syncExecutor.shutdown();
 			for(poolIndex = 0; poolIndex < perunUser.length; poolIndex++) {
 				perunUser[poolIndex] = null;
