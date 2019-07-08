@@ -117,6 +117,8 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 			p.setPublicationSystemId(ps.getId());
 		}
 
+		log.trace("Returned {} for author '{}' years '{}/{}' and pub sys '{}'", publications.size(), authorId, yearSince, yearTill, ps);
+
 		return publications;
 
 	}

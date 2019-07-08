@@ -52,7 +52,7 @@ import java.util.Map;
  */
 public class MUStrategy extends AbstractPublicationSystemStrategy {
 
-	private Logger log = LoggerFactory.getLogger(MUStrategy.class);
+	private static Logger log = LoggerFactory.getLogger(MUStrategy.class);
 
 	private String publicationsRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<TELO>\n<P>\n<TFORMA>\n" +
@@ -122,7 +122,7 @@ public class MUStrategy extends AbstractPublicationSystemStrategy {
 		//hook for titles with &
 		xml= xml.replace("&", "&amp;");
 
-		//log.debug("RESPONSE: "+xml);
+		log.trace("RESPONSE: "+xml);
 
 		//Create new document factory builder
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
