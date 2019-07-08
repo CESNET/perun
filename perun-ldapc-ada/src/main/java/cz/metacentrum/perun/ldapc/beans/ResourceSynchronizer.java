@@ -1,7 +1,11 @@
 package cz.metacentrum.perun.ldapc.beans;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.naming.Name;
 
 import cz.metacentrum.perun.core.bl.PerunBl;
 import org.slf4j.Logger;
@@ -32,6 +36,8 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 			log.debug("Resource synchronization - getting list of VOs");
 			// List<Vo> vos = Rpc.VosManager.getVos(ldapcManager.getRpcCaller());
 			List<Vo> vos = perun.getVosManagerBl().getVos(ldapcManager.getPerunSession());
+			Set<Name> presentResources = new HashSet<Name>();
+
 			for (Vo vo : vos) {
 				// Map<String, Object> params = new HashMap <String, Object>();
 				// params.put("vo", new Integer(vo.getId()));
@@ -43,6 +49,11 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 
 					for(Resource resource : resources) {
 
+						presentResources.add(perunResource.getEntryDN(
+								String.valueOf(vo.getId()),
+								String.valueOf(resource.getId())
+								));
+						
 						try {
 							log.debug("Getting list of resources for resource {}", resource.getId());
 							// Facility facility = Rpc.ResourcesManager.getFacility(ldapcManager.getRpcCaller(), resource);
@@ -90,11 +101,18 @@ public class ResourceSynchronizer extends AbstractSynchronizer {
 						}
 					}
 
-
+					
 				} catch (PerunException e) {
 					log.error("Error synchronizing resources", e);
 				}
 			}
+
+			try {
+				removeOldEntries(perunResource, presentResources, log);
+			} catch (InternalErrorException e) {
+				log.error("Error removing old resource entries", e);
+			}
+		
 		} catch (InternalErrorException e) {
 			log.error("Error getting VO list", e);
 		}

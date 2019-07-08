@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.ldapc.model.impl;
 
+import static org.springframework.ldap.query.LdapQueryBuilder.query;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -151,6 +153,13 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 	protected void mapToContext(Resource bean, DirContextOperations context) throws InternalErrorException {
 		context.setAttributeValue("objectclass", PerunAttribute.PerunAttributeNames.objectClassPerunResource);
 		mapToContext(bean, context, getAttributeDescriptions());
+	}
+
+	@Override
+	public List<Name> listEntries() throws InternalErrorException {
+		return ldapTemplate.search(query().
+				where("objectclass").is(PerunAttribute.PerunAttributeNames.objectClassPerunResource),
+				getNameMapper());
 	}
 
 }

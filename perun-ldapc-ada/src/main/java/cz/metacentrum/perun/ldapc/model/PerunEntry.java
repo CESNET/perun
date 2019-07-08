@@ -82,6 +82,18 @@ public interface PerunEntry<T extends PerunBean> {
 
 	/**
 	 * 
+	 */
+	void deleteEntry(Name dn) throws InternalErrorException;
+	
+	/**
+	 * 
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	List<Name> listEntries() throws InternalErrorException;
+	
+	/**
+	 * 
 	 * @param bean
 	 * @throws InternalErrorException
 	 */
