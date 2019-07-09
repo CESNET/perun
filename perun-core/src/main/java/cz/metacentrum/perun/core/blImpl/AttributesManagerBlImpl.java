@@ -458,6 +458,58 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, Member member, List<String> attrNames) throws InternalErrorException, GroupResourceMismatchException, MemberResourceMismatchException {
+		List<Attribute> attributes = new ArrayList<>();
+		if (attrNames.isEmpty()) return attributes;
+
+		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+
+		List<String> groupAndGroupResourceAttrNames = new ArrayList<>();
+		List<String> memberGroupAttrNames = new ArrayList<>();
+		List<String> memberResourceAttrNames = new ArrayList<>();
+		List<String> facilityAttrNames = new ArrayList<>();
+		List<String> resourceAttrNames = new ArrayList<>();
+
+		//sort attribute names by namespaces
+		for(String attrName : attrNames) {
+			if (attrName.startsWith(NS_GROUP_ATTR)) {
+				groupAndGroupResourceAttrNames.add(attrName);
+			} else if (attrName.startsWith(NS_GROUP_RESOURCE_ATTR)) {
+				groupAndGroupResourceAttrNames.add(attrName);
+			} else if (attrName.startsWith(NS_MEMBER_GROUP_ATTR)) {
+				memberGroupAttrNames.add(attrName);
+			} else if (attrName.startsWith(NS_RESOURCE_ATTR)) {
+				resourceAttrNames.add(attrName);
+			} else if (attrName.startsWith(NS_MEMBER_RESOURCE_ATTR)) {
+				memberResourceAttrNames.add(attrName);
+			} else if (attrName.startsWith(NS_USER_ATTR)) {
+				memberResourceAttrNames.add(attrName);
+			} else if (attrName.startsWith(NS_MEMBER_ATTR)) {
+				memberResourceAttrNames.add(attrName);
+			} else if (attrName.startsWith(NS_FACILITY_ATTR)) {
+				facilityAttrNames.add(attrName);
+			} else if (attrName.startsWith(NS_USER_FACILITY_ATTR)) {
+				memberResourceAttrNames.add(attrName);
+			} else {
+				throw new ConsistencyErrorException("One of asked attribute names is not from supported namespace : " + attrName);
+			}
+		}
+
+		//return all group and group_resource attributes
+		if(!groupAndGroupResourceAttrNames.isEmpty()) attributes.addAll(this.getAttributes(sess, resource, group, groupAndGroupResourceAttrNames, true));
+		//return all member_group attributes
+		if(!memberGroupAttrNames.isEmpty()) attributes.addAll(this.getAttributes(sess, member, group, memberGroupAttrNames, false));
+		//return all user, member, member-resource and user-facility attributes
+		if(!memberResourceAttrNames.isEmpty()) attributes.addAll(this.getAttributes(sess, member, resource, memberResourceAttrNames, true));
+		//return all resource attributes
+		if(!resourceAttrNames.isEmpty()) attributes.addAll(this.getAttributes(sess, resource, resourceAttrNames));
+		//return all facility attributes
+		if(!facilityAttrNames.isEmpty()) attributes.addAll(this.getAttributes(sess, facility, facilityAttrNames));
+
+		return attributes;
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException {
 		if (attrNames.isEmpty()) return new ArrayList<>();
 
