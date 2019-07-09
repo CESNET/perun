@@ -57,6 +57,7 @@ import org.springframework.test.annotation.IfProfileValue;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -915,6 +916,74 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		String name = "urn:perun:user:attribute-def:def:login-namespace";
 		List<String> similarAttrNames = perun.getAttributesManagerBl().getAllSimilarAttributeNames(sess, name);
 		assertFalse("returned no names", similarAttrNames.isEmpty());
+	}
+
+	@Test
+	public void getAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getAttributes");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		facility = setUpFacility();
+		resource = setUpResource();
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		member = setUpMember();
+		perun.getGroupsManagerBl().addMember(sess, group, member);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		List<Attribute> allAttributes = new ArrayList<>();
+		List<String> allNames = new ArrayList<>();
+		for(Attribute attribute : setUpResourceAttributes()) {
+			perun.getAttributesManagerBl().setAttribute(sess, resource, attribute);
+			allAttributes.add(attribute);
+			allNames.add(attribute.getName());
+		}
+		for(Attribute attribute : setUpFacilityAttribute()) {
+			perun.getAttributesManagerBl().setAttribute(sess, facility, attribute);
+			allAttributes.add(attribute);
+			allNames.add(attribute.getName());
+		}
+		for(Attribute attribute : setUpFacilityUserAttribute()) {
+			perun.getAttributesManagerBl().setAttribute(sess, facility, user, attribute);
+			allAttributes.add(attribute);
+			allNames.add(attribute.getName());
+		}
+		for(Attribute attribute : setUpUserAttribute()) {
+			perun.getAttributesManagerBl().setAttribute(sess, user, attribute);
+			allAttributes.add(attribute);
+			allNames.add(attribute.getName());
+		}
+		for(Attribute attribute : setUpGroupAttribute()) {
+			perun.getAttributesManagerBl().setAttribute(sess, group, attribute);
+			allAttributes.add(attribute);
+			allNames.add(attribute.getName());
+		}
+		for(Attribute attribute : setUpGroupResourceAttribute()) {
+			perun.getAttributesManagerBl().setAttribute(sess, resource, group, attribute);
+			allAttributes.add(attribute);
+			allNames.add(attribute.getName());
+		}
+		for(Attribute attribute : setUpMemberGroupAttribute()) {
+			perun.getAttributesManagerBl().setAttribute(sess, member, group, attribute);
+			allAttributes.add(attribute);
+			allNames.add(attribute.getName());
+		}
+		for(Attribute attribute : setUpMemberAttribute()) {
+			perun.getAttributesManagerBl().setAttribute(sess, member, attribute);
+			allAttributes.add(attribute);
+			allNames.add(attribute.getName());
+		}
+		for(Attribute attribute : setUpMemberResourceAttribute()) {
+			perun.getAttributesManagerBl().setAttribute(sess, member, resource, attribute);
+			allAttributes.add(attribute);
+			allNames.add(attribute.getName());
+		}
+
+		List<Attribute> returnedAttributes = perun.getAttributesManagerBl().getAttributes(sess, resource, group, member, allNames);
+		assertEquals(allAttributes.size(), returnedAttributes.size());
+		Collections.sort(allAttributes);
+		Collections.sort(returnedAttributes);
+		assertEquals(allAttributes, returnedAttributes);
 	}
 
 	@Test

@@ -319,6 +319,38 @@ public interface AttributesManager {
 	List<Attribute> getAttributes(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException;
 
 	/**
+	 * Get all attributes by the list of attrNames if they are in one of these namespaces:
+	 * - member
+	 * - group
+	 * - member-group
+	 * - resource
+	 * - member-resource
+	 * - group-resource
+	 * - user (get from member object)
+	 * - facility (get from resource object)
+	 * - user-facility
+	 *
+	 * Return all attributes even if they are <b>empty</b> or <b>virtual</b>.
+	 * <p>
+	 * PRIVILEGE: Get only those attributes the principal has access to.
+	 *
+	 * @param sess      perun session
+	 * @param group
+	 * @param resource
+	 * @parem group
+	 * @parem member
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws GroupNotExistsException if the group doesn't exist
+	 * @throws GroupResourceMismatchException if group and resource are not from the same vo
+	 * @throws MemberResourceMismatchException if member and resource are not from the same vo
+	 * @throws ResourceNotExistsException if the resource doesn't exist
+	 * @throws MemberNotExistsException if the member doesn't exist
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, Member member, List<String> attrNames) throws InternalErrorException, ResourceNotExistsException, GroupNotExistsException, MemberNotExistsException, GroupResourceMismatchException, MemberResourceMismatchException;
+
+	/**
 	 * Get all <b>non-empty</b> attributes associated with the group and resource.
 	 * Virtual attribute too.
 	 * <p>
