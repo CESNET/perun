@@ -1806,6 +1806,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public void setAttributeInNestedTransaction(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		setAttribute(sess, group, attribute);
+	}
+
+	@Override
 	public void setAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
@@ -1887,6 +1892,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			checkAttributeValue(sess, member, group, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(member, group, attribute));
 		}
+	}
+
+	@Override
+	public void setAttributeInNestedTransaction(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
+		setAttribute(sess, member, group, attribute);
 	}
 
 	@SuppressWarnings("unused")
@@ -2277,6 +2287,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	@Override
+	public void setAttributeInNestedTransaction(PerunSession sess, UserExtSource userExtSource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		setAttribute(sess, userExtSource, attribute);
+	}
 
 	@Override
 	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeDefinitionExistsException {

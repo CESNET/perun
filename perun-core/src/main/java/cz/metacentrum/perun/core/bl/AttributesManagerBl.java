@@ -1454,6 +1454,21 @@ public interface AttributesManagerBl {
 	 */
 	void setAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
+	/**
+	 * Store the particular attribute associated with the group. Core attributes can't be set this way.
+	 *
+	 * This method creates nested transaction to prevent storing value to DB if it throws any exception.
+	 *
+	 * @param sess perun session
+	 * @param group group to set on
+	 * @param attribute attribute to set
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is not group attribute or if it is core attribute
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void setAttributeInNestedTransaction(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Store the particular attribute associated with the resource. Core attributes can't be set this way.
@@ -1530,6 +1545,23 @@ public interface AttributesManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Store the particular attribute associated with the member-group relationship. Core attributes can't be set this way.
+	 *
+	 * This method creates nested transaction to prevent storing value to DB if it throws any exception.
+	 *
+	 * @param sess perun session
+	 * @param member member to set on
+	 * @param group group to set on
+	 * @param attribute attribute to set
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is not member-group attribute or if it is core attribute
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void setAttributeInNestedTransaction(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
 
 	/**
 	 * Store the particular attribute associated with the member.  Core attributes can't be set this way.
@@ -1690,6 +1722,22 @@ public interface AttributesManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	void setAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Store the particular attribute associated with the user external source. Core attributes can't be set this way.
+	 *
+	 * This method creates nested transaction to prevent storing value to DB if it throws any exception.
+	 *
+	 * @param sess perun session
+	 * @param ues user external source to set on
+	 * @param attribute attribute to set
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is not user external source attribute
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void setAttributeInNestedTransaction(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Creates an attribute, the attribute is stored into the appropriate DB table according to the namespace
