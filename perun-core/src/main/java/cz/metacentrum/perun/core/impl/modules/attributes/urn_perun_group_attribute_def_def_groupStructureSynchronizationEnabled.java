@@ -50,12 +50,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 					throw new WrongReferenceAttributeValueException(attribute, attrSynchronizeEnabled);
 				}
 
-				Attribute requiredAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, group, GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);
-				if (requiredAttribute.getValue() == null) {
-					throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
-				}
-
-				requiredAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, group, GroupsManager.GROUPSQUERY_ATTRNAME);
+				Attribute requiredAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, group, GroupsManager.GROUPSQUERY_ATTRNAME);
 				if (requiredAttribute.getValue() == null) {
 					throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
 				}
@@ -69,10 +64,6 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 				if (requiredAttribute.getValue() == null) {
 					throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
 				}
-				requiredAttribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, group, GroupsManager.GROUPSYNCHROINTERVAL_ATTRNAME);
-				if (requiredAttribute.getValue() == null) {
-					throw new WrongReferenceAttributeValueException(attribute, requiredAttribute, requiredAttribute.toString() + " must be set in order to enable synchronization.");
-				}
 			} catch (AttributeNotExistsException e) {
 				throw new ConsistencyErrorException(e);
 			}
@@ -82,7 +73,6 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 	@Override
 	public List<String> getDependencies() {
 		List<String> dependencies = new ArrayList<>();
-		dependencies.add(GroupsManager.GROUP_STRUCTURE_SYNCHRO_INTERVAL_ATTRNAME);
 		dependencies.add(GroupsManager.GROUPSQUERY_ATTRNAME);
 		dependencies.add(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 		dependencies.add(GroupsManager.GROUPEXTSOURCE_ATTRNAME);
