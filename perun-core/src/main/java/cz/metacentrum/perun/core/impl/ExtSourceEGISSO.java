@@ -109,6 +109,11 @@ public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 		return subjects;
 	}
 
+	@Override
+	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
 	protected Map<String,String> processResultToSubject(SearchResult sr) throws InternalErrorException {
 		if(sr == null) throw new InternalErrorException("SearchResult is empty so cannot be proceed.");
 		Map<String,String> subject = new HashMap<>();
