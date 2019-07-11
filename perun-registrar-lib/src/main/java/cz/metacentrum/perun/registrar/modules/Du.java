@@ -124,7 +124,7 @@ public class Du implements RegistrarModule {
 			}
 		}
 
-		throw new CantBeSubmittedException("User is not eligible for CESNET services.", "NOT_ELIGIBLE", null, null);
+		throw new CantBeSubmittedException("User is not eligible for CESNET services. You must log-in using verified academic identity (at least once a year) in order to access CESNET services.", "NOT_ELIGIBLE", null, null);
 
 	}
 
