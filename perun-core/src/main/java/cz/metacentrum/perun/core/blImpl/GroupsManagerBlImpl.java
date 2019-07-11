@@ -1857,7 +1857,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				} finally {
 					//Save information about group synchronization, this method run in new transaction
 					try {
-						perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronizationInNewTransaction(sess, group, failedDueToException, exceptionMessage);
+						perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronizationInNewTransaction(sess, group, startTime, failedDueToException, exceptionMessage);
 					} catch (Exception ex) {
 						log.error("When synchronization group " + group + ", exception was thrown.", ex);
 						log.error("Info about exception from synchronization: {}", skippedMembersMessage);
@@ -2430,13 +2430,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public void saveInformationAboutGroupSynchronizationInNewTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
-		saveInformationAboutGroupSynchronization(sess, group, failedDueToException, exceptionMessage);
+	public void saveInformationAboutGroupSynchronizationInNewTransaction(PerunSession sess, Group group, long startTime, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		saveInformationAboutGroupSynchronization(sess, group, startTime, failedDueToException, exceptionMessage);
 	}
 
 	@Override
-	public void saveInformationAboutGroupSynchronizationInNestedTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
-		saveInformationAboutGroupSynchronization(sess, group, failedDueToException, exceptionMessage);
+	public void saveInformationAboutGroupSynchronizationInNestedTransaction(PerunSession sess, Group group, long startTime, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		saveInformationAboutGroupSynchronization(sess, group, startTime, failedDueToException, exceptionMessage);
 	}
 
 	@Override
@@ -2518,7 +2518,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return (minutesFromEpoch % intervalMultiplier) == 0;
 	}
 
-    private void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+    private void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, long startTime, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		//get current timestamp of this synchronization
 		Date currentTimestamp = new Date();
 		String originalExceptionMessage = exceptionMessage;
@@ -2564,6 +2564,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				attrsToSet.add(lastSuccessSynchronizationTimestamp);
 			} catch (AttributeNotExistsException ex) {
 				log.error("Can't save lastSuccessSynchronizationTimestamp, because there is missing attribute with name {}",attrName);
+			}
+			// Make string from start of synchronization in correct format
+			String startOfSyncString = BeansUtils.getDateFormatter().format(new Date(startTime));
+			try {
+				// Create attribute with start of last success synchronization timestamp
+				Attribute startOfLastSuccessSynchronization = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUP_START_OF_LAST_SUCCESSFUL_SYNC_ATTRNAME));
+				startOfLastSuccessSynchronization.setValue(startOfSyncString);
+				attrsToSet.add(startOfLastSuccessSynchronization);
+			} catch (AttributeNotExistsException ex) {
+				log.error("Can't save startOfLastSuccessfulSynchronization, because there is missing attribute with name {}", GroupsManager.GROUP_START_OF_LAST_SUCCESSFUL_SYNC_ATTRNAME);
 			}
 		} else {
 			//Log info about synchronization problems to audit log and to the perun system log

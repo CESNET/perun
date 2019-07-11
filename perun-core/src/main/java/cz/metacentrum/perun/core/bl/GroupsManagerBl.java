@@ -1389,7 +1389,7 @@ public interface GroupsManagerBl {
 	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException;
 
 	/**
-	 * This method will set timestamp and exceptionMessage to group attributes for the group.
+	 * This method will set timestamp, synchronization start time and exceptionMessage to group attributes for the group.
 	 * Also log information about failed synchronization to auditer_log.
 	 *
 	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups)
@@ -1398,12 +1398,14 @@ public interface GroupsManagerBl {
 	 *
 	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastSynchronizationState"
+	 * Set start time to attribute "group_def_startOfLastSuccessSynchronizationTimestamp"
 	 *
 	 * FailedDueToException is true means group synchronization failed completely.
 	 * FailedDueToException is false means group synchronization is ok or finished with some errors (some members were not synchronized)
 	 *
 	 * @param sess perun session
 	 * @param group the group for synchronization
+	 * @param startTime of the synchronization
 	 * @param failedDueToException if exception means fail of whole synchronization of this group or only problem with some data
 	 * @param exceptionMessage message of an exception, ok if everything is ok
 	 * @throws AttributeNotExistsException
@@ -1412,10 +1414,10 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 */
-	void saveInformationAboutGroupSynchronizationInNewTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupSynchronizationInNewTransaction(PerunSession sess, Group group, long startTime, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
-	 * This method will set timestamp and exceptionMessage to group attributes for the group.
+	 * This method will set timestamp, synchronization start time and exceptionMessage to group attributes for the group.
 	 * Also log information about failed synchronization to auditer_log.
 	 *
 	 * IMPORTANT: This method runs in nested transaction so it can be used in another transaction
@@ -1424,12 +1426,14 @@ public interface GroupsManagerBl {
 	 *
 	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastSynchronizationState"
+	 * Set start time to attribute "group_def_startOfLastSuccessSynchronizationTimestamp"
 	 *
 	 * FailedDueToException is true means group synchronization failed completely.
 	 * FailedDueToException is false means group synchronization is ok or finished with some errors (some members were not synchronized)
 	 *
 	 * @param sess perun session
 	 * @param group the group for synchronization
+	 * @param startTime of the synchronization
 	 * @param failedDueToException if exception means fail of whole synchronization of this group or only problem with some data
 	 * @param exceptionMessage message of an exception, ok if everything is ok
 	 * @throws AttributeNotExistsException
@@ -1438,7 +1442,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 */
-	void saveInformationAboutGroupSynchronizationInNestedTransaction(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupSynchronizationInNestedTransaction(PerunSession sess, Group group, long startTime, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 
 	/**
