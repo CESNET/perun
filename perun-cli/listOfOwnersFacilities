@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+  
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage printTable getSortingFunction);
+
+sub help {
+	return qq{
+	Prints list of Facilities assigned to owner
+	-------------------------------
+	Available options:
+	--ownerId     | -o  owner's Id
+	--ownerName   | -O  owner's Name
+	--orderById   | -i  order by numeric Id
+	--orderByName | -n  order by ShortName
+	--batch       | -b  batch
+	--help        | -h  prints this help
+	};
+}
+
+our $batch;
+my ($ownerId,$ownerName,$sortingFunction);
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"ownerId|o=i"   => \$ownerId,
+	"ownerName|O=s"  => \$ownerName,
+	"orderById|i"   => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"       => \$batch) || die help;
+
+#options check
+if (not defined($ownerId) and not defined($ownerName)) { die "ERROR: ownerId or ownerName are required \n";}
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+my $ownersAgent = $agent->getOwnersAgent;
+unless (defined($ownerId)) {
+	my @owners = $ownersAgent->getOwners();
+	foreach my $owner(@owners) {
+		if ($owner->getName eq $ownerName) {
+			$ownerId = $owner->getId;
+		}
+	}
+}
+unless (defined($ownerId)) {die "Owner not found \n";}
+
+my @facilities = $facilitiesAgent->getFacilities;
+unless (@facilities) {
+	printMessage "No Facilities found", $batch;
+	exit 0;
+}
+
+my @facforprint;
+
+while (@facilities) {
+	my $facility=shift(@facilities);
+	my $facilityId=$facility->getId;	
+	my @owners = $facilitiesAgent->getOwners( facility => $facilityId );
+	while (@owners) {
+		my $owner=shift(@owners);
+		if ($owner->getId == $ownerId) {
+			push (@facforprint, $facility);
+		}
+	}
+}
+unless (@facforprint) {
+	printMessage "No Facilities found", $batch;
+} else {	
+	#output
+	printTable($sortingFunction, @facforprint);
+}
