@@ -76,6 +76,8 @@ public interface GroupsManager {
 	String GROUP_SYNCHRO_TIMES_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupSynchronizationTimes";
 	// Defines the times, when the group has to be synchronized.
 	String GROUP_STRUCTURE_SYNCHRO_TIMES_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupStructureSynchronizationTimes";
+	// Defines timestamp with start of last successful synchronization
+	String GROUP_START_OF_LAST_SUCCESSFUL_SYNC_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":startOfLastSuccessfulSynchronization";
 
 	String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
 	String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";
