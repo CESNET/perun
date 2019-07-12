@@ -57,6 +57,8 @@ public class urn_perun_group_resource_attribute_def_def_systemUnixGroupName exte
 			if(isSystemGroup.getValue() != null && (Integer) isSystemGroup.getValue()==1) {
 				throw new WrongReferenceAttributeValueException(attribute, "Attribute cant be null if " + group + " on " + resource + " is system unix group.");
 			}
+			
+			return;
 		}
 
 		if (groupName != null) {
