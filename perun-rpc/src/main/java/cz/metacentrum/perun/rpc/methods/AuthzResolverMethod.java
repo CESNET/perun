@@ -43,8 +43,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Returns all roles as an AuthzRoles object for a given user.
 	 *
-	 * @param userId Id of a user
+	 * @param userId int Id of a user
 	 * @return AuthzRoles Object which contains all roles with perunbeans
+	 * @exampleResponse {"FACILITYADMIN":{"Facility":[32]},"SELF":{"Member":[4353,12324],"User":[2552,2252]},"SPONSOR":{"SponsoredUser":[54750]},"VOADMIN":{"Vo":[356]},"PERUNADMIN":{}}
 	 */
 	getUserRoles {
 		@Override
@@ -67,8 +68,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Returns all roles as an AuthzRoles object for a given group.
 	 *
-	 * @param groupId Id of a group
+	 * @param groupId int Id of a group
 	 * @return AuthzRoles Object which contains all roles with perunbeans
+	 * @exampleResponse {"FACILITYADMIN":{"Facility":[3682,3826]},"GROUPADMIN":{"Group":[9082,12093],"Vo":[3794,201]},"VOADMIN":{"Vo":[2561,1541,2061,1041,3601]}}
 	 */
 	getGroupRoles {
 		@Override
