@@ -83,4 +83,13 @@ sub getRichAdminsWithAttributes
 	return Perun::Common::callManagerMethod('getRichAdminsWithAttributes', '[]RichUser', @_);
 }
 
+sub addSponsorRole
+{
+	return Perun::Common::callManagerMethod('addSponsorRole', 'null', @_);
+}
+sub removeSponsorRole
+{
+	return Perun::Common::callManagerMethod('removeSponsorRole', 'null', @_);
+}
+
 1;

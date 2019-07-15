@@ -104,10 +104,19 @@ if ($role eq "PERUNADMIN") {
 		my $vosAgent = $agent->getVosAgent;
 		my $vo = $vosAgent->getVoById( id => $voId );
 		if (defined($userId)) {
-			$authzResolverAgent->unsetRole( user => $userId, complementaryObject => $vo, role => $role );
+			if ("SPONSOR" eq $role) {
+				$vosAgent->removeSponsorRole( user => $userId, vo => $vo->getId());
+			} else {
+				$authzResolverAgent->unsetRole( user => $userId, complementaryObject => $vo, role => $role );
+			}
 			printMessage("$role role was removed from user $userId and VO $voId", $batch);
 		} else {
-			$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, complementaryObject => $vo, role => $role );
+			if ("SPONSOR" eq $role) {
+				$vosAgent->removeSponsorRole( authorizedGroup => $authorizedGroupId, vo => $vo->getId());
+			} else {
+				$authzResolverAgent->unsetRole( authorizedGroup => $authorizedGroupId, complementaryObject => $vo, role => $role );
+			}
+
 			printMessage("$role role was removed from authorizedGroup $authorizedGroupId and VO $voId", $batch);
 		}
 	#resource
