@@ -221,7 +221,7 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 
 						final RichGroup object = jso.cast();
 
-						String name, syncEnabled, syncInterval, syncTimestamp, syncSuccessTimestamp, syncState, authGroup;
+						String name, syncEnabled, syncInterval, syncTimestamp, syncSuccessTimestamp, syncState, authGroup, syncTimes, syncSuccessStartTimestamp;
 						name = object.getName();
 						if (object.isSyncEnabled()) {
 							syncEnabled = "enabled";
@@ -244,6 +244,11 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 								syncInterval = object.getSynchronizationInterval();
 							}
 
+						}
+						if (object.getSynchronizationTimes() != null && object.getSynchronizationTimes().length() > 0) {
+							syncTimes = object.getSynchronizationTimes().join(", ");
+						} else {
+							syncTimes = "N/A";
 						}
 						if (object.getLastSynchronizationState() == null) {
 							if (object.getLastSuccessSynchronizationTimestamp() != null) {
@@ -268,6 +273,11 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 						} else {
 							syncSuccessTimestamp = object.getLastSuccessSynchronizationTimestamp().split("\\.")[0];
 						}
+						if (object.getStartOfLastSuccessfulSynchronization() == null) {
+							syncSuccessStartTimestamp = "N/A";
+						} else {
+							syncSuccessStartTimestamp = object.getStartOfLastSuccessfulSynchronization().split("\\.")[0];
+						}
 						if (Objects.equals(object.getAuthoritativeGroup(),"1")) {
 							authGroup = "Yes";
 						} else {
@@ -275,18 +285,20 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 						}
 
 						String html = "Group name: <b>"+ SafeHtmlUtils.fromString(name).asString()+"</b><br>";
+						html += "Authoritative group: <b>"+SafeHtmlUtils.fromString(authGroup).asString()+"</b><br>";
 						html += "Synchronization: <b>"+SafeHtmlUtils.fromString(syncEnabled).asString()+"</b><br>";
+						html += "Sync. Interval: <b>"+SafeHtmlUtils.fromString(syncInterval).asString()+"</b><br>";
+						html += "Sync. Times: <b>"+SafeHtmlUtils.fromString(syncTimes).asString()+"</b><br>-----------------<br>";
 
 						if (object.isSyncEnabled()) {
 							html += "Last sync. state: <b>"+SafeHtmlUtils.fromString(syncState).asString()+"</b><br>";
 							html += "Last sync. timestamp: <b>"+SafeHtmlUtils.fromString(syncTimestamp).asString()+"</b><br>";
-							html += "Last successful sync. timestamp: <b>"+SafeHtmlUtils.fromString(syncSuccessTimestamp).asString()+"</b><br>";
-							html += "Sync. Interval: <b>"+SafeHtmlUtils.fromString(syncInterval).asString()+"</b><br>";
-							html += "Authoritative group: <b>"+SafeHtmlUtils.fromString(authGroup).asString()+"</b><br>";
+							html += "Last successful sync. timestamp (start): <b>"+SafeHtmlUtils.fromString(syncSuccessStartTimestamp).asString()+"</b><br>";
+							html += "Last successful sync. timestamp (end): <b>"+SafeHtmlUtils.fromString(syncSuccessTimestamp).asString()+"</b><br>";
 						}
 
 						FlexTable layout = new FlexTable();
-
+						layout.setWidth("450px");
 						layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.informationIcon())));
 						layout.setHTML(0, 1, "<p style=\"line-height: 1.2;\">" + html);
 
