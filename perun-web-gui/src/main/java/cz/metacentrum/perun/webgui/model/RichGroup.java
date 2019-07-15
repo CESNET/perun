@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayString;
+
 import java.util.ArrayList;
 
 /**
@@ -43,6 +45,14 @@ public class RichGroup extends Group {
 		}
 		return null;
 	}-*/;
+	public final native JsArrayString getSynchronizationTimes() /*-{
+		for (var id in this.attributes) {
+			if (this.attributes[id].friendlyName === "groupSynchronizationTimes") {
+				return this.attributes[id].value;
+			}
+		}
+		return null;
+	}-*/;
 	public final native String getLastSynchronizationState() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "lastSynchronizationState") {
@@ -62,6 +72,14 @@ public class RichGroup extends Group {
 	public final native String getLastSuccessSynchronizationTimestamp() /*-{
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "lastSuccessSynchronizationTimestamp") {
+				return this.attributes[id].value;
+			}
+		}
+		return null;
+	}-*/;
+	public final native String getStartOfLastSuccessfulSynchronization() /*-{
+		for (var id in this.attributes) {
+			if (this.attributes[id].friendlyName === "startOfLastSuccessfulSynchronization") {
 				return this.attributes[id].value;
 			}
 		}
