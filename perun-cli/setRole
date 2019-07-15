@@ -104,10 +104,18 @@ if ($role eq "PERUNADMIN") {
 		my $vosAgent = $agent->getVosAgent;
 		my $vo = $vosAgent->getVoById( id => $voId );
 		if (defined($userId)) {
-			$authzResolverAgent->setRole( user => $userId, complementaryObject => $vo, role => $role );
+			if ("SPONSOR" eq $role) {
+				$vosAgent->addSponsorRole( user => $userId, vo => $vo->getId());
+			} else {
+				$authzResolverAgent->setRole( user => $userId, complementaryObject => $vo, role => $role );
+			}
 			printMessage("$role role is successfully set for user $userId and VO $voId", $batch);
 		} else {
-			$authzResolverAgent->setRole( authorizedGroup => $authorizedGroupId, complementaryObject => $vo, role => $role );
+			if ("SPONSOR" eq $role) {
+				$vosAgent->addSponsorRole( authorizedGroup => $authorizedGroupId, vo => $vo->getId());
+			} else {
+				$authzResolverAgent->setRole( authorizedGroup => $authorizedGroupId, complementaryObject => $vo, role => $role );
+			}
 			printMessage("$role role is successfully set for authorizedGroup $authorizedGroupId and VO $voId", $batch);
 		}
 	#resource
