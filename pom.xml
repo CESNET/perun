@@ -29,13 +29,11 @@
 		<module>perun-rpc-lib</module>
 		<module>perun-registrar-lib</module>
 		<module>perun-rpc</module>
-		<module>perun-ldapc</module>
 		<module>perun-ldapc-ada</module>
 		<module>perun-notification</module>
 		<module>perun-dispatcher</module>
 		<module>perun-engine</module>
 		<module>perun-voot</module>
-		<module>perun-ldapc-initializer</module>
 		<module>perun-web-gui</module>
 		<module>perun-scim</module>
 	</modules>
