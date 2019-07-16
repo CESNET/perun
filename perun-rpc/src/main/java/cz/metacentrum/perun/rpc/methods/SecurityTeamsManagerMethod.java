@@ -41,17 +41,23 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	/*#
 	 * Create SecurityTeam.
 	 *
+	 * SecurityTeam object must contain name which must match [-_a-zA-z0-9.]+ and not be longer than 128 characters.
+	 * Parameter description is optional.
+	 * Other parameters are ignored.
+	 *
 	 * @param securityTeam SecurityTeam Security team to create
 	 * @throw SecurityTeamExistsException When name of SecurityTeam is not unique.
 	 * @return SecurityTeam Newly create SecurityTeam with <code>id</code> set.
+	 * @exampleParam securityTeam { "name" : "My_new_security-team2" }
 	 */
 	/*#
 	 * Create SecurityTeam.
 	 *
-	 * @param name String name
+	 * @param name String name which must match [-_a-zA-z0-9.]+ and not be longer than 128 characters.
 	 * @param description String description
 	 * @throw SecurityTeamExistsException When name of SecurityTeam is not unique.
 	 * @return SecurityTeam Newly create SecurityTeam with <code>id</code> set.
+	 * @exampleParam name "My_new_security-team2"
 	 */
 	createSecurityTeam {
 		@Override

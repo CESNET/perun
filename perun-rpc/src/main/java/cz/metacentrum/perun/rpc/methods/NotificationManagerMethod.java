@@ -8,6 +8,7 @@ import cz.metacentrum.perun.notif.entities.PerunNotifReceiver;
 import cz.metacentrum.perun.notif.entities.PerunNotifRegex;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
+import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -49,15 +50,38 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	/*#
 	 * Saves PerunNotifReceiver to db and creates <code>id</code>.
 	 *
+	 * PerunNotifReceiver must contain: templateId. Parameters target, locale, type are optional.
+	 *
 	 * @param receiver PerunNotifReceiver PerunNotifReceiver object without <code>id</code>
+	 * @return PerunNotifReceiver PerunNotifReceiver with new <code>id</code> set
+	 * @exampleParam receiver { "templateId" : 7 }
+	 */
+	/*#
+	 * Saves PerunNotifReceiver to db and creates <code>id</code>.
+	 *
+	 * @param target String Defines target of receiver, usually contains function to get email
+	 * @param locale String Locale of receiver - determines a language, which is used for sending messages
+	 * @param templateId int Template Id to which receiver is connected
+	 * @param type String Type of the receiver - 'EMAIL_USER' or 'EMAIL_GROUP'
 	 * @return PerunNotifReceiver PerunNotifReceiver with new <code>id</code> set
 	 */
 	createPerunNotifReceiver {
 		@Override
 		public PerunNotifReceiver call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-
-			return ac.getNotificationManager().createPerunNotifReceiver(ac.getSession(), parms.read("receiver", PerunNotifReceiver.class));
+			if (parms.contains("receiver")) {
+				return ac.getNotificationManager().createPerunNotifReceiver(ac.getSession(), parms.read("receiver", PerunNotifReceiver.class));
+			} else if (parms.contains("target") && parms.contains("type") && parms.contains("templateId") && parms.contains("locale") ) {
+				PerunNotifReceiver receiver = new PerunNotifReceiver();
+				receiver.setLocale(parms.read("locale", String.class));
+				receiver.setTarget(parms.read("target", String.class));
+				receiver.setTemplateId(parms.read("templateId", Integer.class));
+				PerunNotifTypeOfReceiver type = PerunNotifTypeOfReceiver.resolve(parms.read("type", String.class));
+				receiver.setTypeOfReceiver(type);
+				return ac.getNotificationManager().createPerunNotifReceiver(ac.getSession(), receiver);
+			} else {
+				throw new RpcException("Parameters missing", "Parameter 'receiver' or parameters 'locale', 'target', 'type', 'templateId' not provided.");
+			}
 		}
 	},
 

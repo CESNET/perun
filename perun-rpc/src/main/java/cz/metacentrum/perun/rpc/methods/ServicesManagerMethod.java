@@ -21,8 +21,11 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates a new service.
 	 *
+	 * Service object must contain name. Parameters desctiption, script, delay, recurrence, enabled are optional. Other parameters ignored.
+	 *
 	 * @param service Service JSON object
 	 * @return Service Created Service
+	 * @exampleParam service { "name" : "New Service"}
 	 */
 	/*#
 	 * Creates a new service.
@@ -31,6 +34,9 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * @param description String description
 	 * @param script String script which should be constructed like ./service_name (where anything else than [a-z,A-Z] is converted to _)
 	 * @return Service Created Service
+	 * @exampleParam name "New Service"
+	 * @exampleParam description "The new description with information"
+	 * @exampleParam script "./service_name"
 	 */
 	createService {
 

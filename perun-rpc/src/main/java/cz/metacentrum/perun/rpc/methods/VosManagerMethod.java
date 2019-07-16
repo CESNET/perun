@@ -68,6 +68,13 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates new VO. Caller is automatically set as VO manager.
 	 *
+	 * Vo Object must contain:
+	 * name - lenght can be no more than 128 characters
+	 * shortName - can contain only a-z, A-Z, 0-9, '.', '-', '_' and cannot be longer than 32 characters.
+	 * Other parameters are ignored.
+	 *
+	 * @exampleParam vo { "name" : "My testing VO" , "shortName" : "test_vo" }
+	 *
 	 * @param vo Vo VO to create (value of VO's <code>id</code> is ignored and will be set internally)
 	 * @throw VoExistsException When VO you try to create already exists.
 	 * @return Vo Created VO with correct <code>id</code> set
@@ -75,10 +82,12 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates new VO. Caller is automatically set as VO manager.
 	 *
-	 * @param name String name
-	 * @param shortName String shortName
+	 * @param name String name - length can be no more than 128 characters
+	 * @param shortName String shortName - can contain only a-z, A-Z, 0-9, '.', '-', '_' and cannot be longer than 32 characters.
 	 * @throw VoExistsException When VO you try to create already exists.
 	 * @return Vo Created VO with correct <code>id</code> set
+	 * @exampleParam shortName "test_vo"
+	 * @exampleParam name "My testing VO"
 	 */
 	createVo {
 		@Override

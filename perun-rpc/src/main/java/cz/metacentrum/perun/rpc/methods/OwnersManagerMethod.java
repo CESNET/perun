@@ -14,16 +14,23 @@ public enum OwnersManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates a new owner.
 	 *
+	 * Owner object must contain: name, contact, ownerType which can be: 0 - technical, 1 - administrative.
+	 * Other parameters are ignored.
+	 *
 	 * @param owner Owner JSON object
 	 * @return Owner Created object
+	 * @exampleParam owner { "name" : "The Owner" , "contact" : "the contact", "ownerType" : 0 }
 	 */
 	/*#
 	 * Creates a new owner.
 	 *
 	 * @param name String name of a new owner
 	 * @param contact String contact of a new owner
-	 * @param ownerType int ownerType
+	 * @param ownerType int ownerType, 0 - technical, 1 - administrative
 	 * @return Owner Created object
+	 * @exampleParam name "The Owner"
+	 * @exampleParam contact "the contact"
+	 * @exampleParam ownerType 0
 	 */
 	createOwner {
 		@Override

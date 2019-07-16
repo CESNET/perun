@@ -81,6 +81,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	 * Creates new auditer consumer with last processed id which equals current auditer log max id.
 	 *
 	 * @param consumerName String New name for consumer
+	 * @exampleParam consumerName "NewConsumer"
 	 */
 	createAuditerConsumer {
 		@Override

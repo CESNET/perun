@@ -25,6 +25,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Creates a subgroup of a group.
+	 * Group object must contain name. Description is optional. Other parameters are ignored.
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
 	 * @throw GroupExistsException When group exists
@@ -35,6 +36,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @param parentGroup int Parent Group <code>id</code>
 	 * @param group Group JSON Group class
 	 * @return Group Newly created group
+	 * @exampleParam group { "name" : "My testing Group" }
 	 */
 	/*#
 	 * Creates a subgroup of a group.
@@ -49,10 +51,14 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @param name String name of a group
 	 * @param description String description of a group
 	 * @return Group Newly created group
+	 * @exampleParam parentGroup 1
+	 * @exampleParam description "A description with information"
+	 * @exampleParam name "My testing Group"
 	 */
 	/*#
-	 * Creates a new group in the specific VO defined by object vo in parameter.
+	 * Creates a new top-level group in the specific VO defined by object vo in parameter.
 	 * Important: voId in object group is ignored.
+	 * Group object must contain name. Description and parentGroupId are optional. Other parameters are ignored.
 	 *
 	 * @throw GroupNotExistsException When the group doesn't exist
 	 * @throw GroupExistsException When group exists
@@ -61,8 +67,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @throw VoNotExistsException When Vo doesn't exist
 	 *
 	 * @param vo int Parent VO <code>id</code>
-	 * @param group Group JSON Group class
+	 * @param group Group JSON Group class - parentGroupId must be set to null in order to work
 	 * @return Group Newly created group
+	 * @exampleParam vo 1
+	 * @exampleParam group { "name" : "My testing Group" }
 	 */
 	/*#
 	 * Creates a new group in the specific VO.
@@ -77,6 +85,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @param name String name of a group
 	 * @param description String description of a group
 	 * @return Group Newly created group
+	 * @exampleParam vo 1
+	 * @exampleParam description "A description with information"
+	 * @exampleParam name "My testing Group"
 	 */
 	createGroup {
 

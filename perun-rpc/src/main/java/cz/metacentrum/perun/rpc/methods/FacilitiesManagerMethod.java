@@ -328,14 +328,20 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Creates a facility. Caller is automatically set as facility manager.
+	 * Facility Object must contain name which can contain only a-Z0-9.-_ and space characters.
+	 * Parameter description is optional.
+	 * Other parameters are ignored.
 	 * @param facility Facility JSON object
 	 * @return Facility Created Facility object
+	 * @exampleParam facility { "name" : "the best-facility_7" }
 	 */
 	/*#
 	 * Creates a facility. Caller is automatically set as facility manager.
-	 * @param name String name of a facility
+	 * @param name String name of a facility - can contain only a-Z0-9.-_ and space characters.
 	 * @param description String description of a facility
 	 * @return Facility Created Facility object
+	 * @exampleParam name "the best-facility_7"
+	 * @exampleParam description "A description with information."
 	 */
 	createFacility {
 

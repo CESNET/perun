@@ -1316,8 +1316,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates AttributeDefinition
 	 *
+	 * AttributeDefinition object must contain: namespace, friendlyName, type. Description, displayName and unique are optional. Other Parameters are ignored.
 	 * @param attribute AttributeDefinition object
 	 * @return AttributeDefinition Created AttributeDefinition
+	 * @exampleParam attribute { "friendlyName": "kerberosLogins", "namespace": "urn:perun:user:attribute-def:def", "type": "java.util.ArrayList" }
 	 */
 	/*#
 	 * Creates AttributeDefinition
@@ -1345,7 +1347,6 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						parms.read("attribute", AttributeDefinition.class));
 			} else if (parms.contains("friendlyName") && parms.contains("namespace") && parms.contains("description") && parms.contains("type")
 					&& parms.contains("displayName") && parms.contains("unique")) {
-
 				AttributeDefinition attribute = new AttributeDefinition();
 				attribute.setFriendlyName(parms.readString("friendlyName"));
 				attribute.setNamespace(parms.readString("namespace"));
