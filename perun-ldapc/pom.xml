@@ -10,10 +10,10 @@
 	</parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-ldapc-ada</artifactId>
+	<artifactId>perun-ldapc</artifactId>
 	<packaging>jar</packaging>
 
-	<name>perun-ldapc-ada</name>
+	<name>perun-ldapc</name>
 	<description>LDAP connector which immediately pushes changes in Perun to LDAP</description>
 
 	<properties>
