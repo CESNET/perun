@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+#use Data::Dumper;
+
+sub help {
+	return qq{
+	Updates application form. Vo id or Group id is required.
+	--------------------------------------
+	Available options:
+	--voId           | -v vo id
+	--groupId        | -g group id
+	--autApproval    | -a automatic approval (1/0)
+	--autApprovalExt | -e automatic approval extension (1/0)
+	--moduleName     | -n name of module
+	--batch          | -b batch
+	--help           | -h prints this help
+
+	};
+}
+
+our $batch;
+my ($voId, $groupId, $moduleName, $app, $appE);
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"            => \$batch,
+	"voId|g=i"           => \$voId,
+	"groupId|g=i"        => \$groupId,
+	"autApproval|a=s"    => \$app,
+	"autApprovalExt|e=s" => \$appE,
+	"moduleName|n=s"     => \$moduleName ) || die help();
+
+# Check options
+if (not defined $groupId and not defined $voId) { die "ERROR: voId or groupId is required \n";}
+if (defined $groupId and defined $voId) { die "ERROR: voId OR groupId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $registrarAgent = $agent->getRegistrarAgent;
+my $applicationForm;
+
+if (defined $voId) {
+	$applicationForm = $registrarAgent->getApplicationForm( vo => $voId );
+} else {
+	$applicationForm = $registrarAgent->getApplicationForm( group => $groupId );
+}
+
+if (defined $app) {
+	$applicationForm->setAutomaticApproval($app);
+}	
+if (defined $appE) {
+	$applicationForm->setAutomaticApprovalExtension($appE);
+}	
+if (defined $moduleName) {
+	$applicationForm->setModuleClassName($moduleName);
+}	
+
+$registrarAgent->updateForm( form => $applicationForm );
+
+printMessage("Form successfully updated", $batch);
