@@ -3,9 +3,13 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:ldap="http://www.springframework.org/schema/ldap"
        xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/ldap http://www.springframework.org/schema/ldap/spring-ldap.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <!-- Use in initialize script -->
@@ -15,12 +19,586 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
             location="@perun.jdbc@, file:${perun.conf.custom}jdbc.properties,
             @perun.ldapc@, file:${perun.conf.custom}perun-ldapc.properties"/>
 
+	<import resource="classpath:perun-core.xml"/>
+
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
+
+	<aop:config>
+		<aop:advisor advice-ref="txCommonSerialized" pointcut="execution(* cz.metacentrum.perun.ldapc.service.LdapcManager.synchronize(..))"/>
+	</aop:config>
+
+	<tx:advice id="txCommonSerialized" transaction-manager="perunTransactionManager">
+		<tx:attributes>
+			<tx:method name="*" rollback-for="Exception" isolation="SERIALIZABLE"/>
+		</tx:attributes>
+	</tx:advice>
 
     <!-- Scans for @Repository, @Service and @Component -->
     <context:component-scan base-package="cz.metacentrum.perun.ldapc"/>
     <context:annotation-config/>
+
+	<!-- The list of event processors together with conditions of their firing -->
+	<!-- Event processors should inherit from AbstractEventProcessor, which ensures registration with EventDispatcher,
+		 that is started by component annotation.
+	 -->
+	<bean id="deletionEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.DeletionEventProcessor">
+		<property name="dispatchConditions">
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Resource</value>
+						</list>
+					</property>
+					<property name="pattern" value=" deleted.$" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Resource</value>
+						</list>
+					</property>
+					<property name="pattern" value=" deleted.#Facility" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value=" deleted.$" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+						</list>
+					</property>
+					<property name="pattern" value=" deleted.$" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+						</list>
+					</property>
+					<property name="pattern" value=" deleted.$" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="creationEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.CreationEventProcessor">
+		<property name="dispatchConditions">
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Resource</value>
+						</list>
+					</property>
+					<property name="pattern" value=" created.$" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value=" created.$" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value=" created in Vo:\[(.*)\]" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+						</list>
+					</property>
+					<property name="pattern" value=" created.$" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+						</list>
+					</property>
+					<property name="pattern" value=" created.$" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="updateEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.UpdateEventProcessor">
+		<property name="dispatchConditions">
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Resource</value>
+						</list>
+					</property>
+					<property name="pattern" value=" updated.$" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value=" updated.$" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
+						</list>
+					</property>
+					<property name="pattern" value=" updated.$" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+						</list>
+					</property>
+					<property name="pattern" value=" updated.$" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="userAttributeEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.UserAttributeProcessor">
+		<property name="dispatchConditions">
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.Attribute</value>
+						</list>
+					</property>
+					<property name="pattern" value=" set for User:\[.*\]" />
+					<property name="handlerMethodName" value="processAttributeSet" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.AttributeDefinition</value>
+						</list>
+					</property>
+					<property name="pattern" value=" removed for User:\[.*\]" />
+					<property name="handlerMethodName" value="processAttributeRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+						</list>
+					</property>
+					<property name="pattern" value="All attributes removed for User:\[.*\]" />
+					<property name="handlerMethodName" value="processAllAttributesRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.UserExtSource</value>
+						</list>
+					</property>
+					<property name="pattern" value="UserExtSource:\[.*\] added to User:\[.*\]" />
+					<property name="handlerMethodName" value="processExtSourceAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.UserExtSource</value>
+						</list>
+					</property>
+					<property name="pattern" value="UserExtSource:\[.*\] removed from User:\[.*\]" />
+					<property name="handlerMethodName" value="processExtSourceRemoved" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="facilityAttributeEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.FacilityAttributeProcessor">
+		<property name="dispatchConditions">
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+							<value>cz.metacentrum.perun.core.api.Attribute</value>
+						</list>
+					</property>
+					<property name="pattern" value=" set for Facility:\[.*\]" />
+					<property name="handlerMethodName" value="processAttributeSet" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+							<value>cz.metacentrum.perun.core.api.AttributeDefinition</value>
+						</list>
+					</property>
+					<property name="pattern" value=" removed for Facility:\[.*\]" />
+					<property name="handlerMethodName" value="processAttributeRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+						</list>
+					</property>
+					<property name="pattern" value="All attributes removed for Facility:\[.*\]" />
+					<property name="handlerMethodName" value="processAllAttributesRemoved" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="groupEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.GroupEventProcessor">
+		<property name="dispatchConditions">
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value=" added to Group:\[.*\]" />
+					<property name="handlerMethodName" value="processMemberAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value="  validated.$" />
+					<property name="handlerMethodName" value="processMemberAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value=" was removed from Group:\[.*\] totally" />
+					<property name="handlerMethodName" value="processMemberRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value="expired.$|disabled.$|invalidated.$|suspended #" />
+					<property name="handlerMethodName" value="processMemberRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value=" created in Vo:\[.*\] as subgroup of Group:\[.*\]" />
+					<property name="handlerMethodName" value="processSubgroupAdded" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Resource</value>
+						</list>
+					</property>
+					<property name="pattern" value="Group:\[.*\] assigned to Resource:\[.*\]" />
+					<property name="handlerMethodName" value="processResourceAssigned" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Resource</value>
+						</list>
+					</property>
+					<property name="pattern" value="Group:\[.*\] removed from Resource:\[.*\]" />
+					<property name="handlerMethodName" value="processResourceRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Group</value>
+						</list>
+					</property>
+					<property name="pattern" value="Group:\[.*\] was moved" />
+					<property name="handlerMethodName" value="processGroupMoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value=" validated.$" />
+					<property name="handlerMethodName" value="processMemberValidated" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Member</value>
+						</list>
+					</property>
+					<property name="pattern" value="expired.$|disabled.$|invalidated.$|suspended #" />
+					<property name="handlerMethodName" value="processMemberInvalidated" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="perunUser" class="cz.metacentrum.perun.ldapc.model.impl.PerunUserImpl" scope="prototype">
+		<property name="attributeDescriptions">
+			<!--  this list will be added to built-in defaultAttributeDescriptions -->
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="preferredMail" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="preferredMail" />
+							<property name="namespace" value="urn:perun:user:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="mail" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="preferredMail" />
+							<property name="namespace" value="urn:perun:user:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="o" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="organization" />
+							<property name="namespace" value="urn:perun:user:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="telephoneNumber" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="phone" />
+							<property name="namespace" value="urn:perun:user:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="userCertificateSubject" />
+					<property name="required" value="false" />
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="userCertDNs" />
+							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
+							<property name="valueTransformer">
+								<bean class="cz.metacentrum.perun.ldapc.beans.RegexpValueTransformer">
+									<property name="replaceList">
+										<list>
+											<bean class="cz.metacentrum.perun.ldapc.beans.RegexpSubst">
+												<property name="find" value="^[0-9]+[:]" />
+												<property name="replace" value="" />
+											</bean>
+										</list>
+									</property>
+								</bean>
+							</property>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="schacHomeOrganizations" />
+					<property name="required" value="false" />
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="schacHomeOrganizations" />
+							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="eduPersonScopedAffiliations" />
+					<property name="required" value="false" />
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="eduPersonScopedAffiliations" />
+							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="groupNames" />
+					<property name="required" value="false" />
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="groupNames" />
+							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="schacHomeOrganizations" />
+					<property name="required" value="false" />
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="schacHomeOrganizations" />
+							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="institutionsCountries" />
+					<property name="required" value="false" />
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="institutionsCountries" />
+							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="libraryIDs" />
+					<property name="required" value="false" />
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="libraryIDs" />
+							<property name="namespace" value="urn:perun:user:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="uidNumber;x-ns-" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:uid-namespace:" />
+							<property name="namespace" value="urn:perun:user:attribute-def:def:uid-namespace" />
+							<property name="name" value="" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="login;x-ns-" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:login-namespace:" />
+							<property name="namespace" value="urn:perun:user:attribute-def:def:login-namespace" />
+							<property name="name" value="" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="userPassword" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="nameRegexp" value="urn:perun:user:attribute-def:def:login-namespace:${ldap.loginNamespace}" />
+							<property name="namespace" value="urn:perun:user:attribute-def:def:login-namespace" />
+							<property name="name" value="${ldap.loginNamespace}" />
+							<property name="valueTransformer">
+								<bean class="cz.metacentrum.perun.ldapc.beans.PasswordValueTransformer" />
+							</property>
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="bonaFideStatus" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="namespace" value="urn:perun:user:attribute-def:def" />
+							<property name="name" value="elixirBonaFideStatus" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="isCesnetEligible" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="namespace" value="urn:perun:user:attribute-def:def" />
+							<property name="name" value="isCesnetEligibleLastSeen" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="loa" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
+							<property name="name" value="loa" />
+						</bean>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="perunResource" class="cz.metacentrum.perun.ldapc.model.impl.PerunResourceImpl">
+		<property name="attributeDescriptions">
+			<!--  this list will be added to built-in defaultAttributeDescriptions -->
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="entityID" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="entityID" />
+							<property name="namespace" value="urn:perun:facility:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="OIDCClientID" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="OIDCClientID" />
+							<property name="namespace" value="urn:perun:facility:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="perunGroup" class="cz.metacentrum.perun.ldapc.model.impl.PerunGroupImpl">
+	</bean>
+
+	<bean id="perunVO" class="cz.metacentrum.perun.ldapc.model.impl.PerunVOImpl">
+	</bean>
 
     <bean id="ldapProperties" class="cz.metacentrum.perun.ldapc.beans.LdapProperties">
         <constructor-arg name="ldapConsumerName" index="0" value="${ldap.consumerName}" />
@@ -29,14 +607,16 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     </bean>
 
     <!-- These beans are for define ldapTemplate -->
-    <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
-        <property name="url" value="${ldap.url}" />
-        <property name="base" value="${ldap.base}" />
-        <property name="userDn" value="${ldap.userDn}" />
-        <property name="password" value="${ldap.password}" />
-    </bean>
-    <bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
-        <constructor-arg ref="contextSource" />
-    </bean>
+	<ldap:context-source
+		url="${ldap.url}"
+		base="${ldap.base}"
+		username="${ldap.userDn}"
+		password="${ldap.password}">
+		<ldap:pooling />
+	</ldap:context-source>
+
+	<ldap:ldap-template />
+
+	<import resource="file:${perun.conf.custom}/perun-ldapc-attributes.xml" />
 
 </beans>

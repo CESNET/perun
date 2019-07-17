@@ -7,11 +7,11 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
-import cz.metacentrum.perun.rpclib.Rpc;
-import cz.metacentrum.perun.rpclib.api.RpcCaller;
-import cz.metacentrum.perun.rpclib.impl.RpcCallerImpl;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,10 +21,16 @@ public class LdapcStarter {
 
 	private LdapcManager ldapcManager;
 	private AbstractApplicationContext springCtx;
+	private PerunPrincipal perunPrincipal;
+	private Perun perunBl;
+	private LdapProperties ldapProperties;
 
 	public LdapcStarter() {
+		this.perunPrincipal = new PerunPrincipal("perunLdapc", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		springCtx = new ClassPathXmlApplicationContext("/perun-ldapc.xml");
 		this.ldapcManager = springCtx.getBean("ldapcManager", LdapcManager.class);
+		this.ldapProperties = springCtx.getBean("ldapProperties", LdapProperties.class);
+		this.perunBl = springCtx.getBean("perun", PerunBl.class);
 	}
 
 	/**
@@ -36,35 +42,48 @@ public class LdapcStarter {
 		System.out.println("Starting Perun-Ldapc...");
 
 		int lastProcessedIdToSet = 0;
+		boolean doSync = false;
 
 		if(args.length == 0) {
 			//This is normal behavior, do nothing special, just start ldapc
 		} else if (args.length == 1) {
 			//This behavior is special, set lastProcessedId
 			String argument = args[0];
-			lastProcessedIdToSet = Integer.valueOf(argument);
+			if(argument.equals("--sync"))
+				doSync = true;
+			else
+				lastProcessedIdToSet = Integer.valueOf(argument);
 		} else {
 			System.out.println("Too much arguments, can't understand what to do, exit starting!");
 			return;
 		}
 
 
-		PerunPrincipal pp = new PerunPrincipal("perunLdapc", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 
 		try {
-			RpcCaller rpcCaller = new RpcCallerImpl(pp);
-
 			LdapcStarter ldapcStarter = new LdapcStarter();
+
+			// RpcCaller rpcCaller = new RpcCallerImpl(ldapcStarter.perunPrincipal);
 
 			// Just for the Spring IoC to exit gracefully...
 			ldapcStarter.springCtx.registerShutdownHook();
 
-			// Sets RPC Caller
-			ldapcStarter.ldapcManager.setRpcCaller(rpcCaller);
+			// Sets RPC Caller and Perun
+			// ldapcStarter.ldapcManager.setRpcCaller(rpcCaller);
+			ldapcStarter.ldapcManager.setPerunPrincipal(ldapcStarter.perunPrincipal);
+			ldapcStarter.ldapcManager.setPerunBl(ldapcStarter.perunBl);
 
-			//Set lastProcessedIdToSet if bigger than 0
-			if(lastProcessedIdToSet > 0) {
-				Rpc.AuditMessagesManager.setLastProcessedId(rpcCaller, "ldapcConsumer", lastProcessedIdToSet);
+			// Synchronize before starting the audit consumer
+			if(doSync)
+				ldapcStarter.ldapcManager.synchronize();
+			else {
+
+				//Set lastProcessedIdToSet if bigger than 0
+				if(lastProcessedIdToSet > 0) {
+					//Rpc.AuditMessagesManager.setLastProcessedId(rpcCaller, "ldapcConsumer", lastProcessedIdToSet);
+					ldapcStarter.perunBl.getAuditMessagesManager().setLastProcessedId(ldapcStarter.ldapcManager.getPerunSession(),
+							ldapcStarter.ldapProperties.getLdapConsumerName(), lastProcessedIdToSet);
+				}
 			}
 
 			// Start processing events (run method in EventProcessorImpl)

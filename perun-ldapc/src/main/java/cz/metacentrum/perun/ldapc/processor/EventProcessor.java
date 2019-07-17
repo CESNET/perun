@@ -1,4 +1,13 @@
 package cz.metacentrum.perun.ldapc.processor;
 
-public interface EventProcessor extends Runnable {
+import java.util.Collection;
+
+import cz.metacentrum.perun.ldapc.processor.EventDispatcher.DispatchEventCondition;
+import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
+
+public interface EventProcessor {
+	
+	public void setDispatchConditions(Collection<DispatchEventCondition> condition);
+	
+	public void processEvent(String msg, MessageBeans beans);
 }
