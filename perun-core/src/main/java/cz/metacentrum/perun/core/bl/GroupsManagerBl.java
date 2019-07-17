@@ -251,6 +251,50 @@ public interface GroupsManagerBl {
 	void addMember(PerunSession perunSession, Group group,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
 
 	/**
+	 * Return true if Member is direct member of the Group
+	 *
+	 *
+	 * @param sess session
+	 * @param group group where the membership is to be checked
+	 * @param member member whose membership is to be checked
+	 * @return true if Member is direct member of the Group
+	 *
+	 * @throws InternalErrorException
+	 */
+	boolean isDirectGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException;
+
+
+
+	/**
+	 * Adds member of the VO to the groups in the same VO. But not to administrators and members group.
+	 *
+	 * @param perunSession
+	 * @param groups
+	 * @param member
+	 * @throws InternalErrorException
+	 * @throws AlreadyMemberException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws GroupNotExistsException
+	 */
+	void addMember(PerunSession perunSession, List<Group> groups,  Member member) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
+
+	/**
+	 * Adds members of the VO to the group in the same VO. But not to administrators and members group.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param members
+	 * @throws InternalErrorException
+	 * @throws AlreadyMemberException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws GroupNotExistsException
+	 */
+	void addMembers(PerunSession perunSession, Group group,  List<Member> members) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException;
+
+
+	/**
 	 * Special addMember which is able to add members into the members and administrators group.
 	 *
 	 * @param perunSession

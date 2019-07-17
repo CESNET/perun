@@ -2,12 +2,14 @@ package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
@@ -295,11 +297,51 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		}
 	},
 
+
+	/*#
+	 * Adds members to a group. If already a member of the group, the member will be skipped.
+	 * Non-empty list of members expected, if empty, no member will be added.
+	 *
+	 * @param group int <code>id</code> of the group that the members will be added to <code>id</code>
+	 * @param members List<Integer> <code>id</code> of members that will be added to the group <code>id</code>
+	 */
+	addMembers {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			List<Integer> memberInts = parms.readList("members", Integer.class);
+			if (memberInts == null) {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "Non-empty list of members not sent.");
+			}
+			Group group = ac.getGroupById(parms.readInt("group"));
+			List<Member> members = new ArrayList<>();
+			for (Integer memberInt : memberInts) {
+				Member member = ac.getMemberById(memberInt);
+				if (!ac.getGroupsManager().isDirectGroupMember(ac.getSession(), group, member)) {
+					members.add(member);
+				}
+			}
+			ac.getGroupsManager().addMembers(ac.getSession(),
+				group,
+				members);
+
+			return null;
+		}
+	},
+
 	/*#
 	 * Adds a member to a group.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param member int Member <code>id</code>
+	 */
+	/*#
+	 * Adds a member to the group. If already a member of a group, the group will be skipped.
+	 * Non-empty list of groups expected, if empty, no member will be added.
+	 *
+	 * @param groups List<Integer> List of <code>id</code> of groups that the member will be added to <code>id</code>
+	 * @param member int <code>id</code> of a member that will be added to the groups <code>id</code>
 	 */
 	addMember {
 
@@ -307,9 +349,30 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			ac.getGroupsManager().addMember(ac.getSession(),
+			if (parms.contains("group")) {
+				ac.getGroupsManager().addMember(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
 					ac.getMemberById(parms.readInt("member")));
+			} else if (parms.contains("groups")) {
+				List<Integer> groupsInts = parms.readList("groups", Integer.class);
+				if (groupsInts == null) {
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "Non-empty list of groups not sent.");
+				}
+				List<Group> groups = new ArrayList<>();
+				Member member = ac.getMemberById(parms.readInt("member"));
+				for (Integer groupInt : groupsInts) {
+					Group group = ac.getGroupById(groupInt);
+					if (!ac.getGroupsManager().isDirectGroupMember(ac.getSession(), group, member)) {
+						groups.add(group);
+					}
+				}
+				ac.getGroupsManager().addMember(ac.getSession(),
+					groups,
+					member);
+
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "Parameter not provided. 'group' or 'groups' missing.");
+			}
 			return null;
 		}
 	},
