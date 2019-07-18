@@ -449,8 +449,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName) throws PerunException {
 
 		Map<String, Object> result = new HashMap<String, Object>();
-		Vo vo = null;
-		Group group = null;
+		Vo vo;
+		Group group;
 
 		try {
 
@@ -583,7 +583,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				result.put("similarUsers", similarUsers);
 			} catch (Exception ex) {
 				// not relevant exception in this use-case
-				log.error("[REGISTRAR] Exception when searching for similar users: {}", ex);
+				log.error("[REGISTRAR] Exception when searching for similar users.", ex);
 			}
 
 		} catch (Exception ex) {
@@ -1061,12 +1061,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 
 		// store user-ext-source attributes from session to application object
-		LinkedHashMap<String,String> map = new LinkedHashMap<>();
-		map.putAll(session.getPerunPrincipal().getAdditionalInformations());
+		LinkedHashMap<String, String> map = new LinkedHashMap<>(session.getPerunPrincipal().getAdditionalInformations());
 		String additionalAttrs = BeansUtils.attributeValueToString(map, LinkedHashMap.class.getName());
 		application.setFedInfo(additionalAttrs);
 
-		Application app = null;
+		Application app;
 		try {
 
 			// throws exception if user already submitted application or is already a member or can't submit it by VO/Group expiration rules.
@@ -1199,7 +1198,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (loginItem.getFormItem().getType() == USERNAME) {
 					// values to store
 					String login = loginItem.getValue();
-					String pass = ""; // filled later
+					String pass; // filled later
 					// Get login namespace
 					String dstAttr = loginItem.getFormItem().getPerunDestinationAttribute();
 					AttributeDefinition loginAttribute = attrManager.getAttributeDefinition(registrarSession, dstAttr);
@@ -1264,7 +1263,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		} catch (Exception ex) {
 			// any exception during app creation process => add it to list
 			// exceptions when handling logins are catched before
-			log.error("{}", ex);
+			log.error("Unexpected exception when creating application.", ex);
 			exceptions.add(ex);
 		} finally {
 
@@ -1515,7 +1514,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, InternalErrorException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException {
 
 		Application app = getApplicationById(appId);
-		Member member = null;
+		if (app == null) throw new RegistrarException("Application with ID "+appId+" doesn't exists.");
+		Member member;
 
 		// authz
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
@@ -2758,9 +2758,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (app.getGroup() != null && app.getVo() != null) {
 
 			try {
-				User u = null;
 				if (app.getUser() == null) {
-					u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+					User u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
 					if (u != null) {
 						membersManager.getMemberByUser(registrarSession, app.getVo(), u);
 					} else {
@@ -2891,7 +2890,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				module = (RegistrarModule) Class.forName(MODULE_PACKAGE_PATH + form.getModuleClassName()).newInstance();
 				module.setRegistrar(registrarManager);
 			} catch (Exception ex) {
-				log.error("[REGISTRAR] Exception when instantiating module: {}", ex);
+				log.error("[REGISTRAR] Exception when instantiating module.", ex);
 				return module;
 			}
 			log.debug("[REGISTRAR] Class {} successfully created.", MODULE_PACKAGE_PATH + form.getModuleClassName());
@@ -2963,7 +2962,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 
 		} catch (Exception ex) {
-			log.error("[REGISTRAR] Exception when updating titles: {}", ex);
+			log.error("[REGISTRAR] Exception when updating titles.", ex);
 		}
 
 	}
@@ -3011,7 +3010,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// if correct destination attribute
 			if (destAttr != null && !destAttr.isEmpty()) {
 				// get attribute (for user and member only)
-				Attribute a = null;
+				Attribute a;
 				if (destAttr.contains("urn:perun:user:")) {
 					a = attrManager.getAttribute(registrarSession, user, destAttr);
 				} else if (destAttr.contains("urn:perun:member:")) {
@@ -3032,7 +3031,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						continue;
 					} else if (a.getType().equalsIgnoreCase("java.util.ArrayList") || a.getType().equalsIgnoreCase(BeansUtils.largeArrayListClassName)) {
 						// we expects that list contains strings
-						ArrayList<String> value = ((ArrayList<String>)a.getValue());
+						ArrayList<String> value = a.valueAsList();
 						// if value not present in list => add
 						if (value == null) {
 							// set as new value
@@ -3098,7 +3097,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// if correct destination attribute
 			if (destAttr != null && !destAttr.isEmpty()) {
 				// get login attribute (for user only)
-				Attribute a = null;
+				Attribute a;
 				if (destAttr.contains(AttributesManager.NS_USER_ATTR_DEF+":login-namespace:")) {
 					a = attrManager.getAttribute(registrarSession, user, destAttr);
 				} else {
@@ -3184,14 +3183,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		List<Application> apps = jdbc.query(APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state=?" +
 				" and a.user_id=?", APP_MAPPER, vo.getId(), AppState.VERIFIED.toString(), user.getId());
 
-		if (apps != null) applications.addAll(apps);
+		if (!apps.isEmpty()) applications.addAll(apps);
 
 		for (UserExtSource ue : ues) {
 
 			List<Application> apps2 = jdbc.query(APP_SELECT + " where a.vo_id=? and a.group_id is not null and a.state=?" +
 					" and a.created_by=? and a.extsourcename=? and a.extsourcetype=?", APP_MAPPER, vo.getId(), AppState.VERIFIED.toString(), ue.getLogin(), ue.getExtSource().getName(), ue.getExtSource().getType());
 
-			if (apps2 != null) applications.addAll(apps2);
+			if (!apps2.isEmpty()) applications.addAll(apps2);
 
 		}
 
@@ -3208,7 +3207,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			} catch (RegistrarException ex) {
 				// case when user have UNVERIFIED group application
 				// will be approved when user verify his email
-				log.error("[REGISTRAR] Can't auto-approve group application after vo app approval because of exception: {}", ex);
+				log.error("[REGISTRAR] Can't auto-approve group application after vo app approval because of exception.", ex);
 			}
 
 		}

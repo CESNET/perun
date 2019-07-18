@@ -106,7 +106,7 @@ public class Vsup implements RegistrarModule {
 				try {
 					membershipExpiration = df.parse(expiration);
 				} catch (ParseException e) {
-					log.error("Can't parse manual expiration date: {}",e);
+					log.error("Can't parse manual expiration date.",e);
 				}
 
 			}
@@ -121,7 +121,7 @@ public class Vsup implements RegistrarModule {
 				try {
 					manualExpiration = df.parse(expiration);
 				} catch (ParseException e) {
-					log.error("Can't parse manual expiration date: {}",e);
+					log.error("Can't parse manual expiration date.",e);
 				}
 
 			}

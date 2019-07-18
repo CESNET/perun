@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import net.jodah.expiringmap.ExpirationPolicy;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
@@ -83,8 +84,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			// we don't care, that search failed. That is actually OK case.
 		}
 
-		String name = "";
-		String mail = "";
+		String name;
+		String mail;
 
 		Set<RichUser> res = new HashSet<RichUser>();
 
@@ -268,12 +269,12 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 								newName += nameMap.get("lastName");
 							}
 							// fill parsed name instead of input
-							if (newName != null && !newName.isEmpty()) {
+							if (StringUtils.isNotBlank(newName)) {
 								name = newName;
 							}
 						}
 					} catch (Exception ex) {
-						log.error("[REGISTRAR] Unable to parse new user's display/common name when searching for similar users. Exception: {}", ex);
+						log.error("[REGISTRAR] Unable to parse new user's display/common name when searching for similar users.", ex);
 					}
 					if (name != null && !name.isEmpty()) break;
 				}

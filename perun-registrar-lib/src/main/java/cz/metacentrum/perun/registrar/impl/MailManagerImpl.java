@@ -183,7 +183,7 @@ public class MailManagerImpl implements MailManager {
 	public ApplicationMail getMailById(PerunSession sess, Integer id) throws InternalErrorException, PrivilegeException {
 
 		// TODO authz
-		ApplicationMail mail = null;
+		ApplicationMail mail;
 
 		// get mail def
 		try {
@@ -206,7 +206,7 @@ public class MailManagerImpl implements MailManager {
 			throw new InternalErrorException("Mail definition with ID="+id+" doesn't exists.");
 		}
 
-		List<MailText> texts = new ArrayList<MailText>();
+		List<MailText> texts;
 		try {
 			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, new RowMapper<MailText>(){
 				@Override
@@ -216,7 +216,7 @@ public class MailManagerImpl implements MailManager {
 			}, mail.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// if no texts it's error
-			log.error("[MAIL MANAGER] Mail do not contains any text message: {}", ex);
+			log.error("[MAIL MANAGER] Mail do not contains any text message.", ex);
 			return mail;
 		}
 		for (MailText text : texts) {
@@ -275,8 +275,7 @@ public class MailManagerImpl implements MailManager {
 	@Override
 	public List<ApplicationMail> getApplicationMails(PerunSession sess, ApplicationForm form) throws PerunException {
 
-		List<ApplicationMail> mails = new ArrayList<ApplicationMail>();
-		mails = jdbc.query(MAILS_SELECT_BY_FORM_ID, new RowMapper<ApplicationMail>() {
+		List<ApplicationMail> mails = jdbc.query(MAILS_SELECT_BY_FORM_ID, new RowMapper<ApplicationMail>() {
 			@Override
 			public ApplicationMail mapRow(ResultSet rs, int arg1) throws SQLException {
 				return new ApplicationMail(rs.getInt("id"),
@@ -286,8 +285,7 @@ public class MailManagerImpl implements MailManager {
 			}
 		}, form.getId());
 		for (ApplicationMail mail : mails) {
-			List<MailText> texts = new ArrayList<MailText>();
-			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, new RowMapper<MailText>(){
+			List<MailText> texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, new RowMapper<MailText>(){
 				@Override
 				public MailText mapRow(ResultSet rs, int arg1) throws SQLException {
 					return new MailText(new Locale(rs.getString("locale")), rs.getString("subject"), rs.getString("text"));
@@ -463,7 +461,7 @@ public class MailManagerImpl implements MailManager {
 					log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {} / appID: {} / {} / {}"
 							, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 				} catch (MailException ex) {
-					log.error("[MAIL MANAGER] Sending mail: APP_CREATED_USER failed because of exception: {}", ex);
+					log.error("[MAIL MANAGER] Sending mail: APP_CREATED_USER failed because of exception.", ex);
 				}
 
 			} else if (MailType.APP_CREATED_VO_ADMIN.equals(type)) {
@@ -489,7 +487,7 @@ public class MailManagerImpl implements MailManager {
 						}
 					}
 				} catch (Exception ex) {
-					log.error("Error when resolving notification default language: {}", ex);
+					log.error("Error when resolving notification default language.", ex);
 				}
 
 				MailText mt2 = mail.getMessage(lang);
@@ -520,7 +518,7 @@ public class MailManagerImpl implements MailManager {
 						log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {} / appID: {} / {} / {}"
 								, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 					} catch (MailException ex) {
-						log.error("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN failed because of exception: {}", ex);
+						log.error("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN failed because of exception.", ex);
 					}
 				}
 
@@ -643,7 +641,7 @@ public class MailManagerImpl implements MailManager {
 								log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: {} / {} / {}"
 										, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 							} catch (MailException ex) {
-								log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception: {}", ex);
+								log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception.", ex);
 							}
 
 						} else {
@@ -674,7 +672,7 @@ public class MailManagerImpl implements MailManager {
 					mailSender.send(message);
 					log.info("[MAIL MANAGER] Sending mail: APP_APPROVED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
 				} catch (MailException ex) {
-					log.error("[MAIL MANAGER] Sending mail: APP_APPROVED_USER failed because of exception: {}", ex);
+					log.error("[MAIL MANAGER] Sending mail: APP_APPROVED_USER failed because of exception.", ex);
 				}
 
 			} else if (type.equals(MailType.APP_REJECTED_USER)) {
@@ -700,7 +698,7 @@ public class MailManagerImpl implements MailManager {
 					log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {} / appID: {} / {} / {}"
 							, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 				} catch (MailException ex) {
-					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception: {}", ex);
+					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception.", ex);
 				}
 
 			} else if (MailType.APP_ERROR_VO_ADMIN.equals(type)) {
@@ -726,7 +724,7 @@ public class MailManagerImpl implements MailManager {
 						}
 					}
 				} catch (Exception ex) {
-					log.error("Error when resolving notification default language: {}", ex);
+					log.error("Error when resolving notification default language.", ex);
 				}
 
 				MailText mt2 = mail.getMessage(lang);
@@ -757,7 +755,7 @@ public class MailManagerImpl implements MailManager {
 						log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: {} / {} / {}"
 								, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 					} catch (MailException ex) {
-						log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception: {}", ex);
+						log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception.", ex);
 					}
 				}
 
@@ -767,7 +765,7 @@ public class MailManagerImpl implements MailManager {
 
 		} catch (Exception ex) {
 			// all exceptions are catched and logged to: perun-registrar.log
-			log.error("[MAIL MANAGER] Exception thrown when sending email: {}", ex);
+			log.error("[MAIL MANAGER] Exception thrown when sending email.", ex);
 		}
 
 	}
@@ -966,7 +964,7 @@ public class MailManagerImpl implements MailManager {
 			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}"
 					, (Object) message.getTo(), app.getVo(), app.getGroup());
 		} catch (MailException ex) {
-			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
+			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception.", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
 		}
 
@@ -1101,7 +1099,7 @@ public class MailManagerImpl implements MailManager {
 			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}"
 					, message.getTo(), app.getVo(), app.getGroup());
 		} catch (MailException ex) {
-			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
+			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception.", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
 		}
 
@@ -1186,7 +1184,7 @@ public class MailManagerImpl implements MailManager {
 			return mail;
 		}
 
-		List<MailText> texts = new ArrayList<MailText>();
+		List<MailText> texts;
 		try {
 			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, new RowMapper<MailText>(){
 				@Override
@@ -1196,7 +1194,7 @@ public class MailManagerImpl implements MailManager {
 			}, mail.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// if no texts it's error
-			log.error("[MAIL MANAGER] Mail do not contains any text message: {}", ex);
+			log.error("[MAIL MANAGER] Mail do not contains any text message.", ex);
 			return null;
 		}
 		for (MailText text : texts) {
@@ -1351,10 +1349,8 @@ public class MailManagerImpl implements MailManager {
 				}
 			}
 
-			String senderEmail = "";
 			if (attrSenderEmail != null && attrSenderEmail.getValue() != null) {
-				senderEmail = BeansUtils.attributeValueToString(attrSenderEmail);
-				message.setReplyTo(senderEmail);
+				message.setReplyTo(BeansUtils.attributeValueToString(attrSenderEmail));
 			}
 		} catch (Exception ex) {
 			// we dont care about exceptions here - we have backup TO/FROM address
@@ -1393,7 +1389,7 @@ public class MailManagerImpl implements MailManager {
 				}
 			}
 			if (attrToEmail != null && attrToEmail.getValue() != null) {
-				ArrayList<String> value = (ArrayList<String>)attrToEmail.getValue();
+				ArrayList<String> value = attrToEmail.valueAsList();
 				for (String adr : value) {
 					if (adr != null && !adr.isEmpty()) {
 						result.add(adr);
@@ -1530,7 +1526,7 @@ public class MailManagerImpl implements MailManager {
 				}
 			} catch (Exception ex) {
 				// we dont care about exceptions here
-				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute. {}", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
 			}
 			// replace by footer or empty
 			mailText = mailText.replace("{mailFooter}", (footer != null) ? footer : "");
@@ -1829,7 +1825,7 @@ public class MailManagerImpl implements MailManager {
 						expiration = ((String)a.getValue());
 					}
 				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Error thrown when getting membership expiration param for mail. {}", ex);
+					log.error("[MAIL MANAGER] Error thrown when getting membership expiration param for mail.", ex);
 				}
 			}
 			// replace by date or empty
@@ -1848,7 +1844,7 @@ public class MailManagerImpl implements MailManager {
 						mail = ((String)a.getValue());
 					}
 				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Error thrown when getting preferred mail param for mail. {}", ex);
+					log.error("[MAIL MANAGER] Error thrown when getting preferred mail param for mail.", ex);
 				}
 			} else {
 
@@ -1889,7 +1885,7 @@ public class MailManagerImpl implements MailManager {
 						phone = ((String)a.getValue());
 					}
 				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Error thrown when getting phone param for mail. {}", ex);
+					log.error("[MAIL MANAGER] Error thrown when getting phone param for mail.", ex);
 				}
 			} else {
 
@@ -1936,7 +1932,7 @@ public class MailManagerImpl implements MailManager {
 				}
 			} catch (Exception ex) {
 				// we dont care about exceptions here
-				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute. {}", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
 			}
 			// replace by footer or empty
 			mailText = mailText.replace("{mailFooter}", (footer != null) ? footer : "");

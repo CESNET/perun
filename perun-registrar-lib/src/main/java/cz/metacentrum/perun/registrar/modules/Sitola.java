@@ -78,7 +78,7 @@ public class Sitola implements RegistrarModule {
 
 					// check if not already present and set
 					boolean found = false;
-					for (String value : (List<String>)eduroamIdentities.getValue()) {
+					for (String value : eduroamIdentities.valueAsList()) {
 						if (Objects.equals(value, loginMu.getValue() +"@eduroam.muni.cz")) {
 							found = true;
 							break;

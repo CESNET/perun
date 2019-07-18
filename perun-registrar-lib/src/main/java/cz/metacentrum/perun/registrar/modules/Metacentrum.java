@@ -159,7 +159,7 @@ public class Metacentrum implements RegistrarModule {
 				}
 
 			} catch (ParseException e) {
-				log.warn("Unable to parse date to determine, if user is eligible for CESNET services. {}", e);
+				log.warn("Unable to parse date to determine, if user is eligible for CESNET services.", e);
 			}
 		}
 

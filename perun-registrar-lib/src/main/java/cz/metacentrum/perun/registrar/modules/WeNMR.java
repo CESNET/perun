@@ -62,7 +62,7 @@ public class WeNMR implements RegistrarModule {
 
 			// submitted by untrusted IdP
 			PerunBl perun = (PerunBl) session.getPerun();
-			User user = null;
+			User user;
 
 			// check if user is known
 			if (app.getUser() != null) {

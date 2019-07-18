@@ -269,7 +269,7 @@ public class ExpirationNotifScheduler {
 			// get all available VOs
 			vos = perun.getVosManagerBl().getVos(sess);
 		} catch (InternalErrorException e) {
-			log.error("Synchronizer: checkMembersState, failed to get all vos exception {}", e);
+			log.error("Synchronizer: checkMembersState, failed to get all vos exception.", e);
 			return;
 		}
 
@@ -286,11 +286,11 @@ public class ExpirationNotifScheduler {
 		try {
 			checkVoMembersState(vos);
 		} catch(InternalErrorException e){
-			log.error("Synchronizer: checkMembersState, exception {}", e);
+			log.error("Synchronizer: checkMembersState.", e);
 		} catch(AttributeNotExistsException e){
-			log.warn("Synchronizer: checkMembersState, attribute definition for membershipExpiration doesn't exist, exception {}", e);
+			log.warn("Synchronizer: checkMembersState, attribute definition for membershipExpiration doesn't exist.", e);
 		} catch(WrongAttributeAssignmentException e){
-			log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace, exception {}", e);
+			log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace.", e);
 		}
 	}
 
@@ -505,9 +505,9 @@ public class ExpirationNotifScheduler {
 					} catch (InternalErrorException e) {
 						log.error("Consistency error while trying to expire member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
-						log.warn("Synchronizer: checkGroupMembersState, attribute definition for membershipExpiration in group doesn't exist, exception {}", e);
+						log.warn("Synchronizer: checkGroupMembersState, attribute definition for membershipExpiration in group doesn't exist.", e);
 					} catch(WrongAttributeAssignmentException e){
-						log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace, exception {}", e);
+						log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace.", e);
 					}
 				});
 	}
@@ -541,9 +541,9 @@ public class ExpirationNotifScheduler {
 					} catch (InternalErrorException e) {
 						log.error("Error during validating member {} in {}, exception {}", member, group, e);
 					} catch (AttributeNotExistsException e) {
-						log.warn("Synchronizer: checkGroupMemberValidation, attribute definition for membershipExpiration in group doesn't exist, exception {}", e);
+						log.warn("Synchronizer: checkGroupMemberValidation, attribute definition for membershipExpiration in group doesn't exist.", e);
 					} catch(WrongAttributeAssignmentException e){
-						log.error("Synchronizer: checkGroupMemberValidation, attribute name is from wrong namespace, exception {}", e);
+						log.error("Synchronizer: checkGroupMemberValidation, attribute name is from wrong namespace.", e);
 					}
 				});
 	}
