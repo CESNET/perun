@@ -29,7 +29,7 @@ public abstract class MemberResourceAttributesModuleAbstract extends AttributesM
 		return new Attribute(attribute);
 	}
 
-	public void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) {
+	public void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 
 	}
 }

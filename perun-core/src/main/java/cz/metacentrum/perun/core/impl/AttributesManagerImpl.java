@@ -3822,7 +3822,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
-	public void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException {
+	public void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		MemberResourceAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
 		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
