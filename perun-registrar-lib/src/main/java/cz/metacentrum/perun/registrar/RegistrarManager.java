@@ -34,7 +34,7 @@ public interface RegistrarManager {
 	 * @return List of VO attributes
 	 * @throws PerunException
 	 */
-	public List<Attribute> initialize(String voShortName, String groupName) throws PerunException;
+	List<Attribute> initialize(String voShortName, String groupName) throws PerunException;
 
 	/**
 	 * Retrieves all necessary data for new registrar webapp in one big call.
@@ -46,7 +46,7 @@ public interface RegistrarManager {
 	 * @return Map of expected data
 	 * @throws PerunException
 	 */
-	public Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName) throws PerunException;
+	Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName) throws PerunException;
 
 	/**
 	 * Create application form for vo
@@ -173,7 +173,7 @@ public interface RegistrarManager {
 	 * @param item the form item to be changed
 	 * @param locale the locale for which texts should be changed
 	 */
-	void updateFormItemTexts(PerunSession user, ApplicationFormItem item, Locale locale) throws PrivilegeException, PerunException;
+	void updateFormItemTexts(PerunSession user, ApplicationFormItem item, Locale locale) throws PerunException;
 
 	/**
 	 * Updates internationalized texts for a form item (all locales are replaced by current value)
@@ -181,7 +181,7 @@ public interface RegistrarManager {
 	 * @param user user changing the form item texts
 	 * @param item the form item to be changed
 	 */
-	void updateFormItemTexts(PerunSession user, ApplicationFormItem item) throws PrivilegeException, PerunException;
+	void updateFormItemTexts(PerunSession user, ApplicationFormItem item) throws PerunException;
 
 	/**
 	 * Gets all form items.
@@ -438,7 +438,7 @@ public interface RegistrarManager {
 	 * @param reverse FALSE = copy from VO to Group (default) / TRUE = copy from Group to VO
 	 * @throws PerunException
 	 */
-	public void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
+	void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
 
 	/**
 	 * Copy all form items from selected Group into another.
@@ -458,7 +458,7 @@ public interface RegistrarManager {
 	 * @param app Application to update user
 	 * @throws InternalErrorException
 	 */
-	public void updateApplicationUser(PerunSession sess, Application app) throws InternalErrorException;
+	void updateApplicationUser(PerunSession sess, Application app) throws InternalErrorException;
 
 	/**
 	 * Getter for Mail manager used for notifications

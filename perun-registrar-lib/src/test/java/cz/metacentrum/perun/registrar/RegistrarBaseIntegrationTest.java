@@ -64,8 +64,6 @@ public class RegistrarBaseIntegrationTest {
 			vo = new Vo(0,"registrarTestVO","regTestVO");
 			vo = perun.getVosManagerBl().createVo(session, vo);
 
-		} else {
-			return;
 		}
 
 	}
@@ -149,7 +147,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	}
 
 	@Test
-	public void createVOformIntegrationTest() throws PerunException, PrivilegeException, InternalErrorException {
+	public void createVOformIntegrationTest() throws PerunException {
 		System.out.println("createVOformIntegrationTest()");
 
 		// get form for VO (if not exists, it's created)
@@ -388,7 +386,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 	}
 
-	private static void applyForMembershipInVO(RegistrarManager registrarManager, PerunBl perun, Vo vo,PerunSession user) throws PerunException, DuplicateRegistrationAttemptException {
+	private static void applyForMembershipInVO(RegistrarManager registrarManager, PerunBl perun, Vo vo,PerunSession user) throws PerunException {
 
 		Map<String,String> feder = new HashMap<String, String>();
 		feder.put("Shib-Person-displayName","pplk. doc. Ing. Václav Rumcajs, DrSc.");

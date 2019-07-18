@@ -10,7 +10,6 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
-import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
@@ -26,11 +25,8 @@ public class EduGain implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
 
-	private RegistrarManager registrar;
-
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override

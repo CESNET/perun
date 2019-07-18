@@ -33,11 +33,8 @@ public class Sitola implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(Sitola.class);
 
-	private RegistrarManager registrar;
-
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override
@@ -66,7 +63,7 @@ public class Sitola implements RegistrarModule {
 
 					// add MU identity
 					List<String> identities = new ArrayList<>();
-					identities.add(((String)loginMu.getValue())+"@eduroam.muni.cz");
+					identities.add(loginMu.getValue() +"@eduroam.muni.cz");
 
 					eduroamIdentities.setValue(identities);
 
@@ -82,7 +79,7 @@ public class Sitola implements RegistrarModule {
 					// check if not already present and set
 					boolean found = false;
 					for (String value : (List<String>)eduroamIdentities.getValue()) {
-						if (Objects.equals(value, ((String)loginMu.getValue())+"@eduroam.muni.cz")) {
+						if (Objects.equals(value, loginMu.getValue() +"@eduroam.muni.cz")) {
 							found = true;
 							break;
 						}
@@ -90,7 +87,7 @@ public class Sitola implements RegistrarModule {
 
 					if (!found) {
 						// add MU eduroam identity
-						((List<String>) eduroamIdentities.getValue()).add(((String)loginMu.getValue())+"@eduroam.muni.cz");
+						((List<String>) eduroamIdentities.valueAsList()).add(loginMu.getValue() +"@eduroam.muni.cz");
 						// use Bl since VO manager normally can't set this attribute
 						perun.getAttributesManagerBl().setAttribute(session, user, eduroamIdentities);
 					}

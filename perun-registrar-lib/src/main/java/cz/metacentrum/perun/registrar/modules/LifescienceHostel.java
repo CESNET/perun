@@ -37,11 +37,8 @@ public class LifescienceHostel implements RegistrarModule {
 	private final static String LS_HOSTEL_SCOPE = "@lifescience-hostel.org";
 	private final static String LS_HOSTEL_EXT_SOURCE_NAME = "https://login.bbmri-eric.eu/lshostel/";
 
-	private RegistrarManager registrar;
-
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override

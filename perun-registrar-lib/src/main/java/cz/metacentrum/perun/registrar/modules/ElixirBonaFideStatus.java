@@ -47,12 +47,9 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 	private static final String A_U_D_userEduPersonScopedAffiliations = AttributesManager.NS_USER_ATTR_VIRT + ':' + USER_AFFILIATIONS_ATTR_NAME;
 	private static final String A_G_D_groupAttestation = AttributesManager.NS_GROUP_ATTR_DEF + ':' + GROUP_ATESTATION_ATTR_NAME;
 
-	private RegistrarManager registrar;
-
 
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override

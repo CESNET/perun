@@ -15,12 +15,13 @@ import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.UnsupportedEncodingException;
+
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -50,11 +51,8 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 	public static String RDN_TRUNCATE_SIGN = "...";
 	public static int RDN_MAX_SIZE = 64;
 
-	private RegistrarManager registrarManager;
-
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrarManager = registrar;
 	}
 
 	@Override
@@ -93,11 +91,7 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 				throw new InternalErrorException(e);
 			}
 
-			try {
-				md.update(elixirLogin.getBytes("UTF-8"));
-			} catch (UnsupportedEncodingException e) {
-				throw new InternalErrorException(e);
-			}
+			md.update(elixirLogin.getBytes(StandardCharsets.UTF_8));
 
 			byte[] digest = md.digest();
 			String hash = Base64.encodeBase64String(digest);

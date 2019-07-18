@@ -735,7 +735,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public ApplicationForm getFormByItemId(PerunSession sess, int id) throws PerunException {
+	public ApplicationForm getFormByItemId(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, FormNotExistsException {
 
 		try {
 			ApplicationForm form = jdbc.queryForObject(FORM_SELECT + " where id=(select form_id from application_form_items where id=?)", new RowMapper<ApplicationForm>() {
@@ -760,6 +760,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					return form;
 				}
 			}, id);
+
+			if (Objects.isNull(form)) throw new FormNotExistsException("Form with ID: "+id+" doesn't exists.");
 
 			if (form.getGroup() == null) {
 				// VO application
@@ -982,7 +984,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item, Locale locale) throws PrivilegeException, PerunException {
+	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item, Locale locale) throws PrivilegeException, FormNotExistsException, InternalErrorException {
 
 		try {
 			getFormByItemId(sess, item.getId());
@@ -998,7 +1000,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item) throws PrivilegeException, PerunException {
+	public void updateFormItemTexts(PerunSession sess, ApplicationFormItem item) throws PrivilegeException, FormNotExistsException, InternalErrorException {
 
 		ApplicationForm form;
 
@@ -1645,13 +1647,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 				// DO NOT STORE LOGINS THROUGH CANDIDATE
 				// we do not set logins by candidate object to prevent accidental overwrite while joining identities in process
-				Iterator<Map.Entry<String,String>> iter = attributes.entrySet().iterator();
-				while (iter.hasNext()) {
-					Map.Entry<String,String> entry = iter.next();
-					if(entry.getKey().contains("urn:perun:user:attribute-def:def:login-namespace:")){
-						iter.remove();
-					}
-				}
+				attributes.entrySet().removeIf(entry -> entry.getKey().contains("urn:perun:user:attribute-def:def:login-namespace:"));
 
 				Candidate candidate = new Candidate();
 				candidate.setAttributes(attributes);
@@ -2128,7 +2124,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public void updateFormItem(PerunSession sess, ApplicationFormItem item) throws PrivilegeException, PerunException {
+	public void updateFormItem(PerunSession sess, ApplicationFormItem item) throws PrivilegeException, FormNotExistsException, InternalErrorException {
 
 		ApplicationForm form;
 

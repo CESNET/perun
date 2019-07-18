@@ -39,11 +39,8 @@ public class Elixircz implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(Elixircz.class);
 
-	private RegistrarManager registrar;
-
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override

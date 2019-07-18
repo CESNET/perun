@@ -30,11 +30,8 @@ public class WeNMR implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(WeNMR.class);
 
-	private RegistrarManager registrar;
-
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override

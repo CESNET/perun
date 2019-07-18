@@ -92,13 +92,11 @@ public class Metacentrum implements RegistrarModule {
 			Group group;
 			try {
 				group = perun.getGroupsManager().getGroupByName(session, app.getVo(), statisticGroupName);
-			} catch (GroupNotExistsException ex) {
-				// user filled non existing group, just skip adding
-				return app;
-			} catch (InternalErrorException ex) {
-				// wrong group name
+			} catch (GroupNotExistsException | InternalErrorException ex) {
+				// user filled non existing group, just skip adding OR wrong group name
 				return app;
 			}
+
 
 			Attribute isStatisticGroup = perun.getAttributesManager().getAttribute(session, group, "urn:perun:group:attribute-def:def:statisticGroup");
 			Attribute isStatisticGroupAutoFill = perun.getAttributesManager().getAttribute(session, group, "urn:perun:group:attribute-def:def:statisticGroupAutoFill");

@@ -3,6 +3,7 @@ package cz.metacentrum.perun.registrar.impl;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -417,7 +418,7 @@ public class MailManagerImpl implements MailManager {
 				log.error("[MAIL MANAGER] Mail not sent. Definition (or mail text) for: {} do not exists for " +
 						"VO: {} and Group: {}", mailType.toString(), app.getVo(), app.getGroup());
 				return; // mail not found
-			} else if (mail.getSend() == false) {
+			} else if (!mail.getSend()) {
 				log.info("[MAIL MANAGER] Mail not sent. Disabled by VO admin for: {} / appID: {} / {} / {}"
 						, mail.getMailType(), app.getId(), app.getVo(), app.getGroup());
 				return; // sending this mail is disabled by VO admin
@@ -897,7 +898,7 @@ public class MailManagerImpl implements MailManager {
 		ApplicationMail mail = getMailByParams(form.getId(), AppType.INITIAL, MailType.USER_INVITE);
 		if (mail == null) {
 			throw new RegistrarException("You don't have invitation e-mail template defined.");
-		} else if (mail.getSend() == false) {
+		} else if (!mail.getSend()) {
 			throw new RegistrarException("Sending of invitations is disabled.");
 		}
 
@@ -1016,7 +1017,7 @@ public class MailManagerImpl implements MailManager {
 		ApplicationMail mail = getMailByParams(form.getId(), AppType.INITIAL, MailType.USER_INVITE);
 		if (mail == null) {
 			throw new RegistrarException("You don't have invitation e-mail template defined.");
-		} else if (mail.getSend() == false) {
+		} else if (!mail.getSend()) {
 			throw new RegistrarException("Sending of invitations is disabled.");
 		}
 
@@ -1112,8 +1113,8 @@ public class MailManagerImpl implements MailManager {
 			throw new NullPointerException("input must not be null");
 		try {
 			Mac mac = Mac.getInstance("HmacSHA256");
-			mac.init(new SecretKeySpec(getPropertyFromConfiguration("secretKey").getBytes("UTF-8"),"HmacSHA256"));
-			byte[] macbytes = mac.doFinal(input.getBytes("UTF-8"));
+			mac.init(new SecretKeySpec(getPropertyFromConfiguration("secretKey").getBytes(StandardCharsets.UTF_8),"HmacSHA256"));
+			byte[] macbytes = mac.doFinal(input.getBytes(StandardCharsets.UTF_8));
 			return new BigInteger(macbytes).toString(Character.MAX_RADIX);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -1993,11 +1994,9 @@ public class MailManagerImpl implements MailManager {
 				log.error("[MAIL MANAGER] Exception when getting perun instance link for {} : {}", vo, ex);
 			}
 
-		} finally {
-
-			return result;
-
 		}
+
+		return result;
 
 	}
 

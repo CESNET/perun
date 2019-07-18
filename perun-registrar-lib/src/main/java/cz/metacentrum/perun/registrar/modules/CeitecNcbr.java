@@ -26,11 +26,8 @@ public class CeitecNcbr implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(CeitecNcbr.class);
 
-	private RegistrarManager registrar;
-
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override

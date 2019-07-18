@@ -96,7 +96,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		if (mail != null) {
 			if (mail.contains(";")) {
-				String mailSearch[] = mail.split(";");
+				String[] mailSearch = mail.split(";");
 				for (String m : mailSearch) {
 					if (m != null && !m.isEmpty())
 						res.addAll(perun.getUsersManager().findRichUsersWithAttributesByExactMatch(registrarSession, m, attrNames));
@@ -370,7 +370,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			throw ex;
 		}
 
-		if (originalUser != null && currentUser != null && originalUser.equals(currentUser)) {
+		if (originalUser != null && originalUser.equals(currentUser)) {
 			throw new IdentitiesAlreadyJoinedException("You already have both identities joined.");
 		}
 
@@ -506,7 +506,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 							String safeMail = ((String) a.getValue()).split("@")[0];
 
 							if (safeMail.length() > 2) {
-								safeMail = safeMail.substring(0, 1) + "****" + safeMail.substring(safeMail.length()-1, safeMail.length());
+								safeMail = safeMail.substring(0, 1) + "****" + safeMail.substring(safeMail.length()-1);
 							}
 
 							safeMail += "@"+((String) a.getValue()).split("@")[1];
