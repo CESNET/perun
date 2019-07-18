@@ -3,7 +3,14 @@ package cz.metacentrum.perun.registrar.modules;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
@@ -26,11 +33,8 @@ public class Sitola implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(Sitola.class);
 
-	private RegistrarManager registrar;
-
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override
@@ -42,7 +46,7 @@ public class Sitola implements RegistrarModule {
 	 * All new Sitola members will have MU eduroam identity added if they posses MU login.
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) throws WrongAttributeAssignmentException, UserNotExistsException, InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		// get perun from session
 		PerunBl perun = (PerunBl) session.getPerun();
@@ -59,7 +63,7 @@ public class Sitola implements RegistrarModule {
 
 					// add MU identity
 					List<String> identities = new ArrayList<>();
-					identities.add(((String)loginMu.getValue())+"@eduroam.muni.cz");
+					identities.add(loginMu.getValue() +"@eduroam.muni.cz");
 
 					eduroamIdentities.setValue(identities);
 
@@ -74,8 +78,8 @@ public class Sitola implements RegistrarModule {
 
 					// check if not already present and set
 					boolean found = false;
-					for (String value : (List<String>)eduroamIdentities.getValue()) {
-						if (Objects.equals(value, ((String)loginMu.getValue())+"@eduroam.muni.cz")) {
+					for (String value : eduroamIdentities.valueAsList()) {
+						if (Objects.equals(value, loginMu.getValue() +"@eduroam.muni.cz")) {
 							found = true;
 							break;
 						}
@@ -83,7 +87,7 @@ public class Sitola implements RegistrarModule {
 
 					if (!found) {
 						// add MU eduroam identity
-						((List<String>) eduroamIdentities.getValue()).add(((String)loginMu.getValue())+"@eduroam.muni.cz");
+						((List<String>) eduroamIdentities.valueAsList()).add(loginMu.getValue() +"@eduroam.muni.cz");
 						// use Bl since VO manager normally can't set this attribute
 						perun.getAttributesManagerBl().setAttribute(session, user, eduroamIdentities);
 					}
@@ -105,7 +109,7 @@ public class Sitola implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) {
 		return app;
 	}
 

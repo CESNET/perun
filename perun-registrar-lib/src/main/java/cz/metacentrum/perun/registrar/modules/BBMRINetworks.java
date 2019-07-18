@@ -9,14 +9,22 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
@@ -39,13 +47,12 @@ import java.util.Set;
  */
 public class BBMRINetworks implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(BBMRINetworks.class);
-
-	public static final String NETWORK_IDS_FIELD = "Comma or new-line separated list of IDs of networks you are representing:";
-	public static final String NETWORKS_GROUP_NAME = "networks";
-	public static final String NETWORK_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:networkID";
-	public static final String REPRESENTATIVES_GROUP_NAME = "representatives";
-	public static final String ADD_NEW_NETWORKS_GROUP_NAME = "addNewNetworks";
+	private final static Logger log = LoggerFactory.getLogger(BBMRINetworks.class);
+	private static final String NETWORK_IDS_FIELD = "Comma or new-line separated list of IDs of networks you are representing:";
+	private static final String NETWORKS_GROUP_NAME = "networks";
+	private static final String NETWORK_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:networkID";
+	private static final String REPRESENTATIVES_GROUP_NAME = "representatives";
+	private static final String ADD_NEW_NETWORKS_GROUP_NAME = "addNewNetworks";
 
 	private RegistrarManager registrar;
 
@@ -67,7 +74,7 @@ public class BBMRINetworks implements RegistrarModule {
 	 * @return unchanged application
 	 * @throws PerunException in case of internal error in Perun
 	 */
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) throws VoNotExistsException, UserNotExistsException, PrivilegeException, MemberNotExistsException, InternalErrorException, RegistrarException, GroupNotExistsException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, NotGroupMemberException {
 		// get perun and beans from session
 		Perun perun = session.getPerun();
 		Vo vo = app.getVo();
@@ -153,7 +160,7 @@ public class BBMRINetworks implements RegistrarModule {
 	 *
 	 * @return network IDs set
 	 */
-	private Set<String> getNetworkIDsFromApplication(PerunSession session, Application app) throws PerunException {
+	private Set<String> getNetworkIDsFromApplication(PerunSession session, Application app) throws RegistrarException, PrivilegeException, InternalErrorException {
 		String networksString = null;
 		List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
 		for (ApplicationFormItemData field : formData) {

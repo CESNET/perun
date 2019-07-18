@@ -2,12 +2,22 @@ package cz.metacentrum.perun.registrar.modules;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
@@ -30,7 +40,7 @@ import java.util.Objects;
  */
 public class Metacentrum implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
+	private final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
 
 	private RegistrarManager registrar;
 
@@ -48,7 +58,7 @@ public class Metacentrum implements RegistrarModule {
 	 * Add all new Metacentrum members to "storage" group.
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) throws PrivilegeException, InternalErrorException, VoNotExistsException, GroupNotExistsException, UserNotExistsException, MemberNotExistsException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, WrongAttributeValueException, RegistrarException {
 
 		// get perun from session
 		Perun perun = session.getPerun();
@@ -82,13 +92,11 @@ public class Metacentrum implements RegistrarModule {
 			Group group;
 			try {
 				group = perun.getGroupsManager().getGroupByName(session, app.getVo(), statisticGroupName);
-			} catch (GroupNotExistsException ex) {
-				// user filled non existing group, just skip adding
-				return app;
-			} catch (InternalErrorException ex) {
-				// wrong group name
+			} catch (GroupNotExistsException | InternalErrorException ex) {
+				// user filled non existing group, just skip adding OR wrong group name
 				return app;
 			}
+
 
 			Attribute isStatisticGroup = perun.getAttributesManager().getAttribute(session, group, "urn:perun:group:attribute-def:def:statisticGroup");
 			Attribute isStatisticGroupAutoFill = perun.getAttributesManager().getAttribute(session, group, "urn:perun:group:attribute-def:def:statisticGroupAutoFill");
@@ -115,7 +123,7 @@ public class Metacentrum implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) {
 		return app;
 	}
 
@@ -151,7 +159,7 @@ public class Metacentrum implements RegistrarModule {
 				}
 
 			} catch (ParseException e) {
-				log.warn("Unable to parse date to determine, if user is eligible for CESNET services. {}", e);
+				log.warn("Unable to parse date to determine, if user is eligible for CESNET services.", e);
 			}
 		}
 

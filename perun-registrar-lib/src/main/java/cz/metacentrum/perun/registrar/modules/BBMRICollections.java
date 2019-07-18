@@ -3,14 +3,22 @@ package cz.metacentrum.perun.registrar.modules;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
@@ -29,12 +37,12 @@ import java.util.*;
  */
 public class BBMRICollections implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(BBMRICollections.class);
-	public static final String BIOBANK_IDS_FIELD = "Comma or new-line separated list of IDs of collections you are representing:";
-	public static final String COLLECTIONS_GROUP_NAME = "collections:bbmriEricDirectory";
-	public static final String COLLECTION_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:collectionID";
-	public static final String REPRESENTATIVES_GROUP_NAME = "representatives";
-	public static final String ADD_NEW_COLLECTIONS_GROUP_NAME = "addNewCollections";
+	private final static Logger log = LoggerFactory.getLogger(BBMRICollections.class);
+	private static final String BIOBANK_IDS_FIELD = "Comma or new-line separated list of IDs of collections you are representing:";
+	private static final String COLLECTIONS_GROUP_NAME = "collections:bbmriEricDirectory";
+	private static final String COLLECTION_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:collectionID";
+	private static final String REPRESENTATIVES_GROUP_NAME = "representatives";
+	private static final String ADD_NEW_COLLECTIONS_GROUP_NAME = "addNewCollections";
 
 	private RegistrarManager registrar;
 
@@ -57,7 +65,8 @@ public class BBMRICollections implements RegistrarModule {
 	 * @return unchanged application
 	 * @throws PerunException in case of internal error in Perun
 	 */
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	@Override
+	public Application approveApplication(PerunSession session, Application app) throws VoNotExistsException, UserNotExistsException, PrivilegeException, MemberNotExistsException, InternalErrorException, RegistrarException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException, ExternallyManagedException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
 		// get perun and beans from session
 		Perun perun = session.getPerun();
 		Vo vo = app.getVo();
@@ -145,7 +154,7 @@ public class BBMRICollections implements RegistrarModule {
 	 *
 	 * @return collection IDs set
 	 */
-	private Set<String> getCollectionIDsFromApplication(PerunSession session, Application app) throws PerunException {
+	private Set<String> getCollectionIDsFromApplication(PerunSession session, Application app) throws RegistrarException, PrivilegeException, InternalErrorException {
 		String collectionsString = null;
 		List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
 		for (ApplicationFormItemData field : formData) {

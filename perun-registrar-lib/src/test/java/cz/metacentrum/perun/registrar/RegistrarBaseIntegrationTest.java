@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
@@ -48,8 +47,8 @@ public class RegistrarBaseIntegrationTest {
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
 	@Autowired MailManager mailManager;
-	public PerunSession session;
-	public Vo vo;
+	PerunSession session;
+	private Vo vo;
 
 	@Before
 	public void setupTest() throws Exception {
@@ -64,8 +63,6 @@ public class RegistrarBaseIntegrationTest {
 			vo = new Vo(0,"registrarTestVO","regTestVO");
 			vo = perun.getVosManagerBl().createVo(session, vo);
 
-		} else {
-			return;
 		}
 
 	}
@@ -149,7 +146,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 	}
 
 	@Test
-	public void createVOformIntegrationTest() throws PerunException, PrivilegeException, InternalErrorException {
+	public void createVOformIntegrationTest() throws PerunException {
 		System.out.println("createVOformIntegrationTest()");
 
 		// get form for VO (if not exists, it's created)
@@ -162,7 +159,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		i0.setType(ApplicationFormItem.Type.HTML_COMMENT);
 		i0.getTexts(CS).setLabel("Vyplňte, prosím, přihlášku.");
 		i0.getTexts(EN).setLabel("Fill in the initial application, please.");
-		i0.setApplicationTypes(Arrays.asList(Application.AppType.INITIAL));
+		i0.setApplicationTypes(Collections.singletonList(INITIAL));
 		registrarManager.addFormItem(session, applicationForm, i0);
 
 		ApplicationFormItem i0b = new ApplicationFormItem();
@@ -170,7 +167,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		i0b.setType(ApplicationFormItem.Type.HTML_COMMENT);
 		i0b.getTexts(CS).setLabel("Zkontrolujte, prosím, před podáním žádosti o prodloužení účtu, svoje údaje.");
 		i0b.getTexts(EN).setLabel("Please check you personal data before applying for account extension.");
-		i0b.setApplicationTypes(Arrays.asList(Application.AppType.EXTENSION));
+		i0b.setApplicationTypes(Collections.singletonList(AppType.EXTENSION));
 		registrarManager.addFormItem(session, applicationForm, i0b);
 
 		ApplicationFormItem i1 = new ApplicationFormItem();
@@ -311,7 +308,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		i10.getTexts(CS).setHelp("Uživatelské jméno musí začínat malým písmenem, a obsahovat pouze malá písmena, číslice a podtržení. Doporučujeme délku nanejvýš 8 znaků.");
 		i10.getTexts(EN).setLabel("Choose you user name");
 		i10.getTexts(EN).setHelp("User name must begin with a small letter, and can contain only small letters, digits and underscores. We recommend length max 8 characters.");
-		i10.setApplicationTypes(Arrays.asList(Application.AppType.INITIAL));
+		i10.setApplicationTypes(Collections.singletonList(INITIAL));
 		registrarManager.addFormItem(session, applicationForm, i10);
 
 		ApplicationFormItem i11 = new ApplicationFormItem();
@@ -323,7 +320,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		i11.getTexts(CS).setHelp("Heslo musí být 8 až 20 znaků dlouhé, a obsahovat aspoň 3 písmena a 1 znak jiný než písmeno.");
 		i11.getTexts(EN).setLabel("Password");
 		i11.getTexts(EN).setHelp("Password must be from 8 up to 20 characters long and contain printable characters only.");
-		i11.setApplicationTypes(Arrays.asList(Application.AppType.INITIAL));
+		i11.setApplicationTypes(Collections.singletonList(INITIAL));
 		registrarManager.addFormItem(session, applicationForm, i11);
 
 		ApplicationFormItem i12 = new ApplicationFormItem();
@@ -331,7 +328,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		i12.setType(ApplicationFormItem.Type.HTML_COMMENT);
 		i12.getTexts(CS).setLabel("Stiskem tlačítka 'Podat žádost o členství ve VO MetaCentrum' souhlaste s pravidly využití VO MetaCentrum.");
 		i12.getTexts(EN).setLabel("By pressing the button you agree with MetaCentrum rules.");
-		i12.setApplicationTypes(Arrays.asList(Application.AppType.INITIAL));
+		i12.setApplicationTypes(Collections.singletonList(INITIAL));
 		registrarManager.addFormItem(session, applicationForm, i12);
 
 		ApplicationFormItem i13 = new ApplicationFormItem();
@@ -339,7 +336,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		i13.setType(ApplicationFormItem.Type.SUBMIT_BUTTON);
 		i13.getTexts(CS).setLabel("Podat žádost o členství ve VO MetaCentrum");
 		i13.getTexts(EN).setLabel("Apply for membership in the MetaCentrum VO");
-		i13.setApplicationTypes(Arrays.asList(Application.AppType.INITIAL));
+		i13.setApplicationTypes(Collections.singletonList(INITIAL));
 		registrarManager.addFormItem(session, applicationForm, i13);
 
 		ApplicationFormItem i13b = new ApplicationFormItem();
@@ -347,7 +344,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		i13b.setType(ApplicationFormItem.Type.SUBMIT_BUTTON);
 		i13b.getTexts(CS).setLabel("Podat žádost o prodloužení účtu");
 		i13b.getTexts(EN).setLabel("Apply for account extension");
-		i13b.setApplicationTypes(Arrays.asList(Application.AppType.EXTENSION));
+		i13b.setApplicationTypes(Collections.singletonList(AppType.EXTENSION));
 		registrarManager.addFormItem(session, applicationForm, i13b);
 
 		// update form not to auto aprove
@@ -388,9 +385,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 	}
 
-	private static void applyForMembershipInVO(RegistrarManager registrarManager, PerunBl perun, Vo vo,PerunSession user) throws PerunException, DuplicateRegistrationAttemptException {
+	private static void applyForMembershipInVO(RegistrarManager registrarManager, PerunBl perun, Vo vo,PerunSession user) throws PerunException {
 
-		Map<String,String> feder = new HashMap<String, String>();
+		Map<String,String> feder = new HashMap<>();
 		feder.put("Shib-Person-displayName","pplk. doc. Ing. Václav Rumcajs, DrSc.");
 		feder.put("Shib-Person-commonName","Václav Rumcajs");
 		feder.put("Shib-Person-givenName","Václav");
@@ -413,7 +410,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		application.setFedInfo(feder.toString());
 		application.setVo(vo);
 
-		List<ApplicationFormItemData> data = new ArrayList<ApplicationFormItemData>();
+		List<ApplicationFormItemData> data = new ArrayList<>();
 		for (ApplicationFormItemWithPrefilledValue itemW : prefilledForm) {
 			ApplicationFormItem item = itemW.getFormItem();
 			//log.info("prefilled item "+itemW);

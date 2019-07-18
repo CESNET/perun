@@ -5,7 +5,15 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
@@ -39,12 +47,9 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 	private static final String A_U_D_userEduPersonScopedAffiliations = AttributesManager.NS_USER_ATTR_VIRT + ':' + USER_AFFILIATIONS_ATTR_NAME;
 	private static final String A_G_D_groupAttestation = AttributesManager.NS_GROUP_ATTR_DEF + ':' + GROUP_ATESTATION_ATTR_NAME;
 
-	private RegistrarManager registrar;
-
 
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override
@@ -56,7 +61,7 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 	 * Add new bonaFideStatus to the user attribute.
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) throws GroupNotExistsException, WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException, PrivilegeException, UserNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		User user = app.getUser();
 		Group group = app.getGroup();
 
@@ -86,14 +91,19 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, InternalErrorException {
 		Group group = app.getGroup();
 		if (group == null) {
 			throw new CantBeApprovedException("This module can be set only for registration to Group.");
 		}
 
 		AttributesManager am = session.getPerun().getAttributesManager();
-		Attribute attestation = am.getAttribute(session, group, A_G_D_groupAttestation);
+		Attribute attestation;
+		try {
+			attestation = am.getAttribute(session, group, A_G_D_groupAttestation);
+		} catch (Exception e) {
+			throw new InternalErrorException(e.getMessage(), e);
+		}
 
 		if (attestation == null) {
 			throw new CantBeApprovedException("Application cannot be approved: Group does not have attestation attribute set.");

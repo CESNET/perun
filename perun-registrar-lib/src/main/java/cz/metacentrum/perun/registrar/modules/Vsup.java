@@ -6,7 +6,15 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
@@ -29,7 +37,7 @@ import java.util.Objects;
  */
 public class Vsup implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(Vsup.class);
+	private final static Logger log = LoggerFactory.getLogger(Vsup.class);
 
 	private RegistrarManager registrar;
 
@@ -73,7 +81,7 @@ public class Vsup implements RegistrarModule {
 	 * If membershipExpiration is null, set 4000-01-01 as unlimited.
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) throws MemberNotExistsException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, UserNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, PrivilegeException {
 
 		PerunBl perun = (PerunBl)session.getPerun();
 
@@ -98,7 +106,7 @@ public class Vsup implements RegistrarModule {
 				try {
 					membershipExpiration = df.parse(expiration);
 				} catch (ParseException e) {
-					log.error("Can't parse manual expiration date: {}",e);
+					log.error("Can't parse manual expiration date.",e);
 				}
 
 			}
@@ -113,7 +121,7 @@ public class Vsup implements RegistrarModule {
 				try {
 					manualExpiration = df.parse(expiration);
 				} catch (ParseException e) {
-					log.error("Can't parse manual expiration date: {}",e);
+					log.error("Can't parse manual expiration date.",e);
 				}
 
 			}
@@ -151,7 +159,7 @@ public class Vsup implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) {
 		return app;
 	}
 

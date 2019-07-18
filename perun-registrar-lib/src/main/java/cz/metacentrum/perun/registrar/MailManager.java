@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
@@ -28,7 +29,7 @@ public interface MailManager {
 	 * @throws PerunException
 	 * @throws DuplicateKeyException When mail definition already exists.
 	 */
-	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException, DuplicateKeyException;
+	Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException, DuplicateKeyException;
 
 	/**
 	 * Delete mail notification from DB based on ID property.
@@ -38,7 +39,7 @@ public interface MailManager {
 	 * @param id ID of ApplicationMail to delete from DB
 	 * @throws PerunException
 	 */
-	public void deleteMailById(PerunSession sess, ApplicationForm form, Integer id) throws PerunException;
+	void deleteMailById(PerunSession sess, ApplicationForm form, Integer id) throws PerunException;
 
 	/**
 	 * Update notification parameters (including message texts)
@@ -46,9 +47,11 @@ public interface MailManager {
 	 *
 	 * @param sess PerunSession for authz
 	 * @param mail ApplicationMail to update to
-	 * @throws PerunException
+	 * @throws FormNotExistsException When application form related to the mail template not exists
+	 * @throws PrivilegeException When caller is not authorized
+	 * @throws InternalErrorException When implementation fails
 	 */
-	public void updateMailById(PerunSession sess, ApplicationMail mail) throws PerunException;
+	void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, InternalErrorException, PrivilegeException;
 
 	/**
 	 * Enable or disable sending for list of mail definitions
@@ -58,7 +61,7 @@ public interface MailManager {
 	 * @param enabled true = enable sending / false = disable sending
 	 * @throws PerunException
 	 */
-	public void setSendingEnabled(PerunSession sess, List<ApplicationMail> mails, boolean enabled) throws PerunException;
+	void setSendingEnabled(PerunSession sess, List<ApplicationMail> mails, boolean enabled) throws PerunException;
 
 	/**
 	 * Return mail definition including texts by ID.
@@ -69,7 +72,7 @@ public interface MailManager {
 	 * @throws InternalErrorException when mail definition doesn't exists
 	 * @throws PrivilegeException if not VO admin
 	 */
-	public ApplicationMail getMailById(PerunSession sess, Integer id) throws InternalErrorException, PrivilegeException;
+	ApplicationMail getMailById(PerunSession sess, Integer id) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Return all mail notifications related to specific app form (vo/group)
@@ -79,7 +82,7 @@ public interface MailManager {
 	 * @return list of mail notifications related to app form (vo/group)
 	 * @throws PerunException
 	 */
-	public List<ApplicationMail> getApplicationMails(PerunSession sess, ApplicationForm form) throws PerunException;
+	List<ApplicationMail> getApplicationMails(PerunSession sess, ApplicationForm form) throws PerunException;
 
 	/**
 	 * Copy all mail definitions from one VO's form into another VO's form.
@@ -89,7 +92,7 @@ public interface MailManager {
 	 * @param toVo VO to add application mails to
 	 * @throws PerunException
 	 */
-	public void copyMailsFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException;
+	void copyMailsFromVoToVo(PerunSession sess, Vo fromVo, Vo toVo) throws PerunException;
 
 	/**
 	 * Copy all mail definitions from one VO to Group or reverse.
@@ -100,7 +103,7 @@ public interface MailManager {
 	 * @param reverse FALSE = copy from VO to Group (default) / TRUE = copy from Group to VO
 	 * @throws PerunException
 	 */
-	public void copyMailsFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
+	void copyMailsFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
 
 	/**
 	 * Copy all mail definitions from one group into another group.
@@ -110,7 +113,7 @@ public interface MailManager {
 	 * @param toGroup Group to add application mails to
 	 * @throws PerunException
 	 */
-	public void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException;
+	void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException;
 
 	/**
 	 * Send mail notification for specific application and mail type.
@@ -124,7 +127,7 @@ public interface MailManager {
 	 * @param reason custom text passed to mail by admin (e.g. reason of application reject)
 	 * @param exceptions list of exceptions which occured when processing parent request
 	 */
-	public void sendMessage(Application app, MailType mailType, String reason, List<Exception> exceptions);
+	void sendMessage(Application app, MailType mailType, String reason, List<Exception> exceptions);
 
 	/**
 	 * Re-send mail notification for specific application and MailType.
@@ -141,7 +144,7 @@ public interface MailManager {
 	 * @param mailType MailType action which caused sending
 	 * @param reason custom text passed to mail by admin (e.g. reason of application reject)
 	 */
-	public void sendMessage(PerunSession sess, Application app, MailType mailType, String reason) throws PerunException;
+	void sendMessage(PerunSession sess, Application app, MailType mailType, String reason) throws PerunException;
 
 	/**
 	 * Sends invitation with link to VO / Group application form.
@@ -159,7 +162,7 @@ public interface MailManager {
 	 *
 	 * @throws PerunException
 	 */
-	public void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email, String language) throws PerunException;
+	void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email, String language) throws PerunException;
 
 	/**
 	 * Sends invitation with link to VO / Group application form.
@@ -175,7 +178,7 @@ public interface MailManager {
 	 *
 	 * @throws PerunException
 	 */
-	public void sendInvitation(PerunSession sess, Vo vo, Group group, User user) throws PerunException;
+	void sendInvitation(PerunSession sess, Vo vo, Group group, User user) throws PerunException;
 
 	/**
 	 * Creates a MAC with a hard-compiled secret key encoded to printable characters.
@@ -183,7 +186,7 @@ public interface MailManager {
 	 * @param input any string
 	 * @return message authentication code suitable to be passed in URLs
 	 */
-	public String getMessageAuthenticationCode(String input);
+	String getMessageAuthenticationCode(String input);
 
 	/**
 	 * Get property from configuration
@@ -191,6 +194,6 @@ public interface MailManager {
 	 * @param input property to get
 	 * @return property value or empty string on any error or when not found
 	 */
-	public String getPropertyFromConfiguration(String input);
+	String getPropertyFromConfiguration(String input);
 
 }

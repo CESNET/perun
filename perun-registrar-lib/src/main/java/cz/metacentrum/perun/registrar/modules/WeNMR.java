@@ -30,11 +30,8 @@ public class WeNMR implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(WeNMR.class);
 
-	private RegistrarManager registrar;
-
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override
@@ -43,7 +40,7 @@ public class WeNMR implements RegistrarModule {
 	}
 
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) {
 		return app;
 	}
 
@@ -53,7 +50,7 @@ public class WeNMR implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) {
 		return app;
 	}
 
@@ -65,7 +62,7 @@ public class WeNMR implements RegistrarModule {
 
 			// submitted by untrusted IdP
 			PerunBl perun = (PerunBl) session.getPerun();
-			User user = null;
+			User user;
 
 			// check if user is known
 			if (app.getUser() != null) {

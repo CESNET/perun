@@ -1,11 +1,14 @@
 package cz.metacentrum.perun.registrar.modules;
 
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeSubmittedException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
@@ -28,7 +31,7 @@ import java.util.Objects;
  */
 public class Du implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(Du.class);
+	private final static Logger log = LoggerFactory.getLogger(Du.class);
 
 	private RegistrarManager registrar;
 
@@ -43,7 +46,7 @@ public class Du implements RegistrarModule {
 	}
 
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) {
 		return app;
 	}
 
@@ -53,7 +56,7 @@ public class Du implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, RegistrarException, PrivilegeException, InternalErrorException {
 
 		// allow only Education & Research community members
 		List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
@@ -84,7 +87,7 @@ public class Du implements RegistrarModule {
 				}
 
 			} catch (ParseException e) {
-				log.warn("Unable to parse date to determine, if user is eligible for CESNET services. {}", e);
+				log.warn("Unable to parse date to determine, if user is eligible for CESNET services.", e);
 			}
 		}
 
@@ -120,7 +123,7 @@ public class Du implements RegistrarModule {
 				}
 
 			} catch (ParseException e) {
-				log.warn("Unable to parse date to determine, if user is eligible for CESNET services. {}", e);
+				log.warn("Unable to parse date to determine, if user is eligible for CESNET services.", e);
 			}
 		}
 

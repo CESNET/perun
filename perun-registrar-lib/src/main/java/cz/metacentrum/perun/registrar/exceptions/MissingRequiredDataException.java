@@ -17,7 +17,7 @@ public class MissingRequiredDataException extends PerunException {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<ApplicationFormItemWithPrefilledValue> formItems = new ArrayList<ApplicationFormItemWithPrefilledValue>();
+	private List<ApplicationFormItemWithPrefilledValue> formItems = new ArrayList<>();
 
 	public MissingRequiredDataException(String message) {
 		super(message);
@@ -42,7 +42,7 @@ public class MissingRequiredDataException extends PerunException {
 	}
 
 	public void addFormItem(ApplicationFormItemWithPrefilledValue item) {
-		if (formItems == null) formItems = new ArrayList<ApplicationFormItemWithPrefilledValue>();
+		if (formItems == null) formItems = new ArrayList<>();
 		if (item != null) {
 			formItems.add(item);
 		}

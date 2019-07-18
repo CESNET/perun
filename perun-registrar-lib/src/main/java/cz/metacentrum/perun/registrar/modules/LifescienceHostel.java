@@ -6,8 +6,12 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
@@ -27,17 +31,14 @@ import java.util.Map;
  */
 public class LifescienceHostel implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(LifescienceHostel.class);
+	private final static Logger log = LoggerFactory.getLogger(LifescienceHostel.class);
 
 	private final static String LIFESCIENCE_HOSTEL_NS = "login-namespace:lifescience-hostel";
 	private final static String LS_HOSTEL_SCOPE = "@lifescience-hostel.org";
 	private final static String LS_HOSTEL_EXT_SOURCE_NAME = "https://login.bbmri-eric.eu/lshostel/";
 
-	private RegistrarManager registrar;
-
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
-		this.registrar = registrar;
 	}
 
 	@Override
@@ -49,7 +50,7 @@ public class LifescienceHostel implements RegistrarModule {
 	 * Create proper UserExtSource
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException, ExtSourceNotExistsException {
 
 		PerunBl perun = (PerunBl)session.getPerun();
 
@@ -91,7 +92,7 @@ public class LifescienceHostel implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) {
 		return app;
 	}
 

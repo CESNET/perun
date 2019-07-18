@@ -4,6 +4,8 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptException;
+import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
@@ -32,7 +34,7 @@ public interface RegistrarManager {
 	 * @return List of VO attributes
 	 * @throws PerunException
 	 */
-	public List<Attribute> initialize(String voShortName, String groupName) throws PerunException;
+	List<Attribute> initialize(String voShortName, String groupName) throws PerunException;
 
 	/**
 	 * Retrieves all necessary data for new registrar webapp in one big call.
@@ -44,7 +46,7 @@ public interface RegistrarManager {
 	 * @return Map of expected data
 	 * @throws PerunException
 	 */
-	public Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName) throws PerunException;
+	Map<String, Object> initRegistrar(PerunSession sess, String voShortName, String groupName) throws PerunException;
 
 	/**
 	 * Create application form for vo
@@ -72,9 +74,10 @@ public interface RegistrarManager {
 	 *
 	 * @param vo VO
 	 * @return registration form description
-	 * @throws PerunException
+	 * @throws FormNotExistsException When VO has no form
+	 * @throws InternalErrorException When implementation fails
 	 */
-	ApplicationForm getFormForVo(Vo vo) throws PerunException;
+	ApplicationForm getFormForVo(Vo vo) throws InternalErrorException, FormNotExistsException;
 
 	/**
 	 * Gets an application form for a given Group. There is exactly one form for membership per Group, one form is used for both initial registration and annual account expansion,
@@ -82,9 +85,10 @@ public interface RegistrarManager {
 	 *
 	 * @param group GROUP
 	 * @return registration form description
-	 * @throws PerunException
+	 * @throws FormNotExistsException WHen Group has no form
+	 * @throws InternalErrorException When implementation fails
 	 */
-	ApplicationForm getFormForGroup(Group group) throws PerunException;
+	ApplicationForm getFormForGroup(Group group) throws InternalErrorException, FormNotExistsException;
 
 	/**
 	 * Gets an application form for a given Id.
@@ -92,9 +96,11 @@ public interface RegistrarManager {
 	 * @param sess PerunSession for authz
 	 * @param id ID of application form to get
 	 * @return registration form
-	 * @throws PerunException
+	 * @throws InternalErrorException When implementation fails
+	 * @throws PrivilegeException When caller is not authorized
+	 * @throws FormNotExistsException When form with ID doesn't exists
 	 */
-	ApplicationForm getFormById(PerunSession sess, int id) throws PerunException;
+	ApplicationForm getFormById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, FormNotExistsException;
 
 	/**
 	 * Gets an application form for a given form item ID.
@@ -167,7 +173,7 @@ public interface RegistrarManager {
 	 * @param item the form item to be changed
 	 * @param locale the locale for which texts should be changed
 	 */
-	void updateFormItemTexts(PerunSession user, ApplicationFormItem item, Locale locale) throws PrivilegeException, PerunException;
+	void updateFormItemTexts(PerunSession user, ApplicationFormItem item, Locale locale) throws PerunException;
 
 	/**
 	 * Updates internationalized texts for a form item (all locales are replaced by current value)
@@ -175,7 +181,7 @@ public interface RegistrarManager {
 	 * @param user user changing the form item texts
 	 * @param item the form item to be changed
 	 */
-	void updateFormItemTexts(PerunSession user, ApplicationFormItem item) throws PrivilegeException, PerunException;
+	void updateFormItemTexts(PerunSession user, ApplicationFormItem item) throws PerunException;
 
 	/**
 	 * Gets all form items.
@@ -341,9 +347,11 @@ public interface RegistrarManager {
 	 * @param sess PerunSession
 	 * @param appId application to get user's data for
 	 * @return data submitted by user in given application
-	 * @throws PerunException
+	 * @throws PrivilegeException
+	 * @throws RegistrarException
+	 * @throws InternalErrorException
 	 */
-	List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PerunException;
+	List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, InternalErrorException;
 
 	/**
 	 * Returns applications submitted by user
@@ -430,7 +438,7 @@ public interface RegistrarManager {
 	 * @param reverse FALSE = copy from VO to Group (default) / TRUE = copy from Group to VO
 	 * @throws PerunException
 	 */
-	public void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
+	void copyFormFromVoToGroup(PerunSession sess, Vo fromVo, Group toGroup, boolean reverse) throws PerunException;
 
 	/**
 	 * Copy all form items from selected Group into another.
@@ -450,7 +458,7 @@ public interface RegistrarManager {
 	 * @param app Application to update user
 	 * @throws InternalErrorException
 	 */
-	public void updateApplicationUser(PerunSession sess, Application app) throws InternalErrorException;
+	void updateApplicationUser(PerunSession sess, Application app) throws InternalErrorException;
 
 	/**
 	 * Getter for Mail manager used for notifications

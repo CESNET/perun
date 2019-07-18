@@ -4,8 +4,25 @@ import java.util.List;
 import java.util.Map;
 
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 
@@ -20,7 +37,7 @@ public interface RegistrarModule {
 	/**
 	 * Sets registrar manager for usage in a module code.
 	 *
-	 * @param registrar
+	 * @param registrar Registrar bean
 	 */
 	void setRegistrar(RegistrarManager registrar);
 
@@ -41,7 +58,7 @@ public interface RegistrarModule {
 	 * @param session who approves the application
 	 * @param app application
 	 */
-	Application approveApplication(PerunSession session, Application app) throws PerunException;
+	Application approveApplication(PerunSession session, Application app) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, InternalErrorException, GroupNotExistsException, VoNotExistsException, MemberNotExistsException, AlreadyMemberException, ExternallyManagedException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongReferenceAttributeValueException, RegistrarException, ExtendMembershipException, ExtSourceNotExistsException, NotGroupMemberException;
 
 	/**
 	 * Manually rejects an application. Expected to be called as a result of direct VO administrator action in the web UI.
@@ -57,8 +74,12 @@ public interface RegistrarModule {
 	 *
 	 * @param session who approves the application
 	 * @param app application
+	 * @throws CantBeApprovedException When application can't be approved
+	 * @throws InternalErrorException When implementation fails
+	 * @throws RegistrarException When implementation fails
+	 * @throws PrivilegeException When caller is not authorized
 	 */
-	Application beforeApprove(PerunSession session, Application app) throws PerunException;
+	Application beforeApprove(PerunSession session, Application app) throws CantBeApprovedException, InternalErrorException, RegistrarException, PrivilegeException;
 
 	/**
 	 * Custom logic for checking method before application approval from GUI.

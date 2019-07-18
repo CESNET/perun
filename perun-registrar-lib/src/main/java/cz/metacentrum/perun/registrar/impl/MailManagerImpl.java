@@ -3,6 +3,7 @@ package cz.metacentrum.perun.registrar.impl;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -24,6 +25,7 @@ import cz.metacentrum.perun.audit.events.MailManagerEvents.MailSentForApplicatio
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.impl.Compatibility;
+import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +54,7 @@ import cz.metacentrum.perun.registrar.RegistrarManager;
 
 public class MailManagerImpl implements MailManager {
 
-	final static Logger log = LoggerFactory.getLogger(MailManagerImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(MailManagerImpl.class);
 
 	private static final String MAILS_SELECT_BY_FORM_ID = "select id,app_type,form_id,mail_type,send from application_mails where form_id=?";
 	private static final String MAILS_SELECT_BY_PARAMS = "select id,app_type,form_id,mail_type,send from application_mails where form_id=? and app_type=? and mail_type=?";
@@ -62,8 +64,8 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_VO_TO_EMAIL = "urn:perun:vo:attribute-def:def:toEmail";
 	private static final String URN_VO_MAIL_FOOTER = "urn:perun:vo:attribute-def:def:mailFooter";
 	private static final String URN_GROUP_MAIL_FOOTER = "urn:perun:group:attribute-def:def:mailFooter";
-	protected static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
-	protected static final String URN_USER_PHONE = "urn:perun:user:attribute-def:def:phone";
+	static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
+	private static final String URN_USER_PHONE = "urn:perun:user:attribute-def:def:phone";
 	private static final String URN_USER_PREFERRED_LANGUAGE = "urn:perun:user:attribute-def:def:preferredLanguage";
 	private static final String URN_MEMBER_MAIL = "urn:perun:member:attribute-def:def:mail";
 	private static final String URN_MEMBER_EXPIRATION = "urn:perun:member:attribute-def:def:membershipExpiration";
@@ -181,19 +183,14 @@ public class MailManagerImpl implements MailManager {
 	public ApplicationMail getMailById(PerunSession sess, Integer id) throws InternalErrorException, PrivilegeException {
 
 		// TODO authz
-		ApplicationMail mail = null;
+		ApplicationMail mail;
 
 		// get mail def
 		try {
-			List<ApplicationMail> mails = jdbc.query("select id,app_type,form_id,mail_type,send from application_mails where id=?", new RowMapper<ApplicationMail>(){
-				@Override
-				public ApplicationMail mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new ApplicationMail(rs.getInt("id"),
-							AppType.valueOf(rs.getString("app_type")),
-							rs.getInt("form_id"), MailType.valueOf(rs.getString("mail_type")),
-							rs.getBoolean("send"));
-				}
-			}, id);
+			List<ApplicationMail> mails = jdbc.query("select id,app_type,form_id,mail_type,send from application_mails where id=?", (resultSet, arg1) -> new ApplicationMail(resultSet.getInt("id"),
+					AppType.valueOf(resultSet.getString("app_type")),
+					resultSet.getInt("form_id"), MailType.valueOf(resultSet.getString("mail_type")),
+					resultSet.getBoolean("send")), id);
 			// set
 			if (mails.size() != 1) {
 				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: {}.", mails.size());
@@ -204,17 +201,12 @@ public class MailManagerImpl implements MailManager {
 			throw new InternalErrorException("Mail definition with ID="+id+" doesn't exists.");
 		}
 
-		List<MailText> texts = new ArrayList<MailText>();
+		List<MailText> texts;
 		try {
-			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, new RowMapper<MailText>(){
-				@Override
-				public MailText mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new MailText(new Locale(rs.getString("locale")), rs.getString("subject"), rs.getString("text"));
-				}
-			}, mail.getId());
+			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, (resultSet, arg1) -> new MailText(new Locale(resultSet.getString("locale")), resultSet.getString("subject"), resultSet.getString("text")), mail.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// if no texts it's error
-			log.error("[MAIL MANAGER] Mail do not contains any text message: {}", ex);
+			log.error("[MAIL MANAGER] Mail do not contains any text message.", ex);
 			return mail;
 		}
 		for (MailText text : texts) {
@@ -227,7 +219,7 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	@Transactional(rollbackFor=Exception.class)
-	public void updateMailById(PerunSession sess, ApplicationMail mail) throws PerunException {
+	public void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, InternalErrorException, PrivilegeException {
 
 		ApplicationForm form = registrarManager.getFormById(sess, mail.getFormId());
 
@@ -273,24 +265,12 @@ public class MailManagerImpl implements MailManager {
 	@Override
 	public List<ApplicationMail> getApplicationMails(PerunSession sess, ApplicationForm form) throws PerunException {
 
-		List<ApplicationMail> mails = new ArrayList<ApplicationMail>();
-		mails = jdbc.query(MAILS_SELECT_BY_FORM_ID, new RowMapper<ApplicationMail>() {
-			@Override
-			public ApplicationMail mapRow(ResultSet rs, int arg1) throws SQLException {
-				return new ApplicationMail(rs.getInt("id"),
-						AppType.valueOf(rs.getString("app_type")),
-						rs.getInt("form_id"), MailType.valueOf(rs.getString("mail_type")),
-						rs.getBoolean("send"));
-			}
-		}, form.getId());
+		List<ApplicationMail> mails = jdbc.query(MAILS_SELECT_BY_FORM_ID, (resultSet, arg1) -> new ApplicationMail(resultSet.getInt("id"),
+				AppType.valueOf(resultSet.getString("app_type")),
+				resultSet.getInt("form_id"), MailType.valueOf(resultSet.getString("mail_type")),
+				resultSet.getBoolean("send")), form.getId());
 		for (ApplicationMail mail : mails) {
-			List<MailText> texts = new ArrayList<MailText>();
-			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, new RowMapper<MailText>(){
-				@Override
-				public MailText mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new MailText(new Locale(rs.getString("locale")), rs.getString("subject"), rs.getString("text"));
-				}
-			}, mail.getId());
+			List<MailText> texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, (resultSet, arg1) -> new MailText(new Locale(resultSet.getString("locale")), resultSet.getString("subject"), resultSet.getString("text")), mail.getId());
 			for (MailText text : texts) {
 				// fil localized messages
 				mail.getMessage().put(text.getLocale(), text);
@@ -416,7 +396,7 @@ public class MailManagerImpl implements MailManager {
 				log.error("[MAIL MANAGER] Mail not sent. Definition (or mail text) for: {} do not exists for " +
 						"VO: {} and Group: {}", mailType.toString(), app.getVo(), app.getGroup());
 				return; // mail not found
-			} else if (mail.getSend() == false) {
+			} else if (!mail.getSend()) {
 				log.info("[MAIL MANAGER] Mail not sent. Disabled by VO admin for: {} / appID: {} / {} / {}"
 						, mail.getMailType(), app.getId(), app.getVo(), app.getGroup());
 				return; // sending this mail is disabled by VO admin
@@ -461,7 +441,7 @@ public class MailManagerImpl implements MailManager {
 					log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {} / appID: {} / {} / {}"
 							, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 				} catch (MailException ex) {
-					log.error("[MAIL MANAGER] Sending mail: APP_CREATED_USER failed because of exception: {}", ex);
+					log.error("[MAIL MANAGER] Sending mail: APP_CREATED_USER failed because of exception.", ex);
 				}
 
 			} else if (MailType.APP_CREATED_VO_ADMIN.equals(type)) {
@@ -487,7 +467,7 @@ public class MailManagerImpl implements MailManager {
 						}
 					}
 				} catch (Exception ex) {
-					log.error("Error when resolving notification default language: {}", ex);
+					log.error("Error when resolving notification default language.", ex);
 				}
 
 				MailText mt2 = mail.getMessage(lang);
@@ -518,7 +498,7 @@ public class MailManagerImpl implements MailManager {
 						log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {} / appID: {} / {} / {}"
 								, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 					} catch (MailException ex) {
-						log.error("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN failed because of exception: {}", ex);
+						log.error("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN failed because of exception.", ex);
 					}
 				}
 
@@ -641,7 +621,7 @@ public class MailManagerImpl implements MailManager {
 								log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: {} / {} / {}"
 										, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 							} catch (MailException ex) {
-								log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception: {}", ex);
+								log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception.", ex);
 							}
 
 						} else {
@@ -672,7 +652,7 @@ public class MailManagerImpl implements MailManager {
 					mailSender.send(message);
 					log.info("[MAIL MANAGER] Sending mail: APP_APPROVED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), (Object) message.getTo());
 				} catch (MailException ex) {
-					log.error("[MAIL MANAGER] Sending mail: APP_APPROVED_USER failed because of exception: {}", ex);
+					log.error("[MAIL MANAGER] Sending mail: APP_APPROVED_USER failed because of exception.", ex);
 				}
 
 			} else if (type.equals(MailType.APP_REJECTED_USER)) {
@@ -698,7 +678,7 @@ public class MailManagerImpl implements MailManager {
 					log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {} / appID: {} / {} / {}"
 							, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 				} catch (MailException ex) {
-					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception: {}", ex);
+					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception.", ex);
 				}
 
 			} else if (MailType.APP_ERROR_VO_ADMIN.equals(type)) {
@@ -724,7 +704,7 @@ public class MailManagerImpl implements MailManager {
 						}
 					}
 				} catch (Exception ex) {
-					log.error("Error when resolving notification default language: {}", ex);
+					log.error("Error when resolving notification default language.", ex);
 				}
 
 				MailText mt2 = mail.getMessage(lang);
@@ -755,7 +735,7 @@ public class MailManagerImpl implements MailManager {
 						log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: {} / {} / {}"
 								, (Object) message.getTo(), app.getId(), app.getVo(), app.getGroup());
 					} catch (MailException ex) {
-						log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception: {}", ex);
+						log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception.", ex);
 					}
 				}
 
@@ -765,7 +745,7 @@ public class MailManagerImpl implements MailManager {
 
 		} catch (Exception ex) {
 			// all exceptions are catched and logged to: perun-registrar.log
-			log.error("[MAIL MANAGER] Exception thrown when sending email: {}", ex);
+			log.error("[MAIL MANAGER] Exception thrown when sending email.", ex);
 		}
 
 	}
@@ -896,7 +876,7 @@ public class MailManagerImpl implements MailManager {
 		ApplicationMail mail = getMailByParams(form.getId(), AppType.INITIAL, MailType.USER_INVITE);
 		if (mail == null) {
 			throw new RegistrarException("You don't have invitation e-mail template defined.");
-		} else if (mail.getSend() == false) {
+		} else if (!mail.getSend()) {
 			throw new RegistrarException("Sending of invitations is disabled.");
 		}
 
@@ -964,7 +944,7 @@ public class MailManagerImpl implements MailManager {
 			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}"
 					, (Object) message.getTo(), app.getVo(), app.getGroup());
 		} catch (MailException ex) {
-			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
+			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception.", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
 		}
 
@@ -1015,7 +995,7 @@ public class MailManagerImpl implements MailManager {
 		ApplicationMail mail = getMailByParams(form.getId(), AppType.INITIAL, MailType.USER_INVITE);
 		if (mail == null) {
 			throw new RegistrarException("You don't have invitation e-mail template defined.");
-		} else if (mail.getSend() == false) {
+		} else if (!mail.getSend()) {
 			throw new RegistrarException("Sending of invitations is disabled.");
 		}
 
@@ -1099,7 +1079,7 @@ public class MailManagerImpl implements MailManager {
 			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / {} / {}"
 					, message.getTo(), app.getVo(), app.getGroup());
 		} catch (MailException ex) {
-			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
+			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception.", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
 		}
 
@@ -1111,8 +1091,8 @@ public class MailManagerImpl implements MailManager {
 			throw new NullPointerException("input must not be null");
 		try {
 			Mac mac = Mac.getInstance("HmacSHA256");
-			mac.init(new SecretKeySpec(getPropertyFromConfiguration("secretKey").getBytes("UTF-8"),"HmacSHA256"));
-			byte[] macbytes = mac.doFinal(input.getBytes("UTF-8"));
+			mac.init(new SecretKeySpec(getPropertyFromConfiguration("secretKey").getBytes(StandardCharsets.UTF_8),"HmacSHA256"));
+			byte[] macbytes = mac.doFinal(input.getBytes(StandardCharsets.UTF_8));
 			return new BigInteger(macbytes).toString(Character.MAX_RADIX);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -1165,15 +1145,10 @@ public class MailManagerImpl implements MailManager {
 
 		// get mail def
 		try {
-			List<ApplicationMail> mails = jdbc.query(MAILS_SELECT_BY_PARAMS, new RowMapper<ApplicationMail>(){
-				@Override
-				public ApplicationMail mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new ApplicationMail(rs.getInt("id"),
-							AppType.valueOf(rs.getString("app_type")),
-							rs.getInt("form_id"), MailType.valueOf(rs.getString("mail_type")),
-							rs.getBoolean("send"));
-				}
-			}, formId, appType.toString(), mailType.toString());
+			List<ApplicationMail> mails = jdbc.query(MAILS_SELECT_BY_PARAMS, (resultSet, arg1) -> new ApplicationMail(resultSet.getInt("id"),
+					AppType.valueOf(resultSet.getString("app_type")),
+					resultSet.getInt("form_id"), MailType.valueOf(resultSet.getString("mail_type")),
+					resultSet.getBoolean("send")), formId, appType.toString(), mailType.toString());
 			// set
 			if (mails.size() != 1) {
 				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: {}", mails.size());
@@ -1184,17 +1159,12 @@ public class MailManagerImpl implements MailManager {
 			return mail;
 		}
 
-		List<MailText> texts = new ArrayList<MailText>();
+		List<MailText> texts;
 		try {
-			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, new RowMapper<MailText>(){
-				@Override
-				public MailText mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new MailText(new Locale(rs.getString("locale")), rs.getString("subject"), rs.getString("text"));
-				}
-			}, mail.getId());
+			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, (resultSet, arg1) -> new MailText(new Locale(resultSet.getString("locale")), resultSet.getString("subject"), resultSet.getString("text")), mail.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// if no texts it's error
-			log.error("[MAIL MANAGER] Mail do not contains any text message: {}", ex);
+			log.error("[MAIL MANAGER] Mail do not contains any text message.", ex);
 			return null;
 		}
 		for (MailText text : texts) {
@@ -1209,8 +1179,8 @@ public class MailManagerImpl implements MailManager {
 	 * Return preferred Locale from application
 	 * (return EN if not found)
 	 *
-	 * @param data
-	 * @return
+	 * @param data application data
+	 * @return Preferred locale resolved from application data
 	 */
 	private String getLanguageFromAppData(Application app, List<ApplicationFormItemData> data) {
 
@@ -1349,10 +1319,8 @@ public class MailManagerImpl implements MailManager {
 				}
 			}
 
-			String senderEmail = "";
 			if (attrSenderEmail != null && attrSenderEmail.getValue() != null) {
-				senderEmail = BeansUtils.attributeValueToString(attrSenderEmail);
-				message.setReplyTo(senderEmail);
+				message.setReplyTo(BeansUtils.attributeValueToString(attrSenderEmail));
 			}
 		} catch (Exception ex) {
 			// we dont care about exceptions here - we have backup TO/FROM address
@@ -1376,7 +1344,7 @@ public class MailManagerImpl implements MailManager {
 	 */
 	private List<String> getToMailAddresses(Application app){
 
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 
 		// get proper value from attribute
 		try {
@@ -1391,7 +1359,7 @@ public class MailManagerImpl implements MailManager {
 				}
 			}
 			if (attrToEmail != null && attrToEmail.getValue() != null) {
-				ArrayList<String> value = (ArrayList<String>)attrToEmail.getValue();
+				ArrayList<String> value = attrToEmail.valueAsList();
 				for (String adr : value) {
 					if (adr != null && !adr.isEmpty()) {
 						result.add(adr);
@@ -1528,7 +1496,7 @@ public class MailManagerImpl implements MailManager {
 				}
 			} catch (Exception ex) {
 				// we dont care about exceptions here
-				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute. {}", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
 			}
 			// replace by footer or empty
 			mailText = mailText.replace("{mailFooter}", (footer != null) ? footer : "");
@@ -1827,7 +1795,7 @@ public class MailManagerImpl implements MailManager {
 						expiration = ((String)a.getValue());
 					}
 				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Error thrown when getting membership expiration param for mail. {}", ex);
+					log.error("[MAIL MANAGER] Error thrown when getting membership expiration param for mail.", ex);
 				}
 			}
 			// replace by date or empty
@@ -1846,7 +1814,7 @@ public class MailManagerImpl implements MailManager {
 						mail = ((String)a.getValue());
 					}
 				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Error thrown when getting preferred mail param for mail. {}", ex);
+					log.error("[MAIL MANAGER] Error thrown when getting preferred mail param for mail.", ex);
 				}
 			} else {
 
@@ -1887,7 +1855,7 @@ public class MailManagerImpl implements MailManager {
 						phone = ((String)a.getValue());
 					}
 				} catch (Exception ex) {
-					log.error("[MAIL MANAGER] Error thrown when getting phone param for mail. {}", ex);
+					log.error("[MAIL MANAGER] Error thrown when getting phone param for mail.", ex);
 				}
 			} else {
 
@@ -1934,7 +1902,7 @@ public class MailManagerImpl implements MailManager {
 				}
 			} catch (Exception ex) {
 				// we dont care about exceptions here
-				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute. {}", ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
 			}
 			// replace by footer or empty
 			mailText = mailText.replace("{mailFooter}", (footer != null) ? footer : "");
@@ -1992,11 +1960,9 @@ public class MailManagerImpl implements MailManager {
 				log.error("[MAIL MANAGER] Exception when getting perun instance link for {} : {}", vo, ex);
 			}
 
-		} finally {
-
-			return result;
-
 		}
+
+		return result;
 
 	}
 
@@ -2178,7 +2144,7 @@ public class MailManagerImpl implements MailManager {
 	 */
 	private ArrayList<String> getFedAuthz() {
 
-		ArrayList<String> fedAuthz = new ArrayList<String>();
+		ArrayList<String> fedAuthz = new ArrayList<>();
 		fedAuthz.add("fed");
 		String fedString = getPropertyFromConfiguration("fedAuthz");
 		if (fedString != null && !fedString.isEmpty()) {
