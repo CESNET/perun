@@ -24,12 +24,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates a subgroup of a group.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupExistsException When group exists
+	 * @throw GroupRelationNotAllowed When the group relation cannot be created, because it's not allowed
+	 * @throw GroupRelationAlreadyExists When the group relation already exists
+	 * @throw VoNotExistsException When Vo doesn't exist
+	 *
 	 * @param parentGroup int Parent Group <code>id</code>
 	 * @param group Group JSON Group class
 	 * @return Group Newly created group
 	 */
 	/*#
 	 * Creates a subgroup of a group.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupExistsException When group exists
+	 * @throw GroupRelationNotAllowed When the group relation cannot be created, because it's not allowed
+	 * @throw GroupRelationAlreadyExists When the group relation already exists
+	 * @throw VoNotExistsException When Vo doesn't exist
 	 *
 	 * @param parentGroup int Parent Group <code>id</code>
 	 * @param name String name of a group
@@ -40,12 +52,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Creates a new group in the specific VO defined by object vo in parameter.
 	 * Important: voId in object group is ignored.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupExistsException When group exists
+	 * @throw GroupRelationNotAllowed When the group relation cannot be created, because it's not allowed
+	 * @throw GroupRelationAlreadyExists When the group relation already exists
+	 * @throw VoNotExistsException When Vo doesn't exist
+	 *
 	 * @param vo int Parent VO <code>id</code>
 	 * @param group Group JSON Group class
 	 * @return Group Newly created group
 	 */
 	/*#
 	 * Creates a new group in the specific VO.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupExistsException When group exists
+	 * @throw GroupRelationNotAllowed When the group relation cannot be created, because it's not allowed
+	 * @throw GroupRelationAlreadyExists When the group relation already exists
+	 * @throw VoNotExistsException When Vo doesn't exist
 	 *
 	 * @param vo int Parent VO <code>id</code>
 	 * @param name String name of a group
@@ -104,6 +128,12 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Members from "operandGroup" are added to "resultGroup" as INDIRECT members. Union is honored also
 	 * in all group member changing operations.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupRelationNotAllowed When the group relation cannot be created, because it's not allowed
+	 * @throw GroupRelationAlreadyExists When the group relation already exists
+	 * @throw WrongAttributeValueException When the value of the attribute is illegal or wrong
+	 * @throw WrongReferenceAttributeValueException When the attribute of the reference has illegal value
+	 *
 	 * @param resultGroup int <code>id</code> of Group to have included "operandGroup"
 	 * @param operandGroup int <code>id</code> of Group to be included into "resultGroup"
 	 * @return Group Result group
@@ -123,10 +153,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes a group. Group is not deleted, if contains members or is assigned to any resource.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw RelationExistsException When the relation already exists
+	 * @throw GroupAlreadyRemovedException When the group has already been removed
+	 * @throw GroupAlreadyRemovedFromResourceException When group has already been removed from the resource
+	 * @throw GroupRelationDoesNotExist When group relation does not exist
+	 * @throw GroupRelationCannotBeRemoved When group relation cannot be removed
+	 *
 	 * @param group int Group <code>id</code>
 	 */
 	/*#
 	 * Forcefully deletes a group (remove all group members, remove group from resources).
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw RelationExistsException When the relation already exists
+	 * @throw GroupAlreadyRemovedException When the group has already been removed
+	 * @throw GroupAlreadyRemovedFromResourceException When group has already been removed from the resource
+	 * @throw GroupRelationDoesNotExist When group relation does not exist
+	 * @throw GroupRelationCannotBeRemoved When group relation cannot be removed
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param force boolean If true use force delete.
@@ -151,6 +195,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Forcefully deletes a list of groups (remove all group members, remove group from resources).
+	 *
+	 * @throw GroupNotExistsException If any group not exists in perun
+	 * @throw GroupAlreadyRemovedException If any groups is already deleted
+	 * @throw RelationExistsException If group has subgroups or member (forceDelete is false)
+	 * @throw GroupAlreadyRemovedFromResourceException  If any group is already removed from resource
+	 * @throw GroupRelationDoesNotExist If the relation doesn't exist
+	 * @throw GroupRelationCannotBeRemoved When the group relation cannot be removed
 	 *
 	 * @param groups int[] Array of Group IDs
 	 * @param forceDelete boolean If true use force delete.
@@ -179,6 +230,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Removes union of two groups, when "operandGroup" is technically removed from subgroups of "resultGroup".
 	 * Members from "operandGroup" are removed from "resultGroup" if they were INDIRECT members sourcing from this group only.
 	 *
+	 * @throw GroupNotExistsException If any group not exists in perun
+	 * @throw GroupRelationDoesNotExist If the relation doesn't exist
+	 * @throw GroupRelationCannotBeRemoved When the group relation cannot be removed
+	 *
 	 * @param resultGroup int <code>id</code> of Group to have removed "operandGroup" from subgroups
 	 * @param operandGroup int <code>id</code> of Group to be removed from "resultGroup" subgroups
 	 */
@@ -198,6 +253,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Updates a group.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param group Group JSON Group class
 	 * @return Group Updated group
 	 */
@@ -216,12 +273,20 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Moves "movingGroup" (including subGroups) under "destinationGroup" as subGroup within same Vo.
 	 * Indirect group members are also processed during move operation.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw WrongAttributeValueException When the value of the attribute is illegal or wrong
+	 * @throw WrongReferenceAttributeValueException When the attribute of the reference has illegal value
+	 *
 	 * @param destinationGroup int <code>id</code> of Group to have "movingGroup" as subGroup
 	 * @param movingGroup int <code>id</code> of Group to be moved under "destinationGroup"
 	 */
 	/*#
 	 * Moves "movingGroup" (including subGroups) from it`s location to top-level.
 	 * Indirect group members are also processed during move operation.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw WrongAttributeValueException When the value of the attribute is illegal or wrong
+	 * @throw WrongReferenceAttributeValueException When the attribute of the reference has illegal value
 	 *
 	 * @param movingGroup int <code>id</code> of Group to be moved under "destinationGroup"
 	 */
@@ -247,6 +312,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns a group by <code>id</code>.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param id int Group <code>id</code>
 	 * @return Group Found group
 	 */
@@ -262,6 +329,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns a group by VO and Group name.
 	 *
 	 * IMPORTANT: need to use full name of group (ex. 'toplevel:a:b', not the shortname which is in this example 'b')
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param name String Group name
@@ -281,6 +350,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Return all operand groups for specified result groups (all INCLUDED groups).
 	 * If "reverseDirection" is TRUE than return all result groups for specified operand group (where group is INCLUDED).
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param group int <code>id</code> of Group to get groups in union.
 	 * @param reverseDirection boolean FALSE (default) return INCLUDED groups / TRUE = return groups where INCLUDED
 	 * @return List<Group> List of groups in union relation.
@@ -297,6 +368,15 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Adds a member to a group.
+	 *
+	 * @throws MemberNotExistsException When member doesn't exist
+	 * @throws AlreadyMemberException When already member
+	 * @throws GroupNotExistsException When group doesn't exist
+	 * @throws WrongAttributeValueException If any member attribute value, required by resource (on which the group is assigned), is wrong
+	 * @throws WrongAttributeAssignmentException Thrown while assigning atribute to wrong entity
+	 * @throws AttributeNotExistsException When attribute doesn't exist
+	 * @throw WrongReferenceAttributeValueException When the attribute of the reference has illegal value
+	 * @throws ExternallyManagedException When the group is externally managed
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param member int Member <code>id</code>
@@ -336,6 +416,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns members of a group.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param group int Group <code>id</code>
 	 * @return List<Member> Group members
 	 */
@@ -351,6 +433,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns direct members of a group.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
 	 *
 	 * @param group int Group <code>id</code>
 	 * @return List<Member> Group members
@@ -369,6 +453,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns members of a group.
 	 * RichMember contains User object.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param group int Group <code>id</code>
 	 * @return List<RichMember> Group members
 	 */
@@ -385,6 +471,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns direct members of a group.
 	 * RichMember contains User object.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param group int Group <code>id</code>
 	 * @return List<RichMember> Group members
 	 */
@@ -400,6 +488,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns members of a group.
 	 * RichMember contains User object and attributes.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
 	 *
 	 * @param group int Group <code>id</code>
 	 * @return List<RichMember> Group members
@@ -435,6 +525,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns count of group members.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param group int Group <code>id</code>
 	 * @return int Members count
 	 */
@@ -449,6 +541,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns all groups in a VO.
+	 *
+	 * @throw VoNotExistsException When the Vo doesn't exist
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @return List<Group> Groups
@@ -486,6 +580,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns a parent group of a group.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw ParentGroupNotExistsException When the parent group doesn't exist
+	 *
 	 * @param group int Child group <code>id</code>
 	 * @return Group Parent group
 	 */
@@ -498,6 +595,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns subgroups of a group.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
 	 *
 	 * @param parentGroup int Group id
 	 * @return List<Group> Child groups
@@ -512,11 +611,18 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds an admin to a group.
 	 *
+	 * @throw GroupNotExistsException
+	 * @throw AlreadyAdminException When user has already been Admin
+	 * @throw UserNotExistsException When user doesn't exist
+	 *
 	 * @param group int Group <code>id</code>
 	 * @param user int User <code>id</code>
 	 */
 	/*#
 	 * Adds an group admin to a group.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw AlreadyAdminException When user has already been the Admin
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param authorizedGroup int Group <code>id</code>
@@ -541,11 +647,18 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes an admin of a group.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw UserNotAdminException When the user is not an admin
+	 * @throw UserNotExistsException Whern the user doesn't exist
+	 *
 	 * @param group int Group <code>id</code>
 	 * @param user int User <code>id</code>
 	 */
 	/*#
 	 * Removes a group admin of a group.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupNotAdminException - NO DESCRIPTION
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param authorizedGroup int Group <code>id</code>
@@ -574,6 +687,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * Supported roles: GroupAdmin
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param group int Group <code>id</code>
 	 * @param onlyDirectAdmins int if == true, get only direct user administrators (if == false, get both direct and indirect)
 	 *
@@ -581,6 +696,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns administrators of a group.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
 	 *
 	 * @deprecated
 	 * @param group int Group <code>id</code>
@@ -604,6 +721,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns direct administrators of a group.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @deprecated
 	 * @param group int Group <code>id</code>
 	 * @return List<User> Group admins
@@ -620,6 +739,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns administrator groups of a group.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param group int Group <code>id</code>
 	 * @return List<Group> admins
 	 */
@@ -635,6 +756,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Get list of all richUser administrators for the group and supported role with specific attributes.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * Supported roles: GroupAdmin
 	 *
 	 * If "onlyDirectAdmins" is == true, return only direct admins of the group for supported role with specific attributes.
@@ -649,6 +772,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Get all Group admins as RichUsers
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
 	 *
 	 * @deprecated
 	 * @param group int Group <code>id</code>
@@ -674,6 +799,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all Group admins as RichUsers with all their non-null user attributes
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw UserNotExistsException When the user doesn't exist
+	 *
 	 * @deprecated
 	 * @param group int Group <code>id</code>
 	 * @return List<RichUser> admins with attributes
@@ -692,6 +820,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Get list of all richGroups with all attributes assigned to the resource filtered by specific member.
 	 * Allowed namespaces of attributes are group, group-resource and member-group.
 	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
+	 * @throw ResourceNotExistsException When the resource doesn't exist
+	 *
 	 * @param member int Member <code>id</code>
 	 * @param resource int Resource <code>id</code>
 	 * @return List<RichGroup> groups with all group, group-resource and member-group attributes (non-empty)
@@ -704,6 +835,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * You will get only attributes which you are authorized to read. You must specify names of requested attributes
 	 * by their URNs in attrNames. Empty list means no attributes to return.
 	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
+	 * @throw ResourceNotExistsException When the resource doesn't exist
+	 *
 	 * @param member int Member <code>id</code>
 	 * @param resource int Resource <code>id</code>
 	 * @param attrNames List<String> names of attributes
@@ -713,6 +847,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * Get list of all richGroups with all attributes assigned to resource.
 	 * Allowed namespaces of attributes are group and group-resource.
+	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
+	 * @throw ResourceNotExistsException When the resource doesn't exist
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @return List<RichGroup> groups with all group and group-resource attributes (non-empty)
@@ -724,6 +861,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * You will get only attributes which you are authorized to read. You must specify names of requested attributes
 	 * by their URNs in attrNames.
+	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
+	 * @throw ResourceNotExistsException When the resource doesn't exist
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param attrNames List<String> names of attributes
@@ -754,6 +894,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all Group admins as RichUsers with specific attributes (from user namespace)
 	 *
+	 * @throw VoNotExistsException When the Vo doesn't exist
+	 *
 	 * @deprecated
 	 * @param group int Group <code>id</code>
 	 * @param specificAttributes List<String> list of attributes URNs
@@ -774,6 +916,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Get all Group admins, which are assigned directly,
 	 *  as RichUsers with specific attributes (from user namespace)
 	 *
+	 * @throw VoNotExistsException When the Vo doesn't exist
+	 *
 	 * @deprecated
 	 * @param group int Group <code>id</code>
 	 * @param specificAttributes List<String> list of attributes URNs
@@ -793,6 +937,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns direct descendant groups of a VO.
 	 *
+	 * @throw VoNotExistsException When the Vo doesn't exist
+	 *
 	 * @param vo int VO <code>id</code>
 	 * @return List<Group> Children groups
 	 */
@@ -808,6 +954,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns groups count in a VO.
+	 *
+	 * @throw VoNotExistsException When the Vo doesn't exist
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @return int Groups count
@@ -832,6 +980,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns subgroups count of a group.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param parentGroup int Parent group <code>id</code>
 	 * @return int Subgroups count
 	 */
@@ -845,6 +995,12 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Delete all groups in a VO.
+	 *
+	 * @throw VoNotExistsException When the Vo doesn't exist
+	 * @throw GroupAlreadyRemovedException If there is at least 1 group not affected by deleting from DB
+	 * @throw GroupAlreadyRemovedFromResourceException If there is at least 1 group on resource affected by deleting from DB
+	 * @throw GroupRelationDoesNotExist When the group relation doesn't exist
+	 * @throw GroupRelationCannotBeRemoved When the group relation cannot be removed
 	 *
 	 * @param vo int VO <code>id</code>
 	 */
@@ -863,6 +1019,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Forces group synchronization.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupSynchronizationAlreadyRunningException When the group synchronization has already been running
+	 *
 	 * @param group int Group <code>id</code>
 	 */
 	forceGroupSynchronization {
@@ -878,6 +1037,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Forces group structure synchronization.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw GroupStructureSynchronizationAlreadyRunningException When the group structure synchronization has already been running
 	 *
 	 * @param group int Group <code>id</code>
 	 */
@@ -896,6 +1058,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns parent VO of a group.
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param group int Group <code>id</code>
 	 * @return Vo Parent VO
 	 */
@@ -911,6 +1075,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns members of a parent group.
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
 	 *
 	 * @param group int Child group <code>id</code>
 	 * @return List<Member> Parent group members
@@ -978,6 +1144,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns groups with specific attribute for a member.
 	 *
+	 * @throw WrongAttributeAssignmentException Thrown while assigning atribute to wrong entity.
+	 * @throw MemberNotExistsException When the member doesn't exist
+	 * @throw AttributeNotExistsException When the attribute doesn't exist
+	 *
 	 * @param member int Member <code>id</code>
 	 * @param attribute Attribute attribute object with value
 	 * @return List<Group> Groups of the member
@@ -998,6 +1168,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * Example: [1,2,3,4], fromIndex=1 => [2,3,4]
 	 *
+	 * @throw VoNotExistsException When Vo doesn't exist
+	 *
 	 * @param vo int <code>id</code> of vo
 	 * @param fromIndex int begin index of returned subList, included
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
@@ -1008,6 +1180,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * list (included) and ending at the toIndex (included).
 	 *
 	 * Example: [1,2,3,4], toIndex=2 => [1,2,3]
+	 *
+	 * @throw VoNotExistsException When Vo doesn't exist
 	 *
 	 * @param vo int <code>id</code> of vo
 	 * @param toIndex int end index of returned subList, included
@@ -1020,6 +1194,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * Example: [1,2,3,4], fromIndex=1, toIndex=2 => [2,3]
 	 *
+	 * @throw VoNotExistsException When Vo doesn't exist
+	 *
 	 * @param vo int <code>id</code> of vo
 	 * @param fromIndex int begin index of returned subList, included
 	 * @param toIndex int end index of returned subList, included
@@ -1028,6 +1204,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Returns full list of all RichGroups containing selected attributes.
+	 *
+	 * @throw VoNotExistsException When Vo doesn't exist
 	 *
 	 * @param vo int <code>id</code> of vo
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
@@ -1065,6 +1243,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * "members" group is not included!
 	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
+	 *
 	 * @param member int <code>id</code> of member
 	 * @param fromIndex int begin index of returned subList, included
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
@@ -1077,6 +1257,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Example: [1,2,3,4], toIndex=2 => [1,2,3]
 	 *
 	 * "members" group is not included!
+	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
 	 *
 	 * @param member int <code>id</code> of member
 	 * @param toIndex int end index of returned subList, included
@@ -1091,6 +1273,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * "members" group is not included!
 	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
+	 *
 	 * @param member int <code>id</code> of member
 	 * @param fromIndex int begin index of returned subList, included
 	 * @param toIndex int end index of returned subList, included
@@ -1101,6 +1285,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns full list of member's RichGroups containing selected attributes.
 	 *
 	 * "members" group is not included!
+	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
 	 *
 	 * @param member int <code>id</code> of member
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
@@ -1133,6 +1319,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns RichSubGroups from parent group containing selected attributes (only 1 level sub groups).
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param group int <code>id</code> of group
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
@@ -1150,6 +1338,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns all AllRichSubGroups from parent group containing selected attributes (all level subgroups).
+	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
 	 *
 	 * @param group int <code>id</code> of group
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
@@ -1169,6 +1359,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns RichGroup selected by id containing selected attributes
 	 *
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 *
 	 * @param groupId int <code>id</code> of group
 	 * @param attrNames List<String> if attrNames is null method will return RichGroup containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
@@ -1187,6 +1379,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all groups of specific member including group "members".
 	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
+	 *
 	 * @param member int <code>id</code> of member
 	 * @return List<Group> Groups of member
 	 */
@@ -1204,6 +1398,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns all member's groups where member is in active state (is valid there)
 	 * Excluded members group.
 	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
+	 *
 	 * @param member int <code>id</code> of member
 	 * @return List<Group> Groups where member is in active state (valid)
 	 */
@@ -1220,6 +1416,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns all member's groups where member is in inactive state (it is not valid and it is expired there)
 	 * Excluded members group.
 	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
+	 *
 	 * @param member int <code>id</code> of member
 	 * @return List<Group> Groups where member is in inactive state (expired)
 	 */
@@ -1235,6 +1433,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/**
 	 * Returns all member's groups where member is in active state (is valid there)
 	 * Included members group.
+	 *
+	 * @throw MemberNotExistsException When the member doesn't exist
 	 *
 	 * @param member int <code>id</code> of member
 	 * @return List<Group> All groups where member is in active state (valid)
@@ -1253,6 +1453,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * Do not return expired members of the group.
 	 *
+	 * @throw GroupNotExistsException When the group does not exist
+	 *
 	 * @param group int <code>id</code> of group
 	 * @return List<Member> list of active (valid) members of the group
 	 */
@@ -1270,6 +1472,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Return all members of the group who are inactive (expired) in the group.
 	 *
 	 * Do not return active members of the group.
+	 *
+	 * @throw GroupNotExistsException When the group does not exist
 	 *
 	 * @param group int <code>id</code> of group
 	 * @return List<Member> list of inactive (expired) members of the group
