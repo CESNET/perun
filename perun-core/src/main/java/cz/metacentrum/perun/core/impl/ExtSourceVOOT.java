@@ -158,6 +158,11 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
         return subjects;
     }
 
+	@Override
+	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
     @Override
     public void close() throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException(

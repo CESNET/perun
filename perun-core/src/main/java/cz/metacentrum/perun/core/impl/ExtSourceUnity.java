@@ -127,6 +127,11 @@ public class ExtSourceUnity extends ExtSource implements ExtSourceApi {
         return jsonParsingGroups(queryForGroup);
     }
 
+	@Override
+	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
     @Override
     public void close() {
         throw new UnsupportedOperationException("Using this method is not supported for Unity");

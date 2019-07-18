@@ -62,6 +62,11 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		return this.querySource(queryForGroup, null, 0);
 	}
 
+	@Override
+	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
 	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) throws InternalErrorException {
 
 		// Get the URL, if query was provided it has precedence over url attribute defined in extSource

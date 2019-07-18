@@ -84,4 +84,13 @@ public interface ExtSourceSimpleApi {
 	 */
 	List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException;
 
+	/**
+	 * Get the list of subjects from the external source.
+	 *
+	 * @return list of maps, which contains attr_name-&gt;attr_value, e.g. firstName-&gt;Michal
+	 * @throws InternalErrorException
+	 * @throws ExtSourceUnsupportedOperationException
+	 */
+	List<Map<String, String>> getUsersSubjects() throws InternalErrorException, ExtSourceUnsupportedOperationException;
+
 }
