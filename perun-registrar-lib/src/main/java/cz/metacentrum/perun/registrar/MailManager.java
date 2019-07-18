@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
@@ -46,9 +47,11 @@ public interface MailManager {
 	 *
 	 * @param sess PerunSession for authz
 	 * @param mail ApplicationMail to update to
-	 * @throws PerunException
+	 * @throws FormNotExistsException When application form related to the mail template not exists
+	 * @throws PrivilegeException When caller is not authorized
+	 * @throws InternalErrorException When implementation fails
 	 */
-	public void updateMailById(PerunSession sess, ApplicationMail mail) throws PerunException;
+	public void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, InternalErrorException, PrivilegeException;
 
 	/**
 	 * Enable or disable sending for list of mail definitions

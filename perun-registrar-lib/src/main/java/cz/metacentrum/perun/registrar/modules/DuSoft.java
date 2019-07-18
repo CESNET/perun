@@ -1,10 +1,13 @@
 package cz.metacentrum.perun.registrar.modules;
 
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
@@ -42,7 +45,7 @@ public class DuSoft implements RegistrarModule {
 	}
 
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) {
 		return app;
 	}
 
@@ -52,13 +55,13 @@ public class DuSoft implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) {
 		// allow approval of any application based on VO rules
 		return app;
 	}
 
 	@Override
-	public void canBeApproved(PerunSession session, Application app) throws PerunException {
+	public void canBeApproved(PerunSession session, Application app) throws RegistrarException, PrivilegeException, InternalErrorException, CantBeApprovedException {
 
 		// allow only Education & Research community members
 		List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());

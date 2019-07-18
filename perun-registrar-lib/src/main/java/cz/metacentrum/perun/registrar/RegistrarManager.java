@@ -4,6 +4,8 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptException;
+import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
@@ -72,9 +74,10 @@ public interface RegistrarManager {
 	 *
 	 * @param vo VO
 	 * @return registration form description
-	 * @throws PerunException
+	 * @throws FormNotExistsException When VO has no form
+	 * @throws InternalErrorException When implementation fails
 	 */
-	ApplicationForm getFormForVo(Vo vo) throws PerunException;
+	ApplicationForm getFormForVo(Vo vo) throws InternalErrorException, FormNotExistsException;
 
 	/**
 	 * Gets an application form for a given Group. There is exactly one form for membership per Group, one form is used for both initial registration and annual account expansion,
@@ -82,9 +85,10 @@ public interface RegistrarManager {
 	 *
 	 * @param group GROUP
 	 * @return registration form description
-	 * @throws PerunException
+	 * @throws FormNotExistsException WHen Group has no form
+	 * @throws InternalErrorException When implementation fails
 	 */
-	ApplicationForm getFormForGroup(Group group) throws PerunException;
+	ApplicationForm getFormForGroup(Group group) throws InternalErrorException, FormNotExistsException;
 
 	/**
 	 * Gets an application form for a given Id.
@@ -92,9 +96,11 @@ public interface RegistrarManager {
 	 * @param sess PerunSession for authz
 	 * @param id ID of application form to get
 	 * @return registration form
-	 * @throws PerunException
+	 * @throws InternalErrorException When implementation fails
+	 * @throws PrivilegeException When caller is not authorized
+	 * @throws FormNotExistsException When form with ID doesn't exists
 	 */
-	ApplicationForm getFormById(PerunSession sess, int id) throws PerunException;
+	ApplicationForm getFormById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, FormNotExistsException;
 
 	/**
 	 * Gets an application form for a given form item ID.
@@ -341,9 +347,11 @@ public interface RegistrarManager {
 	 * @param sess PerunSession
 	 * @param appId application to get user's data for
 	 * @return data submitted by user in given application
-	 * @throws PerunException
+	 * @throws PrivilegeException
+	 * @throws RegistrarException
+	 * @throws InternalErrorException
 	 */
-	List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PerunException;
+	List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, InternalErrorException;
 
 	/**
 	 * Returns applications submitted by user

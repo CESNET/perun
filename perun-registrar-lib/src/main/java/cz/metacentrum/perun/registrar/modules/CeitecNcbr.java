@@ -39,7 +39,7 @@ public class CeitecNcbr implements RegistrarModule {
 	}
 
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) {
 		return app;
 	}
 
@@ -49,7 +49,7 @@ public class CeitecNcbr implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) {
 		return app;
 	}
 

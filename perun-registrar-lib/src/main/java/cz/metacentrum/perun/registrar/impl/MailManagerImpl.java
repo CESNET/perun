@@ -24,6 +24,7 @@ import cz.metacentrum.perun.audit.events.MailManagerEvents.MailSentForApplicatio
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.impl.Compatibility;
+import cz.metacentrum.perun.registrar.exceptions.FormNotExistsException;
 import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -227,7 +228,7 @@ public class MailManagerImpl implements MailManager {
 
 	@Override
 	@Transactional(rollbackFor=Exception.class)
-	public void updateMailById(PerunSession sess, ApplicationMail mail) throws PerunException {
+	public void updateMailById(PerunSession sess, ApplicationMail mail) throws FormNotExistsException, InternalErrorException, PrivilegeException {
 
 		ApplicationForm form = registrarManager.getFormById(sess, mail.getFormId());
 

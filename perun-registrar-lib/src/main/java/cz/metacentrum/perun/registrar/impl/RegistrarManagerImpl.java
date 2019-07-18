@@ -629,9 +629,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public ApplicationForm getFormForVo(final Vo vo) throws PerunException {
+	public ApplicationForm getFormForVo(final Vo vo) throws InternalErrorException, FormNotExistsException {
 
-		if (vo == null) throw new InternalErrorException("VO can't be null");
+		if (vo == null) throw new FormNotExistsException("VO can't be null");
 
 		try {
 			return jdbc.queryForObject(FORM_SELECT + " where vo_id=? and group_id is null", new RowMapper<ApplicationForm>() {
@@ -648,14 +648,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}, vo.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			throw new FormNotExistsException("Form for VO: "+vo.getName()+" doesn't exists.");
+		} catch (Exception ex) {
+			throw new InternalErrorException(ex.getMessage(), ex);
 		}
 
 	}
 
 	@Override
-	public ApplicationForm getFormForGroup(final Group group) throws PerunException {
+	public ApplicationForm getFormForGroup(final Group group) throws InternalErrorException, FormNotExistsException {
 
-		if (group == null) throw new InternalErrorException("Group can't be null");
+		if (group == null) throw new FormNotExistsException("Group can't be null");
 
 		try {
 			return jdbc.queryForObject(FORM_SELECT + " where vo_id=? and group_id=?", new RowMapper<ApplicationForm>() {
@@ -677,12 +679,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}, group.getVoId(), group.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			throw new FormNotExistsException("Form for Group: "+group.getName()+" doesn't exists.");
+		} catch (Exception ex) {
+			throw new InternalErrorException(ex.getMessage(), ex);
 		}
 
 	}
 
 	@Override
-	public ApplicationForm getFormById(PerunSession sess, int id) throws PerunException {
+	public ApplicationForm getFormById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException, FormNotExistsException {
 
 		try {
 			ApplicationForm form = jdbc.queryForObject(FORM_SELECT + " where id=?", new RowMapper<ApplicationForm>() {
@@ -708,7 +712,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				}
 			}, id);
 
-			if (form.getGroup() == null) {
+			if (form == null) throw new FormNotExistsException("Form with ID: "+id+" doesn't exists.");
+
+			if (Objects.isNull(form.getGroup())) {
 				// VO application
 				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
 					throw new PrivilegeException(sess, "getFormById");
@@ -1447,12 +1453,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("To approve application user must already be member of VO.", ex);
 		} catch (NotGroupMemberException ex) {
 			throw new RegistrarException("To approve application user must already be member of Group.", ex);
-		} catch (UserNotExistsException ex) {
-			throw new RegistrarException("To approve application user must already be member of VO.", ex);
-		} catch (UserExtSourceNotExistsException ex) {
-			throw new RegistrarException("To approve application user must already be member of VO.", ex);
-		} catch (ExtSourceNotExistsException ex) {
-			throw new RegistrarException("To approve application user must already be member of VO.", ex);
+		} catch (UserNotExistsException | UserExtSourceNotExistsException | ExtSourceNotExistsException ex) {
+			throw new RegistrarException("User specified by the data in application was not found. If you tried to approve application for the Group, try to check, if user already has approved application in the VO. Application to the VO must be approved first.", ex);
 		}
 
 		Member member = perun.getMembersManager().getMemberByUser(registrarSession, app.getVo(), app.getUser());
@@ -1508,7 +1510,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * @throws PerunException
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public Application approveApplicationInternal(PerunSession sess, int appId) throws PerunException {
+	public Application approveApplicationInternal(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, InternalErrorException, FormNotExistsException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, LoginNotExistsException, PasswordCreationFailedException, WrongReferenceAttributeValueException, WrongAttributeValueException, MemberNotExistsException, VoNotExistsException, CantBeApprovedException, GroupNotExistsException, NotGroupMemberException, ExternallyManagedException, WrongAttributeAssignmentException, AttributeNotExistsException, AlreadyMemberException, ExtendMembershipException, PasswordDeletionFailedException, PasswordOperationTimeoutException, AlreadyAdminException {
 
 		Application app = getApplicationById(appId);
 		Member member = null;
@@ -1875,7 +1877,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public Application getApplicationById(PerunSession sess, int appId) throws PerunException {
+	public Application getApplicationById(PerunSession sess, int appId) throws RegistrarException, InternalErrorException, PrivilegeException {
 
 		// get application
 		Application app = getApplicationById(appId);
@@ -2567,7 +2569,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PerunException {
+	public List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PrivilegeException, RegistrarException, InternalErrorException {
 
 		// this ensure authorization of user on application
 		try {
@@ -2983,9 +2985,18 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * !! USE unreserveNewLoginsFromSameNamespace() BEFORE DOING SO !!
 	 *
 	 * @param app Application to process attributes for
-	 * @throws PerunException
+	 * @throws UserNotExistsException When User present in Application not exists
+	 * @throws InternalErrorException When implementation fails
+	 * @throws PrivilegeException When caller is not authorized for some action
+	 * @throws MemberNotExistsException When Member resolved from VO/User from Application doesn't exist
+	 * @throws VoNotExistsException When VO resolved from application doesn't exist
+	 * @throws RegistrarException When implementation fails
+	 * @throws AttributeNotExistsException When expected attribute doesn't exists
+	 * @throws WrongAttributeAssignmentException When attribute can't be stored because of wrongly passed params
+	 * @throws WrongAttributeValueException  When attribute can't be stored because of wrong value
+	 * @throws WrongReferenceAttributeValueException  When attribute can't be stored because of some specific dynamic constraint (from attribute module)
 	 */
-	private void storeApplicationAttributes(Application app) throws PerunException {
+	private void storeApplicationAttributes(Application app) throws UserNotExistsException, InternalErrorException, PrivilegeException, MemberNotExistsException, VoNotExistsException, RegistrarException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		// user and member must exists if it's extension !!
 		User user = usersManager.getUserById(registrarSession, app.getUser().getId());
@@ -3064,9 +3075,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * User must already exists !!
 	 *
 	 * @param app Application to process attributes for
-	 * @throws PerunException
+	 * @throws UserNotExistsException When User present in Application not exists
+	 * @throws InternalErrorException When implementation fails
+	 * @throws PrivilegeException When caller is not authorized for some action
+	 * @throws RegistrarException When implementation fails
+	 * @throws AttributeNotExistsException When expected attribute doesn't exists
+	 * @throws WrongAttributeAssignmentException When login can't be stored because of wrongly passed params
+	 * @throws WrongAttributeValueException  When login can't be stored because of wrong value
+	 * @throws WrongReferenceAttributeValueException  When login can't be stored because of some specific dynamic constraint (from attribute module)
 	 */
-	private void storeApplicationLoginAttributes(Application app) throws PerunException {
+	private void storeApplicationLoginAttributes(Application app) throws UserNotExistsException, InternalErrorException, PrivilegeException, RegistrarException, AttributeNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		// user must exists
 		User user = usersManager.getUserById(registrarSession, app.getUser().getId());
@@ -3123,7 +3141,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 *
 	 * @return List of login/namespace pairs which are purely new and can be set to user and validated in KDC
 	 */
-	private List<Pair<String, String>> unreserveNewLoginsFromSameNamespace(List<Pair<String, String>> logins, User user) throws PerunException {
+	private List<Pair<String, String>> unreserveNewLoginsFromSameNamespace(List<Pair<String, String>> logins, User user) throws InternalErrorException, PasswordDeletionFailedException, PasswordOperationTimeoutException, LoginNotExistsException {
 
 		List<Pair<String, String>> result = new ArrayList<Pair<String, String>>();
 

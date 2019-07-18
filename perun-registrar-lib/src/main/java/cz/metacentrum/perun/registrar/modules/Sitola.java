@@ -3,7 +3,14 @@ package cz.metacentrum.perun.registrar.modules;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
@@ -42,7 +49,7 @@ public class Sitola implements RegistrarModule {
 	 * All new Sitola members will have MU eduroam identity added if they posses MU login.
 	 */
 	@Override
-	public Application approveApplication(PerunSession session, Application app) throws PerunException {
+	public Application approveApplication(PerunSession session, Application app) throws WrongAttributeAssignmentException, UserNotExistsException, InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		// get perun from session
 		PerunBl perun = (PerunBl) session.getPerun();
@@ -105,7 +112,7 @@ public class Sitola implements RegistrarModule {
 	}
 
 	@Override
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public Application beforeApprove(PerunSession session, Application app) {
 		return app;
 	}
 
