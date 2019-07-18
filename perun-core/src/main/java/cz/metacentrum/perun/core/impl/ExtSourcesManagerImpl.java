@@ -530,4 +530,15 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
+
+	@Override
+	public List<ExtSource> getExtSourcesToSynchronize(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + extSourceMappingSelectQuery + " from ext_sources, ext_sources_attributes where ext_sources.id=ext_sources_attributes.ext_sources_id and ext_sources_attributes.attr_name=? and ext_sources_attributes.attr_value=true", EXTSOURCE_MAPPER, ExtSourcesManager.EXTSOURCE_SYNCHRONIZATION_ENABLED_ATTRNAME);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<ExtSource>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
 }
