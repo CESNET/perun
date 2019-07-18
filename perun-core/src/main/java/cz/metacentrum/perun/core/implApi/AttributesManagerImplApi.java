@@ -1560,8 +1560,9 @@ public interface AttributesManagerImplApi {
 	 * @param resource
 	 * @param attribute
 	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
 	 */
-	void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException;
+	void changedAttributeHook(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that

@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 public class urn_perun_resource_attribute_def_def_defaultDataQuota extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	private static final String A_R_defaultDataLimit = AttributesManager.NS_RESOURCE_ATTR_DEF + ":defaultDataLimit";
+	private static final String A_F_readyForNewQuotas = AttributesManager.NS_FACILITY_ATTR_DEF + ":readyForNewQuotas";
 	private static final Pattern numberPattern = Pattern.compile("[0-9]+[.]?[0-9]*");
 	private static final Pattern letterPattern = Pattern.compile("[A-Z]");
 	private static final Pattern testingPattern = Pattern.compile("^[0-9]+([.][0-9]+)?[KMGTPE]$");
@@ -165,6 +167,25 @@ public class urn_perun_resource_attribute_def_def_defaultDataQuota extends Resou
 
 			if (limitNumber.compareTo(quotaNumber) < 0) {
 				throw new WrongReferenceAttributeValueException(attribute, attrDefaultDataLimit, resource, null, resource, null, attribute + " must be less than or equals to " + defaultDataLimit);
+			}
+		}
+	}
+
+	@Override
+	public void changedAttributeHook(PerunSessionImpl session, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		//if this is setting of the new attribute value, check if old quota attributes are supported on the facility
+		if(attribute.getValue() != null) {
+			try {
+				Facility facility = session.getPerunBl().getResourcesManagerBl().getFacility(session, resource);
+				Attribute readyForNewQuotasAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, facility, A_F_readyForNewQuotas);
+				//You shouldn't be allowed to set old quota attributes if facility is set for new quotas attributes (to prevent wrong setting of quotas)
+				if(readyForNewQuotasAttribute != null && readyForNewQuotasAttribute.valueAsBoolean()) {
+					throw new WrongReferenceAttributeValueException(attribute, readyForNewQuotasAttribute, resource, null, facility, null, "For this facility the new quotas attributes are used! You are trying to set the old ones.");
+				}
+			} catch (AttributeNotExistsException ex) {
+				//if attribute not exists, it is the same like it was set on false, which is ok
+			} catch (WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
 			}
 		}
 	}
