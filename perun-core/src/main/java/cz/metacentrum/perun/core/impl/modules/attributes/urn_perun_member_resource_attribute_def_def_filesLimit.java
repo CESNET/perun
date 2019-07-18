@@ -92,7 +92,7 @@ public class urn_perun_member_resource_attribute_def_def_filesLimit extends Memb
 				Facility facility = session.getPerunBl().getResourcesManagerBl().getFacility(session, resource);
 				Attribute readyForNewQuotasAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, facility, A_F_readyForNewQuotas);
 				//You shouldn't be allowed to set old quota attributes if facility is set for new quotas attributes (to prevent wrong setting of quotas)
-				if(readyForNewQuotasAttribute != null && readyForNewQuotasAttribute.valueAsBoolean()) {
+				if(readyForNewQuotasAttribute.getValue() != null && readyForNewQuotasAttribute.valueAsBoolean()) {
 					throw new WrongReferenceAttributeValueException(attribute, readyForNewQuotasAttribute, member, resource, facility, null, "For this facility the new quotas attributes are used! You are trying to set the old ones.");
 				}
 			} catch (AttributeNotExistsException ex) {
