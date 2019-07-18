@@ -54,6 +54,8 @@ public interface MemberResourceAttributesModuleImplApi extends AttributesModuleI
 	 * @param member the member
 	 * @param resource the resource
 	 * @param attribute the attribute
+	 * @throws InternalErrorException if there is any internal error
+	 * @throws WrongReferenceAttributeValueException if there is problem to process the change hook because of the value of referenced attribute
 	 */
-	void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute);
+	void changedAttributeHook(PerunSessionImpl session, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException;
 }
