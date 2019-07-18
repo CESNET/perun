@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public class Du implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(Du.class);
+	private final static Logger log = LoggerFactory.getLogger(Du.class);
 
 	private RegistrarManager registrar;
 

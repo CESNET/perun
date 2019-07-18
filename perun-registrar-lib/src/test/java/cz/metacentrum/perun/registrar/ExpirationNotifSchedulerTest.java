@@ -37,7 +37,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 	private ExtSource extSource = new ExtSource(0, "testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
 	private Vo vo = new Vo(0, "SynchronizerTestVo", "SyncTestVo");
 
-	ExpirationNotifScheduler scheduler;
+	private ExpirationNotifScheduler scheduler;
 
 	public ExpirationNotifScheduler getScheduler() {
 		return scheduler;
@@ -346,7 +346,7 @@ public class ExpirationNotifSchedulerTest extends RegistrarBaseIntegrationTest {
 		candidate.setTitleAfter("");
 		final UserExtSource userExtSource = new UserExtSource(extSource, Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<>());
 
 		return perun.getMembersManagerBl().createMemberSync(session, vo, candidate);
 

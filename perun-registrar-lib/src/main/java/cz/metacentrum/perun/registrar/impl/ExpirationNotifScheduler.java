@@ -77,8 +77,8 @@ public class ExpirationNotifScheduler {
 	/**
 	 * Constructor for unit tests
 	 *
-	 * @param perun
-	 * @throws Exception
+	 * @param perun PerunBl bean
+	 * @throws Exception When implementation fails
 	 */
 	public ExpirationNotifScheduler(PerunBl perun) throws Exception {
 		this.perun = perun;
@@ -125,9 +125,9 @@ public class ExpirationNotifScheduler {
 			auditer.log(sess, new MembershipExpirationInDays(member, 1, vo))
 		));
 
-		private ExpirationAuditAction<Auditer, PerunSession, Member, Vo> expirationAuditAction;
+		private final ExpirationAuditAction<Auditer, PerunSession, Member, Vo> expirationAuditAction;
 
-		public ExpirationAuditAction<Auditer, PerunSession, Member, Vo> getExpirationAuditAction() {
+		ExpirationAuditAction<Auditer, PerunSession, Member, Vo> getExpirationAuditAction() {
 			return this.expirationAuditAction;
 		}
 
@@ -153,9 +153,9 @@ public class ExpirationNotifScheduler {
 				auditer.log(sess, new GroupMembershipExpirationInDays(member, 1, group))
 		));
 
-		private GroupExpirationAuditAction<Auditer, PerunSession, Member, Group> expirationAuditAction;
+		private final GroupExpirationAuditAction<Auditer, PerunSession, Member, Group> expirationAuditAction;
 
-		public GroupExpirationAuditAction<Auditer, PerunSession, Member, Group> getExpirationAuditAction() {
+		GroupExpirationAuditAction<Auditer, PerunSession, Member, Group> getExpirationAuditAction() {
 			return this.expirationAuditAction;
 		}
 

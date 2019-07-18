@@ -47,8 +47,8 @@ public class RegistrarBaseIntegrationTest {
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
 	@Autowired MailManager mailManager;
-	public PerunSession session;
-	public Vo vo;
+	PerunSession session;
+	private Vo vo;
 
 	@Before
 	public void setupTest() throws Exception {
@@ -387,7 +387,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 
 	private static void applyForMembershipInVO(RegistrarManager registrarManager, PerunBl perun, Vo vo,PerunSession user) throws PerunException {
 
-		Map<String,String> feder = new HashMap<String, String>();
+		Map<String,String> feder = new HashMap<>();
 		feder.put("Shib-Person-displayName","pplk. doc. Ing. Václav Rumcajs, DrSc.");
 		feder.put("Shib-Person-commonName","Václav Rumcajs");
 		feder.put("Shib-Person-givenName","Václav");
@@ -410,7 +410,7 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		application.setFedInfo(feder.toString());
 		application.setVo(vo);
 
-		List<ApplicationFormItemData> data = new ArrayList<ApplicationFormItemData>();
+		List<ApplicationFormItemData> data = new ArrayList<>();
 		for (ApplicationFormItemWithPrefilledValue itemW : prefilledForm) {
 			ApplicationFormItem item = itemW.getFormItem();
 			//log.info("prefilled item "+itemW);

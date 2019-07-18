@@ -37,7 +37,7 @@ public interface RegistrarModule {
 	/**
 	 * Sets registrar manager for usage in a module code.
 	 *
-	 * @param registrar
+	 * @param registrar Registrar bean
 	 */
 	void setRegistrar(RegistrarManager registrar);
 

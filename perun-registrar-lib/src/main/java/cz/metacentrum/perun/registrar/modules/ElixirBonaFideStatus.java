@@ -98,7 +98,7 @@ public class ElixirBonaFideStatus implements RegistrarModule {
 		}
 
 		AttributesManager am = session.getPerun().getAttributesManager();
-		Attribute attestation = null;
+		Attribute attestation;
 		try {
 			attestation = am.getAttribute(session, group, A_G_D_groupAttestation);
 		} catch (Exception e) {

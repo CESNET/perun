@@ -12,8 +12,8 @@ public class ApplicationNotCreatedException extends PerunException {
 
 	private static final long serialVersionUID = 1L;
 
-	private String login;
-	private String namespace;
+	private final String login;
+	private final String namespace;
 
 	public ApplicationNotCreatedException(String message, String login, String namespace) {
 		super(message);

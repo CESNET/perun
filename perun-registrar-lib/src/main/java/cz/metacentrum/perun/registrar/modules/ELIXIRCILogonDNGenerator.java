@@ -44,12 +44,12 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(ELIXIRCILogonDNGenerator.class);
 
-	final static String LOGINATTRIBUTE = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";
-	final static String DNPREFIX = "/DC=eu/DC=rcauth/DC=rcauth-clients/O=ELIXIR/CN=";
-	final static String CADN = "/DC=eu/DC=rcauth/O=Certification Authorities/CN=Research and Collaboration Authentication Pilot G1 CA";
+	private final static String LOGINATTRIBUTE = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";
+	private final static String DNPREFIX = "/DC=eu/DC=rcauth/DC=rcauth-clients/O=ELIXIR/CN=";
+	private final static String CADN = "/DC=eu/DC=rcauth/O=Certification Authorities/CN=Research and Collaboration Authentication Pilot G1 CA";
 
-	public static String RDN_TRUNCATE_SIGN = "...";
-	public static int RDN_MAX_SIZE = 64;
+	private static final String RDN_TRUNCATE_SIGN = "...";
+	private static final int RDN_MAX_SIZE = 64;
 
 	@Override
 	public void setRegistrar(RegistrarManager registrar) {
@@ -151,7 +151,7 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 	 * RDN_MAX_SIZE (64 bytes) in case the size provided is less then or equal to 0
 	 * @return Truncated RDN
 	 */
-	protected String truncate(String rdn, int size) {
+	private String truncate(String rdn, int size) {
 
 		if ( size <= 0 ) {
 			size = RDN_MAX_SIZE;

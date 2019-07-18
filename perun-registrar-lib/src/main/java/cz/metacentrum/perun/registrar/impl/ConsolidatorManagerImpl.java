@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
-	final static Logger log = LoggerFactory.getLogger(ConsolidatorManagerImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(ConsolidatorManagerImpl.class);
 
 	@Autowired RegistrarManager registrarManager;
 	@Autowired PerunBl perun;
@@ -73,13 +73,13 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		// if user known, doesn't actually search and offer joining.
 		if (sess.getPerunPrincipal().getUser() != null) {
-			return new ArrayList<Identity>();
+			return new ArrayList<>();
 		}
 
 		// if user known, doesn't actually search and offer joining.
 		try {
 			perun.getUsersManager().getUserByExtSourceNameAndExtLogin(registrarSession, sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor());
-			return new ArrayList<Identity>();
+			return new ArrayList<>();
 		} catch (Exception ex) {
 			// we don't care, that search failed. That is actually OK case.
 		}
@@ -87,9 +87,9 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		String name;
 		String mail;
 
-		Set<RichUser> res = new HashSet<RichUser>();
+		Set<RichUser> res = new HashSet<>();
 
-		List<String> attrNames = new ArrayList<String>();
+		List<String> attrNames = new ArrayList<>();
 		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
 		attrNames.add("urn:perun:user:attribute-def:def:organization");
 
@@ -120,7 +120,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		}
 
-		return convertToIdentities(new ArrayList<RichUser>(res));
+		return convertToIdentities(new ArrayList<>(res));
 
 	}
 
@@ -131,7 +131,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		if (app != null) {
 			return checkForSimilarUsers(sess, app.getId());
 		} else {
-			return new ArrayList<Identity>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -139,11 +139,11 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 	public List<Identity> checkForSimilarUsers(PerunSession sess, List<ApplicationFormItemData> formItems) throws PerunException {
 
 		if (sess.getPerunPrincipal().getUser() != null || formItems == null) {
-			return new ArrayList<Identity>();
+			return new ArrayList<>();
 		}
 
-		Set<RichUser> res = new HashSet<RichUser>();
-		List<String> attrNames = new ArrayList<String>();
+		Set<RichUser> res = new HashSet<>();
+		List<String> attrNames = new ArrayList<>();
 		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
 		attrNames.add("urn:perun:user:attribute-def:def:organization");
 
@@ -162,7 +162,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		}
 
-		return convertToIdentities(new ArrayList<RichUser>(res));
+		return convertToIdentities(new ArrayList<>(res));
 
 	}
 
@@ -171,9 +171,9 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 		String email = "";
 		String name = "";
-		List<RichUser> result = new ArrayList<RichUser>();
+		List<RichUser> result = new ArrayList<>();
 
-		List<String> attrNames = new ArrayList<String>();
+		List<String> attrNames = new ArrayList<>();
 		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
 		attrNames.add("urn:perun:user:attribute-def:def:organization");
 
@@ -226,7 +226,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 				if (email != null && !email.isEmpty()) break;
 			}
 
-			List<RichUser> users = (email != null && !email.isEmpty()) ? perun.getUsersManager().findRichUsersWithAttributesByExactMatch(registrarSession, email, attrNames) : new ArrayList<RichUser>();
+			List<RichUser> users = (email != null && !email.isEmpty()) ? perun.getUsersManager().findRichUsersWithAttributesByExactMatch(registrarSession, email, attrNames) : new ArrayList<>();
 
 			if (users != null && !users.isEmpty()) {
 				// found by preferredMail
@@ -243,7 +243,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 				if (email != null && !email.isEmpty()) break;
 			}
 
-			users = (email != null && !email.isEmpty()) ? perun.getUsersManager().findRichUsersWithAttributesByExactMatch(registrarSession, email, attrNames) : new ArrayList<RichUser>();
+			users = (email != null && !email.isEmpty()) ? perun.getUsersManager().findRichUsersWithAttributesByExactMatch(registrarSession, email, attrNames) : new ArrayList<>();
 			if (users != null && !users.isEmpty()) {
 				// found by member mail
 				return convertToIdentities(users);
@@ -280,7 +280,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 				}
 			}
 
-			users = (name != null && !name.isEmpty()) ? perun.getUsersManager().findRichUsersWithAttributesByExactMatch(registrarSession, name, attrNames) : new ArrayList<RichUser>();
+			users = (name != null && !name.isEmpty()) ? perun.getUsersManager().findRichUsersWithAttributesByExactMatch(registrarSession, name, attrNames) : new ArrayList<>();
 			if (users != null && !users.isEmpty()) {
 				// found by member display name
 				return convertToIdentities(users);
@@ -314,7 +314,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 	@Override
 	public String getConsolidatorToken(PerunSession sess) throws PerunException {
 
-		Map<String, Object> value = new HashMap<String, Object>();
+		Map<String, Object> value = new HashMap<>();
 
 		String actor = sess.getPerunPrincipal().getActor();
 		String extSourceName = sess.getPerunPrincipal().getExtSourceName();
@@ -486,7 +486,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 	 */
 	private List<Identity> convertToIdentities(List<RichUser> list) throws PerunException {
 
-		List<Identity> result = new ArrayList<Identity>();
+		List<Identity> result = new ArrayList<>();
 
 		if (list != null && !list.isEmpty()) {
 

@@ -54,7 +54,7 @@ import cz.metacentrum.perun.registrar.RegistrarManager;
 
 public class MailManagerImpl implements MailManager {
 
-	final static Logger log = LoggerFactory.getLogger(MailManagerImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(MailManagerImpl.class);
 
 	private static final String MAILS_SELECT_BY_FORM_ID = "select id,app_type,form_id,mail_type,send from application_mails where form_id=?";
 	private static final String MAILS_SELECT_BY_PARAMS = "select id,app_type,form_id,mail_type,send from application_mails where form_id=? and app_type=? and mail_type=?";
@@ -64,8 +64,8 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_VO_TO_EMAIL = "urn:perun:vo:attribute-def:def:toEmail";
 	private static final String URN_VO_MAIL_FOOTER = "urn:perun:vo:attribute-def:def:mailFooter";
 	private static final String URN_GROUP_MAIL_FOOTER = "urn:perun:group:attribute-def:def:mailFooter";
-	protected static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
-	protected static final String URN_USER_PHONE = "urn:perun:user:attribute-def:def:phone";
+	static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
+	private static final String URN_USER_PHONE = "urn:perun:user:attribute-def:def:phone";
 	private static final String URN_USER_PREFERRED_LANGUAGE = "urn:perun:user:attribute-def:def:preferredLanguage";
 	private static final String URN_MEMBER_MAIL = "urn:perun:member:attribute-def:def:mail";
 	private static final String URN_MEMBER_EXPIRATION = "urn:perun:member:attribute-def:def:membershipExpiration";
@@ -187,15 +187,10 @@ public class MailManagerImpl implements MailManager {
 
 		// get mail def
 		try {
-			List<ApplicationMail> mails = jdbc.query("select id,app_type,form_id,mail_type,send from application_mails where id=?", new RowMapper<ApplicationMail>(){
-				@Override
-				public ApplicationMail mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new ApplicationMail(rs.getInt("id"),
-							AppType.valueOf(rs.getString("app_type")),
-							rs.getInt("form_id"), MailType.valueOf(rs.getString("mail_type")),
-							rs.getBoolean("send"));
-				}
-			}, id);
+			List<ApplicationMail> mails = jdbc.query("select id,app_type,form_id,mail_type,send from application_mails where id=?", (resultSet, arg1) -> new ApplicationMail(resultSet.getInt("id"),
+					AppType.valueOf(resultSet.getString("app_type")),
+					resultSet.getInt("form_id"), MailType.valueOf(resultSet.getString("mail_type")),
+					resultSet.getBoolean("send")), id);
 			// set
 			if (mails.size() != 1) {
 				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: {}.", mails.size());
@@ -208,12 +203,7 @@ public class MailManagerImpl implements MailManager {
 
 		List<MailText> texts;
 		try {
-			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, new RowMapper<MailText>(){
-				@Override
-				public MailText mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new MailText(new Locale(rs.getString("locale")), rs.getString("subject"), rs.getString("text"));
-				}
-			}, mail.getId());
+			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, (resultSet, arg1) -> new MailText(new Locale(resultSet.getString("locale")), resultSet.getString("subject"), resultSet.getString("text")), mail.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// if no texts it's error
 			log.error("[MAIL MANAGER] Mail do not contains any text message.", ex);
@@ -275,22 +265,12 @@ public class MailManagerImpl implements MailManager {
 	@Override
 	public List<ApplicationMail> getApplicationMails(PerunSession sess, ApplicationForm form) throws PerunException {
 
-		List<ApplicationMail> mails = jdbc.query(MAILS_SELECT_BY_FORM_ID, new RowMapper<ApplicationMail>() {
-			@Override
-			public ApplicationMail mapRow(ResultSet rs, int arg1) throws SQLException {
-				return new ApplicationMail(rs.getInt("id"),
-						AppType.valueOf(rs.getString("app_type")),
-						rs.getInt("form_id"), MailType.valueOf(rs.getString("mail_type")),
-						rs.getBoolean("send"));
-			}
-		}, form.getId());
+		List<ApplicationMail> mails = jdbc.query(MAILS_SELECT_BY_FORM_ID, (resultSet, arg1) -> new ApplicationMail(resultSet.getInt("id"),
+				AppType.valueOf(resultSet.getString("app_type")),
+				resultSet.getInt("form_id"), MailType.valueOf(resultSet.getString("mail_type")),
+				resultSet.getBoolean("send")), form.getId());
 		for (ApplicationMail mail : mails) {
-			List<MailText> texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, new RowMapper<MailText>(){
-				@Override
-				public MailText mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new MailText(new Locale(rs.getString("locale")), rs.getString("subject"), rs.getString("text"));
-				}
-			}, mail.getId());
+			List<MailText> texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, (resultSet, arg1) -> new MailText(new Locale(resultSet.getString("locale")), resultSet.getString("subject"), resultSet.getString("text")), mail.getId());
 			for (MailText text : texts) {
 				// fil localized messages
 				mail.getMessage().put(text.getLocale(), text);
@@ -1165,15 +1145,10 @@ public class MailManagerImpl implements MailManager {
 
 		// get mail def
 		try {
-			List<ApplicationMail> mails = jdbc.query(MAILS_SELECT_BY_PARAMS, new RowMapper<ApplicationMail>(){
-				@Override
-				public ApplicationMail mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new ApplicationMail(rs.getInt("id"),
-							AppType.valueOf(rs.getString("app_type")),
-							rs.getInt("form_id"), MailType.valueOf(rs.getString("mail_type")),
-							rs.getBoolean("send"));
-				}
-			}, formId, appType.toString(), mailType.toString());
+			List<ApplicationMail> mails = jdbc.query(MAILS_SELECT_BY_PARAMS, (resultSet, arg1) -> new ApplicationMail(resultSet.getInt("id"),
+					AppType.valueOf(resultSet.getString("app_type")),
+					resultSet.getInt("form_id"), MailType.valueOf(resultSet.getString("mail_type")),
+					resultSet.getBoolean("send")), formId, appType.toString(), mailType.toString());
 			// set
 			if (mails.size() != 1) {
 				log.error("[MAIL MANAGER] Wrong number of mail definitions returned by unique params, expected 1 but was: {}", mails.size());
@@ -1186,12 +1161,7 @@ public class MailManagerImpl implements MailManager {
 
 		List<MailText> texts;
 		try {
-			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, new RowMapper<MailText>(){
-				@Override
-				public MailText mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new MailText(new Locale(rs.getString("locale")), rs.getString("subject"), rs.getString("text"));
-				}
-			}, mail.getId());
+			texts = jdbc.query(MAIL_TEXTS_SELECT_BY_MAIL_ID, (resultSet, arg1) -> new MailText(new Locale(resultSet.getString("locale")), resultSet.getString("subject"), resultSet.getString("text")), mail.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// if no texts it's error
 			log.error("[MAIL MANAGER] Mail do not contains any text message.", ex);
@@ -1209,8 +1179,8 @@ public class MailManagerImpl implements MailManager {
 	 * Return preferred Locale from application
 	 * (return EN if not found)
 	 *
-	 * @param data
-	 * @return
+	 * @param data application data
+	 * @return Preferred locale resolved from application data
 	 */
 	private String getLanguageFromAppData(Application app, List<ApplicationFormItemData> data) {
 
@@ -1374,7 +1344,7 @@ public class MailManagerImpl implements MailManager {
 	 */
 	private List<String> getToMailAddresses(Application app){
 
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 
 		// get proper value from attribute
 		try {
@@ -2174,7 +2144,7 @@ public class MailManagerImpl implements MailManager {
 	 */
 	private ArrayList<String> getFedAuthz() {
 
-		ArrayList<String> fedAuthz = new ArrayList<String>();
+		ArrayList<String> fedAuthz = new ArrayList<>();
 		fedAuthz.add("fed");
 		String fedString = getPropertyFromConfiguration("fedAuthz");
 		if (fedString != null && !fedString.isEmpty()) {

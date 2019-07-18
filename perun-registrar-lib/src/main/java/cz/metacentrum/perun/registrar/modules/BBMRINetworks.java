@@ -47,7 +47,7 @@ import java.util.Set;
  */
 public class BBMRINetworks implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(BBMRINetworks.class);
+	private final static Logger log = LoggerFactory.getLogger(BBMRINetworks.class);
 	private static final String NETWORK_IDS_FIELD = "Comma or new-line separated list of IDs of networks you are representing:";
 	private static final String NETWORKS_GROUP_NAME = "networks";
 	private static final String NETWORK_ID_ATTR_NAME = "urn:perun:group:attribute-def:def:networkID";

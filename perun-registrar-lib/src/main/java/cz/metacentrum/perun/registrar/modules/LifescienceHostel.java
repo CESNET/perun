@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class LifescienceHostel implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(LifescienceHostel.class);
+	private final static Logger log = LoggerFactory.getLogger(LifescienceHostel.class);
 
 	private final static String LIFESCIENCE_HOSTEL_NS = "login-namespace:lifescience-hostel";
 	private final static String LS_HOSTEL_SCOPE = "@lifescience-hostel.org";

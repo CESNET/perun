@@ -40,7 +40,7 @@ import java.util.Objects;
  */
 public class Metacentrum implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
+	private final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
 
 	private RegistrarManager registrar;
 
