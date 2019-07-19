@@ -286,20 +286,20 @@ public class Auditer {
 			return;
 		}
 
+		// Resolve all additional message from attribute modules and add them to the bulk
+		try {
+
+			//Get perun session from the first message (all sessions should be same from the same principal)
+			PerunSessionImpl session = (PerunSessionImpl) auditerMessages.get(0).getOriginatingSession();
+
+			//Check recursively all messages if they can create any resolving message
+			auditerMessages.addAll(checkRegisteredAttributesModules(session, auditerMessages, new ArrayList<>()));
+
+		} catch (Throwable ex) {
+			log.error("There is a problem with processing resolving messages! It will be forcibly skipped to prevent unexpected behavior of auditer log!", ex);
+		}
+
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
-
-			// Resolve all additional message from attribute modules and add them to the bulk
-			try {
-
-				//Get perun session from the first message (all sessions should be same from the same principal)
-				PerunSessionImpl session = (PerunSessionImpl) auditerMessages.get(0).getOriginatingSession();
-
-				//Check recursively all messages if they can create any resolving message
-				auditerMessages.addAll(checkRegisteredAttributesModules(session, auditerMessages, new ArrayList<>()));
-
-			} catch (Throwable ex) {
-				log.error("There is a problem with processing resolving messages! It will be forcibly skipped to prevent unexpected behavior of auditer log!", ex);
-			}
 
 			//Write all messages to the database
 			try {
