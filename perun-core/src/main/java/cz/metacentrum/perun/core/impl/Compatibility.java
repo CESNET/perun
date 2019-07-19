@@ -24,6 +24,19 @@ public class Compatibility {
 		return "hsqldb".equals(getDbType());
 	}
 
+	static String getSequenceNextval(String sequenceName) throws InternalErrorException {
+		switch (getDbType()) {
+			case "oracle":
+				return sequenceName + ".nextval";
+			case "postgresql":
+				return "nextval('" + sequenceName + "')";
+			case "hsqldb":
+				return "next value for " + sequenceName;
+			default:
+				throw new InternalErrorException("Unsupported DB type");
+		}
+	}
+
 	static String getLockTable(String tableName) throws InternalErrorException {
 		switch (getDbType()) {
 			case "oracle":
