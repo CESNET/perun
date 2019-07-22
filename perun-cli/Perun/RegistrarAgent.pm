@@ -28,4 +28,19 @@ sub copyMails
 	return Perun::Common::callManagerMethod('copyMails', 'null', @_);
 }
 
+sub updateForm
+{
+	return Perun::Common::callManagerMethod('updateForm', 'null', @_);
+}
+
+sub getApplicationForm
+{
+	return Perun::Common::callManagerMethod('getApplicationForm', 'ApplicationForm', @_);
+}	
+
+sub setApplicationForm
+{
+	return Perun::Common::callManagerMethod('setApplicationForm', 'null', @_);
+}	
+
 1;
