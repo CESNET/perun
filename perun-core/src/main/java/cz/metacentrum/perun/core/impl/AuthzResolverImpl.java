@@ -107,6 +107,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 
 	public AuthzResolverImpl(DataSource perunPool) {
 		jdbc = new JdbcPerunTemplate(perunPool);
+		jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	@Override

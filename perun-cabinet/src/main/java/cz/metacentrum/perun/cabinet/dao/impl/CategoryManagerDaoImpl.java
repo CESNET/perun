@@ -9,6 +9,7 @@ import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.dao.CategoryManagerDao;
 import cz.metacentrum.perun.cabinet.model.Category;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -33,6 +34,7 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 
 	public CategoryManagerDaoImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
+		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	private final static String CATEGORY_SELECT_QUERY = "cabinet_categories.id as category_id, " +

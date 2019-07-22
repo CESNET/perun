@@ -10,6 +10,7 @@ import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.dao.ThanksManagerDao;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Compatibility;
@@ -32,6 +33,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 
 	public ThanksManagerDaoImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
+		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	private final static String THANKS_SELECT_QUERY = "cabinet_thanks.id as thanks_id, " +

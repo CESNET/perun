@@ -12,6 +12,7 @@ import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.dao.AuthorshipManagerDao;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Compatibility;
@@ -98,6 +99,7 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 
 	public AuthorshipManagerDaoImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
+		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	// methods ----------------------

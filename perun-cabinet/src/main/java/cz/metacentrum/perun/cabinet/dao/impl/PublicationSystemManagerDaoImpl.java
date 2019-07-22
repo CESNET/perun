@@ -9,6 +9,7 @@ import cz.metacentrum.perun.cabinet.dao.PublicationSystemManagerDao;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -30,6 +31,7 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 
 	public PublicationSystemManagerDaoImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
+		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	private final static String PUBLICATION_SYSTEM_SELECT_QUERY = "cabinet_publication_systems.id as ps_id, " +

@@ -84,6 +84,7 @@ public class CacheManager implements CacheManagerApi {
 
 	public void setPerunPool(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
+		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	public void stopCacheManager() {

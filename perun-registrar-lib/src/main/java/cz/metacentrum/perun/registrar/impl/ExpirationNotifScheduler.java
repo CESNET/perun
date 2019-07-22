@@ -8,6 +8,7 @@ import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpi
 import cz.metacentrum.perun.audit.events.ExpirationNotifScheduler.MembershipExpired;
 
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -60,6 +61,7 @@ public class ExpirationNotifScheduler {
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		this.jdbc = new JdbcPerunTemplate(dataSource);
+		this.jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	public PerunBl getPerun() {

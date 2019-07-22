@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -48,6 +49,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	public ServicesManagerImpl(DataSource perunPool) {
 		jdbc = new JdbcPerunTemplate(perunPool);
+		jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	public final static String serviceMappingSelectQuery = " services.id as services_id, services.name as services_name, " +

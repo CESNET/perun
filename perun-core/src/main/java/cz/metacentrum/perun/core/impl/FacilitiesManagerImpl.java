@@ -226,6 +226,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	public FacilitiesManagerImpl(DataSource perunPool) {
 		jdbc = new JdbcPerunTemplate(perunPool);
+		jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	@Override

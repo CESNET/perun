@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -82,6 +83,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	public ExtSourcesManagerImpl(DataSource perunPool) {
 		jdbc = new JdbcPerunTemplate(perunPool);
+		jdbc.setQueryTimeout(BeansUtils.getCoreConfig().getQueryTimeout());
 	}
 
 	public void setSelf(ExtSourcesManagerImplApi self) {
