@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.implApi;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -91,6 +92,7 @@ public interface ExtSourceSimpleApi {
 	 * @throws InternalErrorException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
+	@JsonIgnore
 	List<Map<String, String>> getUsersSubjects() throws InternalErrorException, ExtSourceUnsupportedOperationException;
 
 }
