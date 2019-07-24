@@ -3483,6 +3483,39 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue("List of members should be empty", members.isEmpty());
 	}
 
+	@Test
+	public void addMemberToGroups() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberToGroups");
+
+		vo = setUpVo();
+
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+
+		List<Group> groups = Arrays.asList(group, group2, group3);
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, groups, member);
+		for (Group group : groups) {
+			assertTrue("List of members should contain member", groupsManager.isGroupMember(sess, group, member));
+		}
+	}
+
+
+	@Test
+	public void addMembersToGroup() throws Exception {
+		System.out.println(CLASS_NAME + "addMembersToGroup");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		List<Member> members = Arrays.asList(setUpMember(vo), setUpMember(vo), setUpMember(vo));
+		groupsManager.addMembers(sess, group, members);
+		List<Member> membersFromDb = groupsManager.getGroupMembers(sess, group);
+		for (Member member : members) {
+			assertTrue("List of members should contain member", membersFromDb.contains(member));
+		}
+	}
 	@Test(expected = ExternallyManagedException.class)
 	public void removeMemberInSynchronizedGroup() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberInSynchronizedGroup");

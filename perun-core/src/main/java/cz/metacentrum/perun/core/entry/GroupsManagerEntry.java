@@ -292,6 +292,79 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
+	public void addMembers(PerunSession sess, Group group, List<Member> members) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		for (Member member : members) {
+			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+			// Check if the member and group are from the same VO
+			if (member.getVoId() != (group.getVoId())) {
+				throw new MembershipMismatchException("Member and group are form the different VO");
+			}
+		}
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "addMembers");
+		}
+
+
+
+		// Check if the group is externally synchronized
+		Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+		if ("true".equals(attrSynchronizeEnabled.getValue()) || getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
+			throw new ExternallyManagedException("Adding of member is not allowed. Group is externally managed.");
+		}
+
+		getGroupsManagerBl().addMembers(sess, group, members);
+	}
+
+	@Override
+	public void addMember(PerunSession sess, List<Group> groups, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		for (Group group : groups) {
+			getGroupsManagerBl().checkGroupExists(sess, group);
+			// Authorization
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+				throw new PrivilegeException(sess, "addMember");
+			}
+			// Check if the member and group are from the same VO
+			if (member.getVoId() != (group.getVoId())) {
+				throw new MembershipMismatchException("Member and group are form the different VO");
+			}
+			// Check if the group is externally synchronized
+			Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+			if ("true".equals(attrSynchronizeEnabled.getValue()) || getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
+				throw new ExternallyManagedException("Adding of member is not allowed. Group is externally managed.");
+			}
+		}
+		getGroupsManagerBl().addMember(sess, groups, member);
+	}
+
+	@Override
+	public boolean isDirectGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			throw new PrivilegeException(sess, "isGroupMember");
+		}
+
+		return getGroupsManagerBl().isDirectGroupMember(sess, group, member);
+	}
+
+
+
+
+	@Override
 	public void addMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);

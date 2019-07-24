@@ -273,6 +273,67 @@ public interface GroupsManager {
 	 */
 	void addMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
 
+
+	/**
+	 * Return true if Member is direct member of the Group
+	 *
+	 *
+	 * @param sess session
+	 * @param group group where the membership is to be checked
+	 * @param member member whose membership is to be checked
+	 * @return true if Member is direct member of the Group
+	 *
+	 * @throws InternalErrorException
+	 */
+	boolean isDirectGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
+
+
+
+
+	/**
+	 * Adds member of the VO to the groups in the same VO.
+	 *
+	 * @param perunSession
+	 * @param groups list of groups, the member will be added to
+	 * @param member member to be added
+	 *
+	 * @throws InternalErrorException
+	 * @throws MemberNotExistsException
+	 * @throws PrivilegeException
+	 * @throws AlreadyMemberException
+	 * @throws GroupNotExistsException
+	 * @throws InternalErrorRuntimeException
+	 * @throws WrongAttributeValueException if any member attribute value, required by resource (on which the group is assigned), is wrong
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws ExternallyManagedException
+	 */
+	void addMember(PerunSession perunSession, List<Group> groups, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
+
+	/**
+	 * Adds members of the VO to the group in the same VO.
+	 *
+	 * @param perunSession
+	 * @param group list of groups, the member will be added to
+	 * @param members member to be added
+	 *
+	 * @throws InternalErrorException
+	 * @throws MemberNotExistsException
+	 * @throws PrivilegeException
+	 * @throws AlreadyMemberException
+	 * @throws GroupNotExistsException
+	 * @throws InternalErrorRuntimeException
+	 * @throws WrongAttributeValueException if any member attribute value, required by resource (on which the group is assigned), is wrong
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws ExternallyManagedException
+	 */
+	void addMembers(PerunSession perunSession, Group group, List<Member> members) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
+
+
+
 	/**
 	 * Removes member form the group.
 	 *

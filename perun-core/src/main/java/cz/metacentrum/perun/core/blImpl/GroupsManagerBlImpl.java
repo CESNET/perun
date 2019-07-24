@@ -827,6 +827,38 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Override
+	public boolean isDirectGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException {
+		return getGroupsManagerImpl().isDirectGroupMember(sess, group, member);
+	}
+
+	@Override
+	public void addMember(PerunSession sess, List<Group> groups, Member member) throws InternalErrorException, WrongReferenceAttributeValueException, AlreadyMemberException, WrongAttributeValueException, GroupNotExistsException {
+		Collections.sort(groups, Collections.reverseOrder());
+		for (Group group : groups) {
+			// Check if the group is NOT members or administrators group
+			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+				throw new InternalErrorException("Cannot add member directly to the members group.");
+			} else {
+				this.addDirectMember(sess, group, member);
+			}
+		}
+	}
+
+	@Override
+	public void addMembers(PerunSession sess, Group group,  List<Member> members) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupNotExistsException {
+		Collections.sort(members);
+		for (Member member : members) {
+			// Check if the group is NOT members or administrators group
+			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+				throw new InternalErrorException("Cannot add member directly to the members group.");
+			} else {
+				this.addDirectMember(sess, group, member);
+			}
+		}
+	}
+
+
 	private List<Group> getParentGroups(PerunSession sess, Group group)throws InternalErrorException {
 		if(group == null) return new ArrayList<>();
 		try {
