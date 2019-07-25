@@ -75,7 +75,7 @@ public class urn_perun_user_attribute_def_def_uid_namespace extends UserAttribut
 		usersWithUid.remove(user); //remove self
 		if (!usersWithUid.isEmpty()) {
 			if(usersWithUid.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated UID detected." +  attribute + " " + usersWithUid);
-			throw new WrongAttributeValueException(attribute, "This UID " + attribute.getValue() + " is already occupied by" + usersWithUid.get(0)  + ".");
+			throw new WrongAttributeValueException(attribute, "UID " + attribute.getValue() + " is already occupied by " + usersWithUid.get(0)  + ". We can't set it for " + user + ".");
 		}
 	}
 
