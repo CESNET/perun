@@ -315,32 +315,23 @@ public class Auditer {
 
 			//Write all messages to the database
 			try {
-				jdbc.batchUpdate("insert into auditer_log (id, msg, actor, created_at, created_by_uid) values (?,?,?," + Compatibility.getSysdate() + ",?)",
+				jdbc.batchUpdate("insert into auditer_log (id, msg, actor, created_at, created_by_uid) values ("+Compatibility.getSequenceNextval("auditer_log_id_seq")+",?,?," + Compatibility.getSysdate() + ",?)",
 						new BatchPreparedStatementSetter() {
 							@Override
 							public void setValues(PreparedStatement ps, int i) throws SQLException {
 
 								final AuditerMessage auditerMessage = auditerMessages.get(i);
 								final PerunSession session = auditerMessage.getOriginatingSession();
-
-								try {
-									final int msgId = Utils.getNewId(jdbc, "auditer_log_id_seq");
-									ps.setInt(1, msgId);
-								} catch (InternalErrorException e) {
-									throw new SQLException("Cannot get unique id for new auditer log message ['" + auditerMessage.getEvent().getMessage() + "']", e);
-								}
-
 								String jsonString = "";
 								try {
 									jsonString = mapper.writeValueAsString(auditerMessage.getEvent());
-
 								} catch (IOException e) {
-									log.error("Could not map event {} to JSON.", auditerMessage.getEvent().getClass().getSimpleName());
+									log.error("Could not map event {} to JSON: {}", auditerMessage.getEvent().getClass().getSimpleName(), auditerMessage.getEvent().getMessage());
 								}
 								log.info("AUDIT_JSON: {}", jsonString);
-								ps.setString(2, jsonString);
-								ps.setString(3, session.getPerunPrincipal().getActor());
-								ps.setInt(4, session.getPerunPrincipal().getUserId());
+								ps.setString(1, jsonString);
+								ps.setString(2, session.getPerunPrincipal().getActor());
+								ps.setInt(3, session.getPerunPrincipal().getUserId());
 							}
 
 							@Override
