@@ -21,9 +21,11 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -55,6 +57,14 @@ public class Auditer {
 	private JdbcPerunTemplate jdbc;
 
 	private int lastProcessedId;
+	private static final Map<Class<?>,Class<?>> mixinMap = new HashMap<>();
+	private static final ObjectMapper mapper = new ObjectMapper();
+
+	static {
+		mapper.enableDefaultTyping();
+		// TODO - skip any problematic properties using interfaces for mixins
+		mapper.setMixIns(mixinMap);
+	}
 
 	private static final Object LOCK_DB_TABLE_AUDITER_LOG = new Object();
 
@@ -320,8 +330,6 @@ public class Auditer {
 									throw new SQLException("Cannot get unique id for new auditer log message ['" + auditerMessage.getEvent().getMessage() + "']", e);
 								}
 
-								ObjectMapper mapper = new ObjectMapper();
-								mapper.enableDefaultTyping();
 								String jsonString = "";
 								try {
 									jsonString = mapper.writeValueAsString(auditerMessage.getEvent());
