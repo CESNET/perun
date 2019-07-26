@@ -647,7 +647,7 @@ public class JsonErrorHandler {
 		} else if ("IllegalArgumentException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - is this generic error ??
-			return "Your operation can't be completed. Illegal argument exception occurred. Please report this error.";
+			return "Your operation can't be completed. " + SafeHtmlUtils.fromString(error.getErrorInfo()).asString() + " Please report this error.";
 
 		} else if ("InternalErrorException".equalsIgnoreCase(errorName)) {
 
