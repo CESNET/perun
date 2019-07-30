@@ -308,9 +308,17 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 
 		//Debug information to check parsing of message.
 		MessageBeans beans = new MessageBeansImpl();
+
+		boolean shouldntAddVo = false;
+		if (msg.matches("Group:[\\d\\D]*created in Vo:[\\d\\D]*"))
+			shouldntAddVo = true;
+
 		if(!listOfBeans.isEmpty()){
 			int i=0;
 			for(PerunBean p: listOfBeans) {
+				if (shouldntAddVo && p.getBeanName().equals("Vo"))
+					continue;
+
 				i++;
 				// if(p!=null) log.debug("There is object number " + i + ") " + p.serializeToString());
 				// else log.debug("There is unknow object which is null");
