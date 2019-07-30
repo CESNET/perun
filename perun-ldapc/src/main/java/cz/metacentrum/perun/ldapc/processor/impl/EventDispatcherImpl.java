@@ -309,7 +309,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 		//Debug information to check parsing of message.
 		MessageBeans beans = new MessageBeansImpl();
 
-		boolean shouldntAddVo = msg.matches("Group:[\\d\\D]*created in Vo:[\\d\\D]*");
+		boolean shouldntAddVo = msg.matches("[\\d\\D]*Group:[\\d\\D]*created in Vo:[\\d\\D]*");
 
 		if(!listOfBeans.isEmpty()){
 			int i=0;
@@ -322,6 +322,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 				// else log.debug("There is unknow object which is null");
 				beans.addBean(p);
 			}
+			
 			//log.debug("Resolved{} beans ", beans.getBeansCount());
 		}
 		return beans;
