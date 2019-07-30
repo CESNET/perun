@@ -31,6 +31,7 @@ import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -44,9 +45,11 @@ import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
+import cz.metacentrum.perun.core.impl.ExtSourceSql;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.VosManagerImplApi;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,6 +246,12 @@ public class VosManagerBlImpl implements VosManagerBl {
 		try {
 			// Iterate through given extSources
 			for (ExtSource source : extSources) {
+				//FIXME this 'if' is used for searching in MU ExtSource, the search can only contain digits because searched by UČO
+				if (!StringUtils.isNumeric(searchString) &&
+					source instanceof ExtSourceSql &&
+					("INET".equals(source.getName()) || ("INET-COMPLEX".equals(source.getName())))) {
+					throw new IllegalArgumentException("Numeric searching text expected.");
+				}
 				try {
 					// Info if this is only simple ext source, change behavior if not
 					boolean simpleExtSource = true;
@@ -362,6 +371,12 @@ public class VosManagerBlImpl implements VosManagerBl {
 		try {
 			// Iterate through given extSources
 			for (ExtSource source : extSources) {
+				//FIXME this 'if' is used for searching in MU ExtSource, the search can only contain digits because searched by UČO
+				if (!StringUtils.isNumeric(searchString) &&
+					source instanceof ExtSourceSql &&
+					("INET".equals(source.getName()) || ("INET-COMPLEX".equals(source.getName())))) {
+					throw new IllegalArgumentException("Numerical searching text expected.");
+				}
 				try {
 					// Info if this is only simple ext source, change behavior if not
 					boolean simpleExtSource = true;
