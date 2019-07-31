@@ -2530,42 +2530,58 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		Set<AttributeDefinition> attributeStrongDeps = strongDependencies.get(attribute);
 		Set<AttributeDefinition> attributeInverseStrongDeps = inverseStrongDependencies.get(attribute);
 
-		attributeInverseDeps.forEach(attr -> {
-			if (dependencies.containsKey(attr)) {
-				if (!dependencies.get(attr).remove(attribute)) {
-					log.warn("Dependencies inconsistency. Atribute {} should have dependency on attribute {}.", attr, attribute);
+		if (attributeInverseDeps != null)  {
+			attributeInverseDeps.forEach(attr -> {
+				if (dependencies.containsKey(attr)) {
+					if (!dependencies.get(attr).remove(attribute)) {
+						log.warn("Dependencies inconsistency. Attribute {} should have dependency on attribute {}.", attr, attribute);
+					}
+				} else {
+					log.warn("Dependencies inconsistency. Dependencies should contain information about {}.", attr);
 				}
-			} else {
-				log.warn("Dependencies inconsistency. Dependencies should contain information about {}.", attr);
-			}
-		});
-		attributeStrongDeps.forEach(attr -> {
-			if (inverseStrongDependencies.containsKey(attr)) {
-				if (!inverseStrongDependencies.get(attr).remove(attribute)) {
-					log.warn("Inverse strong dependencies inconsistency. Atribute {} should have inverse strong dependency on attribute {}.", attr, attribute);
+			});
+		} else {
+			log.error("Inverse dependencies for '{}' were NULL instead of at least (non)empty Set. Attribute was present as key: {}", attribute.getName(), inverseDependencies.containsKey(attribute));
+		}
+		if (attributeStrongDeps != null) {
+			attributeStrongDeps.forEach(attr -> {
+				if (inverseStrongDependencies.containsKey(attr)) {
+					if (!inverseStrongDependencies.get(attr).remove(attribute)) {
+						log.warn("Inverse strong dependencies inconsistency. Attribute {} should have inverse strong dependency on attribute {}.", attr, attribute);
+					}
+				} else {
+					log.warn("Inverse strong dependencies inconsistency. Inverse strong dependencies inconsistency should contain information about {}.", attr);
 				}
-			} else {
-				log.warn("Inverse strong dependencies inconsistency. Inverse strong dependencies inconsistency should contain information about {}.", attr);
-			}
-		});
-		attributeInverseStrongDeps.forEach(attr -> {
-			if (strongDependencies.containsKey(attr)) {
-				if (!strongDependencies.get(attr).remove(attribute)) {
-					log.warn("Strong dependencies inconsistency. Atribute {} should have strong dependency on attribute {}.", attr, attribute);
+			});
+		} else {
+			log.error("Strong dependencies for '{}' were NULL instead of at least (non)empty Set. Attribute was present as key: {}", attribute.getName(), strongDependencies.containsKey(attribute));
+		}
+		if (attributeInverseStrongDeps != null) {
+			attributeInverseStrongDeps.forEach(attr -> {
+				if (strongDependencies.containsKey(attr)) {
+					if (!strongDependencies.get(attr).remove(attribute)) {
+						log.warn("Strong dependencies inconsistency. Attribute {} should have strong dependency on attribute {}.", attr, attribute);
+					}
+				} else {
+					log.warn("Strong dependencies inconsistency. Strong dependencies should have contained information about {}.", attr);
 				}
-			} else {
-				log.warn("Strong dependencies inconsistency. Strong dependencies should have contained information about {}.", attr);
-			}
-		});
-		attributeDeps.forEach(attr -> {
-			if (inverseDependencies.containsKey(attr)) {
-				if (!inverseDependencies.get(attr).remove(attribute)) {
-					log.warn("Inverse dependencies inconsistency. Atribute {} should have inverse dependency on attribute {}.", attr, attribute);
+			});
+		} else {
+			log.error("Inverse strong dependencies for '{}' were NULL instead of at least (non)empty Set. Attribute was present as key: {}", attribute.getName(), inverseStrongDependencies.containsKey(attribute));
+		}
+		if (attributeDeps != null) {
+			attributeDeps.forEach(attr -> {
+				if (inverseDependencies.containsKey(attr)) {
+					if (!inverseDependencies.get(attr).remove(attribute)) {
+						log.warn("Inverse dependencies inconsistency. Attribute {} should have inverse dependency on attribute {}.", attr, attribute);
+					}
+				} else {
+					log.warn("Inverse dependencies inconsistency. Inverse dependencies should have contained information about {}.", attr);
 				}
-			} else {
-				log.warn("Inverse dependencies inconsistency. Inverse dependencies should have contained information about {}.", attr);
-			}
-		});
+			});
+		} else {
+			log.error("Dependencies for '{}' were NULL instead of at least (non)empty Set. Attribute was present as key: {}", attribute.getName(), dependencies.containsKey(attribute));
+		}
 
 		// there is no inverse version of all dependencies so we have to walk through all
 		allDependencies.remove(attribute);
