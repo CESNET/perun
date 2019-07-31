@@ -15,6 +15,18 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplApi {
 
 	/**
+	 * Checks if value of this entityless attribute has valid syntax.
+	 *
+	 * @param perunSession perun session
+	 * @param key string for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
 	 * Checks if value of this facility attribute is valid.
 	 *
 	 * @param perunSession perun session

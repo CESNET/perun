@@ -17,6 +17,19 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 
 	/**
+	 * Checks if assigned attribute value to the user has valid syntax.
+	 *
+	 * @param perunSession PerunSession
+	 * @param user User
+	 * @param attribute Attribute of the user.
+	 *
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
 	 * Checks if assigned attribute to the user is valid.
 	 *
 	 * @param perunSession PerunSession

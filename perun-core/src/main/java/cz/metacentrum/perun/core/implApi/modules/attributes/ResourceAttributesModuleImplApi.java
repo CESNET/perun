@@ -32,6 +32,19 @@ public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi
 	Attribute fillAttribute(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException,WrongAttributeAssignmentException;
 
 	/**
+	 * Checks if value of this resource attribute has valid syntax.
+	 *
+	 * @param perunSession perun session
+	 * @param resource resource for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong / illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
 	 * Checks if value of this resource attribute is valid.
 	 *
 	 * @param perunSession perun session
