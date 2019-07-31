@@ -21,6 +21,10 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  */
 public abstract class GroupResourceAttributesModuleAbstract extends AttributesModuleAbstract implements GroupResourceAttributesModuleImplApi {
 
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+
+	}
+
 	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 	}

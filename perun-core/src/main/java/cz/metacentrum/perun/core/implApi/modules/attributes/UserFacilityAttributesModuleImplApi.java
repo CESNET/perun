@@ -16,6 +16,20 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 public interface UserFacilityAttributesModuleImplApi extends AttributesModuleImplApi{
 
 	/**
+	 * Checks if value of assigned attribute in relationship between those two
+	 * entities has a correct syntax.
+	 *
+	 * @param session Perun session
+	 * @param user User of the facility.
+	 * @param facility Facility to be used by a user.
+	 * @param attribute Attribute in relationship between facility and user.
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws  InternalErrorException, WrongAttributeValueException;
+
+	/**
 	 * Checks if assigned attribute in relationship between those two
 	 * entities has a correct value.
 	 *

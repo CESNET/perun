@@ -3,6 +3,8 @@ package cz.metacentrum.perun.core.implApi.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
 /**
@@ -12,6 +14,19 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * @author Jan Zvěřina <zverina.jan@email.cz>
  */
 public interface UserExtSourceAttributesModuleImplApi extends AttributesModuleImplApi{
+
+	/**
+	 * This method checks UserExtSource attribute value syntax.
+	 *
+	 * @param perunSession Perun session
+	 * @param ues
+	 * @param attribute Attribute to be checked.
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 *
+	 */
+	void checkAttributeSyntax(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
 	 * This method checks UserExtSource attributes.

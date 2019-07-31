@@ -17,6 +17,21 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  * version: 2015-03-22
  */
 public interface MemberGroupAttributesModuleImplApi extends AttributesModuleImplApi {
+
+	/**
+	 * This method checks syntax of Member's attribute value in a specified group.
+	 *
+	 * @param perunSession Perun session
+	 * @param member Member
+	 * @param group Group
+	 * @param attribute Attribute to be checked.
+	 *
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
 	/**
 	 * This method checks Member's attributes in a specified group.
 	 *

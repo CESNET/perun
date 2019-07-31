@@ -17,6 +17,19 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 
 	/**
+	 * Checks if value of assigned attribute to the member has valid syntax.
+	 *
+	 * @param session Perun session
+	 * @param member Member
+	 * @param attribute Attribute of the member.
+	 *
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
 	 * Checks if assigned attribute to the member is valid.
 	 *
 	 * @param session Perun session

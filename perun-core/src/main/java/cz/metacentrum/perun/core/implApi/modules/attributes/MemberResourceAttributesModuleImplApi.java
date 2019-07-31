@@ -19,6 +19,20 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 public interface MemberResourceAttributesModuleImplApi extends AttributesModuleImplApi{
 
 	/**
+	 * This method checks syntax of Member's attribute value at a specified resource.
+	 *
+	 * @param perunSession Perun session
+	 * @param member Member
+	 * @param resource Resource
+	 * @param attribute Attribute to be checked.
+	 *
+	 * @throws InternalErrorException if an exception is raised in particular
+	 *         implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
 	 * This method checks Member's attributes at a specified resource.
 	 *
 	 * @param perunSession Perun session

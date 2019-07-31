@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
@@ -16,6 +17,10 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
  *
  */
 public abstract class VoAttributesModuleAbstract extends AttributesModuleAbstract implements VoAttributesModuleImplApi {
+
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+
+	}
 
 	public void checkAttributeValue(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 
