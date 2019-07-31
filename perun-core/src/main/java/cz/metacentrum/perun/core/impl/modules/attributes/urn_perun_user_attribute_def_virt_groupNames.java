@@ -13,19 +13,28 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MemberGroupStatus;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Contains all group names of the user
@@ -37,26 +46,47 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 	private static final String FRIENDLY_NAME = "groupNames";
 	private static final String A_U_V_GROUP_NAMES = AttributesManager.NS_USER_ATTR_VIRT + ":" + FRIENDLY_NAME;
 
+	protected static final RowMapper<Pair<String, String>> ROW_MAPPER = new RowMapper<Pair<String, String>>() {
+		@Override
+		public Pair<String, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
+			String voShortName = rs.getString("vo_short_name");
+			String groupName = rs.getString("group_name");
+			return new Pair<>(voShortName, groupName);
+		}
+	};
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		List<String> groupNames = new ArrayList<>();
+		Set<String> groupNames = new TreeSet<>();
+		List<Pair<String, String>> names;
+		try {
+			names = sess.getPerunBl().getDatabaseManagerBl().getJdbcPerunTemplate().query(
+				"SELECT" +
+					" DISTINCT vos.short_name AS vo_short_name, groups.name AS group_name" +
+					" FROM" +
+					" members" +
+					" JOIN vos ON vos.id = members.vo_id AND members.user_id = ?" +
+					" JOIN groups_members ON groups_members.member_id = members.id AND groups_members.source_group_status = ?" +
+					" JOIN groups ON groups_members.group_id = groups.id" +
+					" ORDER BY vo_short_name, group_name",
+					ROW_MAPPER,
+					user.getId(), MemberGroupStatus.VALID.getCode());
+		} catch(EmptyResultDataAccessException e) {
+			names = new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 
-		List<Member> members = sess.getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-		Set<String> voNames = new HashSet<>();
-		for (Member member : members) {
-			Vo vo = sess.getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
-			voNames.add(vo.getShortName());
-
-			List<Group> groups = sess.getPerunBl().getGroupsManagerBl().getGroupsWhereMemberIsActive(sess, member);
-			for (Group group : groups) {
-				groupNames.add(vo.getShortName() +":"+ group.getName());
+		for (Pair<String, String> one : names) {
+			String voShortName = one.getLeft();
+			groupNames.add(voShortName);
+			if (!VosManager.MEMBERS_GROUP.equals(one.getRight())) {
+				String groupName = one.getRight();
+				groupNames.add(voShortName + ":" + groupName);
 			}
 		}
-		groupNames.addAll(voNames);
-
-		attribute.setValue(groupNames);
+		attribute.setValue(new ArrayList<>(groupNames));
 		return attribute;
 	}
 
