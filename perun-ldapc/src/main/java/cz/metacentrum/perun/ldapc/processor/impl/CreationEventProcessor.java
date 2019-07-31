@@ -26,6 +26,11 @@ public class CreationEventProcessor extends AbstractEventProcessor {
 			try {
 				switch(beanFlag) {
 				case MessageBeans.GROUP_F:
+					if (beans.getParentGroup() != null) {
+						log.debug("Adding subgroup {} to group {}", beans.getGroup(), beans.getParentGroup());
+						perunGroup.addGroupAsSubGroup(beans.getGroup(), beans.getParentGroup());
+						break;
+					}
 					log.debug("Adding new group: {}", beans.getGroup());
 					perunGroup.addGroup(beans.getGroup());
 					break;
@@ -41,6 +46,9 @@ public class CreationEventProcessor extends AbstractEventProcessor {
 					break;
 					
 				case MessageBeans.VO_F:
+					if (beans.getGroup() != null) {
+						break;
+					}
 					log.debug("Adding new VO: {}", beans.getVo());
 					perunVO.addVo(beans.getVo());
 					break;

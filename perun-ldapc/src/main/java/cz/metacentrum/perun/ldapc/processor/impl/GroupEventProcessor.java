@@ -47,7 +47,7 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 		}
 	}
 
-	public void processSubgroupAdded(String msg, MessageBeans beans) {
+	/*public void processSubgroupAdded(String msg, MessageBeans beans) {
 		if(beans.getGroup() == null || beans.getParentGroup() == null) {
 			return;
 		}
@@ -57,7 +57,7 @@ public class GroupEventProcessor extends AbstractEventProcessor {
 		} catch (NamingException | InternalErrorException e) {
 			log.error("Error adding subgroup {} to group {}: {}", beans.getGroup().getId(), beans.getParentGroup().getId(), e.getMessage());
 		}
-	}
+	}*/
 
 	public void processResourceAssigned(String msg, MessageBeans beans) {
 		if(beans.getGroup() == null || beans.getResource() == null) {
