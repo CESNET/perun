@@ -3781,6 +3781,375 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
+
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, attribute)) return;
+		getAttributesManagerImpl().checkAttributeSyntax(sess, facility, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_FACILITY_ATTR);
+		for (Attribute attribute : attributes) {
+			if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, attribute)) continue;
+			checkAttributeSyntax(sess, facility, attribute);
+		}
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_VO_ATTR);
+
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, vo, attribute)) return;
+		getAttributesManagerImpl().checkAttributeSyntax(sess, vo, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_VO_ATTR);
+
+		for (Attribute attribute : attributes) {
+			if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, vo, attribute)) continue;
+			getAttributesManagerImpl().checkAttributeSyntax(sess, vo, attribute);
+		}
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_GROUP_ATTR);
+
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, group, attribute)) return;
+		getAttributesManagerImpl().checkAttributeSyntax(sess, group, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_GROUP_ATTR);
+
+		for (Attribute attribute : attributes) {
+			if (attribute.getValue() != null || isTrulyRequiredAttribute(sess, group, attribute)) {
+				getAttributesManagerImpl().checkAttributeSyntax(sess, group, attribute);
+			}
+		}
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_RESOURCE_ATTR);
+
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, resource, attribute)) return;
+		getAttributesManagerImpl().checkAttributeSyntax(sess, resource, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_RESOURCE_ATTR);
+
+		for (Attribute attribute : attributes) {
+			if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, resource, attribute)) continue;
+			getAttributesManagerImpl().checkAttributeSyntax(sess, resource, attribute);
+		}
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
+		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
+
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, resource, attribute)) return;
+		getAttributesManagerImpl().checkAttributeSyntax(sess, member, resource, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		checkAttributesSyntax(sess, member, resource, attributes, false);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_GROUP_ATTR);
+
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, group, attribute)) return;
+		getAttributesManagerImpl().checkAttributeSyntax(sess, member, group, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		checkAttributesSyntax(sess, member, group, attributes, false);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		if (!workWithUserAttributes) {
+			getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_GROUP_ATTR);
+
+			for (Attribute attribute : attributes) {
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, group, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, member, group, attribute);
+			}
+		} else {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+
+			for (Attribute attribute : attributes) {
+				if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, group, attribute))
+						continue;
+					getAttributesManagerImpl().checkAttributeSyntax(sess, member, group, attribute);
+				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
+					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, user, attribute)) continue;
+					getAttributesManagerImpl().checkAttributeSyntax(sess, user, attribute);
+				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
+					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, attribute)) continue;
+					getAttributesManagerImpl().checkAttributeSyntax(sess, member, attribute);
+				} else {
+					throw new WrongAttributeAssignmentException(attribute);
+				}
+			}
+		}
+	}
+
+	private void checkAttributesSyntax(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		if (!workWithUserAttributes) checkAttributesSyntax(sess, member, attributes);
+		else {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			for (Attribute attribute : attributes) {
+				if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
+					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, user, attribute)) continue;
+					getAttributesManagerImpl().checkAttributeSyntax(sess, user, attribute);
+				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
+					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, attribute)) continue;
+					getAttributesManagerImpl().checkAttributeSyntax(sess, member, attribute);
+				} else {
+					throw new WrongAttributeAssignmentException(attribute);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
+		if (!workWithUserAttributes) {
+			for (Attribute attribute : attributes) {
+				getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, resource, attribute))
+					continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, member, resource, attribute);
+			}
+		} else {
+			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+
+			for (Attribute attribute : attributes) {
+				if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, resource, attribute))
+						continue;
+					getAttributesManagerImpl().checkAttributeSyntax(sess, member, resource, attribute);
+
+				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
+					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, user, attribute))
+						continue;
+					getAttributesManagerImpl().checkAttributeSyntax(sess, facility, user, attribute);
+
+				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
+					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, user, attribute)) continue;
+					getAttributesManagerImpl().checkAttributeSyntax(sess, user, attribute);
+
+				} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
+					if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, attribute)) continue;
+					getAttributesManagerImpl().checkAttributeSyntax(sess, member, attribute);
+
+				} else {
+					throw new WrongAttributeAssignmentException(attribute);
+				}
+			}
+		}
+	}
+
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException {
+		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
+		for (Attribute attribute : attributes) {
+			if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, resource, attribute))
+					continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, member, resource, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, user, attribute))
+					continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, facility, user, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, user, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, user, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, member, attribute);
+			} else {
+				throw new WrongAttributeAssignmentException(attribute);
+			}
+		}
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, GroupResourceMismatchException, MemberResourceMismatchException {
+		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
+		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
+		for (Attribute attribute : attributes) {
+			if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, resource, attribute))
+					continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, member, resource, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, user, attribute))
+					continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, facility, user, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, user, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, user, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, member, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+				if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, group, attribute)) continue;
+				getAttributesManagerImpl().checkAttributeSyntax(sess, member, group, attribute);
+			} else {
+				throw new WrongAttributeAssignmentException(attribute);
+			}
+		}
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_ATTR);
+
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, attribute)) return;
+		getAttributesManagerImpl().checkAttributeSyntax(sess, member, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_ATTR);
+
+		for (Attribute attribute : attributes) {
+			if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, member, attribute)) continue;
+			getAttributesManagerImpl().checkAttributeSyntax(sess, member, attribute);
+		}
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_FACILITY_ATTR);
+
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, user, attribute)) return;
+		getAttributesManagerImpl().checkAttributeSyntax(sess, facility, user, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_FACILITY_ATTR);
+
+		for (Attribute attribute : attributes) {
+			if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, facility, user, attribute)) continue;
+			getAttributesManagerImpl().checkAttributeSyntax(sess, facility, user, attribute);
+		}
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException {
+		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
+		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
+
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, resource, group, attribute)) return;
+		getAttributesManagerImpl().checkAttributeSyntax(sess, resource, group, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_GROUP_RESOURCE_ATTR);
+
+		for (Attribute attribute : attributes) {
+			checkAttributeSyntax(sess, resource, group, attribute);
+		}
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException {
+		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
+		if (!workWithGroupAttribute) {
+			this.checkAttributesSyntax(sess, resource, group, attributes);
+		}
+		for (Attribute attribute : attributes) {
+			if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
+				getAttributesManagerImpl().checkAttributeSyntax(sess, resource, group, attribute);
+			} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_GROUP_ATTR)) {
+				getAttributesManagerImpl().checkAttributeSyntax(sess, group, attribute);
+			} else {
+				throw new WrongAttributeAssignmentException(attribute);
+			}
+		}
+	}
+
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_ATTR);
+
+		if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, user, attribute)) return;
+		getAttributesManagerImpl().checkAttributeSyntax(sess, user, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_ATTR);
+
+		for (Attribute attribute : attributes) {
+			if (attribute.getValue() == null && !isTrulyRequiredAttribute(sess, user, attribute)) continue;
+			getAttributesManagerImpl().checkAttributeSyntax(sess, user, attribute);
+		}
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_HOST_ATTR);
+
+		for (Attribute attribute : attributes) {
+			getAttributesManagerImpl().checkAttributeSyntax(sess, host, attribute);
+		}
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_HOST_ATTR);
+
+		getAttributesManagerImpl().checkAttributeSyntax(sess, host, attribute);
+	}
+
+	@Override
+	public void checkAttributesSyntax(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_UES_ATTR);
+
+		for (Attribute attribute : attributes) {
+			getAttributesManagerImpl().checkAttributeSyntax(sess, ues, attribute);
+		}
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_UES_ATTR);
+
+		getAttributesManagerImpl().checkAttributeSyntax(sess, ues, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_ENTITYLESS_ATTR);
+
+		getAttributesManagerImpl().checkAttributeSyntax(sess, key, attribute);
+	}
+
+	@Override
 	public void forceCheckAttributeValue(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
 

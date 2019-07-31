@@ -3996,6 +3996,109 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		//Call attribute module
+		FacilityAttributesModuleImplApi facilityModule = getFacilityAttributeModule(sess, attribute);
+		if (facilityModule == null) return; //facility module doesn't exists
+		facilityModule.checkAttributeSyntax((PerunSessionImpl) sess, facility, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		//Call attribute module
+		VoAttributesModuleImplApi voModule = getVoAttributeModule(sess, attribute);
+		if (voModule == null) return; //module doesn't exists
+		voModule.checkAttributeSyntax((PerunSessionImpl) sess, vo, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		//Call attribute module
+		GroupAttributesModuleImplApi groupModule = getGroupAttributeModule(sess, attribute);
+		if (groupModule == null) return; //module doesn't exists
+		groupModule.checkAttributeSyntax((PerunSessionImpl) sess, group, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		ResourceAttributesModuleImplApi attributeModule = getResourceAttributeModule(sess, attribute);
+		if (attributeModule == null) return;
+		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, resource, attribute);
+	}
+
+	@SuppressWarnings("unused")
+	public void checkAttributeSyntax(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException {
+		for (Attribute attribute : attributes) {
+			checkAttributeSyntax(sess, resource, attribute);
+		}
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		//Call attribute module
+		MemberResourceAttributesModuleImplApi resourceMemberGroupModule = getResourceMemberAttributeModule(sess, attribute);
+		if (resourceMemberGroupModule == null) return; //facility module doesn't exists
+		resourceMemberGroupModule.checkAttributeSyntax((PerunSessionImpl) sess, member, resource, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		//Call attribute module
+		MemberGroupAttributesModuleImplApi memberGroupAttributeModule = getMemberGroupAttributeModule(sess, attribute);
+		if (memberGroupAttributeModule == null) return; //memberGroupAttributesModule module doesn't exists
+		memberGroupAttributeModule.checkAttributeSyntax((PerunSessionImpl) sess, member, group, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		UserFacilityAttributesModuleImplApi attributeModule = getFacilityUserAttributeModule(sess, attribute);
+		if (attributeModule == null) return;
+		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, user, facility, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		UserAttributesModuleImplApi attributeModule = getUserAttributeModule(sess, attribute);
+		if (attributeModule == null) return;
+		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, user, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		MemberAttributesModuleImplApi attributeModule = getMemberAttributeModule(sess, attribute);
+		if (attributeModule == null) return;
+		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, member, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		UserExtSourceAttributesModuleImplApi attributeModule = getUserExtSourceAttributeModule(sess, attribute);
+		if (attributeModule == null) return;
+		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, ues, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		HostAttributesModuleImplApi attributeModule = getHostAttributeModule(sess, attribute);
+		if (attributeModule == null) return;
+		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, host, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		GroupResourceAttributesModuleImplApi attributeModule = getResourceGroupAttributeModule(sess, attribute);
+		if (attributeModule == null) return;
+		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, group, resource, attribute);
+	}
+
+	@Override
+	public void checkAttributeSyntax(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		EntitylessAttributesModuleImplApi attributeModule = getEntitylessAttributeModule(sess, attribute);
+		if (attributeModule == null) return;
+		attributeModule.checkAttributeSyntax((PerunSessionImpl) sess, key, attribute);
+	}
+
+	@Override
 	public boolean removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if (0 < jdbc.update("DELETE FROM entityless_attr_values WHERE attr_id=? AND subject=?", attribute.getId(), key)) {

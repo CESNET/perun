@@ -1746,6 +1746,167 @@ public interface AttributesManagerImplApi {
 	void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException;
 
 	/**
+	 * Check if value of this facility attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param facility facility for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this vo attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param vo vo for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this group attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param group group for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this resource attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param resource resource for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this member-resource attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param member member for which (and for specified resource) you want to check validity of attribute
+	 * @param resource resource for which (and for specified member) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this member-group attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param group group for which (and for specified member) you want to check validity of attribute
+	 * @param member member for which (and for specified group) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this user-facility attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param facility facility for which (and for specified user) you want to check validity of attribute
+	 * @param user user for which (and for specified facility) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this user attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param user user for which (and for specified facility) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this member attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param member member for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this host attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param host host for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this group-resource attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param group group for which (and for specified resource) you want to check validity of attribute
+	 * @param resource resource for which (and for specified group) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this entityless attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param key key for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this user external source attribute has valid syntax.
+	 *
+	 *
+	 * @param sess perun session
+	 * @param ues user external source for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
 	 * Unset particular attribute for the facility.
 	 *
 	 * @param sess perun session
