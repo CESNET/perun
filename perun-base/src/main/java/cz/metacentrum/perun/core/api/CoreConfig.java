@@ -48,6 +48,7 @@ public class CoreConfig {
 	private List<String> registrarPrincipals;
 	private List<String> rpcPowerusers;
 	private Set<String> dontLookupUsers;
+	private Set<String> extSourcesMultipleIdentifiers;
 	private String alternativePasswordManagerProgram;
 	private String dbType;
 	private String instanceId;
@@ -232,6 +233,14 @@ public class CoreConfig {
 
 	public void setDontLookupUsers(Set<String> dontLookupUsers) {
 		this.dontLookupUsers = dontLookupUsers;
+	}
+
+	public Set<String> getExtSourcesMultipleIdentifiers() {
+		return extSourcesMultipleIdentifiers;
+	}
+
+	public void setExtSourcesMultipleIdentifiers(Set<String> extSourcesMultipleIdentifiers) {
+		this.extSourcesMultipleIdentifiers = extSourcesMultipleIdentifiers;
 	}
 
 	public String getAlternativePasswordManagerProgram() {

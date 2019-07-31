@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
@@ -484,6 +485,20 @@ public interface UsersManagerBl {
 	 * @throws AttributeNotExistsException if attribute can't be found by it's name
 	 */
 	UserExtSource getUserExtSourceByUniqueAttributeValue(PerunSession sess, String attrName, String uniqueValue) throws InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException;
+
+	/**
+	 * Iteratively searches through additional identifiers trying to find userExtSource with the same identifier.
+	 * Returns first found userExtSource or null when no matching userExtSource found.
+	 *
+	 * @param sess PerunSession to retrieve UserExtSource
+	 * @param principal PerunPrincipal which contains additionalIdentifiers
+	 *
+	 * @return UserExtSource found using additionalIdentifiers or null
+	 *
+	 * @throws InternalErrorException When attribute is not defined in Perun
+	 * @throws UserExtSourceNotExistsException When the multiple identifiers received are actually empty
+	 */
+	UserExtSource getUserExtSourceFromMultipleIdentifiers(PerunSession sess, PerunPrincipal principal) throws InternalErrorException, UserExtSourceNotExistsException;
 
 	/**
 	 * Get all users userExtSources with last_access not older than (now - m),

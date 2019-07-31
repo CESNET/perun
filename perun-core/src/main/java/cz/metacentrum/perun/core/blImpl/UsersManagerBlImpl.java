@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
@@ -129,6 +130,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	private static final String PASSWORD_CHANGE = "change";
 	private static final String PASSWORD_CHECK = "check";
 	private static final String PASSWORD_DELETE = "delete";
+
+	public final static String multivalueAttributeSeparatorRegExp = ";";
+	private final static String additionalIdentifiersAttributeName = "additionalIdentifiers";
+	private final static String additionalIdentifiersPerunAttributeName = AttributesManager.NS_UES_ATTR_DEF + ":" + additionalIdentifiersAttributeName;
 
 
 	/**
@@ -680,6 +685,29 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		if(uniqueValue == null || uniqueValue.isEmpty()) throw new InternalErrorException("Can't find userExtSource by empty value!");
 
 		return usersManagerImpl.getUserExtSourceByUniqueAttributeValue(sess, attrDef.getId(), uniqueValue);
+	}
+
+	@Override
+	public UserExtSource getUserExtSourceFromMultipleIdentifiers(PerunSession sess, PerunPrincipal principal) throws InternalErrorException, UserExtSourceNotExistsException {
+		String additionalIdentifiers = principal.getAdditionalInformations().get(additionalIdentifiersAttributeName);
+		if (additionalIdentifiers == null) {
+			throw new UserExtSourceNotExistsException("Mandatory attribute is not defined: ".concat(additionalIdentifiersAttributeName));
+		}
+		UserExtSource ues = null;
+		for(String identifier : additionalIdentifiers.split(multivalueAttributeSeparatorRegExp)) {
+			try {
+				ues = perunBl.getUsersManagerBl().getUserExtSourceByUniqueAttributeValue(sess, additionalIdentifiersPerunAttributeName, identifier);
+				log.debug("UserExtSource found using additional identifiers: " + ues);
+				break;
+			} catch (UserExtSourceNotExistsException ex) {
+				//try to find user ext source using different identifier in the next iteration of for cycle
+			} catch (InternalErrorException | AttributeNotExistsException ex) {
+				String errorMessage = "Mandatory attribute is not defined: ".concat(additionalIdentifiersPerunAttributeName);
+				log.error(errorMessage);
+				throw new InternalErrorException(errorMessage, ex);
+			}
+		}
+		return ues;
 	}
 
 	@Override
