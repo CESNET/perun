@@ -7145,7 +7145,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		inverseDependencies = generateInverseDependencies(dependencies);
 
 		//Second create inversion map for strong dependencies
-		inverseStrongDependencies = generateInverseDependencies(inverseStrongDependencies);
+		inverseStrongDependencies = generateInverseDependencies(strongDependencies);
 
 		log.debug("InverseDependencies and InverseStrongDependencies was filled successfully.");
 
