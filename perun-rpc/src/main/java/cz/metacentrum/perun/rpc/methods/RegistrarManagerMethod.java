@@ -184,12 +184,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @return Object Always returned null
+	 * @exampleParam vo 1
 	 */
 	/*#
 	 * Create application form for a group.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @return Object Always returned null
+	 * @exampleParam group 1
 	 */
 	createApplicationForm {
 

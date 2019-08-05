@@ -62,10 +62,15 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates a new resource.
 	 *
+	 * Resource object must contain name. Parameter description is optional. Other parameters are ignored.
+	 *
 	 * @param resource Resource JSON object
 	 * @param vo int virtual organization <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @return Resource Created resource
+	 * @exampleParam resource { "name" : "my new resource" }
+	 * @exampleParam vo 1
+	 * @exampleParam facility 12
 	 */
 	/*#
 	 * Creates a new resource.
@@ -75,6 +80,10 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * @param vo int virtual organization <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @return Resource Created resource
+	 * @exampleParam name "my new resource"
+	 * @exampleParam description "New resource with information"
+	 * @exampleParam vo 1
+	 * @exampleParam facility 12
 	 */
 	createResource {
 

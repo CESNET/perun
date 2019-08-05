@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
@@ -86,13 +87,36 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates new Category for Publications with specified name and rank.
 	 *
-	 * @param category Category new Category object
+	 * Category object's parameter name must be non-empty, max 128 chars long and rank must be double with single digit after decimal point. Other parameters are ignored.
+	 *
+	 * @param category Category new Category object, must contain: name, rank
 	 * @return Category Created Category with ID set
+	 * @exampleParam category { "name" : "My testing category" , "rank" : 8.4 }
+	 */
+	/*#
+	 * Creates new Category for Publications with specified name and rank.
+	 *
+	 * @param name String the name of the category
+	 * @param rank Double the rank of the category
+	 * @return Category Created Category with ID set
+	 * @exampleParam name "My testing category"
+	 * @exampleParam rank 8.4
 	 */
 	createCategory {
 		public Category call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-			return ac.getCabinetManager().createCategory(ac.getSession(), parms.read("category", Category.class));
+			if (parms.contains("category")) {
+				return ac.getCabinetManager().createCategory(ac.getSession(), parms.read("category", Category.class));
+			} else if (parms.contains("name") && parms.contains("rank")) {
+				Category category = new Category();
+				category.setName(parms.read("name", String.class));
+				category.setRank(parms.read("rank", Double.class));
+				category.setId(0);
+				return ac.getCabinetManager().createCategory(ac.getSession(), category);
+
+			} else {
+				throw new RpcException("Parameters missing", "'category' or 'name', 'rank' not provided.");
+			}
 		}
 	},
 

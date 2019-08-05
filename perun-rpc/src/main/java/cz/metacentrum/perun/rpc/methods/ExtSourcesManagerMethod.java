@@ -11,6 +11,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Creates an external source.
+	 * ExtSource object must contain: name, type. Other parameters are ignored.
 	 * @param extSource ExtSource JSON object
 	 * @return ExtSource Created ExtSource
 	 */
