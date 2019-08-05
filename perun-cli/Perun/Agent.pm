@@ -68,7 +68,7 @@ sub new {
 	$self->{_url} = $ENV{PERUN_URL};
 
 	# Extract login/password from ENV if available
-	my ($login, $pass) = split '/', $ENV{PERUN_USER} if $ENV{PERUN_USER};
+	my ($login, $pass) = split '/', $ENV{PERUN_USER}, 2 if $ENV{PERUN_USER};
 
 	# Extrat RPC type from ENV (if not defined, use "Perun RPC")
 	my $rpcType = "Perun RPC";
