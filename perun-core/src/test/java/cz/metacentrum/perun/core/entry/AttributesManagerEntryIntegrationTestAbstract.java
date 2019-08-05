@@ -7282,6 +7282,209 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 
 // already tested in lower layer - package: cz.metacentrum.perun.core.impl.modules.attributes
 
+	@Test
+	public void testCheckAttributeSyntaxVo() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, vo1, attribute);
+	}
+
+	@Test
+	public void checkAttributesSyntaxVo() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_VO_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, vo1, list);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxFacility() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, facility1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxFacility() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_FACILITY_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, facility1, list);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxGroup() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, group1InVo1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxResource() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, resource1InVo1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxResource() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, resource1InVo1, list);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxMemberResource() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, member1OfUser1, resource1InVo1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxMemberResource() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, member1OfUser1, resource1InVo1, list);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxMemberGroup() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, member1OfUser1, group1InVo1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxMemberGroup() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, member1OfUser1, group1InVo1, list);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxMember() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, member1OfUser1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxMember() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, member1OfUser1, list);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxFacilityUser() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, facility1, user1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxFacilityUser() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, facility1, user1, list);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxResourceGroup() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, resource1InVo1, group1InVo1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxResourceGroup() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, resource1InVo1, group1InVo1, list);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxUser() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_USER_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, user1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxUser() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, user1, list);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxHost() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_HOST_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, host1OnFacility1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxHost() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_HOST_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, host1OnFacility1, list);
+	}
+
+	@Test
+	public void testCheckAttributeSyntaxUserExtSource() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_UES_ATTR_DEF);
+
+		attributesManager.checkAttributeSyntax(sess, userExtSource1, attribute);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxUserExtSource() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, userExtSource1, list);
+	}
+
+	@Test
+	public void testCheckAttributesSyntax() throws Exception {
+		List<Attribute> list = new ArrayList<>();
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		list.add(attribute);
+		attribute = setAttributeInNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		list.add(attribute);
+		attribute = setAttributeInNamespace(AttributesManager.NS_USER_FACILITY_ATTR_DEF);
+		list.add(attribute);
+		attribute = setAttributeInNamespace(AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
+		list.add(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, facility1, resource1InVo1, user1, member1OfUser1, list);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxMemberGroup2() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, member1OfUser1, group1InVo1, list, true);
+	}
+
+	@Test
+	public void testCheckAttributesSyntaxMemberResource2() throws Exception {
+		Attribute attribute = setAttributeInNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
+		List<Attribute> list = Collections.singletonList(attribute);
+
+		attributesManager.checkAttributesSyntax(sess, member1OfUser1, resource1InVo1, list, true);
+	}
+
 
 
 
