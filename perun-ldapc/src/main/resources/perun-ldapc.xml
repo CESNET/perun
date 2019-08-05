@@ -486,7 +486,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						</bean>
 					</property>
 				</bean>
-				<!--NEW ONE -->
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="InternalUserIdentifiers" />
 					<property name="required" value="false" />
