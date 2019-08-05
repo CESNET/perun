@@ -2879,6 +2879,349 @@ public interface AttributesManager {
 	void checkAttributesValue(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException;
 
 	/**
+	 * Check if value of this facility attribute has valid syntax.
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess      perun session
+	 * @param facility  facility for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                if privileges are not given
+	 * @throws FacilityNotExistsException        if the facility doesn't exist in underlying data source
+	 * @throws WrongAttributeAssignmentException if attribute isn't facility attribute
+	 * @throws WrongAttributeValueException      if the attribute value has wrong/illegal syntax
+	 * @throws AttributeNotExistsException       if the attribute does not exist in underlying data source
+	 */
+	void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @throws WrongAttributeValueException if any of attributes values has wrong/illegal syntax
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, Facility, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Facility facility, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * Check if value of this vo attribute has valid syntax.
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess      perun session
+	 * @param vo        vo for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                if privileges are not given
+	 * @throws VoNotExistsException              if the vo doesn't exist in underlying data source
+	 * @throws WrongAttributeAssignmentException if attribute isn't vo attribute
+	 * @throws WrongAttributeValueException      if the attribute value has wrong/illegal syntax
+	 * @throws AttributeNotExistsException       if the attribute does not exist in underlying data source
+	 */
+	void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @throws WrongAttributeValueException if any of attributes values has wrong/illegal syntax
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, Vo, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Vo vo, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, VoNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * Check if value of this resource attribute has valid syntax.
+	 *
+	 * @param sess      perun session
+	 * @param resource  resource for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *                  <p>
+	 *                  PRIVILEGE: Check attribute only when principal has access to write on it.
+	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                if privileges are not given
+	 * @throws ResourceNotExistsException        if the resource doesn't exist in underlying data source
+	 * @throws WrongAttributeValueException      if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't resource attribute
+	 * @throws AttributeNotExistsException       if the attribute does not exist in underlying data source
+	 */
+	void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @throws WrongAttributeValueException if any of attributes values has wrong/illegal syntax
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, Resource, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * Check if value of this member-resource attribute has valid syntax.
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess      perun session
+	 * @param member    member for which (and for specified resource) you want to check validity of attribute
+	 * @param resource  resource for which (and for specified member) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                if privileges are not given
+	 * @throws ResourceNotExistsException        if the resource doesn't exist in underlying data source
+	 * @throws WrongAttributeValueException      if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute
+	 * @throws AttributeNotExistsException       if the attribute does not exist in underlying data source
+	 * @throws MemberNotExistsException          if the member doesn't exist in the underlying data source
+	 * @throws MemberResourceMismatchException   if member and resource are not in the same VO
+	 */
+	void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @see AttributesManager#checkAttributeSyntax(PerunSession, Member, Resource, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
+	 *                               !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
+	 * @see AttributesManager#checkAttributeSyntax(PerunSession, Member, Resource, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException;
+
+	/**
+	 * Check if value of this member-group attribute has valid syntax.
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess      perun session
+	 * @param group     group for which (and for specified member) you want to check validity of attribute
+	 * @param member    member for which (and for specified group) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                if privileges are not given
+	 * @throws WrongAttributeValueException      if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't member-group attribute
+	 * @throws GroupNotExistsException           if the group doesn't exist in the underlying data source
+	 * @throws MemberNotExistsException          if the member doesn't exist in the underlying data source
+	 * @throws AttributeNotExistsException       if the attribute does not exist in underlying data source
+	 */
+	void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, GroupNotExistsException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, Member, Group, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @param workWithUserAttributes method can process also user and member attributes (user is automatically get from member)
+	 *                               !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, Member, Group, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException;
+
+	/**
+	 * Check if value of attributes has valid syntax. Attributes can be from namespace: member, user, member-resource and user-facility.
+	 * <p>
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 */
+	void checkAttributesSyntax(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, MemberResourceMismatchException;
+
+	/**
+	 * Check if value of this member attribute has valid syntax.
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess      perun session
+	 * @param member    member for which (and for specified resource) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                if privileges are not given
+	 * @throws WrongAttributeValueException      if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't member attribute
+	 * @throws MemberNotExistsException          if the member doesn't exist in the underlying data source
+	 * @throws AttributeNotExistsException       if the attribute does not exist in underlying data source
+	 */
+	void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @see AttributesManager#checkAttributeSyntax(PerunSession, Member, Resource, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Member member, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * Check if value of this user-facility attribute has valid syntax.
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess      perun session
+	 * @param facility  facility for which (and for specified user) you want to check validity of attribute
+	 * @param user      user for which (and for specified facility) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                if privileges are not given
+	 * @throws FacilityNotExistsException        if the facility doesn't exist in underlying data source
+	 * @throws UserNotExistsException            if the user doesn't exist in underlying data source
+	 * @throws WrongAttributeValueException      if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't user-facility attribute
+	 * @throws AttributeNotExistsException       if the attribute does not exist in underlying data source
+	 */
+	void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, Facility, User, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * Check if value of this user attribute has valid syntax.
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess      perun session
+	 * @param user      user for which (and for specified facility) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException                if privileges are not given
+	 * @throws WrongAttributeValueException      if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't user attribute
+	 * @throws UserNotExistsException            if the user doesn't exist in underlying data source
+	 * @throws AttributeNotExistsException       if the attribute does not exist in underlying data source
+	 */
+	void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, User, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, User user, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, UserNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException;
+
+	/**
+	 * Checks if value of this host attribute has valid syntax
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess perun session
+	 * @param host host for which attribute validity is checked
+	 * @throws PrivilegeException                if privileges are not given
+	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException if the attribute isn't host attribute
+	 * @throws AttributeNotExistsException       if given attribute doesn't exist
+	 * @throws HostNotExistsException            if specified host doesn't exist
+	 * @throws WrongAttributeValueException      if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, HostNotExistsException, WrongAttributeValueException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * batch version of checkAttributeSyntax
+	 *
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, Host, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Host host, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, HostNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
+	 * Checks if value of this group attribute has valid syntax
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess  perun session
+	 * @param group group for which attribute validity is checked
+	 * @throws PrivilegeException                    if privileges are not given
+	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException          if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException     if the attribute isn't group attribute
+	 * @throws AttributeNotExistsException           if given attribute doesn't exist
+	 * @throws GroupNotExistsException               if specified group doesn't exist
+	 */
+	void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, GroupNotExistsException;
+
+	/**
+	 * Checks if value of this group-resource attribute has valid syntax
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess      perun session
+	 * @param resource  resource which attr you want check
+	 * @param group     group which attr you want to check
+	 * @param attribute attribute to be checked
+	 * @throws PrivilegeException                    if privileges are not given
+	 * @throws InternalErrorException                if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws AttributeNotExistsException           if given attribute doesn't exist
+	 * @throws ResourceNotExistsException            if the resource doesn't exist in underlying data source
+	 * @throws GroupNotExistsException               if the group doesn't exist in underlying data source
+	 * @throws WrongAttributeValueException          if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException     if the attribute isn't group-resource attribute
+	 * @throws GroupResourceMismatchException        if group and resource are not in the same VO
+	 */
+	void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, GroupResourceMismatchException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * Batch version of checkAttributeSyntax
+	 *
+	 * @see AttributesManager#checkAttributeSyntax(PerunSession, Resource, Group, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException;
+
+	/**
+	 * Checks if value of this user external source attribute has valid syntax
+	 * <p>
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess perun session
+	 * @param ues  user external source for which attribute validity is checked
+	 * @throws PrivilegeException                if privileges are not given
+	 * @throws InternalErrorException            if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException if the attribute isn't UserExtSource attribute
+	 * @throws AttributeNotExistsException       if given attribute doesn't exist
+	 * @throws UserExtSourceNotExistsException   if specified user external source doesn't exist
+	 * @throws WrongAttributeValueException      if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeValueException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 * <p>
+	 * batch version of checkAttributeSyntax
+	 *
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, UserExtSource, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
 	 * Unset particular attribute for the facility. Core attributes can't be removed this way.
 	 * <p>
 	 * PRIVILEGE: Remove attribute only when principal has access to write on it.

@@ -2890,6 +2890,312 @@ public interface AttributesManagerBl {
 	void checkAttributesValue(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
+	 * Check if value of this facility attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param facility facility for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException if attribute isn't facility attribute
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @throws WrongAttributeValueException if any of attributes values has wrong/illegal syntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession,Facility,Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Check if value of this vo attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param vo vo for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException if attribute isn't vo attribute
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @throws WrongAttributeValueException if any of attributes values has wrong/illegal syntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession,Vo,Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Check if value of this group attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param group group for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException if attribute isn't group attribute
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 */
+	void checkAttributeSyntax(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @throws WrongAttributeValueException if any of attributes values has wrong/illegal syntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession,Group,Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+
+	/**
+	 * Check if value of this resource attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param resource resource for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't resource attribute
+	 */
+	void checkAttributeSyntax(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @throws WrongAttributeValueException if any of attributes values has wrong/illegal syntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession,Resource,Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Check if value of this member-resource attribute has valid syntax.
+	 *
+	 *
+	 * @param sess perun session
+	 * @param member member for which (and for specified resource) you want to check validity of attribute
+	 * @param resource resource for which (and for specified member) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute
+	 * @throws MemberResourceMismatchException if member and resource are not in the same VO
+	 */
+	void checkAttributeSyntax(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, Member, Resource, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, Member, Resource, Attribute)
+	 * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException;
+
+
+	/**
+	 * Check if value of this member-group attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param group group for which (and for specified member) you want to check validity of attribute
+	 * @param member member for which (and for specified group) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't member-group attribute
+	 */
+	void checkAttributeSyntax(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession,Member,Group,Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession,Member,Group,Attribute)
+	 * @param workWithUserAttributes method can process also user and member attributes (user is automatically get from member)
+	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
+	 */
+	void checkAttributesSyntax(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Check if value of attributes has valid syntax. Attributes can be from namespace: member, user, member-resource and user-facility.
+	 *
+	 * @param sess perun session
+	 * @param facility facility for which you want to check validity of attribute
+	 * @param resource resource for which you want to check validity of attribute
+	 * @param user user for which you want to check validity of attribute
+	 * @param member member for which you want to check validity of attribute
+	 * @param attributes list of attributes to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
+	 * @throws MemberResourceMismatchException if member and resource are not in the same VO
+	 */
+	void checkAttributesSyntax(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, MemberResourceMismatchException;
+
+	/**
+	 * Check if value of attributes has valid syntax. Attributes can be from namespace: member, user, member-group, member-resource and user-facility.
+	 *
+	 * @param sess perun session
+	 * @param sess perun session
+	 * @param facility facility for which you want to check validity of attribute
+	 * @param resource resource for which you want to check validity of attribute
+	 * @param user user for which you want to check validity of attribute
+	 * @param member member for which you want to check validity of attribute
+	 * @param attributes list of attributes to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
+	 * @throws GroupResourceMismatchException if group and resource are not in the same VO
+	 * @throws MemberResourceMismatchException if member and resource are not in the same VO
+	 */
+	void checkAttributesSyntax(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, GroupResourceMismatchException, MemberResourceMismatchException;
+
+	/**
+	 * Check if value of this member attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param member member for which (and for specified resource) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't member attribute
+	 */
+	void checkAttributeSyntax(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession, Member, Resource, Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Check if value of this user-facility attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param facility facility for which (and for specified user) you want to check validity of attribute
+	 * @param user user for which (and for specified facility) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't user-facility attribute
+	 */
+	void checkAttributeSyntax(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession,Facility,User,Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Check if value of this group-resource attribute has valid syntax
+	 *
+	 * @param sess perun session
+	 * @param resource resource for which (and for specified group) you want to check validity of attribute
+	 * @param group group for which (and for specified resource) you want to check validity of attribute
+	 * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException if attribute isn't group-resource attribute
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws GroupResourceMismatchException if group and resource are not in the same VO
+	 */
+	void checkAttributeSyntax(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException;
+
+	/**
+	 * batch version of checkAttributeSyntax
+	 *@see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Resource, cz.metacentrum.perun.core.api.Group, cz.metacentrum.perun.core.api.Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Resource resource, Group group, List<Attribute> attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException;
+
+	/**
+	 * batch version of checkAttributeSyntax with workWithGroupAttributes parameter.
+	 * If workWithGroupAttributes is true, checks whether attribute is group-resource or group attribute.
+	 *@see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Resource, cz.metacentrum.perun.core.api.Group, cz.metacentrum.perun.core.api.Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Resource resource, Group group, List<Attribute> attribute, boolean workWithGroupAttribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, GroupResourceMismatchException;
+
+	/**
+	 * Check if value of this user attribute has valid syntax.
+	 *
+	 * @param sess perun session
+	 * @param user user for which (and for specified facility) you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't user attribute
+	 */
+	void checkAttributeSyntax(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 *  Batch version of checkAttributeSyntax
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession,User,Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Check if the value of this host attribute has valid syntax.
+	 * @param sess perun session
+	 * @param host host which attribute validity is checked
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't host attribute
+	 */
+	void checkAttributeSyntax(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
+	 * Batch version of checkAttributeSyntax
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession,Host,Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
+	 * Check if the value of this entityless attribute has valid syntax
+	 * @param sess perun session
+	 * @param key check the attribute for this key
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if the attribute isn't entityless attribute
+	 */
+	void checkAttributeSyntax(PerunSession sess, String key, Attribute attribute) throws InternalErrorException,WrongAttributeValueException,WrongAttributeAssignmentException;
+
+	/**
+	 * Check if value of this user external source attribute has valid syntax.
+	 * @param sess perun session
+	 * @param ues user external source for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value has wrong/illegal syntax
+	 * @throws WrongAttributeAssignmentException if attribute isn't user external source attribute
+	 */
+	void checkAttributeSyntax(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
+	 * Batch version of checkAttributeSyntax
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSyntax(PerunSession,UserExtSource,Attribute)
+	 */
+	void checkAttributesSyntax(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
 	 * Check if value of this group attribute is valid no matter if attribute is required or not.
 	 *
 	 * @param sess perun session
