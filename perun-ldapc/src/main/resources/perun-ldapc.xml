@@ -487,6 +487,17 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="internalUserIdentifiers" />
+					<property name="required" value="false" />
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="internalUserIdentifiers" />
+							<property name="namespace" value="urn:perun:user:attribute-def:virt:additionalIdentifiers" />
+						</bean>
+					</property>
+				</bean>
+
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="libraryIDs" />
 					<property name="required" value="false" />
 					<property name="multipleValuesExtractor">
