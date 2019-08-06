@@ -307,6 +307,24 @@ public interface AuthzResolverImplApi {
 	void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
+	 * Make user Perun observer
+	 *
+	 * @param sess the perunSession
+	 * @param user user to be promoted to perunObserver
+	 * @throws InternalErrorException
+	 */
+	void makeUserPerunObserver(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Make group Perun observer
+	 *
+	 * @param sess the perunSession
+	 * @param authorizedGroup authorizedGroup to be promoted to perunObserver
+	 * @throws InternalErrorException
+	 */
+	void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws InternalErrorException;
+
+	/**
 	 * Remove role perunAdmin for user.
 	 *
 	 * @param sess
@@ -314,6 +332,24 @@ public interface AuthzResolverImplApi {
 	 * @throws InternalErrorException
 	 */
 	void removePerunAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException;
+
+	/**
+	 * Remove role Perun observer from user.
+	 *
+	 * @param sess
+	 * @param user
+	 * @throws InternalErrorException
+	 */
+	void removePerunObserver(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException;
+
+	/**
+	 * Remove role Perun observer from authorizedGroup.
+	 *
+	 * @param sess
+	 * @param authorizedGroup
+	 * @throws InternalErrorException
+	 */
+	void removePerunObserverFromAuthorizedGroup(PerunSession sess, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException;
 
 	/**
 	 * Make user Cabinet manager.

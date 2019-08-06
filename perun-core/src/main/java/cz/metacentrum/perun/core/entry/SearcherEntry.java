@@ -53,7 +53,8 @@ public class SearcherEntry implements Searcher {
 	@Override
 	public List<User> getUsers(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, PrivilegeException, WrongAttributeAssignmentException {
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getUsers");
 		}
 
@@ -66,7 +67,8 @@ public class SearcherEntry implements Searcher {
 
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
 				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)
+				&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getMembersByUserAttributes");
 		}
 
@@ -121,7 +123,8 @@ public class SearcherEntry implements Searcher {
 	@Override
 	public List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException {
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getUsersForCoreAttributes");
 		}
 
@@ -132,7 +135,8 @@ public class SearcherEntry implements Searcher {
 	public List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws PrivilegeException, InternalErrorException {
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getMembersByExpiration");
 		}
 
@@ -144,7 +148,8 @@ public class SearcherEntry implements Searcher {
 	public List<Member> getMembersByExpiration(PerunSession sess, String operator, LocalDate date) throws PrivilegeException, InternalErrorException {
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getMembersByExpiration");
 		}
 
@@ -156,7 +161,8 @@ public class SearcherEntry implements Searcher {
 	public List<Facility> getFacilities(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getFacilities");
 		}
 
@@ -167,7 +173,8 @@ public class SearcherEntry implements Searcher {
 	public List<Resource> getResources(PerunSession sess, Map<String, String> attributesWithSearchingValues) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getResources");
 		}
 
@@ -177,7 +184,8 @@ public class SearcherEntry implements Searcher {
 	@Override
 	public List<Member> getMembersByGroupExpiration(PerunSession sess, Group group, String operator, LocalDate date) throws PrivilegeException, InternalErrorException {
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getMembersByGroupExpiration");
 		}
 

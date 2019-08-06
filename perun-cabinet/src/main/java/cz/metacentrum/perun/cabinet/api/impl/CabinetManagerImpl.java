@@ -299,7 +299,8 @@ public class CabinetManagerImpl implements CabinetManager {
 	public List<Author> getAllAuthors(PerunSession sess) throws CabinetException, InternalErrorException {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.CABINETADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new CabinetException("You are not authorized to list all authors.", NOT_AUTHORIZED);
 		}
 		return getAuthorshipManagerBl().getAllAuthors();
@@ -316,7 +317,10 @@ public class CabinetManagerImpl implements CabinetManager {
 				break;
 			}
 		}
-		if (AuthzResolver.isAuthorized(session, Role.CABINETADMIN)) oneOfAuthors = true;
+		if (AuthzResolver.isAuthorized(session, Role.CABINETADMIN) ||
+				AuthzResolver.isAuthorized(session, Role.PERUNOBSERVER)) {
+			oneOfAuthors = true;
+		}
 		if (!oneOfAuthors) {
 			// not author, but check if user created publication, then he can list current authors
 			Publication publication = getPublicationManagerBl().getPublicationById(id);
