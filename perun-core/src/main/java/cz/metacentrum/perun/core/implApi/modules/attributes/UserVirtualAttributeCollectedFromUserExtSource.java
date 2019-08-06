@@ -148,6 +148,9 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 					String[] rawValues = ((String) value).split(";");
 					//add non-null values returned by modifyValue()
 					Arrays.stream(rawValues).map(v -> modifyValue(sess, ctx, userExtSource, v)).filter(Objects::nonNull).forEachOrdered(valuesWithoutDuplicities::add);
+				} else if (value != null && value instanceof ArrayList) {
+					//If values are already separated to list of strings
+					a.valueAsList().stream().map(v -> modifyValue(sess, ctx, userExtSource, v)).filter(Objects::nonNull).forEachOrdered(valuesWithoutDuplicities::add);
 				}
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 				log.error("cannot read " + sourceAttributeFriendlyName + " from userExtSource " + userExtSource.getId() + " of user " + user.getId(), e);
