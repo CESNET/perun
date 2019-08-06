@@ -7101,8 +7101,46 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Prepare all attribute definition from system perun
 		Set<AttributeDefinition> allAttributesDef = new HashSet<>(this.getAttributesDefinition(sess));
 
+		initializeModuleDependencies(sess, allAttributesDef);
+		//DEBUG creating file with all dependencies of all attributes (180+- on devel)
+		/*String pathToFile = "./AllDependencies.log";
+			File f = new File(pathToFile);
+			try {
+			f.createNewFile();
+			PrintWriter writer;
+			writer = new PrintWriter(new FileWriter(f, true));
+			int i=1;
+			for(AttributeDefinition ad: allDependencies.keySet()) {
+			writer.println(i + ") " + ad.toString());
+			for(AttributeDefinition a: allDependencies.get(ad)) {
+			writer.println(" ---> " + a);
+			}
+			i++;
+			}
+			writer.close();
+			} catch (IOException ex) {
+			log.error("Error at saving AllDependencies file.");
+			}*/
+		//DEBUG end
+
+		log.debug("AttributesManagerBlImpl initialize ended.");
+	}
+
+	/**
+	 * Initialize data for module dependencies.
+	 *
+	 * This method populates all dependencies maps with data from given attribute definitions.
+	 * Also, this method verifies that there is no cycle in strong dependencies. If there is a cycle,
+	 * it logs an error message and doesn't populate the allDependencies map.
+	 *
+	 * @param sess session
+	 * @param definitions attribute definitions
+	 * @throws InternalErrorException internal error
+	 */
+	private void initializeModuleDependencies(PerunSession sess, Set<AttributeDefinition> definitions) throws InternalErrorException {
+
 		//Basic state of all maps (record for every existing attributeDefinitions)
-		for (AttributeDefinition ad : allAttributesDef) {
+		for (AttributeDefinition ad : definitions) {
 			dependencies.put(ad, new HashSet<>());
 			strongDependencies.put(ad, new HashSet<>());
 			inverseDependencies.put(ad, new HashSet<>());
@@ -7113,7 +7151,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		log.debug("Dependencies and StrongDependencies filling started.");
 
 		//Fill dep and strongDep maps
-		for (AttributeDefinition ad : allAttributesDef) {
+		for (AttributeDefinition ad : definitions) {
 			AttributesModuleImplApi module;
 			List<String> depList;
 			List<String> strongDepList = new ArrayList<>();
@@ -7167,29 +7205,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 			log.debug("Map of allDependencies was filled successfully.");
 		}
-
-		//DEBUG creating file with all dependencies of all attributes (180+- on devel)
-		/*String pathToFile = "./AllDependencies.log";
-			File f = new File(pathToFile);
-			try {
-			f.createNewFile();
-			PrintWriter writer;
-			writer = new PrintWriter(new FileWriter(f, true));
-			int i=1;
-			for(AttributeDefinition ad: allDependencies.keySet()) {
-			writer.println(i + ") " + ad.toString());
-			for(AttributeDefinition a: allDependencies.get(ad)) {
-			writer.println(" ---> " + a);
-			}
-			i++;
-			}
-			writer.close();
-			} catch (IOException ex) {
-			log.error("Error at saving AllDependencies file.");
-			}*/
-		//DEBUG end
-
-		log.debug("AttributesManagerBlImpl initialize ended.");
 	}
 
 	/**
