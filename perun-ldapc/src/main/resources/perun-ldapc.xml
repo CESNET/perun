@@ -104,17 +104,19 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="beansCondition">
 						<list>
 							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
 						</list>
 					</property>
-					<property name="pattern" value=" created.$" />
+					<property name="pattern" value=" created in Vo:\[(.*)\]\." />
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
 					<property name="beansCondition">
 						<list>
 							<value>cz.metacentrum.perun.core.api.Group</value>
+							<value>cz.metacentrum.perun.core.api.Vo</value>
 						</list>
 					</property>
-					<property name="pattern" value=" created in Vo:\[(.*)\]" />
+					<property name="pattern" value=" created in Vo:\[.*\] as subgroup of Group:\[.*\]"/>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
 					<property name="beansCondition">
@@ -287,7 +289,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 							<value>cz.metacentrum.perun.core.api.Member</value>
 						</list>
 					</property>
-					<property name="pattern" value="  validated.$" />
+					<property name="pattern" value=" validated.$" />
 					<property name="handlerMethodName" value="processMemberAdded" />
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
@@ -309,15 +311,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					</property>
 					<property name="pattern" value="expired.$|disabled.$|invalidated.$|suspended #" />
 					<property name="handlerMethodName" value="processMemberRemoved" />
-				</bean>
-				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
-					<property name="beansCondition">
-						<list>
-							<value>cz.metacentrum.perun.core.api.Group</value>
-						</list>
-					</property>
-					<property name="pattern" value=" created in Vo:\[.*\] as subgroup of Group:\[.*\]" />
-					<property name="handlerMethodName" value="processSubgroupAdded" />
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
 					<property name="beansCondition">

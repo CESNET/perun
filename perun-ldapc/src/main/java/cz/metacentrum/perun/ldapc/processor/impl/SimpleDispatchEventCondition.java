@@ -53,8 +53,8 @@ public class SimpleDispatchEventCondition implements DispatchEventCondition {
 	@Override
 	public boolean isApplicable(MessageBeans beans, String msg) {
 		int presentMask = beans.getPresentBeansMask();
-		
-		return (requiredBeans & presentMask) == requiredBeans; 
+
+		return requiredBeans == presentMask;
 	}
 
 	private void addFlagForBeanName(String name) throws InternalErrorException {
