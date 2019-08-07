@@ -2,6 +2,7 @@ package cz.metacentrum.perun.webgui.json.attributesManager;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextInputCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -314,7 +315,7 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 	public void removeFromBackupTable(AttributeDefinition object) {
 		fullBackup.remove(object);
 		list.remove(object);
-		selectionModel.getSelectedSet().remove(object);
+		selectionModel.setSelected(object, false);
 		oracle.clear();
 		for (AttributeDefinition def : fullBackup) {
 			oracle.add(def.getFriendlyName());
