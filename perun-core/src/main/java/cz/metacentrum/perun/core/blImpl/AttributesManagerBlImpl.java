@@ -2483,8 +2483,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Remove services' required attributes
 		//TODO
 
-		AttributeDefinition attributeDef = new AttributeDefinition(attribute);
+		//Remove attribute and all it's values
+		this.deleteAllAttributeAuthz(sess, attribute);
+		getAttributesManagerImpl().deleteAttribute(sess, attribute);
+		getPerunBl().getAuditer().log(sess, new AttributeDeleted(attribute));
+
 		//Remove attribute dependencies
+		AttributeDefinition attributeDef = new AttributeDefinition(attribute);
 		synchronized (dependenciesMonitor) {
 
 			removeOppositeDependenciesForAttribute(attributeDef);
@@ -2510,11 +2515,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				log.warn("Inverse strong dependencies inconsistency. Inverse strong dependencies should contain information about {}. ", attributeDef);
 			}
 		}
-
-		//Remove attribute and all it's values
-		getPerunBl().getAuditer().log(sess,new AttributeDeleted(attribute));
-		this.deleteAllAttributeAuthz(sess, attribute);
-		getAttributesManagerImpl().deleteAttribute(sess, attribute);
 	}
 
 	/**
