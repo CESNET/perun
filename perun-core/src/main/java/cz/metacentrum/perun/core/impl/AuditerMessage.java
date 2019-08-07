@@ -3,6 +3,8 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.PerunSession;
 
+import java.util.Objects;
+
 /**
  * Wrapper for AuditEvent associating it with originating user session.
  * It is supposed to be used solely inside Auditer to store runtime state of events.
@@ -44,6 +46,20 @@ public class AuditerMessage {
 	@Override
 	public String toString() {
 		return AuditerMessage.class.getSimpleName() + ":[message='" + event.getMessage() + "']";
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		AuditerMessage that = (AuditerMessage) o;
+		return Objects.equals(event, that.event) &&
+				Objects.equals(originatingSession, that.originatingSession);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(event, originatingSession);
 	}
 
 }

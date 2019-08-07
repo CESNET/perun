@@ -404,7 +404,9 @@ public class Auditer {
 				try {
 					List<AuditEvent> auditEvents = attributesModuleImplApi.resolveVirtualAttributeValueChange((PerunSessionImpl) session, message.getEvent());
 					for (AuditEvent auditEvent : auditEvents) {
-						addedResolvedMessages.add(new AuditerMessage(session, auditEvent));
+						AuditerMessage msg = new AuditerMessage(session, auditEvent);
+						// do not store message duplicates created by this first pass through the message processing cycle
+						if (!addedResolvedMessages.contains(msg)) addedResolvedMessages.add(msg);
 					}
 				} catch (InternalErrorException | WrongAttributeAssignmentException | AttributeNotExistsException | WrongReferenceAttributeValueException ex) {
 					log.error("Error when auditer trying to resolve messages in modules.", ex);
