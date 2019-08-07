@@ -108,6 +108,8 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 		TabMenu menu = new TabMenu();
 		menu.addWidget(UiElements.getRefreshButton(this));
 
+		final ExtendedSuggestBox box = new ExtendedSuggestBox(servReqAttr.getOracle());
+
 		// custom event
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(servReqAttr);
 
@@ -129,7 +131,13 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
 						for (int i=0; i<attrsForRemoving.size(); i++ ) {
 							if (i == attrsForRemoving.size()-1) {
-								RemoveRequiredAttribute request = new RemoveRequiredAttribute(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+								RemoveRequiredAttribute request = new RemoveRequiredAttribute(JsonCallbackEvents.disableButtonEvents(removeButton, JsonCallbackEvents.mergeEvents(events, new JsonCallbackEvents() {
+									@Override
+									public void onFinished(JavaScriptObject jso) {
+										// clear filter since filter ignores next call for some reason
+										box.getSuggestBox().setText("");
+									}
+								})));
 								request.removeRequiredAttribute(serviceId, attrsForRemoving.get(i).getId());
 							} else {
 								RemoveRequiredAttribute request = new RemoveRequiredAttribute(JsonCallbackEvents.disableButtonEvents(removeButton));
@@ -144,7 +152,6 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 
 		menu.addWidget(removeButton);
 
-		final ExtendedSuggestBox box = new ExtendedSuggestBox(servReqAttr.getOracle());
 		menu.addFilterWidget(box, new PerunSearchEvent() {
 			@Override
 			public void searchFor(String text) {

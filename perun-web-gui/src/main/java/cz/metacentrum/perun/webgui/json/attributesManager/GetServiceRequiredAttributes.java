@@ -252,6 +252,7 @@ public class GetServiceRequiredAttributes implements JsonCallback, JsonCallbackT
 	public void clearTable(){
 		loaderImage.loadingStart();
 		list.clear();
+		fullBackup.clear();
 		selectionModel.clear();
 		oracle.clear();
 		dataProvider.flush();

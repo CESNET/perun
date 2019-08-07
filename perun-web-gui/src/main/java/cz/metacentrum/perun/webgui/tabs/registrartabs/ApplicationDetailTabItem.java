@@ -62,6 +62,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 	private TabItem tab;
 	private Application app = null;
 	private int row = 0;
+	private boolean refreshParent = false;
 
 	/**
 	 * Creates a tab instance
@@ -93,7 +94,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public boolean isRefreshParentOnClose() {
-		return true;
+		return refreshParent;
 	}
 
 	@Override
@@ -198,6 +199,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 							public void onFinished(JavaScriptObject jso) {
 								app = jso.cast();
 								draw();
+								refreshParent = true;
 							}
 						}));
 						request.verifyApplication(appId);
@@ -218,6 +220,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 					HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(approve, new JsonCallbackEvents(){
 						@Override
 						public void onFinished(JavaScriptObject jso) {
+							refreshParent = true;
 							session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 						}
 					}));
@@ -246,6 +249,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 							HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(reject, new JsonCallbackEvents(){
 								@Override
 								public void onFinished(JavaScriptObject jso) {
+									refreshParent = true;
 									session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 								}
 							}));
@@ -269,6 +273,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl {
 					HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(delete, new JsonCallbackEvents(){
 						@Override
 						public void onFinished(JavaScriptObject jso) {
+							refreshParent = true;
 							session.getTabManager().closeTab(tab, isRefreshParentOnClose());
 						}
 					}));
