@@ -46,7 +46,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 
 		String userLogin = (String) attribute.getValue();
 		if (userLogin == null) throw new WrongAttributeValueException(attribute, user, "Value can't be null");

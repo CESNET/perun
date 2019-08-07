@@ -26,7 +26,7 @@ public class urn_perun_user_attribute_def_def_eduroamIdentities extends UserAttr
 	private static final Pattern pattern = Pattern.compile("^[-/_.a-zA-Z0-9]+@[-_.A-z0-9]+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute == null) return; //null is OK
 		List<String> value = (List<String>) attribute.getValue();
 		for(String login : value) {

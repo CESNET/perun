@@ -27,7 +27,7 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 	private static final String A_M_mail = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
 		String attributeValue;
 
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Member mail can't be null.");
@@ -68,7 +68,7 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 		//If member mail has been removed
 		if(attribute.getValue() == null) {
 		try {
-		session.getPerunBl().getAttributesManagerBl().checkAttributeValue(session, user, userPreferredMail);
+		session.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(session, user, userPreferredMail);
 		} catch (WrongAttributeValueException ex) {
 		List<Member> membersOfUser = session.getPerunBl().getMembersManagerBl().getMembersByUser(session, user);
 		for(Member m: membersOfUser) {
@@ -93,7 +93,7 @@ public class urn_perun_member_attribute_def_def_mail extends MemberAttributesMod
 		//if userPreferredMail is not null, need to try if the old value is still correct, if not, save new value there
 		} else {
 		try {
-		session.getPerunBl().getAttributesManagerBl().checkAttributeValue(session, user, userPreferredMail);
+		session.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(session, user, userPreferredMail);
 		} catch (WrongAttributeValueException ex) {
 		//old value of userPreferredMail is not correct now, save the new value from member mail there
 		userPreferredMail.setValue(attribute.getValue());

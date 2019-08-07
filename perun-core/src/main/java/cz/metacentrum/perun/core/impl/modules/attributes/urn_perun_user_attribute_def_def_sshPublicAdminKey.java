@@ -18,7 +18,7 @@ import java.util.List;
 public class urn_perun_user_attribute_def_def_sshPublicAdminKey extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user,"Cant be null.");
 		
 		//Testing if some ssh key contains new line character

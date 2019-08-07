@@ -24,7 +24,7 @@ public interface AttributesModuleImplApi {
 	 * Get list of attributes whose value are used in checking of validity of this attribute.
 	 * In other words any change of these attributes' values can cause that value of this attribute is no longer valid.
 	 *
-	 * An attribute should depend on all attributes which values are used in method "checkAttributeValue" defined in attribute module.
+	 * An attribute should depend on all attributes which values are used in method "checkAttributeSemantics" defined in attribute module.
 	 *
 	 * @see cz.metacentrum.perun.core.bl.AttributesManagerBl#checkAttributeDependencies(PerunSession, RichAttribute)
 	 *

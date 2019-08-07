@@ -25,7 +25,7 @@ public class urn_perun_group_attribute_def_def_authoritativeGroup extends GroupA
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_group_attribute_def_def_authoritativeGroup.class);
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws WrongAttributeValueException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 

@@ -30,7 +30,7 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 	void checkAttributeSyntax(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Checks if assigned attribute to the member is valid.
+	 * Checks if value of assigned attribute to the member has valid semantics.
 	 *
 	 * @param session Perun session
 	 * @param member Member
@@ -44,7 +44,7 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeValue(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Tries to fill an attribute to the specified member.

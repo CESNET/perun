@@ -16,38 +16,38 @@ public class urn_perun_facility_attribute_def_def_ldapBaseDNTest {
 	final FacilityAttributesModuleImplApi module = new urn_perun_facility_attribute_def_def_ldapBaseDN();
 
 	@Test
-	public void testCheckAttributeValue() throws Exception {
+	public void testCheckAttributeSemantics() throws Exception {
 		Attribute attribute = new Attribute(module.getAttributeDefinition());
 		attribute.setValue("dc=example,dc=domain");
 
-		module.checkAttributeValue(null, null, attribute);
+		module.checkAttributeSemantics(null, null, attribute);
 
 		attribute.setValue("ou=example,dc=domain");
 
-		module.checkAttributeValue(null, new Facility(), attribute);
+		module.checkAttributeSemantics(null, new Facility(), attribute);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeValueEmptyString() throws Exception {
+	public void testCheckAttributeSemanticsEmptyString() throws Exception {
 		Attribute attribute = new Attribute(module.getAttributeDefinition());
 		attribute.setValue("");
 
-		module.checkAttributeValue(null, new Facility(), attribute);
+		module.checkAttributeSemantics(null, new Facility(), attribute);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeValueFailsLessChars() throws Exception {
+	public void testCheckAttributeSemanticsFailsLessChars() throws Exception {
 		Attribute attribute = new Attribute(module.getAttributeDefinition());
 		attribute.setValue("ou");
 
-		module.checkAttributeValue(null, new Facility(), attribute);
+		module.checkAttributeSemantics(null, new Facility(), attribute);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeValueWrongChars() throws Exception {
+	public void testCheckAttributeSemanticsWrongChars() throws Exception {
 		Attribute attribute = new Attribute(module.getAttributeDefinition());
 		attribute.setValue("cn=example,dc=domain");
 
-		module.checkAttributeValue(null, new Facility(), attribute);
+		module.checkAttributeSemantics(null, new Facility(), attribute);
 	}
 }

@@ -540,21 +540,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		Attribute withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
 		assertTrue("Wrong member_group status for valid member", "VALID".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, m, g, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, m, g, withValue);
 
 		// expire him
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
 		assertTrue("Wrong member_group status for expired member", "EXPIRED".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, m, g, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, m, g, withValue);
 
 		// remove him (will lost assignment)
 		perun.getGroupsManager().removeMember(sess, g, m);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, m, g, attrDef.getName());
 		assertTrue(withValue.getValue() == null);
-		perun.getAttributesManager().checkAttributeValue(sess, m, g, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, m, g, withValue);
 
 	}
 
@@ -593,21 +593,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		Attribute withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
 		assertTrue("Wrong member_resource status for valid member", "VALID".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, m, r, withValue);
 
 		// expire him in first group
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 		// should be still valid from second
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
 		assertTrue("Wrong member_resource status for valid member", "VALID".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, m, r, withValue);
 
 		// expire him in second group
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g2);
 		// should be expired
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
 		assertTrue("Wrong member_resource status for expired member", "EXPIRED".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, m, r, withValue);
 
 		// validate him in first group
 		perun.getGroupsManagerBl().validateMemberInGroup(sess, m, g);
@@ -616,14 +616,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		// should be valid from first group
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
 		assertTrue("Wrong member_resource status for valid member", "VALID".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, m, r, withValue);
 
 		// remove him (will lost assignment)
 		perun.getGroupsManager().removeMember(sess, g, m);
 		// value should be null
 		withValue = perun.getAttributesManager().getAttribute(sess, m, r, attrDef.getName());
 		assertTrue(withValue.getValue() == null);
-		perun.getAttributesManager().checkAttributeValue(sess, m, r, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, m, r, withValue);
 
 	}
 
@@ -663,21 +663,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		Attribute withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
 		assertTrue("Wrong user_facility status for valid member", "VALID".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, f, user, withValue);
 
 		// expire him
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
 		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, f, user, withValue);
 
 		// remove him (will lost assignment)
 		perun.getGroupsManager().removeMember(sess, g, m);
 
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
 		assertTrue(withValue.getValue() == null);
-		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, f, user, withValue);
 
 		// now multiple resources context
 
@@ -689,34 +689,34 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
 		assertTrue("Wrong user_facility status for valid member", "VALID".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, f, user, withValue);
 
 		// expire him in first
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m, g);
 		// is still valid
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
 		assertTrue("Wrong user_facility status for valid member", "VALID".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, f, user, withValue);
 
 		// expire him in second
 		perun.getGroupsManagerBl().expireMemberInGroup(sess, m2, g2);
 		// should be expired
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
 		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, f, user, withValue);
 
 		// remove from first group
 		perun.getGroupsManager().removeMember(sess, g, m);
 		// should be expired
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
 		assertTrue("Wrong user_facility status for expired member", "EXPIRED".equals(withValue.getValue()));
-		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, f, user, withValue);
 
 		// remove him from second (will lost assignment)
 		perun.getGroupsManager().removeMember(sess, g2, m2);
 		withValue = perun.getAttributesManager().getAttribute(sess, f, user, attrDef.getName());
 		assertTrue(withValue.getValue() == null);
-		perun.getAttributesManager().checkAttributeValue(sess, f, user, withValue);
+		perun.getAttributesManager().checkAttributeSemantics(sess, f, user, withValue);
 
 	}
 

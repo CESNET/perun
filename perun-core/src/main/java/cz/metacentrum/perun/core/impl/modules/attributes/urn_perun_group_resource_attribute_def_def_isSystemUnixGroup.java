@@ -34,7 +34,7 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 
 		Integer isSystemUnixGroup = (Integer) attribute.getValue();
 		if(isSystemUnixGroup == null) return; //isSystemUnixGroup can be null. It is equivalent to 0.
@@ -57,7 +57,7 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 			}
 
 			try {
-				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, resource, group, sysUnixGroupName);
+				sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, resource, group, sysUnixGroupName);
 			} catch(WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException("Bad value in sysUnixGroupName attribute.",ex);
 			} catch (GroupResourceMismatchException ex) {
@@ -65,7 +65,7 @@ public class urn_perun_group_resource_attribute_def_def_isSystemUnixGroup extend
 			}
 
 			try {
-				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, resource, group, sysUnixGID);
+				sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, resource, group, sysUnixGID);
 			} catch(WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException("Bad value in sysUnixGID.",ex);
 			} catch (GroupResourceMismatchException ex) {

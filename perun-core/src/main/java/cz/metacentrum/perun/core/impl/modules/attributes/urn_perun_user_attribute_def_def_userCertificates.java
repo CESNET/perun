@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
 public class urn_perun_user_attribute_def_def_userCertificates extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		try {
 			HashMap<String,String> certs = (HashMap<String,String>) attribute.getValue();
 

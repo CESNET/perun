@@ -23,7 +23,7 @@ public class urn_perun_facility_attribute_def_def_unixGID_namespace extends Faci
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_facility_attribute_def_def_unixGID_namespace.class);
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Attribute value can't be null");
 
 		try {

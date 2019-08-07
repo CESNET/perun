@@ -27,7 +27,7 @@ import java.util.Set;
 public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 
 		if (attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute, user, "Value can't be null");
@@ -73,7 +73,7 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
 				filledAttribute.setValue(lastName + " " + firstName);
 			}
 			try {
-				checkAttributeValue(session, user, filledAttribute);
+				checkAttributeSemantics(session, user, filledAttribute);
 				return filledAttribute;
 			} catch (WrongAttributeValueException ex) {
 				// continue in a WHILE cycle

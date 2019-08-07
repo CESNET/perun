@@ -31,7 +31,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 	private static final String A_R_unixGID_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		//prepare namespace and groupName value variables
 		String groupName = null;
 		if(attribute.getValue() != null) groupName = (String) attribute.getValue();

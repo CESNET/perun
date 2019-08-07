@@ -30,7 +30,7 @@ public class urn_perun_member_resource_attribute_def_virt_groupStatus extends Me
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_member_resource_attribute_def_virt_groupStatus.class);
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 
 		String status = (String) attribute.getValue();
 

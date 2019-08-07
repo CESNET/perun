@@ -2583,7 +2583,7 @@ public interface AttributesManagerBl {
 	List<Attribute> fillAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
-	 * Check if value of this facility attribute is valid.
+	 * Check if value of this facility attribute has valid semantics.
 	 *
 	 * @param sess perun session
 	 * @param facility facility for which you want to check validity of attribute
@@ -2593,17 +2593,17 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 *  Batch version of checkAttributeValue
+	 *  Batch version of checkAttributeSemantics
 	 *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Facility,Attribute)
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession,Facility,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesSemantics(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if value of this vo attribute is valid.
+	 * Check if value of this vo attribute has valid semantics.
 	 *
 	 * @param sess perun session
 	 * @param vo vo for which you want to check validity of attribute
@@ -2613,17 +2613,17 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException if attribute isn't vo attribute
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 */
-	void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
-	 *  Batch version of checkAttributeValue
+	 *  Batch version of checkAttributeSemantics
 	 *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Vo,Attribute)
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession,Vo,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributesSemantics(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
-	 * Check if value of this group attribute is valid.
+	 * Check if value of this group attribute has valid semantics.
 	 *
 	 * @param sess perun session
 	 * @param group group for which you want to check validity of attribute
@@ -2634,18 +2634,18 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 *  Batch version of checkAttributeValue
+	 *  Batch version of checkAttributeSemantics
 	 *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Group,Attribute)
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession,Group,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesSemantics(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 
 	/**
-	 * Check if value of this resource attribute is valid.
+	 * Check if value of this resource attribute has valid semantics.
 	 *
 	 * @param sess perun session
 	 * @param resource resource for which you want to check validity of attribute
@@ -2656,17 +2656,17 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException if attribute isn't resource attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 *  Batch version of checkAttributeValue
+	 *  Batch version of checkAttributeSemantics
 	 *  @throws WrongAttributeValueException if any of attributes values is wrong/illegal
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Resource,Attribute)
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession,Resource,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesSemantics(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if value of this member-resource attribute is valid.
+	 * Check if value of this member-resource attribute has valid semantics.
 	 *
 	 *
 	 * @param sess perun session
@@ -2680,24 +2680,24 @@ public interface AttributesManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws MemberResourceMismatchException
 	 */
-	void checkAttributeValue(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
 
 	/**
-	 *  Batch version of fillAttribute
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession, Member, Resource, Attribute)
+	 *  Batch version of checkAttributeSemantics
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, Member, Resource, Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
+	void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
 
 	/**
-	 *  Batch version of fillAttribute
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession, Member, Resource, Attribute)
+	 *  Batch version of checkAttributeSemantics
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, Member, Resource, Attribute)
 	 * @param workWithUserAttributes method can process also user and user-facility attributes (user is automatically get from member a facility is get from resource)
 	 */
-	void checkAttributesValue(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
+	void checkAttributesSemantics(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
 
 
 	/**
-	 * Check if value of this member-group attribute is valid.
+	 * Check if value of this member-group attribute has valid semantics.
 	 *
 	 * @param sess perun session
 	 * @param group group for which (and for specified member) you want to check validity of attribute
@@ -2708,24 +2708,24 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute
 	 */
-	void checkAttributeValue(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
-	 *  Batch version of fillAttribute
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Member,Group,Attribute)
+	 *  Batch version of checkAttributeSemantics
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession,Member,Group,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 *  Batch version of fillAttribute
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Member,Group,Attribute)
+	 *  Batch version of checkAttributeSemantics
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession,Member,Group,Attribute)
 	 * @param workWithUserAttributes method can process also user and member attributes (user is automatically get from member)
 	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 */
-	void checkAttributesValue(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesSemantics(PerunSession sess, Member member, Group group, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if value of attributes is valid. Attributes can be from namespace: member, user, member-resource and user-facility.
+	 * Check if value of attributes has valid semantics. Attributes can be from namespace: member, user, member-resource and user-facility.
 	 *
 	 * @param sess
 	 * @param facility
@@ -2740,10 +2740,10 @@ public interface AttributesManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws MemberResourceMismatchException
 	 */
-	void checkAttributesValue(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
+	void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException;
 
 	/**
-	 * Check if value of attributes is valid. Attributes can be from namespace: member, user, member-group, member-resource and user-facility.
+	 * Check if value of attributes has valid semantics. Attributes can be from namespace: member, user, member-group, member-resource and user-facility.
 	 *
 	 * @param sess
 	 * @param facility
@@ -2758,10 +2758,10 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributesValue(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException;
+	void checkAttributesSemantics(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException;
 
 	/**
-	 * Check if value of this member attribute is valid.
+	 * Check if value of this member attribute has valid semantics.
 	 *
 	 *
 	 * @param sess perun session
@@ -2773,16 +2773,16 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 *  Batch version of fillAttribute
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession, Member, Resource, Attribute)
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession, Member, Resource, Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesSemantics(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if value of this user-facility attribute is valid.
+	 * Check if value of this user-facility attribute has valid semantics.
 	 *
 	 *
 	 * @param sess perun session
@@ -2795,16 +2795,16 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException if attribute isn't user-facility attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 *  Batch version of checkAttributeValue
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Facility,User,Attribute)
+	 *  Batch version of checkAttributeSemantics
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession,Facility,User,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesSemantics(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if value of this group-resource attribute is valid
+	 * Check if value of this group-resource attribute has valid semantics
 	 * @param sess perun session
 	 * @param resource
 	 * @param group
@@ -2814,18 +2814,18 @@ public interface AttributesManagerBl {
 	 * @throws GroupResourceMismatchException
 	 */
 
-	void checkAttributeValue(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
-	 * batch version of checkAttributeValue
-	 *@see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Resource, cz.metacentrum.perun.core.api.Group, cz.metacentrum.perun.core.api.Attribute)
+	 * batch version of checkAttributeSemantics
+	 *@see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Resource, cz.metacentrum.perun.core.api.Group, cz.metacentrum.perun.core.api.Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Resource resource, Group group, List<Attribute> attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
-	void checkAttributesValue(PerunSession sess, Resource resource, Group group, List<Attribute> attribute, boolean workWithGroupAttribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
+	void checkAttributesSemantics(PerunSession sess, Resource resource, Group group, List<Attribute> attribute, boolean workWithGroupAttribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupResourceMismatchException;
 
 	/**
-	 * Check if value of this user attribute is valid.
+	 * Check if value of this user attribute has valid semantics.
 	 *
 	 *
 	 * @param sess perun session
@@ -2837,32 +2837,32 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException if attribute isn't user-facility attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 *  Batch version of checkAttributeValue
-	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,User,Attribute)
+	 *  Batch version of checkAttributeSemantics
+	 *  @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession,User,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributesSemantics(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if the value of this host attribute is valid
+	 * Check if the value of this host attribute has valid semantics
 	 * @param sess perun session
 	 * @param host host which attribute validity is checked
 	 * @param attribute attribute to check
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException if the attribute isn't host attribute
 	 */
-	void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
-	 * Batch version of checkAttributeValue
-	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,Host,Attribute)
+	 * Batch version of checkAttributeSemantics
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession,Host,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException;
+	void checkAttributesSemantics(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
-	 * Check if the value of this entityless attribute is valid
+	 * Check if the value of this entityless attribute has valid semantics
 	 * @param sess perun session
 	 * @param key check the attribute for this key
 	 * @param attribute attribute to check
@@ -2870,10 +2870,10 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongAttributeAssignmentException if the attribute isn't entityless attribute
 	 */
-	void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException,WrongAttributeValueException,WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSession sess, String key, Attribute attribute) throws InternalErrorException,WrongAttributeValueException,WrongAttributeAssignmentException;
 
 	/**
-	 * Check if value of this user ext source attribute is valid.
+	 * Check if value of this user ext source attribute has valid semantics.
 	 * @param sess perun session
 	 * @param ues user external source for which you want to check validity of attribute
 	 * @param attribute attribute to check
@@ -2881,13 +2881,13 @@ public interface AttributesManagerBl {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException if attribute isn't user external source attribute
 	 */
-	void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
-	 * Batch version of checkAttributeValue
-	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession,UserExtSource,Attribute)
+	 * Batch version of checkAttributeSemantics
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeSemantics(PerunSession,UserExtSource,Attribute)
 	 */
-	void checkAttributesValue(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException;
+	void checkAttributesSemantics(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Check if value of this facility attribute has valid syntax.
@@ -3196,7 +3196,7 @@ public interface AttributesManagerBl {
 	void checkAttributesSyntax(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
-	 * Check if value of this group attribute is valid no matter if attribute is required or not.
+	 * Check if value of this group attribute has valid semantics no matter if attribute is required or not.
 	 *
 	 * @param sess perun session
 	 * @param group group for which you want to check validity of attribute
@@ -3207,10 +3207,10 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void forceCheckAttributeValue(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void forceCheckAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if value of this resource attribute is valid no matter if attribute is required or not.
+	 * Check if value of this resource attribute has valid semantics no matter if attribute is required or not.
 	 *
 	 * @param sess perun session
 	 * @param resource resource for which you want to check validity of attribute
@@ -3221,7 +3221,7 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException if attribute isn't resource attribute
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void forceCheckAttributeValue(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void forceCheckAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 
 	/**
@@ -4094,7 +4094,7 @@ public interface AttributesManagerBl {
 
 	/**
 	 * This function takes all member-related attributes (member, user, member-resource, user-facility) and tries to fill them and set them.
-	 * If trueMagic is set, this method can remove invalid attribute value (value which didn't pass checkAttributeValue test) and try to fill and set another. In this case, WrongReferenceAttributeValueException, WrongAttributeValueException are thrown if same attribute can't be set corraclty.
+	 * If trueMagic is set, this method can remove invalid attribute value (value which didn't pass checkAttributeSemantics test) and try to fill and set another. In this case, WrongReferenceAttributeValueException, WrongAttributeValueException are thrown if same attribute can't be set corraclty.
 	 *
 	 * @param sess
 	 * @param member
@@ -4369,7 +4369,7 @@ public interface AttributesManagerBl {
 	 * Finds ids of PerunBeans that have the attribute's value for the attribute. The attribute must be marked as unique.
 	 *
 	 * This method is intended for finding whether a unique value is already assigned, and if yes, then whether it is the same object
-	 * which is being updated or some other object. This is typically needed in checkAttributeValue() method of attribute modules.
+	 * which is being updated or some other object. This is typically needed in checkAttributeSemantics() method of attribute modules.
 	 *
 	 * The return type is a set of pairs of ids. It is a set because for collection types (ArrayList and LinkedHashMap)
 	 * each of the entries in the collection may be assigned to a different object. The set contains pairs, because

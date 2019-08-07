@@ -30,7 +30,7 @@ public class urn_perun_member_attribute_def_def_phone extends MemberAttributesMo
 	private static final Pattern pattern = Pattern.compile("^[+][0-9]{4,16}$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
 
 		// null attribute
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "User attribute phone cannot be null.");

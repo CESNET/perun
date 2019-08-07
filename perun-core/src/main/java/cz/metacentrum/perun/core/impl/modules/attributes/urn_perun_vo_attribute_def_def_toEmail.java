@@ -18,7 +18,7 @@ import java.util.List;
 public class urn_perun_vo_attribute_def_def_toEmail extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 		// null attribute
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Vo toEmail list cannot be null.");
 

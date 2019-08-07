@@ -27,14 +27,14 @@ public interface HostAttributesModuleImplApi extends AttributesModuleImplApi {
 	void checkAttributeSyntax(PerunSessionImpl session, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Checks if assigned attribute to the member is valid.
+	 * Checks if value of assigned attribute to the host has valid semantics.
 	 *
 	 * @param session Perun session
 	 * @param host Host
 	 * @param attribute Attribute of the member.
 	 *
 	 */
-	void checkAttributeValue(PerunSessionImpl session, Host host, Attribute attribute);
+	void checkAttributeSemantics(PerunSessionImpl session, Host host, Attribute attribute);
 
 	/**
 	 * Tries to fill an attribute to the specified host.

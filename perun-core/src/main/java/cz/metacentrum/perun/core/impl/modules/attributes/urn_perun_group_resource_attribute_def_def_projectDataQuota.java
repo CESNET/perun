@@ -43,7 +43,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDataQuota extends
 	final long E = P * 1024;
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Attribute attrProjectDataLimit;
 		String projectDataQuota;
 		String projectDataLimit = null;

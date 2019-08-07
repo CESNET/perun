@@ -576,7 +576,7 @@ public class urn_perun_user_attribute_def_def_timezone extends UserAttributesMod
 	));
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Timezone must be set");
 		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, user, "Attribute value (timezone) is not String type.");
 

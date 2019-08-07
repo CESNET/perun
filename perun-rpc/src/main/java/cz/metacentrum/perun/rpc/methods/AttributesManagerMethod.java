@@ -2263,8 +2263,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Checks if this user-facility attribute is valid.
+	 * Checks if this user-facility attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
@@ -2277,8 +2278,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Checks if this facility attribute is valid.
+	 * Checks if this facility attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param facility int Facility <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 *
@@ -2289,8 +2291,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Checks if this vo attribute is valid.
+	 * Checks if this vo attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param vo int Vo <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 *
@@ -2301,8 +2304,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Checks if this member-resource attribute is valid.
+	 * Checks if this member-resource attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param resource int Resource <code>id</code>
 	 * @param member int Member <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
@@ -2316,8 +2320,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code> aren't from the same Vo.
 	 */
 	/*#
-	 * Checks if this group-resource attribute is valid.
+	 * Checks if this group-resource attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param resource int Resource <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
@@ -2331,8 +2336,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
 	 */
 	/*#
-	 * Checks if this resource attribute is valid.
+	 * Checks if this resource attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param resource int Resource <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 *
@@ -2343,8 +2349,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Checks if this member-group attribute is valid.
+	 * Checks if this member-group attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
@@ -2357,8 +2364,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Checks if this member attribute is valid.
+	 * Checks if this member attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param member int Member <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 *
@@ -2369,8 +2377,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Checks if this group attribute is valid.
+	 * Checks if this group attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param group int Group <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 *
@@ -2381,8 +2390,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Checks if this host attribute is valid.
+	 * Checks if this host attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param host int Host <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 *
@@ -2393,8 +2403,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
 	 */
 	/*#
-	 * Checks if this user attribute is valid.
+	 * Checks if this user attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param user int User <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 *
@@ -2405,8 +2416,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Checks if this userExtSource attribute is valid.
+	 * Checks if this userExtSource attribute has valid semantics.
 	 *
+	 * @deprecated
 	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 *
@@ -2422,59 +2434,59 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("facility")) {
 				if (parms.contains("user")) {
-					ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 							ac.getFacilityById(parms.readInt("facility")),
 							ac.getUserById(parms.readInt("user")),
 							parms.read("attribute", Attribute.class));
 				} else {
-					ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 							ac.getFacilityById(parms.readInt("facility")),
 							parms.read("attribute", Attribute.class));
 				}
 			} else if (parms.contains("vo")) {
-				ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+				ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
 						parms.read("attribute", Attribute.class));
 			} else if (parms.contains("resource")) {
 				if (parms.contains("member")) {
-					ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
 							parms.read("attribute", Attribute.class));
 				} else if (parms.contains("group")) {
-					ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 							ac.getResourceById(parms.readInt("resource")),
 							ac.getGroupById(parms.readInt("group")),
 							parms.read("attribute", Attribute.class));
 				} else {
-					ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 							ac.getResourceById(parms.readInt("resource")),
 							parms.read("attribute", Attribute.class));
 				}
 			} else if (parms.contains("member")) {
 				if (parms.contains("group")) {
-					ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")),
 							ac.getGroupById(parms.readInt("group")),
 							parms.read("attribute", Attribute.class));
 				} else {
-					ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")),
 							parms.read("attribute", Attribute.class));
 				}
 			} else if (parms.contains("group")) {
-				ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+				ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 						ac.getGroupById(parms.readInt("group")),
 						parms.read("attribute", Attribute.class));
 			} else if (parms.contains("host")) {
-				ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+				ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 						ac.getHostById(parms.readInt("host")),
 						parms.read("attribute", Attribute.class));
 			} else if (parms.contains("user")) {
-				ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+				ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 						ac.getUserById(parms.readInt("user")),
 						parms.read("attribute", Attribute.class));
 			} else if (parms.contains("userExtSource")) {
-				ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+				ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
 						ac.getUserExtSourceById(parms.readInt("userExtSource")),
 						parms.read("attribute", Attribute.class));
 			} else {
@@ -2486,8 +2498,232 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Checks if these facility, resource, user and member attributes are valid.
+	 * Checks if this user-facility attribute has valid semantics.
 	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
+	 * @throw UserNotExistsException When the User with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't user-facility attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this facility attribute has valid semantics.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't facility attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this vo attribute has valid semantics.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw VoNotExistsException When the vo with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeAssignmentException When the attribute isn't attribute of Vo with <code>id</code>.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this member-resource attribute has valid semantics.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code> aren't from the same Vo.
+	 */
+	/*#
+	 * Checks if this group-resource attribute has valid semantics.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't group-resource attribute.
+	 * @throw GroupResourceMismatchException When the group with <code>id</code> and Resource with <code>id</code> aren't from the same Vo.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 */
+	/*#
+	 * Checks if this resource attribute has valid semantics.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Resource with <code>id</code>.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this member-group attribute has valid semantics.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this member attribute has valid semantics.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this group attribute has valid semantics.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw WrongAttributeValueException  When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with <code>id</code>.
+	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this host attribute has valid semantics.
+	 *
+	 * @param host int Host <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with <code>id</code>.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw HostNotExistsException When the host with <code>id</code> doesn't exist.
+	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
+	 */
+	/*#
+	 * Checks if this user attribute has valid semantics.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw UserNotExistsException When the user with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't user-facility attribute.
+	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this userExtSource attribute has valid semantics.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw WrongAttributeValueException When the attribute value is wrong/illegal.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of UserExtSource with <code>id</code>.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw UserExtSourceNotExistsException When the specified user external source with <code>id</code> doesn't exist.
+	 * @throw WrongReferenceAttributeValueException When value of referenced attribute (if any) is not valid.
+	 */
+	checkAttributeSemantics {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("facility")) {
+				if (parms.contains("user")) {
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							ac.getUserById(parms.readInt("user")),
+							parms.read("attribute", Attribute.class));
+				} else {
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							parms.read("attribute", Attribute.class));
+				}
+			} else if (parms.contains("vo")) {
+				ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						parms.read("attribute", Attribute.class));
+			} else if (parms.contains("resource")) {
+				if (parms.contains("member")) {
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
+							parms.read("attribute", Attribute.class));
+				} else if (parms.contains("group")) {
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+							ac.getResourceById(parms.readInt("resource")),
+							ac.getGroupById(parms.readInt("group")),
+							parms.read("attribute", Attribute.class));
+				} else {
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+							ac.getResourceById(parms.readInt("resource")),
+							parms.read("attribute", Attribute.class));
+				}
+			} else if (parms.contains("member")) {
+				if (parms.contains("group")) {
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")),
+							parms.read("attribute", Attribute.class));
+				} else {
+					ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							parms.read("attribute", Attribute.class));
+				}
+			} else if (parms.contains("group")) {
+				ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+						ac.getGroupById(parms.readInt("group")),
+						parms.read("attribute", Attribute.class));
+			} else if (parms.contains("host")) {
+				ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+						ac.getHostById(parms.readInt("host")),
+						parms.read("attribute", Attribute.class));
+			} else if (parms.contains("user")) {
+				ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+						ac.getUserById(parms.readInt("user")),
+						parms.read("attribute", Attribute.class));
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().checkAttributeSemantics(ac.getSession(),
+						ac.getUserExtSourceById(parms.readInt("userExtSource")),
+						parms.read("attribute", Attribute.class));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, group, host, user or userExtSource");
+			}
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Checks if attributes have valid semantics. These attributes can be from namespace: member, user, member-resource and user-facility.
+	 *
+	 * @deprecated
 	 * @param facility int Facility <code>id</code>
 	 * @param resource int Resource <code>id</code>
 	 * @param user int User <code>id</code>
@@ -2495,88 +2731,101 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these user-facility attributes are valid.
+	 * Checks if these user-facility attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param facility int Facility <code>id</code>
 	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these facility attributes are valid.
+	 * Checks if these facility attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param facility int Facility <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these vo attributes are valid.
+	 * Checks if these vo attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param vo int Vo <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these member-resource attributes are valid.
+	 * Checks if these member-resource attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param resource int Resource <code>id</code>
 	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
-	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>False</code> is default.
+	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
 	 */
 	/*#
-	 * Checks if these member-resource attributes are valid.
+	 * Checks if these member-resource attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param resource int Resource <code>id</code>
 	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these group-resource attributes are valid.
+	 * Checks if these group-resource attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param resource int Resource <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these resource attributes are valid.
+	 * Checks if these resource attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these member-group attributes are valid.
+	 * Checks if these member-group attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
-	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>False</code> is default.
+	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
 	 */
 	/*#
-	 * Checks if these member-group attributes are valid.
+	 * Checks if these member-group attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these member attributes are valid.
+	 * Checks if these member attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these host attributes are valid.
+	 * Checks if these host attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param host int Host <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these user attributes are valid.
+	 * Checks if these user attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
-	 * Checks if these userExtSource attributes are valid.
+	 * Checks if these userExtSource attributes have valid semantics.
 	 *
+	 * @deprecated
 	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
@@ -2587,80 +2836,263 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			if (parms.contains("facility")) {
 				if (parms.contains("user")) {
 					if (parms.contains("resource") && parms.contains("member")) {
-						ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 								ac.getFacilityById(parms.readInt("facility")),
 								ac.getResourceById(parms.readInt("resource")),
 								ac.getUserById(parms.readInt("user")),
 								ac.getMemberById(parms.readInt("member")),
 								parms.readList("attributes", Attribute.class));
 					} else {
-						ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 								ac.getFacilityById(parms.readInt("facility")),
 								ac.getUserById(parms.readInt("user")),
 								parms.readList("attributes", Attribute.class));
 					}
 				} else {
-					ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 							ac.getFacilityById(parms.readInt("facility")),
 							parms.readList("attributes", Attribute.class));
 				}
 			} else if (parms.contains("vo")) {
-				ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+				ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
 						parms.readList("attributes", Attribute.class));
 			} else if (parms.contains("resource")) {
 				if (parms.contains("member")) {
 					if (parms.contains("workWithUserAttributes")) {
-						ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
 								parms.readList("attributes", Attribute.class),
 								parms.readBoolean("workWithUserAttributes"));
 					} else {
-						ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
 								parms.readList("attributes", Attribute.class));
 					}
 				} else if (parms.contains("group")) {
-					ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 							ac.getResourceById(parms.readInt("resource")),
 							ac.getGroupById(parms.readInt("group")),
 							parms.readList("attributes", Attribute.class));
 				} else {
-					ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 							ac.getResourceById(parms.readInt("resource")),
 							parms.readList("attributes", Attribute.class));
 				}
 			} else if (parms.contains("member")) {
 				if (parms.contains("group")) {
 					if (parms.contains("workWithUserAttributes")) {
-						ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")),
 								ac.getGroupById(parms.readInt("group")),
 								parms.readList("attributes", Attribute.class),
 								parms.readBoolean("workWithUserAttributes"));
 					} else {
-						ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")),
 								ac.getGroupById(parms.readInt("group")),
 								parms.readList("attributes", Attribute.class));
 					}
 				} else {
-					ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+					ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")),
 							parms.readList("attributes", Attribute.class));
 				}
 			} else if (parms.contains("host")) {
-				ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+				ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 						ac.getHostById(parms.readInt("host")),
 						parms.readList("attributes", Attribute.class));
 			} else if (parms.contains("user")) {
-				ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+				ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 						ac.getUserById(parms.readInt("user")),
 						parms.readList("attributes", Attribute.class));
 			} else if (parms.contains("userExtSource")) {
-				ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+				ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
 						ac.getUserExtSourceById(parms.readInt("userExtSource")),
 						parms.readList("attributes", Attribute.class));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, host, user or userExtSource");
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Checks if attributes have valid semantics. These attributes can be from namespace: member, user, member-resource and user-facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these user-facility attributes have valid semantics.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these facility attributes have valid semantics.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these vo attributes have valid semantics.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these member-resource attributes have valid semantics.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+	 */
+	/*#
+	 * Checks if these member-resource attributes have valid semantics.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these group-resource attributes have valid semantics.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these resource attributes have valid semantics.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these member-group attributes have valid semantics.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+	 */
+	/*#
+	 * Checks if these member-group attributes have valid semantics.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these member attributes have valid semantics.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these host attributes have valid semantics.
+	 *
+	 * @param host int Host <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these user attributes have valid semantics.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these userExtSource attributes have valid semantics.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	checkAttributesSemantics {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("facility")) {
+				if (parms.contains("user")) {
+					if (parms.contains("resource") && parms.contains("member")) {
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							ac.getResourceById(parms.readInt("resource")),
+							ac.getUserById(parms.readInt("user")),
+							ac.getMemberById(parms.readInt("member")),
+							parms.readList("attributes", Attribute.class));
+					} else {
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							ac.getUserById(parms.readInt("user")),
+							parms.readList("attributes", Attribute.class));
+					}
+				} else {
+					ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+						ac.getFacilityById(parms.readInt("facility")),
+						parms.readList("attributes", Attribute.class));
+				}
+			} else if (parms.contains("vo")) {
+				ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					parms.readList("attributes", Attribute.class));
+			} else if (parms.contains("resource")) {
+				if (parms.contains("member")) {
+					if (parms.contains("workWithUserAttributes")) {
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
+							parms.readList("attributes", Attribute.class),
+							parms.readBoolean("workWithUserAttributes"));
+					} else {
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
+							parms.readList("attributes", Attribute.class));
+					}
+				} else if (parms.contains("group")) {
+					ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						ac.getGroupById(parms.readInt("group")),
+						parms.readList("attributes", Attribute.class));
+				} else {
+					ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						parms.readList("attributes", Attribute.class));
+				}
+			} else if (parms.contains("member")) {
+				if (parms.contains("group")) {
+					if (parms.contains("workWithUserAttributes")) {
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")),
+							parms.readList("attributes", Attribute.class),
+							parms.readBoolean("workWithUserAttributes"));
+					} else {
+						ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")),
+							parms.readList("attributes", Attribute.class));
+					}
+				} else {
+					ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+						ac.getMemberById(parms.readInt("member")),
+						parms.readList("attributes", Attribute.class));
+				}
+			} else if (parms.contains("host")) {
+				ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+					ac.getHostById(parms.readInt("host")),
+					parms.readList("attributes", Attribute.class));
+			} else if (parms.contains("user")) {
+				ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					parms.readList("attributes", Attribute.class));
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+					ac.getUserExtSourceById(parms.readInt("userExtSource")),
+					parms.readList("attributes", Attribute.class));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, host, user or userExtSource");
 			}

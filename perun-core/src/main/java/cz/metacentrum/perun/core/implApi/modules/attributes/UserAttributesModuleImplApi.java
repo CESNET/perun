@@ -30,7 +30,7 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 	void checkAttributeSyntax(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Checks if assigned attribute to the user is valid.
+	 * Checks if value of assigned attribute to the user has valid semantics.
 	 *
 	 * @param perunSession PerunSession
 	 * @param user User
@@ -44,7 +44,7 @@ public interface UserAttributesModuleImplApi extends AttributesModuleImplApi {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Tries to fill an attribute to the specified user.

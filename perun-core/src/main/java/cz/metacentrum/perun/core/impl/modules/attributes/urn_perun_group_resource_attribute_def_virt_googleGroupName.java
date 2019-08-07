@@ -27,7 +27,7 @@ import java.util.List;
 public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends GroupResourceVirtualAttributesModuleAbstract implements GroupResourceVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Attribute googleGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getGoogleGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
 		// we don't allow dots in attribute friendlyName, so we convert domain dots to dash.
 		String namespace = ((String) googleGroupNameNamespaceAttribute.getValue()).replaceAll("\\.", "-");
@@ -39,7 +39,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 		}
 		groupNameAttribute.setValue(attribute.getValue());
 		try {
-			sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, group, groupNameAttribute);
+			sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, group, groupNameAttribute);
 		} catch(WrongAttributeValueException ex) {
 			throw new WrongAttributeValueException(attribute, ex.getMessage(), ex);
 		} catch(WrongReferenceAttributeValueException ex) {
@@ -68,7 +68,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 		}
 
 		try {
-			sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, group, groupNameAttribute);
+			sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, group, groupNameAttribute);
 			//check passed, we can use value from this physical attribute
 			attribute.setValue(groupNameAttribute.getValue());
 			return attribute;

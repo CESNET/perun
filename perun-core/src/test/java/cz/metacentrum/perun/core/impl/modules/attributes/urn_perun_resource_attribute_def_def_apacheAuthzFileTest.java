@@ -26,7 +26,7 @@ public class urn_perun_resource_attribute_def_def_apacheAuthzFileTest {
 	@Test(expected = WrongAttributeValueException.class)
 	public void checkAttributeWithoutValue() throws Exception {
 		System.out.println("checkAttributeWithoutValue()");
-		authzFileAttr.checkAttributeValue(ps, new Resource(), new Attribute());
+		authzFileAttr.checkAttributeSemantics(ps, new Resource(), new Attribute());
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
@@ -34,7 +34,7 @@ public class urn_perun_resource_attribute_def_def_apacheAuthzFileTest {
 		System.out.println("checkAttributeWithWrongValue()");
 		final Attribute attr = new Attribute();
 		attr.setValue("bad/file/path");
-		authzFileAttr.checkAttributeValue(ps, new Resource(), attr);
+		authzFileAttr.checkAttributeSemantics(ps, new Resource(), attr);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
@@ -42,7 +42,7 @@ public class urn_perun_resource_attribute_def_def_apacheAuthzFileTest {
 		System.out.println("checkAttributeWithNoSlashInFilePath()");
 		final Attribute attr = new Attribute();
 		attr.setValue("pathToFile");
-		authzFileAttr.checkAttributeValue(ps, new Resource(), attr);
+		authzFileAttr.checkAttributeSemantics(ps, new Resource(), attr);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
@@ -50,6 +50,6 @@ public class urn_perun_resource_attribute_def_def_apacheAuthzFileTest {
 		System.out.println("checkAttributeEndingWithSlash()");
 		final Attribute attr = new Attribute();
 		attr.setValue("/ending/with/slash/");
-		authzFileAttr.checkAttributeValue(ps, new Resource(), attr);
+		authzFileAttr.checkAttributeSemantics(ps, new Resource(), attr);
 	}
 }

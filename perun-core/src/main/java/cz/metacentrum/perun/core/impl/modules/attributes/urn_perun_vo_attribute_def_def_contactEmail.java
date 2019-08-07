@@ -19,7 +19,7 @@ import java.util.List;
 public class urn_perun_vo_attribute_def_def_contactEmail extends VoAttributesModuleAbstract implements VoAttributesModuleImplApi{
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 		// null attribute
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Vo contact email list cannot be null.");
 

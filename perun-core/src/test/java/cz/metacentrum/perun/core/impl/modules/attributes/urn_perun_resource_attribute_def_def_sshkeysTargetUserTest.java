@@ -24,48 +24,48 @@ public class urn_perun_resource_attribute_def_def_sshkeysTargetUserTest {
 	}
 
 	@Test
-	public void testCheckAttributeValue() throws Exception {
-		System.out.println("testCheckAttributeValue()");
+	public void testCheckAttributeSemantics() throws Exception {
+		System.out.println("testCheckAttributeSemantics()");
 
 		Attribute attributeToCheck = new Attribute();
 
 		attributeToCheck.setValue("Jan_Nepomucky");
-		classInstance.checkAttributeValue(session, resource, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
 
 		attributeToCheck.setValue(".John_Dale.");
-		classInstance.checkAttributeValue(session, resource, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
 
 		attributeToCheck.setValue("_Adele-Frank");
-		classInstance.checkAttributeValue(session, resource, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeValueWithWrongValueHyphen() throws Exception {
-		System.out.println("testCheckAttributeValueWithWrongValueHyphen()");
+	public void testCheckAttributeSemanticsWithWrongValueHyphen() throws Exception {
+		System.out.println("testCheckAttributeSemanticsWithWrongValueHyphen()");
 
 		Attribute attributeToCheck = new Attribute();
 
 		attributeToCheck.setValue("-Adam");
-		classInstance.checkAttributeValue(session, resource, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeValueWithWrongValueWhitespace() throws Exception {
-		System.out.println("testCheckAttributeValueWithWrongValueWhitespace()");
+	public void testCheckAttributeSemanticsWithWrongValueWhitespace() throws Exception {
+		System.out.println("testCheckAttributeSemanticsWithWrongValueWhitespace()");
 
 		Attribute attributeToCheck = new Attribute();
 
 		attributeToCheck.setValue("Elena Fuente");
-		classInstance.checkAttributeValue(session, resource, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeValueWithWrongValueDiacritic() throws Exception {
-		System.out.println("testCheckAttributeValueWithWrongValueDiacritic()");
+	public void testCheckAttributeSemanticsWithWrongValueDiacritic() throws Exception {
+		System.out.println("testCheckAttributeSemanticsWithWrongValueDiacritic()");
 
 		Attribute attributeToCheck = new Attribute();
 
 		attributeToCheck.setValue("Jan_Veselý");
-		classInstance.checkAttributeValue(session, resource, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, resource, attributeToCheck);
 	}
 }

@@ -34,7 +34,7 @@ public class urn_perun_group_attribute_def_def_groupStructureSynchronizationEnab
 	private static final Logger log = LoggerFactory.getLogger(urn_perun_group_attribute_def_def_groupStructureSynchronizationEnabled.class);
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//Null value is ok, means no settings for group
 		if(attribute.getValue() == null) return;
 

@@ -54,8 +54,8 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 	static final String UCO_ATTRIBUTE = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		log.trace("checkAttributeValue(member={},attribute={})", member, attribute);
+	public void checkAttributeSemantics(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		log.trace("checkAttributeSemantics(member={},attribute={})", member, attribute);
 		ArrayList<String> emails;
 
 		//get values

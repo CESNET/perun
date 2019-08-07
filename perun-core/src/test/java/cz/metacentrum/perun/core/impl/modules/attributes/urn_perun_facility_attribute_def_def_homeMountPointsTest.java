@@ -34,45 +34,45 @@ public class urn_perun_facility_attribute_def_def_homeMountPointsTest {
 	}
 
 	/**
-	 * Test of checkAttributeValue method, of class urn_perun_facility_attribute_def_def_homeMountPoints.
+	 * Test of checkAttributeSemantics method, of class urn_perun_facility_attribute_def_def_homeMountPoints.
 	 * with all properly set
 	 */
 	@Test
-	public void testCheckAttributeValue() throws Exception {
-		System.out.println("testCheckAttributeValue()");
+	public void testCheckAttributeSemantics() throws Exception {
+		System.out.println("testCheckAttributeSemantics()");
 
 		ArrayList<String> homeMountPts= new ArrayList<>();
 		homeMountPts.add("/mnt/mymountpoint1");
 		homeMountPts.add("/mnt/mymountpoint2");
 		attribute.setValue(homeMountPts);
 
-		classInstance.checkAttributeValue(session, new Facility(), attribute);
+		classInstance.checkAttributeSemantics(session, new Facility(), attribute);
 
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
-	public void testCheckAttributeValueEmptyAttribute() throws Exception {
-		System.out.println("testCheckAttributeValueEmptyAttribute()");
+	public void testCheckAttributeSemanticsEmptyAttribute() throws Exception {
+		System.out.println("testCheckAttributeSemanticsEmptyAttribute()");
 
-		classInstance.checkAttributeValue(session, new Facility(), attribute);
+		classInstance.checkAttributeSemantics(session, new Facility(), attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
-	public void testCheckAttributeValueBadFormat() throws Exception {
-		System.out.println("testCheckAttributeValueBadFormat");
+	public void testCheckAttributeSemanticsBadFormat() throws Exception {
+		System.out.println("testCheckAttributeSemanticsBadFormat");
 		ArrayList<String> homeMountPts= new ArrayList<>();
 		homeMountPts.add("/mnt/mymountpoint/");
 		homeMountPts.add("/mnt/mymountpoin@@t2\n");
 		attribute.setValue(homeMountPts);
 
-		classInstance.checkAttributeValue(session, new Facility(), attribute);
+		classInstance.checkAttributeSemantics(session, new Facility(), attribute);
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
-	public void testCheckAttributeValueNoHomeMountPointsSet() throws Exception {
-		System.out.println("testCheckAttributeValueNoHomeMountPointsSet()");
+	public void testCheckAttributeSemanticsNoHomeMountPointsSet() throws Exception {
+		System.out.println("testCheckAttributeSemanticsNoHomeMountPointsSet()");
 
 		attribute.setValue(new ArrayList<String>());
-		classInstance.checkAttributeValue(session, new Facility(), attribute);
+		classInstance.checkAttributeSemantics(session, new Facility(), attribute);
 	}
 }

@@ -20,7 +20,7 @@ public class urn_perun_user_attribute_def_def_preferredMail extends UserAttribut
 	private static final String A_M_mail = AttributesManager.NS_MEMBER_ATTR_DEF + ":mail";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		String attributeValue;
 
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "User preferred mail can't be set to null.");

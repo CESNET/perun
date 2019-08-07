@@ -25,7 +25,7 @@ public class urn_perun_group_resource_attribute_def_def_projectDirPermissions ex
 	private static final Pattern pattern = Pattern.compile("^[01234567]{3}$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		Integer permissions = (Integer) attribute.getValue();
 		//Permissions can be null (if null, it means DEFAULT 750)
 		if (permissions == null) return;

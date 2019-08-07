@@ -20,7 +20,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 public class urn_perun_facility_attribute_def_def_googleGroupsDomain extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Attribute value can't be null");
 
 		// we don't allow dots in attribute friendlyName, so we convert domain dots to dash.

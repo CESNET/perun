@@ -22,7 +22,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
 public class urn_perun_entityless_attribute_def_def_dnsStateMapping extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
 		if(key==null) {
 			throw new WrongAttributeValueException(attribute, "null", "key for this entityless attribute must not be null");
 		}

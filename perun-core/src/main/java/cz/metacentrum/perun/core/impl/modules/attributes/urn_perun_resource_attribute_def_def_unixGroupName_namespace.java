@@ -32,7 +32,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		//prepare namespace and groupName value variables
 		String groupName = null;
 		if(attribute.getValue() != null) groupName = (String) attribute.getValue();
@@ -143,7 +143,7 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 						}
 					} else {
 						try {
-							session.getPerunBl().getAttributesManagerBl().checkAttributeValue(session, resource, resourceUnixGIDNamespace);
+							session.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(session, resource, resourceUnixGIDNamespace);
 						} catch (WrongAttributeValueException ex) {
 							throw new WrongReferenceAttributeValueException(attribute, resourceUnixGIDNamespace, ex);
 						}

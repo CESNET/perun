@@ -23,7 +23,7 @@ public class urn_perun_group_resource_attribute_def_def_vomsGroupName extends Gr
     private static final Pattern pattern = Pattern.compile("^[^<>&=]*$");
 
     @Override
-    public void checkAttributeValue(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+    public void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
         String vomsGroupName;
 
         if(attribute.getValue() == null) {

@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 public class urn_perun_user_attribute_def_def_mailaliasesGenericMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		String attributeValue;
 
 		if(attribute.getValue() == null) return;

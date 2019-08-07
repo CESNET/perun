@@ -23,7 +23,7 @@ public class urn_perun_resource_attribute_def_def_projectsBasePath extends Resou
 	private static final Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		String path = (String) attribute.getValue();
 		if (path == null) {
 			throw new WrongAttributeValueException(attribute, resource, "Attribute can't be empty.");

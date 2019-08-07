@@ -21,7 +21,7 @@ public class urn_perun_entityless_attribute_def_def_namespace_uid_policy extends
 	public static final String INCREMENT_POLICY = "increment";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue() == null) return;
 		if(!(RECYCLE_POLICY.equals(attribute.getValue()) || INCREMENT_POLICY.equals(attribute.getValue()))) throw new WrongAttributeValueException(attribute, key, "Posible values for this attribute are " + RECYCLE_POLICY + " or " + INCREMENT_POLICY);
 	}

@@ -33,7 +33,7 @@ public class urn_perun_user_facility_attribute_def_def_shell extends UserFacilit
 	 * in allowed shells and also need to have correct format.
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String shell = (String) attribute.getValue();
 
 		if (shell == null) return;

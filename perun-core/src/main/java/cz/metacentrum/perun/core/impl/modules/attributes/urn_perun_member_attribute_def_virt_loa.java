@@ -22,7 +22,7 @@ import java.util.List;
 public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttributesModuleAbstract implements MemberVirtualAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		if(!attribute.equals(getAttributeValue(sess, member, attribute))) throw new WrongAttributeValueException(attribute, member, "Attribute value is not the highest value from member's UserExtSources Loas.");
 	}
 

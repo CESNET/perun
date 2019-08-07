@@ -48,7 +48,7 @@ public class urn_perun_user_attribute_def_def_preferredEduPersonPrincipalName ex
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 		String value = (String)attribute.getValue();
 		try {

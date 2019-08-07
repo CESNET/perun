@@ -33,7 +33,7 @@ public class urn_perun_member_resource_attribute_def_def_dataQuotas extends Memb
 	public static final String A_R_maxUserDataQuotas = AttributesManager.NS_RESOURCE_ATTR_DEF + ":maxUserDataQuotas";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		//attribute can be null, it means there are no default settings on resource
 		if(attribute.getValue() == null) {
 			return;

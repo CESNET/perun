@@ -20,7 +20,7 @@ import java.util.List;
 public class urn_perun_facility_attribute_def_def_pbsServer extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		String pbsServer;
 		if(attribute.getValue() != null) {
 			pbsServer = (String) attribute.getValue();

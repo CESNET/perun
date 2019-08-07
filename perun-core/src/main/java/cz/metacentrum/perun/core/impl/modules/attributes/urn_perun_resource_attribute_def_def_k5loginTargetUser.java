@@ -22,7 +22,7 @@ public class urn_perun_resource_attribute_def_def_k5loginTargetUser extends Reso
 	private static final Pattern userPattern = Pattern.compile("^[-a-zA-Z0-9_]+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute, resource, null, "Attribute value can't be null.");
 		}

@@ -33,7 +33,7 @@ public interface MemberResourceAttributesModuleImplApi extends AttributesModuleI
 	void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * This method checks Member's attributes at a specified resource.
+	 * This method checks semantics of Member's attribute value at a specified resource.
 	 *
 	 * @param perunSession Perun session
 	 * @param member Member
@@ -47,7 +47,7 @@ public interface MemberResourceAttributesModuleImplApi extends AttributesModuleI
 	 *         the parameter is to be compared is not available
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method MAY fill Member's attributes at a specified resource.

@@ -40,7 +40,7 @@ public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
 	void checkAttributeSyntax(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Method for checking Vo attributes.
+	 * Checks if value of this vo attribute has valid semantics.
 	 *
 	 * @param perunSession Perun session
 	 * @param vo Virtual Organization
@@ -48,7 +48,7 @@ public interface VoAttributesModuleImplApi extends AttributesModuleImplApi {
 	 *
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 */
-	void checkAttributeValue(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that

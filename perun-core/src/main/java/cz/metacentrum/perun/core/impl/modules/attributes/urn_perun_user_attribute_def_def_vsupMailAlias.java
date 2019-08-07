@@ -51,7 +51,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 	private static final Pattern emailAliasPattern = Pattern.compile("^[A-Za-z]+\\.[A-Za-z]+([0-9])*@vsup\\.cz$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 
 		// can be empty
 		if (attribute.getValue() == null) return;
@@ -116,7 +116,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 				filledAttribute.setValue(mail + "@vsup.cz");
 			}
 			try {
-				checkAttributeValue(session, user, filledAttribute);
+				checkAttributeSemantics(session, user, filledAttribute);
 				return filledAttribute;
 			} catch (WrongAttributeValueException ex) {
 				// continue in a WHILE cycle

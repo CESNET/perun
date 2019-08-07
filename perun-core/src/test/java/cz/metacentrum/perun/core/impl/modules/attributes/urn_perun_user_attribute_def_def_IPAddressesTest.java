@@ -32,8 +32,8 @@ public class urn_perun_user_attribute_def_def_IPAddressesTest {
 	}
 
 	@Test
-	public void testCheckAttributeValue() throws Exception {
-		System.out.println("testCheckAttributeValue()");
+	public void testCheckAttributeSemantics() throws Exception {
+		System.out.println("testCheckAttributeSemantics()");
 
 		Attribute attributeToCheck = new Attribute();
 		List ipAddresses = new ArrayList<>();
@@ -44,18 +44,18 @@ public class urn_perun_user_attribute_def_def_IPAddressesTest {
 		ipAddresses.add("2001:db8::2:1");
 
 		attributeToCheck.setValue(ipAddresses);
-		classInstance.checkAttributeValue(session, user, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeValueWithWrongValue() throws Exception {
-		System.out.println("testCheckAttributeValueWithWrongValue()");
+	public void testCheckAttributeSemanticsWithWrongValue() throws Exception {
+		System.out.println("testCheckAttributeSemanticsWithWrongValue()");
 
 		Attribute attributeToCheck = new Attribute();
 		List ipAddresses = new ArrayList<>();
 		ipAddresses.add("123");
 		attributeToCheck.setValue(ipAddresses);
 
-		classInstance.checkAttributeValue(session, user, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
 	}
 }

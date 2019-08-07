@@ -23,7 +23,7 @@ public class urn_perun_resource_attribute_def_def_apacheAuthzFile extends Resour
 	private static final Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9.?*+$%]+)+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		if (attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute, resource, null, "Attribute value can not be null.");
 		}

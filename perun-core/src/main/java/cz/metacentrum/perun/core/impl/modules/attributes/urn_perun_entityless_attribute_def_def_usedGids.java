@@ -36,7 +36,7 @@ public class urn_perun_entityless_attribute_def_def_usedGids extends EntitylessA
 	private static final Pattern valuePattern = Pattern.compile("^[1-9][0-9]*$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
 		//If this attribute value is null, it means there is no GIDS depleted or used.
 		if(attribute.getValue() == null) return;
 		

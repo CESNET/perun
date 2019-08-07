@@ -38,8 +38,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
     }
 
     @Test
-    public void testCheckAttributeValueElixirNamespace() throws Exception {
-        System.out.println("testCheckAttributeValue()");
+    public void testCheckAttributeSemanticsElixirNamespace() throws Exception {
+        System.out.println("testCheckAttributeSemantics()");
         Attribute attribute = new Attribute();
         attribute.setFriendlyName("login-namespace:elixir-persistent");
         attribute.setValue("28c5353b8bb34984a8bd4169ba94c606@elixir-europe.org");
@@ -57,7 +57,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
         });
 
         assertEquals(attribute.getValue().toString(), "28c5353b8bb34984a8bd4169ba94c606@elixir-europe.org");
-        classInstance.checkAttributeValue(session, user, attribute);
+        classInstance.checkAttributeSemantics(session, user, attribute);
     }
 
     @Test

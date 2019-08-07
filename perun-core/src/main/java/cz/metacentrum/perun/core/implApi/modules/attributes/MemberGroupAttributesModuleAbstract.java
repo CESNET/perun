@@ -23,7 +23,7 @@ public abstract class MemberGroupAttributesModuleAbstract extends AttributesModu
 
 	}
 
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
 
 	}
 

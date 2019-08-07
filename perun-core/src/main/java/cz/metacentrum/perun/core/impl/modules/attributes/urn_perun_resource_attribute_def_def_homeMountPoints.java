@@ -63,7 +63,7 @@ public class urn_perun_resource_attribute_def_def_homeMountPoints extends Resour
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		if (attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute);
 		}

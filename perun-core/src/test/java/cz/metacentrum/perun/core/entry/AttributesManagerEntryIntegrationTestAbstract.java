@@ -99,7 +99,7 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 	 * 7. createAttribute / deleteAttribute
 	 * 8. getRequiredAttributes
 	 * 9. ==fillAttribute==
-	 * 10. ==checkAttributeValue==
+	 * 10. ==checkAttributeSemantics==
 	 * 11. removeAttribute/s / removeAllAttributes
 	 * 12. rest check methods
 	 * 13. private methods for attribute dependencies logic
@@ -1212,8 +1212,8 @@ public class AttributesManagerEntryIntegrationTestAbstract extends AbstractPerun
 		public void checkAttributeDependenciesForAllAttributesInMap() throws Exception {
 		System.out.println(CLASS_NAME + "checkAttributeDependenciesForAllAttributesInMap");
 		AttributesManagerBlImpl attributesManagerBlImpl = mock(AttributesManagerBlImpl.class, RETURNS_DEEP_STUBS); //RETURNS_DEEP_STUBS = budeme mockovat nekolik vnorenych volani metod
-//spy(attributesManagerBlImpl).checkAttributeValue(sess, resource, null);
-//when(attributesManagerBlImpl.checkAttributeValue(any(PerunSession.class), any(Resource.class), any(Attribute.class)))
+//spy(attributesManagerBlImpl).checkAttributeSemantics(sess, resource, null);
+//when(attributesManagerBlImpl.checkAttributeSemantics(any(PerunSession.class), any(Resource.class), any(Attribute.class)))
 }*/
 
 	@Test (expected=VoNotExistsException.class)

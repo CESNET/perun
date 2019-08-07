@@ -33,7 +33,7 @@ public interface MemberGroupAttributesModuleImplApi extends AttributesModuleImpl
 	void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * This method checks Member's attributes in a specified group.
+	 * This method checks semantics of Member's attribute value in a specified group.
 	 *
 	 * @param perunSession Perun session
 	 * @param member Member
@@ -42,7 +42,7 @@ public interface MemberGroupAttributesModuleImplApi extends AttributesModuleImpl
 	 *
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 */
-	void checkAttributeValue(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException;
 
 	/**
 	 * This method MAY fill Member's attributes in a specified group.
