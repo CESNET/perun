@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceAddedToUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceRemovedFromUser;
@@ -77,26 +77,21 @@ public class urn_perun_user_attribute_def_virt_kerberosLogins extends UserVirtua
 		if (message instanceof UserExtSourceAddedToUser
 			&& ((UserExtSourceAddedToUser) message).getUserExtSource().getExtSource() instanceof ExtSourceKerberos) {
 
-			resolvingMessages.addAll(resolveEvent(perunSession, ((UserExtSourceAddedToUser) message).getUser()));
+			resolvingMessages.add(resolveEvent(perunSession, ((UserExtSourceAddedToUser) message).getUser()));
 		}
 
 		if (message instanceof UserExtSourceRemovedFromUser
 			&& ((UserExtSourceRemovedFromUser) message).getUserExtSource().getExtSource() instanceof ExtSourceKerberos) {
 
-			resolvingMessages.addAll(resolveEvent(perunSession, ((UserExtSourceRemovedFromUser) message).getUser()));
+			resolvingMessages.add(resolveEvent(perunSession, ((UserExtSourceRemovedFromUser) message).getUser()));
 		}
 
 		return resolvingMessages;
 	}
 
-	private List<AuditEvent> resolveEvent(PerunSessionImpl perunSession, User user) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException {
-		List<AuditEvent> resolvingMessages = new ArrayList<>();
-
-		Attribute attrVirtKerberosLogins = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, A_U_V_KERBEROS_LOGINS);
-		//FIXME: if the attribute value is null or empty, this method should return AttributeRemovedForUser instead
-		resolvingMessages.add(new AttributeSetForUser(attrVirtKerberosLogins, user));
-
-		return resolvingMessages;
+	private AuditEvent resolveEvent(PerunSessionImpl perunSession, User user) throws InternalErrorException, AttributeNotExistsException {
+		AttributeDefinition attrVirtKerberosLoginsDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, A_U_V_KERBEROS_LOGINS);
+		return new AttributeChangedForUser(new Attribute(attrVirtKerberosLoginsDefinition), user);
 	}
 
 	@Override

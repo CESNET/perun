@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForKey;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForKey;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -141,8 +141,8 @@ public class urn_perun_user_attribute_def_virt_institutionsCountries extends Use
 		//find users that are affected by the change - have schacHomeOrganization value ending in key but not ending with longerDomains
 		List<User> affectedUsers = sess.getPerunBl().getUsersManagerBl().findUsersWithExtSourceAttributeValueEnding(sess,getSourceAttributeName(), key, longerDomains);
 		for (User user : affectedUsers) {
-			Attribute attribute = am.getAttribute(sess, user, getDestinationAttributeName());
-			resolvingMessages.add(new AttributeSetForUser(attribute, user));
+			AttributeDefinition attributeDefinition = am.getAttributeDefinition(sess, getDestinationAttributeName());
+			resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
 		}
 
 		return resolvingMessages;

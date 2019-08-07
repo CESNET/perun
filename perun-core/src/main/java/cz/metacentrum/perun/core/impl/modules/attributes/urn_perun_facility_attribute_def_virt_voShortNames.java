@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForFacility;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForFacility;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForFacility;
 import cz.metacentrum.perun.audit.events.AuditEvent;
@@ -82,13 +84,8 @@ public class urn_perun_facility_attribute_def_virt_voShortNames extends Facility
 	private List<AuditEvent> resolveEvent(PerunSessionImpl sess, Facility facility) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 
-		Attribute attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, NS_FACILITY_ATTR_VIRT+":voShortNames");
-		if (attribute.valueAsList() == null || attribute.valueAsList().isEmpty()){
-			AttributeDefinition attributeDefinition = new AttributeDefinition(attribute);
-			resolvingMessages.add(new AttributeRemovedForFacility(attributeDefinition, facility));
-		} else {
-			resolvingMessages.add(new AttributeSetForFacility(attribute, facility));
-		}
+		AttributeDefinition attributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, NS_FACILITY_ATTR_VIRT+":voShortNames");
+		resolvingMessages.add(new AttributeChangedForFacility(new Attribute(attributeDefinition), facility));
 
 		return resolvingMessages;
 	}
