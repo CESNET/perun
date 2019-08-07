@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.bl;
 
+import com.google.common.collect.Sets;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
@@ -19,8 +20,11 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,12 +45,14 @@ public class AttributesManagerBlImplUnitTests {
 
 	private AttributesManagerImpl attrManagerImplMock = mock(AttributesManagerImpl.class);
 	private PerunSession sessionMock = mock(PerunSession.class);
+	private PerunBl perunBlMock = mock(PerunBl.class, RETURNS_DEEP_STUBS);
 
 	private int idCounter = 1;
 
 	@Before
 	public void setUp() {
 		attrManagerBlImpl = new AttributesManagerBlImpl(attrManagerImplMock);
+		attrManagerBlImpl.setPerunBl(perunBlMock);
 	}
 
 	@Test
@@ -188,6 +194,181 @@ public class AttributesManagerBlImplUnitTests {
 		assertThat(allDependencies.get(B)).isEmpty();
 		assertThat(allDependencies.get(C)).isEmpty();
 	}
+
+	@Test
+	public void deleteAttributeRemovesDependenciesForDeletedAttributeWhenSucceeded() throws Exception {
+		System.out.println(CLASS_NAME + "deleteAttributeRemovesDependenciesForDeletedAttributeWhenSucceeded");
+
+		Method initializeModuleDependenciesMethod =
+			getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
+
+		// set up initial data for attribute
+		AttributeDefinition A = setUpAttributeDefinition("A");
+		setUpModuleMock(A, Collections.emptyList());
+		Set<AttributeDefinition> allDefinitions = Collections.singleton(A);
+		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
+
+		// delete attribute
+		attrManagerBlImpl.deleteAttribute(sessionMock, A);
+
+		Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getDependencies();
+		Map<AttributeDefinition, Set<AttributeDefinition>> strongDependencies = getStrongDependencies();
+		Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies = getInverseDependencies();
+		Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependencies = getInverseStrongDependencies();
+		Map<AttributeDefinition, Set<AttributeDefinition>> allDependencies = getAllDependencies();
+
+		assertThat(dependencies.keySet()).doesNotContain(A);
+		assertThat(strongDependencies.keySet()).doesNotContain(A);
+		assertThat(inverseDependencies.keySet()).doesNotContain(A);
+		assertThat(inverseStrongDependencies.keySet()).doesNotContain(A);
+		assertThat(allDependencies.keySet()).doesNotContain(A);
+	}
+
+	@Test
+	public void deleteAttributeRemovesDeletedAttributeFromDependenciesWhenSucceeded() throws Exception {
+		System.out.println(CLASS_NAME + "deleteAttributeRemovesDeletedAttributeFromDependenciesWhenSucceeded");
+
+		Method initializeModuleDependenciesMethod =
+			getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
+
+		AttributeDefinition A = setUpAttributeDefinition("A");
+		AttributeDefinition B = setUpAttributeDefinition("B");
+
+		// Set dependencies:
+		//    A -> B
+		setUpModuleMock(A, Collections.singletonList(B.getName()));
+		setUpModuleMock(B, Collections.emptyList());
+		Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
+		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
+
+		attrManagerBlImpl.deleteAttribute(sessionMock, B);
+
+		Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getDependencies();
+
+		assertThat(dependencies.get(A)).doesNotContain(B);
+	}
+
+	@Test
+	public void deleteAttributeRemovesDeletedAttributeFromStrongDependenciesWhenSucceeded() throws Exception {
+		System.out.println(CLASS_NAME + "deleteAttributeRemovesDeletedAttributeFromStrongDependenciesWhenSucceeded");
+
+		Method initializeModuleDependenciesMethod =
+			getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
+
+		AttributeDefinition A = setUpAttributeDefinition("A");
+		AttributeDefinition B = setUpAttributeDefinition("B");
+
+		// Set dependencies:
+		//    A => B
+		setUpVirtualModuleMock(A, Collections.emptyList(), Collections.singletonList(B.getName()));
+		setUpVirtualModuleMock(B, Collections.emptyList(), Collections.emptyList());
+		Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
+		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
+
+		attrManagerBlImpl.deleteAttribute(sessionMock, B);
+
+		Map<AttributeDefinition, Set<AttributeDefinition>> strongDependencies = getStrongDependencies();
+
+		assertThat(strongDependencies.get(A)).doesNotContain(B);
+	}
+
+	@Test
+	public void deleteAttributeDoesNotRemoveDependenciesForDeletedAttributeWhenFails() throws Exception {
+		System.out.println(CLASS_NAME + "deleteAttributeDoesNotRemoveDependenciesForDeletedAttributeWhenFails");
+
+		Method initializeModuleDependenciesMethod =
+			getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
+
+		// set up DB failure
+		doThrow(new RuntimeException())
+			.when(attrManagerImplMock)
+			.deleteAttribute(any(), any());
+
+		// set up initial data for attribute
+		AttributeDefinition A = setUpAttributeDefinition("A");
+		setUpModuleMock(A, Collections.emptyList());
+		Set<AttributeDefinition> allDefinitions = Collections.singleton(A);
+		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
+
+		assertThatExceptionOfType(RuntimeException.class)
+			.isThrownBy(() -> attrManagerBlImpl.deleteAttribute(sessionMock, A));
+
+		Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getDependencies();
+		Map<AttributeDefinition, Set<AttributeDefinition>> strongDependencies = getStrongDependencies();
+		Map<AttributeDefinition, Set<AttributeDefinition>> inverseDependencies = getInverseDependencies();
+		Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependencies = getInverseStrongDependencies();
+		Map<AttributeDefinition, Set<AttributeDefinition>> allDependencies = getAllDependencies();
+
+		assertThat(dependencies.keySet()).contains(A);
+		assertThat(strongDependencies.keySet()).contains(A);
+		assertThat(inverseDependencies.keySet()).contains(A);
+		assertThat(inverseStrongDependencies.keySet()).contains(A);
+		assertThat(allDependencies.keySet()).contains(A);
+	}
+
+	@Test
+	public void deleteAttributeDoesNotRemoveDeletedAttributeFromDependenciesWhenFails() throws Exception {
+		System.out.println(CLASS_NAME + "deleteAttributeDoesNotRemoveDeletedAttributeFromDependenciesWhenFails");
+
+		Method initializeModuleDependenciesMethod =
+			getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
+
+		// set up DB failure
+		doThrow(new RuntimeException())
+			.when(attrManagerImplMock)
+			.deleteAttribute(any(), any());
+
+		AttributeDefinition A = setUpAttributeDefinition("A");
+		AttributeDefinition B = setUpAttributeDefinition("B");
+
+		// Set dependencies:
+		//    A -> B
+		setUpModuleMock(A, Collections.singletonList(B.getName()));
+		setUpModuleMock(B, Collections.emptyList());
+		Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
+		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
+
+		assertThatExceptionOfType(RuntimeException.class)
+			.isThrownBy(() -> attrManagerBlImpl.deleteAttribute(sessionMock, B));
+
+		Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = getDependencies();
+
+		assertThat(dependencies.get(A)).contains(B);
+	}
+
+	@Test
+	public void deleteAttributeDoesNotRemoveDeletedAttributeFromStrongDependenciesWhenFails() throws Exception {
+		System.out.println(CLASS_NAME + "deleteAttributeDoesNotRemoveDeletedAttributeFromStrongDependenciesWhenFails");
+
+		Method initializeModuleDependenciesMethod =
+			getPrivateMethodFromAtrManager("initializeModuleDependencies", PerunSession.class, Set.class);
+
+		// set up DB failure
+		doThrow(new RuntimeException())
+			.when(attrManagerImplMock)
+			.deleteAttribute(any(), any());
+
+		AttributeDefinition A = setUpAttributeDefinition("A");
+		AttributeDefinition B = setUpAttributeDefinition("B");
+
+		// Set dependencies:
+		//    A => B
+		setUpVirtualModuleMock(A, Collections.emptyList(), Collections.singletonList(B.getName()));
+		setUpVirtualModuleMock(B, Collections.emptyList(), Collections.emptyList());
+		Set<AttributeDefinition> allDefinitions = Sets.newHashSet(A, B);
+		initializeModuleDependenciesMethod.invoke(attrManagerBlImpl, sessionMock, allDefinitions);
+
+		assertThatExceptionOfType(RuntimeException.class)
+			.isThrownBy(() -> attrManagerBlImpl.deleteAttribute(sessionMock, B));
+
+		Map<AttributeDefinition, Set<AttributeDefinition>> strongDependencies = getStrongDependencies();
+
+		assertThat(strongDependencies.get(A)).contains(B);
+	}
+
+
+	// ## ----------- PRIVATE METHODS ------------ ##
+
 
 	@SuppressWarnings("unchecked")
 	private Map<AttributeDefinition, Set<AttributeDefinition>> getDependencies() throws Exception {
