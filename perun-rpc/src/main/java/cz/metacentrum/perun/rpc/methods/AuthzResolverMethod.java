@@ -84,6 +84,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 * @param role String Expected Role to filter managers by (perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator)
 	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
 	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
+	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
 	 * @param onlyDirectAdmins boolean When true, return only direct users of the complementary object for role with specific attributes
 	 * @param allUserAttributes boolean When true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes
 	 * @return List<RichUser> Administrators for complementary object and role with specify attributes
@@ -104,7 +105,8 @@ public enum AuthzResolverMethod implements ManagerMethod {
 							parms.readInt("complementaryObjectId"),
 							parms.readString("complementaryObjectName"),
 							parms.readList("specificAttributes", String.class),
-							role, parms.readBoolean("onlyDirectAdmins"),
+							role,
+							parms.readBoolean("onlyDirectAdmins"),
 							parms.readBoolean("allUserAttributes"));
 		}
 	},
