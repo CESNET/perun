@@ -308,6 +308,7 @@ public class EventDispatcherImpl implements EventDispatcher, Runnable {
 
 		//Debug information to check parsing of message.
 		MessageBeans beans = new MessageBeansImpl();
+
 		if(!listOfBeans.isEmpty()){
 			int i=0;
 			for(PerunBean p: listOfBeans) {
