@@ -45,6 +45,7 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String ldapAttrUserPassword = "userPassword";
 		public static final String ldapAttrSurname = "sn";
 		public static final String ldapAttrGivenName = "givenName";
+		public static final String ldapAttrDisplayName = "displayName";
 		public static final String ldapAttrEntityID = perunAttrEntityID;
 		public static final String ldapAttrClientID = perunAttrClientID;
 		public static final String ldapAttrObjectClass = "objectClass";
