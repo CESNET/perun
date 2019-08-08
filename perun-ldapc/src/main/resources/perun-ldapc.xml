@@ -253,6 +253,16 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="pattern" value="UserExtSource:\[.*\] removed from User:\[.*\]" />
 					<property name="handlerMethodName" value="processExtSourceRemoved" />
 				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.User</value>
+							<value>cz.metacentrum.perun.core.api.Attribute</value>
+						</list>
+					</property>
+					<property name="pattern" value=" changed for User:\[.*\]"/>
+					<property name="handlerMethodName" value="processVirtualAttributeChanged"/>
+				</bean>
 			</list>
 		</property>
 	</bean>
@@ -288,6 +298,16 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					</property>
 					<property name="pattern" value="All attributes removed for Facility:\[.*\]" />
 					<property name="handlerMethodName" value="processAllAttributesRemoved" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Attribute</value>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+						</list>
+					</property>
+					<property name="pattern" value=" changed for Facility:\[.*\]"/>
+					<property name="handlerMethodName" value="processVirtualAttributeChanged"/>
 				</bean>
 			</list>
 		</property>

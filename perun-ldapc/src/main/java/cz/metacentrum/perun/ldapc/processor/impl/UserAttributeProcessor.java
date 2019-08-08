@@ -2,13 +2,16 @@ package cz.metacentrum.perun.ldapc.processor.impl;
 
 import java.util.regex.Pattern;
 
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.NamingException;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.ldapc.model.PerunUser;
 import cz.metacentrum.perun.ldapc.processor.EventDispatcher.MessageBeans;
 
@@ -18,24 +21,25 @@ public class UserAttributeProcessor extends AbstractAttributeProcessor {
 
 	@Autowired
 	protected PerunUser perunUser;
-	
+
 	private static Pattern userSetPattern = Pattern.compile(" set for User:\\[(.*)\\]");
 	private static Pattern userRemovePattern = Pattern.compile(" removed for User:\\[(.*)\\]");
 	private static Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)\\]");
+	private static Pattern userVirtualChangePattern = Pattern.compile(" changed for User:\\[(.*)\\]");
 
 	//UserExtSources patterns
 	private Pattern addUserExtSourcePattern = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]");
 	private Pattern removeUserExtSourcePattern = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]");
-	
-	
+
+
 	public UserAttributeProcessor() {
-		super(MessageBeans.USER_F, userSetPattern, userRemovePattern, userAllAttrsRemovedPattern);
+		super(MessageBeans.USER_F, userSetPattern, userRemovePattern, userAllAttrsRemovedPattern, userVirtualChangePattern);
 	}
-	
-	
+
+
 	public void processAttributeSet(String msg, MessageBeans beans) {
 		// ensure we have the correct beans available
-		if(beans.getAttribute() == null || beans.getUser() == null) {
+		if (beans.getAttribute() == null || beans.getUser() == null) {
 			return;
 		}
 		try {
@@ -48,7 +52,7 @@ public class UserAttributeProcessor extends AbstractAttributeProcessor {
 
 	public void processAttributeRemoved(String msg, MessageBeans beans) {
 		// ensure we have the correct beans available
-		if(beans.getAttributeDef() == null || beans.getUser() == null) {
+		if (beans.getAttributeDef() == null || beans.getUser() == null) {
 			return;
 		}
 		try {
@@ -61,7 +65,7 @@ public class UserAttributeProcessor extends AbstractAttributeProcessor {
 
 	public void processAllAttributesRemoved(String msg, MessageBeans beans) {
 		// ensure we have the correct beans available
-		if(beans.getUser() == null) {
+		if (beans.getUser() == null) {
 			return;
 		}
 		try {
@@ -70,15 +74,28 @@ public class UserAttributeProcessor extends AbstractAttributeProcessor {
 		} catch (NamingException e) {
 			log.error("Error removing attributes from user {}: {}", beans.getUser().getId(), e);
 		}
-	}	
+	}
 
-	public void processExtSourceAdded(String msg, MessageBeans beans) {
-		// ensure we have the correct beans available
-		if(beans.getUser() == null || beans.getUserExtSource() == null) {
+	public void processVirtualAttributeChanged(String msg, MessageBeans beans) {
+		if (beans.getAttribute() == null || beans.getUser() == null) {
 			return;
 		}
 		try {
-			if(beans.getUserExtSource().getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
+			log.debug("Changing virtual attribute {} for user {}", beans.getAttribute(), beans.getUser());
+			perunUser.modifyEntry(beans.getUser(), ((PerunBl) ldapcManager.getPerunBl()).getAttributesManagerBl().
+				getAttribute(ldapcManager.getPerunSession(), beans.getUser(), beans.getAttribute().getName()));
+		} catch (WrongAttributeAssignmentException | InternalErrorException | AttributeNotExistsException | NamingException e) {
+			log.error("Error changing virtual attribute {} for user {}: {}", beans.getAttribute().getId(), beans.getUser().getId(), e);
+		}
+	}
+
+	public void processExtSourceAdded(String msg, MessageBeans beans) {
+		// ensure we have the correct beans available
+		if (beans.getUser() == null || beans.getUserExtSource() == null) {
+			return;
+		}
+		try {
+			if (beans.getUserExtSource().getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 				log.debug("Adding ExtSource {} for user {}", beans.getUserExtSource(), beans.getUser());
 				perunUser.addPrincipal(beans.getUser(), beans.getUserExtSource().getLogin());
 			}
@@ -89,11 +106,11 @@ public class UserAttributeProcessor extends AbstractAttributeProcessor {
 
 	public void processExtSourceRemoved(String msg, MessageBeans beans) {
 		// ensure we have the correct beans available
-		if(beans.getUser() == null || beans.getUserExtSource() == null) {
+		if (beans.getUser() == null || beans.getUserExtSource() == null) {
 			return;
 		}
 		try {
-			if(beans.getUserExtSource().getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
+			if (beans.getUserExtSource().getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 				log.debug("Removing ExtSource {} from user {}", beans.getUserExtSource(), beans.getUser());
 				perunUser.removePrincipal(beans.getUser(), beans.getUserExtSource().getLogin());
 			}
