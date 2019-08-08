@@ -39,7 +39,9 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 		return Arrays.asList(
 				PerunAttribute.PerunAttributeNames.ldapAttrSurname,
 				PerunAttribute.PerunAttributeNames.ldapAttrCommonName,
-				PerunAttribute.PerunAttributeNames.ldapAttrGivenName);
+				PerunAttribute.PerunAttributeNames.ldapAttrGivenName,
+				PerunAttribute.PerunAttributeNames.ldapAttrDisplayName
+		);
 	}
 
 	@Override
@@ -74,6 +76,18 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 							return commonName;
 						}
 						),
+				new PerunAttributeDesc<>(
+						PerunAttribute.PerunAttributeNames.ldapAttrDisplayName,
+						PerunAttribute.OPTIONAL,
+						(PerunAttribute.SingleValueExtractor<User>)(user, attrs) -> {
+							String displayName = user.getDisplayName();
+							if (StringUtils.isBlank(displayName)) {
+								return null;
+							} else {
+								return displayName;
+							}
+						}
+				),
 				new PerunAttributeDesc<>(
 						PerunAttribute.PerunAttributeNames.ldapAttrPerunUserId,
 						PerunAttribute.REQUIRED,
@@ -131,7 +145,7 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 		}
 		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrMemberOf, memberOfNames.toArray());
 	}
-	
+
 	protected void doSynchronizePrincipals(DirContextOperations entry, List<UserExtSource> extSources) {
 		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrEduPersonPrincipalNames,
 				extSources.stream()
@@ -143,7 +157,7 @@ public class PerunUserImpl extends AbstractPerunEntry<User> implements PerunUser
 					.toArray(String[]::new)
 					);
 	}
-	
+
 	@Override
 	public void synchronizeUser(User user, Iterable<Attribute> attrs, Set<Integer> voIds, List<Group> groups, List<UserExtSource> extSources) throws InternalErrorException {
 		SyncOperation syncOp = beginSynchronizeEntry(user, attrs);
