@@ -29,7 +29,7 @@ public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi{
 	void checkAttributeSyntax(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Checks if value of this facility attribute is valid.
+	 * Checks if value of this group attribute has valid semantics.
 	 *
 	 * @param perunSession perun session
 	 * @param group group
@@ -40,7 +40,7 @@ public interface GroupAttributesModuleImplApi extends AttributesModuleImplApi{
 	 * @throws WrongAttributeAssignmentException
 	 */
 
-	void checkAttributeValue(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * This method MAY fill an attribute at the specified resource.

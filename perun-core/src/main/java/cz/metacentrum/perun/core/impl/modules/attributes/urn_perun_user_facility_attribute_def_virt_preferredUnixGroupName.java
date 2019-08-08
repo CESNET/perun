@@ -32,7 +32,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 	private static final String A_USER_DEF_PREFERRED_UNIX_GROUPNAME_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":preferredUnixGroupName-namespace:";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
 		try {
 			Attribute facilityGroupNameNamespaceAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_FACILITY_DEF_UNIX_GROUPNAME_NAMESPACE);
 			if(facilityGroupNameNamespaceAttr.getValue() == null) {
@@ -43,7 +43,7 @@ public class urn_perun_user_facility_attribute_def_virt_preferredUnixGroupName e
 			Attribute preferredUnixGroupNameAttr = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_USER_DEF_PREFERRED_UNIX_GROUPNAME_NAMESPACE + namespace);
 			if(attribute.getValue() != null) {
 				preferredUnixGroupNameAttr.setValue(attribute.getValue());
-				sess.getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, user, preferredUnixGroupNameAttr);
+				sess.getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, user, preferredUnixGroupNameAttr);
 			} // Null is ok, can be empty
 		} catch (AttributeNotExistsException e) {
 			throw new ConsistencyErrorException(e);

@@ -35,7 +35,7 @@ public abstract class AbstractMembershipExpirationRulesModule<T extends PerunBea
 
 	}
 
-	public void checkAttributeValue(PerunSessionImpl sess, T entity, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, T entity, Attribute attribute) throws WrongAttributeValueException {
 		Map<String, String> attrValue;
 
 		//For no value is correct (it means no rules)

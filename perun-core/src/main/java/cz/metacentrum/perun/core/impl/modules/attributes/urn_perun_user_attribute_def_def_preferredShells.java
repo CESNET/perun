@@ -17,7 +17,7 @@ import java.util.List;
 public class urn_perun_user_attribute_def_def_preferredShells extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 		List<String> pshell = (List<String>) attribute.getValue();
 
 		if (pshell != null){

@@ -29,7 +29,7 @@ public interface FacilityAttributesModuleImplApi extends AttributesModuleImplApi
 	void checkAttributeSyntax(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Checks if value of this facility attribute is valid.
+	 * Checks if value of this facility attribute has valid semantics.
 	 *
 	 * @param perunSession perun session
 	 * @param facility facility for which you want to check validity of attribute
@@ -42,7 +42,7 @@ public interface FacilityAttributesModuleImplApi extends AttributesModuleImplApi
 	 * @throws WrongAttributeAssignmentException
 	 */
 
-	void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method MAY fill an attribute at the specified resource.

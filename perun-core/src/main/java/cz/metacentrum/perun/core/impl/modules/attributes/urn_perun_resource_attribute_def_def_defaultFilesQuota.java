@@ -28,7 +28,7 @@ public class urn_perun_resource_attribute_def_def_defaultFilesQuota extends Reso
 	private static final String A_F_readyForNewQuotas = AttributesManager.NS_FACILITY_ATTR_DEF + ":readyForNewQuotas";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Attribute attrDefaultFilesLimit;
 		Integer defaultFilesQuota = null;
 		Integer defaultFilesLimit = null;

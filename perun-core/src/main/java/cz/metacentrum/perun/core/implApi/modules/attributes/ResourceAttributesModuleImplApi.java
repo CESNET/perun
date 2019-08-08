@@ -45,7 +45,7 @@ public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi
 	void checkAttributeSyntax(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Checks if value of this resource attribute is valid.
+	 * Checks if value of this resource attribute has valid semantics.
 	 *
 	 * @param perunSession perun session
 	 * @param resource resource for which you want to check validity of attribute
@@ -58,7 +58,7 @@ public interface ResourceAttributesModuleImplApi extends AttributesModuleImplApi
 	 *         the parameter one is to be compared is not available
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * If you need to do some further work with other modules, this method do that

@@ -16,7 +16,7 @@ public class urn_perun_vo_attribute_def_def_RTVoQueue extends VoAttributesModule
 	//Pattern extensionDatePattern = Pattern.compile("^$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute) {
 		//There is no special queue in RT for this VO (in specific method use default queue)
 		if(attribute.getValue() == null) return;
 

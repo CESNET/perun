@@ -29,41 +29,41 @@ public class urn_perun_facility_attribute_def_def_homeDirUmaskTest {
 	}
 
 	@Test
-	public void testCheckAttributeValue() throws Exception {
-		System.out.println("testCheckAttributeValue()");
+	public void testCheckAttributeSemantics() throws Exception {
+		System.out.println("testCheckAttributeSemantics()");
 
 		Attribute attributeToCheck = new Attribute();
 
 		attributeToCheck.setValue(null);
-		classInstance.checkAttributeValue(session, facility, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
 
 		attributeToCheck.setValue("0542");
-		classInstance.checkAttributeValue(session, facility, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
 
 		attributeToCheck.setValue("215");
-		classInstance.checkAttributeValue(session, facility, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
 
 		attributeToCheck.setValue("0521");
-		classInstance.checkAttributeValue(session, facility, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeValueWithWrongValue() throws Exception {
-		System.out.println("testCheckAttributeValueWithWrongValue()");
+	public void testCheckAttributeSemanticsWithWrongValue() throws Exception {
+		System.out.println("testCheckAttributeSemanticsWithWrongValue()");
 
 		Attribute attributeToCheck = new Attribute();
 
 		attributeToCheck.setValue("5891");
-		classInstance.checkAttributeValue(session, facility, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-	public void testCheckAttributeValueWithWrongValueLength() throws Exception {
-		System.out.println("testCheckAttributeValueWithWrongValue()");
+	public void testCheckAttributeSemanticsWithWrongValueLength() throws Exception {
+		System.out.println("testCheckAttributeSemanticsWithWrongValue()");
 
 		Attribute attributeToCheck = new Attribute();
 
 		attributeToCheck.setValue("12");
-		classInstance.checkAttributeValue(session, facility, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, facility, attributeToCheck);
 	}
 }

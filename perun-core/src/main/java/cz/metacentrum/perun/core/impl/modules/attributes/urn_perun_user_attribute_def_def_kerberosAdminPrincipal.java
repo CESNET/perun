@@ -22,7 +22,7 @@ public class urn_perun_user_attribute_def_def_kerberosAdminPrincipal extends Use
 	private static final Pattern pattern = Pattern.compile("^[-/_.a-zA-Z0-9]+@[-_.A-z0-9]+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Attribute's value can't be null");
 		String value = (String) attribute.getValue();
 		Matcher matcher = pattern.matcher(value);

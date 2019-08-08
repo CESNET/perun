@@ -29,14 +29,14 @@ public interface UserExtSourceAttributesModuleImplApi extends AttributesModuleIm
 	void checkAttributeSyntax(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * This method checks UserExtSource attributes.
+	 * This method checks UserExtSource attribute value semantics.
 	 *
 	 * @param perunSession Perun session
 	 * @param ues
 	 * @param attribute Attribute to be checked.
 	 *
 	 */
-	void checkAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute);
+	void checkAttributeSemantics(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute);
 
 	/**
 	 * This method fill UserExtSource attributes.

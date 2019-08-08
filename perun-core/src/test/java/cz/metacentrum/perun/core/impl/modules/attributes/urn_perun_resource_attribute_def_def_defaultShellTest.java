@@ -96,8 +96,8 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 
 	@SuppressWarnings("serial")
 	@Test
-	public void checkAttributeValue() throws Exception {
-		System.out.println("checkAttributeValue()");
+	public void checkAttributeSemantics() throws Exception {
+		System.out.println("checkAttributeSemantics()");
 
 		final Attribute attrToReturn = new Attribute();
 		final String shellName = "mujShell";
@@ -112,19 +112,19 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 		attribute.setValue(shellName);
 
 		//ideal scenario without exceptions..
-		defShellAttr.checkAttributeValue(ps, new Resource(), attribute);
+		defShellAttr.checkAttributeSemantics(ps, new Resource(), attribute);
 
 	}
 
 	@Test(expected=WrongAttributeValueException.class)
 	public void checkAttributeWithoutValue() throws Exception {
 		System.out.println("checkAttributeWithoutValue()");
-		defShellAttr.checkAttributeValue(ps, new Resource(), new Attribute());
+		defShellAttr.checkAttributeSemantics(ps, new Resource(), new Attribute());
 	}
 
 	@Test
-	public void checkAttributeValueWhichNotExists() throws Exception {
-		System.out.println("checkAttributeValueWhichNotExists()");
+	public void checkAttributeSemanticsWhichNotExists() throws Exception {
+		System.out.println("checkAttributeSemanticsWhichNotExists()");
 
 		// hledame neexistujici atribut, proto ocekavame vyjimku
 		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenThrow(new AttributeNotExistsException("neexistuje"));
@@ -133,7 +133,7 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 		attribute.setValue("mujShell");
 
 		try {
-			defShellAttr.checkAttributeValue(ps, new Resource(), attribute);
+			defShellAttr.checkAttributeSemantics(ps, new Resource(), attribute);
 			fail();
 		} catch (InternalErrorException ex) {
 			assertTrue("Mela byt vyhozena vyjimka AttributeNotExistsException", (ex.getCause() instanceof AttributeNotExistsException));
@@ -141,8 +141,8 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 	}
 
 	@Test(expected=WrongReferenceAttributeValueException.class)
-	public void checkAttributeValueWithWrongReference() throws Exception {
-		System.out.println("checkAttributeValueWithWrongReference()");
+	public void checkAttributeSemanticsWithWrongReference() throws Exception {
+		System.out.println("checkAttributeSemanticsWithWrongReference()");
 
 		final Attribute toReturn = new Attribute();
 		when(ps.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Resource.class), anyString())).thenReturn(toReturn);
@@ -150,7 +150,7 @@ public class urn_perun_resource_attribute_def_def_defaultShellTest {
 		final Attribute attribute = new Attribute();
 		attribute.setValue("mujShell");
 
-		defShellAttr.checkAttributeValue(ps, new Resource(), attribute);
+		defShellAttr.checkAttributeSemantics(ps, new Resource(), attribute);
 	}
 
 

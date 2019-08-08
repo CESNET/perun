@@ -358,7 +358,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		if(isGroupAssigned(sess, group, resource)) throw new GroupAlreadyAssignedException(group);
 
-		//first we must assign group to resource and then set na check attributes, because methods checkAttributesValue and fillAttribute need actual state to work correctly
+		//first we must assign group to resource and then set na check attributes, because methods checkAttributesSemantics and fillAttribute need actual state to work correctly
 		getResourcesManagerImpl().assignGroupToResource(sess, group, resource);
 		getPerunBl().getAuditer().log(sess, new GroupAssignedToResource(group, resource));
 
@@ -456,7 +456,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				List<Attribute> brokenUserFacilityAttributes = new ArrayList<>();
 				for(Attribute attribute : userFacilityAttributes) {
 					try {
-						getPerunBl().getAttributesManagerBl().checkAttributeValue(sess, facility, user, attribute);
+						getPerunBl().getAttributesManagerBl().checkAttributeSemantics(sess, facility, user, attribute);
 					} catch(WrongAttributeAssignmentException ex) {
 						throw new ConsistencyErrorException(ex);
 					} catch(WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
@@ -536,8 +536,8 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 			// call check of facility's resource's member's user's attributes
 			Facility facility = getFacility(sess, resource);
-			attributesManagerBl.checkAttributesValue(sess, facility, attributesManagerBl.getRequiredAttributes(sess, facility));
-			attributesManagerBl.checkAttributesValue(sess, resource, attributesManagerBl.getRequiredAttributes(sess, resource));
+			attributesManagerBl.checkAttributesSemantics(sess, facility, attributesManagerBl.getRequiredAttributes(sess, facility));
+			attributesManagerBl.checkAttributesSemantics(sess, resource, attributesManagerBl.getRequiredAttributes(sess, resource));
 			List<Member> members = getAllowedMembers(sess, resource);
 			for(Member member : members) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);

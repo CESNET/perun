@@ -20,7 +20,7 @@ public class urn_perun_resource_attribute_def_def_replicaDestinationPath extends
 	private static final Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 
 		if(attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute, resource, "Destination path for FS replica can't be empty");

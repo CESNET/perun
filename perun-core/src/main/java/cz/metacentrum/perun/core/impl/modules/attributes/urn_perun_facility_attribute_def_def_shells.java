@@ -26,7 +26,7 @@ public class urn_perun_facility_attribute_def_def_shells extends FacilityAttribu
 	 * e.g. corretct unix path.
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 		List<String> shells = (List<String>) attribute.getValue();
 
 		if (shells == null) {

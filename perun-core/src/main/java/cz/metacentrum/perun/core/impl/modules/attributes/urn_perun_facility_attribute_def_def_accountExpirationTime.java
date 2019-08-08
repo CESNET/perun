@@ -22,7 +22,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 public class urn_perun_facility_attribute_def_def_accountExpirationTime extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 		Integer accountExpTime = (Integer) attribute.getValue();
 		if(accountExpTime == null) {
 			throw new WrongAttributeValueException("account expiration time shouldn't be null");

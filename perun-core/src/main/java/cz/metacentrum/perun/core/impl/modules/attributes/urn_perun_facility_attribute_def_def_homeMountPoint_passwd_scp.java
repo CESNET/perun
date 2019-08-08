@@ -21,7 +21,7 @@ public class urn_perun_facility_attribute_def_def_homeMountPoint_passwd_scp exte
 	private static final Pattern pattern = Pattern.compile("^(/[-_.a-zA-Z0-9]+)+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 		String value = (String) attribute.getValue();
 
 		if(value == null) throw new WrongAttributeValueException(attribute, "Value can't be null");

@@ -22,7 +22,7 @@ public abstract class UserExtSourceAttributesModuleAbstract extends AttributesMo
 
 	}
 
-	public void checkAttributeValue(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, UserExtSource ues, Attribute attribute) {
 
 	}
 

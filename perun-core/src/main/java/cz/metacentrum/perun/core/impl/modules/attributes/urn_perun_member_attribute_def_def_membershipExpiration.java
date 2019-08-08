@@ -28,7 +28,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 	 * matches with regular expression yyyy-MM-dd
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
 
 		String membershipExpTime = (String) attribute.getValue();
 

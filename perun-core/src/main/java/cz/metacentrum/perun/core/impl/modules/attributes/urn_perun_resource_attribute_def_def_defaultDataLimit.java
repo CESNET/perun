@@ -42,7 +42,7 @@ public class urn_perun_resource_attribute_def_def_defaultDataLimit extends Resou
 	final long E = P * 1024;
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Attribute attrDefaultDataQuota;
 		String defaultDataQuota;
 		String defaultDataLimit;

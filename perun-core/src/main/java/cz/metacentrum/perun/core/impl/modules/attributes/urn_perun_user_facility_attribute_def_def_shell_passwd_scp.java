@@ -26,7 +26,7 @@ public class urn_perun_user_facility_attribute_def_def_shell_passwd_scp extends 
 	private static final Pattern pattern = Pattern.compile("^(/[-_.a-zA-Z0-9]+)+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 		String shell = (String) attribute.getValue();
 
 		if(shell == null) throw new WrongAttributeValueException(attribute, "Value can't be null");

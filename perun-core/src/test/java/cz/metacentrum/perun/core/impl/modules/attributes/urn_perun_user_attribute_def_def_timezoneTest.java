@@ -29,28 +29,28 @@ public class urn_perun_user_attribute_def_def_timezoneTest {
 	}
 
 	@Test
-	public void testCheckAttributeValue() throws Exception {
-		System.out.println("testCheckAttributeValue()");
+	public void testCheckAttributeSemantics() throws Exception {
+		System.out.println("testCheckAttributeSemantics()");
 
 		Attribute attributeToCheck = new Attribute();
 
 		attributeToCheck.setValue("Europe/Prague");
-		classInstance.checkAttributeValue(session, user, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
 
 		attributeToCheck.setValue("Africa/Johannesburg");
-		classInstance.checkAttributeValue(session, user, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
 
 		attributeToCheck.setValue("Jamaica");
-		classInstance.checkAttributeValue(session, user, attributeToCheck);
+		classInstance.checkAttributeSemantics(session, user, attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeValueWithWrongValue() throws Exception {
-			System.out.println("testCheckAttributeValueWithWrongValue()");
+		public void testCheckAttributeSemanticsWithWrongValue() throws Exception {
+			System.out.println("testCheckAttributeSemanticsWithWrongValue()");
 
 			Attribute attributeToCheck = new Attribute();
 			attributeToCheck.setValue("123");
 
-			classInstance.checkAttributeValue(session, user, attributeToCheck);
+			classInstance.checkAttributeSemantics(session, user, attributeToCheck);
 		}
 }

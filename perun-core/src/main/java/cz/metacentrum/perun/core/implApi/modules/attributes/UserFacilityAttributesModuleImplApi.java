@@ -30,8 +30,8 @@ public interface UserFacilityAttributesModuleImplApi extends AttributesModuleImp
 	void checkAttributeSyntax(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws  InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Checks if assigned attribute in relationship between those two
-	 * entities has a correct value.
+	 * Checks if value of assigned attribute in relationship between those two
+	 * entities has a correct semantics.
 	 *
 	 * @param session Perun session
 	 * @param user User of the facility.
@@ -44,7 +44,7 @@ public interface UserFacilityAttributesModuleImplApi extends AttributesModuleImp
 	 *         the parameter is to be compared is not available
 	 * @throws WrongAttributeAssignmentException
 	 */
-	void checkAttributeValue(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws  InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl session, User user, Facility facility, Attribute attribute) throws  InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * Tries to fill an attribute in the relationship between a facility and

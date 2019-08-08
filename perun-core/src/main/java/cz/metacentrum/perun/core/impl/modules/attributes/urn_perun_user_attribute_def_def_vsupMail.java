@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * Represents user account identifier in Zimbra.
  * It has to be "login@vsup.cz" and is set whenever login-namespace:vsup attribute is set/changed !!
  *
- * Value can't be filled by this module, so we must allow NULL value in checkAttributeValue(), because when all mail
+ * Value can't be filled by this module, so we must allow NULL value in checkAttributeSemantics(), because when all mail
  * attributes are required and set at once, we can't ensure correct processing order of attributes and it might perform check on old
  * value, because of setRequiredAttributes() implementation uses in memory value instead of refreshing from DB.
  *
@@ -55,7 +55,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 	private static final String A_U_D_loginNamespace_vsup = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:vsup";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 
 		// check only if not null
 		if (attribute.getValue() != null) {

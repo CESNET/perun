@@ -1597,7 +1597,7 @@ public interface AttributesManagerImplApi {
 	void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException;
 
 	/**
-	 * Check if value of this facility attribute is valid.
+	 * Check if value of this facility attribute has valid semantics.
 	 *
 	 * @param sess perun session
 	 * @param facility facility for which you want to check validity of attribute
@@ -1606,10 +1606,10 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if value of this vo attribute is valid.
+	 * Check if value of this vo attribute has valid semantics.
 	 *
 	 * @param sess perun session
 	 * @param vo vo for which you want to check validity of attribute
@@ -1618,10 +1618,10 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 */
-	void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Check if value of this group attribute is valid.
+	 * Check if value of this group attribute has valid semantics.
 	 *
 	 * @param sess perun session
 	 * @param group group for which you want to check validity of attribute
@@ -1631,10 +1631,10 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if value of this resource attribute is valid.
+	 * Check if value of this resource attribute has valid semantics.
 	 *
 	 * @param sess perun session
 	 * @param resource resource for which you want to check validity of attribute
@@ -1643,10 +1643,10 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if value of this member-resource attribute is valid.
+	 * Check if value of this member-resource attribute has valid semantics.
 	 *
 	 *
 	 * @param sess perun session
@@ -1658,10 +1658,10 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Check if value of this member-group attribute is valid.
+	 * Check if value of this member-group attribute has valid semantics.
 	 *
 	 * @param sess perun session
 	 * @param group group for which (and for specified member) you want to check validity of attribute
@@ -1671,10 +1671,10 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 */
-	void checkAttributeValue(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Check if value of this user-facility attribute is valid.
+	 * Check if value of this user-facility attribute has valid semantics.
 	 *
 	 *
 	 * @param sess perun session
@@ -1686,10 +1686,10 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
-	 * Check if value of this user attribute is valid.
+	 * Check if value of this user attribute has valid semantics.
 	 *
 	 *
 	 * @param sess perun session
@@ -1700,10 +1700,10 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
-	 * Check if value of this member attribute is valid.
+	 * Check if value of this member attribute has valid semantics.
 	 *
 	 *
 	 * @param sess perun session
@@ -1714,14 +1714,35 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	void checkAttributeValue(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
-
-	void checkAttributeValue(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException;
-
-	void checkAttributeValue(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
-	 * Check if value of this entityless attribute is valid.
+	 * Check if value of this host attribute has valid semantics.
+	 *
+	 * @param sess perun session
+	 * @param host host for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	void checkAttributeSemantics(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException;
+
+	/**
+	 * Check if value of this group-resource attribute has valid semantics.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @param group
+	 * @param attribute
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void checkAttributeSemantics(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Check if value of this entityless attribute has valid semantics.
 	 *
 	 *
 	 * @param sess perun session
@@ -1731,10 +1752,10 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
 	 */
-	void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
+	void checkAttributeSemantics(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Check if value of this user external source attribute is valid.
+	 * Check if value of this user external source attribute has valid semantics.
 	 *
 	 *
 	 * @param sess perun session
@@ -1743,7 +1764,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException;
+	void checkAttributeSemantics(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * Check if value of this facility attribute has valid syntax.

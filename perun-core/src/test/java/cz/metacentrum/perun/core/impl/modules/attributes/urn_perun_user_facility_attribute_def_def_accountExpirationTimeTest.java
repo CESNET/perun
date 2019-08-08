@@ -41,8 +41,8 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTimeTest
 	}
 
 	@Test
-	public void testCheckAttributeValue() throws Exception {
-		System.out.println("testCheckAttributeValue()");
+	public void testCheckAttributeSemantics() throws Exception {
+		System.out.println("testCheckAttributeSemantics()");
 		attributeToCheck.setValue(1000);
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(new Attribute() {
 
@@ -50,12 +50,12 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTimeTest
 				setValue(1500);
 			}
 		});
-		classInstance.checkAttributeValue(session, new User(), new Facility(), attributeToCheck);
+		classInstance.checkAttributeSemantics(session, new User(), new Facility(), attributeToCheck);
 	}
 
 	@Test(expected = WrongAttributeValueException.class)
-		public void testCheckAttributeValueHigherValueThanFacilityTime() throws Exception {
-			System.out.println("testCheckAttributeValueHigherValueThanFacilityTime()");
+		public void testCheckAttributeSemanticsHigherValueThanFacilityTime() throws Exception {
+			System.out.println("testCheckAttributeSemanticsHigherValueThanFacilityTime()");
 			attributeToCheck.setValue(1000);
 			when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(Facility.class), anyString())).thenReturn(new Attribute() {
 
@@ -63,7 +63,7 @@ public class urn_perun_user_facility_attribute_def_def_accountExpirationTimeTest
 					setValue(999);
 				}
 			});
-			classInstance.checkAttributeValue(session, new User(), new Facility(), attributeToCheck);
+			classInstance.checkAttributeSemantics(session, new User(), new Facility(), attributeToCheck);
 			fail("Assigning lower accountExpirationTime than the time set at facility should throw exception.");
 
 		}

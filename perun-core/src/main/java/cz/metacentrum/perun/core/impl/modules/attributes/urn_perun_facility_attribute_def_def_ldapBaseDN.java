@@ -17,7 +17,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityAttributesMo
 public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAttributesModuleAbstract implements FacilityAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 
 		if (attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute, facility, "attribute is null");

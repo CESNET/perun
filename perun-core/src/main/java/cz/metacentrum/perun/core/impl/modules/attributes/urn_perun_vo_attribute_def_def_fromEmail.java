@@ -21,7 +21,7 @@ public class urn_perun_vo_attribute_def_def_fromEmail extends VoAttributesModule
 	private static final Pattern pattern = Pattern.compile("^\".+\" <.+>$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 		// null attribute
 		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "Vo fromEmail cannot be null.");
 

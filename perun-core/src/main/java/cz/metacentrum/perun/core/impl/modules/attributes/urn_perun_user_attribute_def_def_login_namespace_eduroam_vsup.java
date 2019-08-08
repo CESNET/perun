@@ -44,7 +44,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup exten
 	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 
 		Utils.notNull(attribute, "attribute");
 		if (unpermittedLogins.contains(attribute.valueAsString())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
@@ -60,7 +60,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_eduroam_vsup exten
 		}
 
 		// check uniqueness
-		super.checkAttributeValue(sess, user, attribute);
+		super.checkAttributeSemantics(sess, user, attribute);
 
 	}
 

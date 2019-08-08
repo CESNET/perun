@@ -22,7 +22,7 @@ public class urn_perun_resource_attribute_def_def_sshkeysTargetUser extends Reso
 	private static final Pattern pattern = Pattern.compile("^(?!-)[-_.a-zA-Z0-9]+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		String key = (String) attribute.getValue();
 		if (key == null) {
 			throw new WrongAttributeValueException(attribute, resource, "Name of the user can't be empty");

@@ -22,7 +22,7 @@ public abstract class HostAttributesModuleAbstract implements HostAttributesModu
 
 	}
 
-	public void checkAttributeValue(PerunSessionImpl session, Host host, Attribute attribute) {
+	public void checkAttributeSemantics(PerunSessionImpl session, Host host, Attribute attribute) {
 
 	}
 

@@ -51,7 +51,7 @@ public class urn_perun_resource_attribute_def_def_shells extends ResourceAttribu
 	 * Checks the attribute with all available shells from resource's facility
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		List<String> shells = (List<String>) attribute.getValue();
 
 		if (shells == null) {

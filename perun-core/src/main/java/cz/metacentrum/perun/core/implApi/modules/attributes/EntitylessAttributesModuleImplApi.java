@@ -27,7 +27,7 @@ public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplA
 	void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
-	 * Checks if value of this facility attribute is valid.
+	 * Checks if value of this entityless attribute has valid semantics.
 	 *
 	 * @param perunSession perun session
 	 * @param key string for which you want to check validity of attribute
@@ -38,7 +38,7 @@ public interface EntitylessAttributesModuleImplApi extends AttributesModuleImplA
 	 * @throws WrongAttributeAssignmentException
 	 */
 
-	void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
+	void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * This method MAY fill an attribute at the specified resource.

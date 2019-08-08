@@ -38,7 +38,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_fedcloud extends u
 	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException
 	 */
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 
 		String userLogin = (String) attribute.getValue();
 		if (userLogin == null) throw new WrongAttributeValueException(attribute, user, "Value can't be null");

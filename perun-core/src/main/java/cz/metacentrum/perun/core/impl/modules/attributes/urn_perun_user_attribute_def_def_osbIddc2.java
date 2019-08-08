@@ -17,7 +17,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 public class urn_perun_user_attribute_def_def_osbIddc2 extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "ID from DC2 can't be null.");
 	}

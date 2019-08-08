@@ -43,7 +43,7 @@ public class urn_perun_member_resource_attribute_def_def_dataLimit extends Membe
 	final long E = P * 1024;
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		Attribute attrDataQuota;
 		String dataQuota;
 		String dataLimit;

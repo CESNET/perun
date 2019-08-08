@@ -94,7 +94,7 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 	}
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
+	public void checkAttributeSemantics(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		try{
 			String gidNamespace = attribute.getFriendlyNameParameter();
 

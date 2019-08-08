@@ -22,7 +22,7 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 	private final static org.slf4j.Logger log = LoggerFactory.getLogger(urn_perun_group_resource_attribute_def_def_drupalGroupType.class);
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		String attributeValue;
 
 		if(attribute.getValue() == null) {
@@ -46,7 +46,7 @@ public class urn_perun_group_resource_attribute_def_def_drupalGroupType extends 
 			filledAttribute.setValue("public");
 		} else {
 			try {
-				checkAttributeValue(session, group, resource, filledAttribute);
+				checkAttributeSemantics(session, group, resource, filledAttribute);
 			} catch (WrongAttributeValueException ex) {
 				log.error("Type of drupal group can be either 'public' or 'private'.", ex);
 			}

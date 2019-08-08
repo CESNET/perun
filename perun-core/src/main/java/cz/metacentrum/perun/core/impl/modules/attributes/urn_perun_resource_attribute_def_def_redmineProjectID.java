@@ -23,7 +23,7 @@ public class urn_perun_resource_attribute_def_def_redmineProjectID extends Resou
 	private static final Pattern pattern = Pattern.compile("^[a-z][-_a-z0-9]+$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 		String id = (String) attribute.getValue();
 		if (id == null) {
 			throw new WrongAttributeValueException(attribute, resource, "Attribute can't be empty. It can start with a-z and then a-z, 0-9, _ or -");

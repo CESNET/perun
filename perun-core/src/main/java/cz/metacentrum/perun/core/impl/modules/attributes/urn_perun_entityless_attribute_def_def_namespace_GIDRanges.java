@@ -19,7 +19,7 @@ import java.util.LinkedHashMap;
 public class urn_perun_entityless_attribute_def_def_namespace_GIDRanges extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		//Check if gid ranges are in correct format (we don't need to use the output of the method there, we want to just check it)
 		perunSession.getPerunBl().getModulesUtilsBl().checkAndConvertGIDRanges(attribute);
 	}

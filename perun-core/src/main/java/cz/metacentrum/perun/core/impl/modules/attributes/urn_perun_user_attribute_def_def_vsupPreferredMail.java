@@ -38,7 +38,7 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_a
  * On value change, map of usedMails in entityless attributes is checked and updated.
  * Also, value is copied to u:d:preferredMail so admin can see preferred mail in GUI.
  *
- * Since filled value by this module might be NULL at the time of processing, we must allow NULL value in checkAttributeValue(),
+ * Since filled value by this module might be NULL at the time of processing, we must allow NULL value in checkAttributeSemantics(),
  * because when all mail attributes are required and set at once, we can't ensure correct processing order of related attributes
  * and it might perform check on old value, because of setRequiredAttributes() implementation uses in memory value instead of refreshing from DB.
  *
@@ -47,7 +47,7 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_a
 public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		// we must allow null, since when setting required attributes all at once, value might not be filled yet
 		// if vsupMail or vsupMailAlias is empty, but it's checked by method impl.

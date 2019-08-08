@@ -26,7 +26,7 @@ public class urn_perun_facility_attribute_def_def_reqAups extends FacilityAttrib
 	private final static String availableAups = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":orgAups";
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 
 		List<String> aups = (List<String>) attribute.getValue();
 

@@ -24,7 +24,7 @@ public abstract class MemberAttributesModuleAbstract extends AttributesModuleAbs
 
 	}
 
-	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
 	}
 

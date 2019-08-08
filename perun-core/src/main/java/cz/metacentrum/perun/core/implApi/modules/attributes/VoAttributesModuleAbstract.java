@@ -22,7 +22,7 @@ public abstract class VoAttributesModuleAbstract extends AttributesModuleAbstrac
 
 	}
 
-	public void checkAttributeValue(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, Vo vo, Attribute attribute) throws WrongAttributeValueException {
 
 	}
 

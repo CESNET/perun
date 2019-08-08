@@ -24,7 +24,7 @@ public class urn_perun_user_attribute_def_def_elixirScopedAffiliation extends Us
 	private static final Pattern pattern = Pattern.compile("^(member|affiliate|faculty)@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl perunSession, User user, Attribute attribute) throws WrongAttributeValueException {
 
 		List<String> values = ((List<String>)attribute.getValue());
 		if (values != null && !values.isEmpty()) {

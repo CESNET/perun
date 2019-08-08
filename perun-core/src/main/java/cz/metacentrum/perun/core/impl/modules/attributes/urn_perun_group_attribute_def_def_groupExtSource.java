@@ -24,7 +24,7 @@ import java.util.List;
 public class urn_perun_group_attribute_def_def_groupExtSource extends GroupAttributesModuleAbstract implements GroupAttributesModuleImplApi {
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeSemantics(PerunSessionImpl sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
 		//prepare groupName value variable
 		String extSourceName = null;
 		if(attribute.getValue() != null) extSourceName = (String) attribute.getValue();
