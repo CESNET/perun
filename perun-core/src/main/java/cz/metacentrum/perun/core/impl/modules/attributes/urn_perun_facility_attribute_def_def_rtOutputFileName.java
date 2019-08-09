@@ -24,7 +24,7 @@ public class urn_perun_facility_attribute_def_def_rtOutputFileName extends Facil
 	Pattern fileNamePattern = Pattern.compile("^[-_a-zA-Z0-9]+$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl perunSession, Facility facility, Attribute attribute) throws WrongAttributeValueException {
 
 		//attribute can be empty
 		if (attribute.getValue() == null) {
