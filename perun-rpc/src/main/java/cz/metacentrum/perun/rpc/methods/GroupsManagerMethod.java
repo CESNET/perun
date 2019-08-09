@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -469,20 +470,107 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Removes members from a group.
+	 * Non-empty list of members expected. In case of empty list, no member is removed from the group.
+	 * If member is not in the group or the membership is indirect, it is skipped without a warning but the rest of the members are processed.
+	 *
+	 * @throw MemberNotExistsException When member doesn't exist
+	 * @throw NotGroupMemberException  When member is not in the group
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw WrongAttributeAssignmentException When assigning atribute to wrong entity
+	 * @throw AttributeNotExistsException When attribute doesn't exist
+	 * @throw ExternallyManagedException When the group is externally managed
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param members List<Integer> Members - can be empty <code>id</code>
+	 */
+	removeMembers {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			List<Integer> memberInts = parms.readList("members", Integer.class);
+			if (memberInts == null) {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "Non-empty list of members not sent.");
+			}
+			Group group = ac.getGroupById(parms.readInt("group"));
+			List<Member> members = new ArrayList<>();
+			for (Integer memberInt : memberInts) {
+				try {
+					Member member = ac.getGroupsManager().getGroupMemberById(ac.getSession(), group, memberInt);
+					if (MembershipType.DIRECT.equals(member.getMembershipType())) {
+						members.add(member);
+					}
+				} catch(NotGroupMemberException e) {
+					//skipped because user is not member of this group so we don't need to remove him
+				}
+			}
+			ac.getGroupsManager().removeMembers(ac.getSession(),
+				group,
+				members);
+			return null;
+		}
+	},
+
+
+	/*#
 	 * Removes a member from a group.
+	 *
+	 * @throw MemberNotExistsException When member doesn't exist
+	 * @throw NotGroupMemberException  When member is not in the group
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw WrongAttributeAssignmentException When assigning atribute to wrong entity
+	 * @throw AttributeNotExistsException When attribute doesn't exist
+	 * @throw ExternallyManagedException When the group is externally managed
 	 *
 	 * @param group int Group <code>id</code>
 	 * @param member int Member <code>id</code>
 	 */
+	/*#
+	 * Removes a member from groups. If a member is not in the group or is indirect, it is skipped without a warning, but the rest of groups are processed.
+	 * Non-empty list of groups expected. In case of empty list, member is not removed.
+	 *
+	 * @throw MemberNotExistsException When member doesn't exist
+	 * @throw NotGroupMemberException  When member is not in the group
+	 * @throw GroupNotExistsException When the group doesn't exist
+	 * @throw WrongAttributeAssignmentException When assigning atribute to wrong entity
+	 * @throw AttributeNotExistsException When attribute doesn't exist
+	 * @throw ExternallyManagedException When the group is externally managed
+	 *
+	 * @param groups List<Integer> Group - can be empty <code>id</code>
+	 * @param member int Member <code>id</code>
+	 */
 	removeMember {
-
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-
-			ac.getGroupsManager().removeMember(ac.getSession(),
+			if (parms.contains("group")) {
+				ac.getGroupsManager().removeMember(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
 					ac.getMemberById(parms.readInt("member")));
+			} else if (parms.contains("groups")) {
+				List<Integer> groupsInts = parms.readList("groups", Integer.class);
+				if (groupsInts == null) {
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "Non-empty list of groups not sent.");
+				}
+				List<Group> groups = new ArrayList<>();
+				for (Integer groupInt : groupsInts) {
+					try {
+						Group group = ac.getGroupById(groupInt);
+						Member member = ac.getGroupsManager().getGroupMemberById(ac.getSession(), group, parms.readInt("member"));
+						if (MembershipType.DIRECT.equals(member.getMembershipType())) {
+							groups.add(group);
+						}
+					} catch(NotGroupMemberException e) {
+						//skipped because user is not member of this group so we don't need to remove him
+					}
+				}
+				ac.getGroupsManager().removeMember(ac.getSession(),
+					ac.getMemberById(parms.readInt("member")),
+					groups);
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "non-empty parameter 'groups' or parameter 'group' not sent");
+			}
+
 			return null;
 		}
 	},

@@ -412,6 +412,49 @@ public class GroupsManagerEntry implements GroupsManager {
 	}
 
 	@Override
+	public void removeMembers(PerunSession sess, Group group, List<Member> members) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+		for (Member member : members) {
+			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		}
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "removeMembers");
+		}
+
+		// Check if the group is externally synchronized
+		Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+		if ("true".equals(attrSynchronizeEnabled.getValue()) || getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
+			throw new ExternallyManagedException("Removing of member is not allowed. Group is externally managed.");
+		}
+		getGroupsManagerBl().removeMembers(sess, group, members);
+	}
+
+	@Override
+	public void removeMember(PerunSession sess, Member member, List<Group> groups) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
+		Utils.checkPerunSession(sess);
+		for (Group group : groups) {
+			getGroupsManagerBl().checkGroupExists(sess, group);
+			// Authorization
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+				throw new PrivilegeException(sess, "removeMember");
+			}
+
+			// Check if the group is externally synchronized
+			Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+			if ("true".equals(attrSynchronizeEnabled.getValue()) || getGroupsManagerBl().isGroupInStructureSynchronizationTree(sess, group)) {
+				throw new ExternallyManagedException("Removing of member is not allowed. Group is externally managed.");
+			}
+		}
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		getGroupsManagerBl().removeMember(sess, groups, member);
+	}
+
+	@Override
 	public List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);

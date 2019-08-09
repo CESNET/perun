@@ -1308,6 +1308,128 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void removeMembersCorrectMemberGroupStatusesAreSet() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberCorrectMemberGroupStatusesAreSet");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+		Member member2 = setUpMemberWithDifferentParam(vo, 112);
+		Member member3 = setUpMemberWithDifferentParam(vo, 113);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+
+		groupsManagerBl.moveGroup(sess, group2, group);
+		groupsManagerBl.moveGroup(sess, group3, group2);
+		groupsManagerBl.moveGroup(sess, group4, group3);
+
+		// set up members with statuses
+		groupsManagerBl.addMember(sess, group2, member1);
+		groupsManagerBl.expireMemberInGroup(sess, member1, group2);
+
+		groupsManagerBl.addMember(sess, group2, member2);
+		groupsManagerBl.expireMemberInGroup(sess, member2, group2);
+
+		groupsManagerBl.addMember(sess, group2, member3);
+		groupsManagerBl.expireMemberInGroup(sess, member3, group2);
+
+		// add member
+		groupsManagerBl.addMember(sess, group, member1);
+		groupsManagerBl.addMember(sess, group, member2);
+		groupsManagerBl.addMember(sess, group, member3);
+
+		// verify init statuses
+		assertEquals("Member1's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member1's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member1's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member1's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+
+		assertEquals("Member2's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
+		assertEquals("Member2's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
+		assertEquals("Member2's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
+		assertEquals("Member2's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+
+		assertEquals("Member3's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
+		assertEquals("Member3's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
+		assertEquals("Member3's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
+		assertEquals("Member3's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+
+		groupsManagerBl.removeMembers(sess, group, Arrays.asList(member1, member2));
+
+		assertEquals("Member1's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member1's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member1's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member1's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+
+		assertEquals("Member2's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group));
+		assertEquals("Member2's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group2));
+		assertEquals("Member2's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group3));
+		assertEquals("Member2's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member2, group4));
+
+		assertEquals("Member3's init group status is not VALID after removal", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group));
+		assertEquals("Member3's init group status is not VALID after removal", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group2));
+		assertEquals("Member3's init group status is not VALID after removal", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group3));
+		assertEquals("Member3's init group status is not VALID after removal", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member3, group4));
+
+	}
+
+	@Test
+	public void removeMemberCorrectMemberGroupsStatusesAreSet() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberCorrectMemberGroupStatusesAreSet");
+
+		//set up member in group and vo
+		Vo vo = setUpVo();
+		Member member1 = setUpMemberWithDifferentParam(vo, 111);
+
+		//set up sub groups
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+		groupsManagerBl.createGroup(sess, vo, group3);
+		groupsManagerBl.createGroup(sess, vo, group4);
+		groupsManagerBl.createGroup(sess, vo, group5);
+		groupsManagerBl.createGroup(sess, vo, group6);
+
+
+		groupsManagerBl.moveGroup(sess, group2, group);
+		groupsManagerBl.moveGroup(sess, group3, group2);
+		groupsManagerBl.moveGroup(sess, group4, group3);
+
+		// set up members with statuses
+		groupsManagerBl.addMember(sess, group2, member1);
+		groupsManagerBl.expireMemberInGroup(sess, member1, group2);
+
+		//groupsManagerBl.expireMemberInGroup(sess, member1, group5);
+
+		// add member
+		groupsManagerBl.addMember(sess, group, member1);
+		groupsManagerBl.addMember(sess, group5, member1);
+		groupsManagerBl.addMember(sess, group6, member1);
+
+		// verify init statuses
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group5));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group6));
+
+		groupsManagerBl.removeMember(sess, Arrays.asList(group, group5), member1);
+
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group));
+		assertEquals("Member's init group status is not null", null, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group5));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group2));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group3));
+		assertEquals("Member's init group status is not EXPIRED", MemberGroupStatus.EXPIRED, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group4));
+		assertEquals("Member's init group status is not VALID", MemberGroupStatus.VALID, groupsManagerBl.getTotalMemberGroupStatus(sess, member1, group6));
+
+	}
+
+	@Test
 	public void removeMemberCorrectMemberGroupStatusesAreSet() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberCorrectMemberGroupStatusesAreSet");
 

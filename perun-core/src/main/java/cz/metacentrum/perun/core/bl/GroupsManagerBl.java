@@ -371,6 +371,34 @@ public interface GroupsManagerBl {
 	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException;
 
 	/**
+	 * Removes members from the group. But not from members or administrators group.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param members
+	 *
+	 * @throws InternalErrorException
+	 * @throws NotGroupMemberException
+	 * @throws GroupNotExistsException
+	 */
+	void removeMembers(PerunSession perunSession, Group group, List<Member> members) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException;
+
+	/**
+	 * Removes member from groups. But not from members or administrators group.
+	 *
+	 * @param perunSession
+	 * @param groups
+	 * @param member
+	 *
+	 * @throws InternalErrorException
+	 * @throws NotGroupMemberException
+	 * @throws GroupNotExistsException
+	 */
+	void removeMember(PerunSession perunSession, List<Group> groups, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException;
+
+
+
+	/**
 	 * Removes member from members or administrators group only.
 	 *
 	 * @param perunSession

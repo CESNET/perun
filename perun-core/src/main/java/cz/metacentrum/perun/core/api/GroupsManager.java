@@ -338,18 +338,18 @@ public interface GroupsManager {
 	 * Removes member form the group.
 	 *
 	 * @param perunSession
-	 * @param group
-	 * @param member
+	 * @param member Member to be removed
+	 * @param group group, from which the member is to be removed
 	 *
 	 * @throws InternalErrorException
-	 * @throws MemberNotExistsException
 	 * @throws PrivilegeException
-	 * @throws GroupNotExistsException
-	 * @throws NotGroupMemberException
 	 * @throws InternalErrorRuntimeException
-	 * @throws WrongAttributeAssignmentException
-	 * @throws AttributeNotExistsException
-	 * @throws ExternallyManagedException
+	 * @throws MemberNotExistsException when member doesn't exist
+	 * @throws NotGroupMemberException  when member is not in the group
+	 * @throws GroupNotExistsException when the group doesn't exist
+	 * @throws WrongAttributeAssignmentException when assigning atribute to wrong entity
+	 * @throws AttributeNotExistsException when attribute doesn't exist
+	 * @throws ExternallyManagedException when the group is externally managed
 	 */
 	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
 
@@ -366,6 +366,44 @@ public interface GroupsManager {
 	 * @throws InternalErrorRuntimeException
 	 */
 	List<Member> getGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+
+	/**
+	 * Removes a member from a list of groups.
+	 *
+	 * @param perunSession
+	 * @param member Member to be removed
+	 * @param groups list of groups, from which the member is to be removed, can be empty
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws InternalErrorRuntimeException
+	 * @throws MemberNotExistsException when member doesn't exist
+	 * @throws NotGroupMemberException  when member is not in the group
+	 * @throws GroupNotExistsException when the group doesn't exist
+	 * @throws WrongAttributeAssignmentException when assigning atribute to wrong entity
+	 * @throws AttributeNotExistsException when attribute doesn't exist
+	 * @throws ExternallyManagedException when the group is externally managed
+	 */
+	void removeMember(PerunSession perunSession, Member member, List<Group> groups) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
+
+
+	/**
+	 * Removes members from a group.
+	 *
+	 * @param perunSession
+	 * @param members list of members to be removed, can be empty
+	 * @param group group, from which the members are to be removed
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws InternalErrorRuntimeException
+	 * @throws MemberNotExistsException when member doesn't exist
+	 * @throws NotGroupMemberException  when member is not in the group
+	 * @throws GroupNotExistsException when the group doesn't exist
+	 * @throws WrongAttributeAssignmentException when assigning atribute to wrong entity
+	 * @throws AttributeNotExistsException when attribute doesn't exist
+	 * @throws ExternallyManagedException when the group is externally managed
+	 */
+	void removeMembers(PerunSession perunSession, Group group, List<Member> members) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
+
 
 	/**
 	 * Return all direct group members.

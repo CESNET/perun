@@ -1025,6 +1025,41 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
+	public void removeMembers(PerunSession sess, Group group, List<Member> members) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException {
+		// Check if the group is NOT members or administrators group
+		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+			throw new InternalErrorException("Cannot remove member directly from the members group.");
+		} else {
+			Collections.sort(members);
+			for (Member member : members) {
+				try {
+					this.removeDirectMember(sess, group, member);
+				} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex){
+					throw new InternalErrorException(ex);
+				}
+			}
+		}
+	}
+
+
+	@Override
+	public void removeMember(PerunSession sess, List<Group> groups, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException {
+		Collections.sort(groups, Collections.reverseOrder());
+		for (Group group : groups) {
+			// Check if the group is NOT members or administrators group
+			if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
+				throw new InternalErrorException("Cannot remove member directly from the members group.");
+			} else {
+				try {
+					this.removeDirectMember(sess, group, member);
+				} catch (WrongAttributeValueException | WrongReferenceAttributeValueException ex){
+					throw new InternalErrorException(ex);
+				}
+			}
+		}
+	}
+
+	@Override
 	public void removeMemberFromMembersOrAdministratorsGroup(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		// Check if the group IS memebers or administrators group
 		if (group.getName().equals(VosManager.MEMBERS_GROUP)) {
