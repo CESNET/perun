@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
@@ -36,6 +37,7 @@ import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -269,7 +271,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public Facility updateFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+	public Facility updateFacility(PerunSession sess, Facility facility) throws InternalErrorException, FacilityExistsException {
 
 		// Get the facility stored in the DB
 		Facility dbFacility;
@@ -287,6 +289,8 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 								Compatibility.getSysdate() + " where id=?",
 						facility.getName(), facility.getDescription(), sess.getPerunPrincipal().getActor(),
 						sess.getPerunPrincipal().getUserId(), facility.getId());
+			} catch (DataIntegrityViolationException e) {
+				throw new FacilityExistsException("The name must be unique and it's already occupied.", e);
 			} catch (RuntimeException e) {
 				throw new InternalErrorException(e);
 			}

@@ -360,8 +360,9 @@ public interface FacilitiesManagerBl {
 	 * @return updated facility
 	 *
 	 * @throws InternalErrorException
+	 * @throws FacilityExistsException
 	 */
-	Facility updateFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	Facility updateFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, FacilityExistsException;
 
 	/**
 	 * Returns list of all facilities owned by the owner.
