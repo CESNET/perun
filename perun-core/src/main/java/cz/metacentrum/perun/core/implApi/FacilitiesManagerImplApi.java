@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
@@ -243,8 +244,9 @@ public interface FacilitiesManagerImplApi {
 	 * @param facility
 	 *
 	 * @throws InternalErrorException
+	 * @throws FacilityExistsException if the name of facility has been already used for different Facility
 	 */
-	Facility updateFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	Facility updateFacility(PerunSession perunSession, Facility facility) throws InternalErrorException, FacilityExistsException;
 
 	/**
 	 * Deletes all facility owners.
@@ -723,12 +725,12 @@ public interface FacilitiesManagerImplApi {
 
 	/**
 	 * Get true if any ban for user and facility exists.
-	 * 
+	 *
 	 * @param sess
 	 * @param userId id of user
 	 * @param facilityId id of facility
 	 * @return true if ban exists
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	boolean banExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException;
 
@@ -744,11 +746,11 @@ public interface FacilitiesManagerImplApi {
 
 	/**
 	 * Set ban for user on facility
-	 * 
+	 *
 	 * @param sess
 	 * @param banOnFacility the ban
 	 * @return ban on facility
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException;
 

@@ -229,8 +229,13 @@ public interface FacilitiesManager {
 	 *
 	 * @param facility to update
 	 * @return updated facility
+	 *
+	 * @throws FacilityExistsException
+	 * @throws FacilityNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
 	 */
-	Facility updateFacility(PerunSession perunSession, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException;
+	Facility updateFacility(PerunSession perunSession, Facility facility) throws FacilityNotExistsException, FacilityExistsException, InternalErrorException, PrivilegeException;
 
 	/**
 	 * Returns list of all facilities owned by the owner.
