@@ -470,16 +470,28 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 
+		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, group);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
-			throw new PrivilegeException(sess, "getAssignedFacilities");
+		if (AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) ||
+				AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) ||
+				AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) ||
+				AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) ||
+				AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			return facilities;
 				}
 
-		return getFacilitiesManagerBl().getAssignedFacilities(sess, group);
+		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.FACILITYADMIN)) {
+			Iterator<Facility> iterator = facilities.iterator();
+			while(iterator.hasNext()) {
+				Facility facility = iterator.next();
+				if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+					iterator.remove();
+				}
+			}
+			return facilities;
+		}
+		throw new PrivilegeException(sess, "getAssignedFacilities");
 	}
 
 	@Override
@@ -487,13 +499,27 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
+		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, member);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF, member) &&
-				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
-			throw new PrivilegeException(sess, "getAssignedFacilities");
+		if (AuthzResolver.isAuthorized(sess, Role.SELF, member) ||
+				AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			return facilities;
 				}
 
-		return getFacilitiesManagerBl().getAssignedFacilities(sess, member);
+		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.FACILITYADMIN)) {
+			Iterator<Facility> iterator = facilities.iterator();
+			while(iterator.hasNext()) {
+				Facility facility = iterator.next();
+				if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+					iterator.remove();
+				}
+			}
+			return facilities;
+		}
+		throw new PrivilegeException(sess, "getAssignedFacilities");
+
+
 	}
 
 	@Override
@@ -501,13 +527,25 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
+		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, user);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
-				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
-			throw new PrivilegeException(sess, "getAssignedFacilities");
+		if (AuthzResolver.isAuthorized(sess, Role.SELF, user) ||
+				AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			return facilities;
 				}
 
-		return getFacilitiesManagerBl().getAssignedFacilities(sess, user);
+		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.FACILITYADMIN)) {
+			Iterator<Facility> iterator = facilities.iterator();
+			while(iterator.hasNext()) {
+				Facility facility = iterator.next();
+				if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+					iterator.remove();
+				}
+			}
+			return facilities;
+		}
+		throw new PrivilegeException(sess, "getAssignedFacilities");
 	}
 
 	@Override
@@ -515,12 +553,24 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 
+		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, service);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
-			throw new PrivilegeException(sess, "getAssignedFacilities");
+		if (AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+			return facilities;
 		}
 
-		return getFacilitiesManagerBl().getAssignedFacilities(sess, service);
+		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.FACILITYADMIN)) {
+			Iterator<Facility> iterator = facilities.iterator();
+			while(iterator.hasNext()) {
+				Facility facility = iterator.next();
+				if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+					iterator.remove();
+				}
+			}
+			return facilities;
+		}
+		throw new PrivilegeException(sess, "getAssignedFacilities");
 	}
 
 	@Override
@@ -528,12 +578,24 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
+		List<Facility> facilities = getFacilitiesManagerBl().getAssignedFacilities(sess, securityTeam);
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
-			throw new PrivilegeException(sess, "getAssignedFacilities");
+		if (AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
+			return facilities;
 		}
 
-		return getFacilitiesManagerBl().getAssignedFacilities(sess, securityTeam);
+		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.FACILITYADMIN)) {
+			Iterator<Facility> iterator = facilities.iterator();
+			while(iterator.hasNext()) {
+				Facility facility = iterator.next();
+				if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+					iterator.remove();
+				}
+			}
+			return facilities;
+		}
+		throw new PrivilegeException(sess, "getAssignedFacilities");
 	}
 
 	/**
