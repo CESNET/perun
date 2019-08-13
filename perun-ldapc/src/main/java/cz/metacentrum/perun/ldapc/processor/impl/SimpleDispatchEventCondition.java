@@ -10,7 +10,7 @@ public class SimpleDispatchEventCondition implements DispatchEventCondition {
 
 	private int requiredBeans = 0;
 	private String handlerMethodName = null;
-	
+
 	@Override
 	public void setBeansConditionByMask(int presentBeansMask) {
 		requiredBeans = presentBeansMask;
@@ -36,7 +36,7 @@ public class SimpleDispatchEventCondition implements DispatchEventCondition {
 	public void setBeansCondition(List<String> names) throws InternalErrorException {
 		requiredBeans = 0;
 		if(names != null && !names.isEmpty())
-			for(String name: names) 
+			for(String name: names)
 				addFlagForBeanName(name);
 	}
 
@@ -66,31 +66,31 @@ public class SimpleDispatchEventCondition implements DispatchEventCondition {
 		case "cz.metacentrum.perun.core.api.AttributeDefinition":
 			requiredBeans |= MessageBeans.ATTRIBUTEDEF_F;
 			break;
-			
+
 		case "cz.metacentrum.perun.core.api.Facility":
 			requiredBeans |= MessageBeans.FACILITY_F;
 			break;
-			
+
 		case "cz.metacentrum.perun.core.api.Group":
 			requiredBeans |= MessageBeans.GROUP_F;
 			break;
-			
+
 		case "cz.metacentrum.perun.core.api.Member":
 			requiredBeans |= MessageBeans.MEMBER_F;
 			break;
-			
+
 		case "cz.metacentrum.perun.core.api.Resource":
 			requiredBeans |= MessageBeans.RESOURCE_F;
 			break;
-			
+
 		case "cz.metacentrum.perun.core.api.User":
 			requiredBeans |= MessageBeans.USER_F;
 			break;
-			
+
 		case "cz.metacentrum.perun.core.api.UserExtSource":
-			requiredBeans |= MessageBeans.USER_F;
+			requiredBeans |= MessageBeans.USEREXTSOURCE_F;
 			break;
-			
+
 		case "cz.metacentrum.perun.core.api.Vo":
 			requiredBeans |= MessageBeans.VO_F;
 			break;
