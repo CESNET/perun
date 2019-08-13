@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  */
 public class ExtSourceINET extends ExtSourceSqlComplex {
 
-	Pattern queryParametersPattern = Pattern.compile("^([1-9][0-9]+)[:]([-A-Za-z]+)$");
+	Pattern queryParametersPattern = Pattern.compile("^([1-9][0-9]+)[:]([-A-Za-z0-9]+)$");
 
 	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
