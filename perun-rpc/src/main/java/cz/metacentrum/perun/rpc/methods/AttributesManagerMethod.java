@@ -2498,6 +2498,217 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Checks if this user-facility attribute has valid syntax.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
+	 * @throw UserNotExistsException When the User with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't user-facility attribute.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this facility attribute has valid syntax.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw FacilityNotExistsException When the facility with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't facility attribute.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this vo attribute has valid syntax.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw VoNotExistsException When the vo with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeAssignmentException When the attribute isn't attribute of Vo with <code>id</code>.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this member-resource attribute has valid syntax.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw MemberResourceMismatchException When the member with <code>id</code> and resource with <code>id</code> aren't from the same Vo.
+	 */
+	/*#
+	 * Checks if this group-resource attribute has valid syntax.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't group-resource attribute.
+	 * @throw GroupResourceMismatchException When the group with <code>id</code> and Resource with <code>id</code> aren't from the same Vo.
+	 */
+	/*#
+	 * Checks if this resource attribute has valid syntax.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw ResourceNotExistsException When the resource with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Resource with <code>id</code>.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this member-group attribute has valid syntax.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-group attribute.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this member attribute has valid syntax.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw MemberNotExistsException When the member with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't member-resource attribute.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this group attribute has valid syntax.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw WrongAttributeValueException  When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Group with <code>id</code>.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw GroupNotExistsException When the group with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this host attribute has valid syntax.
+	 *
+	 * @param host int Host <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of Host with <code>id</code>.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw HostNotExistsException When the host with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this user attribute has valid syntax.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw UserNotExistsException When the user with <code>id</code> doesn't exist.
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't user-facility attribute.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Checks if this userExtSource attribute has valid syntax.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 *
+	 * @throw WrongAttributeValueException When the attribute value has wrong/illegal syntax.
+	 * @throw WrongAttributeAssignmentException When the attribute with <code>id</code> isn't attribute of UserExtSource with <code>id</code>.
+	 * @throw AttributeNotExistsException When the attribute with <code>id</code> doesn't exist.
+	 * @throw UserExtSourceNotExistsException When the specified user external source with <code>id</code> doesn't exist.
+	 */
+	checkAttributeSyntax {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("facility")) {
+				if (parms.contains("user")) {
+					ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+						ac.getFacilityById(parms.readInt("facility")),
+						ac.getUserById(parms.readInt("user")),
+						parms.read("attribute", Attribute.class));
+				} else {
+					ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+						ac.getFacilityById(parms.readInt("facility")),
+						parms.read("attribute", Attribute.class));
+				}
+			} else if (parms.contains("vo")) {
+				ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					parms.read("attribute", Attribute.class));
+			} else if (parms.contains("resource")) {
+				if (parms.contains("member")) {
+					ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+						ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
+						parms.read("attribute", Attribute.class));
+				} else if (parms.contains("group")) {
+					ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						ac.getGroupById(parms.readInt("group")),
+						parms.read("attribute", Attribute.class));
+				} else {
+					ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						parms.read("attribute", Attribute.class));
+				}
+			} else if (parms.contains("member")) {
+				if (parms.contains("group")) {
+					ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+						ac.getMemberById(parms.readInt("member")),
+						ac.getGroupById(parms.readInt("group")),
+						parms.read("attribute", Attribute.class));
+				} else {
+					ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+						ac.getMemberById(parms.readInt("member")),
+						parms.read("attribute", Attribute.class));
+				}
+			} else if (parms.contains("group")) {
+				ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					parms.read("attribute", Attribute.class));
+			} else if (parms.contains("host")) {
+				ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+					ac.getHostById(parms.readInt("host")),
+					parms.read("attribute", Attribute.class));
+			} else if (parms.contains("user")) {
+				ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					parms.read("attribute", Attribute.class));
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().checkAttributeSyntax(ac.getSession(),
+					ac.getUserExtSourceById(parms.readInt("userExtSource")),
+					parms.read("attribute", Attribute.class));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, group, host, user or userExtSource");
+			}
+
+			return null;
+		}
+	},
+
+	/*#
 	 * Checks if this user-facility attribute has valid semantics.
 	 *
 	 * @param facility int Facility <code>id</code>
@@ -3091,6 +3302,189 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					parms.readList("attributes", Attribute.class));
 			} else if (parms.contains("userExtSource")) {
 				ac.getAttributesManager().checkAttributesSemantics(ac.getSession(),
+					ac.getUserExtSourceById(parms.readInt("userExtSource")),
+					parms.readList("attributes", Attribute.class));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, host, user or userExtSource");
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Checks if attributes have valid syntax. These attributes can be from namespace: member, user, member-resource and user-facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these user-facility attributes have valid syntax.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these facility attributes have valid syntax.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these vo attributes have valid syntax.
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these member-resource attributes have valid syntax.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+	 */
+	/*#
+	 * Checks if these member-resource attributes have valid syntax.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these group-resource attributes have valid syntax.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these resource attributes have valid syntax.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these member-group attributes have valid syntax.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>false</code> is default.
+	 */
+	/*#
+	 * Checks if these member-group attributes have valid syntax.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these member attributes have valid syntax.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these host attributes have valid syntax.
+	 *
+	 * @param host int Host <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these user attributes have valid syntax.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
+	 * Checks if these userExtSource attributes have valid syntax.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	checkAttributesSyntax {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("facility")) {
+				if (parms.contains("user")) {
+					if (parms.contains("resource") && parms.contains("member")) {
+						ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							ac.getResourceById(parms.readInt("resource")),
+							ac.getUserById(parms.readInt("user")),
+							ac.getMemberById(parms.readInt("member")),
+							parms.readList("attributes", Attribute.class));
+					} else {
+						ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+							ac.getFacilityById(parms.readInt("facility")),
+							ac.getUserById(parms.readInt("user")),
+							parms.readList("attributes", Attribute.class));
+					}
+				} else {
+					ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+						ac.getFacilityById(parms.readInt("facility")),
+						parms.readList("attributes", Attribute.class));
+				}
+			} else if (parms.contains("vo")) {
+				ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					parms.readList("attributes", Attribute.class));
+			} else if (parms.contains("resource")) {
+				if (parms.contains("member")) {
+					if (parms.contains("workWithUserAttributes")) {
+						ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
+							parms.readList("attributes", Attribute.class),
+							parms.readBoolean("workWithUserAttributes"));
+					} else {
+						ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")), ac.getResourceById(parms.readInt("resource")),
+							parms.readList("attributes", Attribute.class));
+					}
+				} else if (parms.contains("group")) {
+					ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						ac.getGroupById(parms.readInt("group")),
+						parms.readList("attributes", Attribute.class));
+				} else {
+					ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						parms.readList("attributes", Attribute.class));
+				}
+			} else if (parms.contains("member")) {
+				if (parms.contains("group")) {
+					if (parms.contains("workWithUserAttributes")) {
+						ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")),
+							parms.readList("attributes", Attribute.class),
+							parms.readBoolean("workWithUserAttributes"));
+					} else {
+						ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")),
+							parms.readList("attributes", Attribute.class));
+					}
+				} else {
+					ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+						ac.getMemberById(parms.readInt("member")),
+						parms.readList("attributes", Attribute.class));
+				}
+			} else if (parms.contains("host")) {
+				ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+					ac.getHostById(parms.readInt("host")),
+					parms.readList("attributes", Attribute.class));
+			} else if (parms.contains("user")) {
+				ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
+					ac.getUserById(parms.readInt("user")),
+					parms.readList("attributes", Attribute.class));
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().checkAttributesSyntax(ac.getSession(),
 					ac.getUserExtSourceById(parms.readInt("userExtSource")),
 					parms.readList("attributes", Attribute.class));
 			} else {

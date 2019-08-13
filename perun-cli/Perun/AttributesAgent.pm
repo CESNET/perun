@@ -193,6 +193,24 @@ sub checkAttributesSemantics
 	return Perun::Common::callManagerMethod('checkAttributesSemantics', '', @_);
 }
 
+#(facility => $facilityId, attribute => $attribute)
+#(vo => $voId, attribute => $attribute)
+#(resource => $resourceId, attribute => $attribute)
+#(resource => $resourceId, member => $memberId, attribute => $attribute)
+sub checkAttributeSyntax
+{
+	return Perun::Common::callManagerMethod('checkAttributeSyntax', '', @_);
+}
+
+#(facility => $facilityId, attributes => $arrayOfAttributes)
+#(vo => $voId, attributes => $arrayOfAttributes)
+#(resource => $resourceId, attributes => $arrayOfAttributes)
+#(resource => $resourceId, member => $memberId, attributes => $arrayOfAttributes)
+sub checkAttributesSyntax
+{
+	return Perun::Common::callManagerMethod('checkAttributesSyntax', '', @_);
+}
+
 #(facility => $facilityId, attributes => $arrayOfAttributeIds)
 #(vo => $voId, attributes => $arrayOfAttributeIds)
 #(resource => $resourceId, attributes => $arrayOfAttributeIds)
