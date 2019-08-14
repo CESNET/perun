@@ -63,6 +63,8 @@ public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends Grou
 		return members;
 	}
 
+	//IMPORTANT - this is very performance demanding operation, we will skip it
+	/*
 	@Override
 	public List<String> getStrongDependencies() {
 		List<String> strongDependencies = new ArrayList<>();
@@ -71,7 +73,7 @@ public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends Grou
 		strongDependencies.add(PREFERRED_MAIL);
 		strongDependencies.add(ELIXIR_LOGIN);
 		return strongDependencies;
-	}
+	}*/
 
 	@Override
 	public AttributeDefinition getAttributeDefinition() {
