@@ -725,9 +725,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, facility, attributesToSet);
-		log.debug("IMPORTANT: ENTERING CHECK ATTRIBUTES DEPENDENCIES");
 		checkAttributesDependencies(sess, facility, null, attributesToSet);
-		log.debug("IMPORTANT: EXITING CHECK ATTRIBUTES DEPENDENCIES");
 	}
 
 	@Override
@@ -888,34 +886,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		User user;
 		if (!workWithUserAttributes) {
-			long timer = Utils.startTimer();
 			for (Attribute attribute : attributesToSet) {
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 					setAttributeWithoutCheck(sess, member, attribute);
 				}
 			}
-			log.debug("addMember timer: setAttributes (for(Attribute attribute : attributes)) [{}].", Utils.getRunningTime(timer));
 		} else {
-			long timer = Utils.startTimer();
 			user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-			log.debug("addMember timer: getMember and User [{}].", Utils.getRunningTime(timer));
 			for (Attribute attribute : attributesToSet) {
-				boolean changed;
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 					if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, user, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute u [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
+						setAttributeWithoutCheck(sess, user, attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, member, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute m [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
+						setAttributeWithoutCheck(sess, member, attribute);
 					} else {
 						throw new WrongAttributeAssignmentException(attribute);
 					}
@@ -946,49 +931,28 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		checkAttributesSyntax(sess, member, resource, attributesToSet, workWithUserAttributes);
 		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		if (!workWithUserAttributes) {
-			long timer = Utils.startTimer();
 			for (Attribute attribute : attributesToSet) {
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 					setAttributeWithoutCheck(sess, member, resource, attribute, false);
 				}
 			}
-			log.debug("addMember timer: setAttributes (for(Attribute attribute : attributes)) [{}].", Utils.getRunningTime(timer));
 		} else {
-			long timer = Utils.startTimer();
 			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-			log.debug("addMember timer: getFacility and User [{}].", Utils.getRunningTime(timer));
 
 			for (Attribute attribute : attributesToSet) {
-				boolean changed;
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 
 					if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, member, resource, attribute, false);
-						if (changed) {
-							log.debug("addMember timer: setAttribute rm [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
+						setAttributeWithoutCheck(sess, member, resource, attribute, false);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, facility, user, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute uf [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
-					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, user, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute u [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
+						setAttributeWithoutCheck(sess, facility, user, attribute);
+					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) { ;
+						setAttributeWithoutCheck(sess, user, attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, member, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute m [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
+						setAttributeWithoutCheck(sess, member, attribute);
 					} else {
 						throw new WrongAttributeAssignmentException(attribute);
 					}
@@ -1998,30 +1962,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void setAttributeInNestedTransaction(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		setAttribute(sess, member, group, attribute);
-	}
-
-	@SuppressWarnings("unused")
-	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
-		convertEmptyAttrValueToNull(attribute);
-		if (attribute.getValue() == null) {
-			removeAttribute(sess, member, resource, attribute);
-			return;
-		}
-		if (!workWithUserAttributes) {
-			checkAttributeSyntax(sess, member, resource, attribute);
-			if (setAttributeWithoutCheck(sess, member, resource, attribute, false)) {
-				checkAttributeSemantics(sess, member, resource, attribute);
-				this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, attribute));
-			}
-		} else {
-			List<Attribute> listOfAttributes = new ArrayList<>();
-			listOfAttributes.add(attribute);
-			checkAttributesSyntax(sess, member, resource, listOfAttributes, true);
-			if (setAttributeWithoutCheck(sess, member, resource, attribute, true)) {
-				checkAttributesSemantics(sess, member, resource, listOfAttributes, true);
-				this.checkAttributesDependencies(sess, resource, member, listOfAttributes, true);
-			}
-		}
 	}
 
 	@Override
