@@ -698,7 +698,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Facility facility, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -710,6 +710,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, facility, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, facility, attributesToSet);
 		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
@@ -723,14 +725,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, facility, attributesToSet);
-		log.debug("IMPORTANT: ENTERING CHECK ATTRIBUTES DEPENDENCIES");
 		checkAttributesDependencies(sess, facility, null, attributesToSet);
-		log.debug("IMPORTANT: EXITING CHECK ATTRIBUTES DEPENDENCIES");
 	}
 
 	@Override
 	public void setAttributes(PerunSession sess, Vo vo, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -742,6 +742,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, vo, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, vo, attributesToSet);
 		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
@@ -760,7 +762,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -772,6 +774,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, group, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, group, attributesToSet);
 		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
@@ -786,7 +790,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Resource resource, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -798,6 +802,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, resource, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, resource, attributesToSet);
 		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
@@ -834,6 +840,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, member, group, attributesToRemove, workWithUserAttributes);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, member, group, attributesToSet, workWithUserAttributes);
 		// fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		if (!workWithUserAttributes) {
 			for (Attribute attribute : attributesToSet) {
@@ -861,7 +869,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -873,42 +881,33 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, member, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, member, attributesToSet, workWithUserAttributes);
+		// fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		User user;
 		if (!workWithUserAttributes) {
-			long timer = Utils.startTimer();
 			for (Attribute attribute : attributesToSet) {
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 					setAttributeWithoutCheck(sess, member, attribute);
 				}
 			}
-			log.debug("addMember timer: setAttributes (for(Attribute attribute : attributes)) [{}].", Utils.getRunningTime(timer));
 		} else {
-			long timer = Utils.startTimer();
 			user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-			log.debug("addMember timer: getMember and User [{}].", Utils.getRunningTime(timer));
 			for (Attribute attribute : attributesToSet) {
-				boolean changed;
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 					if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, user, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute u [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
+						setAttributeWithoutCheck(sess, user, attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, member, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute m [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
+						setAttributeWithoutCheck(sess, member, attribute);
 					} else {
 						throw new WrongAttributeAssignmentException(attribute);
 					}
 				}
 			}
 		}
+		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, member, attributesToSet, workWithUserAttributes);
 		this.checkAttributesDependencies(sess, member, attributesToSet, workWithUserAttributes);
 	}
@@ -916,7 +915,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Member member, Resource resource, List<Attribute> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -928,51 +927,32 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, resource, member, attributesToRemove, workWithUserAttributes);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, member, resource, attributesToSet, workWithUserAttributes);
 		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		if (!workWithUserAttributes) {
-			long timer = Utils.startTimer();
 			for (Attribute attribute : attributesToSet) {
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 					setAttributeWithoutCheck(sess, member, resource, attribute, false);
 				}
 			}
-			log.debug("addMember timer: setAttributes (for(Attribute attribute : attributes)) [{}].", Utils.getRunningTime(timer));
 		} else {
-			long timer = Utils.startTimer();
 			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-			log.debug("addMember timer: getFacility and User [{}].", Utils.getRunningTime(timer));
 
 			for (Attribute attribute : attributesToSet) {
-				boolean changed;
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 
 					if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, member, resource, attribute, false);
-						if (changed) {
-							log.debug("addMember timer: setAttribute rm [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
+						setAttributeWithoutCheck(sess, member, resource, attribute, false);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, facility, user, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute uf [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
-					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, user, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute u [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
+						setAttributeWithoutCheck(sess, facility, user, attribute);
+					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_USER_ATTR)) { ;
+						setAttributeWithoutCheck(sess, user, attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(attribute, AttributesManager.NS_MEMBER_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, member, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute m [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
+						setAttributeWithoutCheck(sess, member, attribute);
 					} else {
 						throw new WrongAttributeAssignmentException(attribute);
 					}
@@ -987,7 +967,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -999,6 +979,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, facility, resource, user, member, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, facility, resource, user, member, attributesToSet);
+		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
 			if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
@@ -1024,7 +1007,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Facility facility, Resource resource, Group group, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException, MemberResourceMismatchException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -1036,6 +1019,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, facility, resource, group, user, member, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, facility, resource, group, user, member, attributesToSet);
+		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
 			if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
@@ -1063,7 +1049,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -1075,6 +1061,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, member, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, member, attributesToSet);
 		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
@@ -1094,7 +1082,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Facility facility, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -1106,6 +1094,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, facility, user, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, facility, user, attributesToSet);
 		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
@@ -1121,7 +1111,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, User user, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -1133,6 +1123,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, user, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, user, attributesToSet);
 		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
@@ -1152,7 +1144,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Host host, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -1164,6 +1156,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, host, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, host, attributesToSet);
+		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 				if (isVirtAttribute(sess, attribute)) {
@@ -1181,7 +1176,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -1193,18 +1188,22 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, resource, group, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, resource, group, attributesToSet);
+		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 				setAttributeWithoutCheck(sess, resource, group, attribute);
 			}
 		}
+		//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 		checkAttributesSemantics(sess, resource, group, attributesToSet);
 		this.checkAttributesDependencies(sess, resource, group, attributesToSet);
 	}
 
 	@Override
 	public void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, GroupResourceMismatchException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -1216,6 +1215,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, resource, group, attributesToRemove, workWithGroupAttributes);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, resource, group, attributesToSet, true);
+		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		if (!workWithGroupAttributes) {
 			setAttributes(sess, resource, group, attributes);
 		} else {
@@ -1232,6 +1234,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					}
 				}
 			}
+			//if checkAttributesSemantics fails it causes rollback so no attribute will be stored
 			checkAttributesSemantics(sess, resource, group, attributesToSet, true);
 			this.checkAttributesDependencies(sess, resource, group, attributesToSet, true);
 		}
@@ -1239,7 +1242,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		// clasification of attributes to attributes to remove and attributes to set
+		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<>();
 		List<Attribute> attributesToSet = new ArrayList<>();
 		convertEmptyAttrValueToNull(attributes);
@@ -1251,6 +1254,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 		removeAttributes(sess, ues, attributesToRemove);
+		//if checkAttributesSyntax fails it causes rollback so no attribute will be stored
+		checkAttributesSyntax(sess, ues, attributesToSet);
 		//fist we have to store attributes into DB because checkAttributesSemantics can be preformed only on stored attributes.
 		for (Attribute attribute : attributesToSet) {
 			//skip core attributes
@@ -1719,6 +1724,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 
+		//Check all attributes syntax
+		checkAttributesSyntax(sess, facility, resource, user, member, attributes);
 		//Set all filledAttributes withoutCheck
 		for (Attribute attribute : filledAttributes) {
 			//skip core attributes
@@ -1757,7 +1764,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 
-		//Check all attributes
+		//Check all attributes semantics
 		checkAttributesSemantics(sess, facility, resource, user, member, attributes);
 
 		//Check all attributes dependencies
@@ -1787,6 +1794,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, facility, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, facility, attribute);
 		if (setAttributeWithoutCheck(sess, facility, attribute)) {
 			checkAttributeSemantics(sess, facility, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(facility, null, attribute));
@@ -1819,6 +1827,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, vo, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, vo, attribute);
 		if (setAttributeWithoutCheck(sess, vo, attribute)) {
 			checkAttributeSemantics(sess, vo, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(vo, null, attribute));
@@ -1851,6 +1860,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, group, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, group, attribute);
 		if (setAttributeWithoutCheck(sess, group, attribute)) {
 			checkAttributeSemantics(sess, group, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(group, null, attribute));
@@ -1869,6 +1879,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, resource, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, resource, attribute);
 		if (setAttributeWithoutCheck(sess, resource, attribute)) {
 			checkAttributeSemantics(sess, resource, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, null, attribute));
@@ -1927,6 +1938,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, member, resource, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, member, resource, attribute);
 		if (setAttributeWithoutCheck(sess, member, resource, attribute, false)) {
 			checkAttributeSemantics(sess, member, resource, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, attribute));
@@ -1940,6 +1952,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, member, group, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, member, group, attribute);
 		if (setAttributeWithoutCheck(sess, member, group, attribute, false)) {
 			checkAttributeSemantics(sess, member, group, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(member, group, attribute));
@@ -1949,28 +1962,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	@Override
 	public void setAttributeInNestedTransaction(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		setAttribute(sess, member, group, attribute);
-	}
-
-	@SuppressWarnings("unused")
-	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, MemberResourceMismatchException {
-		convertEmptyAttrValueToNull(attribute);
-		if (attribute.getValue() == null) {
-			removeAttribute(sess, member, resource, attribute);
-			return;
-		}
-		if (!workWithUserAttributes) {
-			if (setAttributeWithoutCheck(sess, member, resource, attribute, false)) {
-				this.checkAttributeDependencies(sess, new RichAttribute<>(resource, member, attribute));
-				checkAttributeSemantics(sess, member, resource, attribute);
-			}
-		} else {
-			if (setAttributeWithoutCheck(sess, member, resource, attribute, true)) {
-				List<Attribute> listOfAttributes = new ArrayList<>();
-				listOfAttributes.add(attribute);
-				checkAttributesSemantics(sess, member, resource, listOfAttributes, true);
-				this.checkAttributesDependencies(sess, resource, member, listOfAttributes, true);
-			}
-		}
 	}
 
 	@Override
@@ -2097,6 +2088,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, member, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, member, attribute);
 		if (setAttributeWithoutCheck(sess, member, attribute)) {
 			checkAttributeSemantics(sess, member, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(member, null, attribute));
@@ -2142,6 +2134,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, facility, user, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, facility, user, attribute);
 		if (setAttributeWithoutCheck(sess, facility, user, attribute)) {
 			checkAttributeSemantics(sess, facility, user, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(facility, user, attribute));
@@ -2155,6 +2148,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, user, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, user, attribute);
 		if (setAttributeWithoutCheck(sess, user, attribute)) {
 			checkAttributeSemantics(sess, user, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(user, null, attribute));
@@ -2194,6 +2188,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, host, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, host, attribute);
 		if (setAttributeWithoutCheck(sess, host, attribute)) {
 			checkAttributeSemantics(sess, host, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(host, null, attribute));
@@ -2227,9 +2222,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, resource, group, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, resource, group, attribute);
 		if (setAttributeWithoutCheck(sess, resource, group, attribute)) {
-			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, group, attribute));
 			checkAttributeSemantics(sess, resource, group, attribute);
+			this.checkAttributeDependencies(sess, new RichAttribute<>(resource, group, attribute));
 		}
 	}
 
@@ -2320,6 +2316,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, key, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, key, attribute);
 		if (setAttributeWithoutCheck(sess, key, attribute)) {
 			checkAttributeSemantics(sess, key, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(key, null, attribute));
@@ -2333,6 +2330,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttribute(sess, ues, attribute);
 			return;
 		}
+		checkAttributeSyntax(sess, ues, attribute);
 		if (setAttributeWithoutCheck(sess, ues, attribute)) {
 			checkAttributeSemantics(sess, ues, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute<>(ues, null, attribute));
