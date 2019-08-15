@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * VosManager entry logic
@@ -71,22 +72,24 @@ public class VosManagerEntry implements VosManager {
 			   sess.getPerunPrincipal().getRoles().hasRole(Role.VOOBSERVER) ||
 					sess.getPerunPrincipal().getRoles().hasRole(Role.GROUPADMIN)) {
 
-				Set<Vo> vos = new HashSet<>();
-
 				// Get Vos where user is VO Admin
-				for (PerunBean vo: AuthzResolver.getComplementaryObjectsForRole(sess, Role.VOADMIN, Vo.class)) {
-					vos.add((Vo) vo);
-				}
+				Set<Vo> vos = new HashSet<>(perunBl.getUsersManagerBl().getVosWhereUserIsAdmin(sess, sess.getPerunPrincipal().getUser()));
 
 				// Get Vos where user is VO Observer
 				for (PerunBean vo: AuthzResolver.getComplementaryObjectsForRole(sess, Role.VOOBSERVER, Vo.class)) {
 					vos.add((Vo) vo);
 				}
 
+				// prevent repetitive fetching VOs for all groups where user is group admin
+				Set<Integer> processedVos = vos.stream().map(Vo::getId).distinct().collect(Collectors.toSet());
+
 				// Get Vos where user has an group admin right on some of the group
-				for(PerunBean group: AuthzResolver.getComplementaryObjectsForRole(sess, Role.GROUPADMIN, Group.class)) {
+				for(PerunBean group: perunBl.getUsersManagerBl().getGroupsWhereUserIsAdmin(sess, sess.getPerunPrincipal().getUser())) {
 					try {
-						vos.add(vosManagerBl.getVoById(sess, ((Group) group).getVoId()));
+						if (!processedVos.contains(((Group) group).getVoId())) {
+							vos.add(vosManagerBl.getVoById(sess, ((Group) group).getVoId()));
+							processedVos.add(((Group) group).getVoId());
+						}
 					} catch (VoNotExistsException e) {
 						throw new ConsistencyErrorException("User has group admin role for group from non-existent VO id:" + ((Group) group).getVoId(), e);
 					}
@@ -373,7 +376,7 @@ public class VosManagerEntry implements VosManager {
 		vosManagerBl.checkVoExists(perunSession, vo);
 
 		//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
-		if(!role.equals(Role.TOPGROUPCREATOR) && 
+		if(!role.equals(Role.TOPGROUPCREATOR) &&
 						!role.equals(Role.VOADMIN) &&
 						!role.equals(Role.VOOBSERVER)) {
 			throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver and TopGroupCreator.", role);
@@ -395,7 +398,7 @@ public class VosManagerEntry implements VosManager {
 		vosManagerBl.checkVoExists(perunSession, vo);
 
 		//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
-		if(!role.equals(Role.TOPGROUPCREATOR) && 
+		if(!role.equals(Role.TOPGROUPCREATOR) &&
 						!role.equals(Role.VOADMIN) &&
 						!role.equals(Role.VOOBSERVER)) {
 			throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver and TopGroupCreator.", role);
@@ -418,7 +421,7 @@ public class VosManagerEntry implements VosManager {
 		vosManagerBl.checkVoExists(perunSession, vo);
 
 		//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
-		if(!role.equals(Role.TOPGROUPCREATOR) && 
+		if(!role.equals(Role.TOPGROUPCREATOR) &&
 						!role.equals(Role.VOADMIN) &&
 						!role.equals(Role.VOOBSERVER)) {
 			throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver and TopGroupCreator.", role);

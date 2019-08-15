@@ -131,13 +131,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		if (AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			return getFacilitiesManagerBl().getRichFacilities(sess);
 		} else if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
-			// Cast complementary object to Facility
-			List<Facility> facilities = new ArrayList<>();
-			for (PerunBean facility: AuthzResolver.getComplementaryObjectsForRole(sess, Role.FACILITYADMIN, Facility.class)) {
-				facilities.add((Facility) facility);
-			}
-			//Now I create list of richFacilities from facilities
-			return getFacilitiesManagerBl().getRichFacilities(sess, facilities);
+			return getFacilitiesManagerBl().getRichFacilities(sess, getFacilitiesManagerBl().getFacilitiesWhereUserIsAdmin(sess, sess.getPerunPrincipal().getUser()));
 		} else {
 			throw new PrivilegeException(sess, "getRichFacilities");
 		}
@@ -209,12 +203,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		if (AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) || AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			return getFacilitiesManagerBl().getFacilities(sess);
 		} else if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
-			// Cast complementary object to Facility
-			List<Facility> facilities = new ArrayList<>();
-			for (PerunBean facility: AuthzResolver.getComplementaryObjectsForRole(sess, Role.FACILITYADMIN, Facility.class)) {
-				facilities.add((Facility) facility);
-			}
-			return facilities;
+			return getFacilitiesManagerBl().getFacilitiesWhereUserIsAdmin(sess, sess.getPerunPrincipal().getUser());
 		} else {
 			throw new PrivilegeException(sess, "getFacilities");
 		}
