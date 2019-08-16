@@ -69,6 +69,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -1084,13 +1085,13 @@ public class Utils {
 			throw new InternalErrorException("Destination is null.");
 		}
 		String destinationType = destination.getType();
-		if ((!destinationType.equals(Destination.DESTINATIONHOSTTYPE)
-				&& (!destinationType.equals(Destination.DESTINATIONEMAILTYPE))
-				&& (!destinationType.equals(Destination.DESTINATIONSEMAILTYPE))
-				&& (!destinationType.equals(Destination.DESTINATIONURLTYPE))
-				&& (!destinationType.equals(Destination.DESTINATIONUSERHOSTTYPE))
-				&& (!destinationType.equals(Destination.DESTINATIONUSERHOSTPORTTYPE))
-				&& (!destinationType.equals(Destination.DESTINATIONSERVICESPECIFICTYPE)))) {
+		if ((!Objects.equals(destinationType, Destination.DESTINATIONHOSTTYPE)
+				&& (!Objects.equals(destinationType, Destination.DESTINATIONEMAILTYPE))
+				&& (!Objects.equals(destinationType, Destination.DESTINATIONSEMAILTYPE))
+				&& (!Objects.equals(destinationType, Destination.DESTINATIONURLTYPE))
+				&& (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTTYPE))
+				&& (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTPORTTYPE))
+				&& (!Objects.equals(destinationType, Destination.DESTINATIONSERVICESPECIFICTYPE)))) {
 			throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
 		}
 	}
