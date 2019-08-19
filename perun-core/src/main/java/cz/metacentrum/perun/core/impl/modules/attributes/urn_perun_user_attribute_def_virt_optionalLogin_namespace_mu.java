@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 
 import java.util.Collections;
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
  *
  * @author Simona Kruppova, Michal Stava
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_optionalLogin_namespace_mu extends UserVirtualAttributesModuleAbstract {
 
 	private final String EXTSOURCE_MUNI_IDP2 = "https://idp2.ics.muni.cz/idp/shibboleth";

@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberResourceVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,7 @@ import java.util.List;
  *
  * @author Michal Stava
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_member_resource_attribute_def_virt_isBanned extends MemberResourceVirtualAttributesModuleAbstract implements MemberResourceVirtualAttributesModuleImplApi {
 
 	private final static String A_MR_V_isBanned = AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":isBanned";

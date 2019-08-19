@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +23,7 @@ import java.util.List;
  *
  * @author Pavel Vyskocil <vyskocilpavel@muni.cz>
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_group_attribute_def_virt_denbiProjectMembers extends GroupVirtualAttributesModuleAbstract implements GroupVirtualAttributesModuleImplApi  {
 
 	private static final String ELIXIR_PERSISTENT = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";

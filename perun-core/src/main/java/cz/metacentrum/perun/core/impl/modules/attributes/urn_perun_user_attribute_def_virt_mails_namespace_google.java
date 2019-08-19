@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import java.util.regex.Pattern;
  *
  * @author Michal Stava  &lt;stavamichal@gmail.com&gt;
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_mails_namespace_google extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_mails_namespace_google.class);

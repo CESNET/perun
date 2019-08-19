@@ -8,12 +8,14 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.GroupVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 
 /**
  * Short name of VO, that group belongs to
  *
  * @author Dano Fecko <dano9500@gmail.com>
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_group_attribute_def_virt_voShortName extends GroupVirtualAttributesModuleAbstract implements GroupVirtualAttributesModuleImplApi {
 
 	@Override

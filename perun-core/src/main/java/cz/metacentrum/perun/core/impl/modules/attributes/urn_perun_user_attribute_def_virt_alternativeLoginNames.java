@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
 
 /**
@@ -18,6 +19,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @SuppressWarnings("unused")
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_alternativeLoginNames extends UserVirtualAttributeCollectedFromUserExtSource {
 
 	@Override

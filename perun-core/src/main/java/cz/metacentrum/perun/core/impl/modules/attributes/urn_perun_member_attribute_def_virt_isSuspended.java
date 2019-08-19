@@ -8,12 +8,14 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 
 /**
  * Check if member is suspended in the Vo at this very moment.
  *
  * @author Michal Stava stavamichal@gmail.com
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_member_attribute_def_virt_isSuspended extends MemberVirtualAttributesModuleAbstract implements MemberVirtualAttributesModuleImplApi {
 
 	@Override

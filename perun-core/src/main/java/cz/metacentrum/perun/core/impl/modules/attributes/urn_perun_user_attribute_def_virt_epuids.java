@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
 
 /**
@@ -8,6 +9,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
  * @author Martin Kuba makub@ics.muni.cz
  */
 @SuppressWarnings("unused")
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_epuids extends UserVirtualAttributeCollectedFromUserExtSource {
 
 	@Override

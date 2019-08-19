@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import java.util.Set;
  * @author Dominik Frantisek Bucik <bucik@ics.muni.cz>
  */
 @SuppressWarnings("unused")
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_eduPersonEntitlement extends UserVirtualAttributeCollectedFromUserExtSource {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());

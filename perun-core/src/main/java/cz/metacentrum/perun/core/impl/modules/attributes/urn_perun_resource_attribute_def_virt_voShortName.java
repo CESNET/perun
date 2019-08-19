@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceVirtualAttributesModuleAbstract implements ResourceVirtualAttributesModuleImplApi {
 
 	@Override

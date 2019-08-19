@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ class DnsMapCtx extends UserVirtualAttributeCollectedFromUserExtSource.ModifyVal
  * @author Martin Kuba makub@ics.muni.cz
  */
 @SuppressWarnings("unused")
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_institutionsCountries extends UserVirtualAttributeCollectedFromUserExtSource<DnsMapCtx> {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_institutionsCountries.class);

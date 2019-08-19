@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributeCollectedFromUserExtSource;
 import org.apache.commons.lang3.StringUtils;
 
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author Martin Kuba makub@ics.muni.cz
  */
 @SuppressWarnings("unused")
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_eduPersonORCID extends UserVirtualAttributeCollectedFromUserExtSource {
 
 	@Override
