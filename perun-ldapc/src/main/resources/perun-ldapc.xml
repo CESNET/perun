@@ -484,8 +484,8 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<property name="required" value="false" />
 					<property name="multipleValuesExtractor">
 						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
-							<property name="name" value="internalUserIdentifiers" />
-							<property name="namespace" value="urn:perun:user:attribute-def:virt:additionalIdentifiers" />
+							<property name="name" value="additionalIdentifiers" />
+							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
 						</bean>
 					</property>
 				</bean>
