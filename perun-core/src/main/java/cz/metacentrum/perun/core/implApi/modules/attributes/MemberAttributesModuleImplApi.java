@@ -38,13 +38,10 @@ public interface MemberAttributesModuleImplApi extends AttributesModuleImplApi{
 	 *
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
-	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
-	 * @throws WrongReferenceAttributeValueException if an referenced attribute against
-	 *         the parameter is to be compared is not available
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongReferenceAttributeValueException if the attribute value has wrong/illegal semantics
+	 * @throws WrongAttributeAssignmentException if attribute does not belong to appropriate entity
 	 */
-	void checkAttributeSemantics(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+	void checkAttributeSemantics(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Tries to fill an attribute to the specified member.

@@ -4,11 +4,17 @@ import com.google.common.collect.Lists;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -21,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -53,31 +58,39 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 	private static final String NAMESPACE = AttributesManager.NS_MEMBER_ATTR_DEF;
 	static final String UCO_ATTRIBUTE = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:mu";
 
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		log.trace("checkAttributeSemantics(member={},attribute={})", member, attribute);
-		ArrayList<String> emails;
-
-		//get values
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Attribute attribute) throws WrongAttributeValueException {
 		Object value = attribute.getValue();
-		if (value == null) {
-			throw new WrongAttributeValueException(attribute, member, "can't be null.");
-		} else if (!(value instanceof ArrayList)) {
+		List<String> emails;
+
+		if (value == null) return;
+		else if (!(value instanceof ArrayList)) {
 			throw new WrongAttributeValueException(attribute, member, "is of type " + value.getClass() + ", but should be ArrayList");
 		} else {
-			//noinspection unchecked
-			emails = (ArrayList<String>) value;
+			emails = attribute.valueAsList();
 		}
-		//check syntax of all values
+
+		//check for duplicities
+		if (hasDuplicate(emails)) {
+			throw new WrongAttributeValueException(attribute, member, "has duplicate values");
+		}
+
 		for (String email : emails) {
 			Matcher emailMatcher = emailPattern.matcher(email);
 			if (!emailMatcher.matches())
 				throw new WrongAttributeValueException(attribute, member, "Email " + email + " is not in correct form.");
 		}
+	}
 
-		//check for duplicities
-		if (hasDuplicate(emails)) {
-			throw new WrongAttributeValueException(attribute, member, "duplicate values");
+	@Override
+	public void checkAttributeSemantics(PerunSessionImpl sess, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		log.trace("checkAttributeSemantics(member={},attribute={})", member, attribute);
+		List<String> emails;
+
+		//get values
+		if (attribute.getValue() == null) {
+			throw new WrongReferenceAttributeValueException(attribute, "can't be null.");
+		} else {
+			emails = attribute.valueAsList();
 		}
 
 		//check for presence of uco@muni.cz
@@ -89,7 +102,7 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 		}
 		String ucoEmail = UCO + "@muni.cz";
 		if (!emails.contains(ucoEmail)) {
-			throw new WrongAttributeValueException(attribute, member, "does not contain " + ucoEmail);
+			throw new WrongReferenceAttributeValueException(attribute, attrUCO, member, null, member, null, "does not contain " + ucoEmail);
 		}
 
 		//check for duplicities among all members and groups (urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu)
@@ -97,17 +110,25 @@ public class urn_perun_member_attribute_def_def_o365EmailAddresses_mu extends Me
 		Set<Pair<Integer, Integer>> memberPairs = attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, attribute);
 		memberPairs.remove(new Pair<>(member.getId(), 0));
 		if (!memberPairs.isEmpty()) {
-			Set<Integer> memberIds = new HashSet<>();
-			for (Pair<Integer, Integer> memberPair : memberPairs) {
-				memberIds.add(memberPair.getLeft());
+			try {
+				Member memberWithDuplicateEmail = sess.getPerunBl().getMembersManagerBl().getMemberById(sess, memberPairs.iterator().next().getLeft());
+				throw new WrongReferenceAttributeValueException(attribute, attribute, member, null, memberWithDuplicateEmail, null, "some of the email addresses are already assigned.");
+			} catch (MemberNotExistsException e) {
+				throw new ConsistencyErrorException(e);
 			}
-			throw new WrongAttributeValueException(attribute, member, "some of the email addresses are already assigned to the following members: " + memberIds);
 		}
 		Attribute groupO365EmailAddresses = new Attribute(new urn_perun_group_resource_attribute_def_def_o365EmailAddresses_mu().getAttributeDefinition());
 		groupO365EmailAddresses.setValue(emails);
 		Set<Pair<Integer, Integer>> groupResourcePairs = attributesManagerBl.getPerunBeanIdsForUniqueAttributeValue(sess, groupO365EmailAddresses);
 		if (!groupResourcePairs.isEmpty()) {
-			throw new WrongAttributeValueException(attribute, "some of the email addresses are already assigned to the following group_resource pairs: " + groupResourcePairs);
+			try {
+				Pair<Integer, Integer> GroupResourceWithDuplicateEmail = groupResourcePairs.iterator().next();
+				Group groupWithDuplicateEmail = sess.getPerunBl().getGroupsManagerBl().getGroupById(sess, GroupResourceWithDuplicateEmail.getLeft());
+				Resource resourceWithDuplicateEmail = sess.getPerunBl().getResourcesManagerBl().getResourceById(sess, GroupResourceWithDuplicateEmail.getRight());
+				throw new WrongReferenceAttributeValueException(attribute, groupO365EmailAddresses, member, null, groupWithDuplicateEmail, resourceWithDuplicateEmail, "some of the email addresses are already assigned." );
+			} catch (GroupNotExistsException | ResourceNotExistsException e) {
+				throw new ConsistencyErrorException(e);
+			}
 		}
 	}
 
