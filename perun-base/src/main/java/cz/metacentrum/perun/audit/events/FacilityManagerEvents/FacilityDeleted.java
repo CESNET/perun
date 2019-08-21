@@ -14,7 +14,7 @@ public class FacilityDeleted extends AuditEvent {
 
 	public FacilityDeleted(Facility facility) {
 		this.facility = facility;
-		this.message = formatMessage("Facility deleted %s.", facility);
+		this.message = formatMessage("%s deleted.", facility);
 	}
 
 	public Facility getFacility() {

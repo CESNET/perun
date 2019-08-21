@@ -34,6 +34,8 @@ public class FacilityAttributeProcessor extends AbstractAttributeProcessor {
 			return;
 		}
 		try {
+			log.debug("Setting attribute {} for facility {}", beans.getAttribute(), beans.getFacility());
+			perunFacility.modifyEntry(beans.getFacility(), beans.getAttribute());
 			log.debug("Getting resources assigned to facility {}", beans.getFacility().getId());
 			// List<Resource> resources = Rpc.FacilitiesManager.getAssignedResources(ldapcManager.getRpcCaller(), beans.getFacility());
 			List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(ldapcManager.getPerunSession(), beans.getFacility());
@@ -54,6 +56,8 @@ public class FacilityAttributeProcessor extends AbstractAttributeProcessor {
 			return;
 		}
 		try {
+			log.debug("Removing attribute {} from facility {}", beans.getAttributeDef(), beans.getFacility());
+			perunFacility.modifyEntry(beans.getFacility(), beans.getAttributeDef());
 			log.debug("Getting resources assigned to facility {}", beans.getFacility().getId());
 			// List<Resource> resources = Rpc.FacilitiesManager.getAssignedResources(ldapcManager.getRpcCaller(), beans.getFacility());
 			List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(ldapcManager.getPerunSession(), beans.getFacility());
@@ -74,6 +78,8 @@ public class FacilityAttributeProcessor extends AbstractAttributeProcessor {
 			return;
 		}
 		try {
+			log.debug("Removing all attributes from facility {}", beans.getFacility());
+			perunFacility.removeAllAttributes(beans.getFacility());
 			log.debug("Getting resources assigned to facility {}", beans.getFacility().getId());
 			// List<Resource> resources = Rpc.FacilitiesManager.getAssignedResources(ldapcManager.getRpcCaller(), beans.getFacility());
 			List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(ldapcManager.getPerunSession(), beans.getFacility());

@@ -64,11 +64,13 @@ public interface PerunAttribute<T extends PerunBean> {
 		public static final String ldapAttrIsSponsoredUser = "isSponsoredUser";
 		public static final String ldapAttrGroupNames = perunAttrGroupNames;
 		public static final String ldapAttrInstitutionsCountries = perunAttrInstitutionsCountries;
+		public static final String ldapAttrPerunFacilityDn = "perunFacilityDn";
 
 		//LDAP OBJECT CLASSES
 		public static final String objectClassTop = "top";
 		public static final String objectClassPerunResource = "perunResource";
 		public static final String objectClassPerunGroup = "perunGroup";
+		public static final String objectClassPerunFacility = "perunFacility";
 		public static final String objectClassOrganization = "organization";
 		public static final String objectClassPerunVO = "perunVO";
 		public static final String objectClassPerson = "person";
