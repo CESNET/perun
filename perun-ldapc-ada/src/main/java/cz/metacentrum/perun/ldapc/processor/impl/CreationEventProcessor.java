@@ -40,6 +40,11 @@ public class CreationEventProcessor extends AbstractEventProcessor {
 					perunResource.addResource(beans.getResource(), getFacilityEntityIdValue(beans.getResource().getFacilityId()));
 					break;
 					
+				case MessageBeans.FACILITY_F:
+					log.debug("Adding new facility: {}", beans.getFacility());
+					perunFacility.addFacility(beans.getFacility());
+					break;
+					
 				case MessageBeans.USER_F:
 					log.debug("Adding new user: {}", beans.getUser());
 					perunUser.addUser(beans.getUser());

@@ -26,6 +26,11 @@ public class DeletionEventProcessor extends AbstractEventProcessor {
 					perunResource.deleteResource(beans.getResource());
 					break;
 					
+				case MessageBeans.FACILITY_F:
+					log.debug("Removing facility {}", beans.getFacility());
+					perunFacility.deleteFacility(beans.getFacility());
+					break;
+					
 				case MessageBeans.USER_F:
 					log.debug("Removing user {}", beans.getUser());
 					perunUser.deleteUser(beans.getUser());

@@ -11,8 +11,6 @@ import javax.naming.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ldap.NameNotFoundException;
-import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 
@@ -20,7 +18,9 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.ldapc.beans.LdapProperties;
 import cz.metacentrum.perun.ldapc.model.PerunAttribute;
+import cz.metacentrum.perun.ldapc.model.PerunFacility;
 import cz.metacentrum.perun.ldapc.model.PerunGroup;
 import cz.metacentrum.perun.ldapc.model.PerunResource;
 
@@ -30,7 +30,11 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 
 	@Autowired
 	private PerunGroup perunGroup;
-	
+	@Autowired
+	private PerunFacility perunFacility;
+	@Autowired
+	private LdapProperties ldapProperties;
+
 	@Override
 	protected List<String> getDefaultUpdatableAttributes() {
 		return Arrays.asList(
@@ -42,29 +46,35 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 	protected List<PerunAttribute<Resource>> getDefaultAttributeDescriptions() {
 		return Arrays.asList(
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrCommonName, 
-						PerunAttribute.REQUIRED, 
+						PerunAttribute.PerunAttributeNames.ldapAttrCommonName,
+						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> resource.getName()
 						),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrPerunResourceId, 
-						PerunAttribute.REQUIRED, 
+						PerunAttribute.PerunAttributeNames.ldapAttrPerunResourceId,
+						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> String.valueOf(resource.getId())
 						),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrPerunFacilityId, 
-						PerunAttribute.REQUIRED, 
+						PerunAttribute.PerunAttributeNames.ldapAttrPerunFacilityId,
+						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> String.valueOf(resource.getFacilityId())
 						),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrPerunVoId, 
-						PerunAttribute.REQUIRED, 
+						PerunAttribute.PerunAttributeNames.ldapAttrPerunVoId,
+						PerunAttribute.REQUIRED,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> String.valueOf(resource.getVoId())
 						),
 				new PerunAttributeDesc<>(
-						PerunAttribute.PerunAttributeNames.ldapAttrDescription, 
-						PerunAttribute.OPTIONAL, 
+						PerunAttribute.PerunAttributeNames.ldapAttrDescription,
+						PerunAttribute.OPTIONAL,
 						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> resource.getDescription()
+						),
+				new PerunAttributeDesc<>(
+						PerunAttribute.PerunAttributeNames.ldapAttrPerunFacilityDn,
+						PerunAttribute.OPTIONAL,
+						(PerunAttribute.SingleValueExtractor<Resource>)(resource, attrs) -> perunFacility.getEntryDN(String.valueOf(resource.getFacilityId())).toString()
+															+ "," + ldapProperties.getLdapBase()
 						)
 				);
 	}
@@ -72,7 +82,7 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 	public void addResource(Resource resource, String entityID) throws InternalErrorException {
 		addEntry(resource);
 		// get info about entityID attribute if exists
-		if(entityID != null) { 
+		if(entityID != null) {
 			try {
 				DirContextOperations context = findByDN(buildDN(resource));
 				context.setAttributeValue(PerunAttribute.PerunAttributeNames.ldapAttrEntityID, entityID);
@@ -90,7 +100,7 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 
 	@Override
 	public void updateResource(Resource resource) throws InternalErrorException {
-		modifyEntry(resource); 
+		modifyEntry(resource);
 
 	}
 
@@ -121,7 +131,7 @@ public class PerunResourceImpl extends AbstractPerunEntry<Resource> implements P
 		}
 		entry.setAttributeValues(PerunAttribute.PerunAttributeNames.ldapAttrAssignedGroupId, groupIds.toArray());
 	}
-	
+
 	@Override
 	public void synchronizeResource(Resource resource, Iterable<Attribute> attrs, List<Group> assignedGroups) throws InternalErrorException {
 		SyncOperation syncOp = beginSynchronizeEntry(resource, attrs);

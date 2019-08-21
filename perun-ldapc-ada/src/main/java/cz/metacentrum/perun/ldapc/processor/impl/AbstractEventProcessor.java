@@ -7,6 +7,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
+import cz.metacentrum.perun.ldapc.model.PerunFacility;
 import cz.metacentrum.perun.ldapc.model.PerunGroup;
 import cz.metacentrum.perun.ldapc.model.PerunResource;
 import cz.metacentrum.perun.ldapc.model.PerunUser;
@@ -30,6 +31,8 @@ public abstract class AbstractEventProcessor implements EventProcessor, Initiali
 	protected PerunGroup perunGroup;
 	@Autowired
 	protected PerunResource perunResource;
+	@Autowired
+	protected PerunFacility perunFacility;
 	@Autowired
 	protected PerunUser perunUser;
 	@Autowired

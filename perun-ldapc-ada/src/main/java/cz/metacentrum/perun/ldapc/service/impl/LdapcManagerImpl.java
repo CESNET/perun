@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.ldapc.service.impl;
 
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.ldapc.beans.FacilitySynchronizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ public class LdapcManagerImpl implements LdapcManager {
 	private EventDispatcher eventDispatcher;
 	@Autowired
 	private VOSynchronizer voSynchronizer;
+	@Autowired
+	private FacilitySynchronizer facilitySynchronizer;
 	@Autowired
 	private ResourceSynchronizer resourceSynchronizer;
 	@Autowired
@@ -58,6 +61,7 @@ public class LdapcManagerImpl implements LdapcManager {
 	public void synchronize() {
 		try {
 			voSynchronizer.synchronizeVOs();
+			facilitySynchronizer.synchronizeFacilities();
 			userSynchronizer.synchronizeUsers();
 			resourceSynchronizer.synchronizeResources();
 			groupSynchronizer.synchronizeGroups();

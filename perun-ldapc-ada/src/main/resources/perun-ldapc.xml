@@ -38,6 +38,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <context:component-scan base-package="cz.metacentrum.perun.ldapc"/>
     <context:annotation-config/>
 
+	=======
 	<!-- The list of event processors together with conditions of their firing -->
 	<!-- Event processors should inherit from AbstractEventProcessor, which ensures registration with EventDispatcher,
 		 that is started by component annotation.
@@ -45,6 +46,14 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<bean id="deletionEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.DeletionEventProcessor">
 		<property name="dispatchConditions">
 			<list>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+						</list>
+					</property>
+					<property name="pattern" value=" deleted.$" />
+				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
 					<property name="beansCondition">
 						<list>
@@ -95,6 +104,14 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
 					<property name="beansCondition">
 						<list>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+						</list>
+					</property>
+					<property name="pattern" value=" created.$" />
+				</bean>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
 							<value>cz.metacentrum.perun.core.api.Resource</value>
 						</list>
 					</property>
@@ -141,6 +158,14 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<bean id="updateEventProcessor" class="cz.metacentrum.perun.ldapc.processor.impl.UpdateEventProcessor">
 		<property name="dispatchConditions">
 			<list>
+				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
+					<property name="beansCondition">
+						<list>
+							<value>cz.metacentrum.perun.core.api.Facility</value>
+						</list>
+					</property>
+					<property name="pattern" value=" updated.$" />
+				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.processor.impl.RegexpDispatchEventCondition">
 					<property name="beansCondition">
 						<list>
@@ -480,6 +505,17 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					</property>
 				</bean>
 				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="internalUserIdentifiers" />
+					<property name="required" value="false" />
+					<property name="multipleValuesExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
+							<property name="name" value="additionalIdentifiers" />
+							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
+						</bean>
+					</property>
+				</bean>
+
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
 					<property name="name" value="libraryIDs" />
 					<property name="required" value="false" />
 					<property name="multipleValuesExtractor">
@@ -555,17 +591,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						</bean>
 					</property>
 				</bean>
-				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
-					<property name="name" value="internalUserIdentifiers" />
-					<property name="required" value="false" />
-					<property name="multipleValuesExtractor">
-						<bean class="cz.metacentrum.perun.ldapc.model.impl.MultipleAttributeValueExtractor">
-							<property name="name" value="additionalIdentifiers" />
-							<property name="namespace" value="urn:perun:user:attribute-def:virt" />
-						</bean>
-					</property>
-				</bean>
-
 			</list>
 		</property>
 	</bean>
@@ -594,6 +619,36 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 						</bean>
 					</property>
 				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="perunFacility" class="cz.metacentrum.perun.ldapc.model.impl.PerunFacilityImpl">
+		<property name="attributeDescriptions">
+			<!--  this list will be added to built-in defaultAttributeDescriptions -->
+			<list>
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="OIDCClientID" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="OIDCClientID" />
+							<property name="namespace" value="urn:perun:facility:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+				<!-- not used (yet)
+				<bean class="cz.metacentrum.perun.ldapc.model.impl.PerunAttributeDesc">
+					<property name="name" value="OIDCCheckGroupMembership" />
+					<property name="required" value="false" />
+					<property name="singleValueExtractor">
+						<bean class="cz.metacentrum.perun.ldapc.model.impl.SingleAttributeValueExtractor">
+							<property name="name" value="OIDCCheckGroupMembership" />
+							<property name="namespace" value="urn:perun:facility:attribute-def:def" />
+						</bean>
+					</property>
+				</bean>
+ 				-->
 			</list>
 		</property>
 	</bean>
