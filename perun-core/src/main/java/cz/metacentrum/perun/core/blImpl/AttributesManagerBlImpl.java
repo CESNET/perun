@@ -4919,6 +4919,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			return getAttributesManagerImpl().getAllGroupResourceValues(sess, attributeDefinition);
 		} else if (isFromNamespace(sess, attributeDefinition, AttributesManager.NS_GROUP_ATTR)) {
 			return getAttributesManagerImpl().getAllGroupValues(sess, attributeDefinition);
+		} else if (isFromNamespace(sess, attributeDefinition, AttributesManager.NS_USER_ATTR)) {
+			return getAttributesManagerImpl().getAllUserValues(sess, attributeDefinition);
 		} else {
 			throw new InternalErrorException("Not implemented yet!");
 		}
