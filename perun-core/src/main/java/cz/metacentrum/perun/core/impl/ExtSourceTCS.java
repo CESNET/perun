@@ -85,11 +85,6 @@ public class ExtSourceTCS extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getUsersSubjects() throws ExtSourceUnsupportedOperationException {
-		throw new ExtSourceUnsupportedOperationException();
-	}
-
-	@Override
 	public Map<String, String> getSubjectByLogin(String login) throws ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
