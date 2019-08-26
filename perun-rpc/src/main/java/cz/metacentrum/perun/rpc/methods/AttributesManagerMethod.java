@@ -169,6 +169,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
 	 */
 	/*#
+	 * Returns all specified Resource attributes for selected Resource.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param attrNames List<String> Attribute names
+	 * @return List<Attribute> Specified Resource attributes.
+	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
+	 */
+	/*#
 	 * Returns all specified Member-Group attributes for selected Member and Group.
 	 * If <code>workWithUserAttribute == true</code> then also all non-empty User attributes are returned.
 	 *
