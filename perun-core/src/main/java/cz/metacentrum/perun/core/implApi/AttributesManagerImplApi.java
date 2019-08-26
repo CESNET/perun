@@ -2440,6 +2440,19 @@ public interface AttributesManagerImplApi {
 	List<Object> getAllGroupValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
 
 	/**
+	 * Get all values for specified user attribute. Atibute can't be core or virt.
+	 * It may happen that it returns more attribute values than it should, because it may return also values for entities that do not exist
+	 * (see javadoc for removeAllAttributes methods in CacheManager class for more info)
+	 *
+	 * @param sess
+	 * @param attributeDefinition attribute definition, namespace user
+	 * @return
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Object> getAllUserValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException;
+
+	/**
 	 * Check if this attribute is currently required on this facility. Attribute can be from any namespace.
 	 *
 	 * @param sess

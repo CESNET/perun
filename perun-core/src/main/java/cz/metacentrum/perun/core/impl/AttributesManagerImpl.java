@@ -4686,6 +4686,19 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public List<Object> getAllUserValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) return perun.getCacheManager().getAllValues(Holder.HolderType.USER, attributeDefinition);
+
+		try {
+			return jdbc.query("SELECT attr_value FROM user_attr_values WHERE attr_id=?", new ValueRowMapper(sess, attributeDefinition), attributeDefinition.getId());
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public boolean isAttributeRequiredByFacility(PerunSession sess, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		try {
 			return 0 < jdbc.queryForInt("select count(*) from service_required_attrs " +
