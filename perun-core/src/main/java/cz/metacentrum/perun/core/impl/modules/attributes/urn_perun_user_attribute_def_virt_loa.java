@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceAddedToUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceRemovedFromUser;
@@ -103,7 +102,7 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 	}
 
 	/**
-	 * Resolve and create new auditer message about LOA attribute change based on current attribute value.
+	 * Resolve and create new auditer message about LOA attribute change.
 	 *
 	 * @param sess PerunSession
 	 * @param user User to resolve LoA messages
@@ -114,13 +113,8 @@ public class urn_perun_user_attribute_def_virt_loa extends UserVirtualAttributes
 	 */
 	private AuditEvent resolveEvent(PerunSessionImpl sess, User user) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 
-		Attribute attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_V_LOA);
-
-		if (attribute.getValue() == null) {
-			return new AttributeRemovedForUser(new AttributeDefinition(attribute),user);
-		} else {
-			return new AttributeSetForUser(attribute,user);
-		}
+		AttributeDefinition attributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_U_V_LOA);
+		return new AttributeChangedForUser(new Attribute(attributeDefinition), user);
 
 	}
 

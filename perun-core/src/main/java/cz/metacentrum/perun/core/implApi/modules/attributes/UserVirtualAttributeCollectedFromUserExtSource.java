@@ -1,10 +1,9 @@
 package cz.metacentrum.perun.core.implApi.modules.attributes;
 
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForUserExtSource;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUes;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUes;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -219,13 +218,8 @@ public abstract class UserVirtualAttributeCollectedFromUserExtSource<T extends U
 			if (userId != null) {
 				try {
 					User user = perunSession.getPerunBl().getUsersManagerBl().getUserById(perunSession, userId);
-					Attribute attribute = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, getDestinationAttributeName());
-					if (attribute.valueAsList() == null || attribute.valueAsList().isEmpty()) {
-						AttributeDefinition attributeDefinition = new AttributeDefinition(attribute);
-						resolvingMessages.add(new AttributeRemovedForUser(attributeDefinition, user));
-					} else {
-						resolvingMessages.add(new AttributeSetForUser(attribute, user));
-					}
+					AttributeDefinition attributeDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, getDestinationAttributeName());
+					resolvingMessages.add(new AttributeChangedForUser(new Attribute(attributeDefinition), user));
 				} catch (UserNotExistsException e) {
 					log.warn("User from UserExtSource doesn't exist in Perun. This occurred while parsing message: {}.", message);
 				}

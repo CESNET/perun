@@ -127,8 +127,8 @@ public class urn_perun_user_attribute_def_virt_institutionsCountriesTest {
 	@Test
 	public void resolveVirtualAttributeValueChange() throws Exception {
 		setSchacHomeOrgs("muni.cz;cesnet.cz");
-		Attribute countries = classInstance.getAttributeValue(sess, user, institutionCountriesAttrDef);
-		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess,user,"urn:perun:user:attribute-def:virt:institutionsCountries"))
+		AttributeDefinition countries = classInstance.getAttributeDefinition();
+		when(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess,"urn:perun:user:attribute-def:virt:institutionsCountries"))
 			.thenReturn(countries);
 		when(sess.getPerunBl().getUsersManagerBl().getUserById(sess, userExtSource.getUserId())).thenReturn(user);
 
@@ -142,8 +142,8 @@ public class urn_perun_user_attribute_def_virt_institutionsCountriesTest {
 		setSchacHomeOrgs("muni.cz;cesnet.cz");
 		String czech_republic = "Czech Republic";
 		dnsMap.put(".cz", czech_republic);
-		Attribute countries = classInstance.getAttributeValue(sess, user, institutionCountriesAttrDef);
-		when(sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:virt:institutionsCountries"))
+		AttributeDefinition countries = classInstance.getAttributeDefinition();
+		when(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:user:attribute-def:virt:institutionsCountries"))
 			.thenReturn(countries);
 		Attribute newval = new Attribute(new urn_perun_entityless_attribute_def_def_dnsStateMapping().getAttributeDefinition());
 		newval.setValue(czech_republic);

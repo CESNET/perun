@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.DirectMemberAddedToGroup;
 import cz.metacentrum.perun.audit.events.GroupManagerEvents.IndirectMemberAddedToGroup;
@@ -11,12 +10,10 @@ import cz.metacentrum.perun.audit.events.GroupManagerEvents.MemberValidatedInGro
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -31,9 +28,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -98,32 +93,23 @@ public class urn_perun_user_attribute_def_virt_groupNames extends UserVirtualAtt
 		if (message == null) return resolvingMessages;
 
 		if (message instanceof DirectMemberAddedToGroup) {
-			resolvingMessages.addAll(resolveEvent(sess, ((DirectMemberAddedToGroup) message).getMember()));
+			resolvingMessages.add(resolveEvent(sess, ((DirectMemberAddedToGroup) message).getMember()));
 		} else if (message instanceof IndirectMemberAddedToGroup) {
-			resolvingMessages.addAll(resolveEvent(sess, ((IndirectMemberAddedToGroup) message).getMember()));
+			resolvingMessages.add(resolveEvent(sess, ((IndirectMemberAddedToGroup) message).getMember()));
 		} else if (message instanceof MemberRemovedFromGroupTotally) {
-			resolvingMessages.addAll(resolveEvent(sess, ((MemberRemovedFromGroupTotally) message).getMember()));
+			resolvingMessages.add(resolveEvent(sess, ((MemberRemovedFromGroupTotally) message).getMember()));
 		} else if (message instanceof MemberExpiredInGroup) {
-			resolvingMessages.addAll(resolveEvent(sess, ((MemberExpiredInGroup) message).getMember()));
+			resolvingMessages.add(resolveEvent(sess, ((MemberExpiredInGroup) message).getMember()));
 		} else if (message instanceof MemberValidatedInGroup) {
-			resolvingMessages.addAll(resolveEvent(sess, ((MemberValidatedInGroup) message).getMember()));
+			resolvingMessages.add(resolveEvent(sess, ((MemberValidatedInGroup) message).getMember()));
 		}
 		return resolvingMessages;
 	}
 
-	private List<AuditEvent> resolveEvent (PerunSessionImpl sess, Member member) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
-		List<AuditEvent> resolvingMessages = new ArrayList<>();
-
+	private AuditEvent resolveEvent (PerunSessionImpl sess, Member member) throws InternalErrorException, AttributeNotExistsException {
 		User user = sess.getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-		Attribute attribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, A_U_V_GROUP_NAMES);
-		if (attribute.valueAsList() == null || attribute.valueAsList().isEmpty()){
-			AttributeDefinition attributeDefinition = new AttributeDefinition(attribute);
-			resolvingMessages.add(new AttributeRemovedForUser(attributeDefinition, user));
-		} else {
-			resolvingMessages.add(new AttributeSetForUser(attribute, user));
-		}
-
-		return resolvingMessages;
+		AttributeDefinition attributeDefinition = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_U_V_GROUP_NAMES);
+		return new AttributeChangedForUser(new Attribute(attributeDefinition), user);
 	}
 
 	@Override
