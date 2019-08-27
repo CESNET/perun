@@ -400,7 +400,7 @@ public class AttributesManagerBlImplUnitTests {
 			setUpDependencyBetweenTwoAttributesWhereTheDependantHasModule(module);
 
 		attrManagerBlImplMock.checkAttributeDependencies(sessionMock, dependencyAttribute);
-		verify(attrManagerBlImplMock, times(1)).checkAttributeSemantics(any(), (User)any(), any());
+		verify(attrManagerBlImplMock, times(1)).checkAttributeValue(any(), (User)any(), any());
 	}
 
 	@Test
@@ -416,7 +416,7 @@ public class AttributesManagerBlImplUnitTests {
 			setUpDependencyBetweenTwoAttributesWhereTheDependantHasModule(module);
 
 		attrManagerBlImplMock.checkAttributeDependencies(sessionMock, dependencyAttribute);
-		verify(attrManagerBlImplMock, times(0)).checkAttributeSemantics(any(), (User)any(), any());
+		verify(attrManagerBlImplMock, times(0)).checkAttributeValue(any(), (User)any(), any());
 	}
 
 	// ## ----------- PRIVATE METHODS ------------ ##
