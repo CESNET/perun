@@ -1,6 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceAddedToUser;
 import cz.metacentrum.perun.audit.events.UserManagerEvents.UserExtSourceRemovedFromUser;
@@ -69,39 +69,18 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 		List<AuditEvent> resolvingMessages = new ArrayList<>();
 		if (message == null) return resolvingMessages;
 
-		if (message instanceof UserExtSourceAddedToUser) {
-			resolvingMessages.addAll(resolveUserExtSourceAddedToUser(perunSession, (UserExtSourceAddedToUser) message));
-		} else if (message instanceof UserExtSourceRemovedFromUser) {
-			resolvingMessages.addAll(resolveUserExtSourceRemovedFromUser(perunSession, (UserExtSourceRemovedFromUser) message));
+		if (message instanceof UserExtSourceAddedToUser && ((UserExtSourceAddedToUser) message).getUserExtSource().getExtSource() instanceof ExtSourceX509) {
+			resolvingMessages.add(resolveEvent(perunSession, ((UserExtSourceAddedToUser) message).getUser()));
+		} else if (message instanceof UserExtSourceRemovedFromUser && ((UserExtSourceRemovedFromUser) message).getUserExtSource().getExtSource() instanceof ExtSourceX509) {
+			resolvingMessages.add(resolveEvent(perunSession, ((UserExtSourceRemovedFromUser) message).getUser()));
 		}
 
 		return resolvingMessages;
 	}
 
-	private List<AuditEvent> resolveUserExtSourceAddedToUser(PerunSessionImpl perunSession, UserExtSourceAddedToUser userExtSourceAddedToUser) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException {
-		List<AuditEvent> resolvingMessages = new ArrayList<>();
-
-		if (userExtSourceAddedToUser.getUserExtSource().getExtSource() instanceof ExtSourceX509) {
-			User user = userExtSourceAddedToUser.getUser();
-			Attribute attrVirtUserCertDNs = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, A_U_V_USER_CERT_DNS);
-			//FIXME: if the attribute value is null or empty, this method should return AttributeRemovedForUser instead
-			resolvingMessages.add(new AttributeSetForUser(attrVirtUserCertDNs, user));
-		}
-
-		return resolvingMessages;
-	}
-
-	private List<AuditEvent> resolveUserExtSourceRemovedFromUser(PerunSessionImpl perunSession, UserExtSourceRemovedFromUser userExtSourceRemovedFromUser) throws WrongAttributeAssignmentException, InternalErrorException, AttributeNotExistsException {
-		List<AuditEvent> resolvingMessages = new ArrayList<>();
-
-		if (userExtSourceRemovedFromUser.getUserExtSource().getExtSource() instanceof ExtSourceX509) {
-			User user = userExtSourceRemovedFromUser.getUser();
-			Attribute attrVirtUserCertDNs = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, A_U_V_USER_CERT_DNS);
-			//FIXME: if the attribute value is null or empty, this method should return AttributeRemovedForUser instead
-			resolvingMessages.add(new AttributeSetForUser(attrVirtUserCertDNs, user));
-		}
-
-		return resolvingMessages;
+	private AuditEvent resolveEvent(PerunSessionImpl perunSession, User user) throws AttributeNotExistsException, InternalErrorException {
+		AttributeDefinition attrVirtUserCertDNsDefinition = perunSession.getPerunBl().getAttributesManagerBl().getAttributeDefinition(perunSession, A_U_V_USER_CERT_DNS);
+		return new AttributeChangedForUser(new Attribute(attrVirtUserCertDNsDefinition), user);
 	}
 
 	@Override

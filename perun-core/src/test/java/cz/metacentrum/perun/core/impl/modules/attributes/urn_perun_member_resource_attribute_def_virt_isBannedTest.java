@@ -67,7 +67,6 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
 		user = new User(1, "name", "surname", "middlename", "title", "title");
 		member = new Member(1, 1, 1, Status.VALID);
 		isBanned = new Attribute(classInstance.getAttributeDefinition());
-		isBanned.setValue(true);
 		event1 = new BanSetForResource(new BanOnResource(), member.getId(), resource.getId());
 		event2 = new BanUpdatedForResource(new BanOnResource(), member.getId(), resource.getId());
 		event3 = new BanRemovedForResource(new BanOnResource(), member.getId(), resource.getId());
@@ -86,14 +85,14 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
 		//for message 1, 2 and 3
 		when(session.getPerunBl().getMembersManagerBl().getMemberById(any(PerunSessionImpl.class), anyInt())).thenReturn(member);
 		when(session.getPerunBl().getResourcesManagerBl().getResourceById(any(PerunSessionImpl.class), anyInt())).thenReturn(resource);
-		when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSessionImpl.class), any(Member.class), any(Resource.class), anyString())).thenReturn(isBanned);
+		when(session.getPerunBl().getAttributesManagerBl().getAttributeDefinition(any(PerunSessionImpl.class), anyString())).thenReturn(classInstance.getAttributeDefinition());
 		resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event1);
 		assertEquals(resolvedEvents.size(), 1);
-		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " set for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
+		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
 		resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event2);
-		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " set for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
+		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
 		resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event3);
-		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " removed for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
+		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
 
 		//for message 4, 5 and 6
 		when(session.getPerunBl().getUsersManagerBl().getUserById(any(PerunSessionImpl.class), anyInt())).thenReturn(user);
@@ -101,11 +100,11 @@ public class urn_perun_member_resource_attribute_def_virt_isBannedTest {
 		when(session.getPerunBl().getFacilitiesManagerBl().getAssignedResources(any(PerunSessionImpl.class), any(Facility.class))).thenReturn(Collections.singletonList(resource));
 		when(session.getPerunBl().getResourcesManagerBl().getAssignedMembers(any(PerunSessionImpl.class), any(Resource.class))).thenReturn(Collections.singletonList(member));
 		resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event4);
-		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " set for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
+		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
 		resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event5);
-		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " set for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
+		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
 		resolvedEvents = classInstance.resolveVirtualAttributeValueChange(session, event6);
-		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " removed for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
+		assertEquals(resolvedEvents.get(0).getMessage(), isBanned.serializeToString() + " changed for " + resource.serializeToString() + " and " + member.serializeToString() + ".");
 	}
 
 	@Test

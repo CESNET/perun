@@ -3,7 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AllAttributesRemovedForUserExtSource;
-import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeRemovedForUser;
+import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeChangedForUser;
 import cz.metacentrum.perun.audit.events.AttributesManagerEvents.AttributeSetForUser;
 import cz.metacentrum.perun.audit.events.AuditEvent;
 import cz.metacentrum.perun.core.api.Attribute;
@@ -262,25 +262,24 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliationsTest {
 	public void resolveAttributeValueChangeTest() throws Exception {
 		when(session.getPerunBl().getUsersManagerBl().getUserById(session, 1)).thenReturn(user);
 		AuditEvent event = new AllAttributesRemovedForUserExtSource(ues1);
-		List<AuditEvent> auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
+		List auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
 
-		assertEquals(auditEvents.get(0).getClass(), AttributeSetForUser.class);
+		assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
 
 		event = new AllAttributesRemovedForUser(user);
 		auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
-		System.out.println(auditEvents);
-		assertEquals(auditEvents.get(0).getClass(), AttributeSetForUser.class);
+		assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
 
 		Attribute attribute = new Attribute();
 		attribute.setFriendlyName("eduPersonScopedAffiliationsManuallyAssigned");
 
 		event = new AttributeSetForUser(attribute, user);
 		auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
-		assertEquals(auditEvents.get(0).getClass(), AttributeSetForUser.class);
+		assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
 
 		when(session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_VIRT + ":" + "eduPersonScopedAffiliations")).thenReturn(attribute);
 		auditEvents = classInstance.resolveVirtualAttributeValueChange(session, event);
-		assertEquals(auditEvents.get(0).getClass(), AttributeRemovedForUser.class);
+		assertEquals(auditEvents.get(0).getClass(), AttributeChangedForUser.class);
 	}
 
 }
