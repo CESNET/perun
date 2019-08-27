@@ -27,6 +27,7 @@ public class urn_perun_user_attribute_def_virt_shibbolethExtSources extends User
 		Map<String, String> idpLogins = new LinkedHashMap<>();
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
+		int i=1;
 		for(UserExtSource uES: userExtSources) {
 			if(uES.getExtSource() != null) {
 				String login = uES.getLogin();
@@ -35,7 +36,8 @@ public class urn_perun_user_attribute_def_virt_shibbolethExtSources extends User
 
 				if(type != null && login != null) {
 					if(type.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
-						idpLogins.put(idpIdentifier, login);
+						idpLogins.put(i + ":" + idpIdentifier, login);
+						i++;
 					}
 				}
 			}
