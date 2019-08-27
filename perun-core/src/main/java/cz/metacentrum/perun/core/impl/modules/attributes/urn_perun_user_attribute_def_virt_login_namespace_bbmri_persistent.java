@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 
 import java.util.Collections;
@@ -23,6 +24,7 @@ import java.util.List;
  *
  * @date 07.11.2016
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_login_namespace_bbmri_persistent extends UserVirtualAttributesModuleAbstract {
     
         public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:bbmri-persistent-shadow";

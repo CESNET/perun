@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_V
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_facility_attribute_def_virt_voShortNames extends FacilityVirtualAttributesModuleAbstract implements FacilityVirtualAttributesModuleImplApi {
 
 	@Override

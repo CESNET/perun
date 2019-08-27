@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleAbstract;
 
 import java.math.BigDecimal;
@@ -35,6 +36,7 @@ import java.util.Map;
  *
  * @author Michal Stava stavamichal@gmail.com
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_facility_attribute_def_virt_fileQuotas extends UserFacilityVirtualAttributesModuleAbstract {
 	public static final String A_MR_V_fileQuotas = AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT + ":fileQuotas";
 

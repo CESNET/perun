@@ -1,31 +1,45 @@
 package cz.metacentrum.perun.core.bl;
 
 import com.google.common.collect.Sets;
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.RichAttribute;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_loa;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_virt_userCertDNs;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -43,6 +57,13 @@ public class AttributesManagerBlImplUnitTests {
 
 	private AttributesManagerBlImpl attrManagerBlImpl;
 
+	/**
+	 * Partial mock.
+	 *
+	 * Use when you need to mock only some methods.
+	 */
+	private AttributesManagerBlImpl attrManagerBlImplMock = mock(AttributesManagerBlImpl.class);
+
 	private AttributesManagerImpl attrManagerImplMock = mock(AttributesManagerImpl.class);
 	private PerunSession sessionMock = mock(PerunSession.class);
 	private PerunBl perunBlMock = mock(PerunBl.class, RETURNS_DEEP_STUBS);
@@ -51,6 +72,7 @@ public class AttributesManagerBlImplUnitTests {
 
 	@Before
 	public void setUp() {
+		ReflectionTestUtils.setField(attrManagerBlImplMock, "attributesManagerImpl", attrManagerImplMock);
 		attrManagerBlImpl = new AttributesManagerBlImpl(attrManagerImplMock);
 		attrManagerBlImpl.setPerunBl(perunBlMock);
 	}
@@ -366,9 +388,96 @@ public class AttributesManagerBlImplUnitTests {
 		assertThat(strongDependencies.get(A)).contains(B);
 	}
 
+	@Test
+	public void checkAttributeDependenciesDoesntSkipAttributesWithValueCheck() throws Exception {
+		System.out.println(CLASS_NAME + "checkAttributeDependenciesDoesntSkipAttributesWithValueCheck");
+		// set the mock to call the real tested method
+		doCallRealMethod().when(attrManagerBlImplMock).checkAttributeDependencies(any(), any());
+
+		UserAttributesModuleImplApi module = new urn_perun_user_attribute_def_virt_loa();
+
+		RichAttribute<User, Void> dependencyAttribute =
+			setUpDependencyBetweenTwoAttributesWhereTheDependantHasModule(module);
+
+		attrManagerBlImplMock.checkAttributeDependencies(sessionMock, dependencyAttribute);
+		verify(attrManagerBlImplMock, times(1)).checkAttributeSemantics(any(), (User)any(), any());
+	}
+
+	@Test
+	public void checkAttributeDependenciesSkipAttributesWithoutValueCheck() throws Exception {
+		System.out.println(CLASS_NAME + "checkAttributeDependenciesSkipAttributesWithoutValueCheck");
+		// set the mock to call the real tested method
+		doCallRealMethod().when(attrManagerBlImplMock).checkAttributeDependencies(any(), any());
+		when(attrManagerImplMock.isVirtAttribute(any(), any())).thenReturn(true);
+
+		UserAttributesModuleImplApi module = new urn_perun_user_attribute_def_virt_userCertDNs();
+
+		RichAttribute<User, Void> dependencyAttribute =
+			setUpDependencyBetweenTwoAttributesWhereTheDependantHasModule(module);
+
+		attrManagerBlImplMock.checkAttributeDependencies(sessionMock, dependencyAttribute);
+		verify(attrManagerBlImplMock, times(0)).checkAttributeSemantics(any(), (User)any(), any());
+	}
 
 	// ## ----------- PRIVATE METHODS ------------ ##
 
+	/**
+	 * Sets up test environment for testing of (not)skipping value calculation during dependency check.
+	 *
+	 * Sets dependency A -> B. The given {@code module} is used as a module of the attribute A.
+	 * The attribute B is returned, so it can be used to run tested methods.
+	 *
+	 * @param module module for A attribute
+	 * @return B attribute
+	 * @throws Exception any exception
+	 */
+	private RichAttribute<User, Void> setUpDependencyBetweenTwoAttributesWhereTheDependantHasModule(
+		AttributesModuleImplApi module
+	) throws Exception {
+		RichAttribute<User, Void> A = setUpVirtualRichAttribute(new User(), null, "A");
+		RichAttribute<User, Void> B = setUpVirtualRichAttribute(new User(), null, "B");
+
+		// Set dependency(inverse):
+		//    A -> B
+		Map<AttributeDefinition, Set<AttributeDefinition>> dependencies = new HashMap<>();
+		dependencies.put(
+			new AttributeDefinition(B.getAttribute()),
+			Collections.singleton(new AttributeDefinition(A.getAttribute()))
+		);
+		when(attrManagerBlImplMock.getAllDependencies()).thenReturn(dependencies);
+
+		when(attrManagerImplMock.getAttributesModule(any(), eq(new AttributeDefinition(A.getAttribute()))))
+			.thenReturn(module);
+		when(attrManagerBlImplMock.getRichAttributesWithHoldersForAttributeDefinition(any(), any(), any()))
+			.thenReturn(Collections.singletonList(A));
+		when(attrManagerImplMock.isFromNamespace(any(), eq(NS_USER_ATTR)))
+			.thenReturn(true);
+
+		return B;
+	}
+
+	/**
+	 * Sets up a virtual RichAttribute with given name and given holders.
+	 *
+	 * @param holder1 primary holder
+	 * @param holder2 secondary holder
+	 * @param name name
+	 * @param <T> type of first holder
+	 * @param <V> type of secondary holder
+	 * @return created rich attribute
+	 * @throws Exception any exception
+	 */
+	private <T, V> RichAttribute<T, V> setUpVirtualRichAttribute(
+		T holder1,
+		V holder2,
+		String name
+	) throws Exception {
+		AttributeDefinition attributeDefinition = new AttributeDefinition();
+		attributeDefinition.setNamespace("urn:perun:user:attribute-def:virt");
+		attributeDefinition.setFriendlyName(name);
+		Attribute attribute = new Attribute(attributeDefinition);
+		return new RichAttribute<>(holder1, holder2, attribute);
+	}
 
 	@SuppressWarnings("unchecked")
 	private Map<AttributeDefinition, Set<AttributeDefinition>> getDependencies() throws Exception {

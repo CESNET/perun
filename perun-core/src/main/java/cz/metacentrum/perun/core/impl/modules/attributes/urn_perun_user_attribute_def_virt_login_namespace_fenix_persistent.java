@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 
 import java.util.Collections;
@@ -19,6 +20,7 @@ import java.util.List;
  * Class for access def:fenix-persistent-shadow attribute. It generates value if you call it for the first time.
  *
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_login_namespace_fenix_persistent extends UserVirtualAttributesModuleAbstract {
 
 	public static final String SHADOW = "urn:perun:user:attribute-def:def:login-namespace:fenix-persistent-shadow";
