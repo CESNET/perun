@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
@@ -24,6 +25,7 @@ import java.util.Map;
  *
  * @author Metodej Klang
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_userOrganizations extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 	private static final String A_M_organization = AttributesManager.NS_MEMBER_ATTR_DEF + ":organization";

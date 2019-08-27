@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
@@ -22,6 +23,7 @@ import java.util.Map;
  *
  * @author Michal Šťava <stavamichal@gmail.com>
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 	final Map<String, Pair<String, String>> mapOfExtSourcesNames = new HashMap<>();

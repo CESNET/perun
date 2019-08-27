@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
@@ -19,6 +20,7 @@ import java.util.List;
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
 	private static final String A_U_D_phoneDc2 = AttributesManager.NS_USER_ATTR_DEF + ":phoneDc2";

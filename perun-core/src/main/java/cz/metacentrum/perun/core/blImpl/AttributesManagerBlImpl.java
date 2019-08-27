@@ -96,6 +96,7 @@ import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_facility_attr
 import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_member_attribute_def_def_suspensionInfo;
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.utils.graphs.Graph;
@@ -5817,6 +5818,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			if (dependencies != null && !dependencies.isEmpty()) {
 				for (AttributeDefinition dependency : dependencies) {
 					List<RichAttribute> richAttributesToCheck;
+					if (attributesManagerImpl.isVirtAttribute(sess, dependency)) {
+						AttributesModuleImplApi module = (AttributesModuleImplApi) attributesManagerImpl.getAttributesModule(sess, dependency);
+						if (module.getClass().isAnnotationPresent(SkipValueCheckDuringDependencyCheck.class)) {
+							continue;
+						}
+					}
 					try {
 						richAttributesToCheck = getRichAttributesWithHoldersForAttributeDefinition(sess, dependency, richAttr);
 					} catch (AttributeNotExistsException | VoNotExistsException | UserNotExistsException | GroupResourceMismatchException | MemberResourceMismatchException ex) {

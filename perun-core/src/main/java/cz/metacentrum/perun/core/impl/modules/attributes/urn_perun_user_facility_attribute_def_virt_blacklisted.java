@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserFacilityVirtualAttributesModuleAbstract;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
  *
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_user_facility_attribute_def_virt_blacklisted extends UserFacilityVirtualAttributesModuleAbstract {
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, Facility facility, AttributeDefinition attributeDefinition) throws InternalErrorException {

@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.SkipValueCheckDuringDependencyCheck;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
 /**
  * @author Kristyna Kysela
  */
+@SkipValueCheckDuringDependencyCheck
 public class urn_perun_member_group_attribute_def_virt_isGroupAdmin extends MemberGroupVirtualAttributesModuleAbstract implements MemberGroupVirtualAttributesModuleImplApi {
 
     @Override
