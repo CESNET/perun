@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.api;
 public enum Role {
 
 	PERUNADMIN  ("perunadmin"),
+	PERUNOBSERVER ("perunobserver"),
 	VOADMIN ("voadmin"),
 	GROUPADMIN ("groupadmin"),
 	SELF ("self"),

@@ -532,10 +532,50 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	}
 
 	@Override
+	public void makeUserPerunObserver(PerunSession sess, User user) throws InternalErrorException {
+		try {
+			jdbc.update("insert into authz (user_id, role_id) values (?, (select id from roles where name=?))", user.getId(), Role.PERUNOBSERVER.getRoleName());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void makeAuthorizedGroupPerunObserver(PerunSession sess, Group authorizedGroup) throws InternalErrorException {
+		try {
+			jdbc.update("insert into authz (authorized_group_id, role_id) values (?, (select id from roles where name=?))", authorizedGroup.getId(), Role.PERUNOBSERVER.getRoleName());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removePerunObserverFromAuthorizedGroup(PerunSession sess, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where authorized_group_id=? and role_id=(select id from roles where name=?)", authorizedGroup.getId(), Role.PERUNOBSERVER.getRoleName())) {
+				throw new GroupNotAdminException("Group id=" + authorizedGroup.getId() + " is not perun observer.");
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public void removePerunAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException {
 		try {
 			if (0 == jdbc.update("delete from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNADMIN.getRoleName())) {
 				throw new UserNotAdminException("User id=" + user.getId() + " is not perun admin.");
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removePerunObserver(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where user_id=? and role_id=(select id from roles where name=?)", user.getId(), Role.PERUNOBSERVER.getRoleName())) {
+				throw new UserNotAdminException("User id=" + user.getId() + " is not perun observer.");
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);

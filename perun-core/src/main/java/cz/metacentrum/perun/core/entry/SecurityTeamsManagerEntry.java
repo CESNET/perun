@@ -63,9 +63,9 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 	public List<SecurityTeam> getSecurityTeams(PerunSession sess) throws PrivilegeException, InternalErrorException {
 		Utils.checkPerunSession(sess);
 
-		if (AuthzResolverBlImpl.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			return getSecurityTeamsManagerBl().getAllSecurityTeams(sess);
-		} else if (AuthzResolverBlImpl.isAuthorized(sess, Role.SECURITYADMIN)) {
+		} else if (AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN)) {
 			List<SecurityTeam> securityTeams = new ArrayList<>();
 			// Get SecurityTeams where user is Admin
 			for (PerunBean st: AuthzResolver.getComplementaryObjectsForRole(sess, Role.SECURITYADMIN, SecurityTeam.class)) {
@@ -82,7 +82,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		Utils.checkPerunSession(sess);
 
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)
-				&& !AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN)) {
+				&& !AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN)
+				&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getAllSecurityTeams");
 		}
 
@@ -178,7 +179,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)
 				&& !AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN)
-				&& !(AuthzResolver.isAuthorized(sess, Role.RPC))) {
+				&& !(AuthzResolver.isAuthorized(sess, Role.RPC))
+				&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getSecurityTeamById");
 		}
 
@@ -192,7 +194,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)
 				&& !AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN)
-				&& !(AuthzResolver.isAuthorized(sess, Role.RPC))) {
+				&& !(AuthzResolver.isAuthorized(sess, Role.RPC))
+				&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getSecurityTeamByName");
 		}
 
@@ -204,7 +207,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		Utils.checkPerunSession(sess);
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getAdmins");
 		}
 
@@ -217,7 +221,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getAdminGroups");
 		}
 
@@ -325,7 +330,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		Utils.checkPerunSession(sess);
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getBlacklist");
 		}
 
@@ -337,7 +343,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getBlacklist");
 		}
 
@@ -349,7 +356,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		Utils.checkPerunSession(sess);
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getBlacklistWithDescription");
 		}
 
@@ -361,7 +369,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(sess, "getBlacklistWithDescription");
 		}
 

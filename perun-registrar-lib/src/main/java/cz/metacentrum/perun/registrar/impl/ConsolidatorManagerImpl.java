@@ -181,7 +181,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		Application app = registrarManager.getApplicationById(registrarSession, appId);
 
 		if (app.getGroup() == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())) {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
+					!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 				if (sess.getPerunPrincipal().getUser() != null) {
 					// check if application to find similar users by belongs to user
 					if (!sess.getPerunPrincipal().getUser().equals(app.getUser())) throw new PrivilegeException("checkForSimilarUsers");
@@ -192,7 +193,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			}
 		} else {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo()) &&
-					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())) {
+					!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup()) &&
+					!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 				if (sess.getPerunPrincipal().getUser() != null) {
 					// check if application to find similar users by belongs to user
 					if (!sess.getPerunPrincipal().getUser().equals(app.getUser())) throw new PrivilegeException("checkForSimilarUsers");

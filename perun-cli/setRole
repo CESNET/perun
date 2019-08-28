@@ -65,6 +65,17 @@ if ($role eq "PERUNADMIN") {
 	} else {
 		die "ERROR: PERUNADMIN role cannot be set for group \n";
 	}
+} elsif ($role eq "PERUNOBSERVER") {
+	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
+		die "ERROR: no other object needed when setting role $role\n";
+	}
+	if (defined($userId)) {
+		$authzResolverAgent->setRole( user => $userId, complementaryObject => undef, role => $role );
+		printMessage("PERUNOBSERVER role is successfully set for user $userId", $batch);
+	} else {
+		$authzResolverAgent->setRole( authorizedGroup => $authorizedGroupId, complementaryObject => undef, role => $role );
+		printMessage("PERUNOBSERVER role is successfully set for authorizedGroup $authorizedGroupId", $batch);
+	}
 } elsif ($role eq "CABINETADMIN") {
 	if (defined($facilityId) || defined($voId) || defined($groupId) || defined($resourceId) || defined($serviceId)) {
 		die "ERROR: no other object needed when setting role $role\n";

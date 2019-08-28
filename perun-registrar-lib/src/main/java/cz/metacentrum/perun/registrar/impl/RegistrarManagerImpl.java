@@ -710,12 +710,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			if (Objects.isNull(form.getGroup())) {
 				// VO application
-				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
+						!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 					throw new PrivilegeException(sess, "getFormById");
 				}
 			} else {
 				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
-						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) ) {
+						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) &&
+						!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER) ) {
 					throw new PrivilegeException(sess, "getFormById");
 				}
 			}
@@ -758,14 +760,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// VO application
 				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
 						!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo()) &&
-						!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+						!AuthzResolver.isAuthorized(sess, Role.REGISTRAR) &&
+						!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 					throw new PrivilegeException(sess, "getFormByItemId");
 				}
 			} else {
 				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
 						!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo()) &&
 						!AuthzResolver.isAuthorized(sess, Role.REGISTRAR) &&
-						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) ) {
+						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) &&
+						!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER) ) {
 					throw new PrivilegeException(sess, "getFormByItemId");
 				}
 			}
@@ -1858,7 +1862,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
 						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
 						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
-						&& !AuthzResolver.isAuthorized(sess, Role.SELF, app.getUser())) {
+						&& !AuthzResolver.isAuthorized(sess, Role.SELF, app.getUser())
+						&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 					throw new PrivilegeException(sess, "getApplicationById");
 				}
 
@@ -1868,6 +1873,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
 						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
 						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+						&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)
 						&& !(app.getCreatedBy().equals(sess.getPerunPrincipal().getActor()) &&
 						app.getExtSourceName().equals(sess.getPerunPrincipal().getExtSourceName()))) {
 					throw new PrivilegeException(sess, "getApplicationById");
@@ -1884,7 +1890,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
 						&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
 						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
-						&& !AuthzResolver.isAuthorized(sess, Role.SELF, app.getUser())) {
+						&& !AuthzResolver.isAuthorized(sess, Role.SELF, app.getUser())
+						&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 					throw new PrivilegeException(sess, "getApplicationById");
 				}
 
@@ -1895,6 +1902,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
 						&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
 						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+						&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)
 						&& !(app.getCreatedBy().equals(sess.getPerunPrincipal().getActor()) &&
 						app.getExtSourceName().equals(sess.getPerunPrincipal().getExtSourceName()))) {
 					throw new PrivilegeException(sess, "getApplicationById");
@@ -1913,7 +1921,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// authz
 		if (!AuthzResolver.isAuthorized(userSession, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(userSession, Role.VOOBSERVER, vo)) {
+				!AuthzResolver.isAuthorized(userSession, Role.VOOBSERVER, vo) &&
+				!AuthzResolver.isAuthorized(userSession, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(userSession, "getApplicationsForVo");
 		}
 		if (state == null || state.isEmpty()) {
@@ -1943,7 +1952,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// authz
 		if (!AuthzResolver.isAuthorized(userSession, Role.VOADMIN, group) &&
 				!AuthzResolver.isAuthorized(userSession, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(userSession, Role.GROUPADMIN, group)) {
+				!AuthzResolver.isAuthorized(userSession, Role.GROUPADMIN, group) &&
+				!AuthzResolver.isAuthorized(userSession, Role.PERUNOBSERVER)) {
 			throw new PrivilegeException(userSession, "getApplicationsForGroup");
 		}
 		if (state == null || state.isEmpty()) {
@@ -2000,7 +2010,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	public List<Application> getApplicationsForMember(PerunSession sess, Group group, Member member) throws PerunException {
 
 		// authz
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member) &&
+				!AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 			if (group != null) {
 				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 					throw new PrivilegeException(sess, "getApplicationsForMember");
@@ -2028,14 +2040,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// authz
 		if (form.getGroup() == null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo())) {
+					&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo())
+					&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 				throw new PrivilegeException("getFormItems");
 			}
 		} else {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())
 					&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo())
 					&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, form.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
+					&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())
+					&& !AuthzResolver.isAuthorized(sess, Role.PERUNOBSERVER)) {
 				throw new PrivilegeException("getFormItems");
 			}
 		}
