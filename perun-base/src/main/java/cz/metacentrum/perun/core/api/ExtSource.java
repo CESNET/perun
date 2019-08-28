@@ -1,6 +1,11 @@
 package cz.metacentrum.perun.core.api;
 
-import java.util.HashMap;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.interfaces.ExtSourceSimpleApi;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -8,7 +13,7 @@ import java.util.Map;
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSource extends Auditable implements Comparable<PerunBean>{
+public class ExtSource extends Auditable implements ExtSourceSimpleApi, Comparable<PerunBean>{
 
 	private String name;
 	private String type;
@@ -126,5 +131,40 @@ public class ExtSource extends Auditable implements Comparable<PerunBean>{
 		} else {
 			return (this.getId() - perunBean.getId());
 		}
+	}
+
+	@Override
+	public List<Map<String, String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	@Override
+	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	@Override
+	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	@Override
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	@Override
+	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	@Override
+	public List<Map<String, String>> getSubjectGroups(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	@Override
+	public List<Map<String, String>> getUsersSubjects() throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException();
 	}
 }

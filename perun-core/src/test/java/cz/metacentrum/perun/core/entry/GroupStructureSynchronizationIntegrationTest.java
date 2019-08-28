@@ -15,7 +15,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.impl.ExtSourceLdap;
-import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
+import cz.metacentrum.perun.core.interfaces.ExtSourceSimpleApi;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

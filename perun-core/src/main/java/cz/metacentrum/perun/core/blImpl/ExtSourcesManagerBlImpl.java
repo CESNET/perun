@@ -32,7 +32,6 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
-import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,7 +172,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 			// Check if the login is still present in the extSource
 			try {
-				((ExtSourceSimpleApi) source).getSubjectByLogin(userLogin);
+				source.getSubjectByLogin(userLogin);
 			} catch (SubjectNotExistsException e) {
 				invalidUsers.add(user);
 			} catch (ExtSourceUnsupportedOperationException e) {
@@ -222,7 +221,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		// Get the subject from the extSource
 		Map<String, String> subject;
 		try {
-			subject = ((ExtSourceSimpleApi) source).getSubjectByLogin(login);
+			subject = source.getSubjectByLogin(login);
 		} catch (SubjectNotExistsException e) {
 			throw new CandidateNotExistsException(login);
 		}

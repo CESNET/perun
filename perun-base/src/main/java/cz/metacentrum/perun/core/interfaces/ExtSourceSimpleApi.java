@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.core.implApi;
+package cz.metacentrum.perun.core.interfaces;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;

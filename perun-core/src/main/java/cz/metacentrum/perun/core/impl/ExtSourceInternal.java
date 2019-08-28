@@ -5,7 +5,6 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
-import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +16,7 @@ import java.util.Map;
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSourceInternal extends ExtSource implements ExtSourceSimpleApi {
+public class ExtSourceInternal extends ExtSource {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceInternal.class);
 

@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
-import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,7 @@ import java.util.Map;
 /**
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
+public class ExtSourceISMU extends ExtSource {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceISMU.class);
 

@@ -41,7 +41,6 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberGroupStatus;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunBeanProcessingPool;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -107,8 +106,8 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.SynchronizationPool;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
-import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
+import cz.metacentrum.perun.core.interfaces.ExtSourceApi;
+import cz.metacentrum.perun.core.interfaces.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import org.slf4j.Logger;
@@ -2945,7 +2944,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//-- Get Subjects in form of map where left string is name of attribute and right string is value of attribute, every subject is one map
 		List<Map<String, String>> subjects;
 		try {
-			subjects = ((ExtSourceSimpleApi) source).getGroupSubjects(groupAttributesMap);
+			subjects = source.getGroupSubjects(groupAttributesMap);
 			log.debug("Group synchronization {}: external group contains {} members.", group, subjects.size());
 		} catch (ExtSourceUnsupportedOperationException e2) {
 			throw new InternalErrorException("ExtSource " + source.getName() + " doesn't support getGroupSubjects", e2);
@@ -3468,7 +3467,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//Close open extSources (not empty ones) if they support this operation
 		if(membersSource != null) {
 			try {
-				((ExtSourceSimpleApi) membersSource).close();
+				membersSource.close();
 			} catch (ExtSourceUnsupportedOperationException e) {
 				// ExtSource doesn't support that functionality, so silently skip it.
 			} catch (InternalErrorException e) {
@@ -3477,7 +3476,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 		if(source != null) {
 			try {
-				((ExtSourceSimpleApi) source).close();
+				source.close();
 			} catch (ExtSourceUnsupportedOperationException e) {
 				// ExtSource doesn't support that functionality, so silently skip it.
 			} catch (InternalErrorException e) {
@@ -3823,7 +3822,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		List<Map<String, String>> subjects;
 		try {
-			subjects = ((ExtSourceSimpleApi) source).getSubjectGroups(groupAttributesMap);
+			subjects = source.getSubjectGroups(groupAttributesMap);
 			log.debug("Group synchronization {}: external source contains {} group.", group, subjects.size());
 		} catch (ExtSourceUnsupportedOperationException e2) {
 			throw new InternalErrorException("ExtSource " + source.getName() + " doesn't support getSubjectGroups", e2);

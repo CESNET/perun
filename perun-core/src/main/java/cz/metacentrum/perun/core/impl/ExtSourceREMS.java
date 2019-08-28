@@ -12,7 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.interfaces.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

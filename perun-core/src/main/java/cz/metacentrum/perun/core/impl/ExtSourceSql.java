@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
-import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +31,7 @@ import java.util.Properties;
 /**
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
+public class ExtSourceSql extends ExtSource {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceSql.class);
 	private static final Map<String, String> attributeNameMapping = new HashMap<>();

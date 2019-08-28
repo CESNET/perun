@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.interfaces.ExtSourceApi;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;

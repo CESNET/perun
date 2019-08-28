@@ -80,8 +80,8 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
-import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
+import cz.metacentrum.perun.core.interfaces.ExtSourceApi;
+import cz.metacentrum.perun.core.interfaces.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.AbstractMembershipExpirationRulesModule;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
@@ -641,7 +641,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		try {
 			if (extSource instanceof ExtSourceApi) {
 				//get first subject, then create candidate
-				Map<String, String> subject = ((ExtSourceSimpleApi) extSource).getSubjectByLogin(login);
+				Map<String, String> subject = extSource.getSubjectByLogin(login);
 				candidate = (getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, extSource, login));
 			} else if (extSource instanceof ExtSourceSimpleApi) {
 				// get candidates from external source by login

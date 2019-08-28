@@ -15,7 +15,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InvalidCertificateException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.interfaces.ExtSourceApi;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.util.io.pem.PemObject;

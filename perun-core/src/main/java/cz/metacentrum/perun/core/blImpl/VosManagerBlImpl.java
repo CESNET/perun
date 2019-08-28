@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MemberCandidate;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
@@ -44,8 +43,7 @@ import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
-import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
+import cz.metacentrum.perun.core.interfaces.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.VosManagerImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -256,7 +254,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 							simpleExtSource = false;
 						} else {
 							// find subjects only with logins - they then must be retrieved by login
-							subjects = ((ExtSourceSimpleApi) source).findSubjectsLogins(searchString, maxNumOfResults);
+							subjects = source.findSubjectsLogins(searchString, maxNumOfResults);
 						}
 					} catch (ExtSourceUnsupportedOperationException e1) {
 						log.warn("ExtSource {} doesn't support findSubjects", source.getName());
@@ -266,7 +264,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 						continue;
 					} finally {
 						try {
-							((ExtSourceSimpleApi) source).close();
+							source.close();
 						} catch (ExtSourceUnsupportedOperationException e) {
 							// ExtSource doesn't support that functionality, so silently skip it.
 						} catch (InternalErrorException e) {
@@ -375,7 +373,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 							simpleExtSource = false;
 						} else {
 							// find subjects only with logins - they then must be retrieved by login
-							subjects = ((ExtSourceSimpleApi) source).findSubjectsLogins(searchString);
+							subjects = source.findSubjectsLogins(searchString);
 						}
 					} catch (ExtSourceUnsupportedOperationException e1) {
 						log.warn("ExtSource {} doesn't support findSubjects", source.getName());
@@ -385,7 +383,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 						continue;
 					} finally {
 						try {
-							((ExtSourceSimpleApi) source).close();
+							source.close();
 						} catch (ExtSourceUnsupportedOperationException e) {
 							// ExtSource doesn't support that functionality, so silently skip it.
 						} catch (InternalErrorException e) {

@@ -1,7 +1,8 @@
-package cz.metacentrum.perun.core.implApi;
+package cz.metacentrum.perun.core.interfaces;
 
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.interfaces.ExtSourceSimpleApi;
 
 import java.util.List;
 import java.util.Map;

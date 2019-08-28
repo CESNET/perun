@@ -13,7 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.interfaces.ExtSourceApi;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import org.apache.http.HttpResponse;
