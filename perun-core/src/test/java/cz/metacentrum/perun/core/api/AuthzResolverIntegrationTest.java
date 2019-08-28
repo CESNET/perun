@@ -1,9 +1,11 @@
 package cz.metacentrum.perun.core.api;
 
+import com.google.common.collect.Sets;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -19,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -470,6 +473,78 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 
 		assertFalse(AuthzResolver.isAuthorizedForAttribute(testSession, ActionType.READ, attrDef, attributeUser));
+	}
+
+	@Test
+	public void hasOneOfTheRolesForObjectSucceeds() throws Exception {
+		System.out.println(CLASS_NAME + "hasOneOfTheRolesForObjectSucceeds");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+
+		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
+
+		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
+
+		assertTrue(AuthzResolver.hasOneOfTheRolesForObject(
+			testSession, testGroup, Sets.newHashSet(Role.PERUNADMIN, Role.VOADMIN)));
+	}
+
+	@Test
+	public void hasOneOfTheRolesForObjectFails() throws Exception {
+		System.out.println(CLASS_NAME + "hasOneOfTheRolesForObjectFails");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+
+		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles());
+
+		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
+
+		assertFalse(AuthzResolver.hasOneOfTheRolesForObject(
+			testSession, testGroup, Sets.newHashSet(Role.PERUNADMIN, Role.VOADMIN)));
+	}
+
+	@Test
+	public void setRoleGroupAdminSucceedsForVoAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "setRoleGroupAdminSucceedsForVoAdmin");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+
+		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, testVo));
+
+		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
+
+		AuthzResolver.setRole(testSession, testUser, testGroup, Role.GROUPADMIN);
+	}
+
+	@Test
+	public void setRoleGroupAdminFailsWithoutSufficientRole() throws Exception {
+		System.out.println(CLASS_NAME + "setRoleGroupAdminFailsWithoutSufficientRole");
+
+		final Vo testVo = perun.getVosManager().createVo(sess, new Vo(0,"testvo1","testvo1"));
+		final Vo otherVo = perun.getVosManager().createVo(sess, new Vo(1,"testvo2","testvo2"));
+		final Group testGroup = perun.getGroupsManager().createGroup(sess, testVo, new Group("testGroup", "testg"));
+		final Member testMember = createSomeMember(testVo);
+		final User testUser = perun.getUsersManagerBl().getUserByMember(sess, testMember);
+
+		PerunPrincipal mockedPerunPrincipal = mock(PerunPrincipal.class, RETURNS_DEEP_STUBS);
+		when(mockedPerunPrincipal.isAuthzInitialized()).thenReturn(true);
+		when(mockedPerunPrincipal.getRoles()).thenReturn(new AuthzRoles(Role.VOADMIN, otherVo));
+
+		PerunSession testSession = new PerunSessionImpl(sess.getPerun(), mockedPerunPrincipal, sess.getPerunClient());
+
+		assertThatExceptionOfType(PrivilegeException.class).isThrownBy(
+			() -> AuthzResolver.setRole(testSession, testUser, testGroup, Role.GROUPADMIN));
 	}
 
 	// private methods ==============================================================
