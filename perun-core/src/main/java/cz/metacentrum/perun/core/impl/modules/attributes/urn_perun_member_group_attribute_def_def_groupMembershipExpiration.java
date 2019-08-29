@@ -21,7 +21,7 @@ import java.util.Date;
  */
 public class urn_perun_member_group_attribute_def_def_groupMembershipExpiration extends MemberGroupAttributesModuleAbstract implements MemberGroupAttributesModuleImplApi {
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, Member member, Group group, Attribute attribute) throws WrongAttributeValueException {
 		String membershipExpTime = (String) attribute.getValue();
 
 		if(membershipExpTime == null) return; // NULL is ok
