@@ -18,7 +18,7 @@ sub help {
 	--fromNumber     | -o numbering of nodes starts from
 	--toNumber       | -d numbering of nodes ends to
 	--specialNodes   | -p list of special node names
-	--skipFacCretion | -s skip creation of facility
+	--skipFacCreation | -s skip creation of facility
 	--batch          | -b batch
 	--help           | -h prints this help
 
@@ -32,10 +32,10 @@ GetOptions ("help|h"   => sub {
 		print help();
 		exit 0;
 	}, "batch|b"       => \$batch,
-	"likeFacility|l=s" => \$likeFacility, 
+	"likeFacility|l=s" => \$likeFacility,
 	"facilityDsc|D=s" => \$facilityDescription,
 	"nodeName|n=s"     => \$nodeName,
-	"fromNumber|o=i"   => \$fromNumber, 
+	"fromNumber|o=i"   => \$fromNumber,
 	"toNumber|d=i" => \$toNumber,
 	'specialNodes|p=s@{0,}' => \@specnodes,
 	"skipFacCreation|s" => \$skipFac,
@@ -91,7 +91,7 @@ unless ($skipFac) {
 	}
 
 	$facilitiesAgent->addHosts( facility => $facilityId, hostnames => \@hosts );
-	
+
 	printMessage("Hosts '@hosts' successfully added on the facility Id:$facilityId", $batch);
 
 	# pridani special nodes
@@ -137,7 +137,7 @@ foreach my $resourceO (@resourcesO) {
 	$resourceName =~ s/$likeFacility/$facilityName/;
 	$resource->setName( $resourceName );
 	my $resourceDescription=$resourceO->getDescription;
-	$resourceDescription =~ s/$likeFacility/$facilityName/; 
+	$resourceDescription =~ s/$likeFacility/$facilityName/;
 	$resource->setDescription( $resourceDescription);
 #	$resource->setVoId($voId);
 #	$resource->setFacilityId($facilityId);

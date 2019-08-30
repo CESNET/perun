@@ -101,6 +101,8 @@ public class AddFacilityDestinationTabItem implements TabItem {
 		type.addItem("HOST","host");
 		type.addItem("USER@HOST", "user@host");
 		type.addItem("USER@HOST:PORT", "user@host:port");
+		type.addItem("USER@HOST-WINDOWS","user@host-windows");
+		type.addItem("HOST-WINDOWS-PROXY","host-windows-proxy");
 		type.addItem("URL","url");
 		type.addItem("MAIL","email");
 		type.addItem("SIGNED MAIL","semail");
@@ -199,7 +201,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 					return false;
 				}
 				// check as email
-				if (type.getSelectedIndex() > 3 && type.getSelectedIndex() < 6) {
+				if (type.getSelectedIndex() > 5 && type.getSelectedIndex() < 8) {
 					if (!JsonUtils.isValidEmail(destination.getSuggestBox().getText().trim())) {
 						destination.setError("Not valid email address.");
 						return false;
@@ -225,7 +227,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 					destination.getSuggestBox().setEnabled(true);
 				}
 
-				if (type.getSelectedIndex() < 3) {
+				if (type.getSelectedIndex() < 5) {
 					destination.getSuggestOracle().clear();
 					for (Host h : hosts) {
 						destination.getSuggestOracle().add(h.getName());
@@ -242,12 +244,16 @@ public class AddFacilityDestinationTabItem implements TabItem {
 				} else if (type.getSelectedIndex() == 2) {
 					destinationLabel.getElement().setInnerHTML("<strong>User@host:port:</strong>");
 				} else if (type.getSelectedIndex() == 3) {
-					destinationLabel.getElement().setInnerHTML("<strong>URL:</strong>");
+					destinationLabel.getElement().setInnerHTML("<strong>User@host-windows:</strong>");
 				} else if (type.getSelectedIndex() == 4) {
-					destinationLabel.getElement().setInnerHTML("<strong>Mail:</strong>");
+					destinationLabel.getElement().setInnerHTML("<strong>Host-Windows-Proxy:</strong>");
 				} else if (type.getSelectedIndex() == 5) {
-					destinationLabel.getElement().setInnerHTML("<strong>Signed mail:</strong>");
+					destinationLabel.getElement().setInnerHTML("<strong>URL:</strong>");
 				} else if (type.getSelectedIndex() == 6) {
+					destinationLabel.getElement().setInnerHTML("<strong>Mail:</strong>");
+				} else if (type.getSelectedIndex() == 7) {
+					destinationLabel.getElement().setInnerHTML("<strong>Signed mail:</strong>");
+				} else if (type.getSelectedIndex() == 8) {
 					destinationLabel.getElement().setInnerHTML("<strong>Service specific:</strong>");
 				}
 

@@ -487,7 +487,9 @@ public class ServicesManagerEntry implements ServicesManager {
 		List<Facility> facilitiesByDestination = new ArrayList<>();
 		if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) ||
 				destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) ||
-				destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE)) {
+				destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE) ||
+				destination.getType().equals(Destination.DESTINATIONWINDOWS) ||
+				destination.getType().equals(Destination.DESTINATIONWINDOWSPROXY)) {
 			facilitiesByHostname = getPerunBl().getFacilitiesManagerBl().getFacilitiesByHostName(perunSession, destination.getHostNameFromDestination());
 			if(facilitiesByHostname.isEmpty()) facilitiesByDestination = getPerunBl().getFacilitiesManagerBl().getFacilitiesByDestination(perunSession, destination.getHostNameFromDestination());
 
@@ -540,7 +542,9 @@ public class ServicesManagerEntry implements ServicesManager {
 		List<Facility> facilitiesByDestination = new ArrayList<>();
 		if(destination.getType().equals(Destination.DESTINATIONHOSTTYPE) ||
 				destination.getType().equals(Destination.DESTINATIONUSERHOSTTYPE) ||
-				destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE)) {
+				destination.getType().equals(Destination.DESTINATIONUSERHOSTPORTTYPE) ||
+				destination.getType().equals(Destination.DESTINATIONWINDOWS) ||
+				destination.getType().equals(Destination.DESTINATIONWINDOWSPROXY)) {
 			facilitiesByHostname = getPerunBl().getFacilitiesManagerBl().getFacilitiesByHostName(sess, destination.getHostNameFromDestination());
 			if(facilitiesByHostname.isEmpty()) facilitiesByDestination = getPerunBl().getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination.getHostNameFromDestination());
 
