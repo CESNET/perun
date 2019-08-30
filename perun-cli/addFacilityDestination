@@ -15,7 +15,7 @@ sub help {
 	--facilityName | -F facility name
 	--serviceId    | -s service id
 	--destination  | -D destination string
-	--type         | -t destination type (host/email/url)
+	--type         | -t destination type (host/user\@host/user\@host:port/user\@host-windows/host-windows-proxy/email/semail/url/service-specific)
 	--batch        | -b batch
 	--help         | -h prints this help
 

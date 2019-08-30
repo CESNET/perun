@@ -1091,7 +1091,9 @@ public class Utils {
 				&& (!Objects.equals(destinationType, Destination.DESTINATIONURLTYPE))
 				&& (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTTYPE))
 				&& (!Objects.equals(destinationType, Destination.DESTINATIONUSERHOSTPORTTYPE))
-				&& (!Objects.equals(destinationType, Destination.DESTINATIONSERVICESPECIFICTYPE)))) {
+				&& (!Objects.equals(destinationType, Destination.DESTINATIONSERVICESPECIFICTYPE))
+				&& (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWS))
+				&& (!Objects.equals(destinationType, Destination.DESTINATIONWINDOWSPROXY)))) {
 			throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
 		}
 	}

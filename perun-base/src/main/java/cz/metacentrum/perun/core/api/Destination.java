@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-
 /**
  * Destination where services are propagated.
  *
@@ -16,6 +14,8 @@ public class Destination extends Auditable implements Comparable<PerunBean> {
 	public final static String DESTINATIONUSERHOSTTYPE = "user@host";
 	public final static String DESTINATIONUSERHOSTPORTTYPE = "user@host:port";
 	public final static String DESTINATIONSERVICESPECIFICTYPE = "service-specific";
+	public final static String DESTINATIONWINDOWS = "user@host-windows";
+	public final static String DESTINATIONWINDOWSPROXY = "host-windows-proxy";
 
 	public static final String PROPAGATIONTYPE_PARALLEL = "PARALLEL";
 	public static final String PROPAGATIONTYPE_SERIAL = "SERIAL";
@@ -79,7 +79,7 @@ public class Destination extends Auditable implements Comparable<PerunBean> {
 
 	/**
 	 * 	Gets the propagation type for this instance.
-	 * 
+	 *
 	 *  @return The propagation type, either "PARALLEL", "SERIAL" or "DUMMY"
 	 */
 	public String getPropagationType() {
@@ -90,7 +90,8 @@ public class Destination extends Auditable implements Comparable<PerunBean> {
 	 * Gets the hostname from destination
 	 * e.g. if destination is type user@host then return host
 	 * e.g. if destination is type user@host:port then return host
-	 * if destination is other type then those two, return destination without changes
+	 * e.g. if destination is type user@host-windows then return host-windows
+	 * if destination is other type then these three, return destination without changes
 	 *
 	 * if there is no chars @ and :, return not changed type
 	 * if type is null, return this destination without changes
@@ -102,7 +103,7 @@ public class Destination extends Auditable implements Comparable<PerunBean> {
 		if(this.destination == null) return this.destination;
 		if(this.type == null) return this.destination;
 
-		if(this.type.equals(DESTINATIONUSERHOSTPORTTYPE) || this.type.equals(DESTINATIONUSERHOSTTYPE)) {
+		if(this.type.equals(DESTINATIONUSERHOSTPORTTYPE) || this.type.equals(DESTINATIONUSERHOSTTYPE) || this.type.equals(DESTINATIONWINDOWS)) {
 			int startIndex = this.destination.indexOf('@');
 			int endIndex = this.destination.indexOf(':');
 			if(startIndex == -1) return this.destination;
