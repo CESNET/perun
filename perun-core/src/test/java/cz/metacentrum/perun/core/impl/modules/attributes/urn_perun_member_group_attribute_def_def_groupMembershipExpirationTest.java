@@ -27,7 +27,7 @@ public class urn_perun_member_group_attribute_def_def_groupMembershipExpirationT
 
 	@Test
 	public void testCheckAttributeReturnNull() throws Exception {
-		System.out.println("testCheckAttriubuteReturnNull()");
+		System.out.println("testCheckAttributeReturnNull()");
 		attributeToCheck.setValue(null);
 
 		classInstance.checkAttributeSyntax(session, new Member(), new Group(), attributeToCheck);
