@@ -25,13 +25,12 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
 import org.slf4j.Logger;
@@ -271,9 +270,6 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			}
 		}
 
-		// Additional userExtSources
-		List<UserExtSource> additionalUserExtSources = new ArrayList<>();
-
 		// Filter attributes
 		Map<String, String> attributes = new HashMap<>();
 		for (String attrName: subject.keySet()) {
@@ -281,55 +277,9 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			// FIXME volat metody z attributesManagera nez kontrolovat na zacatek jmena
 			if (attrName.startsWith(AttributesManager.NS_MEMBER_ATTR) || attrName.startsWith(AttributesManager.NS_USER_ATTR)) {
 				attributes.put(attrName, subject.get(attrName));
-			} else if (attrName.startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
-				if(subject.get(attrName) == null) continue; //skip null additional ext sources
-				// Add additionalUserExtSources
-				String[] userExtSourceRaw =  subject.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
-				log.debug("Processing additionalUserExtSource {}",  subject.get(attrName));
-
-				// Check if the array has at least 3 parts, this is protection against outOfBoundException
-				if(userExtSourceRaw.length < 3) {
-					throw new InternalErrorException("There is missing some mandatory part of additional user extSource value when processing it - '" + attrName + "'");
-				}
-
-				String additionalExtSourceName = userExtSourceRaw[0];
-				String additionalExtSourceType = userExtSourceRaw[1];
-				String additionalExtLogin = userExtSourceRaw[2];
-				int additionalExtLoa = 0;
-				//Loa is not mandatory argument
-				if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
-					try {
-						additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
-					} catch (NumberFormatException e) {
-						throw new ParserException("Candidate with login [" + login + "] has wrong LoA '" + userExtSourceRaw[3] + "'.", e, "LoA");
-					}
-				}
-
-				ExtSource additionalExtSource;
-
-				if (additionalExtSourceName == null || additionalExtSourceName.isEmpty() ||
-						additionalExtSourceType == null || additionalExtSourceType.isEmpty() ||
-						additionalExtLogin == null || additionalExtLogin.isEmpty()) {
-					log.error("User with login {} has invalid additional userExtSource defined {}.", login, userExtSourceRaw);
-				} else {
-					try {
-						// Try to get extSource, with full extSource object (containg ID)
-						additionalExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, additionalExtSourceName);
-					} catch (ExtSourceNotExistsException e) {
-						try {
-							// Create new one if not exists
-							additionalExtSource = new ExtSource(additionalExtSourceName, additionalExtSourceType);
-							additionalExtSource = getPerunBl().getExtSourcesManagerBl().createExtSource(sess, additionalExtSource, null);
-						} catch (ExtSourceExistsException e1) {
-							throw new ConsistencyErrorException("Creating existin extSource: " + additionalExtSourceName);
-						}
-					}
-					//add additional user extSource
-					additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
-				}
 			}
 		}
-
+		List<UserExtSource> additionalUserExtSources = Utils.extractAdditionalUserExtSources(sess, subject);
 		candidate.setAdditionalUserExtSources(additionalUserExtSources);
 		candidate.setAttributes(attributes);
 
@@ -392,9 +342,6 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			}
 		}
 
-		// Additional userExtSources
-		List<UserExtSource> additionalUserExtSources = new ArrayList<>();
-
 		// Filter attributes
 		Map<String, String> attributes = new HashMap<>();
 		for (String attrName: subjectData.keySet()) {
@@ -402,55 +349,9 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			// FIXME volat metody z attributesManagera nez kontrolovat na zacatek jmena
 			if (attrName.startsWith(AttributesManager.NS_MEMBER_ATTR) || attrName.startsWith(AttributesManager.NS_USER_ATTR)) {
 				attributes.put(attrName, subjectData.get(attrName));
-			} else if (attrName.startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
-				if(subjectData.get(attrName) == null) continue; //skip null additional ext sources
-				// Add additionalUserExtSources
-				String[] userExtSourceRaw =  subjectData.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
-				log.debug("Processing additionalUserExtSource {}",  subjectData.get(attrName));
-
-				//Check if the array has at least 3 parts, this is protection against outOfBoundException
-				if(userExtSourceRaw.length < 3) {
-					throw new InternalErrorException("There is missing some mandatory part of additional user extSource value when processing it - '" + attrName + "'");
-				}
-
-				String additionalExtSourceName = userExtSourceRaw[0];
-				String additionalExtSourceType = userExtSourceRaw[1];
-				String additionalExtLogin = userExtSourceRaw[2];
-				int additionalExtLoa = 0;
-				// Loa is not mandatory argument
-				if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
-					try {
-						additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
-					} catch (NumberFormatException e) {
-						throw new ParserException("Candidate with login [" + login + "] has wrong LoA '" + userExtSourceRaw[3] + "'.", e, "LoA");
-					}
-				}
-
-				ExtSource additionalExtSource;
-
-				if (additionalExtSourceName == null || additionalExtSourceName.isEmpty() ||
-						additionalExtSourceType == null || additionalExtSourceType.isEmpty() ||
-						additionalExtLogin == null || additionalExtLogin.isEmpty()) {
-					log.error("User with login {} has invalid additional userExtSource defined {}.", login, userExtSourceRaw);
-				} else {
-					try {
-						// Try to get extSource, with full extSource object (containg ID)
-						additionalExtSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(perunSession, additionalExtSourceName);
-					} catch (ExtSourceNotExistsException e) {
-						try {
-							// Create new one if not exists
-							additionalExtSource = new ExtSource(additionalExtSourceName, additionalExtSourceType);
-							additionalExtSource = getPerunBl().getExtSourcesManagerBl().createExtSource(perunSession, additionalExtSource, null);
-						} catch (ExtSourceExistsException e1) {
-							throw new ConsistencyErrorException("Creating existin extSource: " + additionalExtSourceName);
-						}
-					}
-					// Add additional user extSource
-					additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
-				}
 			}
 		}
-
+		List<UserExtSource> additionalUserExtSources = Utils.extractAdditionalUserExtSources(perunSession, subjectData);
 		candidate.setAdditionalUserExtSources(additionalUserExtSources);
 		candidate.setAttributes(attributes);
 

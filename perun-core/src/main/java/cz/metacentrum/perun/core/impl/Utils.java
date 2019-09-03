@@ -5,12 +5,17 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.DiacriticNotAllowedException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MaxSizeExceededException;
@@ -18,12 +23,14 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MinSizeExceededException;
 import cz.metacentrum.perun.core.api.exceptions.NumberNotInRangeException;
 import cz.metacentrum.perun.core.api.exceptions.NumbersNotAllowedException;
+import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.SpaceNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.SpecialCharsNotAllowedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -135,6 +142,70 @@ public class Utils {
 		while (oIter.hasNext())
 			oBuilder.append(separator).append(oIter.next());
 		return oBuilder.toString();
+	}
+
+	/**
+	 * Returns additionalUserExtSources from the subject. It's used for synchronization from different ExtSources. subjectFromExtSource was obtained from the ExtSource.
+	 *
+	 * @param sess perun session
+	 * @param subjectFromExtSource map with the subject
+	 * @return List<UserExtSource> all additional ExtSources from the subject, returned list will never contain null value
+	 * @throws InternalErrorException
+	 */
+	public static List<UserExtSource> extractAdditionalUserExtSources(PerunSession sess, Map<String, String> subjectFromExtSource) throws InternalErrorException {
+		List<UserExtSource> additionalUserExtSources = new ArrayList<>();
+		for (String attrName : subjectFromExtSource.keySet()) {
+			if(attrName != null &&
+				subjectFromExtSource.get(attrName) != null &&
+				attrName.startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
+				String login = subjectFromExtSource.get("login");
+
+				String[] userExtSourceRaw =  subjectFromExtSource.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
+				log.debug("Processing additionalUserExtSource {}",  subjectFromExtSource.get(attrName));
+
+				//Check if the array has at least 3 parts, this is protection against outOfBoundException
+				if(userExtSourceRaw.length < 3) {
+					throw new InternalErrorException("There is a missing mandatory part of additional user extSource value when processing it - '" + attrName + "'");
+				}
+
+				String additionalExtSourceName = userExtSourceRaw[0];
+				String additionalExtSourceType = userExtSourceRaw[1];
+				String additionalExtLogin = userExtSourceRaw[2];
+				int additionalExtLoa = 0;
+				// Loa is not mandatory argument
+				if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
+					try {
+						additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
+					} catch (NumberFormatException e) {
+						throw new ParserException("Subject with login [" + login + "] has wrong LoA '" + userExtSourceRaw[3] + "'.", e, "LoA");
+					}
+				}
+
+				ExtSource additionalExtSource;
+
+				if (additionalExtSourceName == null || additionalExtSourceName.isEmpty() ||
+					additionalExtSourceType == null || additionalExtSourceType.isEmpty() ||
+					additionalExtLogin == null || additionalExtLogin.isEmpty()) {
+					log.error("User with login {} has invalid additional userExtSource defined {}.", login, userExtSourceRaw);
+				} else {
+					try {
+						// Try to get extSource, with full extSource object (containg ID)
+						additionalExtSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().getExtSourceByName(sess, additionalExtSourceName);
+					} catch (ExtSourceNotExistsException e) {
+						try {
+							// Create new one if not exists
+							additionalExtSource = new ExtSource(additionalExtSourceName, additionalExtSourceType);
+							additionalExtSource = ((PerunBl) sess.getPerun()).getExtSourcesManagerBl().createExtSource(sess, additionalExtSource, null);
+						} catch (ExtSourceExistsException e1) {
+							throw new ConsistencyErrorException("Creating existing extSource: " + additionalExtSourceName);
+						}
+					}
+					// Add additional user extSource
+					additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
+				}
+			}
+		}
+		return additionalUserExtSources;
 	}
 
 	/**
