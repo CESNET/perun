@@ -538,6 +538,90 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Set role for authorizedGroups and <b>one</b> complementary object.
+	 *
+	 * If complementary object is wrong for the role, throw an exception.
+	 * For role "perunadmin" ignore complementary object.
+	 *
+	 * @param sess perun session
+	 * @param authorizedGroups the groups for setting role
+	 * @param complementaryObject object for which the role will be set
+	 * @param role desired role
+	 * @throws GroupNotExistsException if the any of the group don't exist
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws AlreadyAdminException if any of the given groups is already admin
+	 * @throws InternalErrorException internal error
+	 */
+	public static void setRole(PerunSession sess, List<Group> authorizedGroups, PerunBean complementaryObject, Role role) throws GroupNotExistsException, PrivilegeException, AlreadyAdminException, InternalErrorException {
+		for (Group authorizedGroup : authorizedGroups) {
+			setRole(sess, authorizedGroup, complementaryObject, role);
+		}
+	}
+
+	/**
+	 * Set role for given users and <b>one</b> complementary object.
+	 *
+	 * If complementary object is wrong for the role, throw an exception.
+	 * For role "perunadmin" ignore complementary object.
+	 *
+	 * @param sess perun session
+	 * @param users users for which the given role is set
+	 * @param role desired role
+	 * @param complementaryObject object for which the role is set
+	 * @throws UserNotExistsException if any of the given users is not found
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws AlreadyAdminException if any of the given users is already admin
+	 * @throws InternalErrorException internal error
+	 */
+	public static void setRole(PerunSession sess, List<User> users, Role role, PerunBean complementaryObject) throws UserNotExistsException, PrivilegeException, AlreadyAdminException, InternalErrorException {
+		for (User user : users) {
+			setRole(sess, user, complementaryObject, role);
+		}
+	}
+
+	/**
+	 * Set role for authorizedGroups and <b>one</b> complementary object.
+	 *
+	 * If complementary object is wrong for the role, throw an exception.
+	 * For role "perunadmin" ignore complementary object.
+	 *
+	 * @param sess perun session
+	 * @param authorizedGroups the groups for setting role
+	 * @param complementaryObject object for which the role will be set
+	 * @param role desired role
+	 * @throws GroupNotExistsException if the any of the group don't exist
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws GroupNotAdminException if any of the given groups is not admin
+	 * @throws InternalErrorException internal error
+	 */
+	public static void unsetRole(PerunSession sess, List<Group> authorizedGroups, PerunBean complementaryObject, Role role) throws GroupNotExistsException, PrivilegeException, InternalErrorException, GroupNotAdminException {
+		for (Group authorizedGroup : authorizedGroups) {
+			unsetRole(sess, authorizedGroup, complementaryObject, role);
+		}
+	}
+
+	/**
+	 * Set role for given users and <b>one</b> complementary object.
+	 *
+	 * If complementary object is wrong for the role, throw an exception.
+	 * For role "perunadmin" ignore complementary object.
+	 *
+	 * @param sess perun session
+	 * @param users users for which the given role is set
+	 * @param role desired role
+	 * @param complementaryObject object for which the role is set
+	 * @throws UserNotExistsException if any of the given users is not found
+	 * @throws PrivilegeException insufficient permissions
+	 * @throws UserNotAdminException if any of the given users is not admin
+	 * @throws InternalErrorException internal error
+	 */
+	public static void unsetRole(PerunSession sess, List<User> users, Role role, PerunBean complementaryObject) throws UserNotExistsException, PrivilegeException, InternalErrorException, UserNotAdminException {
+		for (User user : users) {
+			unsetRole(sess, user, complementaryObject, role);
+		}
+	}
+
+	/**
 	 * Unset role for user and <b>all</b> complementary objects
 	 *
 	 * If some complementary object is wrong for the role, throw an exception.
