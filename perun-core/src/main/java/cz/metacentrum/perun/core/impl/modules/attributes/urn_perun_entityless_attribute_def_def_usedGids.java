@@ -36,14 +36,12 @@ public class urn_perun_entityless_attribute_def_def_usedGids extends EntitylessA
 	private static final Pattern valuePattern = Pattern.compile("^[1-9][0-9]*$");
 
 	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
+	public void checkAttributeSyntax(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
 		//If this attribute value is null, it means there is no GIDS depleted or used.
 		if(attribute.getValue() == null) return;
 		
-		Map<String, String> map = (Map<String, String>) attribute.getValue();
-		//If there are no keys in map, it means the same like null value
-		if(map.isEmpty()) return;
-		
+		Map<String, String> map = attribute.valueAsMap();
+
 		Set<String> mapKeys = map.keySet();
 		for(String mapKey: mapKeys) {
 			//Test key

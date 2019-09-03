@@ -1,10 +1,7 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributesModuleImplApi;
 
@@ -20,18 +17,6 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.EntitylessAttributes
  * @author Martin Kuba makub@ics.muni.cz
  */
 public class urn_perun_entityless_attribute_def_def_dnsStateMapping extends EntitylessAttributesModuleAbstract implements EntitylessAttributesModuleImplApi {
-
-	@Override
-	public void checkAttributeSemantics(PerunSessionImpl perunSession, String key, Attribute attribute) throws WrongAttributeValueException {
-		if(key==null) {
-			throw new WrongAttributeValueException(attribute, "null", "key for this entityless attribute must not be null");
-		}
-
-		if(attribute.getValue() == null) return;
-		if(!(attribute.getValue() instanceof String)) {
-			throw new WrongAttributeValueException(attribute, key, "value must be of type String");
-		}
-	}
 
 	@Override
 	public AttributeDefinition getAttributeDefinition() {
