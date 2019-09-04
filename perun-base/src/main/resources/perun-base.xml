@@ -14,6 +14,7 @@
 		<property name="dbInitializatorEnabled" value="${perun.DBInitializatorEnabled}"/>
 		<property name="dbType" value="${perun.db.type}"/>
 		<property name="dontLookupUsers" value="#{'${perun.dont.lookup.users}'.split('\s*,\s*')}"/>
+		<property name="extSourcesMultipleIdentifiers" value="#{'${perun.extsources.multiple.identifiers}'.split('\s*,\s*')}"/>
 		<property name="enginePrincipals" value="#{'${perun.engine.principals}'.split('\s*,\s*')}"/>
 		<property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
 		<property name="groupSynchronizationInterval" value="${perun.group.synchronization.interval}"/>

@@ -64,6 +64,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	private static final String UNSET_ROLE = "UNSET";
 	private static final String SET_ROLE = "SET";
 
+	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
+
 	/**
 	 * Checks if the principal is authorized.
 	 *
@@ -1608,8 +1610,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		Utils.checkPerunSession(sess);
 		log.trace("Refreshing session data for session {}.", sess);
 
+		PerunPrincipal principal = sess.getPerunPrincipal();
+
 		try {
-			User user = perunBl.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getActor());
+			User user;
+				if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName())) {
+					UserExtSource ues = perunBl.getUsersManagerBl().getUserExtSourceFromMultipleIdentifiers(sess, principal);
+					user = perunBl.getUsersManagerBl().getUserByUserExtSource(sess, ues);
+				} else {
+					user = perunBl.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, principal.getExtSourceName(), principal.getActor());
+				}
 			sess.getPerunPrincipal().setUser(user);
 		} catch (Exception ex) {
 			// we don't care that user was not found - clear it from session
