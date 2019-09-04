@@ -613,6 +613,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				</bean>
 			</list>
 		</property>
+		<property name="attributeDescriptionsExt" ref="perunUserAttributesExt" />
 	</bean>
 
 	<bean id="perunResource" class="cz.metacentrum.perun.ldapc.model.impl.PerunResourceImpl">
@@ -641,6 +642,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 				</bean>
 			</list>
 		</property>
+		<property name="attributeDescriptionsExt" ref="perunResourceAttributesExt" />
 	</bean>
 
 	<bean id="perunFacility" class="cz.metacentrum.perun.ldapc.model.impl.PerunFacilityImpl">
@@ -681,12 +683,30 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
  				-->
 			</list>
 		</property>
+		<property name="attributeDescriptionsExt" ref="perunFacilityAttributesExt" />
 	</bean>
 
 	<bean id="perunGroup" class="cz.metacentrum.perun.ldapc.model.impl.PerunGroupImpl">
+		<property name="attributeDescriptionsExt" ref="perunGroupAttributesExt" />
 	</bean>
 
 	<bean id="perunVO" class="cz.metacentrum.perun.ldapc.model.impl.PerunVOImpl">
+		<property name="attributeDescriptionsExt" ref="perunVOAttributesExt" />
+	</bean>
+	
+	<bean id="perunGroupAttributesExt" class="cz.metacentrum.perun.ldapc.beans.PerunGroupAttributeConfigurer">
+	</bean>
+
+	<bean id="perunResourceAttributesExt" class="cz.metacentrum.perun.ldapc.beans.PerunResourceAttributeConfigurer">
+	</bean>
+
+	<bean id="perunFacilityAttributesExt" class="cz.metacentrum.perun.ldapc.beans.PerunFacilityAttributeConfigurer">
+	</bean>
+
+	<bean id="perunUserAttributesExt" class="cz.metacentrum.perun.ldapc.beans.PerunUserAttributeConfigurer">
+	</bean>
+
+	<bean id="perunVOAttributesExt" class="cz.metacentrum.perun.ldapc.beans.PerunVOAttributeConfigurer">
 	</bean>
 
     <bean id="ldapProperties" class="cz.metacentrum.perun.ldapc.beans.LdapProperties">
@@ -706,6 +726,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 
 	<ldap:ldap-template />
 
-	<import resource="file:${perun.conf.custom}/perun-ldapc-attributes.xml" />
+	<import resource="file:${perun.conf.custom}/perun-ldapc-*.xml" />
 
 </beans>
