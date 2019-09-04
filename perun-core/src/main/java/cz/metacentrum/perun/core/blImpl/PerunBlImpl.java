@@ -62,6 +62,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Implementation of Perun.
@@ -111,6 +113,7 @@ public class PerunBlImpl implements PerunBl {
 	final static Logger log = LoggerFactory.getLogger(PerunBlImpl.class);
 
 	private final static Set<String> dontLookupUsersForLogins = BeansUtils.getCoreConfig().getDontLookupUsers();
+	private final static Set<String> extSourcesWithMultipleIdentifiers = BeansUtils.getCoreConfig().getExtSourcesMultipleIdentifiers();
 
 	public PerunBlImpl() {
 
@@ -128,14 +131,25 @@ public class PerunBlImpl implements PerunBl {
 			// Get the user if we are completely initialized
 			try {
 				PerunSession internalSession = getPerunSession();
-				User user = usersManagerBl.getUserByExtSourceNameAndExtLogin(internalSession, principal.getExtSourceName(), principal.getActor());
+				User user;
+				if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName())) {
+					UserExtSource ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
+					user = usersManagerBl.getUserByUserExtSource(internalSession, ues);
+				} else {
+					user = usersManagerBl.getUserByExtSourceNameAndExtLogin(internalSession, principal.getExtSourceName(), principal.getActor());
+				}
 				principal.setUser(user);
 
 				if (client.getType() != PerunClient.Type.OAUTH) {
 					// Try to update LoA for userExtSource
-					ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
-					UserExtSource ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
-					if (ues.getLoa() != principal.getExtSourceLoa()) {
+					UserExtSource ues;
+						if(extSourcesWithMultipleIdentifiers.contains(principal.getExtSourceName())) {
+							ues = usersManagerBl.getUserExtSourceFromMultipleIdentifiers(internalSession, principal);
+						} else {
+							ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
+							ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
+						}
+					if (ues != null && ues.getLoa() != principal.getExtSourceLoa()) {
 						ues.setLoa(principal.getExtSourceLoa());
 						usersManagerBl.updateUserExtSource(internalSession, ues);
 					}
@@ -168,6 +182,7 @@ public class PerunBlImpl implements PerunBl {
 		// update selected attributes for given extsourcetype
 		List<AttributeDefinition> attrs = coreConfig.getAttributesForUpdate().get(ues.getExtSource().getType());
 		if (attrs != null) {
+
 			for (AttributeDefinition attr : attrs) {
 				//get value from authentication
 				String attrValue = additionalAttributes.get(attr.getFriendlyName());
@@ -184,7 +199,15 @@ public class PerunBlImpl implements PerunBl {
 							attributeWithValue = attributesManagerBl.getAttribute(session, ues, attr.getName());
 						}
 					}
-					attributeWithValue.setValue(attrValue);
+
+					//for Array list attributes try to parse string value into individual fields
+					if(attributeWithValue.getType().equals(ArrayList.class.getName()) || attributeWithValue.getType().equals(BeansUtils.largeArrayListClassName)) {
+						List<String> value = Arrays.asList(attrValue.split(UsersManagerBlImpl.multivalueAttributeSeparatorRegExp));
+						attributeWithValue.setValue(value);
+					} else {
+						attributeWithValue.setValue(attrValue);
+					}
+
 					log.debug("storing attribute {}='{}' for user {}", attributeWithValue.getFriendlyName(), attrValue, ues.getLogin());
 					attributesManagerBl.setAttribute(session, ues, attributeWithValue);
 				} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
